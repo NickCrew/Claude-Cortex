@@ -24,9 +24,40 @@ The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects
 
 After installation, the `/plugin` browser will list the bundled commands, and the `/agents` panel will show all active agents from the `agents/` directory.
 
-## Using the bundled CLI
+## Installing the CLI
 
+### Quick Install (Recommended)
+
+Install the package, shell completions, and manpage with one command:
+
+```bash
+./scripts/install.sh
 ```
+
+This will:
+- Install `claude-ctx-py` in editable mode with dev dependencies
+- Set up shell completions for your shell (bash/zsh/fish)
+- Install the manpage system-wide
+
+**Options:**
+```bash
+./scripts/install.sh --help              # Show all options
+./scripts/install.sh --no-completions    # Skip completions
+./scripts/install.sh --system-install    # Install system-wide (not editable)
+./scripts/install.sh --shell zsh         # Specify shell for completions
+```
+
+### Using Make
+
+```bash
+make install        # Full installation
+make install-dev    # Development installation
+make help           # Show all targets
+```
+
+### Manual Installation
+
+```bash
 python3 -m pip install .
 claude-ctx mode list
 claude-ctx agent graph --export dependency-map.md
@@ -50,32 +81,45 @@ Running the CLI directly will operate on the directories in this repository, whi
 
 ### Shell completion
 
-`claude-ctx` ships with optional [argcomplete](https://github.com/kislyuk/argcomplete) support. Install the project (editable installs work too), then register the completer:
+Shell completions are automatically installed when using `./scripts/install.sh`. For manual setup:
 
-```
-# editable install via pipx
-pipx install --include-deps --editable .
-
-# one-time registration for the active shell session
-eval "$(~/.local/pipx/venvs/claude-ctx-py/bin/register-python-argcomplete claude-ctx)"
-
-# add the same eval line to ~/.zshrc or ~/.bashrc for persistence
+**Bash:**
+```bash
+register-python-argcomplete claude-ctx > ~/.local/share/bash-completion/completions/claude-ctx
+source ~/.local/share/bash-completion/completions/claude-ctx
 ```
 
-If you install the package with a different toolchain, point `register-python-argcomplete` at the virtual environment where `claude-ctx` lives.
+**Zsh:**
+```bash
+mkdir -p ~/.local/share/zsh/site-functions
+register-python-argcomplete --shell zsh claude-ctx > ~/.local/share/zsh/site-functions/_claude-ctx
+# Add to ~/.zshrc:
+# fpath=(~/.local/share/zsh/site-functions $fpath)
+# autoload -Uz compinit && compinit
+```
+
+**Fish:**
+```bash
+register-python-argcomplete --shell fish claude-ctx > ~/.config/fish/completions/claude-ctx.fish
+```
 
 ### Manual page (manpage)
 
-A comprehensive manual page is available in `docs/claude-ctx.1`. View it directly with:
+A comprehensive manual page is available in `docs/claude-ctx.1` and is automatically installed when using `./scripts/install.sh`.
 
+**View locally:**
 ```bash
 man docs/claude-ctx.1
 ```
 
-Or install it system-wide for access via `man claude-ctx`:
-
+**Manual installation:**
 ```bash
 ./scripts/install-manpage.sh
+```
+
+**After installation:**
+```bash
+man claude-ctx
 ```
 
 The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
