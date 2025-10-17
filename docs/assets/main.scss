@@ -352,50 +352,63 @@ hr {
 /* Enhanced Code Blocks */
 .highlight {
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(56, 189, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(56, 189, 255, 0.3);
   margin: 1.5rem 0;
   overflow: hidden;
-  background: rgba(3, 9, 17, 0.8) !important;
+  background: #0d1117 !important;
 }
 
 pre {
   padding: 1.2rem !important;
   border-radius: 12px;
-  background: rgba(3, 9, 17, 0.8) !important;
+  background: #0d1117 !important;
+  margin: 0 !important;
+}
+
+pre code {
+  background: transparent !important;
+  color: #c9d1d9 !important;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6;
 }
 
 code {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace;
   font-size: 0.9rem;
 }
 
 /* Inline code */
-code:not(.highlight code) {
-  background: rgba(56, 189, 255, 0.15) !important;
-  color: #5dd5ff !important;
-  padding: 0.2rem 0.4rem;
+p code,
+li code,
+td code {
+  background: rgba(56, 189, 255, 0.2) !important;
+  color: #8be9fd !important;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  border: 1px solid rgba(56, 189, 255, 0.25);
+  border: 1px solid rgba(56, 189, 255, 0.3);
+  font-size: 0.9em;
 }
 
-/* Syntax Highlighting - Blue Ops Theme */
-.highlight pre code {
-  color: rgba(255, 255, 255, 0.9);
+/* Syntax Highlighting - High Contrast */
+.highlight pre code * {
+  font-family: inherit !important;
 }
 
-/* Keywords */
+/* Keywords - Bright Pink */
 .highlight .k,
 .highlight .kd,
 .highlight .kn,
 .highlight .kp,
 .highlight .kr,
-.highlight .kt {
+.highlight .kt,
+.highlight .kv {
   color: #ff79c6 !important;
-  font-weight: 600;
+  font-weight: bold;
 }
 
-/* Strings */
+/* Strings - Bright Green */
 .highlight .s,
 .highlight .s1,
 .highlight .s2,
@@ -405,83 +418,110 @@ code:not(.highlight code) {
 .highlight .se,
 .highlight .sh,
 .highlight .si,
-.highlight .sx {
-  color: #50fa7b !important;
+.highlight .sx,
+.highlight .sr {
+  color: #a9dc76 !important;
 }
 
-/* Numbers */
+/* Numbers - Bright Purple */
 .highlight .m,
 .highlight .mf,
 .highlight .mh,
 .highlight .mi,
-.highlight .mo {
-  color: #bd93f9 !important;
+.highlight .mo,
+.highlight .il {
+  color: #d19a66 !important;
 }
 
-/* Comments */
+/* Comments - Gray */
 .highlight .c,
 .highlight .c1,
 .highlight .cm,
 .highlight .cp,
 .highlight .cs {
-  color: rgba(98, 114, 164, 0.9) !important;
+  color: #78dce8 !important;
   font-style: italic;
+  opacity: 0.7;
 }
 
-/* Functions */
+/* Functions - Blue (theme color) */
+.highlight .nf,
+.highlight .fm {
+  color: #5dd5ff !important;
+  font-weight: 600;
+}
+
+/* Classes */
+.highlight .nc,
+.highlight .nn {
+  color: #ffd866 !important;
+  font-weight: 600;
+}
+
+/* Variables - Cyan */
 .highlight .n,
 .highlight .na,
 .highlight .nb,
-.highlight .nc,
-.highlight .nf,
-.highlight .nn {
-  color: #5dd5ff !important;
-}
-
-/* Variables */
 .highlight .nv,
 .highlight .vc,
 .highlight .vg,
 .highlight .vi {
-  color: #8be9fd !important;
+  color: #c9d1d9 !important;
+}
+
+/* Built-in functions/constants */
+.highlight .nb,
+.highlight .bp {
+  color: #fc9867 !important;
 }
 
 /* Operators */
 .highlight .o,
 .highlight .ow {
-  color: #ff79c6 !important;
+  color: #ff6188 !important;
+  font-weight: bold;
 }
 
 /* Punctuation */
-.highlight .p {
-  color: rgba(255, 255, 255, 0.7) !important;
+.highlight .p,
+.highlight .pi {
+  color: #c9d1d9 !important;
 }
 
-/* Built-ins, Constants */
-.highlight .bp,
-.highlight .no {
-  color: #ffb86c !important;
+/* Constants */
+.highlight .no,
+.highlight .kc {
+  color: #fc9867 !important;
 }
 
 /* HTML/XML Tags */
 .highlight .nt {
-  color: #ff79c6 !important;
+  color: #ff6188 !important;
+  font-weight: bold;
 }
 
 /* Attributes */
 .highlight .na {
-  color: #50fa7b !important;
+  color: #ffd866 !important;
 }
 
 /* YAML keys */
 .highlight .l-Scalar-Plain {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: #c9d1d9 !important;
 }
 
-/* Bash/Shell prompts */
+/* Bash/Shell */
 .highlight .gp {
-  color: #6272a4 !important;
+  color: #78dce8 !important;
   user-select: none;
+}
+
+/* Language names in code blocks */
+.highlight .language-python::before,
+.highlight .language-bash::before,
+.highlight .language-yaml::before,
+.highlight .language-json::before {
+  opacity: 0.5;
 }
 
 /* Enhanced Tables */
