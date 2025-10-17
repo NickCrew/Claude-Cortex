@@ -1,0 +1,25 @@
+# Profile: [PROFILE_NAME]
+# Generated: [DATE]
+# Description: [BRIEF_DESCRIPTION]
+# Tags: [comma,separated,tags]
+# Auto-detect: [file patterns or project indicators]
+
+# Agent tiers for resource management
+CORE_AGENTS="[essential agents for basic functionality]"
+EXTENDED_AGENTS="[additional agents for enhanced capabilities]"
+SPECIALIST_AGENTS="[domain-specific experts activated as needed]"
+
+# Sequential activation dependencies (agent1->agent2,agent3->agent4)
+DEPENDENCIES="[dependency_chains]"
+
+# Mode and rules activation
+MODES="[behavioral_mode]"
+RULES="[rule_modules]"
+
+# Resource settings
+ACTIVATION_STRATEGY="tiered"  # core -> extended -> specialist
+MAX_CONCURRENT_AGENTS="[number]"
+PRIORITY="[low|medium|high]"
+
+# Workflow sequence (comma-separated agent activation order)
+WORKFLOW="[agent1,agent2,agent3,...]"

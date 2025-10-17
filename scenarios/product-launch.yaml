@@ -1,0 +1,74 @@
+version: 1.0
+name: product-launch
+description: Align engineering, product, and go-to-market teams for a major product launch.
+type: operational
+priority: high
+triggers:
+  keywords:
+    - launch
+    - release
+    - go-live
+    - rollout
+  files:
+    - launch-plan.md
+    - release-notes.md
+phases:
+  - name: readiness-audit
+    description: Validate engineering completeness, QA signoff, and compliance gates.
+    condition: manual
+    profiles:
+      - quality
+      - meta
+    agents:
+      - product-manager
+      - quality-engineer
+      - compliance-auditor
+      - workflow-orchestrator
+    success_criteria:
+      - qa_passed
+      - compliance_green
+  - name: build-and-package
+    description: Produce final artifacts, verify build integrity, and prep installers.
+    condition: on_success
+    agents:
+      - build-engineer
+      - tooling-engineer
+      - cli-developer
+      - system-architect
+    success_criteria:
+      - build_artifacts_ready
+      - checksum_verified
+  - name: launch-communications
+    description: Coordinate messaging, documentation, and stakeholder updates.
+    condition: on_success
+    agents:
+      - docs-architect
+      - content-marketer
+      - product-manager
+      - legal-advisor
+    success_criteria:
+      - docs_published
+      - comms_approved
+  - name: launch-day-operations
+    description: Monitor rollout, manage contingencies, and collect metrics.
+    condition: automatic
+    parallel: true
+    agents:
+      - workflow-orchestrator
+      - task-distributor
+      - devops-troubleshooter
+      - performance-monitor
+    success_criteria:
+      - deployment_successful
+      - metrics_within_limits
+monitoring:
+  metrics:
+    - adoption_rate
+    - crash_rate
+    - error_rate
+  alerts:
+    - crash_rate > 0.02
+    - adoption_rate < target_baseline
+rollback:
+  strategy: phased
+  enabled: true

@@ -1,0 +1,91 @@
+name: Feature Development Workflow
+description: Complete workflow for developing new features from design to deployment
+version: 1.0
+
+trigger:
+  keywords: ["new feature", "implement", "build", "create feature"]
+  manual: true
+
+steps:
+  - name: Architecture Design
+    agent: system-architect
+    description: Design feature architecture and identify components
+    outputs:
+      - architecture_diagram
+      - component_list
+      - api_contracts
+
+  - name: Implementation Planning
+    agent: requirements-analyst
+    description: Break down feature into implementable tasks
+    inputs: ["architecture_diagram"]
+    outputs:
+      - task_breakdown
+      - dependencies
+      - timeline
+
+  - name: Code Implementation
+    mode: Task_Management
+    description: Implement feature following architecture
+    inputs: ["task_breakdown", "api_contracts"]
+    parallel: true
+
+  - name: Code Review
+    agent: code-reviewer
+    description: Review implemented code for quality
+    blocking: true
+    checks:
+      - code_standards
+      - best_practices
+      - maintainability
+
+  - name: Security Audit
+    agent: security-auditor
+    description: Check for security vulnerabilities
+    blocking: true
+    focus: ["auth", "input_validation", "data_access"]
+
+  - name: Test Generation
+    agent: test-automator
+    description: Create comprehensive test suite
+    coverage_target: 80
+    test_types:
+      - unit
+      - integration
+      - e2e
+
+  - name: Performance Check
+    agent: performance-engineer
+    description: Validate performance metrics
+    thresholds:
+      response_time: 200ms
+      memory_usage: 100MB
+      bundle_size: 500KB
+
+  - name: Documentation
+    agent: technical-writer
+    description: Generate feature documentation
+    outputs:
+      - api_docs
+      - user_guide
+      - changelog_entry
+
+  - name: Deployment Preparation
+    agent: deployment-engineer
+    description: Prepare feature for deployment
+    checklist:
+      - version_bump
+      - changelog_update
+      - migration_scripts
+      - rollback_plan
+
+success_criteria:
+  - all_tests_pass
+  - security_scan_clean
+  - performance_within_limits
+  - documentation_complete
+
+rollback:
+  - revert_database_migrations
+  - restore_previous_version
+  - notify_stakeholders

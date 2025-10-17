@@ -1,0 +1,54 @@
+version: 1.0
+name: compliance-review
+description: Coordinate regulatory review and documentation updates ahead of certification milestones.
+type: audit
+priority: normal
+triggers:
+  keywords:
+    - compliance
+    - certification
+    - regulatory
+  files:
+    - compliance-plan.md
+    - controls-matrix.xlsx
+phases:
+  - name: control-mapping
+    description: Map requirements to existing controls and identify gaps.
+    condition: manual
+    agents:
+      - compliance-auditor
+      - legal-advisor
+      - product-manager
+      - requirements-analyst
+    success_criteria:
+      - gaps_logged
+      - control_owners_assigned
+  - name: remediation-tracking
+    description: Drive remediation workstreams and capture evidence.
+    condition: automatic
+    agents:
+      - workflow-orchestrator
+      - task-distributor
+      - docs-architect
+      - context-manager
+    success_criteria:
+      - remediation_tasks_closed
+      - evidence_collected
+  - name: final-attestation
+    description: Compile final package, obtain approvals, and archive artifacts.
+    condition: on_success
+    agents:
+      - compliance-auditor
+      - legal-advisor
+      - docs-architect
+      - product-manager
+    success_criteria:
+      - attestation_signed
+      - archive_complete
+monitoring:
+  metrics:
+    - remediation_completion
+    - evidence_quality
+rollback:
+  strategy: manual
+  enabled: false

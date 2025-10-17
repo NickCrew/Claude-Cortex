@@ -1,0 +1,270 @@
+# Agent Trigger Configuration
+# Defines when agents should be automatically suggested or activated
+
+version: 1.0
+
+triggers:
+  # Code Quality Agents
+  code-reviewer:
+    keywords:
+      - "review"
+      - "check code"
+      - "PR"
+      - "pull request"
+      - "code quality"
+      - "refactor"
+    file_patterns:
+      - "**/*.{js,ts,jsx,tsx,py,go,rs,java}"
+    events:
+      - post-commit
+      - pre-push
+    auto: false
+    priority: high
+
+  # Security Agents
+  security-auditor:
+    keywords:
+      - "security"
+      - "vulnerability"
+      - "auth"
+      - "password"
+      - "token"
+      - "credential"
+      - "SQL injection"
+      - "XSS"
+    file_patterns:
+      - "**/auth/**"
+      - "**/security/**"
+      - "**/*auth*.{js,ts,py}"
+      - "**/*security*.{js,ts,py}"
+    events:
+      - pre-deploy
+    auto: true
+    priority: critical
+
+  # Testing Agents
+  test-automator:
+    keywords:
+      - "test"
+      - "coverage"
+      - "unit test"
+      - "integration test"
+      - "e2e"
+    file_patterns:
+      - "**/*.test.{js,ts,py}"
+      - "**/*.spec.{js,ts,py}"
+      - "**/tests/**"
+      - "**/__tests__/**"
+    events:
+      - pre-commit
+    auto: false
+    priority: medium
+
+  # Performance Agents
+  performance-engineer:
+    keywords:
+      - "slow"
+      - "performance"
+      - "optimize"
+      - "speed up"
+      - "bottleneck"
+      - "memory leak"
+    file_patterns:
+      - "**/api/**"
+      - "**/db/**"
+      - "**/*query*.{js,ts,py}"
+    threshold:
+      response_time: ">500ms"
+      memory_usage: ">500MB"
+      cpu_usage: ">80%"
+    auto: false
+    priority: high
+
+  # Database Agents
+  database-optimizer:
+    keywords:
+      - "database"
+      - "query"
+      - "migration"
+      - "schema"
+      - "index"
+      - "slow query"
+    file_patterns:
+      - "**/migrations/**"
+      - "**/models/**"
+      - "**/*model*.{js,ts,py}"
+      - "**/*schema*.{js,ts,py}"
+    auto: false
+    priority: medium
+
+  # Deployment Agents
+  deployment-engineer:
+    keywords:
+      - "deploy"
+      - "release"
+      - "production"
+      - "build"
+      - "ci/cd"
+    file_patterns:
+      - "**/Dockerfile"
+      - "**/docker-compose*.yml"
+      - "**/*.yaml"
+      - "**/k8s/**"
+      - "**/.github/workflows/**"
+    events:
+      - pre-deploy
+    auto: false
+    priority: high
+
+  # Language-Specific Agents
+  typescript-pro:
+    keywords:
+      - "typescript"
+      - "type"
+      - "interface"
+      - "generic"
+    file_patterns:
+      - "**/*.ts"
+      - "**/*.tsx"
+    auto: false
+    priority: low
+
+  python-pro:
+    keywords:
+      - "python"
+      - "django"
+      - "flask"
+      - "fastapi"
+    file_patterns:
+      - "**/*.py"
+    auto: false
+    priority: low
+
+  # Architecture Agents
+  system-architect:
+    keywords:
+      - "architecture"
+      - "design"
+      - "system design"
+      - "microservice"
+      - "api design"
+    auto: false
+    priority: medium
+
+  # DevOps Agents
+  devops-architect:
+    keywords:
+      - "infrastructure"
+      - "kubernetes"
+      - "terraform"
+      - "aws"
+      - "azure"
+      - "gcp"
+    file_patterns:
+      - "**/*.tf"
+      - "**/k8s/**"
+      - "**/infrastructure/**"
+    auto: false
+    priority: medium
+
+# Trigger Rules
+rules:
+  # Auto-activation rules
+  auto_activate:
+    - when: "keywords_match >= 2"
+      and: "auto == true"
+      action: activate_agent
+
+    - when: "file_pattern_match"
+      and: "priority == critical"
+      action: suggest_agent
+
+  # Suggestion rules
+  suggest:
+    - when: "keywords_match == 1"
+      action: suggest_agent
+
+    - when: "file_pattern_match"
+      and: "priority >= medium"
+      action: suggest_agent
+
+  # Priority-based activation
+  priority_order:
+    - critical
+    - high
+    - medium
+    - low
+
+# Agent Combinations
+combinations:
+  code_review_suite:
+    agents:
+      - code-reviewer
+      - security-auditor
+      - test-automator
+    trigger_keywords:
+      - "full review"
+      - "comprehensive review"
+      - "pr review"
+
+  security_audit_suite:
+    agents:
+      - security-auditor
+      - code-reviewer
+    trigger_keywords:
+      - "security audit"
+      - "security review"
+
+  performance_suite:
+    agents:
+      - performance-engineer
+      - database-optimizer
+    trigger_keywords:
+      - "performance audit"
+      - "optimize performance"
+
+  deployment_suite:
+    agents:
+      - deployment-engineer
+      - security-auditor
+      - test-automator
+    trigger_keywords:
+      - "prepare release"
+      - "production deploy"
+
+# Event Configuration
+events:
+  pre-commit:
+    enabled: true
+    agents:
+      - test-automator
+      - code-reviewer
+
+  post-commit:
+    enabled: true
+    agents:
+      - code-reviewer
+
+  pre-push:
+    enabled: true
+    agents:
+      - code-reviewer
+      - test-automator
+
+  pre-deploy:
+    enabled: true
+    agents:
+      - security-auditor
+      - deployment-engineer
+
+# Context-Aware Triggers
+context:
+  git_status:
+    modified_files: track
+    branch_name: check
+    commit_message: analyze
+
+  environment:
+    development: relaxed_triggers
+    staging: moderate_triggers
+    production: strict_triggers
