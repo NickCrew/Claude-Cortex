@@ -90,6 +90,115 @@ hr {
    CUSTOM STYLES - Blue Ops Theme Enhancement
    ============================================ */
 
+/* Hero Section */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 4rem 0;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid rgba(56, 189, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.hero__copy h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #38bdff, #5dd5ff, #38bdff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero__copy p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 2rem;
+}
+
+.hero__cta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero__cta a {
+  padding: 0.9rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero__cta a:not(.secondary) {
+  background: linear-gradient(135deg, #38bdff, #2a9fd8);
+  color: #fff !important;
+  box-shadow: 0 8px 24px rgba(56, 189, 255, 0.35);
+  border: 1px solid rgba(56, 189, 255, 0.5);
+}
+
+.hero__cta a:not(.secondary):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(56, 189, 255, 0.45);
+  background: linear-gradient(135deg, #2a9fd8, #38bdff);
+}
+
+.hero__cta a.secondary {
+  background: rgba(56, 189, 255, 0.12);
+  color: #38bdff !important;
+  border: 1px solid rgba(56, 189, 255, 0.3);
+}
+
+.hero__cta a.secondary:hover {
+  background: rgba(56, 189, 255, 0.2);
+  border-color: rgba(56, 189, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.hero__pills span {
+  padding: 0.5rem 1rem;
+  background: rgba(56, 189, 255, 0.15);
+  border: 1px solid rgba(56, 189, 255, 0.3);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5dd5ff !important;
+  white-space: nowrap;
+}
+
+.hero__visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero__visual img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(56, 189, 255, 0.25);
+  border: 1px solid rgba(56, 189, 255, 0.2);
+}
+
 /* Documentation Cards */
 .doc-grid {
   display: grid;
