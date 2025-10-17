@@ -9,9 +9,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .exceptions import (
+    InvalidMetricsDataError,
+    MetricsFileError,
+)
+from .error_utils import safe_load_json, safe_save_json, ensure_directory
+
 
 def get_metrics_path() -> Path:
-    """Get metrics storage path (~/.claude/.metrics/skills/)."""
+    """Get metrics storage path (~/.claude/.metrics/skills/).
+
+    Raises:
+        MetricsFileError: If metrics directory cannot be created
+    """
     claude_home = os.environ.get("CLAUDE_CTX_HOME") or os.environ.get("CLAUDE_PLUGIN_ROOT")
     if claude_home:
         base = Path(claude_home)
@@ -19,30 +29,52 @@ def get_metrics_path() -> Path:
         base = Path.home() / ".claude"
 
     metrics_dir = base / ".metrics" / "skills"
-    metrics_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        ensure_directory(metrics_dir, purpose="metrics storage")
+    except Exception as exc:
+        raise MetricsFileError(
+            str(metrics_dir),
+            "create directory",
+            str(exc)
+        ) from exc
+
     return metrics_dir
 
 
-def load_metrics() -> Dict:
-    """Load metrics from stats.json."""
+def load_metrics() -> Dict[str, Any]:
+    """Load metrics from stats.json.
+
+    Returns:
+        Dictionary containing metrics data, or default structure on error
+    """
     metrics_path = get_metrics_path() / "stats.json"
 
     if not metrics_path.exists():
         return {"skills": {}}
 
     try:
-        with open(metrics_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError):
+        return safe_load_json(metrics_path)
+    except (InvalidMetricsDataError, FileNotFoundError):
+        # Return default structure on error (backward compatibility)
         return {"skills": {}}
 
 
-def _save_metrics(metrics: Dict) -> None:
-    """Save metrics to stats.json."""
+def _save_metrics(metrics: Dict[str, Any]) -> None:
+    """Save metrics to stats.json.
+
+    Raises:
+        MetricsFileError: If save operation fails
+    """
     metrics_path = get_metrics_path() / "stats.json"
 
-    with open(metrics_path, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2)
+    try:
+        safe_save_json(metrics_path, metrics)
+    except Exception as exc:
+        raise MetricsFileError(
+            str(metrics_path),
+            "write",
+            f"Failed to save metrics: {exc}"
+        ) from exc
 
 
 def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
@@ -92,7 +124,7 @@ def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
     _save_metrics(metrics)
 
 
-def get_skill_metrics(skill_name: str) -> Optional[Dict]:
+def get_skill_metrics(skill_name: str) -> Optional[Dict[str, Any]]:
     """Get metrics for a specific skill.
 
     Args:
@@ -102,17 +134,19 @@ def get_skill_metrics(skill_name: str) -> Optional[Dict]:
         Dictionary of metrics or None if skill has no metrics
     """
     metrics = load_metrics()
-    return metrics.get("skills", {}).get(skill_name)
+    skills: Dict[str, Any] = metrics.get("skills", {})
+    return skills.get(skill_name)
 
 
-def get_all_metrics() -> Dict:
+def get_all_metrics() -> Dict[str, Any]:
     """Get all skill metrics.
 
     Returns:
         Dictionary mapping skill names to their metrics
     """
     metrics = load_metrics()
-    return metrics.get("skills", {})
+    skills: Dict[str, Any] = metrics.get("skills", {})
+    return skills
 
 
 def reset_metrics() -> None:
@@ -142,6 +176,9 @@ def record_detailed_activation(
             - relevance_score: How relevant the skill was 0-1 (optional)
             - completion_improvement: Task completion improvement (optional)
             - user_satisfaction: User rating 1-5 (optional)
+
+    Raises:
+        MetricsFileError: If activation record cannot be saved
     """
     metrics_path = get_metrics_path()
 
@@ -150,9 +187,8 @@ def record_detailed_activation(
 
     if activations_file.exists():
         try:
-            with open(activations_file, "r", encoding="utf-8") as f:
-                activations_data = json.load(f)
-        except (json.JSONDecodeError, IOError):
+            activations_data = safe_load_json(activations_file)
+        except (InvalidMetricsDataError, FileNotFoundError):
             activations_data = {"activations": []}
     else:
         activations_data = {"activations": []}
@@ -189,8 +225,14 @@ def record_detailed_activation(
         activations_data["activations"] = activations_data["activations"][-1000:]
 
     # Save detailed activations
-    with open(activations_file, "w", encoding="utf-8") as f:
-        json.dump(activations_data, f, indent=2)
+    try:
+        safe_save_json(activations_file, activations_data)
+    except Exception as exc:
+        raise MetricsFileError(
+            str(activations_file),
+            "write",
+            f"Failed to save activation record: {exc}"
+        ) from exc
 
     # Also update the summary metrics
     tokens_saved = context.get("tokens_saved", 0)
@@ -259,7 +301,7 @@ def generate_analytics_report(output_format: str = 'text') -> str:
     return analytics.generate_analytics_report(output_format, claude_dir)
 
 
-def format_metrics(metrics: Dict, skill_name: Optional[str] = None) -> str:
+def format_metrics(metrics: Dict[str, Any], skill_name: Optional[str] = None) -> str:
     """Format metrics for CLI display.
 
     Args:

@@ -17,6 +17,15 @@ try:
 except ImportError:
     yaml = None  # type: ignore[assignment]
 
+from .exceptions import (
+    MissingPackageError,
+    RatingError,
+    SkillInstallationError,
+    SkillNotFoundError,
+    SkillValidationError,
+)
+from .error_utils import safe_load_yaml, safe_read_file, safe_write_file, safe_save_json, safe_load_json
+
 
 def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
     """Validate a community skill contribution.
@@ -38,6 +47,10 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
         Tuple of (is_valid, errors) where is_valid is True if validation passes
         and errors is a list of validation error messages
 
+    Raises:
+        MissingPackageError: If PyYAML is not installed
+        SkillNotFoundError: If skill file doesn't exist
+
     Example:
         >>> valid, errors = validate_contribution(Path("skill.md"))
         >>> if not valid:
@@ -45,17 +58,15 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
         ...         print(f"Error: {error}")
     """
     if yaml is None:
-        return False, ["PyYAML is required for validation. Install with: pip install pyyaml"]
+        raise MissingPackageError("pyyaml", purpose="skill validation")
 
     errors: List[str] = []
 
-    # Check file exists
-    if not skill_path.exists():
-        return False, [f"File not found: {skill_path}"]
-
-    # Read file content
+    # Check file exists and read content
     try:
-        content = skill_path.read_text(encoding="utf-8")
+        content = safe_read_file(skill_path)
+    except SkillNotFoundError:
+        return False, [f"File not found: {skill_path}"]
     except Exception as e:
         return False, [f"Failed to read file: {e}"]
 
@@ -277,6 +288,11 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
     Returns:
         True if installation was successful, False otherwise
 
+    Raises:
+        SkillNotFoundError: If skill doesn't exist in community directory
+        SkillValidationError: If skill fails validation
+        SkillInstallationError: If installation fails
+
     Example:
         >>> if install_community_skill("react-hooks", Path.home() / ".claude"):
         ...     print("Skill installed successfully")
@@ -284,29 +300,39 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
     community_dir = claude_dir / "community" / "skills"
     skills_dir = claude_dir / "skills"
 
-    # Ensure directories exist
+    # Ensure community directory exists
     if not community_dir.exists():
-        return False
+        raise SkillNotFoundError(
+            skill_name,
+            search_paths=[community_dir]
+        )
 
     skills_dir.mkdir(parents=True, exist_ok=True)
 
     # Find skill file
     skill_file = community_dir / f"{skill_name}.md"
     if not skill_file.exists():
-        return False
+        raise SkillNotFoundError(
+            skill_name,
+            search_paths=[community_dir]
+        )
 
     # Validate skill before installation
     is_valid, errors = validate_contribution(skill_file)
     if not is_valid:
-        return False
+        raise SkillValidationError(skill_name, errors)
 
     # Copy to skills directory
     try:
         dest_file = skills_dir / f"{skill_name}.md"
-        dest_file.write_text(skill_file.read_text(encoding="utf-8"), encoding="utf-8")
+        content = safe_read_file(skill_file)
+        safe_write_file(dest_file, content)
         return True
-    except Exception:
-        return False
+    except Exception as exc:
+        raise SkillInstallationError(
+            skill_name,
+            reason=f"Failed to copy skill file: {exc}"
+        ) from exc
 
 
 def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
@@ -323,13 +349,20 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
     Returns:
         True if rating was recorded successfully, False otherwise
 
+    Raises:
+        RatingError: If rating value is invalid or save fails
+
     Example:
         >>> if rate_skill("react-hooks", 5, Path.home() / ".claude"):
         ...     print("Rating recorded")
     """
     # Validate rating value
     if not isinstance(rating, int) or rating < 1 or rating > 5:
-        return False
+        raise RatingError(
+            skill_name,
+            rating_value=rating,
+            reason="Rating must be an integer between 1 and 5"
+        )
 
     ratings_dir = claude_dir / "community" / "ratings"
     ratings_dir.mkdir(parents=True, exist_ok=True)
@@ -340,9 +373,10 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
     ratings_data: Dict = {'ratings': [], 'average': 0.0}
     if ratings_file.exists():
         try:
-            ratings_data = json.loads(ratings_file.read_text(encoding="utf-8"))
+            ratings_data = safe_load_json(ratings_file)
         except Exception:
-            pass
+            # Start fresh if existing file is corrupted
+            ratings_data = {'ratings': [], 'average': 0.0}
 
     # Add new rating
     if 'ratings' not in ratings_data:
@@ -356,13 +390,14 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
 
     # Save ratings
     try:
-        ratings_file.write_text(
-            json.dumps(ratings_data, indent=2),
-            encoding="utf-8"
-        )
+        safe_save_json(ratings_file, ratings_data)
         return True
-    except Exception:
-        return False
+    except Exception as exc:
+        raise RatingError(
+            skill_name,
+            rating_value=rating,
+            reason=f"Failed to save rating: {exc}"
+        ) from exc
 
 
 def search_skills(query: str, tags: List[str], claude_dir: Path) -> List[Dict]:

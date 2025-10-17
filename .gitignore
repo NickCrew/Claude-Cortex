@@ -38,3 +38,10 @@ Thumbs.db
 
 # Metrics data
 .claude/.metrics/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/

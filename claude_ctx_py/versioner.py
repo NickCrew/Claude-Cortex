@@ -16,6 +16,13 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 import yaml
 
+from .exceptions import (
+    VersionFormatError,
+    VersionCompatibilityError,
+    NoCompatibleVersionError,
+)
+from .error_utils import safe_load_yaml
+
 
 def parse_version(version_str: str) -> Tuple[int, int, int]:
     """Parse a semantic version string into major, minor, and patch components.
@@ -27,7 +34,7 @@ def parse_version(version_str: str) -> Tuple[int, int, int]:
         A tuple of (major, minor, patch) version numbers
 
     Raises:
-        ValueError: If the version string is not a valid semantic version
+        VersionFormatError: If the version string is not a valid semantic version
 
     Examples:
         >>> parse_version("1.2.3")
@@ -43,10 +50,7 @@ def parse_version(version_str: str) -> Tuple[int, int, int]:
     match = re.match(pattern, version_str)
 
     if not match:
-        raise ValueError(
-            f"Invalid semantic version: '{version_str}'. "
-            "Expected format: major.minor.patch (e.g., 1.2.3)"
-        )
+        raise VersionFormatError(version_str, expected_format="X.Y.Z")
 
     major, minor, patch = match.groups()
     return int(major), int(minor), int(patch)
@@ -263,6 +267,9 @@ def parse_skill_with_version(skill_spec: str) -> Tuple[str, str]:
         A tuple of (skill_name, version_requirement)
         If no version is specified, returns (skill_name, "latest")
 
+    Raises:
+        VersionFormatError: If version requirement format is invalid
+
     Examples:
         >>> parse_skill_with_version("pdf@1.2.3")
         ("pdf", "1.2.3")
@@ -280,9 +287,9 @@ def parse_skill_with_version(skill_spec: str) -> Tuple[str, str]:
 
     # Validate the version requirement
     if not validate_version_requirement(version_req):
-        raise ValueError(
-            f"Invalid version requirement: '{version_req}'. "
-            "Supported formats: 1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, latest"
+        raise VersionFormatError(
+            version_req,
+            expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
         )
 
     return skill_name, version_req
@@ -297,6 +304,10 @@ def format_skill_with_version(skill_name: str, version: str) -> str:
 
     Returns:
         Formatted skill specification string
+
+    Raises:
+        ValueError: If skill_name is empty
+        VersionFormatError: If version format is invalid
 
     Examples:
         >>> format_skill_with_version("pdf", "1.2.3")
@@ -313,9 +324,9 @@ def format_skill_with_version(skill_name: str, version: str) -> str:
         return f"{skill_name}@latest"
 
     if not validate_version_requirement(version):
-        raise ValueError(
-            f"Invalid version requirement: '{version}'. "
-            "Supported formats: 1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, latest"
+        raise VersionFormatError(
+            version,
+            expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
         )
 
     return f"{skill_name}@{version}"
@@ -382,10 +393,10 @@ def load_skill_metadata(skill_dir: Path) -> dict:
     yaml_file = yaml_files[0]
 
     try:
-        with open(yaml_file, 'r', encoding='utf-8') as f:
-            metadata = yaml.safe_load(f)
-            return metadata if isinstance(metadata, dict) else {}
-    except (yaml.YAMLError, OSError, UnicodeDecodeError):
+        metadata = safe_load_yaml(yaml_file)
+        return metadata if isinstance(metadata, dict) else {}
+    except Exception:
+        # Return empty dict on any error (backward compatibility)
         return {}
 
 

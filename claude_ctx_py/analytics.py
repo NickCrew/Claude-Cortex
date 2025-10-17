@@ -10,6 +10,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .exceptions import (
+    ExportError,
+    InvalidMetricsDataError,
+    MetricsFileError,
+)
+from .error_utils import safe_load_json, safe_save_json, safe_write_file
+
 # Token cost per 1K tokens
 TOKEN_COST_PER_1K = 0.003
 
@@ -145,8 +152,7 @@ def _calculate_efficiency_ratio(skill_name: str, claude_dir: Path) -> float:
         return 1.0  # Default assumption
 
     try:
-        with open(activations_file, "r", encoding="utf-8") as f:
-            activations_data = json.load(f)
+        activations_data = safe_load_json(activations_file)
 
         total_loaded = 0
         total_saved = 0
@@ -161,7 +167,7 @@ def _calculate_efficiency_ratio(skill_name: str, claude_dir: Path) -> float:
             return total_saved / total_loaded
         return 1.0
 
-    except (json.JSONDecodeError, IOError):
+    except (InvalidMetricsDataError, FileNotFoundError):
         return 1.0
 
 
@@ -182,8 +188,7 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
         return []
 
     try:
-        with open(activations_file, "r", encoding="utf-8") as f:
-            activations_data = json.load(f)
+        activations_data = safe_load_json(activations_file)
 
         cutoff_date = datetime.utcnow() - timedelta(days=days)
         skill_counts: Dict[str, int] = defaultdict(int)
@@ -219,7 +224,7 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
 
         return trending
 
-    except (json.JSONDecodeError, IOError):
+    except (InvalidMetricsDataError, FileNotFoundError):
         return []
 
 
@@ -312,29 +317,44 @@ def export_analytics(format: str, claude_dir: Path) -> str:
         Path to exported file
 
     Raises:
-        ValueError: If format is not supported
+        ExportError: If format is not supported or export fails
     """
     from . import metrics as metrics_module
 
     all_metrics = metrics_module.get_all_metrics()
 
     if format not in ['json', 'csv', 'text']:
-        raise ValueError(f"Unsupported format: {format}. Use 'json', 'csv', or 'text'")
+        raise ExportError(
+            format,
+            reason="Supported formats: json, csv, text"
+        )
 
     # Create exports directory
     exports_dir = claude_dir / ".metrics" / "exports"
-    exports_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        exports_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ExportError(
+            format,
+            reason=f"Failed to create exports directory: {exc}"
+        ) from exc
 
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     filename = f"analytics_{timestamp}.{format}"
     filepath = exports_dir / filename
 
-    if format == 'json':
-        _export_json(all_metrics, filepath, claude_dir)
-    elif format == 'csv':
-        _export_csv(all_metrics, filepath, claude_dir)
-    elif format == 'text':
-        _export_text(all_metrics, filepath, claude_dir)
+    try:
+        if format == 'json':
+            _export_json(all_metrics, filepath, claude_dir)
+        elif format == 'csv':
+            _export_csv(all_metrics, filepath, claude_dir)
+        elif format == 'text':
+            _export_text(all_metrics, filepath, claude_dir)
+    except Exception as exc:
+        raise ExportError(
+            format,
+            reason=f"Export operation failed: {exc}"
+        ) from exc
 
     return str(filepath)
 
@@ -356,8 +376,7 @@ def _export_json(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
             "effectiveness_score": effectiveness
         }
 
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(export_data, f, indent=2)
+    safe_save_json(filepath, export_data)
 
 
 def _export_csv(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
@@ -398,6 +417,7 @@ def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
     """Export metrics as formatted text."""
     from . import metrics as metrics_module
 
+    lines = []
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("=" * 80 + "\n")
         f.write("SKILL ANALYTICS REPORT\n")
@@ -552,8 +572,7 @@ def get_correlation_matrix(all_metrics: Dict) -> Dict[str, Dict[str, float]]:
         return {}
 
     try:
-        with open(activations_file, "r", encoding="utf-8") as f:
-            activations_data = json.load(f)
+        activations_data = safe_load_json(activations_file)
 
         # Track co-activations
         co_activations: Dict[Tuple[str, str], int] = defaultdict(int)
@@ -586,7 +605,7 @@ def get_correlation_matrix(all_metrics: Dict) -> Dict[str, Dict[str, float]]:
 
         return dict(correlations)
 
-    except (json.JSONDecodeError, IOError):
+    except (InvalidMetricsDataError, FileNotFoundError):
         return {}
 
 
@@ -677,8 +696,7 @@ def _count_activations_in_period(skill_name: str, days: int, claude_dir: Path) -
         return 0
 
     try:
-        with open(activations_file, "r", encoding="utf-8") as f:
-            activations_data = json.load(f)
+        activations_data = safe_load_json(activations_file)
 
         cutoff_date = datetime.utcnow() - timedelta(days=days)
         count = 0
@@ -696,7 +714,7 @@ def _count_activations_in_period(skill_name: str, days: int, claude_dir: Path) -
 
         return count
 
-    except (json.JSONDecodeError, IOError):
+    except (InvalidMetricsDataError, FileNotFoundError):
         return 0
 
 

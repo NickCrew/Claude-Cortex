@@ -13,6 +13,17 @@ dependencies = [
     "argcomplete>=3.2",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "mypy>=1.7.0",
+    "types-PyYAML>=6.0.0",
+    "black>=23.0.0",
+    "PyYAML>=6.0.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/NickCrew/claude-ctx-plugin"
 
@@ -23,7 +34,93 @@ claude-ctx = "claude_ctx_py.cli:main"
 where = ["."]
 include = ["claude_ctx_py*"]
 
-[tool.uv.workspace]
-members = [
-    "claude_ctx_py",
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = "yaml.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "claude_ctx_py.activator"
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = "claude_ctx_py.composer"
+disallow_untyped_calls = false
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--tb=short",
+    "--cov=claude_ctx_py",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-branch",
 ]
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for CLI and workflows",
+    "slow: Tests that take longer to run",
+    "requires_yaml: Tests that require PyYAML to be installed",
+]
+
+[tool.coverage.run]
+source = ["claude_ctx_py"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+fail_under = 80
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "@abc.abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.venv
+  | htmlcov
+)/
+'''

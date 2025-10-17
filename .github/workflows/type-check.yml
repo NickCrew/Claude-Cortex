@@ -1,0 +1,39 @@
+name: Type Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  mypy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run mypy on Phase 4 modules
+      run: |
+        mypy claude_ctx_py/activator.py \
+             claude_ctx_py/suggester.py \
+             claude_ctx_py/composer.py \
+             claude_ctx_py/metrics.py
+
+    - name: Run mypy on all modules (informational)
+      continue-on-error: true
+      run: |
+        mypy claude_ctx_py/

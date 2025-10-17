@@ -13,9 +13,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
 try:  # pragma: no cover - dependency availability exercised in tests
-    import yaml  # type: ignore
+    import yaml
 except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
+
+from .exceptions import (
+    CircularDependencyError,
+    InvalidCompositionError,
+    MissingPackageError,
+)
+from .error_utils import safe_load_yaml
 
 
 def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
@@ -28,8 +35,9 @@ def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
         Dictionary mapping skill names to their dependencies
 
     Raises:
-        FileNotFoundError: If composition.yaml doesn't exist
-        ValueError: If YAML is invalid or malformed
+        MissingPackageError: If PyYAML is not installed
+        YAMLValidationError: If YAML syntax is invalid
+        InvalidCompositionError: If composition structure is invalid
     """
     composition_file = claude_dir / "skills" / "composition.yaml"
 
@@ -37,32 +45,31 @@ def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
         return {}
 
     if yaml is None:
-        raise ImportError("PyYAML is required for skill composition")
+        raise MissingPackageError("pyyaml", purpose="skill composition")
 
-    try:
-        with open(composition_file, encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-    except Exception as exc:
-        raise ValueError(f"Failed to parse composition.yaml: {exc}") from exc
+    # Use safe_load_yaml which handles errors properly
+    data = safe_load_yaml(composition_file)
 
     if not data:
         return {}
 
     if not isinstance(data, dict):
-        raise ValueError("composition.yaml must contain a dictionary")
+        raise InvalidCompositionError(
+            "composition.yaml must contain a dictionary at root level"
+        )
 
     # Validate structure
     composition_map: Dict[str, List[str]] = {}
     for skill, deps in data.items():
         if not isinstance(skill, str):
-            continue  # Skip non-string keys (comments, metadata)
+            continue  # type: ignore[unreachable]  # Skip non-string keys (defensive programming)
 
         if deps is None:
             composition_map[skill] = []
         elif isinstance(deps, list):
             composition_map[skill] = [str(d) for d in deps if isinstance(d, str)]
         else:
-            raise ValueError(
+            raise InvalidCompositionError(
                 f"Dependencies for '{skill}' must be a list, got {type(deps).__name__}"
             )
 
@@ -111,6 +118,10 @@ def validate_no_cycles(composition_map: Dict[str, List[str]]) -> Tuple[bool, str
     Returns:
         Tuple of (is_valid, error_message)
         is_valid is True if no cycles found, False otherwise
+
+    Raises:
+        CircularDependencyError: If a circular dependency is detected
+            (only when used in strict mode, returns tuple otherwise)
     """
     visited: Set[str] = set()
 
