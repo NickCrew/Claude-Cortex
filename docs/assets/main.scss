@@ -356,16 +356,132 @@ hr {
   border: 1px solid rgba(56, 189, 255, 0.18);
   margin: 1.5rem 0;
   overflow: hidden;
+  background: rgba(3, 9, 17, 0.8) !important;
 }
 
 pre {
   padding: 1.2rem !important;
   border-radius: 12px;
+  background: rgba(3, 9, 17, 0.8) !important;
 }
 
 code {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   font-size: 0.9rem;
+}
+
+/* Inline code */
+code:not(.highlight code) {
+  background: rgba(56, 189, 255, 0.15) !important;
+  color: #5dd5ff !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 255, 0.25);
+}
+
+/* Syntax Highlighting - Blue Ops Theme */
+.highlight pre code {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Keywords */
+.highlight .k,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kt {
+  color: #ff79c6 !important;
+  font-weight: 600;
+}
+
+/* Strings */
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sb,
+.highlight .sc,
+.highlight .sd,
+.highlight .se,
+.highlight .sh,
+.highlight .si,
+.highlight .sx {
+  color: #50fa7b !important;
+}
+
+/* Numbers */
+.highlight .m,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .mo {
+  color: #bd93f9 !important;
+}
+
+/* Comments */
+.highlight .c,
+.highlight .c1,
+.highlight .cm,
+.highlight .cp,
+.highlight .cs {
+  color: rgba(98, 114, 164, 0.9) !important;
+  font-style: italic;
+}
+
+/* Functions */
+.highlight .n,
+.highlight .na,
+.highlight .nb,
+.highlight .nc,
+.highlight .nf,
+.highlight .nn {
+  color: #5dd5ff !important;
+}
+
+/* Variables */
+.highlight .nv,
+.highlight .vc,
+.highlight .vg,
+.highlight .vi {
+  color: #8be9fd !important;
+}
+
+/* Operators */
+.highlight .o,
+.highlight .ow {
+  color: #ff79c6 !important;
+}
+
+/* Punctuation */
+.highlight .p {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Built-ins, Constants */
+.highlight .bp,
+.highlight .no {
+  color: #ffb86c !important;
+}
+
+/* HTML/XML Tags */
+.highlight .nt {
+  color: #ff79c6 !important;
+}
+
+/* Attributes */
+.highlight .na {
+  color: #50fa7b !important;
+}
+
+/* YAML keys */
+.highlight .l-Scalar-Plain {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Bash/Shell prompts */
+.highlight .gp {
+  color: #6272a4 !important;
+  user-select: none;
 }
 
 /* Enhanced Tables */
