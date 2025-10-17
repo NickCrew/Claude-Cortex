@@ -621,9 +621,11 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ## Support
 
-**Repository**: https://github.com/NickCrew/claude-ctx-plugin
-**Issues**: https://github.com/NickCrew/claude-ctx-plugin/issues
-**Marketplace**: https://github.com/NickCrew/claude-marketplace
+**Repository**: [github.com/NickCrew/claude-ctx-plugin](https://github.com/NickCrew/claude-ctx-plugin)
+
+**Issues**: [Report a bug or request a feature](https://github.com/NickCrew/claude-ctx-plugin/issues)
+
+**Marketplace**: [claude-marketplace](https://github.com/NickCrew/claude-marketplace)
 
 ---
 
