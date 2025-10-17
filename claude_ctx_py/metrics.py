@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 def get_metrics_path() -> Path:
@@ -120,6 +121,142 @@ def reset_metrics() -> None:
 
     if metrics_path.exists():
         metrics_path.unlink()
+
+
+def record_detailed_activation(
+    skill_name: str,
+    context: Dict[str, Any]
+) -> None:
+    """Record a detailed skill activation with rich context.
+
+    Args:
+        skill_name: Name of the skill being activated
+        context: Dictionary containing:
+            - tokens_loaded: Number of tokens in skill content
+            - tokens_saved: Estimated tokens saved
+            - duration_ms: Time taken to load/process
+            - success: Whether activation succeeded
+            - agent: Name of activating agent (optional)
+            - task_type: Type of task (optional)
+            - project_type: Type of project (optional)
+            - relevance_score: How relevant the skill was 0-1 (optional)
+            - completion_improvement: Task completion improvement (optional)
+            - user_satisfaction: User rating 1-5 (optional)
+    """
+    metrics_path = get_metrics_path()
+
+    # Load or initialize detailed activations log
+    activations_file = metrics_path / "activations.json"
+
+    if activations_file.exists():
+        try:
+            with open(activations_file, "r", encoding="utf-8") as f:
+                activations_data = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            activations_data = {"activations": []}
+    else:
+        activations_data = {"activations": []}
+
+    # Create activation record
+    activation_record = {
+        "activation_id": str(uuid.uuid4()),
+        "skill_name": skill_name,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "context": {
+            "agent": context.get("agent", "unknown"),
+            "task_type": context.get("task_type", "unknown"),
+            "project_type": context.get("project_type", "unknown"),
+            "co_activated_skills": context.get("co_activated_skills", [])
+        },
+        "metrics": {
+            "tokens_loaded": context.get("tokens_loaded", 0),
+            "tokens_saved": context.get("tokens_saved", 0),
+            "duration_ms": context.get("duration_ms", 0),
+            "success": context.get("success", True)
+        },
+        "effectiveness": {
+            "relevance_score": context.get("relevance_score", 0.8),
+            "completion_improvement": context.get("completion_improvement", 0.0),
+            "user_satisfaction": context.get("user_satisfaction", 3)
+        }
+    }
+
+    # Add to activations list
+    activations_data["activations"].append(activation_record)
+
+    # Keep only last 1000 activations to prevent unbounded growth
+    if len(activations_data["activations"]) > 1000:
+        activations_data["activations"] = activations_data["activations"][-1000:]
+
+    # Save detailed activations
+    with open(activations_file, "w", encoding="utf-8") as f:
+        json.dump(activations_data, f, indent=2)
+
+    # Also update the summary metrics
+    tokens_saved = context.get("tokens_saved", 0)
+    success = context.get("success", True)
+    record_activation(skill_name, tokens_saved, success)
+
+
+def get_effectiveness_score(skill_name: str) -> float:
+    """Calculate effectiveness score for a skill (0-100).
+
+    Score is based on success rate, token efficiency, usage frequency, and recency.
+
+    Args:
+        skill_name: Name of the skill
+
+    Returns:
+        Effectiveness score from 0 to 100
+    """
+    from . import analytics
+
+    all_metrics = get_all_metrics()
+    return analytics.get_effectiveness_score(skill_name, all_metrics)
+
+
+def get_correlation_matrix() -> Dict[str, Dict[str, float]]:
+    """Get skill co-activation correlation matrix.
+
+    Returns:
+        Dictionary mapping skill names to correlation scores with other skills
+    """
+    from . import analytics
+
+    all_metrics = get_all_metrics()
+    return analytics.get_correlation_matrix(all_metrics)
+
+
+def get_impact_report(skill_name: str) -> Dict[str, Any]:
+    """Generate comprehensive impact analysis for a skill.
+
+    Args:
+        skill_name: Name of the skill
+
+    Returns:
+        Dictionary containing comprehensive impact metrics
+    """
+    from . import analytics
+    from pathlib import Path
+
+    claude_dir = Path.home() / ".claude"
+    return analytics.get_impact_report(skill_name, claude_dir)
+
+
+def generate_analytics_report(output_format: str = 'text') -> str:
+    """Generate comprehensive analytics report.
+
+    Args:
+        output_format: Format of report ('text' or 'json')
+
+    Returns:
+        Formatted report string
+    """
+    from . import analytics
+    from pathlib import Path
+
+    claude_dir = Path.home() / ".claude"
+    return analytics.generate_analytics_report(output_format, claude_dir)
 
 
 def format_metrics(metrics: Dict, skill_name: Optional[str] = None) -> str:

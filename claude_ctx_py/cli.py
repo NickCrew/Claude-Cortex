@@ -154,6 +154,112 @@ def build_parser() -> argparse.ArgumentParser:
         "agents", help="Show which agents use a skill (alias for deps)"
     )
     skills_agents_parser.add_argument("skill", help="Skill name")
+    skills_compose_parser = skills_sub.add_parser(
+        "compose", help="Show dependency tree for a skill"
+    )
+    skills_compose_parser.add_argument("skill", help="Skill name")
+    skills_versions_parser = skills_sub.add_parser(
+        "versions", help="Show version information for a skill"
+    )
+    skills_versions_parser.add_argument("skill", help="Skill name")
+    skills_analytics_parser = skills_sub.add_parser(
+        "analytics", help="Show skill effectiveness analytics"
+    )
+    skills_analytics_parser.add_argument(
+        "--metric",
+        dest="analytics_metric",
+        choices=["trending", "roi", "effectiveness", "tokens", "activations", "success_rate"],
+        help="Specific metric to display",
+    )
+    skills_report_parser = skills_sub.add_parser(
+        "report", help="Generate comprehensive analytics report"
+    )
+    skills_report_parser.add_argument(
+        "--format",
+        dest="report_format",
+        choices=["text", "json", "csv"],
+        default="text",
+        help="Report output format (default: text)",
+    )
+    skills_trending_parser = skills_sub.add_parser(
+        "trending", help="Show trending skills over time"
+    )
+    skills_trending_parser.add_argument(
+        "--days",
+        dest="trending_days",
+        type=int,
+        default=30,
+        help="Number of days to look back (default: 30)",
+    )
+    skills_community_parser = skills_sub.add_parser(
+        "community", help="Community skill commands"
+    )
+    community_sub = skills_community_parser.add_subparsers(dest="community_command")
+    community_list_parser = community_sub.add_parser(
+        "list", help="List community skills"
+    )
+    community_list_parser.add_argument(
+        "--tag",
+        dest="community_list_tag",
+        help="Filter by tag",
+    )
+    community_list_parser.add_argument(
+        "--search",
+        dest="community_list_search",
+        help="Search query",
+    )
+    community_list_parser.add_argument(
+        "--verified",
+        dest="community_list_verified",
+        action="store_true",
+        help="Show only verified skills",
+    )
+    community_list_parser.add_argument(
+        "--sort",
+        dest="community_list_sort",
+        help="Sort field (e.g., name, rating, downloads)",
+    )
+    community_install_parser = community_sub.add_parser(
+        "install", help="Install a community skill"
+    )
+    community_install_parser.add_argument(
+        "skill",
+        help="Skill name to install",
+    )
+    community_validate_parser = community_sub.add_parser(
+        "validate", help="Validate a community skill"
+    )
+    community_validate_parser.add_argument(
+        "skill",
+        help="Skill name to validate",
+    )
+    community_rate_parser = community_sub.add_parser(
+        "rate", help="Rate a community skill"
+    )
+    community_rate_parser.add_argument(
+        "skill",
+        help="Skill name to rate",
+    )
+    community_rate_parser.add_argument(
+        "--rating",
+        dest="community_rating",
+        type=int,
+        required=True,
+        help="Rating value (1-5)",
+    )
+    community_search_parser = community_sub.add_parser(
+        "search", help="Search community skills"
+    )
+    community_search_parser.add_argument(
+        "query",
+        help="Search query",
+    )
+    community_search_parser.add_argument(
+        "--tags",
+        dest="community_search_tags",
+        nargs="*",
+        help="Filter by tags",
+    )
 
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_parser.add_argument(
@@ -420,6 +526,63 @@ def main(argv: Iterable[str] | None = None) -> int:
             exit_code, message = core.skill_agents(args.skill)
             _print(message)
             return exit_code
+        if args.skills_command == "compose":
+            exit_code, message = core.skill_compose(args.skill)
+            _print(message)
+            return exit_code
+        if args.skills_command == "versions":
+            exit_code, message = core.skill_versions(args.skill)
+            _print(message)
+            return exit_code
+        if args.skills_command == "analytics":
+            metric = getattr(args, "analytics_metric", None)
+            exit_code, message = core.skill_analytics(metric)
+            _print(message)
+            return exit_code
+        if args.skills_command == "report":
+            format = getattr(args, "report_format", "text")
+            exit_code, message = core.skill_report(format)
+            _print(message)
+            return exit_code
+        if args.skills_command == "trending":
+            days = getattr(args, "trending_days", 30)
+            exit_code, message = core.skill_trending(days)
+            _print(message)
+            return exit_code
+        if args.skills_command == "community":
+            community_command = getattr(args, "community_command", None)
+            if community_command == "list":
+                tags = [getattr(args, "community_list_tag")] if getattr(args, "community_list_tag", None) else None
+                search = getattr(args, "community_list_search", None)
+                verified = getattr(args, "community_list_verified", False)
+                sort_by = getattr(args, "community_list_sort", "name")
+                exit_code, message = core.skill_community_list(
+                    tags=tags, search=search, verified=verified, sort_by=sort_by
+                )
+                _print(message)
+                return exit_code
+            if community_command == "install":
+                skill = getattr(args, "skill", None)
+                exit_code, message = core.skill_community_install(skill)
+                _print(message)
+                return exit_code
+            if community_command == "validate":
+                skill = getattr(args, "skill", None)
+                exit_code, message = core.skill_community_validate(skill)
+                _print(message)
+                return exit_code
+            if community_command == "rate":
+                skill = getattr(args, "skill", None)
+                rating = getattr(args, "community_rating", None)
+                exit_code, message = core.skill_community_rate(skill, rating)
+                _print(message)
+                return exit_code
+            if community_command == "search":
+                query = getattr(args, "query", None)
+                tags = getattr(args, "community_search_tags", None)
+                exit_code, message = core.skill_community_search(query, tags=tags)
+                _print(message)
+                return exit_code
     elif args.command == "init":
         init_command = getattr(args, "init_command", None)
         if init_command == "detect":
