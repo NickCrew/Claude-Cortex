@@ -412,11 +412,19 @@ User: "Design a REST API for user management"
 - [x] threat-modeling-techniques
 - [x] security-testing-patterns
 
-### Phase 3: Integration (Months 3-4)
-- [ ] Automatic skill activation based on keywords
-- [ ] Context-driven skill suggestions
-- [ ] Skill performance metrics (token savings tracking)
-- [ ] Dependency tracking (skill → agent relationships)
+### Phase 3: Integration ✅ COMPLETED
+- [x] Automatic skill activation based on keywords (`skills/activation.yaml` + `activator.py`)
+- [x] Context-driven skill suggestions (`suggester.py` with project detection)
+- [x] Skill performance metrics tracking (`metrics.py` with persistent storage)
+- [x] Dependency tracking (`skills/dependencies.map` with bidirectional lookup)
+
+**New CLI Commands:**
+- `claude-ctx skills analyze <text>` - Analyze text and suggest matching skills
+- `claude-ctx skills suggest [--project-dir .]` - Suggest skills based on project
+- `claude-ctx skills metrics [skill]` - Show usage metrics
+- `claude-ctx skills metrics --reset` - Reset metrics
+- `claude-ctx skills deps <skill>` - Show which agents use a skill
+- `claude-ctx skills agents <skill>` - Alias for deps
 
 ### Phase 4: Advanced (Months 5-6)
 - [ ] Skill composition (skills reference other skills)

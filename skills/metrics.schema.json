@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skill Metrics Schema",
+  "type": "object",
+  "properties": {
+    "skills": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "activation_count": {"type": "integer"},
+            "total_tokens_saved": {"type": "integer"},
+            "avg_tokens": {"type": "integer"},
+            "last_activated": {"type": "string", "format": "date-time"},
+            "success_rate": {"type": "number"}
+          }
+        }
+      }
+    }
+  }
+}

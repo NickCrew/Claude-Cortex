@@ -116,6 +116,44 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Validate all skills",
     )
+    skills_analyze_parser = skills_sub.add_parser(
+        "analyze", help="Analyze text and suggest matching skills"
+    )
+    skills_analyze_parser.add_argument(
+        "text",
+        help="Text to analyze for skill keywords",
+    )
+    skills_suggest_parser = skills_sub.add_parser(
+        "suggest", help="Suggest skills based on project context"
+    )
+    skills_suggest_parser.add_argument(
+        "--project-dir",
+        dest="suggest_project_dir",
+        default=".",
+        help="Project directory to analyze (default: current directory)",
+    )
+    skills_metrics_parser = skills_sub.add_parser(
+        "metrics", help="Show skill usage metrics"
+    )
+    skills_metrics_parser.add_argument(
+        "skill",
+        nargs="?",
+        help="Skill name (optional - shows all if omitted)",
+    )
+    skills_metrics_parser.add_argument(
+        "--reset",
+        dest="metrics_reset",
+        action="store_true",
+        help="Reset all metrics",
+    )
+    skills_deps_parser = skills_sub.add_parser(
+        "deps", help="Show which agents use a skill"
+    )
+    skills_deps_parser.add_argument("skill", help="Skill name")
+    skills_agents_parser = skills_sub.add_parser(
+        "agents", help="Show which agents use a skill (alias for deps)"
+    )
+    skills_agents_parser.add_argument("skill", help="Skill name")
 
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_parser.add_argument(
@@ -353,6 +391,33 @@ def main(argv: Iterable[str] | None = None) -> int:
             if getattr(args, "validate_all", False):
                 targets.insert(0, "--all")
             exit_code, message = core.skill_validate(*targets)
+            _print(message)
+            return exit_code
+        if args.skills_command == "analyze":
+            text = getattr(args, "text", "")
+            exit_code, message = core.skill_analyze(text)
+            _print(message)
+            return exit_code
+        if args.skills_command == "suggest":
+            project_dir = getattr(args, "suggest_project_dir", ".")
+            exit_code, message = core.skill_suggest(project_dir)
+            _print(message)
+            return exit_code
+        if args.skills_command == "metrics":
+            if getattr(args, "metrics_reset", False):
+                exit_code, message = core.skill_metrics_reset()
+                _print(message)
+                return exit_code
+            skill_name = getattr(args, "skill", None)
+            exit_code, message = core.skill_metrics(skill_name)
+            _print(message)
+            return exit_code
+        if args.skills_command == "deps":
+            exit_code, message = core.skill_deps(args.skill)
+            _print(message)
+            return exit_code
+        if args.skills_command == "agents":
+            exit_code, message = core.skill_agents(args.skill)
             _print(message)
             return exit_code
     elif args.command == "init":

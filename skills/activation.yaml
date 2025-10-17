@@ -1,0 +1,263 @@
+# Skill Activation Keywords
+# Maps keywords/phrases to skills for automatic activation
+
+skills:
+  api-design-patterns:
+    keywords:
+      - "REST API"
+      - "GraphQL"
+      - "API design"
+      - "endpoint design"
+      - "service contract"
+      - "API versioning"
+      - "pagination"
+      - "HATEOAS"
+      - "OpenAPI"
+      - "error handling"
+
+  async-python-patterns:
+    keywords:
+      - "asyncio"
+      - "async await"
+      - "async/await"
+      - "event loop"
+      - "coroutine"
+      - "non-blocking"
+      - "concurrent python"
+      - "async python"
+      - "aiohttp"
+      - "FastAPI async"
+
+  microservices-patterns:
+    keywords:
+      - "microservices"
+      - "service mesh"
+      - "distributed system"
+      - "service-to-service"
+      - "circuit breaker"
+      - "service discovery"
+      - "API gateway"
+      - "saga pattern"
+      - "service decomposition"
+      - "inter-service communication"
+
+  terraform-best-practices:
+    keywords:
+      - "terraform"
+      - "infrastructure as code"
+      - "IaC"
+      - "terraform module"
+      - "state management"
+      - "remote state"
+      - "terraform workspace"
+      - "HCL"
+      - "terragrunt"
+      - "infrastructure automation"
+
+  owasp-top-10:
+    keywords:
+      - "OWASP"
+      - "security vulnerability"
+      - "injection"
+      - "XSS"
+      - "CSRF"
+      - "broken access control"
+      - "cryptographic failure"
+      - "security audit"
+      - "SQL injection"
+      - "authentication failure"
+
+  event-driven-architecture:
+    keywords:
+      - "event sourcing"
+      - "CQRS"
+      - "event-driven"
+      - "message broker"
+      - "Kafka"
+      - "RabbitMQ"
+      - "event bus"
+      - "eventual consistency"
+      - "domain event"
+      - "message queue"
+
+  kubernetes-deployment-patterns:
+    keywords:
+      - "kubernetes"
+      - "k8s"
+      - "deployment strategy"
+      - "rolling update"
+      - "blue-green deployment"
+      - "canary deployment"
+      - "StatefulSet"
+      - "DaemonSet"
+      - "pod"
+      - "helm"
+
+  python-testing-patterns:
+    keywords:
+      - "pytest"
+      - "unit test"
+      - "integration test"
+      - "test-driven development"
+      - "TDD"
+      - "mocking"
+      - "test fixture"
+      - "test coverage"
+      - "parametrize"
+      - "hypothesis testing"
+
+  api-gateway-patterns:
+    keywords:
+      - "API gateway"
+      - "Kong"
+      - "Nginx"
+      - "rate limiting"
+      - "request routing"
+      - "backend for frontend"
+      - "BFF"
+      - "gateway pattern"
+      - "reverse proxy"
+      - "load balancing"
+
+  secure-coding-practices:
+    keywords:
+      - "secure coding"
+      - "code security"
+      - "input validation"
+      - "output encoding"
+      - "sanitization"
+      - "security hardening"
+      - "least privilege"
+      - "defense in depth"
+      - "secure by design"
+      - "threat modeling"
+
+  kubernetes-security-policies:
+    keywords:
+      - "kubernetes security"
+      - "pod security"
+      - "RBAC"
+      - "network policy"
+      - "security context"
+      - "admission controller"
+      - "OPA"
+      - "policy enforcement"
+      - "k8s security"
+      - "container security"
+
+  database-design-patterns:
+    keywords:
+      - "database design"
+      - "normalization"
+      - "denormalization"
+      - "indexing"
+      - "schema design"
+      - "data modeling"
+      - "foreign key"
+      - "database patterns"
+      - "relational database"
+      - "NoSQL design"
+
+  typescript-advanced-patterns:
+    keywords:
+      - "TypeScript"
+      - "conditional types"
+      - "mapped types"
+      - "template literal types"
+      - "type guard"
+      - "discriminated union"
+      - "branded types"
+      - "advanced types"
+      - "type inference"
+      - "generic constraints"
+
+  react-performance-optimization:
+    keywords:
+      - "React performance"
+      - "React.memo"
+      - "useMemo"
+      - "useCallback"
+      - "code splitting"
+      - "lazy loading"
+      - "virtualization"
+      - "React optimization"
+      - "re-render"
+      - "bundle size"
+
+  python-performance-optimization:
+    keywords:
+      - "Python performance"
+      - "profiling"
+      - "optimization"
+      - "cProfile"
+      - "memory profiling"
+      - "NumPy"
+      - "vectorization"
+      - "Cython"
+      - "multiprocessing"
+      - "performance tuning"
+
+  security-testing-patterns:
+    keywords:
+      - "security testing"
+      - "penetration testing"
+      - "pen test"
+      - "vulnerability scanning"
+      - "SAST"
+      - "DAST"
+      - "security assessment"
+      - "fuzz testing"
+      - "security automation"
+      - "threat detection"
+
+  threat-modeling-techniques:
+    keywords:
+      - "threat modeling"
+      - "STRIDE"
+      - "attack tree"
+      - "threat analysis"
+      - "security architecture"
+      - "risk assessment"
+      - "attack surface"
+      - "threat landscape"
+      - "security design"
+      - "vulnerability analysis"
+
+  cqrs-event-sourcing:
+    keywords:
+      - "CQRS"
+      - "event sourcing"
+      - "command query"
+      - "aggregate root"
+      - "event store"
+      - "read model"
+      - "write model"
+      - "projection"
+      - "domain event"
+      - "event stream"
+
+  helm-chart-patterns:
+    keywords:
+      - "Helm"
+      - "Helm chart"
+      - "chart template"
+      - "values.yaml"
+      - "Helm release"
+      - "chart repository"
+      - "Helm deployment"
+      - "chart packaging"
+      - "Helm upgrade"
+      - "chart hooks"
+
+  gitops-workflows:
+    keywords:
+      - "GitOps"
+      - "Flux"
+      - "ArgoCD"
+      - "declarative deployment"
+      - "git-based deployment"
+      - "continuous deployment"
+      - "infrastructure as code"
+      - "GitOps automation"
+      - "deployment workflow"
+      - "reconciliation"

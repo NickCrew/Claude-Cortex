@@ -1625,6 +1625,218 @@ def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
     return exit_code, "\n".join(output_lines)
 
 
+
+
+def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
+    """Analyze text and suggest matching skills based on keywords.
+
+    Args:
+        text: Input text to analyze for skill keywords
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from . import activator
+
+    claude_dir = _resolve_claude_dir(home)
+
+    if not text or not text.strip():
+        return 1, _color("Usage:", RED) + " claude-ctx skills analyze <text>"
+
+    try:
+        result = activator.suggest_skills(text, claude_dir)
+        return 0, result
+    except FileNotFoundError as e:
+        return 1, _color(f"Error: {e}", RED)
+    except Exception as e:
+        return 1, _color(f"Error analyzing text: {e}", RED)
+
+
+def skill_deps(skill: str, home: Path | None = None) -> Tuple[int, str]:
+    """Show which agents use a specific skill."""
+    claude_dir = _resolve_claude_dir(home)
+    skills_dir = claude_dir / "skills"
+    deps_file = skills_dir / "dependencies.map"
+
+    if not skill:
+        return 1, _color("Usage:", RED) + " claude-ctx skills deps <skill_name>"
+
+    if not deps_file.is_file():
+        return 1, _color("Dependencies map not found at:", RED) + f" {deps_file}"
+
+    try:
+        content = deps_file.read_text(encoding="utf-8")
+    except Exception as exc:
+        return 1, _color(f"Error reading dependencies map: {exc}", RED)
+
+    # Parse the reverse lookup section
+    in_reverse_section = False
+    current_skill = None
+    agents_for_skill: List[str] = []
+
+    for line in content.splitlines():
+        line_stripped = line.strip()
+
+        # Start of reverse lookup section
+        if line_stripped == "## Skill → Agents (Reverse Lookup)":
+            in_reverse_section = True
+            continue
+
+        if not in_reverse_section:
+            continue
+
+        # Empty line resets current skill
+        if not line_stripped:
+            current_skill = None
+            continue
+
+        # Skill name line (ends with colon)
+        if line_stripped.endswith(":") and not line.startswith("  "):
+            skill_name = line_stripped[:-1].strip()
+            if skill_name == skill:
+                current_skill = skill_name
+            else:
+                current_skill = None
+            continue
+
+        # Agent line (indented with dash)
+        if current_skill and line.startswith("  - "):
+            agent_name = line_stripped[2:].strip()
+            agents_for_skill.append(agent_name)
+
+    if not agents_for_skill:
+        return 1, _color(f"Skill '{skill}' not found or has no agents using it", YELLOW)
+
+    output_lines: List[str] = [
+        _color(f"=== Agents using skill: {skill} ===", BLUE),
+        "",
+    ]
+
+    for agent in sorted(agents_for_skill):
+        output_lines.append(f"  • {agent}")
+
+    output_lines.append("")
+    output_lines.append(f"Total: {len(agents_for_skill)} agent(s)")
+
+    return 0, "\n".join(output_lines)
+
+
+def skill_agents(skill: str, home: Path | None = None) -> Tuple[int, str]:
+    """Alias for skill_deps - show which agents use a specific skill."""
+    return skill_deps(skill, home)
+
+
+def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, str]:
+    """Suggest skills based on project context analysis.
+
+    Args:
+        project_dir_str: Path to project directory to analyze
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from . import suggester
+
+    project_dir = Path(project_dir_str).resolve()
+
+    if not project_dir.is_dir():
+        return 1, _color(f"Project directory not found: {project_dir}", RED)
+
+    try:
+        # Detect project features
+        features = suggester.detect_project_type(project_dir)
+
+        # Generate suggestions
+        suggestions = suggester.suggest_skills_for_project(project_dir)
+
+        if not suggestions:
+            return 0, _color("No skill suggestions for this project type.", YELLOW)
+
+        # Format output
+        output_lines: List[str] = [
+            _color(f"=== Skill Suggestions for: {project_dir.name} ===", BLUE),
+            "",
+            _color("Detected features:", BLUE),
+        ]
+
+        # Show detected features
+        detected_features = [k.replace("has_", "").replace("_", " ").title()
+                           for k, v in features.items() if v]
+        if detected_features:
+            for feature in detected_features:
+                output_lines.append(f"  {_color('✓', GREEN)} {feature}")
+        else:
+            output_lines.append("  No specific features detected")
+
+        output_lines.extend([
+            "",
+            _color("Suggested skills:", BLUE),
+        ])
+
+        for skill in suggestions:
+            output_lines.append(f"  {_color(skill, GREEN)}")
+
+        output_lines.extend([
+            "",
+            _color(f"Total suggestions: {len(suggestions)}", YELLOW),
+            "",
+            "To activate a skill:",
+            f"  {_color('claude-ctx skills activate <skill_name>', YELLOW)}",
+        ])
+
+        return 0, "\n".join(output_lines)
+
+    except Exception as exc:
+        return 1, _color(f"Error analyzing project: {exc}", RED)
+
+
+def skill_metrics(skill_name: Optional[str] = None, home: Path | None = None) -> Tuple[int, str]:
+    """Show skill usage metrics.
+
+    Args:
+        skill_name: Optional skill name to show metrics for (shows all if None)
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from . import metrics
+
+    try:
+        all_metrics = metrics.get_all_metrics()
+
+        if skill_name:
+            # Show metrics for specific skill
+            formatted = metrics.format_metrics(all_metrics, skill_name)
+        else:
+            # Show all metrics
+            formatted = metrics.format_metrics(all_metrics)
+
+        return 0, formatted
+    except Exception as exc:
+        return 1, _color(f"Error reading metrics: {exc}", RED)
+
+
+def skill_metrics_reset(home: Path | None = None) -> Tuple[int, str]:
+    """Reset all skill metrics.
+
+    Args:
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from . import metrics
+
+    try:
+        metrics.reset_metrics()
+        return 0, _color("Skill metrics reset successfully", GREEN)
+    except Exception as exc:
+        return 1, _color(f"Error resetting metrics: {exc}", RED)
+
+
 def agent_deps(agent: str, home: Path | None = None) -> Tuple[int, str]:
     """Show dependency information for an agent."""
     claude_dir = _resolve_claude_dir(home)
