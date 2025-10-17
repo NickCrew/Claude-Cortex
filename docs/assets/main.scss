@@ -5,6 +5,88 @@
 @import "minima";
 
 /* ============================================
+   DARK MODE BASE - Force Dark Theme
+   ============================================ */
+
+body {
+  background: linear-gradient(135deg, #0a1628 0%, #030911 100%) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  min-height: 100vh;
+}
+
+.site-header {
+  background: rgba(6, 18, 38, 0.9) !important;
+  border-bottom: 1px solid rgba(56, 189, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+}
+
+.site-title,
+.site-title:visited {
+  color: #38bdff !important;
+}
+
+.site-nav .page-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.site-nav .page-link:hover {
+  color: #38bdff !important;
+}
+
+.page-content {
+  background: transparent !important;
+}
+
+.wrapper {
+  max-width: 1200px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+h1 {
+  color: #38bdff !important;
+  border-bottom: 2px solid rgba(56, 189, 255, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+h2 {
+  color: #5dd5ff !important;
+  margin-top: 2.5rem;
+}
+
+a {
+  color: #38bdff !important;
+}
+
+a:hover {
+  color: #5dd5ff !important;
+}
+
+p, li, td {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.site-footer {
+  background: rgba(6, 18, 38, 0.8) !important;
+  border-top: 1px solid rgba(56, 189, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+blockquote {
+  border-left: 4px solid #38bdff !important;
+  background: rgba(56, 189, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+}
+
+hr {
+  border-color: rgba(56, 189, 255, 0.2) !important;
+}
+
+/* ============================================
    CUSTOM STYLES - Blue Ops Theme Enhancement
    ============================================ */
 

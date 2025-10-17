@@ -20,3 +20,4 @@ url: https://nickcrew.github.io
 baseurl: /claude-ctx-plugin
 minima:
   skin: dark
+  date_format: "%Y-%m-%d"
