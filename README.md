@@ -64,6 +64,22 @@ eval "$(~/.local/pipx/venvs/claude-ctx-py/bin/register-python-argcomplete claude
 
 If you install the package with a different toolchain, point `register-python-argcomplete` at the virtual environment where `claude-ctx` lives.
 
+### Manual page (manpage)
+
+A comprehensive manual page is available in `docs/claude-ctx.1`. View it directly with:
+
+```bash
+man docs/claude-ctx.1
+```
+
+Or install it system-wide for access via `man claude-ctx`:
+
+```bash
+./scripts/install-manpage.sh
+```
+
+The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
+
 ## Development notes
 
 - Update the version in `.claude-plugin/plugin.json` whenever you publish a new release.

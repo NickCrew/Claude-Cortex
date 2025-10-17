@@ -34,6 +34,9 @@ claude-ctx = "claude_ctx_py.cli:main"
 where = ["."]
 include = ["claude_ctx_py*"]
 
+[tool.setuptools.data-files]
+"share/man/man1" = ["docs/claude-ctx.1"]
+
 
 [tool.mypy]
 python_version = "3.9"
