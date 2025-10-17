@@ -12,6 +12,8 @@ category: infrastructure
 tags:
   - terraform
   - iac
+skills:
+  - terraform-best-practices
 tier:
   id: core
   activation_strategy: sequential

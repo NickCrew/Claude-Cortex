@@ -44,6 +44,10 @@ activation:
   keywords: ["python", "pytest", "async", "django", "flask"]
   auto: true
   priority: high
+skills:
+  - async-python-patterns
+  - python-testing-patterns
+  - python-performance-optimization
 dependencies:
   requires: []
   recommends:

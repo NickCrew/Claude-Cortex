@@ -416,40 +416,42 @@ Before committing a new skill, verify:
 
 ## Skill Roadmap
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation ✅ COMPLETED
 - [x] Skills directory structure
 - [x] SKILL.md format specification
 - [x] CLI integration (list, info, validate)
 - [x] First skill: api-design-patterns
 - [x] Second skill: microservices-patterns
 
-### Phase 2: Core Skills (Next 2 Months)
+### Phase 2: Core Skills ✅ COMPLETED
 
-**Architecture & Design:**
-- [ ] event-driven-architecture
-- [ ] database-design-patterns
-- [ ] cqrs-event-sourcing
-- [ ] api-gateway-patterns
+**Architecture & Design (4 skills):**
+- [x] event-driven-architecture
+- [x] database-design-patterns
+- [x] cqrs-event-sourcing
+- [x] api-gateway-patterns
 
-**Infrastructure:**
-- [ ] kubernetes-deployment-patterns
-- [ ] kubernetes-security-policies
-- [ ] helm-chart-patterns
-- [ ] gitops-workflows
-- [ ] terraform-best-practices
+**Infrastructure (5 skills):**
+- [x] kubernetes-deployment-patterns
+- [x] kubernetes-security-policies
+- [x] helm-chart-patterns
+- [x] gitops-workflows
+- [x] terraform-best-practices
 
-**Development:**
-- [ ] async-python-patterns (borrow from ~/agents)
-- [ ] python-testing-patterns
-- [ ] python-performance-optimization
-- [ ] typescript-advanced-patterns
-- [ ] react-performance-optimization
+**Development (5 skills):**
+- [x] async-python-patterns (from ~/agents)
+- [x] python-testing-patterns
+- [x] python-performance-optimization
+- [x] typescript-advanced-patterns
+- [x] react-performance-optimization
 
-**Security:**
-- [ ] owasp-top-10
-- [ ] secure-coding-practices
-- [ ] threat-modeling-techniques
-- [ ] security-testing-patterns
+**Security (4 skills):**
+- [x] owasp-top-10
+- [x] secure-coding-practices
+- [x] threat-modeling-techniques
+- [x] security-testing-patterns
+
+**Total Phase 2: 18 skills completed**
 
 ### Phase 3: Integration (Months 3-4)
 - [ ] Automatic skill activation based on keywords

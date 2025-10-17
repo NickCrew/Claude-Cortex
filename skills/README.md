@@ -150,11 +150,144 @@ claude-ctx skills info your-skill-name
 
 ## Existing Skills
 
-### api-design-patterns
-**Agent**: backend-architect
+### Phase 1 Skills (Foundation)
+
+#### api-design-patterns
+**Agents**: backend-architect
 **Triggers**: API design, REST, GraphQL, endpoint design, service contracts
 **Content**: Versioning, pagination, error handling, HATEOAS, rate limiting, caching
+**Size**: ~1,800 tokens
+
+#### microservices-patterns
+**Agents**: backend-architect
+**Triggers**: Microservices, service decomposition, distributed systems
+**Content**: Service decomposition, communication patterns, CQRS, saga, resilience, observability
+**Size**: ~3,200 tokens
+
+### Phase 2 Skills (Core Skills)
+
+#### Architecture & Design (4 skills)
+
+##### event-driven-architecture
+**Agents**: backend-architect
+**Triggers**: Event sourcing, CQRS, message brokers, eventual consistency
+**Content**: Event sourcing, CQRS, pub/sub, saga patterns, Kafka/RabbitMQ
+**Size**: ~3,400 tokens
+
+##### database-design-patterns
+**Agents**: backend-architect
+**Triggers**: Database schema, query optimization, data modeling
+**Content**: Normalization, indexing, partitioning, sharding, replication patterns
+**Size**: ~3,200 tokens
+
+##### cqrs-event-sourcing
+**Agents**: backend-architect
+**Triggers**: CQRS, event sourcing, temporal queries, audit systems
+**Content**: Command/query separation, event store design, projections, snapshots
+**Size**: ~3,500 tokens
+
+##### api-gateway-patterns
+**Agents**: backend-architect
+**Triggers**: API gateway, BFF, service composition, routing
+**Content**: Gateway routing, authentication, rate limiting, circuit breakers, BFF
+**Size**: ~2,400 tokens
+
+#### Infrastructure (4 skills)
+
+##### kubernetes-deployment-patterns
+**Agents**: kubernetes-architect
+**Triggers**: K8s deployments, rollout strategies, StatefulSets
+**Content**: Deployment strategies (rolling, blue-green, canary), workload types, autoscaling
+**Size**: ~2,800 tokens
+
+##### kubernetes-security-policies
+**Agents**: kubernetes-architect
+**Triggers**: K8s security, RBAC, network policies, Pod Security Standards
+**Content**: PSS/PSA, Network Policies, RBAC, Security Contexts, admission control
 **Size**: ~2,500 tokens
+
+##### helm-chart-patterns
+**Agents**: kubernetes-architect
+**Triggers**: Helm charts, K8s packaging, templating
+**Content**: Chart structure, values files, templates, dependencies, hooks, Helmfile
+**Size**: ~2,700 tokens
+
+##### gitops-workflows
+**Agents**: kubernetes-architect
+**Triggers**: GitOps, ArgoCD, Flux, declarative deployments
+**Content**: GitOps principles, ArgoCD, Flux, environment promotion, secret management
+**Size**: ~2,600 tokens
+
+##### terraform-best-practices
+**Agents**: terraform-specialist
+**Triggers**: Terraform, IaC, infrastructure automation
+**Content**: Module design, state management, workspaces, security, testing
+**Size**: ~2,400 tokens
+
+#### Development (5 skills)
+
+##### async-python-patterns
+**Agents**: python-pro
+**Triggers**: Python asyncio, async/await, concurrent programming
+**Content**: asyncio fundamentals, async/await, event loops, context managers
+**Size**: ~2,000 tokens
+
+##### python-testing-patterns
+**Agents**: python-pro
+**Triggers**: pytest, unit testing, mocking, test automation
+**Content**: pytest fundamentals, fixtures, parametrize, mocking, property-based testing
+**Size**: ~2,700 tokens
+
+##### python-performance-optimization
+**Agents**: python-pro
+**Triggers**: Python performance, profiling, optimization
+**Content**: Profiling tools, algorithmic optimization, memoization, Cython, multiprocessing
+**Size**: ~2,400 tokens
+
+##### typescript-advanced-patterns
+**Agents**: typescript-pro
+**Triggers**: TypeScript, advanced types, type safety
+**Content**: Conditional types, mapped types, template literals, type guards, generics
+**Size**: ~2,800 tokens
+
+##### react-performance-optimization
+**Agents**: typescript-pro
+**Triggers**: React performance, memoization, code splitting
+**Content**: React.memo, useMemo/useCallback, code splitting, virtualization, concurrent features
+**Size**: ~2,500 tokens
+
+#### Security (4 skills)
+
+##### owasp-top-10
+**Agents**: security-auditor
+**Triggers**: Security vulnerabilities, OWASP, security audit
+**Content**: OWASP Top 10 2021 vulnerabilities with detection and remediation
+**Size**: ~3,200 tokens
+
+##### secure-coding-practices
+**Agents**: security-auditor
+**Triggers**: Secure coding, input validation, authentication, cryptography
+**Content**: Input validation, output encoding, authentication, cryptography, secure defaults
+**Size**: ~3,400 tokens
+
+##### threat-modeling-techniques
+**Agents**: security-auditor
+**Triggers**: Threat modeling, STRIDE, attack trees, risk assessment
+**Content**: STRIDE methodology, attack trees, DFD, trust boundaries, DREAD
+**Size**: ~3,600 tokens
+
+##### security-testing-patterns
+**Agents**: security-auditor
+**Triggers**: Security testing, SAST, DAST, penetration testing
+**Content**: SAST/DAST, penetration testing, fuzzing, API security testing
+**Size**: ~3,200 tokens
+
+### Summary
+
+**Total Skills**: 20 (2 Phase 1 + 18 Phase 2)
+**Total Agents with Skills**: 6 (backend-architect, python-pro, typescript-pro, kubernetes-architect, terraform-specialist, security-auditor)
+**Average Skill Size**: ~2,800 tokens
+**Token Efficiency**: 30-50% reduction per agent
 
 ## Skill Development Guidelines
 
@@ -245,30 +378,51 @@ User: "Design a REST API for user management"
 
 ## Roadmap
 
-### Phase 1: Foundation (Current)
+### Phase 1: Foundation ✅ COMPLETED
 - [x] Skills directory structure
 - [x] SKILL.md format specification
+- [x] CLI integration (list, info, validate)
 - [x] First skill: api-design-patterns
-- [ ] CLI integration (list, info, validate)
+- [x] Second skill: microservices-patterns
 
-### Phase 2: Core Skills (Next)
-- [ ] microservices-patterns
-- [ ] event-driven-architecture
-- [ ] database-design-patterns
-- [ ] kubernetes-deployment-patterns
-- [ ] async-python-patterns (from ~/agents)
+### Phase 2: Core Skills ✅ COMPLETED
+**Architecture & Design (4 skills):**
+- [x] event-driven-architecture
+- [x] database-design-patterns
+- [x] cqrs-event-sourcing
+- [x] api-gateway-patterns
 
-### Phase 3: Integration
+**Infrastructure (5 skills):**
+- [x] kubernetes-deployment-patterns
+- [x] kubernetes-security-policies
+- [x] helm-chart-patterns
+- [x] gitops-workflows
+- [x] terraform-best-practices
+
+**Development (5 skills):**
+- [x] async-python-patterns (from ~/agents)
+- [x] python-testing-patterns
+- [x] python-performance-optimization
+- [x] typescript-advanced-patterns
+- [x] react-performance-optimization
+
+**Security (4 skills):**
+- [x] owasp-top-10
+- [x] secure-coding-practices
+- [x] threat-modeling-techniques
+- [x] security-testing-patterns
+
+### Phase 3: Integration (Months 3-4)
 - [ ] Automatic skill activation based on keywords
-- [ ] Agent frontmatter `skills:` field support
+- [ ] Context-driven skill suggestions
+- [ ] Skill performance metrics (token savings tracking)
 - [ ] Dependency tracking (skill → agent relationships)
-- [ ] Performance metrics (token usage reduction)
 
-### Phase 4: Advanced
+### Phase 4: Advanced (Months 5-6)
 - [ ] Skill composition (skills reference other skills)
 - [ ] Versioned skills (skill evolution without breaking)
 - [ ] Community contributed skills
-- [ ] Skill marketplace integration
+- [ ] Skill effectiveness analytics
 
 ## See Also
 

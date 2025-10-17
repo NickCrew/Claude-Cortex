@@ -72,6 +72,9 @@ metadata:
   source: claude-ctx-core
   version: 2025.10.14
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
+skills:
+  - typescript-advanced-patterns
+  - react-performance-optimization
 ---
 
 You are a TypeScript expert specializing in advanced typing and enterprise-grade development.

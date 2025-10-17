@@ -42,6 +42,9 @@ skills:
   - api-design-patterns
   - microservices-patterns
   - event-driven-architecture
+  - database-design-patterns
+  - api-gateway-patterns
+  - cqrs-event-sourcing
 workflows:
   default: backend-architecture
   phases:

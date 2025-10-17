@@ -3,6 +3,11 @@ version: 2.0
 name: kubernetes-architect
 alias:
   - k8s-architect
+skills:
+  - kubernetes-deployment-patterns
+  - kubernetes-security-policies
+  - helm-chart-patterns
+  - gitops-workflows
 summary: Builds GitOps-driven Kubernetes platforms with service mesh, observability, and multi-cluster resilience.
 description: |
   Design cloud-native infrastructure with Kubernetes at its core across AWS/Azure/GCP and hybrid environments.
