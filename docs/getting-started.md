@@ -1,8 +1,12 @@
-# Claude CTX Plugin
+---
+layout: default
+title: Getting Started
+nav_order: 2
+---
+
+# Getting Started
 
 This repository packages the `claude-ctx` context management toolkit as a Claude Code plugin. It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
-
-> 📚 **Docs:** <https://nickcrew.github.io/claude-ctx-plugin/>
 
 ## What’s inside
 
@@ -71,15 +75,3 @@ If you install the package with a different toolchain, point `register-python-ar
 - Use `claude plugin validate .` to confirm the manifest structure prior to publishing.
 
 For marketplace configuration examples, see `../claude-private-marketplace`.
-
-## Preview the docs locally
-
-The documentation site under `docs/` now uses the default GitHub Pages **minima** theme with custom styling. To run it locally:
-
-```bash
-cd docs
-bundle install
-bundle exec jekyll serve --source . --livereload
-```
-
-Then open <http://127.0.0.1:4000>. Changes to Markdown or assets refresh automatically.

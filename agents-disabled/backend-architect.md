@@ -38,6 +38,10 @@ dependencies:
     - database-optimizer
     - security-auditor
     - performance-engineer
+skills:
+  - api-design-patterns
+  - microservices-patterns
+  - event-driven-architecture
 workflows:
   default: backend-architecture
   phases:

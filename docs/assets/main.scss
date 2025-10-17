@@ -1,0 +1,293 @@
+---
+# Forward to minima defaults with custom enhancements
+---
+
+@import "minima";
+
+/* ============================================
+   CUSTOM STYLES - Blue Ops Theme Enhancement
+   ============================================ */
+
+/* Documentation Cards */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.doc-card {
+  position: relative;
+  padding: 1.8rem;
+  border-radius: 20px;
+  border: 1px solid rgba(56, 189, 255, 0.22);
+  background: linear-gradient(135deg, rgba(8, 28, 56, 0.85), rgba(6, 18, 38, 0.75));
+  box-shadow: 0 20px 48px rgba(7, 20, 44, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.doc-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 255, 0.42);
+  box-shadow: 0 28px 68px rgba(56, 189, 255, 0.35);
+  text-decoration: none;
+}
+
+.doc-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: #38bdff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.doc-card p {
+  margin-bottom: 1.2rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.doc-card__arrow {
+  position: absolute;
+  top: 1.8rem;
+  right: 1.8rem;
+  font-size: 1.8rem;
+  color: #38bdff;
+  transition: transform 0.3s ease;
+}
+
+.doc-card:hover .doc-card__arrow {
+  transform: translateX(6px);
+}
+
+.doc-card__meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.82rem;
+  color: rgba(56, 189, 255, 0.7);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(56, 189, 255, 0.15);
+}
+
+.doc-card__meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Metrics Display */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+}
+
+.metric-box {
+  padding: 1.8rem;
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 255, 0.2);
+  background: linear-gradient(135deg, rgba(12, 35, 64, 0.75), rgba(6, 18, 38, 0.65));
+  box-shadow: 0 12px 32px rgba(7, 20, 44, 0.4);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 255, 0.35);
+  box-shadow: 0 16px 42px rgba(56, 189, 255, 0.25);
+}
+
+.metric-value {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #38bdff;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+  background: linear-gradient(135deg, #38bdff, #5dd5ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.4rem;
+}
+
+.metric-sublabel {
+  font-size: 0.82rem;
+  color: rgba(56, 189, 255, 0.65);
+  font-weight: 400;
+}
+
+/* Callout Boxes */
+.callout {
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-left: 4px solid;
+  background: rgba(12, 35, 64, 0.5);
+}
+
+.callout--info {
+  border-left-color: #38bdff;
+  background: linear-gradient(90deg, rgba(56, 189, 255, 0.15), rgba(12, 35, 64, 0.5));
+}
+
+.callout--success {
+  border-left-color: #22c55e;
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.15), rgba(12, 35, 64, 0.5));
+}
+
+.callout--warning {
+  border-left-color: #f59e0b;
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(12, 35, 64, 0.5));
+}
+
+.callout--danger {
+  border-left-color: #ef4444;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), rgba(12, 35, 64, 0.5));
+}
+
+/* Enhanced Code Blocks */
+.highlight {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(56, 189, 255, 0.18);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+pre {
+  padding: 1.2rem !important;
+  border-radius: 12px;
+}
+
+code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 0.9rem;
+}
+
+/* Enhanced Tables */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  margin: 1.5rem 0;
+}
+
+thead {
+  background: linear-gradient(135deg, rgba(56, 189, 255, 0.25), rgba(12, 35, 64, 0.7));
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+thead th {
+  padding: 1rem 1.2rem;
+  font-weight: 700;
+  color: #38bdff;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(56, 189, 255, 0.08);
+}
+
+tbody td {
+  padding: 0.9rem 1.2rem;
+  border-top: 1px solid rgba(56, 189, 255, 0.12);
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1.5rem;
+}
+
+.breadcrumbs a {
+  color: #38bdff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbs a:hover {
+  color: #5dd5ff;
+}
+
+/* Page Navigation */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  margin: 3rem 0 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(56, 189, 255, 0.2);
+}
+
+.page-nav a {
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  background: rgba(56, 189, 255, 0.12);
+  border: 1px solid rgba(56, 189, 255, 0.25);
+  color: #38bdff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.page-nav a:hover {
+  background: rgba(56, 189, 255, 0.2);
+  border-color: rgba(56, 189, 255, 0.4);
+  transform: translateX(-2px);
+}
+
+/* Tooltips */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted rgba(56, 189, 255, 0.5);
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  padding: 0.5rem 0.8rem;
+  background: rgba(6, 18, 38, 0.95);
+  border: 1px solid rgba(56, 189, 255, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}

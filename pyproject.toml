@@ -6,13 +6,15 @@ build-backend = "setuptools.build_meta"
 name = "claude-ctx-py"
 version = "0.1.0"
 description = "Python rewrite of claude-ctx list and status commands"
-authors = [{name = "Code", email = "code@example.com"}]
+authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "argcomplete>=3.2",
+]
 
 [project.urls]
-Homepage = "https://example.com"
+Homepage = "https://github.com/NickCrew/claude-ctx-plugin"
 
 [project.scripts]
 claude-ctx = "claude_ctx_py.cli:main"
@@ -23,5 +25,5 @@ include = ["claude_ctx_py*"]
 
 [tool.uv.workspace]
 members = [
-    "shareable/claude-ctx-installer/claude_ctx_py",
+    "claude_ctx_py",
 ]

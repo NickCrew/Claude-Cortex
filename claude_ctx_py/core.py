@@ -1427,6 +1427,204 @@ def show_status(home: Path | None = None) -> str:
     return "\n".join(sections)
 
 
+def list_skills(home: Path | None = None) -> str:
+    """List all available skills."""
+    claude_dir = _resolve_claude_dir(home)
+    skills_dir = claude_dir / "skills"
+
+    if not skills_dir.is_dir():
+        return "No skills directory found."
+
+    skills: List[Tuple[str, str]] = []
+
+    for skill_path in sorted(skills_dir.iterdir()):
+        if not skill_path.is_dir():
+            continue
+
+        skill_file = skill_path / "SKILL.md"
+        if not skill_file.is_file():
+            continue
+
+        skill_name = skill_path.name
+
+        # Extract description from frontmatter
+        try:
+            content = skill_file.read_text(encoding="utf-8")
+            front_matter = _extract_front_matter(content)
+            if front_matter:
+                lines = front_matter.strip().splitlines()
+                tokens = _tokenize_front_matter(lines)
+                description = _extract_scalar_from_paths(
+                    tokens, (("description",),)
+                ) or "No description"
+            else:
+                description = "No description"
+        except Exception:
+            description = "Error reading skill"
+
+        skills.append((skill_name, description))
+
+    if not skills:
+        return "No skills found."
+
+    lines: List[str] = [_color("Available skills:", BLUE)]
+
+    # Find max skill name length for alignment
+    max_name_len = max(len(name) for name, _ in skills) if skills else 0
+
+    for skill_name, description in skills:
+        # Truncate description if too long
+        max_desc_len = 80
+        if len(description) > max_desc_len:
+            description = description[:max_desc_len-3] + "..."
+
+        lines.append(f"  {_color(skill_name.ljust(max_name_len), GREEN)}  {description}")
+
+    return "\n".join(lines)
+
+
+def skill_info(skill: str, home: Path | None = None) -> Tuple[int, str]:
+    """Show detailed information about a skill."""
+    claude_dir = _resolve_claude_dir(home)
+    skills_dir = claude_dir / "skills"
+
+    if not skill:
+        return 1, _color("Usage:", RED) + " claude-ctx skills info <skill_name>"
+
+    skill_path = skills_dir / skill / "SKILL.md"
+
+    if not skill_path.is_file():
+        return 1, _color(f"Skill '{skill}' not found", RED)
+
+    try:
+        content = skill_path.read_text(encoding="utf-8")
+    except Exception as exc:
+        return 1, _color(f"Error reading skill: {exc}", RED)
+
+    # Extract frontmatter
+    front_matter = _extract_front_matter(content)
+    if not front_matter:
+        return 1, _color(f"Skill '{skill}' has no valid frontmatter", RED)
+
+    lines = front_matter.strip().splitlines()
+    tokens = _tokenize_front_matter(lines)
+
+    skill_name = _extract_scalar_from_paths(
+        tokens, (("name",),)
+    ) or skill
+    description = _extract_scalar_from_paths(
+        tokens, (("description",),)
+    ) or "No description"
+
+    # Count tokens (rough estimate: words * 1.3)
+    word_count = len(content.split())
+    token_estimate = int(word_count * 1.3)
+
+    output_lines: List[str] = [
+        _color(f"=== Skill: {skill_name} ===", BLUE),
+        "",
+        _color("Description:", BLUE),
+        f"  {description}",
+        "",
+        _color("Size:", BLUE),
+        f"  ~{token_estimate} tokens (estimated)",
+        "",
+        _color("Location:", BLUE),
+        f"  {skill_path}",
+    ]
+
+    return 0, "\n".join(output_lines)
+
+
+def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
+    """Validate skill metadata against required schema."""
+    claude_dir = _resolve_claude_dir(home)
+    skills_dir = claude_dir / "skills"
+
+    if not skills_dir.is_dir():
+        return 1, _color("No skills directory found", RED)
+
+    validate_all = skills and skills[0] == "--all"
+
+    if validate_all:
+        skill_targets = [
+            p.name for p in sorted(skills_dir.iterdir())
+            if p.is_dir() and (p / "SKILL.md").is_file()
+        ]
+    elif skills:
+        skill_targets = list(skills)
+    else:
+        skill_targets = [
+            p.name for p in sorted(skills_dir.iterdir())
+            if p.is_dir() and (p / "SKILL.md").is_file()
+        ]
+
+    if not skill_targets:
+        return 1, _color("No skills to validate", YELLOW)
+
+    results: List[str] = []
+    errors: List[str] = []
+
+    for skill_name in skill_targets:
+        skill_path = skills_dir / skill_name / "SKILL.md"
+
+        if not skill_path.is_file():
+            errors.append(f"  {_color('✗', RED)} {skill_name}: SKILL.md not found")
+            continue
+
+        try:
+            content = skill_path.read_text(encoding="utf-8")
+            front_matter = _extract_front_matter(content)
+
+            if not front_matter:
+                errors.append(f"  {_color('✗', RED)} {skill_name}: Missing frontmatter")
+                continue
+
+            lines = front_matter.strip().splitlines()
+            tokens = _tokenize_front_matter(lines)
+
+            # Validate required fields
+            name = _extract_scalar_from_paths(tokens, (("name",),))
+            description = _extract_scalar_from_paths(tokens, (("description",),))
+
+            if not name:
+                errors.append(f"  {_color('✗', RED)} {skill_name}: Missing 'name' field")
+                continue
+
+            if not description:
+                errors.append(f"  {_color('✗', RED)} {skill_name}: Missing 'description' field")
+                continue
+
+            if len(description) > 1024:
+                errors.append(f"  {_color('⚠', YELLOW)} {skill_name}: Description too long ({len(description)} > 1024 chars)")
+
+            if "Use when" not in description:
+                errors.append(f"  {_color('⚠', YELLOW)} {skill_name}: Description missing 'Use when' trigger")
+
+            results.append(f"  {_color('✓', GREEN)} {skill_name}: Valid")
+
+        except Exception as exc:
+            errors.append(f"  {_color('✗', RED)} {skill_name}: Error reading file: {exc}")
+
+    output_lines: List[str] = [_color("=== Skill Validation ===", BLUE), ""]
+
+    if results:
+        output_lines.extend(results)
+
+    if errors:
+        if results:
+            output_lines.append("")
+        output_lines.extend(errors)
+
+    output_lines.append("")
+    output_lines.append(
+        f"Validated: {len(results)} passed, {len(errors)} issues"
+    )
+
+    exit_code = 0 if not errors else 1
+    return exit_code, "\n".join(output_lines)
+
+
 def agent_deps(agent: str, home: Path | None = None) -> Tuple[int, str]:
     """Show dependency information for an agent."""
     claude_dir = _resolve_claude_dir(home)

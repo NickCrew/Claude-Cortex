@@ -10,6 +10,17 @@ from typing import Iterable, List
 from . import core
 
 
+def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
+    """Integrate argcomplete if it is available."""
+
+    try:  # pragma: no cover - optional dependency
+        import argcomplete  # type: ignore
+    except ImportError:  # pragma: no cover
+        return
+
+    argcomplete.autocomplete(parser)  # type: ignore[attr-defined]
+
+
 def _print(text: str) -> None:
     sys.stdout.write(text + "\n")
 
@@ -85,6 +96,26 @@ def build_parser() -> argparse.ArgumentParser:
         "deactivate", help="Deactivate a rule module"
     )
     rules_deactivate.add_argument("rule", help="Rule name (without .md)")
+
+    skills_parser = subparsers.add_parser("skills", help="Skill commands")
+    skills_sub = skills_parser.add_subparsers(dest="skills_command")
+    skills_sub.add_parser("list", help="List available skills")
+    skills_info_parser = skills_sub.add_parser("info", help="Show skill details")
+    skills_info_parser.add_argument("skill", help="Skill name")
+    skills_validate_parser = skills_sub.add_parser(
+        "validate", help="Validate skill metadata"
+    )
+    skills_validate_parser.add_argument(
+        "skills",
+        nargs="*",
+        help="Skill names to validate (default: all)",
+    )
+    skills_validate_parser.add_argument(
+        "--all",
+        dest="validate_all",
+        action="store_true",
+        help="Validate all skills",
+    )
 
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_parser.add_argument(
@@ -247,6 +278,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
+    _enable_argcomplete(parser)
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     if args.command == "mode":
@@ -308,6 +340,21 @@ def main(argv: Iterable[str] | None = None) -> int:
         if args.rules_command == "deactivate":
             _print(core.rules_deactivate(args.rule))
             return 0
+    elif args.command == "skills":
+        if args.skills_command == "list":
+            _print(core.list_skills())
+            return 0
+        if args.skills_command == "info":
+            exit_code, message = core.skill_info(args.skill)
+            _print(message)
+            return exit_code
+        if args.skills_command == "validate":
+            targets = list(getattr(args, "skills", []) or [])
+            if getattr(args, "validate_all", False):
+                targets.insert(0, "--all")
+            exit_code, message = core.skill_validate(*targets)
+            _print(message)
+            return exit_code
     elif args.command == "init":
         init_command = getattr(args, "init_command", None)
         if init_command == "detect":

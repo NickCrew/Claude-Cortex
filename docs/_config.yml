@@ -1,0 +1,22 @@
+title: Claude CTX Plugin
+description: Comprehensive context management plugin for Claude Code
+theme: minima
+markdown: kramdown
+kramdown:
+  input: GFM
+header_pages:
+  - index.md
+  - getting-started.md
+  - architecture.md
+  - agents.md
+  - skills.md
+  - model-optimization.md
+  - commands.md
+logo: /assets/images/hero.png
+github:
+  repository_url: https://github.com/NickCrew/claude-ctx-plugin
+repository: NickCrew/claude-ctx-plugin
+url: https://nickcrew.github.io
+baseurl: /claude-ctx-plugin
+minima:
+  skin: dark
