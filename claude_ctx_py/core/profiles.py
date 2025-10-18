@@ -49,7 +49,25 @@ from .base import (
 )
 
 # Import from other core modules
-from .agents import agent_activate, agent_deactivate, agent_status
+from .agents import (
+    agent_activate,
+    agent_deactivate,
+    agent_status,
+    _agent_basename,
+    ESSENTIAL_AGENTS,
+    FRONTEND_AGENTS,
+    WEB_DEV_AGENTS,
+    BACKEND_AGENTS,
+    DEVOPS_AGENTS,
+    DOCUMENTATION_AGENTS,
+    DATA_AI_AGENTS,
+    QUALITY_AGENTS,
+    META_AGENTS,
+    DX_AGENTS,
+    PRODUCT_AGENTS,
+    FULL_AGENTS,
+    BUILT_IN_PROFILES,
+)
 from .modes import mode_activate, mode_deactivate, mode_status
 from .rules import rules_activate
 
@@ -243,6 +261,165 @@ def profile_backend(home: Path | None = None) -> Tuple[int, str]:
     return 0, "\n".join(messages)
 
 
+def _load_profile_with_agents(
+    profile_name: str,
+    agent_list: List[str],
+    *,
+    home: Path | None = None,
+    activate_task_management: bool = False,
+    activate_quality_rules: bool = False,
+) -> Tuple[int, str]:
+    """Generic profile loader that resets and activates specified agents."""
+    claude_dir = _resolve_claude_dir(home)
+
+    exit_code, reset_message = _profile_reset(home=home)
+    messages: List[str] = []
+    if reset_message:
+        messages.append(reset_message)
+    if exit_code != 0:
+        return exit_code, "\n".join(messages)
+
+    for agent_name in agent_list:
+        exit_code, message = agent_activate(agent_name, home=home)
+        if exit_code != 0:
+            if message:
+                messages.append(message)
+            else:
+                messages.append(
+                    _color(f"Failed to activate agent: {agent_name}", RED)
+                )
+            return exit_code, "\n".join(messages)
+        if message:
+            messages.append(message)
+
+    if activate_task_management:
+        exit_code, mode_message = mode_activate("Task_Management", home=home)
+        # Task_Management might already be active from _profile_reset, which is ok
+        if exit_code != 0 and "not found in inactive modes" not in mode_message:
+            if mode_message:
+                messages.append(mode_message)
+            else:
+                messages.append(
+                    _color("Failed to activate Task_Management mode", RED)
+                )
+            return exit_code, "\n".join(messages)
+        if mode_message and exit_code == 0:
+            messages.append(mode_message)
+
+    if activate_quality_rules:
+        rule_message = rules_activate("quality-rules", home=home)
+        if rule_message:
+            messages.append(rule_message)
+
+    _refresh_claude_md(claude_dir)
+
+    messages.append(_color(f"Loaded profile: {profile_name}", GREEN))
+    return 0, "\n".join(messages)
+
+
+def profile_frontend(home: Path | None = None) -> Tuple[int, str]:
+    """Load frontend profile: minimal + TypeScript, code review."""
+    return _load_profile_with_agents(
+        "frontend",
+        FRONTEND_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_web_dev(home: Path | None = None) -> Tuple[int, str]:
+    """Load web-dev profile: minimal + full-stack web development tools."""
+    return _load_profile_with_agents(
+        "web-dev",
+        WEB_DEV_AGENTS,
+        home=home,
+        activate_task_management=True,
+        activate_quality_rules=True,
+    )
+
+
+def profile_devops(home: Path | None = None) -> Tuple[int, str]:
+    """Load devops profile: infrastructure and deployment focused."""
+    return _load_profile_with_agents(
+        "devops",
+        DEVOPS_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_documentation(home: Path | None = None) -> Tuple[int, str]:
+    """Load documentation profile: documentation and writing focused."""
+    return _load_profile_with_agents(
+        "documentation",
+        DOCUMENTATION_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_data_ai(home: Path | None = None) -> Tuple[int, str]:
+    """Load data-ai profile: data science and AI development."""
+    return _load_profile_with_agents(
+        "data-ai",
+        DATA_AI_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_quality(home: Path | None = None) -> Tuple[int, str]:
+    """Load quality profile: code quality and security focused."""
+    return _load_profile_with_agents(
+        "quality",
+        QUALITY_AGENTS,
+        home=home,
+        activate_task_management=True,
+        activate_quality_rules=True,
+    )
+
+
+def profile_meta(home: Path | None = None) -> Tuple[int, str]:
+    """Load meta profile: meta-programming and tooling."""
+    return _load_profile_with_agents(
+        "meta",
+        META_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_developer_experience(home: Path | None = None) -> Tuple[int, str]:
+    """Load developer-experience profile: DX and tooling optimization."""
+    return _load_profile_with_agents(
+        "developer-experience",
+        DX_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_product(home: Path | None = None) -> Tuple[int, str]:
+    """Load product profile: product development and management."""
+    return _load_profile_with_agents(
+        "product",
+        PRODUCT_AGENTS,
+        home=home,
+        activate_task_management=True,
+    )
+
+
+def profile_full(home: Path | None = None) -> Tuple[int, str]:
+    """Load full profile: all available agents enabled."""
+    return _load_profile_with_agents(
+        "full",
+        FULL_AGENTS,
+        home=home,
+        activate_task_management=True,
+        activate_quality_rules=True,
+    )
+
+
 
 
 def init_detect(
@@ -405,7 +582,17 @@ def init_profile(
 
     loaders = {
         "minimal": profile_minimal,
+        "frontend": profile_frontend,
+        "web-dev": profile_web_dev,
         "backend": profile_backend,
+        "devops": profile_devops,
+        "documentation": profile_documentation,
+        "data-ai": profile_data_ai,
+        "quality": profile_quality,
+        "meta": profile_meta,
+        "developer-experience": profile_developer_experience,
+        "product": profile_product,
+        "full": profile_full,
     }
 
     loader = loaders.get(profile_name)

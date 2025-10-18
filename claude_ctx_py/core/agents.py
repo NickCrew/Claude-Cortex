@@ -943,11 +943,66 @@ ESSENTIAL_AGENTS = [
     "security-auditor",
 ]
 
+FRONTEND_AGENTS = [
+    "typescript-pro",
+    "code-reviewer",
+]
+
+WEB_DEV_AGENTS = [
+    "typescript-pro",
+    "python-pro",
+    "code-reviewer",
+]
+
 BACKEND_AGENTS = [
     "python-pro",
-    "database-optimizer",
     "security-auditor",
-    "api-documenter",
+]
+
+DEVOPS_AGENTS = [
+    "cloud-architect",
+    "deployment-engineer",
+    "kubernetes-architect",
+    "terraform-specialist",
+]
+
+DOCUMENTATION_AGENTS = [
+    "code-reviewer",
+]
+
+DATA_AI_AGENTS = [
+    "python-pro",
+]
+
+QUALITY_AGENTS = [
+    "code-reviewer",
+    "security-auditor",
+    "debugger",
+]
+
+META_AGENTS = [
+    "code-reviewer",
+]
+
+DX_AGENTS = [
+    "code-reviewer",
+    "debugger",
+]
+
+PRODUCT_AGENTS = [
+    "code-reviewer",
+]
+
+FULL_AGENTS = [
+    "code-reviewer",
+    "debugger",
+    "typescript-pro",
+    "python-pro",
+    "security-auditor",
+    "cloud-architect",
+    "deployment-engineer",
+    "kubernetes-architect",
+    "terraform-specialist",
 ]
 
 BUILT_IN_PROFILES = [

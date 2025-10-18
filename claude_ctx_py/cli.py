@@ -344,8 +344,24 @@ def build_parser() -> argparse.ArgumentParser:
     profile_sub.add_parser("list", help="List available profiles")
     profile_save_parser = profile_sub.add_parser("save", help="Save current configuration to a profile")
     profile_save_parser.add_argument("name", help="Profile name")
-    profile_sub.add_parser("minimal", help="Load minimal profile (essential agents only)")
-    profile_sub.add_parser("backend", help="Load backend profile")
+
+    # Add subcommands for all built-in profiles
+    profile_descriptions = {
+        "minimal": "Load minimal profile (essential agents only)",
+        "frontend": "Load frontend profile (TypeScript + code review)",
+        "web-dev": "Load web-dev profile (full-stack web development)",
+        "backend": "Load backend profile (Python + security)",
+        "devops": "Load devops profile (infrastructure and deployment)",
+        "documentation": "Load documentation profile (documentation focused)",
+        "data-ai": "Load data-ai profile (data science and AI)",
+        "quality": "Load quality profile (code quality and security)",
+        "meta": "Load meta profile (meta-programming and tooling)",
+        "developer-experience": "Load developer-experience profile (DX optimization)",
+        "product": "Load product profile (product development)",
+        "full": "Load full profile (all available agents)",
+    }
+    for profile_name, description in profile_descriptions.items():
+        profile_sub.add_parser(profile_name, help=description)
 
     # Workflow commands
     workflow_parser = subparsers.add_parser("workflow", help="Workflow commands")
@@ -661,12 +677,25 @@ def main(argv: Iterable[str] | None = None) -> int:
             exit_code, message = core.profile_save(args.name)
             _print(message)
             return exit_code
-        if args.profile_command == "minimal":
-            exit_code, message = core.profile_minimal()
-            _print(message)
-            return exit_code
-        if args.profile_command == "backend":
-            exit_code, message = core.profile_backend()
+
+        # Handle all built-in profile commands dynamically
+        profile_loaders = {
+            "minimal": core.profile_minimal,
+            "frontend": core.profile_frontend,
+            "web-dev": core.profile_web_dev,
+            "backend": core.profile_backend,
+            "devops": core.profile_devops,
+            "documentation": core.profile_documentation,
+            "data-ai": core.profile_data_ai,
+            "quality": core.profile_quality,
+            "meta": core.profile_meta,
+            "developer-experience": core.profile_developer_experience,
+            "product": core.profile_product,
+            "full": core.profile_full,
+        }
+        loader = profile_loaders.get(args.profile_command)
+        if loader:
+            exit_code, message = loader()
             _print(message)
             return exit_code
     elif args.command == "workflow":
