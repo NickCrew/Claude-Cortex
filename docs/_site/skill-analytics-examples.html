@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Skill Analytics Examples | Claude CTX Plugin</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Skill Analytics Examples" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="https://nickcrew.github.io/claude-ctx-plugin/skill-analytics-examples.html" />
+<meta property="og:url" content="https://nickcrew.github.io/claude-ctx-plugin/skill-analytics-examples.html" />
+<meta property="og:site_name" content="Claude CTX Plugin" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Skill Analytics Examples" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Skill Analytics Examples","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://nickcrew.github.io/claude-ctx-plugin/assets/images/hero.png"}},"url":"https://nickcrew.github.io/claude-ctx-plugin/skill-analytics-examples.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/claude-ctx-plugin/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://nickcrew.github.io/claude-ctx-plugin/feed.xml" title="Claude CTX Plugin" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/claude-ctx-plugin/">Claude CTX Plugin</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/claude-ctx-plugin/">Overview</a><a class="page-link" href="/claude-ctx-plugin/getting-started.html">Getting Started</a><a class="page-link" href="/claude-ctx-plugin/architecture.html">Architecture</a><a class="page-link" href="/claude-ctx-plugin/agents.html">Agents</a><a class="page-link" href="/claude-ctx-plugin/skills.html">Skills</a><a class="page-link" href="/claude-ctx-plugin/model-optimization.html">Model Optimization</a><a class="page-link" href="/claude-ctx-plugin/commands.html">Command Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="skill-analytics-examples">Skill Analytics Examples</h1>
+
+<p>Comprehensive examples and scenarios for using skill analytics to optimize performance and track effectiveness.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>The skill analytics system provides deep insights into skill usage, effectiveness, ROI, and optimization opportunities. This guide demonstrates practical examples for leveraging analytics to improve your agent ecosystem.</p>
+
+<p><strong>Key Analytics Features:</strong></p>
+<ul>
+  <li>Effectiveness scoring (0-100 scale)</li>
+  <li>ROI calculations (cost savings, token efficiency)</li>
+  <li>Trending analysis (7/30/90 day periods)</li>
+  <li>Correlation discovery (frequently co-activated skills)</li>
+  <li>Usage recommendations</li>
+  <li>Export capabilities (JSON, CSV, text)</li>
+</ul>
+
+<hr />
+
+<h2 id="quick-start-examples">Quick Start Examples</h2>
+
+<h3 id="example-1-view-all-skill-metrics">Example 1: View All Skill Metrics</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills metrics
+
+<span class="c"># Output:</span>
+<span class="c"># Skill Metrics Summary</span>
+<span class="c"># ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="c">#</span>
+<span class="c"># Skill                              Act.  Tokens   Success  Last Used</span>
+<span class="c"># ─────────────────────────────────────────────────────────────────────</span>
+<span class="c"># api-design-patterns                 42   105,200   95.2%   2025-10-17</span>
+<span class="c"># microservices-patterns              38    97,600   92.1%   2025-10-17</span>
+<span class="c"># kubernetes-deployment-patterns      27    68,400   89.6%   2025-10-16</span>
+<span class="c"># python-testing-patterns             23    45,600   91.3%   2025-10-17</span>
+<span class="c"># event-driven-architecture           19    64,600   88.4%   2025-10-15</span>
+<span class="c">#</span>
+<span class="c"># Total Skills: 18</span>
+<span class="c"># Total Activations: 247</span>
+<span class="c"># Total Tokens Saved: 652,800</span>
+<span class="c"># Estimated Cost Savings: $1.96</span>
+</code></pre></div></div>
+
+<h3 id="example-2-view-specific-skill-metrics">Example 2: View Specific Skill Metrics</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills metrics api-design-patterns
+
+<span class="c"># Output:</span>
+<span class="c"># Skill: api-design-patterns</span>
+<span class="c"># ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="c">#</span>
+<span class="c"># Usage Statistics:</span>
+<span class="c">#   Activation Count:    42</span>
+<span class="c">#   Total Tokens Saved:  105,200</span>
+<span class="c">#   Avg Tokens/Use:      2,505</span>
+<span class="c">#   Success Rate:        95.2%</span>
+<span class="c">#   Last Activated:      2025-10-17 14:23:15 UTC</span>
+<span class="c">#</span>
+<span class="c"># Performance Metrics:</span>
+<span class="c">#   Effectiveness Score: 87.3/100</span>
+<span class="c">#   Cost Saved:          $0.3156</span>
+<span class="c">#   Cost per Activation: $0.0075</span>
+<span class="c">#   Efficiency Ratio:    4.2x</span>
+<span class="c">#</span>
+<span class="c"># Activation Trends:</span>
+<span class="c">#   Last 7 days:         12 activations</span>
+<span class="c">#   Last 30 days:        42 activations</span>
+<span class="c">#   Last 90 days:        42 activations</span>
+</code></pre></div></div>
+
+<h3 id="example-3-generate-comprehensive-report">Example 3: Generate Comprehensive Report</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills report <span class="nt">--format</span> text
+
+<span class="c"># Output:</span>
+<span class="c"># ════════════════════════════════════════════════════════════════════════════════</span>
+<span class="c"># COMPREHENSIVE ANALYTICS REPORT</span>
+<span class="c"># Generated: 2025-10-17 15:30:00 UTC</span>
+<span class="c"># ════════════════════════════════════════════════════════════════════════════════</span>
+<span class="c">#</span>
+<span class="c"># EXECUTIVE SUMMARY</span>
+<span class="c"># ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="c"># Total Skills:       18</span>
+<span class="c"># Total Activations:  247</span>
+<span class="c"># Total Tokens Saved: 652,800</span>
+<span class="c"># Total Cost Saved:   $1.9584</span>
+<span class="c">#</span>
+<span class="c"># TOP PERFORMING SKILLS (by Effectiveness)</span>
+<span class="c"># ────────────────────────────────────────────────────────────────────────────────</span>
+<span class="c"># 1. api-design-patterns - Score: 87.3/100, Cost Saved: $0.3156</span>
+<span class="c"># 2. microservices-patterns - Score: 84.7/100, Cost Saved: $0.2928</span>
+<span class="c"># 3. kubernetes-deployment-patterns - Score: 82.1/100, Cost Saved: $0.2052</span>
+<span class="c"># ...</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="analytics-use-cases">Analytics Use Cases</h2>
+
+<h3 id="use-case-1-identify-high-value-skills">Use Case 1: Identify High-Value Skills</h3>
+
+<p><strong>Goal:</strong> Find skills that provide maximum value to prioritize for improvement.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Method 1: Use effectiveness metric</span>
+claude-ctx skills analytics <span class="nt">--metric</span> effectiveness
+
+<span class="c"># Output:</span>
+<span class="c"># Effectiveness Score</span>
+<span class="c"># ══════════════════════════════════════════════════════════════════════</span>
+<span class="c"># api-design-patterns           ████████████████████████████████████ 87.3</span>
+<span class="c"># microservices-patterns        ██████████████████████████████████ 84.7</span>
+<span class="c"># kubernetes-deployment-patterns ████████████████████████████████ 82.1</span>
+<span class="c"># python-testing-patterns       ████████████████████████████ 75.4</span>
+<span class="c"># event-driven-architecture     ██████████████████████████ 73.8</span>
+<span class="c"># ...</span>
+
+<span class="c"># Method 2: Use ROI metric</span>
+claude-ctx skills analytics <span class="nt">--metric</span> roi
+
+<span class="c"># Output shows skills ranked by cost savings and efficiency</span>
+</code></pre></div></div>
+
+<p><strong>Analysis:</strong></p>
+<ul>
+  <li>Skills with effectiveness &gt;80 are high performers</li>
+  <li>Focus improvement efforts on mid-range (60-80) skills</li>
+  <li>Investigate skills &lt;60 for potential issues</li>
+</ul>
+
+<h3 id="use-case-2-track-skill-adoption">Use Case 2: Track Skill Adoption</h3>
+
+<p><strong>Goal:</strong> Monitor how new skills are being adopted over time.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># View trending skills over last 30 days</span>
+claude-ctx skills trending <span class="nt">--days</span> 30
+
+<span class="c"># Output:</span>
+<span class="c"># Trending Skills (Last 30 Days)</span>
+<span class="c"># ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="c">#</span>
+<span class="c"># Skill                              Uses  Tokens   Trend</span>
+<span class="c"># ─────────────────────────────────────────────────────────────────────</span>
+<span class="c"># python-testing-patterns             23   45,600   ↑↑↑ (New)</span>
+<span class="c"># react-performance-optimization      18   40,500   ↑↑</span>
+<span class="c"># kubernetes-security-policies        15   35,250   ↑</span>
+<span class="c"># terraform-best-practices            12   27,600   →</span>
+<span class="c"># owasp-top-10                         8   25,600   →</span>
+<span class="c">#</span>
+<span class="c"># ↑↑↑ Rapidly growing  ↑↑ Growing  ↑ Increasing  → Stable  ↓ Declining</span>
+</code></pre></div></div>
+
+<p><strong>Insights:</strong></p>
+<ul>
+  <li>Newly released skills show adoption rate</li>
+  <li>Identify skills gaining traction</li>
+  <li>Spot declining usage (potential deprecation candidates)</li>
+</ul>
+
+<h3 id="use-case-3-optimize-token-usage">Use Case 3: Optimize Token Usage</h3>
+
+<p><strong>Goal:</strong> Identify opportunities to reduce token consumption.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># View skills by token usage</span>
+claude-ctx skills analytics <span class="nt">--metric</span> tokens
+
+<span class="c"># Output:</span>
+<span class="c"># Tokens Saved</span>
+<span class="c"># ══════════════════════════════════════════════════════════════════════</span>
+<span class="c"># api-design-patterns           ████████████████████████████ 105,200</span>
+<span class="c"># microservices-patterns        █████████████████████████ 97,600</span>
+<span class="c"># kubernetes-deployment-patterns █████████████████ 68,400</span>
+<span class="c"># event-driven-architecture     ████████████████ 64,600</span>
+<span class="c"># ...</span>
+
+<span class="c"># Calculate total efficiency</span>
+claude-ctx skills report <span class="nt">--format</span> json | jq <span class="s1">'.summary.total_tokens_saved'</span>
+<span class="c"># Output: 652800</span>
+</code></pre></div></div>
+
+<p><strong>Analysis:</strong></p>
+<ul>
+  <li>High token counts indicate heavily-used skills</li>
+  <li>Efficiency ratio shows token savings vs. load cost</li>
+  <li>Optimize skills with high activations but low efficiency</li>
+</ul>
+
+<h3 id="use-case-4-discover-skill-correlations">Use Case 4: Discover Skill Correlations</h3>
+
+<p><strong>Goal:</strong> Find skills that are frequently used together to create composite skills.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Generate correlation matrix</span>
+claude-ctx skills analytics <span class="nt">--metric</span> correlations
+
+<span class="c"># Output:</span>
+<span class="c"># Skill Correlations</span>
+<span class="c"># ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="c">#</span>
+<span class="c"># api-design-patterns frequently activated with:</span>
+<span class="c">#   - microservices-patterns (correlation: 0.82)</span>
+<span class="c">#   - database-design-patterns (correlation: 0.71)</span>
+<span class="c">#   - event-driven-architecture (correlation: 0.65)</span>
+<span class="c">#</span>
+<span class="c"># kubernetes-deployment-patterns frequently activated with:</span>
+<span class="c">#   - helm-chart-patterns (correlation: 0.89)</span>
+<span class="c">#   - kubernetes-security-policies (correlation: 0.76)</span>
+<span class="c">#   - gitops-workflows (correlation: 0.68)</span>
+</code></pre></div></div>
+
+<p><strong>Action Items:</strong></p>
+<ul>
+  <li>Consider creating composite skills for high correlations (&gt;0.75)</li>
+  <li>Example: “backend-api-design” combining api-design + microservices</li>
+  <li>Example: “k8s-deployment-suite” combining k8s patterns</li>
+</ul>
+
+<h3 id="use-case-5-monitor-success-rates">Use Case 5: Monitor Success Rates</h3>
+
+<p><strong>Goal:</strong> Identify skills with low success rates that need improvement.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># View success rates</span>
+claude-ctx skills analytics <span class="nt">--metric</span> success_rate
+
+<span class="c"># Output:</span>
+<span class="c"># Success Rate (%)</span>
+<span class="c"># ══════════════════════════════════════════════════════════════════════</span>
+<span class="c"># api-design-patterns           ███████████████████████████████ 95.2</span>
+<span class="c"># python-testing-patterns       ██████████████████████████████ 91.3</span>
+<span class="c"># microservices-patterns        █████████████████████████████ 92.1</span>
+<span class="c"># event-driven-architecture     ████████████████████████████ 88.4</span>
+<span class="c"># terraform-best-practices      ██████████████████ 58.3  ⚠</span>
+<span class="c"># ...</span>
+
+<span class="c"># Get recommendations</span>
+claude-ctx skills report <span class="nt">--format</span> text | <span class="nb">grep</span> <span class="nt">-A</span> 5 <span class="s2">"RECOMMENDATIONS"</span>
+
+<span class="c"># Output:</span>
+<span class="c"># RECOMMENDATIONS</span>
+<span class="c"># ────────────────────────────────────────────────────────────────────────</span>
+<span class="c"># 1. Review 'terraform-best-practices' - low success rate (58.3%).</span>
+<span class="c">#    May need updates or refinement.</span>
+<span class="c"># 2. Consider using 'kubernetes-security-policies' more often</span>
+<span class="c">#    (effectiveness: 82.5/100, only 15 uses)</span>
+</code></pre></div></div>
+
+<p><strong>Analysis:</strong></p>
+<ul>
+  <li>Success rate &lt;70% indicates potential issues</li>
+  <li>Review skill content for clarity</li>
+  <li>Check if activation triggers are too broad</li>
+</ul>
+
+<hr />
+
+<h2 id="advanced-analytics-scenarios">Advanced Analytics Scenarios</h2>
+
+<h3 id="scenario-1-ab-testing-skill-versions">Scenario 1: A/B Testing Skill Versions</h3>
+
+<p><strong>Setup:</strong> Testing api-design-patterns v1.2.0 vs v2.0.0</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Track metrics for both versions</span>
+claude-ctx skills metrics api-design-patterns@1.2.0
+claude-ctx skills metrics api-design-patterns@2.0.0
+
+<span class="c"># Compare effectiveness</span>
+<span class="c"># v1.2.0: Effectiveness 84.2/100, Success Rate: 92.1%</span>
+<span class="c"># v2.0.0: Effectiveness 87.3/100, Success Rate: 95.2%</span>
+
+<span class="c"># Decision: v2.0.0 shows improvement, proceed with full rollout</span>
+</code></pre></div></div>
+
+<h3 id="scenario-2-roi-analysis-for-skill-investment">Scenario 2: ROI Analysis for Skill Investment</h3>
+
+<p><strong>Goal:</strong> Determine if creating new skills is worthwhile.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Calculate total ROI</span>
+claude-ctx skills report <span class="nt">--format</span> json | <span class="se">\</span>
+  jq <span class="s1">'.summary | {
+    total_skills,
+    total_activations,
+    total_cost_saved,
+    avg_cost_per_skill: (.total_cost_saved / .total_skills),
+    cost_per_activation: (.total_cost_saved / .total_activations)
+  }'</span>
+
+<span class="c"># Output:</span>
+<span class="c"># {</span>
+<span class="c">#   "total_skills": 18,</span>
+<span class="c">#   "total_activations": 247,</span>
+<span class="c">#   "total_cost_saved": 1.9584,</span>
+<span class="c">#   "avg_cost_per_skill": 0.1088,</span>
+<span class="c">#   "cost_per_activation": 0.0079</span>
+<span class="c"># }</span>
+</code></pre></div></div>
+
+<p><strong>Analysis:</strong></p>
+<ul>
+  <li>Average $0.11 saved per skill</li>
+  <li>$0.0079 saved per activation</li>
+  <li>Over 1000 activations/month = ~$8/month savings</li>
+  <li>ROI positive after 3 months of development time</li>
+</ul>
+
+<h3 id="scenario-3-skill-lifecycle-management">Scenario 3: Skill Lifecycle Management</h3>
+
+<p><strong>Goal:</strong> Identify skills at different lifecycle stages.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Export detailed analytics</span>
+claude-ctx skills report <span class="nt">--format</span> json <span class="o">&gt;</span> analytics.json
+
+<span class="c"># Analyze lifecycle stages</span>
+<span class="nb">cat </span>analytics.json | jq <span class="nt">-r</span> <span class="s1">'.skills | to_entries[] |
+  select(.value.basic_metrics.activation_count &lt; 5) |
+  "\(.key) - New/Underutilized (only \(.value.basic_metrics.activation_count) uses)"'</span>
+
+<span class="c"># Output:</span>
+<span class="c"># security-testing-patterns - New/Underutilized (only 3 uses)</span>
+<span class="c"># threat-modeling-techniques - New/Underutilized (only 2 uses)</span>
+
+<span class="c"># Find stale skills (not used in 30+ days)</span>
+<span class="nb">cat </span>analytics.json | jq <span class="nt">-r</span> <span class="s1">'.skills | to_entries[] |
+  select(.value.trends."30_days" == 0) |
+  "\(.key) - Stale (no uses in 30 days)"'</span>
+</code></pre></div></div>
+
+<p><strong>Lifecycle Actions:</strong></p>
+<ul>
+  <li><strong>New (&lt;5 uses):</strong> Promote through documentation and examples</li>
+  <li><strong>Growing (increasing trend):</strong> Monitor and support</li>
+  <li><strong>Mature (stable high usage):</strong> Maintain and optimize</li>
+  <li><strong>Declining (decreasing trend):</strong> Investigate causes</li>
+  <li><strong>Stale (0 uses in 30 days):</strong> Consider deprecation</li>
+</ul>
+
+<h3 id="scenario-4-cost-benefit-analysis-for-skill-optimization">Scenario 4: Cost-Benefit Analysis for Skill Optimization</h3>
+
+<p><strong>Goal:</strong> Prioritize which skills to optimize for maximum impact.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Calculate optimization priority score</span>
+claude-ctx skills report <span class="nt">--format</span> json | <span class="se">\</span>
+  jq <span class="nt">-r</span> <span class="s1">'.skills | to_entries[] |
+  {
+    skill: .key,
+    activations: .value.basic_metrics.activation_count,
+    effectiveness: .value.effectiveness_score,
+    potential_impact: (.value.basic_metrics.activation_count * (100 - .value.effectiveness_score))
+  } |
+  select(.potential_impact &gt; 100) |
+  "\(.skill): Impact Score = \(.potential_impact | round)"'</span> | <span class="se">\</span>
+  <span class="nb">sort</span> <span class="nt">-t</span><span class="o">=</span> <span class="nt">-k2</span> <span class="nt">-nr</span>
+
+<span class="c"># Output (sorted by impact):</span>
+<span class="c"># terraform-best-practices: Impact Score = 501</span>
+<span class="c"># event-driven-architecture: Impact Score = 498</span>
+<span class="c"># kubernetes-security-policies: Impact Score = 267</span>
+<span class="c"># ...</span>
+</code></pre></div></div>
+
+<p><strong>Priority Formula:</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Impact Score = Activations × (100 - Effectiveness)
+
+High score = High usage + Room for improvement
+</code></pre></div></div>
+
+<p><strong>Actions:</strong></p>
+<ul>
+  <li>Optimize skills with highest impact scores first</li>
+  <li>Focus on improving effectiveness through:
+    <ul>
+      <li>Better examples</li>
+      <li>Clearer explanations</li>
+      <li>Updated patterns</li>
+      <li>Fixed errors</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="export-and-integration-examples">Export and Integration Examples</h2>
+
+<h3 id="example-1-export-to-csv-for-spreadsheet-analysis">Example 1: Export to CSV for Spreadsheet Analysis</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Export all metrics to CSV</span>
+claude-ctx skills report <span class="nt">--format</span> csv
+
+<span class="c"># Output file: ~/.claude/.metrics/exports/analytics_20251017_153000.csv</span>
+<span class="c"># Import into Excel/Google Sheets for custom analysis</span>
+</code></pre></div></div>
+
+<p><strong>CSV Structure:</strong></p>
+<pre><code class="language-csv">Skill Name,Activation Count,Total Tokens Saved,Avg Tokens,Success Rate,Last Activated,Cost Saved ($),Effectiveness Score
+api-design-patterns,42,105200,2505,92.10%,2025-10-17 14:23:15,$0.3156,87.30
+microservices-patterns,38,97600,2568,92.10%,2025-10-17 13:45:22,$0.2928,84.70
+...
+</code></pre>
+
+<h3 id="example-2-json-export-for-programmatic-analysis">Example 2: JSON Export for Programmatic Analysis</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Export to JSON</span>
+claude-ctx skills report <span class="nt">--format</span> json <span class="o">&gt;</span> analytics.json
+
+<span class="c"># Example: Find skills with effectiveness &gt; 85</span>
+<span class="nb">cat </span>analytics.json | jq <span class="nt">-r</span> <span class="s1">'
+  .skills |
+  to_entries[] |
+  select(.value.effectiveness_score &gt; 85) |
+  "\(.key): \(.value.effectiveness_score)"
+'</span>
+
+<span class="c"># Output:</span>
+<span class="c"># api-design-patterns: 87.3</span>
+<span class="c"># microservices-patterns: 84.7</span>
+</code></pre></div></div>
+
+<h3 id="example-3-integration-with-monitoring-systems">Example 3: Integration with Monitoring Systems</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create metrics endpoint for Prometheus/Grafana</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span> <span class="sh">'</span><span class="no">EOF</span><span class="sh">' &gt; /tmp/skill_metrics.sh
+#!/bin/bash
+# Generate Prometheus metrics from skill analytics
+
+claude-ctx skills report --format json | jq -r '
+  .skills | to_entries[] |
+  "# TYPE skill_activations gauge</span><span class="se">\n</span><span class="sh">" +
+  "skill_activations{skill=</span><span class="se">\"\(</span><span class="sh">.key)</span><span class="se">\"</span><span class="sh">} </span><span class="se">\(</span><span class="sh">.value.basic_metrics.activation_count)</span><span class="se">\n</span><span class="sh">" +
+  "# TYPE skill_effectiveness gauge</span><span class="se">\n</span><span class="sh">" +
+  "skill_effectiveness{skill=</span><span class="se">\"\(</span><span class="sh">.key)</span><span class="se">\"</span><span class="sh">} </span><span class="se">\(</span><span class="sh">.value.effectiveness_score)</span><span class="se">\n</span><span class="sh">" +
+  "# TYPE skill_cost_saved gauge</span><span class="se">\n</span><span class="sh">" +
+  "skill_cost_saved{skill=</span><span class="se">\"\(</span><span class="sh">.key)</span><span class="se">\"</span><span class="sh">} </span><span class="se">\(</span><span class="sh">.value.roi.cost_saved)"
+'
+</span><span class="no">EOF
+
+</span><span class="nb">chmod</span> +x /tmp/skill_metrics.sh
+
+<span class="c"># Run and collect metrics</span>
+/tmp/skill_metrics.sh <span class="o">&gt;</span> /var/lib/prometheus/node_exporter/skill_metrics.prom
+</code></pre></div></div>
+
+<h3 id="example-4-daily-analytics-email-report">Example 4: Daily Analytics Email Report</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create cron job for daily email report</span>
+<span class="nb">cat</span> <span class="o">&lt;&lt;</span> <span class="sh">'</span><span class="no">EOF</span><span class="sh">' &gt; /usr/local/bin/skill-analytics-report
+#!/bin/bash
+# Daily skill analytics report
+
+REPORT_FILE="/tmp/skill_report_</span><span class="si">$(</span><span class="nb">date</span> +%Y%m%d<span class="si">)</span><span class="sh">.txt"
+
+claude-ctx skills report --format text &gt; "</span><span class="nv">$REPORT_FILE</span><span class="sh">"
+
+# Email report
+mail -s "Daily Skill Analytics Report - </span><span class="si">$(</span><span class="nb">date</span> +%Y-%m-%d<span class="si">)</span><span class="sh">" </span><span class="se">\</span><span class="sh">
+     user@example.com &lt; "</span><span class="nv">$REPORT_FILE</span><span class="sh">"
+
+# Cleanup
+rm "</span><span class="nv">$REPORT_FILE</span><span class="sh">"
+</span><span class="no">EOF
+
+</span><span class="nb">chmod</span> +x /usr/local/bin/skill-analytics-report
+
+<span class="c"># Add to crontab (daily at 8 AM)</span>
+<span class="c"># 0 8 * * * /usr/local/bin/skill-analytics-report</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="visualization-examples">Visualization Examples</h2>
+
+<h3 id="example-1-ascii-bar-charts-in-terminal">Example 1: ASCII Bar Charts in Terminal</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Visualize activation counts</span>
+claude-ctx skills analytics <span class="nt">--metric</span> activations
+
+<span class="c"># Output:</span>
+<span class="c"># Skill Activations</span>
+<span class="c"># ══════════════════════════════════════════════════════════════════════</span>
+<span class="c"># api-design-patterns           ██████████████████████████████████ 42</span>
+<span class="c"># microservices-patterns        ████████████████████████████████ 38</span>
+<span class="c"># kubernetes-deployment-patterns ████████████████████ 27</span>
+<span class="c"># python-testing-patterns       ████████████████ 23</span>
+<span class="c"># event-driven-architecture     █████████████ 19</span>
+<span class="c"># kubernetes-security-policies  ██████████ 15</span>
+<span class="c"># react-performance-optimization ████████ 12</span>
+<span class="c"># terraform-best-practices      ██████ 9</span>
+<span class="c"># ...</span>
+</code></pre></div></div>
+
+<h3 id="example-2-trending-visualization">Example 2: Trending Visualization</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Show 7-day trends</span>
+claude-ctx skills trending <span class="nt">--days</span> 7
+
+<span class="c"># Output with trend indicators:</span>
+<span class="c"># Trending Skills (Last 7 Days)</span>
+<span class="c"># ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="c"># api-design-patterns          ▁▂▃▅▆▇█  12 activations  [+40%]</span>
+<span class="c"># python-testing-patterns      ▁▁▂▄▅▇█   8 activations  [+60%]</span>
+<span class="c"># microservices-patterns       ▃▄▅▅▆▆█  10 activations  [+25%]</span>
+<span class="c"># event-driven-architecture    ▂▃▃▄▄▄▅   5 activations  [+15%]</span>
+<span class="c">#</span>
+<span class="c"># Legend: ▁ Low → █ High</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="troubleshooting-analytics">Troubleshooting Analytics</h2>
+
+<h3 id="issue-1-no-metrics-available">Issue 1: No Metrics Available</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills metrics
+
+<span class="c"># Output:</span>
+<span class="c"># No metrics available. Use skills to generate analytics.</span>
+
+<span class="c"># Cause: Skills haven't been activated yet</span>
+<span class="c"># Solution: Activate agents that use skills, or wait for natural usage</span>
+</code></pre></div></div>
+
+<h3 id="issue-2-metrics-reset-accidentally">Issue 2: Metrics Reset Accidentally</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Check if metrics were recently reset</span>
+<span class="nb">ls</span> <span class="nt">-la</span> ~/.claude/.metrics/skills/
+
+<span class="c"># Restore from backup if available</span>
+<span class="nb">cp</span> ~/.claude/.metrics/skills/metrics.json.backup <span class="se">\</span>
+   ~/.claude/.metrics/skills/metrics.json
+</code></pre></div></div>
+
+<h3 id="issue-3-incomplete-activation-data">Issue 3: Incomplete Activation Data</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Validate metrics file</span>
+claude-ctx skills metrics <span class="nt">--validate</span>
+
+<span class="c"># Output shows any corrupted or missing data</span>
+<span class="c"># Rebuild metrics from activation logs if needed</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="best-practices">Best Practices</h2>
+
+<h3 id="for-regular-monitoring">For Regular Monitoring</h3>
+
+<ol>
+  <li><strong>Weekly Review</strong>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills trending <span class="nt">--days</span> 7
+claude-ctx skills analytics <span class="nt">--metric</span> effectiveness
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Monthly Analysis</strong>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills report <span class="nt">--format</span> text <span class="o">&gt;</span> monthly_report.txt
+<span class="c"># Review and act on recommendations</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Quarterly Deep Dive</strong>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skills report <span class="nt">--format</span> csv
+<span class="c"># Import into spreadsheet for detailed analysis</span>
+<span class="c"># Plan skill improvements for next quarter</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="for-skill-development">For Skill Development</h3>
+
+<ol>
+  <li><strong>Track New Skills</strong>
+    <ul>
+      <li>Monitor adoption over first 30 days</li>
+      <li>Target: 10+ activations in first month</li>
+      <li>Effectiveness target: &gt;70 by end of month</li>
+    </ul>
+  </li>
+  <li><strong>Measure Impact</strong>
+    <ul>
+      <li>Calculate tokens saved per activation</li>
+      <li>Track success rate trends</li>
+      <li>Gather user feedback</li>
+    </ul>
+  </li>
+  <li><strong>Iterate Based on Data</strong>
+    <ul>
+      <li>Low success rate? → Improve clarity</li>
+      <li>Low usage? → Better activation triggers</li>
+      <li>High correlation? → Consider combining skills</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="see-also">See Also</h2>
+
+<ul>
+  <li><a href="/claude-ctx-plugin/skill-versioning-README.html">Skill Versioning README</a> - Version management</li>
+  <li><a href="/claude-ctx-plugin/phase4-summary.html">Phase 4 Summary</a> - Complete Phase 4 overview</li>
+  <li><a href="/claude-ctx-plugin/skills.html">Skills Guide</a> - General skills documentation</li>
+  <li><a href="/claude-ctx-plugin/architecture.html">Architecture</a> - System architecture details</li>
+</ul>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/claude-ctx-plugin/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Claude CTX Plugin</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Claude CTX Plugin</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

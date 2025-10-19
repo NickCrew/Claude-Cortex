@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
+/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep|ultra] [--reasoning-profile default|security|performance] [--format text|json|report]
 ```
 
 ## Behavioral Flow
@@ -40,38 +40,62 @@ Key behaviors:
 - **Bash**: External analysis tool execution and validation
 - **Write**: Report generation and metrics documentation
 
+## Reasoning Profiles
+
+### default
+- Balanced analysis across all focus domains
+- Standard severity assessment and prioritization
+- Comprehensive reporting with actionable insights
+
+### security
+- Deep threat modeling and attack vector analysis
+- OWASP Top 10 pattern matching and CVE correlation
+- Enhanced severity scoring for security vulnerabilities
+- Compliance validation (GDPR, SOC2, PCI-DSS considerations)
+- Enables: Context7 for security best practices, Sequential for threat chains
+
+### performance
+- Algorithmic complexity analysis (Big-O notation)
+- Resource usage profiling and bottleneck identification
+- Scalability assessment and load testing recommendations
+- Database query optimization and N+1 detection
+- Enables: Sequential for performance impact chains
+
 ## Key Patterns
 - **Domain Analysis**: Quality/Security/Performance/Architecture → specialized assessment
 - **Pattern Recognition**: Language detection → appropriate analysis techniques
 - **Severity Assessment**: Issue classification → prioritized recommendations
 - **Report Generation**: Analysis results → structured documentation
+- **Profile Specialization**: Reasoning profile → domain-specific depth and tool activation
 
 ## Examples
 
 ### Comprehensive Project Analysis
 ```
-/nf:analyze
+/analyze:code
 # Multi-domain analysis of entire project
 # Generates comprehensive report with key findings and roadmap
 ```
 
 ### Focused Security Assessment
 ```
-/nf:analyze src/auth --focus security --depth deep
+/analyze:code src/auth --focus security --depth deep --reasoning-profile security
 # Deep security analysis of authentication components
+# Enables threat modeling, OWASP patterns, CVE correlation
 # Vulnerability assessment with detailed remediation guidance
 ```
 
 ### Performance Optimization Analysis
 ```
-/nf:analyze --focus performance --format report
-# Performance bottleneck identification
-# Generates HTML report with optimization recommendations
+/analyze:code --focus performance --depth ultra --reasoning-profile performance --format report
+# Performance bottleneck identification with deep analysis
+# Algorithmic complexity analysis, resource profiling
+# Generates comprehensive report with optimization recommendations
 ```
 
 ### Quick Quality Check
 ```
-/nf:analyze src/components --focus quality --depth quick
+/analyze:code src/components --focus quality --depth quick
 # Rapid quality assessment of component directory
 # Identifies code smells and maintainability issues
 ```

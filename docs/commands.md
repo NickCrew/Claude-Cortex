@@ -59,6 +59,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/orchestrate:spawn` - Complex task orchestration
 - `/analyze:estimate` - Development estimation
 - `/analyze:troubleshoot` - Issue diagnosis and resolution
+- `/reasoning:adjust` - Dynamic reasoning depth control
 
 **Session Management**
 - `/session:load` - Load project context
@@ -85,7 +86,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 
 **Usage**:
 ```bash
-/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
+/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep|ultra] [--reasoning-profile default|security|performance] [--format text|json|report]
 ```
 
 **Behavioral Flow**:
@@ -102,11 +103,33 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Bash**: External analysis tool execution and validation
 - **Write**: Report generation and metrics documentation
 
+**Reasoning Profiles**:
+
+**default**
+- Balanced analysis across all focus domains
+- Standard severity assessment and prioritization
+- Comprehensive reporting with actionable insights
+
+**security**
+- Deep threat modeling and attack vector analysis
+- OWASP Top 10 pattern matching and CVE correlation
+- Enhanced severity scoring for security vulnerabilities
+- Compliance validation (GDPR, SOC2, PCI-DSS considerations)
+- Enables: Context7 for security best practices, Sequential for threat chains
+
+**performance**
+- Algorithmic complexity analysis (Big-O notation)
+- Resource usage profiling and bottleneck identification
+- Scalability assessment and load testing recommendations
+- Database query optimization and N+1 detection
+- Enables: Sequential for performance impact chains
+
 **Key Patterns**:
 - **Domain Analysis**: Quality/Security/Performance/Architecture → specialized assessment
 - **Pattern Recognition**: Language detection → appropriate analysis techniques
 - **Severity Assessment**: Issue classification → prioritized recommendations
 - **Report Generation**: Analysis results → structured documentation
+- **Profile Specialization**: Reasoning profile → domain-specific depth and tool activation
 
 **Examples**:
 
@@ -1466,6 +1489,73 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 
 ---
 
+### /reasoning:adjust
+
+**Description**: Dynamically adjust reasoning depth during task execution
+
+**Category**: utility | **Complexity**: basic
+
+**Triggers**:
+- Need to escalate or reduce reasoning depth during complex task execution
+- Initial analysis insufficient or overly verbose for current subtask
+- Performance optimization during long-running operations
+- Runtime adaptation based on emerging task complexity
+
+**Usage**:
+```bash
+/reasoning:adjust [low|medium|high|ultra] [--scope current|remaining]
+```
+
+**Reasoning Depth Levels**:
+
+**low (~2K tokens)**
+- Simple operations, quick iterations, prototyping
+- No MCP servers (native tools only)
+- Direct solutions, minimal exploration
+
+**medium (~4K tokens)**
+- Standard development tasks, moderate complexity
+- MCP: Sequential (structured reasoning)
+- Systematic exploration, hypothesis testing
+- Equivalent to `--think` flag
+
+**high (~10K tokens)**
+- Architectural decisions, system-wide dependencies
+- MCP: Sequential + Context7 (official patterns)
+- Deep exploration, trade-off analysis
+- Equivalent to `--think-hard` flag
+
+**ultra (~32K tokens)**
+- Critical redesigns, legacy modernization, complex debugging
+- MCP: All available (Sequential, Context7, Serena, etc.)
+- Maximum depth, exhaustive exploration, meta-analysis
+- Equivalent to `--ultrathink` flag
+- Auto-enables `--introspect` transparency markers
+
+**Scope Control**:
+- `--scope current`: Apply to current subtask only, revert after completion
+- `--scope remaining`: Apply to all remaining work (default)
+
+**Examples**:
+
+```bash
+# Escalate for complex subtask
+/reasoning:adjust ultra --scope current
+# Maximum depth for current subtask, then revert
+
+# Optimize long-running analysis
+/reasoning:adjust medium --scope remaining
+# Reduce depth for faster iteration
+
+# Spike for architecture decision
+/reasoning:adjust high --scope current
+# Deep analysis for decision, return to standard depth
+```
+
+**Related Commands**: `/orchestrate:spawn`, `/analyze:code`, `/design:system`
+
+---
+
 ### /orchestrate:spawn
 
 **Description**: Meta-system task orchestration with intelligent breakdown and delegation
@@ -2310,7 +2400,12 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **--ultrathink**
 - **Trigger**: Critical system redesign, legacy modernization
 - **Behavior**: Maximum depth analysis (~32K tokens), enables all MCPs
-- **Related Commands**: `/orchestrate:spawn`, `/design:workflow`
+- **Options**:
+  - `--summary brief`: Key findings only (~25% output reduction)
+  - `--summary detailed`: Full analysis with reasoning (default)
+  - `--summary comprehensive`: Include rationale, alternatives, trade-offs (~50% output increase)
+- **Auto-enables**: `--introspect` transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
+- **Related Commands**: `/orchestrate:spawn`, `/design:workflow`, `/reasoning:adjust`
 
 ### Execution Control Flags
 

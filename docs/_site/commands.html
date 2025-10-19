@@ -103,6 +103,7 @@
   <li><code class="language-plaintext highlighter-rouge">/orchestrate:spawn</code> - Complex task orchestration</li>
   <li><code class="language-plaintext highlighter-rouge">/analyze:estimate</code> - Development estimation</li>
   <li><code class="language-plaintext highlighter-rouge">/analyze:troubleshoot</code> - Issue diagnosis and resolution</li>
+  <li><code class="language-plaintext highlighter-rouge">/reasoning:adjust</code> - Dynamic reasoning depth control</li>
 </ul>
 
 <p><strong>Session Management</strong></p>
@@ -140,7 +141,7 @@
 </ul>
 
 <p><strong>Usage</strong>:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/analyze:code <span class="o">[</span>target] <span class="o">[</span><span class="nt">--focus</span> quality|security|performance|architecture] <span class="o">[</span><span class="nt">--depth</span> quick|deep] <span class="o">[</span><span class="nt">--format</span> text|json|report]
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/analyze:code <span class="o">[</span>target] <span class="o">[</span><span class="nt">--focus</span> quality|security|performance|architecture] <span class="o">[</span><span class="nt">--depth</span> quick|deep|ultra] <span class="o">[</span><span class="nt">--reasoning-profile</span> default|security|performance] <span class="o">[</span><span class="nt">--format</span> text|json|report]
 </code></pre></div></div>
 
 <p><strong>Behavioral Flow</strong>:</p>
@@ -161,12 +162,40 @@
   <li><strong>Write</strong>: Report generation and metrics documentation</li>
 </ul>
 
+<p><strong>Reasoning Profiles</strong>:</p>
+
+<p><strong>default</strong></p>
+<ul>
+  <li>Balanced analysis across all focus domains</li>
+  <li>Standard severity assessment and prioritization</li>
+  <li>Comprehensive reporting with actionable insights</li>
+</ul>
+
+<p><strong>security</strong></p>
+<ul>
+  <li>Deep threat modeling and attack vector analysis</li>
+  <li>OWASP Top 10 pattern matching and CVE correlation</li>
+  <li>Enhanced severity scoring for security vulnerabilities</li>
+  <li>Compliance validation (GDPR, SOC2, PCI-DSS considerations)</li>
+  <li>Enables: Context7 for security best practices, Sequential for threat chains</li>
+</ul>
+
+<p><strong>performance</strong></p>
+<ul>
+  <li>Algorithmic complexity analysis (Big-O notation)</li>
+  <li>Resource usage profiling and bottleneck identification</li>
+  <li>Scalability assessment and load testing recommendations</li>
+  <li>Database query optimization and N+1 detection</li>
+  <li>Enables: Sequential for performance impact chains</li>
+</ul>
+
 <p><strong>Key Patterns</strong>:</p>
 <ul>
   <li><strong>Domain Analysis</strong>: Quality/Security/Performance/Architecture → specialized assessment</li>
   <li><strong>Pattern Recognition</strong>: Language detection → appropriate analysis techniques</li>
   <li><strong>Severity Assessment</strong>: Issue classification → prioritized recommendations</li>
   <li><strong>Report Generation</strong>: Analysis results → structured documentation</li>
+  <li><strong>Profile Specialization</strong>: Reasoning profile → domain-specific depth and tool activation</li>
 </ul>
 
 <p><strong>Examples</strong>:</p>
@@ -1827,6 +1856,90 @@
 
 <hr />
 
+<h3 id="reasoningadjust">/reasoning:adjust</h3>
+
+<p><strong>Description</strong>: Dynamically adjust reasoning depth during task execution</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Category</strong>: utility</td>
+      <td><strong>Complexity</strong>: basic</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Triggers</strong>:</p>
+<ul>
+  <li>Need to escalate or reduce reasoning depth during complex task execution</li>
+  <li>Initial analysis insufficient or overly verbose for current subtask</li>
+  <li>Performance optimization during long-running operations</li>
+  <li>Runtime adaptation based on emerging task complexity</li>
+</ul>
+
+<p><strong>Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/reasoning:adjust <span class="o">[</span>low|medium|high|ultra] <span class="o">[</span><span class="nt">--scope</span> current|remaining]
+</code></pre></div></div>
+
+<p><strong>Reasoning Depth Levels</strong>:</p>
+
+<p><strong>low (~2K tokens)</strong></p>
+<ul>
+  <li>Simple operations, quick iterations, prototyping</li>
+  <li>No MCP servers (native tools only)</li>
+  <li>Direct solutions, minimal exploration</li>
+</ul>
+
+<p><strong>medium (~4K tokens)</strong></p>
+<ul>
+  <li>Standard development tasks, moderate complexity</li>
+  <li>MCP: Sequential (structured reasoning)</li>
+  <li>Systematic exploration, hypothesis testing</li>
+  <li>Equivalent to <code class="language-plaintext highlighter-rouge">--think</code> flag</li>
+</ul>
+
+<p><strong>high (~10K tokens)</strong></p>
+<ul>
+  <li>Architectural decisions, system-wide dependencies</li>
+  <li>MCP: Sequential + Context7 (official patterns)</li>
+  <li>Deep exploration, trade-off analysis</li>
+  <li>Equivalent to <code class="language-plaintext highlighter-rouge">--think-hard</code> flag</li>
+</ul>
+
+<p><strong>ultra (~32K tokens)</strong></p>
+<ul>
+  <li>Critical redesigns, legacy modernization, complex debugging</li>
+  <li>MCP: All available (Sequential, Context7, Serena, etc.)</li>
+  <li>Maximum depth, exhaustive exploration, meta-analysis</li>
+  <li>Equivalent to <code class="language-plaintext highlighter-rouge">--ultrathink</code> flag</li>
+  <li>Auto-enables <code class="language-plaintext highlighter-rouge">--introspect</code> transparency markers</li>
+</ul>
+
+<p><strong>Scope Control</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--scope current</code>: Apply to current subtask only, revert after completion</li>
+  <li><code class="language-plaintext highlighter-rouge">--scope remaining</code>: Apply to all remaining work (default)</li>
+</ul>
+
+<p><strong>Examples</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Escalate for complex subtask</span>
+/reasoning:adjust ultra <span class="nt">--scope</span> current
+<span class="c"># Maximum depth for current subtask, then revert</span>
+
+<span class="c"># Optimize long-running analysis</span>
+/reasoning:adjust medium <span class="nt">--scope</span> remaining
+<span class="c"># Reduce depth for faster iteration</span>
+
+<span class="c"># Spike for architecture decision</span>
+/reasoning:adjust high <span class="nt">--scope</span> current
+<span class="c"># Deep analysis for decision, return to standard depth</span>
+</code></pre></div></div>
+
+<p><strong>Related Commands</strong>: <code class="language-plaintext highlighter-rouge">/orchestrate:spawn</code>, <code class="language-plaintext highlighter-rouge">/analyze:code</code>, <code class="language-plaintext highlighter-rouge">/design:system</code></p>
+
+<hr />
+
 <h3 id="orchestratespawn">/orchestrate:spawn</h3>
 
 <p><strong>Description</strong>: Meta-system task orchestration with intelligent breakdown and delegation</p>
@@ -2879,7 +2992,15 @@
 <ul>
   <li><strong>Trigger</strong>: Critical system redesign, legacy modernization</li>
   <li><strong>Behavior</strong>: Maximum depth analysis (~32K tokens), enables all MCPs</li>
-  <li><strong>Related Commands</strong>: <code class="language-plaintext highlighter-rouge">/orchestrate:spawn</code>, <code class="language-plaintext highlighter-rouge">/design:workflow</code></li>
+  <li><strong>Options</strong>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">--summary brief</code>: Key findings only (~25% output reduction)</li>
+      <li><code class="language-plaintext highlighter-rouge">--summary detailed</code>: Full analysis with reasoning (default)</li>
+      <li><code class="language-plaintext highlighter-rouge">--summary comprehensive</code>: Include rationale, alternatives, trade-offs (~50% output increase)</li>
+    </ul>
+  </li>
+  <li><strong>Auto-enables</strong>: <code class="language-plaintext highlighter-rouge">--introspect</code> transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)</li>
+  <li><strong>Related Commands</strong>: <code class="language-plaintext highlighter-rouge">/orchestrate:spawn</code>, <code class="language-plaintext highlighter-rouge">/design:workflow</code>, <code class="language-plaintext highlighter-rouge">/reasoning:adjust</code></li>
 </ul>
 
 <h3 id="execution-control-flags">Execution Control Flags</h3>

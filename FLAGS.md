@@ -10,7 +10,8 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 
 **--introspect**
 - Trigger: Self-analysis requests, error recovery, complex problem solving requiring meta-cognition
-- Behavior: Expose thinking process with transparency markers (🤔, 🎯, ⚡, 📊, 💡)
+- Behavior: Expose thinking process with transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
+- Auto-enabled by: `--ultrathink` (maximum depth analysis)
 
 **--task-manage**
 - Trigger: Multi-step operations (>3 steps), complex scope (>2 directories OR >3 files)
@@ -71,6 +72,11 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 **--ultrathink**
 - Trigger: Critical system redesign, legacy modernization, complex debugging
 - Behavior: Maximum depth analysis (~32K tokens), enables all MCP servers
+- Options:
+  - `--summary brief`: Key findings only (~25% output reduction)
+  - `--summary detailed`: Full analysis with reasoning (default)
+  - `--summary comprehensive`: Include rationale, alternatives, trade-offs (~50% output increase)
+- Auto-enables: `--introspect` transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
 
 ## Execution Control Flags
 

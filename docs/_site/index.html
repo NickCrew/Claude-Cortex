@@ -91,9 +91,9 @@
     <div class="metric-sublabel">Progressive skill disclosure</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">2</div>
+    <div class="metric-value">20</div>
     <div class="metric-label">Skills Available</div>
-    <div class="metric-sublabel">API Design • Microservices</div>
+    <div class="metric-sublabel">Phase 4 Complete</div>
   </div>
 </div>
 
@@ -112,7 +112,7 @@
 <h2 id="project-structure">Project Structure</h2>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx-plugin/
-├── commands/           # Slash command definitions (34 commands across 10 categories)
+├── commands/           # Slash command definitions (35 commands across 11 categories)
 │   ├── analyze/       # Code analysis, security scanning, troubleshooting
 │   ├── deploy/        # Release preparation and deployment
 │   ├── design/        # System design and workflow planning
@@ -120,6 +120,7 @@
 │   ├── docs/          # Documentation generation and indexing
 │   ├── orchestrate/   # Multi-agent task orchestration
 │   ├── quality/       # Code quality improvement and cleanup
+│   ├── reasoning/     # Dynamic reasoning depth control
 │   ├── session/       # Session persistence and reflection
 │   ├── test/          # Test generation
 │   └── tools/         # Tool selection and optimization
@@ -221,11 +222,23 @@
 
 <h3 id="via-python-cli">Via Python CLI</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install package (editable installs are also supported)</span>
-python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nb">.</span>
+<p><strong>Quick Install (Recommended):</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install everything (package, completions, manpage)</span>
+./scripts/install.sh
+
+<span class="c"># Or use make</span>
+make <span class="nb">install</span>
+</code></pre></div></div>
+
+<p><strong>Manual Installation:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install package (editable installs supported)</span>
+python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">-e</span> <span class="s2">".[dev]"</span>
 
 <span class="c"># Verify installation</span>
 claude-ctx <span class="nt">--version</span>
+
+<span class="c"># View documentation</span>
+man claude-ctx
 
 <span class="c"># List available modes</span>
 claude-ctx mode list
@@ -233,6 +246,14 @@ claude-ctx mode list
 <span class="c"># Generate dependency map</span>
 claude-ctx agent graph <span class="nt">--export</span> dependency-map.md
 </code></pre></div></div>
+
+<p><strong>What Gets Installed:</strong></p>
+<ul>
+  <li>Python package (<code class="language-plaintext highlighter-rouge">claude-ctx</code> command)</li>
+  <li>Shell completions (bash/zsh/fish)</li>
+  <li>Manpage (<code class="language-plaintext highlighter-rouge">man claude-ctx</code>)</li>
+  <li>Development dependencies (pytest, mypy, black)</li>
+</ul>
 
 <p>For more detailed setup guidance (including shell completion and CLI overrides) see <a href="/claude-ctx-plugin/getting-started.html">Getting Started</a>.</p>
 
@@ -461,6 +482,26 @@ claude-ctx mode status
     <div class="doc-card__meta">
       <span>13KB strategy</span>
       <span>68% savings</span>
+    </div>
+  </a>
+
+  <a href="phase4-summary.html" class="doc-card">
+    <h3>Phase 4 Features</h3>
+    <p>Complete implementation of skill composition, semantic versioning, community integration, and effectiveness analytics. Production-ready enterprise features.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>32KB reference</span>
+      <span>4 feature sets</span>
+    </div>
+  </a>
+
+  <a href="quality-improvements.html" class="doc-card">
+    <h3>Quality &amp; DevOps</h3>
+    <p>Testing infrastructure with 150+ tests, code refactoring, error handling improvements, installation automation, and CI/CD pipeline. Grade improved from B+ to A.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>Production ready</span>
+      <span>95/100 score</span>
     </div>
   </a>
 </div>
@@ -716,9 +757,11 @@ claude-ctx mode status
 
 <h2 id="support">Support</h2>
 
-<p><strong>Repository</strong>: https://github.com/NickCrew/claude-ctx-plugin
-<strong>Issues</strong>: https://github.com/NickCrew/claude-ctx-plugin/issues
-<strong>Marketplace</strong>: https://github.com/NickCrew/claude-marketplace</p>
+<p><strong>Repository</strong>: <a href="https://github.com/NickCrew/claude-ctx-plugin">github.com/NickCrew/claude-ctx-plugin</a></p>
+
+<p><strong>Issues</strong>: <a href="https://github.com/NickCrew/claude-ctx-plugin/issues">Report a bug or request a feature</a></p>
+
+<p><strong>Marketplace</strong>: <a href="https://github.com/NickCrew/claude-marketplace">claude-marketplace</a></p>
 
 <hr />
 

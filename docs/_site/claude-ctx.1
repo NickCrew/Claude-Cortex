@@ -1,0 +1,499 @@
+.TH CLAUDE-CTX 1 "2025-10-17" "claude-ctx 1.0" "User Commands"
+.SH NAME
+claude-ctx \- Context management system for Claude AI interactions
+.SH SYNOPSIS
+.B claude-ctx
+[\fIOPTION\fR]
+.I COMMAND
+[\fISUBCOMMAND\fR] [\fIARGUMENTS\fR]
+.SH DESCRIPTION
+.B claude-ctx
+is a comprehensive context management system for Claude AI interactions, providing skill activation, agent orchestration, mode management, and workflow automation capabilities.
+
+The system organizes reusable context blocks (skills) and orchestrates them through agents, modes, and workflows to enhance Claude's capabilities in specific domains.
+.SH COMMANDS
+.TP
+.B status
+Show overall status of the context system including active agents, modes, rules, and skills.
+.TP
+.B mode \fISUBCOMMAND\fR
+Manage behavioral modes that modify Claude's interaction style.
+.TP
+.B agent \fISUBCOMMAND\fR
+Manage specialized agents with domain-specific capabilities.
+.TP
+.B rules \fISUBCOMMAND\fR
+Manage rule modules that define behavioral constraints.
+.TP
+.B skills \fISUBCOMMAND\fR
+Manage reusable knowledge blocks and their metadata.
+.TP
+.B init \fISUBCOMMAND\fR
+Initialize and configure claude-ctx for a project.
+.TP
+.B profile \fISUBCOMMAND\fR
+Manage configuration profiles for different contexts.
+.TP
+.B workflow \fISUBCOMMAND\fR
+Manage and execute predefined workflows.
+.TP
+.B orchestrate \fISUBCOMMAND\fR
+(Alias: \fBorch\fR) Orchestrate complex scenarios.
+.SH MODE COMMANDS
+.TP
+.B claude-ctx mode list
+List all available modes in ~/.claude/modes/
+.TP
+.B claude-ctx mode status
+Show currently active modes.
+.TP
+.B claude-ctx mode activate \fIMODE\fR
+Activate a mode by name (without .md extension).
+.TP
+.B claude-ctx mode deactivate \fIMODE\fR
+Deactivate a mode by name (without .md extension).
+.SH AGENT COMMANDS
+.TP
+.B claude-ctx agent list
+List all available agents in ~/.claude/agents/
+.TP
+.B claude-ctx agent status
+Show currently active agents.
+.TP
+.B claude-ctx agent activate \fIAGENT\fR
+Activate an agent by name (without .md extension).
+.TP
+.B claude-ctx agent deactivate \fIAGENT\fR [\fB--force\fR]
+Deactivate an agent by name. Use \fB--force\fR to override dependency checks.
+.TP
+.B claude-ctx agent deps \fIAGENT\fR
+Show dependency information for an agent, including required skills and other agents.
+.TP
+.B claude-ctx agent graph [\fB--export\fR \fIPATH\fR]
+Display dependency graph for all agents. Optionally export to a file.
+.TP
+.B claude-ctx agent validate [\fB--all\fR] [\fIAGENTS\fR...]
+Validate agent metadata against schema. Use \fB--all\fR to validate all agents, or specify agent names.
+.SH RULES COMMANDS
+.TP
+.B claude-ctx rules list
+List all available rule modules in ~/.claude/rules/
+.TP
+.B claude-ctx rules status
+Show currently active rule modules.
+.TP
+.B claude-ctx rules activate \fIRULE\fR
+Activate a rule module by name (without .md extension).
+.TP
+.B claude-ctx rules deactivate \fIRULE\fR
+Deactivate a rule module by name (without .md extension).
+.SH SKILLS COMMANDS
+.TP
+.B claude-ctx skills list
+List all available skills in ~/.claude/skills/
+.TP
+.B claude-ctx skills info \fISKILL\fR
+Show detailed information about a skill including metadata, dependencies, and token count.
+.TP
+.B claude-ctx skills validate [\fB--all\fR] [\fISKILLS\fR...]
+Validate skill metadata against schema. Use \fB--all\fR to validate all skills, or specify skill names.
+.TP
+.B claude-ctx skills analyze \fITEXT\fR
+Analyze text and suggest matching skills based on keywords.
+.TP
+.B claude-ctx skills suggest [\fB--project-dir\fR \fIDIR\fR]
+Suggest skills based on project context. Defaults to current directory.
+.TP
+.B claude-ctx skills metrics [\fISKILL\fR] [\fB--reset\fR]
+Show skill usage metrics. Omit skill name to see all metrics. Use \fB--reset\fR to reset all metrics.
+.TP
+.B claude-ctx skills deps \fISKILL\fR
+Show which agents depend on a skill.
+.TP
+.B claude-ctx skills agents \fISKILL\fR
+Show which agents use a skill (alias for deps).
+.TP
+.B claude-ctx skills compose \fISKILL\fR
+Show dependency tree for a skill including all transitive dependencies.
+.TP
+.B claude-ctx skills versions \fISKILL\fR
+Show version information for a skill including available versions and compatibility.
+.TP
+.B claude-ctx skills analytics [\fB--metric\fR \fIMETRIC\fR]
+Show skill effectiveness analytics. Available metrics: trending, roi, effectiveness, tokens, activations, success_rate.
+.TP
+.B claude-ctx skills report [\fB--format\fR \fIFORMAT\fR]
+Generate comprehensive analytics report. Formats: text (default), json, csv.
+.TP
+.B claude-ctx skills trending [\fB--days\fR \fIN\fR]
+Show trending skills over time. Defaults to 30 days.
+.SH COMMUNITY SKILLS COMMANDS
+.TP
+.B claude-ctx skills community list [\fIOPTIONS\fR]
+List community skills. Options:
+.RS
+.TP
+\fB--tag\fR \fITAG\fR
+Filter by tag
+.TP
+\fB--search\fR \fIQUERY\fR
+Search query
+.TP
+\fB--verified\fR
+Show only verified skills
+.TP
+\fB--sort\fR \fIFIELD\fR
+Sort field (e.g., name, rating, downloads)
+.RE
+.TP
+.B claude-ctx skills community install \fISKILL\fR
+Install a community skill from the registry.
+.TP
+.B claude-ctx skills community validate \fISKILL\fR
+Validate a community skill against quality standards.
+.TP
+.B claude-ctx skills community rate \fISKILL\fR \fB--rating\fR \fIN\fR
+Rate a community skill (1-5 stars).
+.TP
+.B claude-ctx skills community search \fIQUERY\fR [\fB--tags\fR \fITAGS\fR...]
+Search community skills by query and optional tags.
+.SH INIT COMMANDS
+.TP
+.B claude-ctx init [\fB--interactive\fR] [\fB--resume\fR]
+Run initialization wizard. Use \fB--interactive\fR or \fB-i\fR for interactive mode. Use \fB--resume\fR to resume last session.
+.TP
+.B claude-ctx init detect [\fIPATH\fR]
+Detect project context and refresh init cache. Defaults to current directory.
+.TP
+.B claude-ctx init minimal
+Apply minimal defaults via the init system.
+.TP
+.B claude-ctx init profile [\fINAME\fR]
+Capture profile selection for init.
+.TP
+.B claude-ctx init status [\fITARGET\fR] [\fB--json\fR]
+Show stored init state for a project. Use \fB--json\fR for JSON output.
+.TP
+.B claude-ctx init reset [\fITARGET\fR]
+Clear init state for a project. Defaults to current directory.
+.TP
+.B claude-ctx init resume [\fITARGET\fR]
+Resume last init session. Defaults to current directory.
+.TP
+.B claude-ctx init wizard [\fITARGET\fR]
+Run initialization wizard. Defaults to current directory.
+.SH PROFILE COMMANDS
+.TP
+.B claude-ctx profile list
+List available configuration profiles.
+.TP
+.B claude-ctx profile save \fINAME\fR
+Save current configuration to a named profile.
+.TP
+.B claude-ctx profile minimal
+Load minimal profile (essential agents only).
+.TP
+.B claude-ctx profile backend
+Load backend development profile.
+.SH WORKFLOW COMMANDS
+.TP
+.B claude-ctx workflow list
+List available workflows.
+.TP
+.B claude-ctx workflow run \fIWORKFLOW\fR
+Run a predefined workflow by name.
+.TP
+.B claude-ctx workflow status
+Show current workflow progress.
+.TP
+.B claude-ctx workflow resume
+Resume interrupted workflow.
+.SH ORCHESTRATE COMMANDS
+.TP
+.B claude-ctx orchestrate list
+List available scenarios.
+.TP
+.B claude-ctx orchestrate validate [\fB--all\fR] [\fISCENARIOS\fR...]
+Validate scenario metadata. Use \fB--all\fR to validate all scenarios.
+.TP
+.B claude-ctx orchestrate status
+Show scenario execution status.
+.TP
+.B claude-ctx orchestrate stop \fISCENARIO\fR
+Stop a running scenario.
+.TP
+.B claude-ctx orchestrate run \fISCENARIO\fR [\fIOPTIONS\fR]
+Run a scenario. Options:
+.RS
+.TP
+\fB--auto\fR
+Automatic mode
+.TP
+\fB--interactive\fR
+Interactive mode
+.TP
+\fB--plan\fR
+Plan mode (preview without execution)
+.TP
+\fB--preview\fR
+Preview mode
+.TP
+\fB--validate\fR
+Alias for --plan
+.RE
+.TP
+.B claude-ctx orchestrate preview \fISCENARIO\fR
+Preview a scenario without executing.
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+General error (invalid arguments, file not found, validation failure)
+.TP
+.B Other
+Command-specific error codes
+.SH FILES
+.TP
+.B ~/.claude/
+Main configuration directory containing all context files.
+.TP
+.B ~/.claude/agents/
+Agent definitions directory.
+.TP
+.B ~/.claude/agents/active/
+Symlinks to currently active agents.
+.TP
+.B ~/.claude/agents/disabled/
+Disabled agents.
+.TP
+.B ~/.claude/modes/
+Mode definitions directory.
+.TP
+.B ~/.claude/modes/active/
+Symlinks to currently active modes.
+.TP
+.B ~/.claude/rules/
+Rule module definitions.
+.TP
+.B ~/.claude/rules/active/
+Symlinks to currently active rules.
+.TP
+.B ~/.claude/skills/
+Skill definitions directory.
+.TP
+.B ~/.claude/skills/composition.yaml
+Skill dependency map.
+.TP
+.B ~/.claude/skills/versions.yaml
+Skill version registry.
+.TP
+.B ~/.claude/skills/community/
+Community-contributed skills.
+.TP
+.B ~/.claude/skills/community/registry.yaml
+Community skill registry.
+.TP
+.B ~/.claude/.metrics/skills/
+Skill usage metrics and analytics data.
+.TP
+.B ~/.claude/.metrics/skills/stats.json
+Aggregate skill metrics.
+.TP
+.B ~/.claude/.metrics/skills/activations.json
+Detailed activation records.
+.TP
+.B ~/.claude/workflows/
+Workflow definitions.
+.TP
+.B ~/.claude/scenarios/
+Scenario orchestration definitions.
+.TP
+.B ~/.claude/profiles/
+Saved configuration profiles.
+.TP
+.B ~/.claude/CLAUDE.md
+Main configuration file loaded by Claude.
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_CTX_HOME
+Override the default ~/.claude directory location.
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Alternative environment variable for overriding the default directory.
+.SH EXAMPLES
+.TP
+.B Show overall status
+.nf
+claude-ctx status
+.fi
+.TP
+.B Activate a mode
+.nf
+claude-ctx mode activate debug
+.fi
+.TP
+.B List and activate an agent
+.nf
+claude-ctx agent list
+claude-ctx agent activate python-expert
+.fi
+.TP
+.B Show agent dependencies
+.nf
+claude-ctx agent deps python-expert
+claude-ctx agent graph --export deps.txt
+.fi
+.TP
+.B List skills and show info
+.nf
+claude-ctx skills list
+claude-ctx skills info api-design-patterns
+.fi
+.TP
+.B Show skill dependency tree
+.nf
+claude-ctx skills compose microservices-patterns
+.fi
+.TP
+.B Check skill versions
+.nf
+claude-ctx skills versions api-design-patterns
+.fi
+.TP
+.B View skill metrics
+.nf
+claude-ctx skills metrics
+claude-ctx skills metrics api-design-patterns
+.fi
+.TP
+.B Generate analytics report
+.nf
+claude-ctx skills analytics --metric trending
+claude-ctx skills report --format json
+claude-ctx skills trending --days 7
+.fi
+.TP
+.B Search community skills
+.nf
+claude-ctx skills community list --verified
+claude-ctx skills community search "react" --tags frontend typescript
+.fi
+.TP
+.B Install and rate community skill
+.nf
+claude-ctx skills community install react-hooks-advanced
+claude-ctx skills community rate react-hooks-advanced --rating 5
+.fi
+.TP
+.B Validate configuration
+.nf
+claude-ctx agent validate --all
+claude-ctx skills validate --all
+claude-ctx orchestrate validate --all
+.fi
+.TP
+.B Initialize project
+.nf
+claude-ctx init --interactive
+claude-ctx init detect /path/to/project
+claude-ctx init status --json
+.fi
+.TP
+.B Manage profiles
+.nf
+claude-ctx profile list
+claude-ctx profile save my-backend-setup
+claude-ctx profile minimal
+.fi
+.TP
+.B Run workflows and scenarios
+.nf
+claude-ctx workflow list
+claude-ctx workflow run code-review
+claude-ctx orchestrate run --plan complex-feature
+.fi
+.SH VERSIONING
+Skills support semantic versioning (MAJOR.MINOR.PATCH) with multiple compatibility operators:
+.TP
+.B exact
+skill@1.2.3 - Exact version match
+.TP
+.B caret (^)
+skill@^1.2.0 - Compatible with 1.x (>=1.2.0 <2.0.0)
+.TP
+.B tilde (~)
+skill@~1.2.0 - Patch updates only (>=1.2.0 <1.3.0)
+.TP
+.B minimum (>=)
+skill@>=1.2.0 - Minimum version
+.TP
+.B latest
+skill@latest - Latest available version
+.SH ANALYTICS
+The system tracks comprehensive metrics for skill usage:
+.TP
+.B Activation Count
+Number of times a skill has been activated
+.TP
+.B Token Savings
+Estimated tokens saved by using skills vs. inline context
+.TP
+.B Success Rate
+Percentage of successful skill activations
+.TP
+.B Effectiveness Score
+Composite score (0-100) based on success rate, token efficiency, usage frequency, and recency
+.TP
+.B ROI Analysis
+Cost savings calculations at $0.003 per 1K tokens
+.TP
+.B Trending Analysis
+Usage trends over configurable time windows
+.TP
+.B Correlation Matrix
+Co-activation patterns between skills
+.SH QUALITY STANDARDS
+Community skills must meet validation requirements:
+.TP
+.B Frontmatter
+Valid YAML metadata including name, version, description, tags, and author
+.TP
+.B Token Budget
+Maximum 8,000 tokens for tier-1 (metadata only)
+.TP
+.B Format
+Markdown format with proper sections (Overview, Usage, Examples)
+.TP
+.B Content Quality
+Clear documentation, working examples, and proper attribution
+.SH DEPENDENCY MANAGEMENT
+.TP
+.B Composition System
+Skills can depend on other skills, creating dependency trees
+.TP
+.B Cycle Detection
+The system validates and prevents circular dependencies
+.TP
+.B Transitive Resolution
+Dependencies are resolved recursively
+.TP
+.B Dependency Visualization
+ASCII tree visualization of skill dependencies
+.TP
+.B Agent Dependencies
+Agents can depend on skills and other agents with validation
+.SH BUGS
+Report bugs at: https://github.com/NickCrew/claude-ctx-plugin/issues
+.SH AUTHOR
+Written by Nick Ferguson and contributors.
+.SH COPYRIGHT
+Copyright \(co 2025 Nick Ferguson. License: MIT
+.SH SEE ALSO
+.BR git (1),
+.BR python (1)
+
+Full documentation available at: https://github.com/NickCrew/claude-ctx-plugin
+
+Configuration examples and tutorials: ~/.claude/docs/
