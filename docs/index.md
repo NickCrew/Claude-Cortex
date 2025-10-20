@@ -80,7 +80,7 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
 
 ```
 claude-ctx-plugin/
-├── commands/           # Slash command definitions (35 commands across 11 categories)
+├── commands/           # Slash command definitions (37 commands across 11 categories)
 │   ├── analyze/       # Code analysis, security scanning, troubleshooting
 │   ├── deploy/        # Release preparation and deployment
 │   ├── design/        # System design and workflow planning

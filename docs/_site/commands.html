@@ -104,6 +104,8 @@
   <li><code class="language-plaintext highlighter-rouge">/analyze:estimate</code> - Development estimation</li>
   <li><code class="language-plaintext highlighter-rouge">/analyze:troubleshoot</code> - Issue diagnosis and resolution</li>
   <li><code class="language-plaintext highlighter-rouge">/reasoning:adjust</code> - Dynamic reasoning depth control</li>
+  <li><code class="language-plaintext highlighter-rouge">/reasoning:budget</code> - Thinking budget control (128K extended mode)</li>
+  <li><code class="language-plaintext highlighter-rouge">/reasoning:metrics</code> - Reasoning effectiveness analytics</li>
 </ul>
 
 <p><strong>Session Management</strong></p>
@@ -1857,6 +1859,98 @@
 <hr />
 
 <h3 id="reasoningadjust">/reasoning:adjust</h3>
+<h3 id="reasoningbudget">/reasoning:budget</h3>
+
+<p><strong>Description</strong>: Control internal reasoning token budget for cost and quality optimization</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Category</strong>: utility</td>
+      <td><strong>Complexity</strong>: basic</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Triggers</strong>:</p>
+<ul>
+  <li>Need to control reasoning depth and cost trade-offs</li>
+  <li>Complex problems requiring extended thinking time</li>
+  <li>Budget-conscious operations with quality requirements</li>
+</ul>
+
+<p><strong>Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/reasoning:budget <span class="o">[</span>4000|10000|32000|128000] <span class="o">[</span><span class="nt">--auto-adjust</span><span class="o">]</span> <span class="o">[</span><span class="nt">--show-usage</span><span class="o">]</span>
+</code></pre></div></div>
+
+<p><strong>Budget Levels</strong>:</p>
+<ul>
+  <li><strong>4K</strong>: Standard reasoning (~$0.012) - routine tasks</li>
+  <li><strong>10K</strong>: Deep reasoning (~$0.030) - architectural decisions</li>
+  <li><strong>32K</strong>: Maximum reasoning (~$0.096) - critical redesign</li>
+  <li><strong>128K</strong>: Extended thinking (~$0.384) - extreme complexity (5x cheaper than OpenAI o1)</li>
+</ul>
+
+<p><strong>Examples</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Extended thinking for critical issue</span>
+/reasoning:budget 128000 <span class="nt">--show-usage</span>
+
+<span class="c"># Budget-conscious analysis</span>
+/reasoning:budget 10000
+/analyze:code src/auth <span class="nt">--reasoning-profile</span> security
+</code></pre></div></div>
+
+<p><strong>Related Commands</strong>: <code class="language-plaintext highlighter-rouge">/reasoning:adjust</code>, <code class="language-plaintext highlighter-rouge">/reasoning:metrics</code></p>
+
+<hr />
+
+<h3 id="reasoningmetrics">/reasoning:metrics</h3>
+
+<p><strong>Description</strong>: Track reasoning effectiveness and optimization metrics across commands</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Category</strong>: utility</td>
+      <td><strong>Complexity</strong>: basic</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Triggers</strong>:</p>
+<ul>
+  <li>Need to understand reasoning effectiveness and costs</li>
+  <li>Optimization of reasoning depth for specific task types</li>
+  <li>Budget planning and cost analysis</li>
+</ul>
+
+<p><strong>Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/reasoning:metrics <span class="o">[</span><span class="nt">--command</span> &lt;name&gt;] <span class="o">[</span><span class="nt">--timeframe</span> 7d|30d|all] <span class="o">[</span><span class="nt">--export</span> json|markdown|csv]
+</code></pre></div></div>
+
+<p><strong>Metrics Tracked</strong>:</p>
+<ul>
+  <li>Token usage by reasoning level and command</li>
+  <li>Success rates and confidence scores</li>
+  <li>Cost analysis and budget efficiency</li>
+  <li>MCP server activation patterns</li>
+  <li>Optimization recommendations</li>
+</ul>
+
+<p><strong>Examples</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Overall dashboard</span>
+/reasoning:metrics
+
+<span class="c"># Command-specific analysis</span>
+/reasoning:metrics <span class="nt">--command</span> analyze:code
+
+<span class="c"># Export for analysis</span>
+/reasoning:metrics <span class="nt">--timeframe</span> 30d <span class="nt">--export</span> json
+</code></pre></div></div>
+
+<p><strong>Related Commands</strong>: <code class="language-plaintext highlighter-rouge">/reasoning:budget</code>, <code class="language-plaintext highlighter-rouge">/reasoning:adjust</code></p>
+
+<hr />
 
 <p><strong>Description</strong>: Dynamically adjust reasoning depth during task execution</p>
 

@@ -17,7 +17,7 @@ personas: []
 
 ## Usage
 ```
-/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep|ultra] [--reasoning-profile default|security|performance] [--format text|json|report]
+/analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep|ultra] [--reasoning-profile default|security|performance|architecture|data|testing] [--format text|json|report]
 ```
 
 ## Behavioral Flow
@@ -60,6 +60,36 @@ Key behaviors:
 - Scalability assessment and load testing recommendations
 - Database query optimization and N+1 detection
 - Enables: Sequential for performance impact chains
+
+### architecture
+- System design pattern recognition and anti-pattern detection
+- Service boundary analysis and microservices decomposition strategies
+- Dependency graph analysis with circular dependency detection
+- API design evaluation and REST/GraphQL best practices
+- Scalability and resilience architecture assessment
+- Event-driven architecture and message flow analysis
+- Enables: Context7 for api-design-patterns, microservices-patterns skills
+- Enables: Sequential for dependency chain analysis
+
+### data
+- Database schema design analysis and normalization assessment
+- Query performance optimization and index recommendations
+- Data flow mapping and ETL pipeline evaluation
+- CQRS and Event Sourcing pattern application
+- Data consistency and integrity validation
+- Migration strategy assessment for schema changes
+- Enables: Context7 for database-design-patterns, cqrs-event-sourcing skills
+- Enables: Sequential for data flow impact analysis
+
+### testing
+- Test coverage gap identification and quality assessment
+- Test pattern analysis (unit, integration, e2e structure)
+- Property-based testing opportunity detection
+- Mock and stub usage evaluation
+- Test maintainability and flakiness analysis
+- TDD/BDD pattern compliance verification
+- Enables: Context7 for python-testing-patterns skill
+- Enables: Sequential for test dependency analysis
 
 ## Key Patterns
 - **Domain Analysis**: Quality/Security/Performance/Architecture → specialized assessment

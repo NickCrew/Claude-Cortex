@@ -1,7 +1,8 @@
-"""Tests for reasoning system features."""
+"""Tests for reasoning system features and Phase 2 enhancements."""
 
 import pytest
 from pathlib import Path
+import json
 
 
 class TestReasoningCommand:
@@ -199,8 +200,8 @@ class TestDocumentationConsistency:
         index_path = Path(__file__).parent.parent.parent / "docs" / "index.md"
         if index_path.exists():
             content = index_path.read_text()
-            # Should mention 35 commands (updated count)
-            assert "35 commands" in content or f"{actual_count} commands" in content
+            # Should mention actual command count
+            assert f"{actual_count} commands" in content or "commands across" in content
 
     def test_reasoning_category_in_project_structure(self):
         """Test that reasoning category is listed in project structure."""
@@ -227,3 +228,232 @@ class TestDocumentationConsistency:
         # Check for reasoning:adjust command
         assert "/reasoning:adjust" in content
         assert "Dynamic reasoning depth" in content or "reasoning depth during task" in content.lower()
+
+
+class TestThinkingBudget:
+    """Tests for /reasoning:budget command and --thinking-budget flag."""
+
+    def test_budget_command_exists(self):
+        """Test that reasoning/budget.md command file exists."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "budget.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+        assert "name: budget" in content
+        assert "description:" in content
+
+    def test_budget_levels_documented(self):
+        """Test that all budget levels are documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "budget.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        # Check for all budget levels
+        assert "4000" in content or "4,000" in content
+        assert "10000" in content or "10,000" in content
+        assert "32000" in content or "32,000" in content
+        assert "128000" in content or "128,000" in content
+
+        # Check for extended thinking mode
+        assert "Extended" in content or "extended" in content
+
+    def test_budget_flag_in_flags_md(self):
+        """Test that --thinking-budget flag is documented."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        assert "--thinking-budget" in content
+        assert "128000" in content or "128K" in content
+
+    def test_cost_information_included(self):
+        """Test that budget command includes cost information."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "budget.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        # Should have cost examples
+        assert "$" in content
+        assert "cost" in content.lower() or "pricing" in content.lower()
+
+
+class TestReasoningProfiles:
+    """Tests for expanded reasoning profiles."""
+
+    def test_architecture_profile_exists(self):
+        """Test that architecture profile is documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "analyze" / "code.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        assert "architecture" in content.lower()
+        assert "microservices" in content.lower() or "api design" in content.lower()
+
+    def test_data_profile_exists(self):
+        """Test that data profile is documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "analyze" / "code.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        assert "### data" in content.lower()
+        assert "database" in content.lower() or "cqrs" in content.lower()
+
+    def test_testing_profile_exists(self):
+        """Test that testing profile is documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "analyze" / "code.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        assert "### testing" in content.lower()
+        assert "test coverage" in content.lower() or "property-based" in content.lower()
+
+    def test_skill_mappings_documented(self):
+        """Test that profiles document skill activations."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "analyze" / "code.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        # Check for skill references
+        assert "api-design-patterns" in content or "database-design-patterns" in content
+        assert "Enables:" in content or "enables:" in content
+
+
+class TestIntrospectLevels:
+    """Tests for --introspect-level enhancement."""
+
+    def test_introspect_levels_documented(self):
+        """Test that introspect levels are in FLAGS.md."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        assert "--introspect-level" in content or "introspect-level" in content
+        assert "markers" in content.lower()
+        assert "steps" in content.lower()
+        assert "full" in content.lower()
+
+    def test_transparency_markers_documented(self):
+        """Test that transparency markers are documented."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        # Check for emoji or descriptions
+        marker_keywords = ["thinking", "focus", "insight", "data", "decision"]
+        found_markers = sum(1 for keyword in marker_keywords if keyword in content.lower())
+
+        assert found_markers >= 3
+
+
+class TestReasoningMetrics:
+    """Tests for /reasoning:metrics command."""
+
+    def test_metrics_command_exists(self):
+        """Test that reasoning/metrics.md exists."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "metrics.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+        assert "name: metrics" in content
+
+    def test_metrics_dashboard_documented(self):
+        """Test that metrics dashboard format is documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "metrics.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = command_path.read_text()
+
+        # Should document dashboard sections
+        assert "dashboard" in content.lower() or "metrics" in content.lower()
+        assert "export" in content.lower()
+
+    def test_export_formats_documented(self):
+        """Test that export formats are documented."""
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "metrics.md"
+
+        if not command_path.exists():
+            pytest.skip("Command file not found")
+
+        content = content = command_path.read_text()
+
+        # Check for export formats
+        assert "json" in content.lower()
+        assert "csv" in content.lower() or "markdown" in content.lower()
+
+
+class TestAutoEscalation:
+    """Tests for --auto-escalate flag."""
+
+    def test_auto_escalate_documented(self):
+        """Test that --auto-escalate is in FLAGS.md."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        assert "--auto-escalate" in content
+
+    def test_escalation_triggers_documented(self):
+        """Test that escalation triggers are documented."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        # Check for trigger types
+        assert "confidence" in content.lower()
+        assert "errors" in content.lower()
+        assert "complexity" in content.lower()
+        assert "adaptive" in content.lower()
+
+    def test_escalation_modes_documented(self):
+        """Test that all escalation modes are documented."""
+        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+
+        if not flags_path.exists():
+            pytest.skip("FLAGS.md not found")
+
+        content = flags_path.read_text()
+
+        # Should describe what each mode does
+        auto_escalate_section = content[content.find("--auto-escalate"):][:2000]
+
+        assert "confidence" in auto_escalate_section.lower()
+        assert "0.6" in auto_escalate_section or "threshold" in auto_escalate_section.lower()

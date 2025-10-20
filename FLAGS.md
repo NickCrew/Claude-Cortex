@@ -10,8 +10,16 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 
 **--introspect**
 - Trigger: Self-analysis requests, error recovery, complex problem solving requiring meta-cognition
-- Behavior: Expose thinking process with transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
+- Behavior: Expose thinking process with transparency markers
 - Auto-enabled by: `--ultrathink` (maximum depth analysis)
+- Levels:
+  - `--introspect-level markers`: Emoji indicators only (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision) - default
+  - `--introspect-level steps`: Numbered reasoning steps with rationale
+  - `--introspect-level full`: Complete thought process including alternatives considered
+- Use cases:
+  - `markers`: Quick visibility into reasoning phases without verbosity
+  - `steps`: Learning from reasoning process, debugging complex decisions
+  - `full`: Maximum transparency for critical decisions, educational purposes
 
 **--task-manage**
 - Trigger: Multi-step operations (>3 steps), complex scope (>2 directories OR >3 files)
@@ -59,6 +67,22 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 - Trigger: Native-only execution needs, performance priority
 - Behavior: Disable all MCP servers, use native tools with WebSearch fallback
 
+## Thinking Budget Flags
+
+**--thinking-budget [4000|10000|32000|128000]**
+- Trigger: Need explicit control over internal reasoning token allocation
+- Behavior: Set token budget for internal thinking and analysis
+- Levels:
+  - `4000`: Standard reasoning (~$0.012 per request) - routine tasks
+  - `10000`: Deep reasoning (~$0.030 per request) - architectural decisions
+  - `32000`: Maximum reasoning (~$0.096 per request) - critical redesign
+  - `128000`: Extended thinking (~$0.384 per request) - extreme complexity
+- Options:
+  - `--auto-adjust`: Allow automatic budget escalation based on complexity
+  - `--show-usage`: Display real-time token consumption and cost
+- Related Commands: `/reasoning:budget`, `/reasoning:adjust`
+- Note: 5x cheaper than OpenAI o1 at equivalent depth (128K)
+
 ## Analysis Depth Flags
 
 **--think**
@@ -77,6 +101,52 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
   - `--summary detailed`: Full analysis with reasoning (default)
   - `--summary comprehensive`: Include rationale, alternatives, trade-offs (~50% output increase)
 - Auto-enables: `--introspect` transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
+
+## Auto-Escalation Flags
+
+**--auto-escalate [confidence|errors|complexity|adaptive]**
+- Trigger: Need for automatic reasoning depth adjustment based on task signals
+- Behavior: Monitor task execution and escalate reasoning depth when needed
+- Modes:
+  - `confidence`: Escalate when confidence scores < 0.6 after initial analysis
+  - `errors`: Escalate after 3+ failed solution attempts
+  - `complexity`: Escalate when detecting circular dependencies, >100 files, >10 services
+  - `adaptive`: Combine all triggers with intelligent threshold adjustment
+- Escalation Path: Current depth → +1 level (e.g., medium→high, not medium→ultra)
+- De-escalation: Returns to base level after successful subtask completion
+- Max Escalations: 2 per task (prevents runaway costs)
+- Cost Protection: Requires confirmation for escalation to Extended (128K)
+- Related Commands: `/reasoning:adjust`, `/reasoning:budget`
+- Example: `--think --auto-escalate adaptive` starts at 4K, escalates to 10K if needed
+
+**Escalation Triggers by Type:**
+
+**confidence:**
+- Confidence score <0.6 after analysis
+- Multiple competing solutions with similar scores
+- High uncertainty in recommendations
+- Threshold: Activates after initial solution attempt
+
+**errors:**
+- 3+ failed compilation/test attempts
+- Repeated similar error patterns
+- Solutions that don't resolve root cause
+- Threshold: Tracks per-subtask error count
+
+**complexity:**
+- Circular dependency detection (imports, services)
+- File count >100 in affected scope
+- Service boundary count >10
+- Nested abstraction depth >7 levels
+- Code complexity score >0.8
+- Threshold: Structural analysis triggers
+
+**adaptive:**
+- Learns from metrics history (`/reasoning:metrics`)
+- Adjusts thresholds based on command patterns
+- Task-specific complexity scoring
+- Balances cost vs quality dynamically
+- Threshold: Context-dependent optimization
 
 ## Execution Control Flags
 

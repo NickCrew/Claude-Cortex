@@ -1,10 +1,42 @@
----
-layout: default
-title: Command Reference
-nav_order: 3
----
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Command Reference | Claude CTX Plugin</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Command Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="https://nickcrew.github.io/claude-ctx-plugin/commands.md.bak" />
+<meta property="og:url" content="https://nickcrew.github.io/claude-ctx-plugin/commands.md.bak" />
+<meta property="og:site_name" content="Claude CTX Plugin" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Command Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Command Reference","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://nickcrew.github.io/claude-ctx-plugin/assets/images/hero.png"}},"url":"https://nickcrew.github.io/claude-ctx-plugin/commands.md.bak"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/claude-ctx-plugin/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://nickcrew.github.io/claude-ctx-plugin/feed.xml" title="Claude CTX Plugin" /></head>
+<body><header class="site-header" role="banner">
 
-# Slash Commands API Reference
+  <div class="wrapper"><a class="site-title" rel="author" href="/claude-ctx-plugin/">Claude CTX Plugin</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/claude-ctx-plugin/">Overview</a><a class="page-link" href="/claude-ctx-plugin/getting-started.html">Getting Started</a><a class="page-link" href="/claude-ctx-plugin/architecture.html">Architecture</a><a class="page-link" href="/claude-ctx-plugin/agents.html">Agents</a><a class="page-link" href="/claude-ctx-plugin/skills.html">Skills</a><a class="page-link" href="/claude-ctx-plugin/model-optimization.html">Model Optimization</a><a class="page-link" href="/claude-ctx-plugin/commands.html">Command Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        # Slash Commands API Reference
 
 Complete API documentation for all slash commands in the Claude Context Plugin.
 
@@ -60,8 +92,6 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/analyze:estimate` - Development estimation
 - `/analyze:troubleshoot` - Issue diagnosis and resolution
 - `/reasoning:adjust` - Dynamic reasoning depth control
-- `/reasoning:budget` - Thinking budget control (128K extended mode)
-- `/reasoning:metrics` - Reasoning effectiveness analytics
 
 **Session Management**
 - `/session:load` - Load project context
@@ -1492,81 +1522,6 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 ---
 
 ### /reasoning:adjust
-### /reasoning:budget
-
-**Description**: Control internal reasoning token budget for cost and quality optimization
-
-**Category**: utility | **Complexity**: basic
-
-**Triggers**:
-- Need to control reasoning depth and cost trade-offs
-- Complex problems requiring extended thinking time
-- Budget-conscious operations with quality requirements
-
-**Usage**:
-```bash
-/reasoning:budget [4000|10000|32000|128000] [--auto-adjust] [--show-usage]
-```
-
-**Budget Levels**:
-- **4K**: Standard reasoning (~$0.012) - routine tasks
-- **10K**: Deep reasoning (~$0.030) - architectural decisions  
-- **32K**: Maximum reasoning (~$0.096) - critical redesign
-- **128K**: Extended thinking (~$0.384) - extreme complexity (5x cheaper than OpenAI o1)
-
-**Examples**:
-```bash
-# Extended thinking for critical issue
-/reasoning:budget 128000 --show-usage
-
-# Budget-conscious analysis
-/reasoning:budget 10000
-/analyze:code src/auth --reasoning-profile security
-```
-
-**Related Commands**: `/reasoning:adjust`, `/reasoning:metrics`
-
----
-
-### /reasoning:metrics
-
-**Description**: Track reasoning effectiveness and optimization metrics across commands
-
-**Category**: utility | **Complexity**: basic
-
-**Triggers**:
-- Need to understand reasoning effectiveness and costs
-- Optimization of reasoning depth for specific task types
-- Budget planning and cost analysis
-
-**Usage**:
-```bash
-/reasoning:metrics [--command <name>] [--timeframe 7d|30d|all] [--export json|markdown|csv]
-```
-
-**Metrics Tracked**:
-- Token usage by reasoning level and command
-- Success rates and confidence scores
-- Cost analysis and budget efficiency
-- MCP server activation patterns
-- Optimization recommendations
-
-**Examples**:
-```bash
-# Overall dashboard
-/reasoning:metrics
-
-# Command-specific analysis
-/reasoning:metrics --command analyze:code
-
-# Export for analysis
-/reasoning:metrics --timeframe 30d --export json
-```
-
-**Related Commands**: `/reasoning:budget`, `/reasoning:adjust`
-
----
-
 
 **Description**: Dynamically adjust reasoning depth during task execution
 
@@ -2943,3 +2898,32 @@ Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 **Last Updated**: 2025-10-17
 **Version**: 1.0.0
 **Total Commands**: 26 slash commands + 8 agent-based commands
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/claude-ctx-plugin/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Claude CTX Plugin</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Claude CTX Plugin</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
