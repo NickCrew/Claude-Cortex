@@ -124,6 +124,46 @@ man claude-ctx
 
 The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
 
+## Hooks
+
+The `hooks/` directory contains example Claude Code hooks that work with claude-ctx agents and commands.
+
+### Implementation Quality Gate Hook
+
+A comprehensive three-phase quality gate for professional development:
+
+1. **Phase 1: Testing** - Automatic test generation with ≥85% coverage requirement
+2. **Phase 2: Documentation** - Intelligent routing (user-facing vs API) with ≥7.5/10 review score
+3. **Phase 3: Code Review** - Code quality and security review with priority-based issue resolution
+
+**Quick Install:**
+```bash
+cp hooks/examples/implementation-quality-gate.sh ~/.claude/hooks/
+chmod +x ~/.claude/hooks/implementation-quality-gate.sh
+```
+
+Then add to `~/.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "user-prompt-submit": [
+      {
+        "command": "bash",
+        "args": ["~/.claude/hooks/implementation-quality-gate.sh"]
+      }
+    ]
+  }
+}
+```
+
+**Activate required agents:**
+```bash
+claude-ctx agent activate test-automator api-documenter tutorial-engineer \
+  technical-writer docs-architect quality-engineer code-reviewer
+```
+
+See `hooks/README.md` and `hooks/examples/HOOK_DOCUMENTATION.md` for complete documentation.
+
 ## Development notes
 
 - Update the version in `.claude-plugin/plugin.json` whenever you publish a new release.
