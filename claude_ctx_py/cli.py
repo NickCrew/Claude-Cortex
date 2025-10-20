@@ -36,23 +36,23 @@ def build_parser() -> argparse.ArgumentParser:
     mode_sub = mode_parser.add_subparsers(dest="mode_command")
     mode_sub.add_parser("list", help="List available modes")
     mode_sub.add_parser("status", help="Show active modes")
-    mode_activate = mode_sub.add_parser("activate", help="Activate a mode")
-    mode_activate.add_argument("mode", help="Mode name (without .md)")
+    mode_activate = mode_sub.add_parser("activate", help="Activate one or more modes")
+    mode_activate.add_argument("modes", nargs="+", help="Mode name(s) (without .md)")
     mode_deactivate = mode_sub.add_parser(
-        "deactivate", help="Deactivate a mode"
+        "deactivate", help="Deactivate one or more modes"
     )
-    mode_deactivate.add_argument("mode", help="Mode name (without .md)")
+    mode_deactivate.add_argument("modes", nargs="+", help="Mode name(s) (without .md)")
 
     agent_parser = subparsers.add_parser("agent", help="Agent commands")
     agent_sub = agent_parser.add_subparsers(dest="agent_command")
     agent_sub.add_parser("list", help="List available agents")
     agent_sub.add_parser("status", help="Show active agents")
-    agent_activate = agent_sub.add_parser("activate", help="Activate an agent")
-    agent_activate.add_argument("agent", help="Agent name (without .md)")
+    agent_activate = agent_sub.add_parser("activate", help="Activate one or more agents")
+    agent_activate.add_argument("agents", nargs="+", help="Agent name(s) (without .md)")
     agent_deactivate = agent_sub.add_parser(
-        "deactivate", help="Deactivate an agent"
+        "deactivate", help="Deactivate one or more agents"
     )
-    agent_deactivate.add_argument("agent", help="Agent name (without .md)")
+    agent_deactivate.add_argument("agents", nargs="+", help="Agent name(s) (without .md)")
     agent_deactivate.add_argument(
         "--force",
         action="store_true",
@@ -90,12 +90,12 @@ def build_parser() -> argparse.ArgumentParser:
     rules_sub = rules_parser.add_subparsers(dest="rules_command")
     rules_sub.add_parser("list", help="List available rules")
     rules_sub.add_parser("status", help="Show active rule modules")
-    rules_activate = rules_sub.add_parser("activate", help="Activate a rule module")
-    rules_activate.add_argument("rule", help="Rule name (without .md)")
+    rules_activate = rules_sub.add_parser("activate", help="Activate one or more rule modules")
+    rules_activate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
     rules_deactivate = rules_sub.add_parser(
-        "deactivate", help="Deactivate a rule module"
+        "deactivate", help="Deactivate one or more rule modules"
     )
-    rules_deactivate.add_argument("rule", help="Rule name (without .md)")
+    rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
 
     skills_parser = subparsers.add_parser("skills", help="Skill commands")
     skills_sub = skills_parser.add_subparsers(dest="skills_command")
@@ -449,13 +449,25 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(core.mode_status())
             return 0
         if args.mode_command == "activate":
-            exit_code, message = core.mode_activate(args.mode)
-            _print(message)
-            return exit_code
+            messages = []
+            final_exit_code = 0
+            for mode in args.modes:
+                exit_code, message = core.mode_activate(mode)
+                messages.append(message)
+                if exit_code != 0:
+                    final_exit_code = exit_code
+            _print("\n".join(messages))
+            return final_exit_code
         if args.mode_command == "deactivate":
-            exit_code, message = core.mode_deactivate(args.mode)
-            _print(message)
-            return exit_code
+            messages = []
+            final_exit_code = 0
+            for mode in args.modes:
+                exit_code, message = core.mode_deactivate(mode)
+                messages.append(message)
+                if exit_code != 0:
+                    final_exit_code = exit_code
+            _print("\n".join(messages))
+            return final_exit_code
     elif args.command == "agent":
         if args.agent_command == "list":
             _print(core.list_agents())
@@ -464,15 +476,25 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(core.agent_status())
             return 0
         if args.agent_command == "activate":
-            exit_code, message = core.agent_activate(args.agent)
-            _print(message)
-            return exit_code
+            messages = []
+            final_exit_code = 0
+            for agent in args.agents:
+                exit_code, message = core.agent_activate(agent)
+                messages.append(message)
+                if exit_code != 0:
+                    final_exit_code = exit_code
+            _print("\n".join(messages))
+            return final_exit_code
         if args.agent_command == "deactivate":
-            exit_code, message = core.agent_deactivate(
-                args.agent, force=args.force
-            )
-            _print(message)
-            return exit_code
+            messages = []
+            final_exit_code = 0
+            for agent in args.agents:
+                exit_code, message = core.agent_deactivate(agent, force=args.force)
+                messages.append(message)
+                if exit_code != 0:
+                    final_exit_code = exit_code
+            _print("\n".join(messages))
+            return final_exit_code
         if args.agent_command == "deps":
             exit_code, message = core.agent_deps(args.agent)
             _print(message)
@@ -495,10 +517,16 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(core.rules_status())
             return 0
         if args.rules_command == "activate":
-            _print(core.rules_activate(args.rule))
+            messages = []
+            for rule in args.rules:
+                messages.append(core.rules_activate(rule))
+            _print("\n".join(messages))
             return 0
         if args.rules_command == "deactivate":
-            _print(core.rules_deactivate(args.rule))
+            messages = []
+            for rule in args.rules:
+                messages.append(core.rules_deactivate(rule))
+            _print("\n".join(messages))
             return 0
     elif args.command == "skills":
         if args.skills_command == "list":
