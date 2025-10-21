@@ -39,6 +39,9 @@ Manage and execute predefined workflows.
 .TP
 .B orchestrate \fISUBCOMMAND\fR
 (Alias: \fBorch\fR) Orchestrate complex scenarios.
+.TP
+.B export \fISUBCOMMAND\fR
+Export context configuration to markdown files.
 .SH MODE COMMANDS
 .TP
 .B claude-ctx mode list
@@ -244,6 +247,40 @@ Alias for --plan
 .TP
 .B claude-ctx orchestrate preview \fISCENARIO\fR
 Preview a scenario without executing.
+.SH EXPORT COMMANDS
+.TP
+.B claude-ctx export list
+List all available context components organized by category (core, rules, modes, agents, mcp_docs, skills).
+.TP
+.B claude-ctx export context \fIOUTPUT_FILE\fR [\fIOPTIONS\fR]
+Export current context configuration to a markdown file or stdout. Use
+.B -
+for
+.I OUTPUT_FILE
+to write to stdout. Options:
+.RS
+.TP
+\fB--exclude-category\fR \fICATEGORY\fR
+Exclude an entire category from export. Can be used multiple times. Valid categories: core, rules, modes, agents, mcp_docs, skills.
+.TP
+\fB--exclude-file\fR \fIFILE_PATH\fR
+Exclude a specific file from export (e.g., rules/quality-rules.md). Can be used multiple times.
+.TP
+\fB--no-agent-generic\fR
+Use Claude-specific format instead of agent-generic format. By default, exports use agent-generic format suitable for any LLM.
+.RE
+.PP
+The export command creates a single markdown file containing all active context configuration. This is useful for:
+.RS
+.IP \(bu 2
+Sharing context configuration with other developers
+.IP \(bu 2
+Creating backups of your configuration
+.IP \(bu 2
+Using context with other AI agents/LLMs
+.IP \(bu 2
+Documenting your current setup
+.RE
 .SH EXIT STATUS
 .TP
 .B 0
@@ -413,6 +450,31 @@ claude-ctx profile minimal
 claude-ctx workflow list
 claude-ctx workflow run code-review
 claude-ctx orchestrate run --plan complex-feature
+.fi
+.TP
+.B Export context configuration
+.nf
+# List all available components
+claude-ctx export list
+
+# Export full context
+claude-ctx export context my-context.md
+
+# Export without agents and skills
+claude-ctx export context minimal-context.md \\
+    --exclude-category agents \\
+    --exclude-category skills
+
+# Export excluding specific files
+claude-ctx export context custom-context.md \\
+    --exclude-file "rules/quality-rules.md"
+
+# Use Claude-specific format
+claude-ctx export context claude-context.md --no-agent-generic
+
+# Export to stdout
+claude-ctx export context - > my-context.md
+claude-ctx export context - | less
 .fi
 .SH VERSIONING
 Skills support semantic versioning (MAJOR.MINOR.PATCH) with multiple compatibility operators:

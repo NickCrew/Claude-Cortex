@@ -205,6 +205,13 @@ from .profiles import (
     show_status,
 )
 
+# Export all functions from context_export
+from .context_export import (
+    collect_context_components,
+    export_context,
+    list_context_components,
+)
+
 __all__ = [
     # Constants
     "BLUE",
@@ -370,4 +377,8 @@ __all__ = [
     "init_resume",
     "init_wizard",
     "show_status",
+    # Context export functions
+    "collect_context_components",
+    "export_context",
+    "list_context_components",
 ]

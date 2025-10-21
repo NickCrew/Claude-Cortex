@@ -433,6 +433,35 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("status", help="Show overall status")
 
+    # Context export commands
+    export_parser = subparsers.add_parser("export", help="Export context commands")
+    export_sub = export_parser.add_subparsers(dest="export_command")
+    export_list = export_sub.add_parser("list", help="List available context components")
+    export_context = export_sub.add_parser("context", help="Export context to markdown file")
+    export_context.add_argument(
+        "output",
+        help="Output file path (e.g., my-context.md) or '-' for stdout",
+    )
+    export_context.add_argument(
+        "--exclude-category",
+        dest="exclude_categories",
+        action="append",
+        choices=["core", "rules", "modes", "agents", "mcp_docs", "skills"],
+        help="Exclude a category from export (can be used multiple times)",
+    )
+    export_context.add_argument(
+        "--exclude-file",
+        dest="exclude_files",
+        action="append",
+        help="Exclude specific file (e.g., rules/quality-rules.md)",
+    )
+    export_context.add_argument(
+        "--no-agent-generic",
+        dest="no_agent_generic",
+        action="store_true",
+        help="Use Claude-specific format instead of agent-generic",
+    )
+
     return parser
 
 
@@ -781,6 +810,32 @@ def main(argv: Iterable[str] | None = None) -> int:
     elif args.command == "status":
         _print(core.show_status())
         return 0
+    elif args.command == "export":
+        if args.export_command == "list":
+            _print(core.list_context_components())
+            return 0
+        if args.export_command == "context":
+            from pathlib import Path
+
+            # Support "-" for stdout
+            if args.output == "-":
+                output_path = "-"
+            else:
+                output_path = Path(args.output)
+
+            exclude_categories = set(args.exclude_categories or [])
+            exclude_files = set(args.exclude_files or [])
+            agent_generic = not args.no_agent_generic
+
+            exit_code, message = core.export_context(
+                output_path=output_path,
+                exclude_categories=exclude_categories,
+                exclude_files=exclude_files,
+                agent_generic=agent_generic,
+            )
+            if message:  # Only print if there's a message (empty for stdout)
+                _print(message)
+            return exit_code
 
     parser.print_help()
     return 1
