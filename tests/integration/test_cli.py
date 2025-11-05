@@ -176,10 +176,12 @@ class TestInvalidCommands:
 
     def test_invalid_command(self) -> None:
         """Test running with invalid command."""
-        result = cli.main(["invalid-command"])
-        
-        # Should show help and return 1
-        assert result == 1
+        # argparse raises SystemExit for invalid commands
+        with pytest.raises(SystemExit) as exc_info:
+            cli.main(["invalid-command"])
+
+        # Should exit with error code 2 (argparse convention)
+        assert exc_info.value.code == 2
 
 
 @pytest.mark.integration

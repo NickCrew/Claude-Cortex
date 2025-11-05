@@ -62,14 +62,14 @@ skill-c:
         """Test loading invalid YAML raises ValueError."""
         mock_yaml_file("invalid: yaml: content: [")
 
-        with pytest.raises(ValueError, match="Failed to parse composition.yaml"):
+        with pytest.raises(ValueError, match="Invalid YAML"):
             composer.load_composition_map(temp_claude_dir)
 
     def test_load_composition_map_not_dict(self, temp_claude_dir, mock_yaml_file):
         """Test loading YAML that's not a dictionary."""
         mock_yaml_file("- item1\n- item2\n")
 
-        with pytest.raises(ValueError, match="must contain a dictionary"):
+        with pytest.raises(ValueError, match="Expected dictionary"):
             composer.load_composition_map(temp_claude_dir)
 
     def test_load_composition_map_invalid_dependency_type(self, temp_claude_dir, mock_yaml_file):

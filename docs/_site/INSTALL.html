@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Installation &amp; Usage Guide | Claude CTX Plugin</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Installation &amp; Usage Guide" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/claude-ctx-plugin/INSTALL.html" />
+<meta property="og:url" content="http://localhost:4000/claude-ctx-plugin/INSTALL.html" />
+<meta property="og:site_name" content="Claude CTX Plugin" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Installation &amp; Usage Guide" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Installation &amp; Usage Guide","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/claude-ctx-plugin/assets/images/hero.png"}},"url":"http://localhost:4000/claude-ctx-plugin/INSTALL.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/claude-ctx-plugin/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/claude-ctx-plugin/feed.xml" title="Claude CTX Plugin" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/claude-ctx-plugin/">Claude CTX Plugin</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/claude-ctx-plugin/">Overview</a><a class="page-link" href="/claude-ctx-plugin/getting-started.html">Getting Started</a><a class="page-link" href="/claude-ctx-plugin/architecture.html">Architecture</a><a class="page-link" href="/claude-ctx-plugin/agents.html">Agents</a><a class="page-link" href="/claude-ctx-plugin/skills.html">Skills</a><a class="page-link" href="/claude-ctx-plugin/model-optimization.html">Model Optimization</a><a class="page-link" href="/claude-ctx-plugin/commands.html">Command Reference</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Installation &amp;amp; Usage Guide</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="installation--usage-guide">Installation &amp; Usage Guide</h1>
+
+<h2 id="installation">Installation</h2>
+
+<h3 id="option-1-install-from-source-recommended-for-development">Option 1: Install from source (recommended for development)</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/Developer/personal/claude-ctx-plugin
+pipx <span class="nb">install</span> <span class="nt">-e</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>This installs the package in editable mode, so any changes you make to the code will be immediately available.</p>
+
+<h3 id="option-2-install-from-source-standard">Option 2: Install from source (standard)</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/Developer/personal/claude-ctx-plugin
+pipx <span class="nb">install</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<p>Standard installation. You’ll need to reinstall after making code changes:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx reinstall claude-ctx-py
+</code></pre></div></div>
+
+<h3 id="option-3-uninstall-and-reinstall">Option 3: Uninstall and reinstall</h3>
+
+<p>If you need to completely remove and reinstall:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx uninstall claude-ctx-py
+pipx <span class="nb">install</span> ~/Developer/personal/claude-ctx-plugin
+</code></pre></div></div>
+
+<h2 id="usage">Usage</h2>
+
+<h3 id="tui-terminal-user-interface">TUI (Terminal User Interface)</h3>
+
+<p>Launch the interactive TUI:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+</code></pre></div></div>
+
+<h4 id="tui-navigation">TUI Navigation</h4>
+
+<p><strong>View Switching:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">1</code> - Overview (system summary)</li>
+  <li><code class="language-plaintext highlighter-rouge">2</code> - Agents (manage agents)</li>
+  <li><code class="language-plaintext highlighter-rouge">3</code> - Modes (behavioral modes)</li>
+  <li><code class="language-plaintext highlighter-rouge">4</code> - Rules (rule modules)</li>
+  <li><code class="language-plaintext highlighter-rouge">5</code> - Skills (local + community skills)</li>
+  <li><code class="language-plaintext highlighter-rouge">6</code> - Workflows (workflow management)</li>
+  <li><code class="language-plaintext highlighter-rouge">7</code> - Orchestrate (parallel execution monitoring)</li>
+  <li><code class="language-plaintext highlighter-rouge">8</code> - Profile (quick profile switching)</li>
+  <li><code class="language-plaintext highlighter-rouge">9</code> - Export (context export)</li>
+</ul>
+
+<p><strong>Navigation:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">↑/k</code> - Move up</li>
+  <li><code class="language-plaintext highlighter-rouge">↓/j</code> - Move down</li>
+  <li><code class="language-plaintext highlighter-rouge">Space</code> - Toggle active/inactive</li>
+  <li><code class="language-plaintext highlighter-rouge">Enter</code> - Show details</li>
+  <li><code class="language-plaintext highlighter-rouge">/</code> - Filter/search</li>
+  <li><code class="language-plaintext highlighter-rouge">Esc</code> - Clear filter</li>
+  <li><code class="language-plaintext highlighter-rouge">?</code> - Help</li>
+  <li><code class="language-plaintext highlighter-rouge">q</code> - Quit</li>
+</ul>
+
+<h3 id="cli-commands">CLI Commands</h3>
+
+<h4 id="agents">Agents</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx agent list                    <span class="c"># List all agents</span>
+claude-ctx agent activate &lt;name&gt;         <span class="c"># Activate agent</span>
+claude-ctx agent deactivate &lt;name&gt;       <span class="c"># Deactivate agent</span>
+claude-ctx agent info &lt;name&gt;             <span class="c"># Show agent details</span>
+</code></pre></div></div>
+
+<h4 id="modes">Modes</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx mode list                     <span class="c"># List all modes</span>
+claude-ctx mode activate &lt;name&gt;          <span class="c"># Activate mode</span>
+claude-ctx mode deactivate &lt;name&gt;        <span class="c"># Deactivate mode</span>
+</code></pre></div></div>
+
+<h4 id="rules">Rules</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx rule list                     <span class="c"># List all rules</span>
+claude-ctx rule activate &lt;name&gt;          <span class="c"># Activate rule</span>
+claude-ctx rule deactivate &lt;name&gt;        <span class="c"># Deactivate rule</span>
+</code></pre></div></div>
+
+<h4 id="skills">Skills</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx skill list                    <span class="c"># List local skills</span>
+claude-ctx skill info &lt;name&gt;             <span class="c"># Show skill details</span>
+claude-ctx skill validate &lt;name&gt;         <span class="c"># Validate skill</span>
+claude-ctx skill community list          <span class="c"># Browse community skills</span>
+claude-ctx skill community search &lt;term&gt; <span class="c"># Search community skills</span>
+</code></pre></div></div>
+
+<h4 id="status">Status</h4>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx status                        <span class="c"># Show system overview</span>
+</code></pre></div></div>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Configuration files are located in <code class="language-plaintext highlighter-rouge">~/.claude/</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.claude/
+├── CLAUDE.md              # Main configuration
+├── FLAGS.md               # Behavioral flags
+├── RULES.md               # Core rules
+├── PRINCIPLES.md          # Engineering principles
+├── agents/                # Agent definitions
+├── modes/                 # Behavioral modes
+├── rules/                 # Rule modules
+└── skills/                # Custom skills
+</code></pre></div></div>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="tui-not-updating-after-code-changes">TUI not updating after code changes</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx reinstall claude-ctx-py
+</code></pre></div></div>
+
+<h3 id="missing-dependency-errors">Missing dependency errors</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx inject claude-ctx-py &lt;package-name&gt;
+</code></pre></div></div>
+
+<p>Example for PyYAML:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx inject claude-ctx-py PyYAML
+</code></pre></div></div>
+
+<h3 id="clear-python-cache">Clear Python cache</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/Developer/personal/claude-ctx-plugin
+find <span class="nb">.</span> <span class="nt">-type</span> d <span class="nt">-name</span> __pycache__ <span class="nt">-exec</span> <span class="nb">rm</span> <span class="nt">-rf</span> <span class="o">{}</span> + 2&gt;/dev/null <span class="o">||</span> <span class="nb">true</span>
+</code></pre></div></div>
+
+<h3 id="complete-reinstall">Complete reinstall</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pipx uninstall claude-ctx-py
+<span class="nb">cd</span> ~/Developer/personal/claude-ctx-plugin
+find <span class="nb">.</span> <span class="nt">-type</span> d <span class="nt">-name</span> __pycache__ <span class="nt">-exec</span> <span class="nb">rm</span> <span class="nt">-rf</span> <span class="o">{}</span> + 2&gt;/dev/null <span class="o">||</span> <span class="nb">true
+</span>pipx <span class="nb">install</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<h2 id="development-workflow">Development Workflow</h2>
+
+<ol>
+  <li>Make code changes in <code class="language-plaintext highlighter-rouge">~/Developer/personal/claude-ctx-plugin/</code></li>
+  <li>Clear cache: <code class="language-plaintext highlighter-rouge">find . -type d -name __pycache__ -exec rm -rf {} +</code></li>
+  <li>Reinstall: <code class="language-plaintext highlighter-rouge">pipx reinstall claude-ctx-py</code></li>
+  <li>Test: <code class="language-plaintext highlighter-rouge">claude-ctx tui</code></li>
+</ol>
+
+<h2 id="features">Features</h2>
+
+<h3 id="tui-features">TUI Features</h3>
+<ul>
+  <li>9 interactive views with complete CLI parity</li>
+  <li>Pagination (max 8 items per view to prevent scrolling)</li>
+  <li>Real-time filtering and search</li>
+  <li>Keyboard navigation</li>
+  <li>Status indicators</li>
+  <li>Position counters</li>
+</ul>
+
+<h3 id="cli-features">CLI Features</h3>
+<ul>
+  <li>Tab completion (if argcomplete installed)</li>
+  <li>Rich formatted output</li>
+  <li>Status summaries</li>
+  <li>Batch operations</li>
+  <li>Community skill browsing</li>
+</ul>
+
+<h2 id="quick-start">Quick Start</h2>
+
+<ol>
+  <li>Install the package:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/Developer/personal/claude-ctx-plugin
+pipx <span class="nb">install</span> <span class="nb">.</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Launch the TUI:
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Navigate with number keys (1-9) and arrow keys</p>
+  </li>
+  <li>
+    <p>Press <code class="language-plaintext highlighter-rouge">?</code> for help at any time</p>
+  </li>
+  <li>Press <code class="language-plaintext highlighter-rouge">q</code> to quit</li>
+</ol>
+
+<h2 id="getting-help">Getting Help</h2>
+
+<ul>
+  <li>In TUI: Press <code class="language-plaintext highlighter-rouge">?</code> for keyboard shortcuts</li>
+  <li>CLI help: <code class="language-plaintext highlighter-rouge">claude-ctx --help</code></li>
+  <li>Command help: <code class="language-plaintext highlighter-rouge">claude-ctx &lt;command&gt; --help</code></li>
+  <li>Report issues: https://github.com/NickCrew/claude-ctx-plugin/issues</li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/claude-ctx-plugin/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Claude CTX Plugin</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Claude CTX Plugin</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

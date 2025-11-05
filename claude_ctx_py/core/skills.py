@@ -464,7 +464,7 @@ def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, 
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import suggester
+    from .. import suggester
 
     project_dir = Path(project_dir_str).resolve()
 
@@ -531,7 +531,7 @@ def skill_metrics(skill_name: Optional[str] = None, home: Path | None = None) ->
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import metrics
+    from claude_ctx_py import metrics
 
     try:
         all_metrics = metrics.get_all_metrics()
@@ -559,7 +559,7 @@ def skill_metrics_reset(home: Path | None = None) -> Tuple[int, str]:
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import metrics
+    from claude_ctx_py import metrics
 
     try:
         metrics.reset_metrics()

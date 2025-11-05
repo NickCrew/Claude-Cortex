@@ -142,6 +142,7 @@ def get_dependencies(
     skill_name: str,
     composition_map: Dict[str, List[str]],
     visited: Set[str] | None = None,
+    _root: str | None = None,
 ) -> List[str]:
     """Get all transitive dependencies for a skill.
 
@@ -149,6 +150,7 @@ def get_dependencies(
         skill_name: Name of the skill
         composition_map: Skill dependency map
         visited: Set of already visited skills (for cycle prevention)
+        _root: Internal parameter to track the root skill
 
     Returns:
         List of skill names that are dependencies (in load order)
@@ -159,6 +161,9 @@ def get_dependencies(
     """
     if visited is None:
         visited = set()
+
+    if _root is None:
+        _root = skill_name
 
     if skill_name in visited:
         return []
@@ -171,13 +176,13 @@ def get_dependencies(
     # Recursively resolve dependencies (depth-first)
     for dep in direct_deps:
         # Add transitive dependencies first
-        transitive = get_dependencies(dep, composition_map, visited)
+        transitive = get_dependencies(dep, composition_map, visited, _root)
         for trans_dep in transitive:
             if trans_dep not in dependencies:
                 dependencies.append(trans_dep)
 
-        # Then add the direct dependency
-        if dep not in dependencies:
+        # Then add the direct dependency (skip if it's the root to prevent self-dependency)
+        if dep not in dependencies and dep != _root:
             dependencies.append(dep)
 
     return dependencies

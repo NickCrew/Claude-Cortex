@@ -261,6 +261,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Filter by tags",
     )
 
+    # MCP commands
+    mcp_parser = subparsers.add_parser("mcp", help="MCP server commands")
+    mcp_sub = mcp_parser.add_subparsers(dest="mcp_command")
+    mcp_sub.add_parser("list", help="List all MCP servers with status")
+    mcp_show_parser = mcp_sub.add_parser("show", help="Show detailed server info")
+    mcp_show_parser.add_argument("server", help="Server name")
+    mcp_docs_parser = mcp_sub.add_parser("docs", help="Display server documentation")
+    mcp_docs_parser.add_argument("server", help="Server name")
+    mcp_test_parser = mcp_sub.add_parser("test", help="Test server configuration")
+    mcp_test_parser.add_argument("server", help="Server name")
+    mcp_sub.add_parser("diagnose", help="Diagnose all server issues")
+    mcp_snippet_parser = mcp_sub.add_parser("snippet", help="Generate config snippet")
+    mcp_snippet_parser.add_argument("server", help="Server name")
+
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_parser.add_argument(
         "--interactive",
@@ -432,6 +446,46 @@ def build_parser() -> argparse.ArgumentParser:
     orchestrate_preview_parser.add_argument("scenario", help="Scenario name")
 
     subparsers.add_parser("status", help="Show overall status")
+
+    # TUI command
+    subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
+
+    # AI assistant commands
+    ai_parser = subparsers.add_parser("ai", help="AI assistant commands")
+    ai_sub = ai_parser.add_subparsers(dest="ai_command")
+    ai_sub.add_parser("recommend", help="Show intelligent agent recommendations")
+    ai_sub.add_parser("auto-activate", help="Auto-activate high-confidence recommendations")
+    ai_export = ai_sub.add_parser("export", help="Export recommendations to JSON")
+    ai_export.add_argument(
+        "--output",
+        default="ai-recommendations.json",
+        help="Output file path (default: ai-recommendations.json)",
+    )
+    ai_record = ai_sub.add_parser("record-success", help="Record current session as successful for learning")
+    ai_record.add_argument(
+        "--outcome",
+        default="success",
+        help="Outcome description (default: success)",
+    )
+    ai_watch = ai_sub.add_parser("watch", help="Watch mode - real-time monitoring and recommendations")
+    ai_watch.add_argument(
+        "--no-auto-activate",
+        dest="no_auto_activate",
+        action="store_true",
+        help="Disable auto-activation of high-confidence agents",
+    )
+    ai_watch.add_argument(
+        "--threshold",
+        type=float,
+        default=0.7,
+        help="Confidence threshold for notifications (0.0-1.0, default: 0.7)",
+    )
+    ai_watch.add_argument(
+        "--interval",
+        type=float,
+        default=2.0,
+        help="Check interval in seconds (default: 2.0)",
+    )
 
     # Context export commands
     export_parser = subparsers.add_parser("export", help="Export context commands")
@@ -656,6 +710,31 @@ def main(argv: Iterable[str] | None = None) -> int:
                 exit_code, message = core.skill_community_search(query, tags=tags)
                 _print(message)
                 return exit_code
+    elif args.command == "mcp":
+        if args.mcp_command == "list":
+            exit_code, message = core.mcp_list()
+            _print(message)
+            return exit_code
+        if args.mcp_command == "show":
+            exit_code, message = core.mcp_show(args.server)
+            _print(message)
+            return exit_code
+        if args.mcp_command == "docs":
+            exit_code, message = core.mcp_docs(args.server)
+            _print(message)
+            return exit_code
+        if args.mcp_command == "test":
+            exit_code, message = core.mcp_test(args.server)
+            _print(message)
+            return exit_code
+        if args.mcp_command == "diagnose":
+            exit_code, message = core.mcp_diagnose()
+            _print(message)
+            return exit_code
+        if args.mcp_command == "snippet":
+            exit_code, message = core.mcp_snippet(args.server)
+            _print(message)
+            return exit_code
     elif args.command == "init":
         init_command = getattr(args, "init_command", None)
         if init_command == "detect":
@@ -810,6 +889,29 @@ def main(argv: Iterable[str] | None = None) -> int:
     elif args.command == "status":
         _print(core.show_status())
         return 0
+    elif args.command == "tui":
+        from . import tui_textual
+        return tui_textual.main()
+    elif args.command == "ai":
+        from . import cmd_ai
+        if args.ai_command == "recommend":
+            return cmd_ai.ai_recommend()
+        elif args.ai_command == "auto-activate":
+            return cmd_ai.ai_auto_activate()
+        elif args.ai_command == "export":
+            return cmd_ai.ai_export_json(args.output)
+        elif args.ai_command == "record-success":
+            return cmd_ai.ai_record_success(args.outcome)
+        elif args.ai_command == "watch":
+            from . import watch
+            return watch.watch_main(
+                auto_activate=not args.no_auto_activate,
+                threshold=args.threshold,
+                interval=args.interval,
+            )
+        else:
+            _print("AI command required. Use 'claude-ctx ai --help' for options.")
+            return 1
     elif args.command == "export":
         if args.export_command == "list":
             _print(core.list_context_components())

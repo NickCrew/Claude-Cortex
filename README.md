@@ -81,6 +81,43 @@ claude-ctx ai record-success --outcome "feature complete"
 
 See [AI Intelligence Guide](docs/guides/AI_INTELLIGENCE_GUIDE.md) and [Watch Mode Guide](docs/guides/WATCH_MODE_GUIDE.md) for complete documentation.
 
+### 🔌 New: MCP Server Management
+
+**Intelligent MCP server management** - Observe, validate, and document your Model Context Protocol servers:
+
+- **Server Discovery** – Automatically finds MCP servers from Claude Desktop config
+- **Configuration Validation** – Diagnose issues and verify server setup
+- **Curated Documentation** – Built-in guides for Context7, Serena, Sequential, Magic, and more
+- **Visual Dashboard** – TUI view with server status, testing, and docs (press `7`)
+- **Smart Recommendations** – Integration with `/tools:select` for optimal MCP routing
+
+**Quick start:**
+```bash
+# List all configured MCP servers
+claude-ctx mcp list
+
+# Show server details and validation
+claude-ctx mcp show context7
+
+# View curated documentation
+claude-ctx mcp docs serena
+
+# Diagnose all servers
+claude-ctx mcp diagnose
+
+# Generate config snippet
+claude-ctx mcp snippet playwright
+```
+
+**TUI Interface:**
+```
+claude-ctx tui
+# Press '7' for MCP Servers view
+# t=test, d=docs, c=copy, v=validate
+```
+
+See [MCP Management Guide](docs/MCP_MANAGEMENT.md) for complete documentation.
+
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
 
 ## Installing via Claude Code

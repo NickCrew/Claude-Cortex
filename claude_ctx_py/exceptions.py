@@ -83,7 +83,7 @@ class ValidationError(ClaudeCtxError):
     pass
 
 
-class YAMLValidationError(ValidationError):
+class YAMLValidationError(ValidationError, ValueError):
     """Raised when YAML content is invalid or malformed."""
 
     def __init__(self, filepath: str, details: str = ""):
@@ -92,7 +92,7 @@ class YAMLValidationError(ValidationError):
             message += f": {details}"
 
         recovery_hint = "Validate YAML syntax at https://www.yamllint.com/ or fix syntax errors"
-        super().__init__(message, recovery_hint)
+        ValidationError.__init__(self, message, recovery_hint)
         self.filepath = filepath
 
 
@@ -108,13 +108,13 @@ class SkillValidationError(ValidationError):
         self.validation_errors = errors
 
 
-class VersionFormatError(ValidationError):
+class VersionFormatError(ValidationError, ValueError):
     """Raised when a version string has invalid format."""
 
     def __init__(self, version: str, expected_format: str = "X.Y.Z"):
-        message = f"Invalid version format: '{version}'"
+        message = f"Invalid semantic version: '{version}'"
         recovery_hint = f"Use semantic versioning format: {expected_format} (e.g., 1.2.3)"
-        super().__init__(message, recovery_hint)
+        ValidationError.__init__(self, message, recovery_hint)
         self.version = version
 
 
@@ -275,13 +275,13 @@ class CompositionError(ClaudeCtxError):
     pass
 
 
-class InvalidCompositionError(CompositionError):
+class InvalidCompositionError(CompositionError, ValueError):
     """Raised when composition.yaml is invalid."""
 
     def __init__(self, details: str):
         message = f"Invalid composition configuration: {details}"
         recovery_hint = "Check composition.yaml syntax and structure"
-        super().__init__(message, recovery_hint)
+        CompositionError.__init__(self, message, recovery_hint)
 
 
 # Missing package exceptions

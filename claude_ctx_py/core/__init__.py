@@ -212,6 +212,29 @@ from .context_export import (
     list_context_components,
 )
 
+# Export all functions from mcp
+from .mcp import (
+    MCPServerInfo,
+    MCPServerCapabilities,
+    MCPConfigError,
+    MCPServerNotFoundError,
+    discover_servers,
+    get_server_info,
+    list_server_tools,
+    get_server_docs_path,
+    validate_server_config,
+    generate_config_snippet,
+    list_available_servers,
+    get_server_command_line,
+    export_servers_list,
+    mcp_list,
+    mcp_show,
+    mcp_docs,
+    mcp_test,
+    mcp_diagnose,
+    mcp_snippet,
+)
+
 __all__ = [
     # Constants
     "BLUE",
@@ -381,4 +404,24 @@ __all__ = [
     "collect_context_components",
     "export_context",
     "list_context_components",
+    # MCP functions
+    "MCPServerInfo",
+    "MCPServerCapabilities",
+    "MCPConfigError",
+    "MCPServerNotFoundError",
+    "discover_servers",
+    "get_server_info",
+    "list_server_tools",
+    "get_server_docs_path",
+    "validate_server_config",
+    "generate_config_snippet",
+    "list_available_servers",
+    "get_server_command_line",
+    "export_servers_list",
+    "mcp_list",
+    "mcp_show",
+    "mcp_docs",
+    "mcp_test",
+    "mcp_diagnose",
+    "mcp_snippet",
 ]

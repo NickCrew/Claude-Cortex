@@ -301,7 +301,7 @@ class TestParseSkillWithVersion:
 
     def test_parse_skill_with_version_invalid_version(self):
         """Test parsing skill with invalid version raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid version requirement"):
+        with pytest.raises(ValueError, match="Invalid semantic version"):
             versioner.parse_skill_with_version("pdf@invalid")
 
 
@@ -339,7 +339,7 @@ class TestFormatSkillWithVersion:
 
     def test_format_skill_with_version_invalid_version(self):
         """Test formatting with invalid version raises ValueError."""
-        with pytest.raises(ValueError, match="Invalid version requirement"):
+        with pytest.raises(ValueError, match="Invalid semantic version"):
             versioner.format_skill_with_version("pdf", "invalid")
 
 

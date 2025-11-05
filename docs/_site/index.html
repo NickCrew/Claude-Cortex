@@ -9,16 +9,16 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Comprehensive context management plugin for Claude Code" />
 <meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
-<link rel="canonical" href="https://nickcrew.github.io/claude-ctx-plugin/" />
-<meta property="og:url" content="https://nickcrew.github.io/claude-ctx-plugin/" />
+<link rel="canonical" href="http://localhost:4000/claude-ctx-plugin/" />
+<meta property="og:url" content="http://localhost:4000/claude-ctx-plugin/" />
 <meta property="og:site_name" content="Claude CTX Plugin" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Overview" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","description":"Comprehensive context management plugin for Claude Code","headline":"Overview","name":"Claude CTX Plugin","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://nickcrew.github.io/claude-ctx-plugin/assets/images/hero.png"}},"url":"https://nickcrew.github.io/claude-ctx-plugin/"}</script>
+{"@context":"https://schema.org","@type":"WebSite","description":"Comprehensive context management plugin for Claude Code","headline":"Overview","name":"Claude CTX Plugin","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/claude-ctx-plugin/assets/images/hero.png"}},"url":"http://localhost:4000/claude-ctx-plugin/"}</script>
 <!-- End Jekyll SEO tag -->
-<link rel="stylesheet" href="/claude-ctx-plugin/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://nickcrew.github.io/claude-ctx-plugin/feed.xml" title="Claude CTX Plugin" /></head>
+<link rel="stylesheet" href="/claude-ctx-plugin/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/claude-ctx-plugin/feed.xml" title="Claude CTX Plugin" /></head>
 <body><header class="site-header" role="banner">
 
   <div class="wrapper"><a class="site-title" rel="author" href="/claude-ctx-plugin/">Claude CTX Plugin</a><nav class="site-nav">
@@ -102,10 +102,133 @@
 <div class="quick-links">
   <a href="getting-started.html">Getting Started</a>
   <a href="commands.html">Command Reference</a>
+  <a href="#presentations">🎬 Presentations</a>
   <a href="#installation">Install Plugin</a>
+  <a href="#ai-intelligence">AI Intelligence</a>
   <a href="#project-structure">Project Structure</a>
-  <a href="#data-directory-overrides">CLI Overrides</a>
 </div>
+
+<hr />
+
+<h2 id="presentations">🎬 Presentation Decks</h2>
+
+<p>Reveal.js presentations for demos, enablement sessions, and executive briefings.</p>
+
+<div class="doc-grid">
+  <a href="presentations/claude-ctx-overview.html" class="doc-card" target="_blank">
+    <h3>🤖 Claude CTX Overview</h3>
+    <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
+    <p class="muted"><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics &amp; Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
+    <span class="doc-card__arrow">Launch →</span>
+    <div class="doc-card__meta">
+      <span>11 slides</span>
+      <span>Screenshots included</span>
+    </div>
+  </a>
+
+  <a href="presentations/tui-showcase.html" class="doc-card" target="_blank">
+    <h3>🎨 TUI Dashboard Showcase</h3>
+    <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
+    <p class="muted"><strong>Views:</strong> Dashboard Overview • AI Assistant • Agent Management • Commands • Rules • Workflows • Orchestration</p>
+    <span class="doc-card__arrow">Launch →</span>
+    <div class="doc-card__meta">
+      <span>9 slides</span>
+      <span>7 screenshots</span>
+    </div>
+  </a>
+</div>
+
+<div class="callout" style="margin-top: 1rem;">
+  <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+</div>
+
+<hr />
+
+<h2 id="ai-intelligence">🤖 AI Intelligence &amp; Automation</h2>
+
+<p><strong>New in 0.2.0</strong> - Stay in Claude Code flow with intelligent, self-managing context:</p>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🧠 Context-Aware Intelligence</h3>
+    <p>Automatically detects auth, API, tests, frontend, backend code. No configuration needed.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 Pattern Learning</h3>
+    <p>Learns from successful sessions. Recommends optimal agent combinations for similar work.</p>
+  </div>
+  <div class="feature-card">
+    <h3>🎯 Workflow Prediction</h3>
+    <p>Predicts agent sequences based on historical patterns. Estimates duration and success rate.</p>
+  </div>
+  <div class="feature-card">
+    <h3>⚡ Auto-Activation</h3>
+    <p>High-confidence agents (≥80%) activate automatically. Security-auditor on auth changes, test-automator on failures.</p>
+  </div>
+</div>
+
+<h3 id="watch-mode---real-time-monitoring">Watch Mode - Real-Time Monitoring</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Start watch mode (foreground, no daemon)</span>
+claude-ctx ai watch
+
+<span class="c"># Monitor as you code:</span>
+<span class="c"># • Git commits detected</span>
+<span class="c"># • Context analyzed instantly</span>
+<span class="c"># • Agents auto-activated</span>
+<span class="c"># • Statistics tracked</span>
+
+<span class="c"># Press Ctrl+C to stop</span>
+</code></pre></div></div>
+
+<p><strong>Example output:</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[10:33:12] 🔍 Context detected: Backend, Auth
+  3 files changed
+
+  💡 Recommendations:
+     🔴 security-auditor [AUTO]
+        95% - Auth code detected
+
+[10:33:12] ⚡ Auto-activating 1 agents...
+     ✓ security-auditor
+</code></pre></div></div>
+
+<h3 id="tui-ai-assistant">TUI AI Assistant</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+<span class="c"># Press '8' for AI Assistant view</span>
+<span class="c"># Press 'A' to auto-activate recommendations</span>
+</code></pre></div></div>
+
+<p>Interactive AI view shows:</p>
+<ul>
+  <li>🤖 Intelligent recommendations with confidence scores</li>
+  <li>🎯 Workflow predictions from learned patterns</li>
+  <li>📊 Context analysis (files, detected contexts)</li>
+  <li>⚡ Quick actions (keyboard shortcuts)</li>
+</ul>
+
+<h3 id="cli-commands">CLI Commands</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Get recommendations for current context</span>
+claude-ctx ai recommend
+
+<span class="c"># Auto-activate high-confidence agents</span>
+claude-ctx ai auto-activate
+
+<span class="c"># Export recommendations to JSON</span>
+claude-ctx ai <span class="nb">export</span> <span class="nt">--output</span> recommendations.json
+
+<span class="c"># Record successful session for learning</span>
+claude-ctx ai record-success <span class="nt">--outcome</span> <span class="s2">"feature complete"</span>
+</code></pre></div></div>
+
+<h3 id="documentation">Documentation</h3>
+
+<ul>
+  <li><a href="guides/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - Complete system documentation</li>
+  <li><a href="guides/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring deep dive</li>
+</ul>
 
 <hr />
 
@@ -722,13 +845,42 @@ claude-ctx mode status
 <h2 id="references">References</h2>
 
 <h3 id="internal-documentation">Internal Documentation</h3>
+
+<p><strong>Core Documentation</strong></p>
 <ul>
+  <li><a href="getting-started.html">Getting Started</a> - Installation and setup</li>
+  <li><a href="INSTALL.html">Installation Guide</a> - Detailed installation instructions</li>
   <li><a href="architecture.html">Architecture Guide</a> - System design and patterns</li>
+  <li><a href="commands.html">Command Reference</a> - Complete command catalog</li>
+</ul>
+
+<p><strong>Agent System</strong></p>
+<ul>
   <li><a href="agents.html">Agent Catalog</a> - Complete agent reference with 78 agents</li>
   <li><a href="skills.html">Agent Skills Guide</a> - Progressive disclosure and token optimization</li>
   <li><a href="model-optimization.html">Model Optimization</a> - Haiku vs Sonnet strategy</li>
-  <li><a href="commands.html">Command Reference</a> - Complete command catalog</li>
-  <li><a href="getting-started.html">Getting Started</a> - Installation and setup</li>
+</ul>
+
+<p><strong>Feature Guides</strong></p>
+<ul>
+  <li><a href="guides/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - AI intelligence &amp; automation system</li>
+  <li><a href="guides/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring and auto-activation</li>
+  <li><a href="guides/COMMAND_PALETTE_GUIDE.html">Command Palette Guide</a> - Interactive command palette</li>
+  <li><a href="guides/tui.html">TUI Guide</a> - Terminal user interface</li>
+  <li><a href="guides/tui-quick-start.html">TUI Quick Start</a> - Get started with TUI in 5 minutes</li>
+  <li><a href="guides/tui-integration.html">TUI Integration Guide</a> - Integrate TUI into your workflow</li>
+  <li><a href="guides/skills-tui-integration.html">Skills TUI Integration</a> - Skills system TUI integration</li>
+  <li><a href="tui-keyboard-reference.html">TUI Keyboard Reference</a> - Complete keyboard shortcuts</li>
+  <li><a href="tui-navigation-summary.html">TUI Navigation</a> - Navigation patterns</li>
+</ul>
+
+<p><strong>Advanced Features</strong></p>
+<ul>
+  <li><a href="features/SUPER_SAIYAN_MODE.html">Super Saiyan Mode</a> - Visual excellence framework</li>
+  <li><a href="features/KAMEHAMEHA_OVERVIEW.html">Kamehameha Overview</a> - Power levels and activation</li>
+  <li><a href="SUPER_SAIYAN_INTEGRATION.html">Super Saiyan Integration</a> - Integration guide</li>
+  <li><a href="PARALLEL_ORCHESTRATION_GUIDE.html">Parallel Orchestration</a> - Multi-agent coordination</li>
+  <li><a href="quality-improvements.html">Quality Improvements</a> - Code quality enhancements</li>
 </ul>
 
 <h3 id="external-resources">External Resources</h3>

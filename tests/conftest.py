@@ -16,14 +16,14 @@ def temp_claude_dir(tmp_path):
         Path to temporary .claude directory with standard structure
     """
     claude_dir = tmp_path / ".claude"
-    claude_dir.mkdir()
+    claude_dir.mkdir(exist_ok=True)
 
     # Create standard subdirectories
-    (claude_dir / "skills").mkdir()
-    (claude_dir / "community" / "skills").mkdir(parents=True)
-    (claude_dir / "community" / "ratings").mkdir(parents=True)
-    (claude_dir / ".metrics" / "skills").mkdir(parents=True)
-    (claude_dir / ".metrics" / "exports").mkdir(parents=True)
+    (claude_dir / "skills").mkdir(exist_ok=True)
+    (claude_dir / "community" / "skills").mkdir(parents=True, exist_ok=True)
+    (claude_dir / "community" / "ratings").mkdir(parents=True, exist_ok=True)
+    (claude_dir / ".metrics" / "skills").mkdir(parents=True, exist_ok=True)
+    (claude_dir / ".metrics" / "exports").mkdir(parents=True, exist_ok=True)
 
     return claude_dir
 
@@ -325,14 +325,14 @@ def tmp_claude_dir(tmp_path):
         Path to temporary .claude directory
     """
     claude_dir = tmp_path / ".claude"
-    claude_dir.mkdir()
+    claude_dir.mkdir(exist_ok=True)
 
     # Create standard subdirectories
-    (claude_dir / "skills").mkdir()
-    (claude_dir / "community" / "skills").mkdir(parents=True)
-    (claude_dir / "community" / "ratings").mkdir(parents=True)
-    (claude_dir / ".metrics" / "skills").mkdir(parents=True)
-    (claude_dir / ".metrics" / "exports").mkdir(parents=True)
+    (claude_dir / "skills").mkdir(exist_ok=True)
+    (claude_dir / "community" / "skills").mkdir(parents=True, exist_ok=True)
+    (claude_dir / "community" / "ratings").mkdir(parents=True, exist_ok=True)
+    (claude_dir / ".metrics" / "skills").mkdir(parents=True, exist_ok=True)
+    (claude_dir / ".metrics" / "exports").mkdir(parents=True, exist_ok=True)
 
     return claude_dir
 
