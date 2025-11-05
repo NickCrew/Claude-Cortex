@@ -152,6 +152,7 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
         try:
             # Load agents from all directories
             agents = []
+            seen_names = set()  # Track agent names to avoid duplicates
             claude_dir = _resolve_claude_dir()
 
             # Check active agents
@@ -161,8 +162,9 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
                     if not path.name.endswith(".md") or _is_disabled(path):
                         continue
                     node = self._parse_agent_file(path, "active")
-                    if node:
+                    if node and node.name not in seen_names:
                         agents.append(node)
+                        seen_names.add(node.name)
 
             # Check disabled agents
             disabled_dirs = [
@@ -176,8 +178,9 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
                         if not path.name.endswith(".md"):
                             continue
                         node = self._parse_agent_file(path, "disabled")
-                        if node:
+                        if node and node.name not in seen_names:
                             agents.append(node)
+                            seen_names.add(node.name)
 
             # Sort by category and name
             agents.sort(key=lambda a: (a.category, a.name.lower()))
@@ -1447,17 +1450,45 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
         try:
             key = sys.stdin.read(1)
 
-            # Handle arrow keys (escape sequences)
+            # Handle escape sequences
             if key == "\x1b":
-                # Read next two characters for arrow keys
-                next_char = sys.stdin.read(1)
-                if next_char == "[":
-                    arrow = sys.stdin.read(1)
-                    if arrow == "A":
-                        return "UP"
-                    elif arrow == "B":
-                        return "DOWN"
-                return key  # Return escape if not arrow key
+                # Check if there's more input (non-blocking peek)
+                import select
+                if select.select([sys.stdin], [], [], 0)[0]:
+                    next_char = sys.stdin.read(1)
+
+                    # ESC + [ sequences (arrow keys, function keys)
+                    if next_char == "[":
+                        third_char = sys.stdin.read(1)
+                        if third_char == "A":
+                            return "UP"
+                        elif third_char == "B":
+                            return "DOWN"
+                        # Handle extended sequences like [1~, [2~, etc.
+                        elif third_char.isdigit():
+                            # Consume until ~
+                            while True:
+                                if select.select([sys.stdin], [], [], 0.01)[0]:
+                                    ch = sys.stdin.read(1)
+                                    if ch == "~":
+                                        break
+                                else:
+                                    break
+                            return ""  # Ignore function keys for now
+
+                    # ESC + O sequences (function keys in some terminals)
+                    elif next_char == "O":
+                        # Consume the next character
+                        if select.select([sys.stdin], [], [], 0.01)[0]:
+                            sys.stdin.read(1)
+                        return ""  # Ignore these sequences
+
+                    # ESC + other character
+                    else:
+                        return key  # Return escape
+                else:
+                    # Standalone escape key
+                    return key
 
             return key
         except Exception:
