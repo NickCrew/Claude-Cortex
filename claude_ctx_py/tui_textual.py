@@ -1630,7 +1630,16 @@ class AgentTUI(App):
             if table.cursor_row is not None:
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
-                    agent_name = str(row_key[0])
+                    # Get plain text from first column (strip Rich markup and icons)
+                    from rich.text import Text
+                    raw_name = str(row_key[0])
+                    # Use Rich to strip markup, then remove icon emoji
+                    plain_text = Text.from_markup(raw_name).plain
+                    # Remove the icon (first character if it's an emoji)
+                    agent_name = plain_text.strip()
+                    if agent_name and len(agent_name) > 0 and ord(agent_name[0]) > 127:
+                        agent_name = agent_name[1:].strip()
+
                     agent = next((a for a in self.agents if a.name == agent_name), None)
                     if agent:
                         try:
@@ -1638,7 +1647,7 @@ class AgentTUI(App):
                                 exit_code, message = agent_deactivate(agent.name)
                             else:
                                 exit_code, message = agent_activate(agent.name)
-                            
+
                             # Remove ANSI codes
                             import re
                             clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
