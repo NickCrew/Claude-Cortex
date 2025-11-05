@@ -106,7 +106,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with <code>python3 -m http.server 8080</code> from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+  <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
 </div>
 
 ---
