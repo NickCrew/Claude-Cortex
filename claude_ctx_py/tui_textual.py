@@ -430,6 +430,7 @@ class AgentTUI(App):
         """Load agents from the system."""
         try:
             agents = []
+            seen_names = set()  # Track agent names to avoid duplicates
             claude_dir = _resolve_claude_dir()
 
             # Check active agents
@@ -439,8 +440,9 @@ class AgentTUI(App):
                     if not path.name.endswith(".md") or _is_disabled(path):
                         continue
                     node = self._parse_agent_file(path, "active")
-                    if node:
+                    if node and node.name not in seen_names:
                         agents.append(node)
+                        seen_names.add(node.name)
 
             # Check disabled agents
             disabled_dirs = [
@@ -454,15 +456,17 @@ class AgentTUI(App):
                         if not path.name.endswith(".md"):
                             continue
                         node = self._parse_agent_file(path, "disabled")
-                        if node:
+                        if node and node.name not in seen_names:
                             agents.append(node)
+                            seen_names.add(node.name)
 
             # Sort by category and name
             agents.sort(key=lambda a: (a.category, a.name.lower()))
 
             self.agents = agents
             active_count = sum(1 for a in agents if a.status == "active")
-            self.status_message = f"Loaded {len(agents)} agents ({active_count} active)"
+            inactive_count = len(agents) - active_count
+            self.status_message = f"Loaded {len(agents)} agents ({active_count} active, {inactive_count} inactive)"
 
         except Exception as e:
             self.status_message = f"Error loading agents: {e}"
