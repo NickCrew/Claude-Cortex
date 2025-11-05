@@ -699,8 +699,13 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
 
     def create_agent_table(self) -> Table:
         """Create the agent list table."""
+        # Calculate counts for title
+        filtered_agents = self.get_filtered_agents()
+        active_count = sum(1 for a in filtered_agents if a.status == "active")
+        inactive_count = len(filtered_agents) - active_count
+
         table = Table(
-            title="Agents",
+            title=f"Agents ({len(filtered_agents)} total: {active_count} active, {inactive_count} inactive)",
             show_header=True,
             header_style="bold magenta",
             show_lines=False,
@@ -714,8 +719,6 @@ class AgentTUI(ProfileViewMixin, ExportViewMixin, WizardViewMixin, MCPViewMixin)
         table.add_column("Category", width=15, no_wrap=True)
         table.add_column("Tier", width=10, no_wrap=True)
         table.add_column("Requires", width=20)
-
-        filtered_agents = self.get_filtered_agents()
 
         if not filtered_agents:
             table.add_row("", "No agents found", "", "", "", "")
