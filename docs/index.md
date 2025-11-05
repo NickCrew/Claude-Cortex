@@ -69,10 +69,135 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
 <div class="quick-links">
   <a href="getting-started.html">Getting Started</a>
   <a href="commands.html">Command Reference</a>
+  <a href="#presentations">🎬 Presentations</a>
   <a href="#installation">Install Plugin</a>
+  <a href="#ai-intelligence">AI Intelligence</a>
   <a href="#project-structure">Project Structure</a>
-  <a href="#data-directory-overrides">CLI Overrides</a>
 </div>
+
+---
+
+## 🎬 Presentation Decks {#presentations}
+
+Reveal.js presentations for demos, enablement sessions, and executive briefings.
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🤖 Claude CTX Overview</h3>
+    <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
+    <p><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics & Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
+    <p><a href="../presentations/claude-ctx-overview.html" target="_blank">Launch presentation →</a></p>
+    <div class="doc-card__meta">
+      <span>11 slides</span>
+      <span>33KB</span>
+      <span>Screenshots included</span>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <h3>🎨 TUI Dashboard Showcase</h3>
+    <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
+    <p><strong>Views:</strong> Dashboard Overview • AI Assistant • Agent Management • Commands • Rules • Workflows • Orchestration</p>
+    <p><a href="../presentations/tui-showcase.html" target="_blank">Launch presentation →</a></p>
+    <div class="doc-card__meta">
+      <span>9 slides</span>
+      <span>19KB</span>
+      <span>7 screenshots</span>
+    </div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>How to View:</strong> Open presentations directly in your browser or serve locally with <code>python3 -m http.server 8080</code> from the presentations directory. See <a href="../presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+</div>
+
+---
+
+## 🤖 AI Intelligence & Automation {#ai-intelligence}
+
+**New in 0.2.0** - Stay in Claude Code flow with intelligent, self-managing context:
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🧠 Context-Aware Intelligence</h3>
+    <p>Automatically detects auth, API, tests, frontend, backend code. No configuration needed.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 Pattern Learning</h3>
+    <p>Learns from successful sessions. Recommends optimal agent combinations for similar work.</p>
+  </div>
+  <div class="feature-card">
+    <h3>🎯 Workflow Prediction</h3>
+    <p>Predicts agent sequences based on historical patterns. Estimates duration and success rate.</p>
+  </div>
+  <div class="feature-card">
+    <h3>⚡ Auto-Activation</h3>
+    <p>High-confidence agents (≥80%) activate automatically. Security-auditor on auth changes, test-automator on failures.</p>
+  </div>
+</div>
+
+### Watch Mode - Real-Time Monitoring
+
+```bash
+# Start watch mode (foreground, no daemon)
+claude-ctx ai watch
+
+# Monitor as you code:
+# • Git commits detected
+# • Context analyzed instantly
+# • Agents auto-activated
+# • Statistics tracked
+
+# Press Ctrl+C to stop
+```
+
+**Example output:**
+```
+[10:33:12] 🔍 Context detected: Backend, Auth
+  3 files changed
+
+  💡 Recommendations:
+     🔴 security-auditor [AUTO]
+        95% - Auth code detected
+
+[10:33:12] ⚡ Auto-activating 1 agents...
+     ✓ security-auditor
+```
+
+### TUI AI Assistant
+
+```bash
+claude-ctx tui
+# Press '8' for AI Assistant view
+# Press 'A' to auto-activate recommendations
+```
+
+Interactive AI view shows:
+- 🤖 Intelligent recommendations with confidence scores
+- 🎯 Workflow predictions from learned patterns
+- 📊 Context analysis (files, detected contexts)
+- ⚡ Quick actions (keyboard shortcuts)
+
+### CLI Commands
+
+```bash
+# Get recommendations for current context
+claude-ctx ai recommend
+
+# Auto-activate high-confidence agents
+claude-ctx ai auto-activate
+
+# Export recommendations to JSON
+claude-ctx ai export --output recommendations.json
+
+# Record successful session for learning
+claude-ctx ai record-success --outcome "feature complete"
+```
+
+### Documentation
+
+- [AI Intelligence Guide](guides/AI_INTELLIGENCE_GUIDE.html) - Complete system documentation
+- [Watch Mode Guide](guides/WATCH_MODE_GUIDE.html) - Real-time monitoring deep dive
 
 ---
 
@@ -632,12 +757,35 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ## References
 
 ### Internal Documentation
+
+**Core Documentation**
+- [Getting Started](getting-started.html) - Installation and setup
+- [Installation Guide](INSTALL.html) - Detailed installation instructions
 - [Architecture Guide](architecture.html) - System design and patterns
+- [Command Reference](commands.html) - Complete command catalog
+
+**Agent System**
 - [Agent Catalog](agents.html) - Complete agent reference with 78 agents
 - [Agent Skills Guide](skills.html) - Progressive disclosure and token optimization
 - [Model Optimization](model-optimization.html) - Haiku vs Sonnet strategy
-- [Command Reference](commands.html) - Complete command catalog
-- [Getting Started](getting-started.html) - Installation and setup
+
+**Feature Guides**
+- [AI Intelligence Guide](guides/AI_INTELLIGENCE_GUIDE.html) - AI intelligence & automation system
+- [Watch Mode Guide](guides/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
+- [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) - Interactive command palette
+- [TUI Guide](guides/tui.html) - Terminal user interface
+- [TUI Quick Start](guides/tui-quick-start.html) - Get started with TUI in 5 minutes
+- [TUI Integration Guide](guides/tui-integration.html) - Integrate TUI into your workflow
+- [Skills TUI Integration](guides/skills-tui-integration.html) - Skills system TUI integration
+- [TUI Keyboard Reference](tui-keyboard-reference.html) - Complete keyboard shortcuts
+- [TUI Navigation](tui-navigation-summary.html) - Navigation patterns
+
+**Advanced Features**
+- [Super Saiyan Mode](features/SUPER_SAIYAN_MODE.html) - Visual excellence framework
+- [Kamehameha Overview](features/KAMEHAMEHA_OVERVIEW.html) - Power levels and activation
+- [Super Saiyan Integration](SUPER_SAIYAN_INTEGRATION.html) - Integration guide
+- [Parallel Orchestration](PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
+- [Quality Improvements](quality-improvements.html) - Code quality enhancements
 
 ### External Resources
 - [Claude Code Documentation](https://docs.claude.com/claude-code)

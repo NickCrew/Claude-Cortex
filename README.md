@@ -3,8 +3,9 @@
 This repository packages the `claude-ctx` context management toolkit as a Claude Code plugin. It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
 
 > 📚 **Docs:** <https://nickcrew.github.io/claude-ctx-plugin/>
+> 🎬 **Presentations:** [Claude CTX Overview](presentations/claude-ctx-overview.html) • [TUI Showcase](presentations/tui-showcase.html)
 
-## What’s inside
+## What's inside
 
 - `commands/` – slash command definitions that surface curated behavioural prompts
 - `agents/` and `agents-disabled/` – Claude subagents with dependency metadata
@@ -13,6 +14,72 @@ This repository packages the `claude-ctx` context management toolkit as a Claude
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
 - `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `claude-ctx`
 - `schema/` and `scripts/` – validation schemas and helper scripts
+
+### 🔥 New: Super Saiyan Mode
+
+Universal visual excellence framework with platform detection:
+- **`modes/Super_Saiyan.md`** – Core generic mode with auto-detection
+- **`modes/supersaiyan/`** – Platform-specific implementations (Web, TUI, CLI, Docs)
+- **`claude_ctx_py/tui_supersaiyan.py`** – Enhanced Textual components
+- **`examples/supersaiyan_demo.py`** – Interactive demo
+- **Three power levels**: ⭐ Super Saiyan → ⚡ Kamehameha → 💥 Over 9000
+
+**Quick start:**
+```bash
+python examples/supersaiyan_demo.py  # See it in action!
+```
+
+See [Super Saiyan Integration Guide](docs/SUPER_SAIYAN_INTEGRATION.md) for details.
+
+### 🤖 New: AI Intelligence & Automation
+
+**Stay in Claude Code flow** - Let AI manage the framework for you with context-aware intelligence, pattern learning, and auto-activation:
+
+- **Context Detection** – Automatically analyzes changed files, detects auth/API/tests/frontend/backend
+- **Pattern Learning** – Learns from successful sessions, recommends optimal agent combinations
+- **Workflow Prediction** – Predicts agent sequences based on similar past work
+- **Auto-Activation** – High-confidence agents activate automatically (≥80%)
+- **Watch Mode** – Real-time monitoring with instant recommendations (no daemon required)
+- **TUI AI Assistant** – Interactive view with recommendations and predictions (press `8`)
+
+**Quick start:**
+```bash
+# Get AI recommendations for current context
+claude-ctx ai recommend
+
+# Auto-activate high-confidence agents
+claude-ctx ai auto-activate
+
+# Start watch mode (real-time monitoring)
+claude-ctx ai watch
+
+# Interactive TUI with AI assistant
+claude-ctx tui
+# Press '8' for AI Assistant view
+# Press 'A' to auto-activate recommendations
+
+# Record successful sessions for learning
+claude-ctx ai record-success --outcome "feature complete"
+```
+
+**Watch Mode Example:**
+```
+══════════════════════════════════════════════════════════════════════
+🤖 AI WATCH MODE - Real-time Intelligence
+══════════════════════════════════════════════════════════════════════
+
+[10:33:12] 🔍 Context detected: Backend, Auth
+  3 files changed
+
+  💡 Recommendations:
+     🔴 security-auditor [AUTO]
+        95% - Auth code detected
+
+[10:33:12] ⚡ Auto-activating 1 agents...
+     ✓ security-auditor
+```
+
+See [AI Intelligence Guide](docs/guides/AI_INTELLIGENCE_GUIDE.md) and [Watch Mode Guide](docs/guides/WATCH_MODE_GUIDE.md) for complete documentation.
 
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
 
