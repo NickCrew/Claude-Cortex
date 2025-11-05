@@ -3,7 +3,7 @@
 This repository packages the `claude-ctx` context management toolkit as a Claude Code plugin. It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
 
 > 📚 **Docs:** <https://nickcrew.github.io/claude-ctx-plugin/>
-> 🎬 **Presentations:** [Claude CTX Overview](presentations/claude-ctx-overview.html) • [TUI Showcase](presentations/tui-showcase.html)
+> 🎬 **Presentations:** [Claude CTX Overview](docs/presentations/claude-ctx-overview.html) • [TUI Showcase](docs/presentations/tui-showcase.html)
 
 ## What's inside
 

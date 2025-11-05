@@ -86,7 +86,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     <h3>🤖 Claude CTX Overview</h3>
     <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
     <p><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics & Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
-    <p><a href="../presentations/claude-ctx-overview.html" target="_blank">Launch presentation →</a></p>
+    <p><a href="presentations/claude-ctx-overview.html" target="_blank">Launch presentation →</a></p>
     <div class="doc-card__meta">
       <span>11 slides</span>
       <span>33KB</span>
@@ -98,7 +98,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     <h3>🎨 TUI Dashboard Showcase</h3>
     <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
     <p><strong>Views:</strong> Dashboard Overview • AI Assistant • Agent Management • Commands • Rules • Workflows • Orchestration</p>
-    <p><a href="../presentations/tui-showcase.html" target="_blank">Launch presentation →</a></p>
+    <p><a href="presentations/tui-showcase.html" target="_blank">Launch presentation →</a></p>
     <div class="doc-card__meta">
       <span>9 slides</span>
       <span>19KB</span>
@@ -107,9 +107,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
   </div>
 </div>
 
-<div class="callout">
-  <strong>How to View:</strong> Open presentations directly in your browser or serve locally with <code>python3 -m http.server 8080</code> from the presentations directory. See <a href="../presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
-</div>
+**How to View:** Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See [presentations/README.md](presentations/README.md) for keyboard controls and customization guide.
 
 ---
 
