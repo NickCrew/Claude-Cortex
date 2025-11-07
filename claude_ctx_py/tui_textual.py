@@ -2004,7 +2004,7 @@ class AgentTUI(App):
             )
 
     def _run_add_task_flow(self) -> None:
-        self.run_worker(self._add_task_flow(), exclusive=True, description="add-task")
+        self.create_background_task(self._add_task_flow())
 
     async def _add_task_flow(self):
         dialog = TaskEditorDialog("Add Task")
@@ -2024,7 +2024,7 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        self.run_worker(self._edit_task_flow(task), exclusive=True, description="edit-task")
+        self.create_background_task(self._edit_task_flow(task))
 
     async def _edit_task_flow(self, task: AgentTask):
         dialog = TaskEditorDialog(
@@ -2052,7 +2052,7 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        self.run_worker(self._delete_task_flow(task), exclusive=True, description="delete-task")
+        self.create_background_task(self._delete_task_flow(task))
 
     async def _delete_task_flow(self, task: AgentTask):
         confirm = await self.push_screen(
