@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
 import yaml
@@ -1956,7 +1955,8 @@ class AgentTUI(App):
     def action_auto_activate(self) -> None:
         """Auto-activate agents or add task when in Tasks view."""
         if self.current_view == "tasks":
-            self._run_add_task_flow()
+            dialog = TaskEditorDialog("Add Task")
+            self.push_screen(dialog, callback=self._handle_add_task)
             return
 
         if not hasattr(self, 'intelligent_agent'):
@@ -2004,20 +2004,16 @@ class AgentTUI(App):
                 timeout=5
             )
 
-    def _run_add_task_flow(self) -> None:
-        asyncio.create_task(self._add_task_flow())
-
-    async def _add_task_flow(self):
-        dialog = TaskEditorDialog("Add Task")
-        result = await self.push_screen(dialog, wait_for_dismiss=True)
-        if result:
-            try:
-                self._upsert_task(None, result)
-                self.current_view = "tasks"
-                self.status_message = f"Created task {result.get('name', '')}"
-                self.notify("✓ Task added", severity="success", timeout=2)
-            except Exception as exc:
-                self.notify(f"Failed to add task: {exc}", severity="error", timeout=3)
+    def _handle_add_task(self, result: Optional[dict]) -> None:
+        if not result:
+            return
+        try:
+            self._upsert_task(None, result)
+            self.current_view = "tasks"
+            self.status_message = f"Created task {result.get('name', '')}"
+            self.notify("✓ Task added", severity="success", timeout=2)
+        except Exception as exc:
+            self.notify(f"Failed to add task: {exc}", severity="error", timeout=3)
 
     def action_edit_task(self) -> None:
         index = self._selected_task_index()
@@ -2025,9 +2021,6 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        asyncio.create_task(self._edit_task_flow(task))
-
-    async def _edit_task_flow(self, task: AgentTask):
         dialog = TaskEditorDialog(
             "Edit Task",
             defaults={
@@ -2038,14 +2031,20 @@ class AgentTUI(App):
                 "progress": task.progress,
             }
         )
-        result = await self.push_screen(dialog, wait_for_dismiss=True)
-        if result:
-            try:
-                self._upsert_task(task.agent_id, result)
-                self.status_message = f"Updated task {task.agent_name}"
-                self.notify("✓ Task updated", severity="success", timeout=2)
-            except Exception as exc:
-                self.notify(f"Failed to update task: {exc}", severity="error", timeout=3)
+        self.push_screen(
+            dialog,
+            callback=lambda result, agent_id=task.agent_id, label=task.agent_name: self._handle_edit_task(agent_id, label, result),
+        )
+
+    def _handle_edit_task(self, agent_id: str, label: str, result: Optional[dict]) -> None:
+        if not result:
+            return
+        try:
+            self._upsert_task(agent_id, result)
+            self.status_message = f"Updated task {label}"
+            self.notify("✓ Task updated", severity="success", timeout=2)
+        except Exception as exc:
+            self.notify(f"Failed to update task: {exc}", severity="error", timeout=3)
 
     def action_delete_task(self) -> None:
         index = self._selected_task_index()
@@ -2053,17 +2052,18 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        asyncio.create_task(self._delete_task_flow(task))
-
-    async def _delete_task_flow(self, task: AgentTask):
-        confirm = await self.push_screen(
-            ConfirmDialog("Delete Task", f"Remove {task.agent_name}?"),
-            wait_for_dismiss=True,
+        dialog = ConfirmDialog("Delete Task", f"Remove {task.agent_name}?")
+        self.push_screen(
+            dialog,
+            callback=lambda confirm, agent_id=task.agent_id, label=task.agent_name: self._handle_delete_task(agent_id, label, confirm),
         )
-        if confirm:
-            self._remove_task(task.agent_id)
-            self.status_message = f"Deleted task {task.agent_name}"
-            self.notify("✓ Task deleted", severity="information", timeout=2)
+
+    def _handle_delete_task(self, agent_id: str, label: str, confirm: bool) -> None:
+        if not confirm:
+            return
+        self._remove_task(agent_id)
+        self.status_message = f"Deleted task {label}"
+        self.notify("✓ Task deleted", severity="information", timeout=2)
 
     def action_toggle(self) -> None:
         """Toggle selected item."""
