@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import time
 import yaml
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -12,8 +13,8 @@ from typing import List, Optional
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import Header, Footer, Static, DataTable
+from textual.containers import Container, Horizontal
+from textual.widgets import Header, Footer, Static, DataTable, ContentSwitcher
 from textual.reactive import reactive
 
 from .core import (
@@ -39,11 +40,13 @@ from .tui_format import Format
 from .tui_progress import ProgressBar
 from .tui_command_palette import CommandPalette, CommandRegistry, DEFAULT_COMMANDS
 from .tui_commands import AgentCommandProvider
-from .tui_dashboard import DashboardCard, Sparkline, MetricsCollector
+from .tui_dashboard import MetricsCollector
 from .tui_performance import PerformanceMonitor
-from .tui_workflow_viz import WorkflowNode, WorkflowTimeline, DependencyVisualizer
+from .tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from .tui_overview_enhanced import EnhancedOverview
 from .intelligence import IntelligentAgent, AgentRecommendation, WorkflowPrediction
+from .tui_supersaiyan import SuperSaiyanStatusBar
+from .tui_dialogs import TaskEditorDialog, ConfirmDialog
 
 
 @dataclass
@@ -64,6 +67,7 @@ class AgentTask:
     workstream: str
     status: str
     progress: int
+    category: str = "general"
     started: Optional[float] = None
     completed: Optional[float] = None
 
@@ -94,6 +98,30 @@ class ModeInfo:
 class AgentTUI(App):
     """Textual TUI for claude-ctx management."""
 
+    CATEGORY_PALETTE = {
+        "orchestration": "cyan",
+        "analysis": "blue",
+        "development": "green",
+        "documentation": "yellow",
+        "testing": "magenta",
+        "quality": "red",
+        "general": "white",
+        "ops": "bright_cyan",
+        "ai": "bright_magenta",
+    }
+
+    CATEGORY_FALLBACK_COLORS = [
+        "bright_blue",
+        "bright_magenta",
+        "bright_green",
+        "bright_yellow",
+        "deep_sky_blue1",
+        "spring_green2",
+        "light_salmon1",
+        "plum1",
+        "orange3",
+    ]
+
     CSS = """
     /* Super Saiyan Mode Colors 🔥 */
     $primary: #3b82f6;
@@ -102,9 +130,11 @@ class AgentTUI(App):
     $success: #10b981;
     $warning: #f59e0b;
     $error: #ef4444;
-    $surface: #0a0e27;
-    $surface-lighten-1: #1a1f3a;
-    $surface-lighten-2: #242945;
+    $surface: #050714;
+    $surface-lighten-1: #111633;
+    $surface-lighten-2: #1c2145;
+    $text: #f8fafc;
+    $text-muted: #94a3b8;
 
     Screen {
         background: $surface;
@@ -124,39 +154,38 @@ class AgentTUI(App):
     }
 
     DataTable > .datatable--cursor {
-        background: $surface-lighten-2;
-        color: $accent;
+        background: $primary 40%;
+        color: white;
         text-style: bold;
     }
 
     DataTable:focus > .datatable--cursor {
-        background: $surface-lighten-2;
+        background: $primary;
         color: white;
-        border-left: tall $accent;
+        text-style: bold;
+        border: heavy $accent;
     }
 
     Header {
         background: $surface-lighten-2;
-        color: $accent;
+        color: $text;
         text-style: bold;
+        border-bottom: tall $primary;
     }
 
     Footer {
         background: $surface-lighten-2;
+        color: $text-muted;
     }
 
     #status-bar {
-        height: 1;
-        background: $surface-lighten-1;
-        color: $text;
-        padding: 0 1;
-        border-top: solid $primary;
+        height: auto;
     }
 
     /* Command Palette Styles - Super Saiyan */
     #command-palette-container {
         align: center middle;
-        width: 60%;
+        width: 70%;
         height: auto;
         max-height: 80%;
         background: $surface-lighten-1;
@@ -176,6 +205,12 @@ class AgentTUI(App):
         text-align: center;
         text-style: bold;
         color: $accent;
+        margin-bottom: 1;
+    }
+
+    #palette-subtitle {
+        text-align: center;
+        color: $text-muted;
         margin-bottom: 1;
     }
 
@@ -277,6 +312,36 @@ class AgentTUI(App):
     Button:focus {
         border: solid $warning;
     }
+
+    #main-container {
+        height: 1fr;
+        padding: 1;
+    }
+
+    #view-switcher {
+        height: 1fr;
+    }
+
+    #galaxy-view {
+        height: 1fr;
+        padding: 1;
+        background: $surface-lighten-1;
+        border: solid $secondary;
+    }
+
+    #galaxy-layout {
+        height: 1fr;
+    }
+
+    .galaxy-panel {
+        border: dashed $secondary;
+        padding: 1;
+        height: 1fr;
+    }
+
+    #galaxy-graph {
+        overflow: auto;
+    }
     """
 
     BINDINGS = [
@@ -288,6 +353,8 @@ class AgentTUI(App):
         Binding("6", "view_workflows", "Workflows"),
         Binding("7", "view_orchestrate", "Orchestrate"),
         Binding("8", "view_ai_assistant", "AI Assistant", show=True),
+        Binding("9", "view_galaxy", "Galaxy", show=True),
+        Binding("t", "view_tasks", "Tasks", show=True),
         Binding("ctrl+p", "command_palette", "Commands", show=True),
         Binding("q", "quit", "Quit"),
         Binding("?", "help", "Help"),
@@ -306,11 +373,15 @@ class AgentTUI(App):
     def compose(self) -> ComposeResult:
         """Create child widgets."""
         yield Header()
-        yield Container(
-            DataTable(id="main-table"),
-            id="main-container"
-        )
-        yield Static("Loading...", id="status-bar")
+        with Container(id="main-container"):
+            with ContentSwitcher(id="view-switcher"):
+                yield DataTable(id="main-table")
+                with Container(id="galaxy-view"):
+                    yield Static("✦ Agent Galaxy ✦", id="galaxy-header")
+                    with Horizontal(id="galaxy-layout"):
+                        yield Static("", id="galaxy-stats", classes="galaxy-panel")
+                        yield Static("", id="galaxy-graph", classes="galaxy-panel")
+        yield SuperSaiyanStatusBar(id="status-bar")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -346,27 +417,43 @@ class AgentTUI(App):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
-    def watch_status_message(self, message: str) -> None:
+    def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""
-        try:
-            status_bar = self.query_one("#status-bar", Static)
-            # Include performance metrics in status bar
-            if hasattr(self, 'performance_monitor'):
-                perf_status = self.performance_monitor.get_status_bar(compact=True)
-                status_bar.update(f"[View: {self.current_view.title()}] {message} [dim]│[/dim] {perf_status}")
-            else:
-                status_bar.update(f"[View: {self.current_view.title()}] {message}")
-        except Exception:
-            pass  # Status bar not yet mounted
+        self.refresh_status_bar()
 
     def update_performance_status(self) -> None:
         """Update performance metrics in status bar (called by timer)."""
-        # Trigger status message update to refresh performance metrics
-        self.status_message = self.status_message  # Trigger reactive update
+        self.refresh_status_bar()
+
+    def refresh_status_bar(self) -> None:
+        """Push latest UI/metric info into the neon status bar."""
+        try:
+            status_bar = self.query_one(SuperSaiyanStatusBar)
+        except Exception:
+            return
+
+        agents = getattr(self, 'agents', [])
+        agent_total = len(agents)
+        agent_active = sum(1 for a in agents if getattr(a, 'status', '') == "active")
+        tasks = getattr(self, 'agent_tasks', [])
+        task_active = sum(1 for t in tasks if getattr(t, 'status', '') == "running")
+        perf_text = ""
+        if hasattr(self, 'performance_monitor'):
+            perf_text = self.performance_monitor.get_status_bar(compact=True)
+
+        status_bar.update_payload(
+            view=self.current_view.title(),
+            message=self.status_message,
+            perf=perf_text,
+            agent_active=agent_active,
+            agent_total=agent_total,
+            task_active=task_active,
+        )
 
     def watch_current_view(self, view: str) -> None:
         """Update display when view changes."""
         self.update_view()
+        self.refresh_status_bar()
 
     def _validate_path(self, base_dir: Path, subpath: Path) -> Path:
         """
@@ -432,6 +519,8 @@ class AgentTUI(App):
             agents = []
             seen_names = set()  # Track agent names to avoid duplicates
             claude_dir = _resolve_claude_dir()
+            self.agent_slug_lookup = {}
+            self.agent_category_lookup = {}
 
             # Check active agents
             agents_dir = claude_dir / "agents"
@@ -464,9 +553,25 @@ class AgentTUI(App):
             agents.sort(key=lambda a: (a.category, a.name.lower()))
 
             self.agents = agents
+            for agent in agents:
+                variants = {
+                    agent.name.lower(),
+                    agent.slug.lower(),
+                    agent.name.lower().replace(" ", "-"),
+                    agent.name.lower().replace(" ", "_"),
+                    agent.slug.lower().replace("_", "-"),
+                    f"{agent.slug.lower()}.md",
+                }
+                for variant in variants:
+                    self.agent_slug_lookup[variant] = agent.slug
+                self.agent_category_lookup[agent.slug.lower()] = agent.category
+                self.agent_category_lookup[agent.name.lower()] = agent.category
             active_count = sum(1 for a in agents if a.status == "active")
             inactive_count = len(agents) - active_count
             self.status_message = f"Loaded {len(agents)} agents ({active_count} active, {inactive_count} inactive)"
+            if hasattr(self, 'metrics_collector'):
+                self.metrics_collector.record("agents_active", float(active_count))
+            self.refresh_status_bar()
 
         except Exception as e:
             self.status_message = f"Error loading agents: {e}"
@@ -659,8 +764,7 @@ class AgentTUI(App):
         """Load active agent tasks for orchestration view."""
         tasks: List[AgentTask] = []
         try:
-            claude_dir = _resolve_claude_dir()
-            tasks_dir = self._validate_path(claude_dir, claude_dir / "tasks" / "current")
+            tasks_dir = self._tasks_dir()
 
             # Check for active tasks file
             active_tasks_file = tasks_dir / "active_agents.json"
@@ -674,6 +778,7 @@ class AgentTUI(App):
                         workstream=task_info.get("workstream", "primary"),
                         status=task_info.get("status", "pending"),
                         progress=task_info.get("progress", 0),
+                        category=task_info.get("category", "general"),
                         started=task_info.get("started"),
                         completed=task_info.get("completed"),
                     ))
@@ -681,7 +786,9 @@ class AgentTUI(App):
             # No active tasks or error reading - use empty list
             pass
 
+        tasks.sort(key=lambda t: t.agent_name.lower())
         self.agent_tasks = tasks
+        self.refresh_status_bar()
 
     def load_rules(self) -> None:
         """Load rules from the system."""
@@ -722,6 +829,8 @@ class AgentTUI(App):
             self.rules = rules
             active_count = sum(1 for r in rules if r.status == "active")
             self.status_message = f"Loaded {len(rules)} rules ({active_count} active)"
+            if hasattr(self, 'metrics_collector'):
+                self.metrics_collector.record("rules_active", float(active_count))
 
         except Exception as e:
             self.status_message = f"Error loading rules: {e}"
@@ -806,6 +915,8 @@ class AgentTUI(App):
             self.modes = modes
             active_count = sum(1 for m in modes if m.status == "active")
             self.status_message = f"Loaded {len(modes)} modes ({active_count} active)"
+            if hasattr(self, 'metrics_collector'):
+                self.metrics_collector.record("modes_active", float(active_count))
 
         except Exception as e:
             self.status_message = f"Error loading modes: {e}"
@@ -939,11 +1050,26 @@ class AgentTUI(App):
             self.status_message = f"Error loading workflows: {e}"
 
         self.workflows = workflows
+        if hasattr(self, 'metrics_collector'):
+            running = sum(1 for w in workflows if w.status == "running")
+            self.metrics_collector.record("workflows_running", float(running))
 
     def update_view(self) -> None:
         """Update the table based on current view."""
-        table = self.query_one(DataTable)
+        switcher = self.query_one("#view-switcher", ContentSwitcher)
+        table = self.query_one("#main-table", DataTable)
         table.clear(columns=True)
+
+        if self.current_view == "galaxy":
+            switcher.current = "galaxy-view"
+            self.show_galaxy_view()
+            return
+
+        switcher.current = "main-table"
+
+        if self.current_view == "overview":
+            self.show_overview(table)
+            return
 
         if self.current_view == "agents":
             self.show_agents_view(table)
@@ -951,8 +1077,6 @@ class AgentTUI(App):
             self.show_rules_view(table)
         elif self.current_view == "modes":
             self.show_modes_view(table)
-        elif self.current_view == "overview":
-            self.show_overview(table)
         elif self.current_view == "skills":
             self.show_skills_view(table)
         elif self.current_view == "workflows":
@@ -961,6 +1085,8 @@ class AgentTUI(App):
             self.show_orchestrate_view(table)
         elif self.current_view == "ai_assistant":
             self.show_ai_assistant_view(table)
+        elif self.current_view == "tasks":
+            self.show_tasks_view(table)
         else:
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
@@ -975,17 +1101,6 @@ class AgentTUI(App):
         if not hasattr(self, 'agents') or not self.agents:
             table.add_row("[dim]No agents found[/dim]", "", "", "")
             return
-
-        # Color maps for categories and tiers
-        category_colors = {
-            "orchestration": "cyan",
-            "analysis": "blue",
-            "development": "green",
-            "documentation": "yellow",
-            "testing": "magenta",
-            "quality": "red",
-            "general": "white"
-        }
 
         tier_colors = {
             "essential": "bold green",
@@ -1007,9 +1122,8 @@ class AgentTUI(App):
             else:
                 name = f"[dim]{Icons.CODE} {agent.name}[/dim]"
 
-            # Color-coded category
-            cat_color = category_colors.get(agent.category.lower(), "white")
-            category_text = f"[{cat_color}]{agent.category}[/{cat_color}]"
+            # Color-coded category via palette
+            category_text = self._format_category(agent.category)
 
             # Color-coded tier
             tier_color = tier_colors.get(agent.tier.lower(), "white")
@@ -1020,6 +1134,46 @@ class AgentTUI(App):
                 status_text,
                 category_text,
                 tier_text,
+            )
+
+    def show_tasks_view(self, table: DataTable) -> None:
+        """Show task management table."""
+        table.add_column("Task", key="task", width=30)
+        table.add_column("Category", key="category", width=16)
+        table.add_column("Workstream", key="workstream", width=16)
+        table.add_column("Status", key="status", width=12)
+        table.add_column("Progress", key="progress", width=12)
+        table.add_column("Started", key="started", width=18)
+
+        tasks = getattr(self, 'agent_tasks', [])
+        if not tasks:
+            table.add_row("[dim]No tasks yet[/dim]", "", "", "", "", "")
+            table.add_row("[dim]Press A to add a task[/dim]", "", "", "", "", "")
+            return
+
+        for task in tasks:
+            status_icon = StatusIcon.running()
+            if task.status == "complete":
+                status_icon = StatusIcon.active()
+            elif task.status == "error":
+                status_icon = StatusIcon.error()
+            elif task.status in ("pending", "paused"):
+                status_icon = StatusIcon.pending()
+
+            progress_bar = ProgressBar.simple_bar(task.progress, 100, width=12)
+
+            started_text = "-"
+            if task.started:
+                started_dt = datetime.fromtimestamp(task.started)
+                started_text = Format.time_ago(started_dt)
+
+            table.add_row(
+                f"{Icons.CODE} {task.agent_name}",
+                self._format_category(task.category or task.workstream),
+                task.workstream,
+                status_icon,
+                progress_bar,
+                started_text,
             )
 
 
@@ -1094,71 +1248,281 @@ class AgentTUI(App):
             )
 
     def show_overview(self, table: DataTable) -> None:
-        """Show overview with KAMEHAMEHA-level dashboard! 🔥"""
+        """Show overview with high-energy ASCII dashboard."""
         table.add_column("Dashboard", key="dashboard")
 
-        # Collect stats
-        active_agents = 0
-        total_agents = 0
-        if hasattr(self, 'agents'):
-            active_agents = sum(1 for a in self.agents if a.status == "active")
-            total_agents = len(self.agents)
+        active_agents = sum(1 for a in getattr(self, 'agents', []) if a.status == "active")
+        total_agents = len(getattr(self, 'agents', []))
+        active_modes = sum(1 for m in getattr(self, 'modes', []) if m.status == "active")
+        total_modes = len(getattr(self, 'modes', []))
+        active_rules = sum(1 for r in getattr(self, 'rules', []) if r.status == "active")
+        total_rules = len(getattr(self, 'rules', []))
+        total_skills = len(getattr(self, 'skills', []))
+        running_workflows = sum(1 for w in getattr(self, 'workflows', []) if w.status == "running")
 
-        active_modes = 0
-        total_modes = 0
-        if hasattr(self, 'modes'):
-            active_modes = sum(1 for m in self.modes if m.status == "active")
-            total_modes = len(self.modes)
-
-        active_rules = 0
-        total_rules = 0
-        if hasattr(self, 'rules'):
-            active_rules = sum(1 for r in self.rules if r.status == "active")
-            total_rules = len(self.rules)
-
-        total_skills = len(self.skills) if hasattr(self, 'skills') else 0
-
-        running_workflows = 0
-        if hasattr(self, 'workflows'):
-            running_workflows = sum(1 for w in self.workflows if w.status == "running")
-
-        # Helper function to add multi-line content as separate rows
         def add_multiline(content: str):
-            """Split multi-line content and add each line as a separate row."""
             for line in content.split('\n'):
                 table.add_row(line)
 
-        # 🔥 KAMEHAMEHA HERO BANNER 🔥
         hero = EnhancedOverview.create_hero_banner(active_agents, total_agents)
         add_multiline(hero)
         table.add_row("")
 
-        # 📊 SYSTEM METRICS GRID
         metrics_grid = EnhancedOverview.create_status_grid(
-            active_agents, total_agents,
-            active_modes, total_modes,
-            active_rules, total_rules,
+            active_agents,
+            total_agents,
+            active_modes,
+            total_modes,
+            active_rules,
+            total_rules,
             total_skills,
-            running_workflows
+            running_workflows,
         )
         add_multiline(metrics_grid)
         table.add_row("")
 
-        # 📈 ACTIVITY TIMELINE
         timeline = EnhancedOverview.create_activity_timeline()
         add_multiline(timeline)
         table.add_row("")
 
-        # ✓ SYSTEM HEALTH
         health = EnhancedOverview.create_system_health()
         add_multiline(health)
 
-        # Add performance metrics if available
         if hasattr(self, 'performance_monitor'):
             table.add_row("")
             table.add_row("[bold cyan]⚡ Performance Monitor[/bold cyan]")
-            perf_full = self.performance_monitor.get_status_bar(compact=False)
-            table.add_row(perf_full)
+            table.add_row(self.performance_monitor.get_status_bar(compact=False))
+
+    def _normalize_agent_dependency(self, value: str) -> Optional[str]:
+        if not value:
+            return None
+        key = value.strip().lower()
+        if key.endswith(".md"):
+            key = key[:-3]
+        lookup = getattr(self, 'agent_slug_lookup', {})
+        return lookup.get(key)
+
+    def _tasks_dir(self) -> Path:
+        claude_dir = _resolve_claude_dir()
+        tasks_dir = claude_dir / "tasks" / "current"
+        tasks_dir.mkdir(parents=True, exist_ok=True)
+        return self._validate_path(claude_dir, tasks_dir)
+
+    def _tasks_file_path(self) -> Path:
+        return self._tasks_dir() / "active_agents.json"
+
+    def _get_agent_category(self, identifier: Optional[str]) -> Optional[str]:
+        if not identifier:
+            return None
+        lookup = getattr(self, 'agent_category_lookup', {})
+        return lookup.get(identifier.lower())
+
+    def _format_category(self, category: Optional[str]) -> str:
+        if not category:
+            return "[dim]unknown[/dim]"
+
+        key = category.lower()
+        palette = getattr(self, '_dynamic_category_palette', {})
+        if key not in palette:
+            base_color = self.CATEGORY_PALETTE.get(key)
+            if base_color is None:
+                fallback_index = getattr(self, '_fallback_category_index', 0)
+                if self.CATEGORY_FALLBACK_COLORS:
+                    base_color = self.CATEGORY_FALLBACK_COLORS[fallback_index % len(self.CATEGORY_FALLBACK_COLORS)]
+                    self._fallback_category_index = fallback_index + 1
+                else:
+                    base_color = "white"
+            palette[key] = base_color
+            self._dynamic_category_palette = palette
+
+        color = palette.get(key, "white")
+        return f"[{color}]{category}[/{color}]"
+
+    def _category_badges(self) -> List[str]:
+        lookup = getattr(self, 'agent_category_lookup', {})
+        categories = sorted(set(lookup.values())) if lookup else []
+        if not categories:
+            return ["[dim]n/a[/dim]"]
+        return [self._format_category(cat) for cat in categories[:6]]
+
+    def _generate_task_id(self, name: str) -> str:
+        base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip('-') or "task"
+        timestamp = int(time.time())
+        return f"{base}-{timestamp}"
+
+    def _save_tasks(self, tasks: List[AgentTask]) -> None:
+        tasks_file = self._tasks_file_path()
+        payload = {}
+        for task in tasks:
+            payload[task.agent_id] = {
+                "name": task.agent_name,
+                "workstream": task.workstream,
+                "status": task.status,
+                "progress": task.progress,
+                "category": task.category,
+                "started": task.started,
+                "completed": task.completed,
+            }
+        tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def _upsert_task(self, agent_id: Optional[str], payload: dict) -> None:
+        tasks = list(getattr(self, 'agent_tasks', []))
+        name = payload.get("name", "").strip()
+        if not name:
+            raise ValueError("Task name is required")
+        workstream = payload.get("workstream", "primary").strip() or "primary"
+        status = payload.get("status", "pending").strip().lower() or "pending"
+        category = payload.get("category", "general").strip() or "general"
+        try:
+            progress = int(payload.get("progress", 0))
+        except (TypeError, ValueError):
+            progress = 0
+        progress = max(0, min(progress, 100))
+
+        def adjust_times(existing: AgentTask) -> None:
+            if status == "running" and not existing.started:
+                existing.started = time.time()
+            if status == "complete":
+                if not existing.started:
+                    existing.started = time.time()
+                existing.completed = time.time()
+            else:
+                if status in ("pending", "paused"):
+                    existing.completed = None
+
+        if agent_id:
+            updated = False
+            for task in tasks:
+                if task.agent_id == agent_id:
+                    task.agent_name = name
+                    task.workstream = workstream
+                    task.status = status
+                    task.progress = progress
+                    task.category = category
+                    adjust_times(task)
+                    updated = True
+                    break
+            if not updated:
+                tasks.append(AgentTask(
+                    agent_id=agent_id,
+                    agent_name=name,
+                    workstream=workstream,
+                    status=status,
+                    progress=progress,
+                    category=category,
+                    started=time.time() if status in ("running", "complete") else None,
+                    completed=time.time() if status == "complete" else None,
+                ))
+        else:
+            new_id = self._generate_task_id(name)
+            tasks.append(AgentTask(
+                agent_id=new_id,
+                agent_name=name,
+                workstream=workstream,
+                status=status,
+                progress=progress,
+                category=category,
+                started=time.time() if status in ("running", "complete") else None,
+                completed=time.time() if status == "complete" else None,
+            ))
+
+        self._save_tasks(tasks)
+        self.load_agent_tasks()
+        self.update_view()
+
+    def _remove_task(self, agent_id: str) -> None:
+        tasks = [t for t in getattr(self, 'agent_tasks', []) if t.agent_id != agent_id]
+        self._save_tasks(tasks)
+        self.load_agent_tasks()
+        self.update_view()
+
+    def _selected_task_index(self) -> Optional[int]:
+        if self.current_view != "tasks":
+            return None
+        tasks = getattr(self, 'agent_tasks', [])
+        if not tasks:
+            return None
+        table = self.query_one(DataTable)
+        if table.cursor_row is None:
+            return None
+        return min(table.cursor_row, len(tasks) - 1)
+
+    def _build_agent_nodes(self) -> List[WorkflowNode]:
+        agents = getattr(self, 'agents', [])
+        if not agents:
+            return []
+
+        nodes: List[WorkflowNode] = []
+        for agent in agents:
+            node_id = agent.slug or agent.name.replace(" ", "-")
+            dependencies = []
+            for dep in getattr(agent, 'requires', []) or []:
+                normalized = self._normalize_agent_dependency(dep)
+                if normalized:
+                    dependencies.append(normalized)
+            node = WorkflowNode(
+                node_id=node_id,
+                name=agent.name,
+                status="complete" if agent.status == "active" else "pending",
+                dependencies=dependencies,
+            )
+            node.progress = 100 if agent.status == "active" else 0
+            nodes.append(node)
+        return nodes
+
+    def _render_agent_constellation_preview(self, max_lines: int = 18) -> str:
+        nodes = self._build_agent_nodes()
+        if not nodes:
+            return "[dim]Constellation data unavailable (no agents loaded)[/dim]"
+
+        viz = DependencyVisualizer(nodes)
+        tree_lines = viz.render_tree()
+        preview = tree_lines[:max_lines]
+        if len(tree_lines) > max_lines:
+            preview.append("[dim]…expand with 9 to view full galaxy[/dim]")
+        header = "[bold cyan]Agent Constellation[/bold cyan]\n[dim]────────────────────────────[/dim]"
+        return "\n".join([header, *preview])
+
+    def show_galaxy_view(self) -> None:
+        header = self.query_one("#galaxy-header", Static)
+        stats_widget = self.query_one("#galaxy-stats", Static)
+        graph_widget = self.query_one("#galaxy-graph", Static)
+
+        header.update("[bold magenta]🌌 Agent Galaxy[/bold magenta]")
+        nodes = self._build_agent_nodes()
+
+        if not nodes:
+            stats_widget.update("[dim]Load agents to visualize dependencies[/dim]")
+            graph_widget.update("[dim]No nodes available[/dim]")
+            return
+
+        viz = DependencyVisualizer(nodes)
+        tree_lines = viz.render_tree()
+        max_lines = 220
+        if len(tree_lines) > max_lines:
+            tree_lines = tree_lines[:max_lines] + ["[dim]…truncated[/dim]"]
+        graph_widget.update("\n".join(tree_lines))
+
+        active_agents = sum(1 for a in getattr(self, 'agents', []) if a.status == "active")
+        dependency_edges = sum(len(node.dependencies) for node in nodes)
+        stats_lines = [
+            f"[cyan]Active:[/cyan] {active_agents}/{len(nodes)}",
+            f"[cyan]Dependencies:[/cyan] {dependency_edges}",
+            "[dim]Tip: Space toggles status in Agents view[/dim]",
+            "[cyan]Categories:[/cyan] " + ", ".join(self._category_badges()),
+        ]
+
+        cycles = viz.detect_cycles()
+        if cycles:
+            stats_lines.append("[red]Cycles detected[/red]")
+            for cycle in cycles[:3]:
+                stats_lines.append(f"  • {' → '.join(cycle)}")
+            if len(cycles) > 3:
+                stats_lines.append(f"  • …+{len(cycles) - 3} more")
+        else:
+            stats_lines.append("[green]No dependency cycles detected[/green]")
+
+        stats_widget.update("\n".join(stats_lines))
 
     def show_workflows_view(self, table: DataTable) -> None:
         """Show workflows table."""
@@ -1212,6 +1576,7 @@ class AgentTUI(App):
     def show_orchestrate_view(self, table: DataTable) -> None:
         """Show orchestration dashboard with active agents and metrics."""
         table.add_column("Agent", key="agent")
+        table.add_column("Category", key="category", width=16)
         table.add_column("Workstream", key="workstream")
         table.add_column("Status", key="status")
         table.add_column("Progress", key="progress")
@@ -1220,38 +1585,28 @@ class AgentTUI(App):
 
         if not tasks:
             # Show example/placeholder data with enhanced visuals
-            table.add_row(
-                f"{Icons.CODE} [Agent-1] Implementation",
-                "primary",
-                StatusIcon.running(),
-                ProgressBar.simple_bar(75, 100, width=15),
-            )
-            table.add_row(
-                f"{Icons.TEST} [Agent-2] Code Review",
-                "quality",
-                StatusIcon.active(),
-                ProgressBar.simple_bar(100, 100, width=15),
-            )
-            table.add_row(
-                f"{Icons.TEST} [Agent-3] Test Automation",
-                "quality",
-                StatusIcon.running(),
-                ProgressBar.simple_bar(60, 100, width=15),
-            )
-            table.add_row(
-                f"{Icons.DOC} [Agent-4] Documentation",
-                "quality",
-                StatusIcon.pending(),
-                ProgressBar.simple_bar(0, 100, width=15),
-            )
+            placeholder_rows = [
+                (f"{Icons.CODE} [Agent-1] Implementation", "development", "primary", StatusIcon.running(), 75),
+                (f"{Icons.TEST} [Agent-2] Code Review", "quality", "quality", StatusIcon.active(), 100),
+                (f"{Icons.TEST} [Agent-3] Test Automation", "testing", "quality", StatusIcon.running(), 60),
+                (f"{Icons.DOC} [Agent-4] Documentation", "documentation", "quality", StatusIcon.pending(), 0),
+            ]
+            for name, category, workstream, status_icon, progress in placeholder_rows:
+                table.add_row(
+                    name,
+                    self._format_category(category),
+                    workstream,
+                    status_icon,
+                    ProgressBar.simple_bar(progress, 100, width=15),
+                )
 
             # Add metrics section
-            table.add_row("", "", "", "")
-            table.add_row("METRICS:", "", "", "")
-            table.add_row("Parallel Efficiency:", "87%", "", "")
-            table.add_row("Overall Progress:", "78%", "", "")
-            table.add_row("Active Agents:", "2/4", "", "")
-            table.add_row("Estimated Completion:", "2m 30s", "", "")
+            table.add_row("", "", "", "", "")
+            table.add_row("METRICS:", "", "", "", "")
+            table.add_row("Parallel Efficiency:", "", "87%", "", "")
+            table.add_row("Overall Progress:", "", "78%", "", "")
+            table.add_row("Active Agents:", "", "2/4", "", "")
+            table.add_row("Estimated Completion:", "", "2m 30s", "", "")
         else:
             # Show real task data with enhanced visuals
             for task in tasks:
@@ -1271,8 +1626,15 @@ class AgentTUI(App):
                 # Add icon to agent name
                 agent_display = f"{Icons.CODE} [{task.agent_id}] {task.agent_name}"
 
+                category_guess = (
+                    self._get_agent_category(task.agent_id)
+                    or self._get_agent_category(task.agent_name)
+                    or task.workstream
+                )
+
                 table.add_row(
                     agent_display,
+                    self._format_category(category_guess),
                     task.workstream,
                     status_text,
                     progress_bar,
@@ -1285,17 +1647,19 @@ class AgentTUI(App):
             parallel_efficiency = int((running_count / len(tasks)) * 100) if tasks else 0
 
             # Add metrics section
-            table.add_row("", "", "", "")
-            table.add_row("METRICS:", "", "", "")
-            table.add_row("Parallel Efficiency:", f"{parallel_efficiency}%", "", "")
-            table.add_row("Overall Progress:", f"{total_progress}%", "", "")
-            table.add_row("Active Agents:", f"{running_count}/{len(tasks)}", "", "")
-            table.add_row("Completed:", f"{complete_count}/{len(tasks)}", "", "")
+            table.add_row("", "", "", "", "")
+            table.add_row("METRICS:", "", "", "", "")
+            table.add_row("Parallel Efficiency:", "", f"{parallel_efficiency}%", "", "")
+            table.add_row("Overall Progress:", "", f"{total_progress}%", "", "")
+            table.add_row("Active Agents:", "", f"{running_count}/{len(tasks)}", "", "")
+            table.add_row("Completed:", "", f"{complete_count}/{len(tasks)}", "", "")
 
             # Estimate completion time
             if running_count > 0 and total_progress > 0:
                 estimated_minutes = int((100 - total_progress) * 0.5)
-                table.add_row("Estimated Completion:", f"{estimated_minutes}m", "", "")
+                table.add_row("Estimated Completion:", "", f"{estimated_minutes}m", "", "")
+            else:
+                table.add_row("Estimated Completion:", "", "TBD", "", "")
 
     def show_ai_assistant_view(self, table: DataTable) -> None:
         """Show AI assistant recommendations and predictions."""
@@ -1576,8 +1940,24 @@ class AgentTUI(App):
         if hasattr(self, 'intelligent_agent'):
             self.intelligent_agent.analyze_context()
 
+    def action_view_galaxy(self) -> None:
+        """Switch to the agent galaxy visualization."""
+        self.current_view = "galaxy"
+        self.status_message = "Switched to Galaxy"
+        self.notify("🌌 Galaxy", severity="information", timeout=1)
+
+    def action_view_tasks(self) -> None:
+        """Switch to tasks view."""
+        self.current_view = "tasks"
+        self.status_message = "Switched to Tasks"
+        self.notify("🗂 Tasks", severity="information", timeout=1)
+
     def action_auto_activate(self) -> None:
-        """Auto-activate recommended agents."""
+        """Auto-activate agents or add task when in Tasks view."""
+        if self.current_view == "tasks":
+            self._run_add_task_flow()
+            return
+
         if not hasattr(self, 'intelligent_agent'):
             self.notify("AI Assistant not initialized", severity="error", timeout=2)
             return
@@ -1623,11 +2003,75 @@ class AgentTUI(App):
                 timeout=5
             )
 
+    def _run_add_task_flow(self) -> None:
+        self.run_worker(self._add_task_flow(), exclusive=True, description="add-task")
+
+    async def _add_task_flow(self):
+        dialog = TaskEditorDialog("Add Task")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+        if result:
+            try:
+                self._upsert_task(None, result)
+                self.current_view = "tasks"
+                self.status_message = f"Created task {result.get('name', '')}"
+                self.notify("✓ Task added", severity="success", timeout=2)
+            except Exception as exc:
+                self.notify(f"Failed to add task: {exc}", severity="error", timeout=3)
+
+    def action_edit_task(self) -> None:
+        index = self._selected_task_index()
+        if index is None:
+            self.notify("Select a task in Tasks view", severity="warning", timeout=2)
+            return
+        task = self.agent_tasks[index]
+        self.run_worker(self._edit_task_flow(task), exclusive=True, description="edit-task")
+
+    async def _edit_task_flow(self, task: AgentTask):
+        dialog = TaskEditorDialog(
+            "Edit Task",
+            defaults={
+                "name": task.agent_name,
+                "workstream": task.workstream,
+                "category": task.category,
+                "status": task.status,
+                "progress": task.progress,
+            }
+        )
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+        if result:
+            try:
+                self._upsert_task(task.agent_id, result)
+                self.status_message = f"Updated task {task.agent_name}"
+                self.notify("✓ Task updated", severity="success", timeout=2)
+            except Exception as exc:
+                self.notify(f"Failed to update task: {exc}", severity="error", timeout=3)
+
+    def action_delete_task(self) -> None:
+        index = self._selected_task_index()
+        if index is None:
+            self.notify("Select a task in Tasks view", severity="warning", timeout=2)
+            return
+        task = self.agent_tasks[index]
+        self.run_worker(self._delete_task_flow(task), exclusive=True, description="delete-task")
+
+    async def _delete_task_flow(self, task: AgentTask):
+        confirm = await self.push_screen(
+            ConfirmDialog("Delete Task", f"Remove {task.agent_name}?"),
+            wait_for_dismiss=True,
+        )
+        if confirm:
+            self._remove_task(task.agent_id)
+            self.status_message = f"Deleted task {task.agent_name}"
+            self.notify("✓ Task deleted", severity="information", timeout=2)
+
     def action_toggle(self) -> None:
         """Toggle selected item."""
         if self.current_view == "agents":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
+                # Save current cursor position
+                saved_cursor_row = table.cursor_row
+
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
                     # Get plain text from first column (strip Rich markup and icons)
@@ -1660,6 +2104,13 @@ class AgentTUI(App):
                                     self.notify(f"✓ Activated {agent.name}", severity="success", timeout=2)
                                 self.load_agents()
                                 self.update_view()
+
+                                # Restore cursor to same position (showing next agent)
+                                table = self.query_one(DataTable)
+                                if table.row_count > 0:
+                                    # Keep at same index, or last row if we were at the end
+                                    new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                    table.move_cursor(row=new_cursor_row)
                             else:
                                 self.notify(f"✗ Failed to toggle {agent.name}", severity="error", timeout=3)
                         except Exception as e:
@@ -1669,6 +2120,9 @@ class AgentTUI(App):
         elif self.current_view == "rules":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
+                # Save current cursor position
+                saved_cursor_row = table.cursor_row
+
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
                     rule_name = str(row_key[0])
@@ -1692,6 +2146,12 @@ class AgentTUI(App):
 
                             self.load_rules()
                             self.update_view()
+
+                            # Restore cursor to same position (showing next rule)
+                            table = self.query_one(DataTable)
+                            if table.row_count > 0:
+                                new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                table.move_cursor(row=new_cursor_row)
                         except Exception as e:
                             self.status_message = f"Error: {e}"
                             self.notify(f"✗ Error: {str(e)[:50]}", severity="error", timeout=3)
@@ -1699,6 +2159,9 @@ class AgentTUI(App):
         elif self.current_view == "modes":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
+                # Save current cursor position
+                saved_cursor_row = table.cursor_row
+
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
                     mode_name = str(row_key[0])
@@ -1722,6 +2185,12 @@ class AgentTUI(App):
                                     self.notify(f"✓ Activated {mode.name}", severity="success", timeout=2)
                                 self.load_modes()
                                 self.update_view()
+
+                                # Restore cursor to same position (showing next mode)
+                                table = self.query_one(DataTable)
+                                if table.row_count > 0:
+                                    new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                    table.move_cursor(row=new_cursor_row)
                             else:
                                 self.notify(f"✗ Failed to toggle {mode.name}", severity="error", timeout=3)
                         except Exception as e:
@@ -1749,9 +2218,9 @@ class AgentTUI(App):
 
     def action_help(self) -> None:
         """Show help."""
-        self.status_message = "Help: 1-7=Views, Ctrl+P=Commands, Space=Toggle, R=Refresh, Q=Quit"
+        self.status_message = "Help: 1-8=Views, 9=Galaxy, T=Tasks, Ctrl+P=Commands, Space=Toggle, R=Refresh, Q=Quit"
 
-    async def action_show_command_palette(self) -> None:
+    async def action_command_palette(self) -> None:
         """Show command palette for quick navigation."""
         commands = self.command_registry.get_all()
         result = await self.push_screen(CommandPalette(commands), wait_for_dismiss=True)
@@ -1770,6 +2239,10 @@ class AgentTUI(App):
                 self.action_view_workflows()
             elif result == "show_orchestrate":
                 self.action_view_orchestrate()
+            elif result == "show_tasks":
+                self.action_view_tasks()
+            elif result == "show_galaxy":
+                self.action_view_galaxy()
             elif result == "activate_agent":
                 # Switch to agents view and show instruction
                 self.action_view_agents()
@@ -1788,6 +2261,12 @@ class AgentTUI(App):
                 self.status_message = "Select a rule and press Space to toggle"
             elif result == "create_skill":
                 self.status_message = "Skill creation wizard (not yet implemented)"
+            elif result == "add_task":
+                await self.action_add_task()
+            elif result == "edit_task":
+                await self.action_edit_task()
+            elif result == "delete_task":
+                await self.action_delete_task()
             elif result == "export_context":
                 self.current_view = "export"
                 self.update_view()
@@ -1795,6 +2274,8 @@ class AgentTUI(App):
                 self.action_help()
             elif result == "refresh":
                 self.action_refresh()
+            elif result == "auto_activate":
+                await self.action_auto_activate()
             elif result == "quit":
                 self.exit()
             else:
