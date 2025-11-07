@@ -225,48 +225,73 @@ class SuperSaiyanButton(Button):
 
 
 class SuperSaiyanStatusBar(Static):
-    """Live-updating status bar with rich information.
+    """Live-updating status bar with neon waveform feedback."""
 
-    Features:
-    - Reactive updates
-    - Color-coded status
-    - Icons and indicators
-    - Smooth transitions
-    """
+    view = reactive("Agents")
+    message = reactive("Initializing...")
+    perf = reactive("")
+    agent_active = reactive(0)
+    agent_total = reactive(0)
+    task_active = reactive(0)
+    wave_phase = reactive(0)
 
-    agent_count = reactive(0)
-    active_tasks = reactive(0)
-    memory_usage = reactive("0MB")
+    _WAVE_FRAMES = (
+        "≈~~~~",
+        "~≈~~~",
+        "~~≈~~",
+        "~~~≈~",
+        "~~≈~~",
+        "~≈~~~",
+    )
 
     DEFAULT_CSS = """
     SuperSaiyanStatusBar {
-        dock: bottom;
         height: 1;
         background: $surface-lighten-1;
         color: $text;
-        padding: 0 1;
+        padding: 0 2;
+        border-top: tall $primary;
     }
     """
 
+    def update_payload(
+        self,
+        *,
+        view: str,
+        message: str,
+        perf: str,
+        agent_active: int,
+        agent_total: int,
+        task_active: int,
+    ) -> None:
+        """Push new info into the status bar."""
+        self.view = view
+        self.message = message
+        self.perf = perf
+        self.agent_active = agent_active
+        self.agent_total = agent_total
+        self.task_active = task_active
+        self.wave_phase = (self.wave_phase + 1) % len(self._WAVE_FRAMES)
+
     def render(self) -> str:
         """Render status bar with live data."""
+        agent_text = f"[cyan]{self.agent_active}/{self.agent_total} agents" if self.agent_total else "[cyan]0 agents"
+        task_text = f"[green]{self.task_active} active tasks"
+        wave = self._WAVE_FRAMES[self.wave_phase]
         return (
-            f"[cyan]Agents:[/cyan] {self.agent_count} | "
-            f"[green]Active:[/green] {self.active_tasks} | "
-            f"[yellow]Memory:[/yellow] {self.memory_usage}"
+            f"[bold]{self.view}[/bold] {self.message} [dim]│[/dim] {agent_text} [dim]│[/dim] {task_text} "
+            f"[dim]│[/dim] {self.perf} [dim]│[/dim] [magenta]{wave}[/magenta]"
         )
 
-    def watch_agent_count(self, new_count: int) -> None:
-        """React to agent count changes."""
+    def watch_view(self, _value: str) -> None:  # pragma: no cover - trivial
         self.refresh()
 
-    def watch_active_tasks(self, new_count: int) -> None:
-        """React to active task changes."""
-        self.refresh()
-
-    def watch_memory_usage(self, new_usage: str) -> None:
-        """React to memory usage changes."""
-        self.refresh()
+    watch_message = watch_view
+    watch_perf = watch_view
+    watch_agent_active = watch_view
+    watch_agent_total = watch_view
+    watch_task_active = watch_view
+    watch_wave_phase = watch_view
 
 
 class SuperSaiyanPanel(Container):

@@ -167,7 +167,7 @@ claude-ctx ai watch
 
 ```bash
 claude-ctx tui
-# Press '8' for AI Assistant view
+# Press '0' for AI Assistant view
 # Press 'A' to auto-activate recommendations
 ```
 

@@ -158,6 +158,14 @@ claude-ctx skills info your-skill-name
 **Content**: Versioning, pagination, error handling, HATEOAS, rate limiting, caching
 **Size**: ~1,800 tokens
 
+### Collaboration Skills (borrowed from obra/superpowers, MIT)
+
+| Skill | Command | Purpose |
+| --- | --- | --- |
+| `collaboration/brainstorming` | `/ctx:brainstorm` | Structured ideation aligned with Supersaiyan mode + Task TUI seeding |
+| `collaboration/writing-plans` | `/ctx:plan` | Produces actionable plans that map to workflows + tasks |
+| `collaboration/executing-plans` | `/ctx:execute-plan` | Drives plan execution, orchestration view, verification |
+
 #### microservices-patterns
 **Agents**: backend-architect
 **Triggers**: Microservices, service decomposition, distributed systems

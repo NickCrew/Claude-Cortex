@@ -40,7 +40,7 @@ See [Super Saiyan Integration Guide](docs/SUPER_SAIYAN_INTEGRATION.md) for detai
 - **Workflow Prediction** – Predicts agent sequences based on similar past work
 - **Auto-Activation** – High-confidence agents activate automatically (≥80%)
 - **Watch Mode** – Real-time monitoring with instant recommendations (no daemon required)
-- **TUI AI Assistant** – Interactive view with recommendations and predictions (press `8`)
+- **TUI AI Assistant** – Interactive view with recommendations and predictions (press `0`)
 
 **Quick start:**
 ```bash
@@ -55,7 +55,7 @@ claude-ctx ai watch
 
 # Interactive TUI with AI assistant
 claude-ctx tui
-# Press '8' for AI Assistant view
+# Press '0' for AI Assistant view
 # Press 'A' to auto-activate recommendations
 
 # Record successful sessions for learning

@@ -81,7 +81,7 @@ Key behaviors:
 **Usage Patterns:**
 - Sequential: Activation frequency, avg tokens
 - Context7: Activation frequency, pattern lookups
-- Serena: Activation frequency, symbol operations
+- Codanna: Activation frequency, symbol operations
 - Combined activations per depth level
 
 ## Dashboard Sections

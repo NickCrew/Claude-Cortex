@@ -6,6 +6,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from .tui_icons import Icons
 from .tui_format import Format
+from rich.text import Text
 
 
 class Sparkline:
@@ -191,7 +192,28 @@ class DashboardGrid:
     """Layout manager for dashboard cards in a grid."""
 
     @staticmethod
-    def create_row(cards: List[List[str]], spacing: int = 2) -> List[str]:
+    def _line_display_width(line: str) -> int:
+        """Measure printable cell width of a markup line."""
+        return Text.from_markup(line).cell_len
+
+    @staticmethod
+    def _card_width(card: List[str]) -> int:
+        """Compute max printable width for a card."""
+        if not card:
+            return 0
+        return max(DashboardGrid._line_display_width(line) for line in card)
+
+    @staticmethod
+    def _pad_line(line: str, width_diff: int) -> str:
+        """Pad a single line to match width without breaking borders."""
+        if width_diff <= 0:
+            return line
+        if line.endswith('│'):
+            return f"{line[:-1]}{' ' * width_diff}│"
+        return f"{line}{' ' * width_diff}"
+
+    @staticmethod
+    def create_row(cards: List[List[str]], spacing: int = 4) -> List[str]:
         """Create a horizontal row of cards.
 
         Args:
@@ -204,19 +226,27 @@ class DashboardGrid:
         if not cards:
             return []
 
-        # Find max height
+        # Find max height and width
         max_height = max(len(card) for card in cards)
+        max_width = max(DashboardGrid._card_width(card) for card in cards)
 
-        # Pad shorter cards
+        # Pad shorter cards and ensure equal width
         padded_cards = []
         for card in cards:
-            if len(card) < max_height:
-                # Calculate padding needed
-                card_width = len(card[0]) if card else 0
-                padding_lines = [' ' * card_width] * (max_height - len(card))
-                padded_cards.append(card + padding_lines)
-            else:
-                padded_cards.append(card)
+            if not card:
+                continue
+
+            new_card = []
+            for line in card:
+                line_width = DashboardGrid._line_display_width(line)
+                width_diff = max(0, max_width - line_width)
+                new_card.append(DashboardGrid._pad_line(line, width_diff))
+
+            if len(new_card) < max_height:
+                padding_lines = [' ' * max_width] * (max_height - len(new_card))
+                new_card.extend(padding_lines)
+
+            padded_cards.append(new_card)
 
         # Combine horizontally
         combined = []

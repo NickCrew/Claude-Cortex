@@ -36,13 +36,15 @@ class CommandPalette(ModalScreen[Optional[str]]):
         self.commands = commands
         self.filtered_commands = commands.copy()
         self.selected_index = 0
+        self._query = ""
 
     def compose(self) -> ComposeResult:
         """Compose the command palette."""
         with Container(id="command-palette-container"):
             with Vertical():
                 yield Static(f"{Icons.SEARCH} Command Palette", id="palette-title")
-                yield Input(placeholder="Type to search commands...", id="palette-input")
+                yield Input(placeholder="Summon anything…", id="palette-input")
+                yield Static("[dim italic]Neon holo-panel ready. Type to filter, press Enter to fire.[/dim italic]", id="palette-subtitle")
                 yield ListView(id="palette-results")
                 yield Static(
                     f"[dim]{Icons.ARROW_UP}/{Icons.ARROW_DOWN} Navigate  {Icons.SUCCESS} Select  Esc Close[/dim]",
@@ -61,6 +63,7 @@ class CommandPalette(ModalScreen[Optional[str]]):
             return
 
         query = event.value.lower()
+        self._query = query
 
         if not query:
             self.filtered_commands = self.commands.copy()
@@ -126,12 +129,15 @@ class CommandPalette(ModalScreen[Optional[str]]):
             for idx, cmd in enumerate(self.filtered_commands[:10]):  # Show top 10
                 name = cmd['name']
                 description = cmd.get('description', '')
+                badge = cmd.get('badge')
+                name_text = self._highlight_query(name)
+                desc_text = self._highlight_query(description)
 
-                # Highlight selected item
+                badge_text = f" [bold]{badge.upper()}[/bold]" if badge else ""
                 if idx == self.selected_index:
-                    label = f"[reverse]{Icons.ARROW_RIGHT} {name}[/reverse] [dim]{description}[/dim]"
+                    label = f"[reverse]{Icons.ARROW_RIGHT} {name_text}{badge_text}[/reverse] [dim]{desc_text}[/dim]"
                 else:
-                    label = f"  {name} [dim]{description}[/dim]"
+                    label = f"{Icons.SPACE} {name_text}{badge_text} [dim]{desc_text}[/dim]"
 
                 results.append(ListItem(Label(label)))
 
@@ -139,6 +145,19 @@ class CommandPalette(ModalScreen[Optional[str]]):
             results.refresh()
         except Exception:
             pass  # ListView not yet mounted
+
+    def _highlight_query(self, text: str) -> str:
+        """Highlight query matches inside text using cyan accents."""
+        if not self._query or not text:
+            return text
+
+        lower_text = text.lower()
+        idx = lower_text.find(self._query)
+        if idx == -1:
+            return text
+
+        end = idx + len(self._query)
+        return f"{text[:idx]}[cyan]{text[idx:end]}[/cyan]{text[end:]}"
 
     def action_cursor_up(self) -> None:
         """Move cursor up."""
@@ -172,7 +191,7 @@ class CommandRegistry:
         """Initialize command registry."""
         self.commands: List[Dict[str, str]] = []
 
-    def register(self, name: str, description: str, action: str) -> None:
+    def register(self, name: str, description: str, action: str, badge: Optional[str] = None) -> None:
         """Register a new command.
 
         Args:
@@ -180,20 +199,28 @@ class CommandRegistry:
             description: Brief description
             action: Action identifier (e.g., "show_agents")
         """
-        self.commands.append({
+        command = {
             'name': name,
             'description': description,
             'action': action
-        })
+        }
+        if badge:
+            command['badge'] = badge
+        self.commands.append(command)
 
-    def register_batch(self, commands: List[Tuple[str, str, str]]) -> None:
+    def register_batch(self, commands: List[Tuple[str, str, str] | Tuple[str, str, str, str]]) -> None:
         """Register multiple commands at once.
 
         Args:
             commands: List of (name, description, action) tuples
         """
-        for name, description, action in commands:
-            self.register(name, description, action)
+        for entry in commands:
+            if len(entry) == 4:
+                name, description, action, badge = entry
+                self.register(name, description, action, badge)
+            else:
+                name, description, action = entry
+                self.register(name, description, action)
 
     def get_all(self) -> List[Dict[str, str]]:
         """Get all registered commands.
@@ -210,18 +237,27 @@ class CommandRegistry:
 
 # Default command registry for TUI
 DEFAULT_COMMANDS = [
-    ("Show Agents", "View and manage agents", "show_agents"),
-    ("Show Skills", "Browse available skills", "show_skills"),
-    ("Show Modes", "View active modes", "show_modes"),
-    ("Show Rules", "View active rules", "show_rules"),
-    ("Show Workflows", "View workflow execution", "show_workflows"),
-    ("Show Orchestrate", "View orchestration tasks", "show_orchestrate"),
-    ("Activate Agent", "Activate a new agent", "activate_agent"),
-    ("Deactivate Agent", "Deactivate an agent", "deactivate_agent"),
-    ("Create Skill", "Create a new skill", "create_skill"),
-    ("Toggle Mode", "Toggle a mode on/off", "toggle_mode"),
-    ("Toggle Rule", "Toggle a rule on/off", "toggle_rule"),
-    ("Export Context", "Export current context", "export_context"),
-    ("Help", "Show help and documentation", "show_help"),
-    ("Quit", "Exit the application", "quit"),
+    ("Show Agents", "View and manage agents", "show_agents", "core"),
+    ("Show Skills", "Browse available skills", "show_skills", "catalog"),
+    ("Show Modes", "View active modes", "show_modes", "context"),
+    ("Show Rules", "View active rules", "show_rules", "policy"),
+    ("Show Workflows", "View workflow execution", "show_workflows", "ops"),
+    ("Show Orchestrate", "View orchestration tasks", "show_orchestrate", "ops"),
+    ("Show MCP", "Manage MCP servers", "show_mcp", "infra"),
+    ("Show Profiles", "Manage saved profiles", "show_profiles", "context"),
+    ("Show Export", "Configure context export", "show_export", "utilities"),
+    ("Show Tasks", "Manage task queue", "show_tasks", "tasks"),
+    ("Galaxy View", "Visualize agent constellations", "show_galaxy", "viz"),
+    ("Activate Agent", "Activate a new agent", "activate_agent", "action"),
+    ("Deactivate Agent", "Deactivate an agent", "deactivate_agent", "action"),
+    ("Auto-Activate Recommended", "Trigger AI suggestions", "auto_activate", "ai"),
+    ("Add Task", "Create a manual task entry", "add_task", "tasks"),
+    ("Edit Task", "Edit selected task", "edit_task", "tasks"),
+    ("Delete Task", "Delete selected task", "delete_task", "danger"),
+    ("Create Skill", "Create a new skill", "create_skill", "beta"),
+    ("Toggle Mode", "Toggle a mode on/off", "toggle_mode", "context"),
+    ("Toggle Rule", "Toggle a rule on/off", "toggle_rule", "policy"),
+    ("Export Context", "Export current context", "export_context", "utilities"),
+    ("Help", "Show help and documentation", "show_help", "docs"),
+    ("Quit", "Exit the application", "quit", "danger"),
 ]

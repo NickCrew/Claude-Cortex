@@ -3,7 +3,7 @@ name: workflow
 description: "Generate structured implementation workflows from PRDs and feature requirements"
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+mcp-servers: [sequential, context7, magic, playwright, morphllm, codanna]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
@@ -39,7 +39,7 @@ Key behaviors:
 - **Magic MCP**: UI/UX workflow generation and design system integration strategies
 - **Playwright MCP**: Testing workflow integration and quality assurance automation
 - **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
-- **Serena MCP**: Cross-session workflow persistence, memory management, and project context
+- **Codanna MCP**: Cross-session workflow persistence, memory management, and project context
 
 ## Tool Coordination
 - **Read/Write/Edit**: PRD analysis and workflow documentation generation
@@ -80,7 +80,7 @@ Key behaviors:
 ### Cross-Session Workflow Management
 ```
 /design:workflow project-brief.md --depth normal
-# Serena MCP manages cross-session workflow context and persistence
+# Codanna MCP manages cross-session workflow context and persistence
 # Progressive workflow enhancement with memory-driven insights
 ```
 

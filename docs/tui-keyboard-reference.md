@@ -4,17 +4,18 @@ Quick reference for claude-ctx TUI navigation and commands.
 
 ## View Navigation (1-9)
 
-| Key | View        | Description                              |
-|-----|-------------|------------------------------------------|
-| 1   | Overview    | Summary dashboard of all systems         |
-| 2   | Agents      | List and manage agents                   |
-| 3   | Modes       | Configure behavioral modes               |
-| 4   | Rules       | Manage rule modules                      |
-| 5   | Skills      | Skill management and community           |
-| 6   | Workflows   | Run and resume workflows                 |
-| 7   | Orchestrate | Parallel execution dashboard             |
-| 8   | Profile     | Profile management                       |
-| 9   | Export      | Context export                           |
+| Key | View         | Description                              |
+|-----|--------------|------------------------------------------|
+| 1   | Overview     | Summary dashboard of all systems         |
+| 2   | Agents       | List and manage agents                   |
+| 3   | Modes        | Configure behavioral modes               |
+| 4   | Rules        | Manage rule modules                      |
+| 5   | Skills       | Skill management and community           |
+| 6   | Workflows    | Run and resume workflows                 |
+| 7   | MCP Servers  | Validate/test Model Context Protocol     |
+| 8   | Profiles     | Manage built-in & saved profiles         |
+| 9   | Export       | Context export controls                  |
+| 0   | AI Assistant | Recommendations & workflow predictions   |
 
 ## Global Navigation
 
@@ -78,23 +79,35 @@ Quick reference for claude-ctx TUI navigation and commands.
 ### Profile View
 | Key    | Action             | Description                     |
 |--------|--------------------|---------------------------------|
-| n      | New                | Create new profile              |
-| e      | Edit               | Edit selected profile           |
-| d      | Delete             | Delete selected profile         |
+| Space  | Apply              | Apply highlighted profile       |
+| n      | Save Snapshot      | Save current state as profile   |
+| D      | Delete             | Delete selected saved profile   |
 
 ### Export View
 | Key    | Action             | Description                     |
 |--------|--------------------|---------------------------------|
+| Space  | Toggle             | Include/exclude component       |
+| f      | Format             | Cycle export format             |
 | e      | Export             | Export context to file          |
-| f      | Format             | Change export format            |
-| p      | Clipboard          | Copy to clipboard               |
+| x      | Clipboard          | Copy export to clipboard        |
+
+### MCP View
+| Key        | Action             | Description                         |
+|------------|--------------------|-------------------------------------|
+| v          | Validate           | Run config validation               |
+| d          | Docs               | View server documentation           |
+| c          | Snippet            | Generate config snippet (copies)    |
+| s          | Details            | Show full server details            |
+| Ctrl+T     | Test               | Run configuration test              |
+| Ctrl+D     | Diagnose           | Diagnose all configured servers     |
 
 ## Tips and Tricks
 
 ### Quick View Switching
-- Press number keys (1-9) to instantly switch between views
+- Press number keys (1-9, 0) to instantly switch between views
 - View state (selection, filter) is preserved when switching away
 - Press 1 to return to overview dashboard at any time
+- Use `o` for Orchestrate, `g` for Galaxy, and `t` for Tasks
 
 ### Filtering
 - Press `/` to start filtering in most views
@@ -146,20 +159,20 @@ Quick reference for claude-ctx TUI navigation and commands.
 1. Press `6` to go to Workflows view
 2. Select workflow with ↑/↓
 3. Press `r` to run
-4. Monitor in Orchestrate view (press `7`)
+4. Monitor in Orchestrate view (press `o`)
 
 ### Exporting Context
 1. Press `9` to go to Export view
 2. Select export items
 3. Press `f` to choose format
-4. Press `e` to export or `p` for clipboard
+4. Press `e` to export or `x` for clipboard copy
 
 ## Keyboard Layout Reference
 
 ```
 ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
-│  1  │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │     │
-│Over │Agent│Mode │Rule │Skill│Work │Orch │Prof │Exp  │     │
+│  1  │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  0  │
+│Over │Agent│Mode │Rule │Skill│Work │MCP  │Prof │Exp  │ AI  │
 └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
 
 ┌─────┐

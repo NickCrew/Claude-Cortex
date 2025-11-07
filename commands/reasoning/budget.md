@@ -53,7 +53,7 @@ Key behaviors:
 
 ### Maximum (32,000 tokens)
 - **Use case**: Critical system redesign, legacy modernization
-- **MCP servers**: All available (Sequential, Context7, Serena)
+- **MCP servers**: All available (Sequential, Context7, Codanna)
 - **Thinking depth**: Exhaustive exploration with meta-analysis
 - **Cost**: ~$0.096 per request (input)
 - **Equivalent**: `--ultrathink` / `/reasoning:adjust ultra`

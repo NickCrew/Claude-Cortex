@@ -292,7 +292,7 @@ claude-ctx tui
 # Both work together:
 # - Watch mode monitors and auto-activates
 # - TUI shows current state and recommendations
-# - Press '8' in TUI to see AI assistant view
+# - Press '0' in TUI to see AI assistant view
 ```
 
 ### With Git Hooks (Future)
@@ -471,7 +471,7 @@ claude-ctx ai auto-activate
 
 # View in TUI
 claude-ctx tui
-# Press '8' for AI assistant view
+# Press '0' for AI assistant view
 
 # Record successful session
 claude-ctx ai record-success

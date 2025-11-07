@@ -1,9 +1,9 @@
 ---
 name: load
-description: "Session lifecycle management with Serena MCP integration for project context loading"
+description: "Session lifecycle management with Codanna MCP integration for project context loading"
 category: session
 complexity: standard
-mcp-servers: [serena]
+mcp-servers: [codanna]
 personas: []
 ---
 
@@ -21,20 +21,20 @@ personas: []
 ```
 
 ## Behavioral Flow
-1. **Initialize**: Establish Serena MCP connection and session context management
+1. **Initialize**: Establish Codanna MCP connection and session context management
 2. **Discover**: Analyze project structure and identify context loading requirements
 3. **Load**: Retrieve project memories, checkpoints, and cross-session persistence data
 4. **Activate**: Establish project context and prepare for development workflow
 5. **Validate**: Ensure loaded context integrity and session readiness
 
 Key behaviors:
-- Serena MCP integration for memory management and cross-session persistence
+- Codanna MCP integration for memory management and cross-session persistence
 - Project activation with comprehensive context loading and validation
 - Performance-critical operation with <500ms initialization target
 - Session lifecycle management with checkpoint and memory coordination
 
 ## MCP Integration
-- **Serena MCP**: Mandatory integration for project activation, memory retrieval, and session management
+- **Codanna MCP**: Mandatory integration for project activation, memory retrieval, and session management
 - **Memory Operations**: Cross-session persistence, checkpoint loading, and context restoration
 - **Performance Critical**: <200ms for core operations, <1s for checkpoint creation
 
@@ -55,7 +55,7 @@ Key behaviors:
 ### Basic Project Loading
 ```
 /session:load
-# Loads current directory project context with Serena memory integration
+# Loads current directory project context with Codanna memory integration
 # Establishes session context and prepares for development workflow
 ```
 
@@ -83,11 +83,11 @@ Key behaviors:
 ## Boundaries
 
 **Will:**
-- Load project context using Serena MCP integration for memory management
+- Load project context using Codanna MCP integration for memory management
 - Provide session lifecycle management with cross-session persistence
 - Establish project activation with comprehensive context loading
 
 **Will Not:**
 - Modify project structure or configuration without explicit permission
-- Load context without proper Serena MCP integration and validation
+- Load context without proper Codanna MCP integration and validation
 - Override existing session context without checkpoint preservation

@@ -516,6 +516,66 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use Claude-specific format instead of agent-generic",
     )
 
+    # Completion command
+    completion_parser = subparsers.add_parser(
+        "completion",
+        help="Generate shell completion scripts"
+    )
+    completion_parser.add_argument(
+        "shell",
+        choices=["bash", "zsh", "fish"],
+        help="Shell type (bash, zsh, or fish)"
+    )
+    completion_parser.add_argument(
+        "--install",
+        action="store_true",
+        help="Show installation instructions"
+    )
+
+    # Install command
+    install_parser = subparsers.add_parser(
+        "install",
+        help="Install shell integrations (aliases, completions)"
+    )
+    install_sub = install_parser.add_subparsers(dest="install_command")
+
+    # Install aliases
+    aliases_parser = install_sub.add_parser(
+        "aliases",
+        help="Install shell aliases for Warp AI and terminal AI tools"
+    )
+    aliases_parser.add_argument(
+        "--shell",
+        choices=["bash", "zsh", "fish"],
+        help="Target shell (auto-detected if not specified)"
+    )
+    aliases_parser.add_argument(
+        "--rc-file",
+        dest="rc_file",
+        type=Path,
+        help="Target RC file (auto-detected if not specified)"
+    )
+    aliases_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Reinstall even if already installed"
+    )
+    aliases_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes"
+    )
+    aliases_parser.add_argument(
+        "--uninstall",
+        action="store_true",
+        help="Remove installed aliases"
+    )
+    aliases_parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Show available aliases without installing"
+    )
+
     return parser
 
 
@@ -938,6 +998,53 @@ def main(argv: Iterable[str] | None = None) -> int:
             if message:  # Only print if there's a message (empty for stdout)
                 _print(message)
             return exit_code
+    elif args.command == "completion":
+        from . import completions
+
+        try:
+            if args.install:
+                # Show installation instructions
+                instructions = completions.get_installation_instructions(args.shell)
+                _print(instructions)
+            else:
+                # Generate completion script
+                script = completions.get_completion_script(args.shell)
+                _print(script)
+            return 0
+        except ValueError as e:
+            _print(f"Error: {e}")
+            return 1
+    elif args.command == "install":
+        if args.install_command == "aliases":
+            from . import shell_integration
+
+            # Show aliases without installing
+            if args.show:
+                _print(shell_integration.show_aliases())
+                return 0
+
+            # Uninstall aliases
+            if args.uninstall:
+                exit_code, message = shell_integration.uninstall_aliases(
+                    shell=args.shell,
+                    rc_file=args.rc_file,
+                    dry_run=args.dry_run
+                )
+                _print(message)
+                return exit_code
+
+            # Install aliases
+            exit_code, message = shell_integration.install_aliases(
+                shell=args.shell,
+                rc_file=args.rc_file,
+                force=args.force,
+                dry_run=args.dry_run
+            )
+            _print(message)
+            return exit_code
+        else:
+            _print("Install subcommand required. Use 'claude-ctx install --help'")
+            return 1
 
     parser.print_help()
     return 1

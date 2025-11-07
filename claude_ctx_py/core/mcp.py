@@ -353,6 +353,13 @@ def validate_server_config(
     if server is None:
         return False, [f"Server '{name}' not found"], []
 
+    # When a config file path is provided, prefer documentation inside the
+    # surrounding Claude directory instead of the user's global ~/.claude. This
+    # keeps validation deterministic in tests and for portable configs.
+    if config_path is not None:
+        override_docs = get_server_docs_path(name, config_path.parent)
+        server.docs_path = override_docs
+
     # Use server's built-in validation
     is_valid, errors = server.is_valid()
     warnings: List[str] = []

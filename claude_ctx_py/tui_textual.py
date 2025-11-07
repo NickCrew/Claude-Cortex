@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
+import subprocess
+import tempfile
 import time
 import yaml
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -31,10 +35,26 @@ from .core import (
     _tokenize_front_matter,
     _extract_scalar_from_paths,
     _extract_front_matter,
+    collect_context_components,
+    export_context,
+    init_profile,
+    profile_save,
+    _profile_reset,
 )
 from .core.rules import rules_activate, rules_deactivate
 from .core.modes import mode_activate, mode_deactivate
 from .core.base import _iter_md_files, _parse_active_entries
+from .core.mcp import (
+    discover_servers,
+    validate_server_config,
+    generate_config_snippet,
+    mcp_show,
+    mcp_docs,
+    mcp_test,
+    mcp_diagnose,
+    MCPServerInfo,
+)
+from .core.agents import BUILT_IN_PROFILES
 from .tui_icons import Icons, StatusIcon
 from .tui_format import Format
 from .tui_progress import ProgressBar
@@ -46,7 +66,7 @@ from .tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from .tui_overview_enhanced import EnhancedOverview
 from .intelligence import IntelligentAgent, AgentRecommendation, WorkflowPrediction
 from .tui_supersaiyan import SuperSaiyanStatusBar
-from .tui_dialogs import TaskEditorDialog, ConfirmDialog
+from .tui_dialogs import TaskEditorDialog, ConfirmDialog, PromptDialog, TextViewerDialog
 
 
 @dataclass
@@ -95,6 +115,46 @@ class ModeInfo:
     path: Path
 
 
+PROFILE_DESCRIPTIONS: Dict[str, str] = {
+    "minimal": "Load minimal profile (essential agents only)",
+    "frontend": "Load frontend profile (TypeScript + review)",
+    "web-dev": "Load web-dev profile (full-stack)",
+    "backend": "Load backend profile (Python + security)",
+    "devops": "Load devops profile (infrastructure & deploy)",
+    "documentation": "Load documentation profile (writing focus)",
+    "data-ai": "Load data/AI profile",
+    "quality": "Load quality profile (QA + security)",
+    "meta": "Load meta tooling profile",
+    "developer-experience": "Load DX profile",
+    "product": "Load product development profile",
+    "full": "Load full profile (all agents)",
+}
+
+EXPORT_CATEGORIES = [
+    ("core", "Core Framework", "FLAGS, PRINCIPLES, RULES"),
+    ("rules", "Rules", "Active rule modules"),
+    ("modes", "Modes", "Active behavioral modes"),
+    ("agents", "Agents", "All available agents"),
+    ("mcp_docs", "MCP Docs", "Model Context Protocol docs"),
+    ("skills", "Skills", "Local skill definitions"),
+]
+
+DEFAULT_EXPORT_OPTIONS = {key: True for key, _label, _desc in EXPORT_CATEGORIES}
+
+PRIMARY_VIEW_BINDINGS = [
+    ("1", "overview", "Overview"),
+    ("2", "agents", "Agents"),
+    ("3", "modes", "Modes"),
+    ("4", "rules", "Rules"),
+    ("5", "skills", "Skills"),
+    ("6", "workflows", "Workflows"),
+    ("7", "mcp", "MCP"),
+    ("8", "profiles", "Profiles"),
+    ("9", "export", "Export"),
+    ("0", "ai_assistant", "AI Assistant"),
+]
+
+
 class AgentTUI(App):
     """Textual TUI for claude-ctx management."""
 
@@ -121,6 +181,15 @@ class AgentTUI(App):
         "plum1",
         "orange3",
     ]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.profiles: List[Dict[str, Optional[str]]] = []
+        self.mcp_servers: List[MCPServerInfo] = []
+        self.mcp_error: Optional[str] = None
+        self.export_options: Dict[str, bool] = DEFAULT_EXPORT_OPTIONS.copy()
+        self.export_agent_generic: bool = True
+        self.export_row_meta: List[Tuple[str, Optional[str]]] = []
 
     CSS = """
     /* Super Saiyan Mode Colors 🔥 */
@@ -345,15 +414,9 @@ class AgentTUI(App):
     """
 
     BINDINGS = [
-        Binding("1", "view_overview", "Overview"),
-        Binding("2", "view_agents", "Agents"),
-        Binding("3", "view_modes", "Modes"),
-        Binding("4", "view_rules", "Rules"),
-        Binding("5", "view_skills", "Skills"),
-        Binding("6", "view_workflows", "Workflows"),
-        Binding("7", "view_orchestrate", "Orchestrate"),
-        Binding("8", "view_ai_assistant", "AI Assistant", show=True),
-        Binding("9", "view_galaxy", "Galaxy", show=True),
+        *[Binding(key, f"view_{name}", label, show=True) for key, name, label in PRIMARY_VIEW_BINDINGS],
+        Binding("o", "view_orchestrate", "Orchestrate", show=True),
+        Binding("g", "view_galaxy", "Galaxy", show=True),
         Binding("t", "view_tasks", "Tasks", show=True),
         Binding("ctrl+p", "command_palette", "Commands", show=True),
         Binding("q", "quit", "Quit"),
@@ -361,6 +424,17 @@ class AgentTUI(App):
         Binding("space", "toggle", "Toggle"),
         Binding("r", "refresh", "Refresh"),
         Binding("a", "auto_activate", "Auto-Activate"),
+        Binding("v", "mcp_validate", "Validate", show=False),
+        Binding("d", "mcp_docs", "Docs", show=False),
+        Binding("c", "mcp_snippet", "Snippet", show=False),
+        Binding("s", "mcp_details", "Details", show=False),
+        Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
+        Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
+        Binding("f", "export_cycle_format", "Format", show=False),
+        Binding("e", "export_run", "Export", show=False),
+        Binding("x", "export_clipboard", "Copy", show=False),
+        Binding("n", "profile_save_prompt", "Save Profile", show=False),
+        Binding("D", "profile_delete", "Delete Profile", show=False),
     ]
 
     # Register command provider for Textual's command palette
@@ -406,6 +480,8 @@ class AgentTUI(App):
         self.load_skills()
         self.load_agent_tasks()
         self.load_workflows()
+        self.load_profiles()
+        self.load_mcp_servers()
         self.update_view()
 
         # Start performance monitoring timer
@@ -512,6 +588,121 @@ class AgentTUI(App):
                     return False
 
         return True
+
+    def _table_cursor_index(self) -> Optional[int]:
+        """Return the current row index in the main DataTable."""
+        try:
+            table = self.query_one("#main-table", DataTable)
+        except Exception:
+            return None
+        return table.cursor_row
+
+    def _selected_profile(self) -> Optional[Dict[str, Optional[str]]]:
+        index = self._table_cursor_index()
+        if index is None or not self.profiles:
+            return None
+        if index < 0 or index >= len(self.profiles):
+            return None
+        return self.profiles[index]
+
+    def _selected_export_meta(self) -> Optional[Tuple[str, Optional[str]]]:
+        index = self._table_cursor_index()
+        if index is None:
+            return None
+        if index < 0 or index >= len(self.export_row_meta):
+            return None
+        return self.export_row_meta[index]
+
+    def _selected_mcp_server(self) -> Optional[MCPServerInfo]:
+        index = self._table_cursor_index()
+        if index is None:
+            return None
+        servers = getattr(self, 'mcp_servers', [])
+        if index < 0 or index >= len(servers):
+            return None
+        return servers[index]
+
+    def _copy_to_clipboard(self, text: str) -> bool:
+        """Attempt to copy text to the system clipboard."""
+        try:
+            import pyperclip  # type: ignore
+
+            pyperclip.copy(text)
+            return True
+        except Exception:
+            pass
+
+        try:
+            subprocess.run(["pbcopy"], check=True, input=text.encode("utf-8"))
+            return True
+        except Exception:
+            pass
+
+        try:
+            if shutil.which("xclip"):
+                subprocess.run(["xclip", "-selection", "clipboard"], check=True, input=text.encode("utf-8"))
+                return True
+        except Exception:
+            pass
+
+        return False
+
+    def _apply_saved_profile(self, profile_path: Path) -> Tuple[int, str]:
+        """Apply a saved .profile file by activating listed agents/modes/rules."""
+        try:
+            content = profile_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            return 1, f"Failed to read profile: {exc}"
+
+        agents = [Path(entry).stem for entry in self._extract_profile_list(content, "AGENTS")]
+        modes = self._extract_profile_list(content, "MODES")
+        rules = self._extract_profile_list(content, "RULES")
+
+        exit_code, message = _profile_reset()
+        messages = []
+        if message:
+            messages.append(message)
+        if exit_code != 0:
+            return exit_code, "\n".join(messages)
+
+        for agent_name in filter(None, agents):
+            exit_code, agent_message = agent_activate(agent_name)
+            if agent_message:
+                messages.append(agent_message)
+            if exit_code != 0:
+                return exit_code, "\n".join(messages)
+
+        for mode_name in filter(None, modes):
+            exit_code, mode_message = mode_activate(mode_name)
+            if mode_message:
+                messages.append(mode_message)
+            if exit_code != 0 and (not mode_message or "already active" not in mode_message.lower()):
+                return exit_code, "\n".join(messages)
+
+        for rule_name in filter(None, rules):
+            rule_message = rules_activate(rule_name)
+            if rule_message:
+                messages.append(rule_message)
+
+        messages.append(f"[green]Applied profile from {profile_path.name}[/green]")
+        return 0, "\n".join(messages)
+
+    def _extract_profile_list(self, content: str, key: str) -> List[str]:
+        """Extract a space-delimited list from profile metadata."""
+        pattern = re.compile(rf'{key}="([^"]*)"')
+        match = pattern.search(content)
+        if not match:
+            return []
+        value = match.group(1)
+        if not value:
+            return []
+        return [entry.strip() for entry in value.split() if entry.strip()]
+
+    def _clean_ansi(self, text: str | None) -> str:
+        """Remove ANSI escape codes for clean status messages."""
+        if not text:
+            return ""
+        return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
     def load_agents(self) -> None:
         """Load agents from the system."""
@@ -759,6 +950,105 @@ class AgentTUI(App):
                 location_text,
                 description,
             )
+
+    def show_profiles_view(self, table: DataTable) -> None:
+        """Render profile management view."""
+        table.add_column("Profile", width=28)
+        table.add_column("Type", width=12)
+        table.add_column("Description")
+        table.add_column("Updated", width=18)
+
+        if not self.profiles:
+            table.add_row("[dim]No profiles found[/dim]", "", "", "")
+            return
+
+        for profile in self.profiles:
+            name = profile.get("name", "unknown")
+            ptype = profile.get("type", "built-in")
+            description = Format.truncate(profile.get("description", ""), 60)
+            updated = profile.get("modified") or "-"
+            icon = Icons.SUCCESS if ptype == "built-in" else Icons.DOC
+            if ptype == "built-in":
+                type_text = "[cyan]Built-in[/cyan]"
+            else:
+                type_text = "[magenta]Saved[/magenta]"
+
+            table.add_row(
+                f"{icon} {name}",
+                type_text,
+                f"[dim]{description}[/dim]" if description else "",
+                updated,
+            )
+
+    def show_export_view(self, table: DataTable) -> None:
+        """Render export configuration view."""
+        table.add_column("Component", width=26)
+        table.add_column("State", width=20)
+        table.add_column("Details")
+
+        self.export_row_meta = []
+        try:
+            components = collect_context_components()
+        except Exception as exc:
+            components = {}
+            self.status_message = f"Export scan failed: {exc}"[:120]
+
+        for key, label, description in EXPORT_CATEGORIES:
+            enabled = self.export_options.get(key, True)
+            count = len(components.get(key, {}))
+            icon = Icons.SUCCESS if enabled else Icons.WARNING
+            state = "[green]Included[/green]" if enabled else "[dim]Excluded[/dim]"
+            state = f"{state} ({count} files)"
+
+            table.add_row(
+                f"{icon} {label}",
+                state,
+                Format.truncate(description or "", 60),
+            )
+            self.export_row_meta.append(("category", key))
+
+        format_label = "Agent-generic" if self.export_agent_generic else "Claude-specific"
+        format_color = "green" if self.export_agent_generic else "yellow"
+        table.add_row(
+            "Format",
+            f"[{format_color}]{format_label}[/{format_color}]",
+            "Toggle with 'f'",
+        )
+        self.export_row_meta.append(("format", "agent_generic"))
+
+        summary = self._build_export_summary(components)
+        table.add_row(
+            "Summary",
+            f"[dim]{summary}[/dim]",
+            "Press 'e' to export, 'x' to copy",
+        )
+        self.export_row_meta.append(("summary", None))
+
+    def _build_export_summary(self, components: Dict[str, Dict[str, Path]]) -> str:
+        """Create a short summary string for enabled export categories."""
+        enabled = []
+        for key, label, _description in EXPORT_CATEGORIES:
+            if not self.export_options.get(key, True):
+                continue
+            count = len(components.get(key, {}))
+            enabled.append(f"{label} ({count})")
+
+        if not enabled:
+            return "No components selected"
+        if len(enabled) <= 3:
+            return ", ".join(enabled)
+        return ", ".join(enabled[:3]) + ", …"
+
+    def _export_exclude_categories(self) -> set[str]:
+        """Return the set of categories to exclude when exporting."""
+        return {key for key, enabled in self.export_options.items() if not enabled}
+
+    def _default_export_path(self) -> Path:
+        """Best-effort default export path."""
+        desktop = Path.home() / "Desktop"
+        if desktop.exists():
+            return desktop / "claude-ctx-export.md"
+        return Path.cwd() / "claude-ctx-export.md"
 
     def load_agent_tasks(self) -> None:
         """Load active agent tasks for orchestration view."""
@@ -1054,6 +1344,56 @@ class AgentTUI(App):
             running = sum(1 for w in workflows if w.status == "running")
             self.metrics_collector.record("workflows_running", float(running))
 
+    def load_profiles(self) -> None:
+        """Load available profiles (built-in + saved)."""
+        try:
+            profiles: List[Dict[str, Optional[str]]] = []
+            claude_dir = _resolve_claude_dir()
+
+            for name in BUILT_IN_PROFILES:
+                profiles.append({
+                    "name": name,
+                    "type": "built-in",
+                    "description": PROFILE_DESCRIPTIONS.get(name, "Built-in profile"),
+                    "path": None,
+                    "modified": None,
+                })
+
+            profiles_dir = claude_dir / "profiles"
+            if profiles_dir.is_dir():
+                for profile_file in sorted(profiles_dir.glob("*.profile")):
+                    modified_iso = None
+                    try:
+                        modified_iso = datetime.fromtimestamp(profile_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+                    except OSError:
+                        modified_iso = None
+                    profiles.append({
+                        "name": profile_file.stem,
+                        "type": "saved",
+                        "description": "Saved profile snapshot",
+                        "path": str(profile_file),
+                        "modified": modified_iso,
+                    })
+
+            self.profiles = profiles
+        except Exception as exc:
+            self.profiles = []
+            self.status_message = f"Error loading profiles: {exc}"[:160]
+
+    def load_mcp_servers(self) -> None:
+        """Load MCP server definitions."""
+        try:
+            success, servers, error = discover_servers()
+            if success:
+                self.mcp_servers = servers
+                self.mcp_error = None
+            else:
+                self.mcp_servers = []
+                self.mcp_error = error
+        except Exception as exc:
+            self.mcp_servers = []
+            self.mcp_error = str(exc)
+
     def update_view(self) -> None:
         """Update the table based on current view."""
         switcher = self.query_one("#view-switcher", ContentSwitcher)
@@ -1083,6 +1423,12 @@ class AgentTUI(App):
             self.show_workflows_view(table)
         elif self.current_view == "orchestrate":
             self.show_orchestrate_view(table)
+        elif self.current_view == "mcp":
+            self.show_mcp_view(table)
+        elif self.current_view == "profiles":
+            self.show_profiles_view(table)
+        elif self.current_view == "export":
+            self.show_export_view(table)
         elif self.current_view == "ai_assistant":
             self.show_ai_assistant_view(table)
         elif self.current_view == "tasks":
@@ -1661,6 +2007,56 @@ class AgentTUI(App):
             else:
                 table.add_row("Estimated Completion:", "", "TBD", "", "")
 
+    def show_mcp_view(self, table: DataTable) -> None:
+        """Show MCP server overview with validation status."""
+        table.add_column("Server", width=24)
+        table.add_column("Command", width=30)
+        table.add_column("Docs", width=6)
+        table.add_column("Status", width=18)
+        table.add_column("Notes")
+
+        if self.mcp_error:
+            table.add_row("[red]Error[/red]", Format.truncate(self.mcp_error, 40), "", "", "")
+            return
+
+        servers = getattr(self, 'mcp_servers', [])
+        if not servers:
+            table.add_row("[dim]No MCP servers configured[/dim]", "", "", "", "")
+            return
+
+        for server in servers:
+            args = " ".join(server.args) if server.args else ""
+            command_text = Format.truncate(f"{server.command} {args}".strip(), 30)
+            docs_text = "[green]✓[/green]" if server.docs_path else "[dim]-[/dim]"
+
+            try:
+                is_valid, errors, warnings = validate_server_config(server.name)
+            except Exception as exc:
+                is_valid = False
+                errors = [str(exc)]
+                warnings = []
+
+            if is_valid:
+                status_text = "[green]Valid[/green]"
+            else:
+                status_text = f"[red]{len(errors)} issue(s)[/red]"
+            if warnings:
+                status_text += f" [yellow]{len(warnings)} warn[/yellow]"
+
+            note = server.description or ""
+            if errors:
+                note = errors[0]
+            elif warnings:
+                note = warnings[0]
+
+            table.add_row(
+                f"{Icons.CODE} {server.name}",
+                command_text,
+                docs_text,
+                status_text,
+                Format.truncate(note, 60),
+            )
+
     def show_ai_assistant_view(self, table: DataTable) -> None:
         """Show AI assistant recommendations and predictions."""
         table.add_column("Type", key="type", width=20)
@@ -1931,6 +2327,26 @@ class AgentTUI(App):
         self.status_message = "Switched to Orchestrate"
         self.notify("🎯 Orchestrate", severity="information", timeout=1)
 
+    def action_view_mcp(self) -> None:
+        """Switch to MCP servers view."""
+        self.current_view = "mcp"
+        self.load_mcp_servers()
+        self.status_message = "Switched to MCP"
+        self.notify("🛰 MCP Servers", severity="information", timeout=1)
+
+    def action_view_profiles(self) -> None:
+        """Switch to profiles view."""
+        self.current_view = "profiles"
+        self.load_profiles()
+        self.status_message = "Switched to Profiles"
+        self.notify("👤 Profiles", severity="information", timeout=1)
+
+    def action_view_export(self) -> None:
+        """Switch to export view."""
+        self.current_view = "export"
+        self.status_message = "Configure context export"
+        self.notify("📤 Export", severity="information", timeout=1)
+
     def action_view_ai_assistant(self) -> None:
         """Switch to AI assistant view."""
         self.current_view = "ai_assistant"
@@ -1951,6 +2367,252 @@ class AgentTUI(App):
         self.current_view = "tasks"
         self.status_message = "Switched to Tasks"
         self.notify("🗂 Tasks", severity="information", timeout=1)
+
+    def action_profile_apply(self) -> None:
+        """Apply the selected profile."""
+        if self.current_view != "profiles":
+            return
+
+        profile = self._selected_profile()
+        if not profile:
+            self.notify("Select a profile", severity="warning", timeout=2)
+            return
+
+        name = profile.get("name", "profile")
+        try:
+            if profile.get("type") == "built-in":
+                exit_code, message = init_profile(name)
+            else:
+                path_str = profile.get("path")
+                if not path_str:
+                    self.notify("Profile file missing", severity="error", timeout=2)
+                    return
+                exit_code, message = self._apply_saved_profile(Path(path_str))
+        except Exception as exc:
+            self.notify(f"Failed: {exc}", severity="error", timeout=3)
+            return
+
+        clean = self._clean_ansi(message)
+        if exit_code == 0:
+            self.status_message = clean.split("\n")[0] if clean else f"Applied {name}"
+            self.notify(f"✓ Applied {name}", severity="success", timeout=2)
+            self.load_agents()
+            self.load_modes()
+            self.load_rules()
+            self.load_profiles()
+            self.update_view()
+        else:
+            self.status_message = clean or f"Failed to apply {name}"
+            self.notify(self.status_message, severity="error", timeout=3)
+
+    async def action_profile_save_prompt(self) -> None:
+        """Prompt for a profile name and save current state."""
+        if self.current_view != "profiles":
+            self.action_view_profiles()
+
+        dialog = PromptDialog("Save Profile", "Enter profile name", placeholder="team-alpha")
+        name = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not name:
+            return
+
+        exit_code, message = profile_save(name.strip())
+        clean = self._clean_ansi(message)
+        if exit_code == 0:
+            self.notify(clean or f"Saved profile {name}", severity="success", timeout=2)
+            self.load_profiles()
+            self.update_view()
+        else:
+            self.notify(clean or "Failed to save profile", severity="error", timeout=3)
+
+    async def action_profile_delete(self) -> None:
+        """Delete the selected saved profile."""
+        if self.current_view != "profiles":
+            return
+
+        profile = self._selected_profile()
+        if not profile or profile.get("type") != "saved":
+            self.notify("Select a saved profile to delete", severity="warning", timeout=2)
+            return
+
+        confirm = await self.push_screen(
+            ConfirmDialog("Delete Profile", f"Remove {profile.get('name', '')}?"),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+
+        try:
+            path_str = profile.get("path")
+            if path_str:
+                Path(path_str).unlink(missing_ok=True)
+        except Exception as exc:
+            self.notify(f"Failed to delete: {exc}", severity="error", timeout=3)
+            return
+
+        self.load_profiles()
+        self.update_view()
+        self.notify("Deleted profile", severity="information", timeout=2)
+
+    def action_export_cycle_format(self) -> None:
+        """Toggle between agent-generic and Claude-specific export formats."""
+        if self.current_view != "export":
+            self.action_view_export()
+        self.export_agent_generic = not self.export_agent_generic
+        mode = "Agent generic" if self.export_agent_generic else "Claude format"
+        self.status_message = f"Format: {mode}"
+        self.update_view()
+
+    async def action_export_run(self) -> None:
+        """Prompt for an export path and generate the context file."""
+        if self.current_view != "export":
+            self.action_view_export()
+
+        default_path = str(self._default_export_path())
+        dialog = PromptDialog("Export Context", "Write export to path", default=default_path)
+        target = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not target:
+            return
+
+        output_path = Path(os.path.expanduser(target.strip()))
+        exclude = self._export_exclude_categories()
+
+        exit_code, message = export_context(
+            output_path=output_path,
+            exclude_categories=exclude,
+            agent_generic=self.export_agent_generic,
+        )
+        clean = self._clean_ansi(message)
+        if exit_code == 0:
+            self.status_message = clean or f"Exported to {output_path}"
+            self.notify(self.status_message, severity="success", timeout=2)
+        else:
+            self.status_message = clean or "Export failed"
+            self.notify(self.status_message, severity="error", timeout=3)
+
+    async def action_export_clipboard(self) -> None:
+        """Generate export and copy it to the clipboard."""
+        if self.current_view != "export":
+            self.action_view_export()
+
+        exclude = self._export_exclude_categories()
+        tmp_path = Path(tempfile.gettempdir()) / "claude-ctx-export.md"
+        exit_code, message = export_context(
+            output_path=tmp_path,
+            exclude_categories=exclude,
+            agent_generic=self.export_agent_generic,
+        )
+        clean = self._clean_ansi(message)
+        if exit_code != 0:
+            self.notify(clean or "Export failed", severity="error", timeout=3)
+            return
+
+        try:
+            content = tmp_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(f"Failed to read export: {exc}", severity="error", timeout=3)
+            tmp_path.unlink(missing_ok=True)
+            return
+
+        tmp_path.unlink(missing_ok=True)
+
+        if self._copy_to_clipboard(content):
+            self.notify("Copied export to clipboard", severity="success", timeout=2)
+        else:
+            self.notify("Clipboard unavailable", severity="warning", timeout=3)
+
+    def action_mcp_validate(self) -> None:
+        """Validate the selected MCP server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        valid, errors, warnings = validate_server_config(server.name)
+        if valid:
+            note = "All checks passed"
+            if warnings:
+                note = warnings[0]
+            self.notify(f"{server.name}: {note}", severity="success", timeout=2)
+        else:
+            self.notify(errors[0] if errors else "Validation failed", severity="error", timeout=3)
+
+    async def action_mcp_details(self) -> None:
+        """Show detailed information for the selected server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        exit_code, output = mcp_show(server.name)
+        if exit_code != 0:
+            self.notify(output, severity="error", timeout=3)
+            return
+
+        await self.push_screen(TextViewerDialog(f"MCP: {server.name}", output), wait_for_dismiss=True)
+
+    async def action_mcp_docs(self) -> None:
+        """Open MCP documentation for the selected server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        exit_code, output = mcp_docs(server.name)
+        if exit_code != 0:
+            self.notify(output, severity="error", timeout=3)
+            return
+
+        await self.push_screen(TextViewerDialog(f"Docs: {server.name}", output), wait_for_dismiss=True)
+
+    async def action_mcp_snippet(self) -> None:
+        """Generate config snippet for the selected server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        snippet = generate_config_snippet(server.name, server.command, args=server.args, env=server.env)
+        await self.push_screen(TextViewerDialog(f"Snippet: {server.name}", snippet), wait_for_dismiss=True)
+        if self._copy_to_clipboard(snippet):
+            self.notify("Snippet copied", severity="success", timeout=2)
+        else:
+            self.notify("Snippet ready", severity="information", timeout=2)
+
+    async def action_mcp_test_selected(self) -> None:
+        """Run MCP test for selected server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        exit_code, output = mcp_test(server.name)
+        if exit_code != 0:
+            self.notify(output, severity="error", timeout=3)
+            return
+        await self.push_screen(TextViewerDialog(f"Test: {server.name}", output), wait_for_dismiss=True)
+
+    async def action_mcp_diagnose(self) -> None:
+        """Run diagnostics across all MCP servers."""
+        exit_code, output = mcp_diagnose()
+        if exit_code != 0:
+            self.notify(output, severity="error", timeout=3)
+            return
+        await self.push_screen(TextViewerDialog("MCP Diagnose", output), wait_for_dismiss=True)
 
     def action_auto_activate(self) -> None:
         """Auto-activate agents or add task when in Tasks view."""
@@ -2067,6 +2729,29 @@ class AgentTUI(App):
 
     def action_toggle(self) -> None:
         """Toggle selected item."""
+        if self.current_view == "profiles":
+            self.action_profile_apply()
+            return
+
+        if self.current_view == "export":
+            meta = self._selected_export_meta()
+            if not meta:
+                self.notify("Select an export option", severity="warning", timeout=2)
+                return
+            kind, key = meta
+            if kind == "category" and key:
+                self.export_options[key] = not self.export_options.get(key, True)
+                state = "included" if self.export_options[key] else "excluded"
+                self.status_message = f"{key} {state}"
+                self.update_view()
+            elif kind == "format":
+                self.export_agent_generic = not self.export_agent_generic
+                self.status_message = "Agent generic" if self.export_agent_generic else "Claude format"
+                self.update_view()
+            else:
+                self.notify("Preview is read-only", severity="information", timeout=2)
+            return
+
         if self.current_view == "agents":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
@@ -2212,6 +2897,10 @@ class AgentTUI(App):
             self.load_workflows()
         elif self.current_view == "orchestrate":
             self.load_agent_tasks()
+        elif self.current_view == "mcp":
+            self.load_mcp_servers()
+        elif self.current_view == "profiles":
+            self.load_profiles()
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
@@ -2219,7 +2908,9 @@ class AgentTUI(App):
 
     def action_help(self) -> None:
         """Show help."""
-        self.status_message = "Help: 1-8=Views, 9=Galaxy, T=Tasks, Ctrl+P=Commands, Space=Toggle, R=Refresh, Q=Quit"
+        self.status_message = (
+            "Help: 1-6=Core views, 7=MCP, 8=Profiles, 9=Export, 0=AI, G=Galaxy, T=Tasks, Ctrl+P=Commands"
+        )
 
     async def action_command_palette(self) -> None:
         """Show command palette for quick navigation."""
@@ -2240,6 +2931,12 @@ class AgentTUI(App):
                 self.action_view_workflows()
             elif result == "show_orchestrate":
                 self.action_view_orchestrate()
+            elif result == "show_mcp":
+                self.action_view_mcp()
+            elif result == "show_profiles":
+                self.action_view_profiles()
+            elif result == "show_export":
+                self.action_view_export()
             elif result == "show_tasks":
                 self.action_view_tasks()
             elif result == "show_galaxy":

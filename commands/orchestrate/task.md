@@ -3,7 +3,7 @@ name: task
 description: "Execute complex tasks with intelligent workflow management and delegation"
 category: special
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+mcp-servers: [sequential, context7, magic, playwright, morphllm, codanna]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
@@ -29,7 +29,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 Key behaviors:
 - Multi-persona coordination across architect, frontend, backend, security, devops domains
-- Intelligent MCP server routing (Sequential, Context7, Magic, Playwright, Morphllm, Serena)
+- Intelligent MCP server routing (Sequential, Context7, Magic, Playwright, Morphllm, Codanna)
 - Systematic execution with progressive task enhancement and cross-session persistence
 - Advanced task delegation with hierarchical breakdown and dependency management
 
@@ -39,7 +39,7 @@ Key behaviors:
 - **Magic MCP**: UI/UX task coordination and design system integration
 - **Playwright MCP**: Testing workflow integration and validation automation
 - **Morphllm MCP**: Large-scale task transformation and pattern-based optimization
-- **Serena MCP**: Cross-session task persistence and project memory management
+- **Codanna MCP**: Cross-session task persistence and project memory management
 
 ## Tool Coordination
 - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels

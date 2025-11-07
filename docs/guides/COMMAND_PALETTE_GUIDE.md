@@ -44,7 +44,11 @@ Type to search:
 ### 📁 Other Views
 - **💻 Show Skills** - Browse available skills (Press 5 or select)
 - **🏃 Show Workflows** - View workflow execution (Press 6 or select)
-- **🏃 Show Orchestrate** - View orchestration tasks (Press 7 or select)
+- **🛰 Show MCP** - Manage MCP servers (Press 7 or select)
+- **👤 Show Profiles** - Manage saved/built-in profiles (Press 8 or select)
+- **📦 Show Export** - Configure context export (Press 9 or select)
+- **🤖 Show AI Assistant** - Open AI assistant view (Press 0 or select)
+- **🏃 Show Orchestrate** - View orchestration tasks (Press `o` or select)
 - **📁 Export Context** - Export current context to file
 
 ## Visual Features

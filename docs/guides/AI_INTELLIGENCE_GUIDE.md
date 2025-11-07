@@ -310,7 +310,7 @@ Agent Sequence:
 
 ══════════════════════════════════════════════════════════════════════
 
-💡 TIP: Press '8' in the TUI for interactive AI assistant
+💡 TIP: Press '0' in the TUI for interactive AI assistant
         Press 'A' to auto-activate recommended agents
 ```
 

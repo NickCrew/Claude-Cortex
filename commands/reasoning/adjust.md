@@ -57,7 +57,7 @@ Key behaviors:
 
 ### Ultra (~32K tokens)
 - **Use case**: Critical redesigns, legacy modernization, complex debugging
-- **MCP servers**: All available (Sequential, Context7, Serena, etc.)
+- **MCP servers**: All available (Sequential, Context7, Codanna, etc.)
 - **Analysis style**: Maximum depth, exhaustive exploration, meta-analysis
 - **Token budget**: ~32,000 tokens per analysis phase
 - **Equivalent**: `--ultrathink` flag

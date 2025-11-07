@@ -1,6 +1,6 @@
 # TUI MCP Server Management View
 
-The MCP View provides a comprehensive interface for managing MCP (Model Context Protocol) servers within the claude-ctx TUI.
+The MCP View provides a comprehensive interface for managing MCP (Model Context Protocol) servers within the claude-ctx TUI. Press `7` from the main TUI to open it (or use the command palette).
 
 ## Features
 

@@ -95,7 +95,7 @@ def ai_recommend() -> int:
             print(f"\n⚠️  Issues: {context.errors_count} errors, {context.test_failures} test failures")
 
     print("\n" + "═" * 70)
-    print("\n💡 TIP: Press '8' in the TUI for interactive AI assistant")
+    print("\n💡 TIP: Press '0' in the TUI for interactive AI assistant")
     print("        Press 'A' to auto-activate recommended agents")
 
     return 0

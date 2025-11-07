@@ -51,9 +51,9 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 - Trigger: Bulk code transformations, pattern-based edits, style enforcement
 - Behavior: Enable Morphllm for efficient multi-file pattern application
 
-**--serena**
+**--codanna**
 - Trigger: Symbol operations, project memory needs, large codebase navigation
-- Behavior: Enable Serena for semantic understanding and session persistence
+- Behavior: Enable Codanna for semantic understanding and code intelligence
 
 **--play / --playwright**
 - Trigger: Browser testing, E2E scenarios, visual validation, accessibility testing

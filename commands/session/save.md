@@ -1,9 +1,9 @@
 ---
 name: save
-description: "Session lifecycle management with Serena MCP integration for session context persistence"
+description: "Session lifecycle management with Codanna MCP integration for session context persistence"
 category: session
 complexity: standard
-mcp-servers: [serena]
+mcp-servers: [codanna]
 personas: []
 ---
 
@@ -22,19 +22,19 @@ personas: []
 
 ## Behavioral Flow
 1. **Analyze**: Examine session progress and identify discoveries worth preserving
-2. **Persist**: Save session context and learnings using Serena MCP memory management
+2. **Persist**: Save session context and learnings using Codanna MCP memory management
 3. **Checkpoint**: Create recovery points for complex sessions and progress tracking
 4. **Validate**: Ensure session data integrity and cross-session compatibility
 5. **Prepare**: Ready session context for seamless continuation in future sessions
 
 Key behaviors:
-- Serena MCP integration for memory management and cross-session persistence
+- Codanna MCP integration for memory management and cross-session persistence
 - Automatic checkpoint creation based on session progress and critical tasks
 - Session context preservation with comprehensive discovery and pattern archival
 - Cross-session learning with accumulated project insights and technical decisions
 
 ## MCP Integration
-- **Serena MCP**: Mandatory integration for session management, memory operations, and cross-session persistence
+- **Codanna MCP**: Mandatory integration for session management, memory operations, and cross-session persistence
 - **Memory Operations**: Session context storage, checkpoint creation, and discovery archival
 - **Performance Critical**: <200ms for memory operations, <1s for checkpoint creation
 
@@ -55,7 +55,7 @@ Key behaviors:
 ### Basic Session Save
 ```
 /session:save
-# Saves current session discoveries and context to Serena MCP
+# Saves current session discoveries and context to Codanna MCP
 # Automatically creates checkpoint if session exceeds 30 minutes
 ```
 
@@ -83,11 +83,11 @@ Key behaviors:
 ## Boundaries
 
 **Will:**
-- Save session context using Serena MCP integration for cross-session persistence
+- Save session context using Codanna MCP integration for cross-session persistence
 - Create automatic checkpoints based on session progress and task completion
 - Preserve discoveries and patterns for enhanced project understanding
 
 **Will Not:**
-- Operate without proper Serena MCP integration and memory access
+- Operate without proper Codanna MCP integration and memory access
 - Save session data without validation and integrity verification
 - Override existing session context without proper checkpoint preservation
