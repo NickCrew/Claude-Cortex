@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 import yaml
@@ -2004,7 +2005,7 @@ class AgentTUI(App):
             )
 
     def _run_add_task_flow(self) -> None:
-        self.create_background_task(self._add_task_flow())
+        asyncio.create_task(self._add_task_flow())
 
     async def _add_task_flow(self):
         dialog = TaskEditorDialog("Add Task")
@@ -2024,7 +2025,7 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        self.create_background_task(self._edit_task_flow(task))
+        asyncio.create_task(self._edit_task_flow(task))
 
     async def _edit_task_flow(self, task: AgentTask):
         dialog = TaskEditorDialog(
@@ -2052,7 +2053,7 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        self.create_background_task(self._delete_task_flow(task))
+        asyncio.create_task(self._delete_task_flow(task))
 
     async def _delete_task_flow(self, task: AgentTask):
         confirm = await self.push_screen(
