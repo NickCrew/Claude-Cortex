@@ -7,7 +7,7 @@ permalink: /
 
 # Claude CTX Plugin - Documentation Index
 
-> Version 0.1.0 · Last updated 2025-10-17
+> Version 0.1.0 · Last updated 2025-11-07
 
 <div class="hero">
   <div class="hero__copy">
@@ -72,6 +72,7 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
   <a href="#presentations">🎬 Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
+  <a href="#collaboration">Collaboration Flow</a>
   <a href="#project-structure">Project Structure</a>
 </div>
 
@@ -196,6 +197,59 @@ claude-ctx ai record-success --outcome "feature complete"
 
 - [AI Intelligence Guide](guides/AI_INTELLIGENCE_GUIDE.html) - Complete system documentation
 - [Watch Mode Guide](guides/WATCH_MODE_GUIDE.html) - Real-time monitoring deep dive
+
+---
+
+## 🤝 Collaboration Flow & Skill Auto-Suggestions {#collaboration}
+
+**New in November 2025** – Inspired by Superpowers and SuperClaude frameworks.
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>/ctx:brainstorm</h3>
+    <p>Supersaiyan-aligned ideation capturing goals, success signals, and solution options.</p>
+  </div>
+  <div class="feature-card">
+    <h3>/ctx:plan</h3>
+    <p>Transforms brainstorms into stream-based plans and seeds the Task TUI automatically.</p>
+  </div>
+  <div class="feature-card">
+    <h3>/ctx:execute-plan</h3>
+    <p>Locks plans into orchestration view, enforces verification, and syncs tasks.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Skill Auto-Suggester Hook</h3>
+    <p>`hooks/examples/skill_auto_suggester.py` reads <code>skills/skill-rules.json</code> and surfaces relevant skills after each prompt.</p>
+  </div>
+</div>
+
+### Install the skill auto-suggester hook
+
+```bash
+cp hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
+chmod +x ~/.claude/hooks/skill_auto_suggester.py
+
+# settings.json snippet
+{
+  "hooks": {
+    "user-prompt-submit": [
+      {"command": "python3", "args": ["~/.claude/hooks/skill_auto_suggester.py"]}
+    ]
+  }
+}
+```
+
+Edit `skills/skill-rules.json` to tweak keyword → `/ctx:*` mappings; no code changes required.
+
+### Recommended workflow
+
+1. `/session:load` – loads context and reminds you to brainstorm.
+2. `/ctx:brainstorm` – capture options + constraints.
+3. `/ctx:plan` – define workstreams, DoD, verification, and seed tasks.
+4. `/ctx:execute-plan` – drive execution via Task TUI + orchestrate view.
+5. `/dev:*` commands – build, test, review with quality gate hooks.
+
+See [skills.md](skills.md) for the full catalog and resource snippets.
 
 ---
 
@@ -777,6 +831,10 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Skills TUI Integration](guides/skills-tui-integration.html) - Skills system TUI integration
 - [TUI Keyboard Reference](tui-keyboard-reference.html) - Complete keyboard shortcuts
 - [TUI Navigation](tui-navigation-summary.html) - Navigation patterns
+
+**CLI & Integration**
+- [Shell Completions](COMPLETIONS.html) - Bash, Zsh, and Fish completion scripts
+- [Warp AI Integration](WARP_AI_INTEGRATION.html) - Terminal AI tools integration with context export aliases
 
 **Advanced Features**
 - [Super Saiyan Mode](features/SUPER_SAIYAN_MODE.html) - Visual excellence framework

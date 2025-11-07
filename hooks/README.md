@@ -31,6 +31,33 @@ A comprehensive three-phase quality gate that enforces professional development 
 
 **Documentation:** See `examples/HOOK_DOCUMENTATION.md` for complete details.
 
+### Skill Auto-Suggester (New)
+
+**File:** `examples/skill_auto_suggester.py`
+
+Inspired by diet103/claude-code-infrastructure-showcase, this hook scans the user prompt (and optionally changed files) and surfaces relevant `/ctx:*` skills. It reads rules from `skills/skill-rules.json`, so adding new skills only requires updating that JSON.
+
+**Install:**
+
+```bash
+cp hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
+chmod +x ~/.claude/hooks/skill_auto_suggester.py
+```
+
+Add to `~/.claude/settings.json` alongside other hooks:
+
+```json
+{
+  "hooks": {
+    "user-prompt-submit": [
+      {"command": "python3", "args": ["~/.claude/hooks/skill_auto_suggester.py"]}
+    ]
+  }
+}
+```
+
+The hook looks for `CLAUDE_HOOK_PROMPT` (set automatically by Claude Code). If you also export `CLAUDE_CHANGED_FILES`, it factors filenames into the keyword matching.
+
 ## Installation
 
 ### Quick Install

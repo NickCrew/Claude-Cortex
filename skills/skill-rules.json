@@ -1,0 +1,35 @@
+{
+  "version": "2025-11-07",
+  "rules": [
+    {
+      "name": "brainstorm",
+      "command": "/ctx:brainstorm",
+      "description": "Kick off Supersaiyan ideation before coding",
+      "keywords": ["brainstorm", "idea", "scope", "plan?", "where to start"]
+    },
+    {
+      "name": "plan-writing",
+      "command": "/ctx:plan",
+      "description": "Structure workstreams and seed the Task TUI",
+      "keywords": ["plan", "approach", "workstream", "how do we do this"]
+    },
+    {
+      "name": "execute-plan",
+      "command": "/ctx:execute-plan",
+      "description": "Drive the plan through tasks + verification",
+      "keywords": ["execute plan", "start implementing", "follow plan"]
+    },
+    {
+      "name": "testing",
+      "command": "/dev:test",
+      "description": "Run project test suites / coverage gates",
+      "keywords": ["test", "unit", "coverage", "pytest", "npm test"]
+    },
+    {
+      "name": "review",
+      "command": "/dev:code-review",
+      "description": "Trigger docs/code review agents before merge",
+      "keywords": ["review", "quality", "ready to merge", "needs feedback"]
+    }
+  ]
+}

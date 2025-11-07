@@ -187,25 +187,30 @@ Running the CLI directly will operate on the directories in this repository, whi
 
 Shell completions are automatically installed when using `./scripts/install.sh`. For manual setup:
 
-**Bash:**
+**Automatic (recommended):**
 ```bash
+# Generate and install completions for your shell
+claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
+claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
+claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+
+# Show installation instructions
+claude-ctx completion bash --install
+```
+
+**Using argcomplete (legacy method):**
+```bash
+# Bash
 register-python-argcomplete claude-ctx > ~/.local/share/bash-completion/completions/claude-ctx
-source ~/.local/share/bash-completion/completions/claude-ctx
-```
 
-**Zsh:**
-```bash
-mkdir -p ~/.local/share/zsh/site-functions
+# Zsh
 register-python-argcomplete --shell zsh claude-ctx > ~/.local/share/zsh/site-functions/_claude-ctx
-# Add to ~/.zshrc:
-# fpath=(~/.local/share/zsh/site-functions $fpath)
-# autoload -Uz compinit && compinit
-```
 
-**Fish:**
-```bash
+# Fish
 register-python-argcomplete --shell fish claude-ctx > ~/.config/fish/completions/claude-ctx.fish
 ```
+
+See [Shell Completions Guide](docs/COMPLETIONS.md) for detailed instructions.
 
 ### Manual page (manpage)
 
@@ -227,6 +232,40 @@ man claude-ctx
 ```
 
 The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
+
+### Warp AI & Terminal AI Integration
+
+Integrate `claude-ctx` with Warp AI and other terminal AI tools using convenient shell aliases:
+
+```bash
+# Install context export aliases for your shell
+claude-ctx install aliases
+
+# Preview what will be installed
+claude-ctx install aliases --dry-run
+
+# Show all available aliases
+claude-ctx install aliases --show
+```
+
+**Available aliases:**
+- `ctx` - Export full context (all components)
+- `ctx-light` - Lightweight export (excludes skills, mcp_docs)
+- `ctx-rules`, `ctx-agents`, `ctx-modes`, `ctx-core` - Specific exports
+- `ctx-list` - List available components
+- `ctx-copy` - Copy context to clipboard (macOS)
+- `ctx-agent-list`, `ctx-mode-list`, `ctx-tui` - Quick management
+
+**Usage with Warp AI:**
+```bash
+# Export context before asking Warp AI
+ctx
+
+# Ask Warp AI your question using Cmd+` (or your hotkey)
+# Warp AI will have access to your exported context
+```
+
+See [Warp AI Integration Guide](docs/WARP_AI_INTEGRATION.md) for complete documentation.
 
 ## Hooks
 
@@ -267,6 +306,17 @@ claude-ctx agent activate test-automator api-documenter tutorial-engineer \
 ```
 
 See `hooks/README.md` and `hooks/examples/HOOK_DOCUMENTATION.md` for complete documentation.
+
+## Credits
+
+- Portions of the agent/skill architecture—including the new `/ctx:brainstorm`, `/ctx:plan`, and `/ctx:execute-plan` flows—are adapted from the open source [obra/superpowers](https://github.com/obra/superpowers) project (MIT license). We keep the original license text in `skills/LICENSE.superpowers` and note attribution inside each borrowed skill to honor that work.
+- We also draw inspiration from [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) for how it structures agent definitions, collaboration flows, and marketplace-ready packaging. Several of our modes/commands mirror best practices established there, and we credit the project here per its license.
+- Agent taxonomy and category conventions borrow from [VoltAgent’s awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories); their catalog informed how we grouped the new `/ctx:*` collaboration agents and skills.
+
+## Skill Auto-Suggestions
+
+- Install `hooks/examples/skill_auto_suggester.py` as a `user-prompt-submit` hook to auto-surface `/ctx:*` skills based on keywords.
+- Rules live in `skills/skill-rules.json`; edit the JSON to add/remove skills without touching the hook.
 
 ## Development notes
 

@@ -12,6 +12,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 
 - [Quick Reference](#quick-reference)
 - [Command Categories](#command-categories)
+  - [Collaboration Commands](#collaboration-commands)
   - [Analyze Commands](#analyze-commands)
   - [Deploy Commands](#deploy-commands)
   - [Design Commands](#design-commands)
@@ -47,6 +48,9 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/test:generate-tests` - Test suite generation
 
 **Documentation & Planning**
+- `/ctx:brainstorm` - Structured Supersaiyan ideation *(new)*
+- `/ctx:plan` - Multi-stream planning + Task TUI sync *(new)*
+- `/ctx:execute-plan` - Execute plans with verification *(new)*
 - `/docs:generate` - Focused documentation generation
 - `/docs:index` - Project documentation indexing
 - `/design:system` - System architecture design
@@ -71,6 +75,55 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 ---
 
 ## Command Categories
+
+## Collaboration Commands
+
+### /ctx:brainstorm
+
+**Description**: Supersaiyan-aligned brainstorming flow (adapted from Superpowers). Captures goals, constraints, assets, and at least three solution options before coding.
+
+**Usage**:
+```bash
+/ctx:brainstorm [topic] [--constraints ...]
+```
+
+**Flow**:
+1. Load `modes/Super_Saiyan.md`.
+2. Summarize objectives, success signals, constraints, and existing assets.
+3. List ≥3 options with verification + risk notes.
+4. Seed Task TUI items or hand off to `/ctx:plan`.
+
+### /ctx:plan
+
+**Description**: Converts brainstorm output into multi-stream plans, with explicit Definition of Done and verification per task.
+
+**Usage**:
+```bash
+/ctx:plan [summary] [--streams n] [--save]
+```
+
+**Flow**:
+1. Restate objective and constraints.
+2. Break work into streams; map required agents/modes/rules.
+3. Define tasks + verification steps and sync the Task TUI.
+4. Optionally save plan under `docs/plans/`.
+
+### /ctx:execute-plan
+
+**Description**: Drives the plan through orchestration view + Task TUI, ensuring verification and status updates.
+
+**Usage**:
+```bash
+/ctx:execute-plan [plan-link] [--sync-tasks] [--verify]
+```
+
+**Flow**:
+1. Sync/validate tasks for each plan bullet.
+2. Toggle required modes/rules.
+3. Loop: pick task → implement → verify → update.
+4. Publish status, close tasks, capture retrospective notes.
+
+---
 
 ## Analyze Commands
 
