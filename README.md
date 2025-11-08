@@ -41,6 +41,7 @@ See [Super Saiyan Integration Guide](docs/SUPER_SAIYAN_INTEGRATION.md) for detai
 - **Auto-Activation** – High-confidence agents activate automatically (≥80%)
 - **Watch Mode** – Real-time monitoring with instant recommendations (no daemon required)
 - **TUI AI Assistant** – Interactive view with recommendations and predictions (press `0`)
+- **Skill Palette Shortcuts** – `Ctrl+P` → type “Skill…” to run info, versions, deps, analytics, trending, or community install/validate/rate/search commands without leaving the TUI
 
 **Quick start:**
 ```bash

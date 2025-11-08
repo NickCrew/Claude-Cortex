@@ -40,6 +40,24 @@ from .core import (
     init_profile,
     profile_save,
     _profile_reset,
+    skill_validate,
+    skill_metrics,
+    skill_metrics_reset,
+    skill_info,
+    skill_versions,
+    skill_deps,
+    skill_agents,
+    skill_compose,
+    skill_analyze,
+    skill_suggest,
+    skill_report,
+    skill_trending,
+    skill_analytics,
+    skill_community_list,
+    skill_community_install,
+    skill_community_validate,
+    skill_community_rate,
+    skill_community_search,
 )
 from .core.rules import rules_activate, rules_deactivate
 from .core.modes import mode_activate, mode_deactivate
@@ -424,10 +442,11 @@ class AgentTUI(App):
         Binding("space", "toggle", "Toggle"),
         Binding("r", "refresh", "Refresh"),
         Binding("a", "auto_activate", "Auto-Activate"),
-        Binding("v", "mcp_validate", "Validate", show=False),
-        Binding("d", "mcp_docs", "Docs", show=False),
-        Binding("c", "mcp_snippet", "Snippet", show=False),
-        Binding("s", "mcp_details", "Details", show=False),
+        Binding("v", "validate_context", "Validate", show=False),
+        Binding("m", "metrics_context", "Metrics", show=False),
+        Binding("c", "context_action", "Action", show=False),
+        Binding("d", "docs_context", "Docs", show=False),
+        Binding("s", "details_context", "Details", show=False),
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
         Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
@@ -622,6 +641,32 @@ class AgentTUI(App):
             return None
         return servers[index]
 
+    def _selected_skill(self) -> Optional[Dict[str, str]]:
+        index = self._table_cursor_index()
+        skills = getattr(self, 'skills', [])
+        if index is None or not skills:
+            return None
+        if index < 0 or index >= len(skills):
+            return None
+        return skills[index]
+
+    def _skill_slug(self, skill: Dict[str, str]) -> str:
+        path_value = skill.get("path")
+        if not path_value:
+            return skill.get("name", "").replace(" ", "-")
+        skill_path = Path(path_value)
+        # SKILL.md lives inside the skill directory; use parent directory name
+        if skill_path.name.lower() == "skill.md":
+            return skill_path.parent.name
+        return skill_path.stem
+
+    async def _get_skill_slug(self, prompt_title: str = "Skill Name") -> Optional[str]:
+        if self.current_view == "skills":
+            skill = self._selected_skill()
+            if skill:
+                return self._skill_slug(skill)
+        return await self._prompt_text(prompt_title, "Enter skill name", placeholder="e.g. observability/alerts")
+
     def _copy_to_clipboard(self, text: str) -> bool:
         """Attempt to copy text to the system clipboard."""
         try:
@@ -703,6 +748,46 @@ class AgentTUI(App):
         if not text:
             return ""
         return re.sub(r"\x1b\[[0-9;]*m", "", text)
+
+    async def _show_text_dialog(self, title: str, body: str) -> None:
+        """Display multi-line text in a modal dialog."""
+        if not body:
+            return
+        await self.push_screen(TextViewerDialog(title, body), wait_for_dismiss=True)
+
+    async def _prompt_text(self, title: str, prompt: str, *, default: str = "", placeholder: str = "") -> Optional[str]:
+        dialog = PromptDialog(title, prompt, default=default, placeholder=placeholder)
+        value = await self.push_screen(dialog, wait_for_dismiss=True)
+        if value is None:
+            return None
+        value = value.strip()
+        return value or None
+
+    async def _handle_skill_result(
+        self,
+        func,
+        *,
+        args: Optional[List[str]] = None,
+        title: str,
+        success: Optional[str] = None,
+        error: Optional[str] = None,
+    ) -> None:
+        args = args or []
+        try:
+            exit_code, message = func(*args)
+        except Exception as exc:
+            self.notify(f"Skill command failed: {exc}", severity="error", timeout=3)
+            return
+
+        clean = self._clean_ansi(message)
+        if clean:
+            await self._show_text_dialog(title, clean)
+
+        if exit_code == 0:
+            if success:
+                self.notify(success, severity="success", timeout=2)
+        else:
+            self.notify(error or f"{title} failed", severity="error", timeout=3)
 
     def load_agents(self) -> None:
         """Load agents from the system."""
@@ -2452,6 +2537,285 @@ class AgentTUI(App):
         self.load_profiles()
         self.update_view()
         self.notify("Deleted profile", severity="information", timeout=2)
+
+    async def action_skill_info(self) -> None:
+        slug = await self._get_skill_slug("Skill Info")
+        if not slug:
+            return
+        await self._handle_skill_result(
+            skill_info,
+            args=[slug],
+            title=f"Skill Info · {slug}",
+            success=f"Loaded info for {slug}",
+        )
+
+    async def action_skill_versions(self) -> None:
+        slug = await self._get_skill_slug("Skill Versions")
+        if not slug:
+            return
+        await self._handle_skill_result(
+            skill_versions,
+            args=[slug],
+            title=f"Skill Versions · {slug}",
+        )
+
+    async def action_skill_deps(self) -> None:
+        slug = await self._get_skill_slug("Skill Dependencies")
+        if not slug:
+            return
+        await self._handle_skill_result(
+            skill_deps,
+            args=[slug],
+            title=f"Skill Dependencies · {slug}",
+        )
+
+    async def action_skill_agents(self) -> None:
+        slug = await self._get_skill_slug("Skill Agents")
+        if not slug:
+            return
+        await self._handle_skill_result(
+            skill_agents,
+            args=[slug],
+            title=f"Skill Agents · {slug}",
+        )
+
+    async def action_skill_compose(self) -> None:
+        slug = await self._get_skill_slug("Skill Compose")
+        if not slug:
+            return
+        await self._handle_skill_result(
+            skill_compose,
+            args=[slug],
+            title=f"Skill Compose · {slug}",
+        )
+
+    async def action_skill_analyze(self) -> None:
+        text = await self._prompt_text("Analyze Text", "Describe the work to analyze:")
+        if not text:
+            return
+        await self._handle_skill_result(
+            skill_analyze,
+            args=[text],
+            title="Skill Analyze",
+        )
+
+    async def action_skill_suggest(self) -> None:
+        path = await self._prompt_text("Suggest Skills", "Project directory", default=".")
+        if path is None:
+            return
+        await self._handle_skill_result(
+            skill_suggest,
+            args=[path],
+            title=f"Skill Suggest · {path}",
+        )
+
+    async def action_skill_analytics(self) -> None:
+        metric = await self._prompt_text(
+            "Skill Analytics",
+            "Metric (tokens/activations/success_rate/trending/roi/effectiveness, leave blank for dashboard)",
+        )
+        args = [metric] if metric else []
+        await self._handle_skill_result(
+            skill_analytics,
+            args=args,
+            title="Skill Analytics",
+        )
+
+    async def action_skill_report(self) -> None:
+        fmt = await self._prompt_text("Skill Report", "Format (text/json/csv)", default="text")
+        if fmt is None:
+            return
+        await self._handle_skill_result(
+            skill_report,
+            args=[fmt],
+            title=f"Skill Report ({fmt})",
+        )
+
+    async def action_skill_trending(self) -> None:
+        days_input = await self._prompt_text("Skill Trending", "Days to include", default="30")
+        if days_input is None:
+            return
+        try:
+            days = int(days_input)
+        except ValueError:
+            self.notify("Days must be a number", severity="error", timeout=2)
+            return
+        await self._handle_skill_result(
+            skill_trending,
+            args=[days],
+            title=f"Trending Skills ({days}d)",
+        )
+
+    async def action_skill_metrics_reset(self) -> None:
+        confirm = await self.push_screen(
+            ConfirmDialog("Reset Skill Metrics", "Clear all recorded skill metrics?"),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+        await self._handle_skill_result(
+            skill_metrics_reset,
+            title="Reset Skill Metrics",
+            success="Skill metrics reset",
+            error="Failed to reset metrics",
+        )
+
+    async def action_skill_community_install(self) -> None:
+        name = await self._prompt_text("Community Install", "Skill name")
+        if not name:
+            return
+        await self._handle_skill_result(
+            skill_community_install,
+            args=[name],
+            title=f"Community Install · {name}",
+            success=f"Installed {name}",
+            error=f"Failed to install {name}",
+        )
+
+    async def action_skill_community_validate(self) -> None:
+        name = await self._prompt_text("Community Validate", "Skill name")
+        if not name:
+            return
+        await self._handle_skill_result(
+            skill_community_validate,
+            args=[name],
+            title=f"Community Validate · {name}",
+        )
+
+    async def action_skill_community_rate(self) -> None:
+        name = await self._prompt_text("Community Rate", "Skill name")
+        if not name:
+            return
+        rating_input = await self._prompt_text("Community Rate", "Rating 1-5", default="5")
+        if rating_input is None:
+            return
+        try:
+            rating = int(rating_input)
+        except ValueError:
+            self.notify("Rating must be 1-5", severity="error", timeout=2)
+            return
+        await self._handle_skill_result(
+            skill_community_rate,
+            args=[name, rating],
+            title=f"Community Rate · {name}",
+            success=f"Rated {name} ({rating})",
+        )
+
+    async def action_skill_community_search(self) -> None:
+        query = await self._prompt_text("Community Search", "Search query")
+        if not query:
+            return
+        await self._handle_skill_result(
+            skill_community_search,
+            args=[query],
+            title=f"Community Search · {query}",
+        )
+
+    async def action_skill_validate(self) -> None:
+        """Validate the selected skill."""
+        if self.current_view != "skills":
+            self.action_view_skills()
+
+        skill = self._selected_skill()
+        if not skill:
+            self.notify("Select a skill to validate", severity="warning", timeout=2)
+            return
+
+        slug = self._skill_slug(skill)
+        try:
+            exit_code, message = skill_validate(slug)
+        except Exception as exc:
+            self.notify(f"Validation failed: {exc}", severity="error", timeout=3)
+            return
+
+        clean = self._clean_ansi(message)
+        if clean:
+            await self._show_text_dialog(f"Skill Validation · {slug}", clean)
+
+        if exit_code == 0:
+            self.notify(f"✓ {slug} validated", severity="success", timeout=2)
+        else:
+            self.notify(f"Validation issues for {slug}", severity="error", timeout=3)
+
+    async def action_skill_metrics(self) -> None:
+        """Show metrics for the selected skill."""
+        if self.current_view != "skills":
+            self.action_view_skills()
+
+        skill = self._selected_skill()
+        if not skill:
+            self.notify("Select a skill to view metrics", severity="warning", timeout=2)
+            return
+
+        slug = self._skill_slug(skill)
+        try:
+            exit_code, message = skill_metrics(slug)
+        except Exception as exc:
+            self.notify(f"Metrics error: {exc}", severity="error", timeout=3)
+            return
+
+        clean = self._clean_ansi(message)
+        if clean:
+            await self._show_text_dialog(f"Skill Metrics · {slug}", clean)
+
+        if exit_code == 0:
+            self.notify(f"Metrics loaded for {slug}", severity="information", timeout=2)
+        else:
+            self.notify(f"Metrics unavailable for {slug}", severity="warning", timeout=2)
+
+    async def action_skill_community(self) -> None:
+        """Show community skill listings."""
+        try:
+            exit_code, message = skill_community_list()
+        except Exception as exc:
+            self.notify(f"Community error: {exc}", severity="error", timeout=3)
+            return
+
+        clean = self._clean_ansi(message)
+        if clean:
+            await self._show_text_dialog("Community Skills", clean)
+
+        if exit_code != 0:
+            self.notify("No community skills found", severity="warning", timeout=2)
+
+    async def action_validate_context(self) -> None:
+        """Context-aware validate shortcut."""
+        if self.current_view == "skills":
+            await self.action_skill_validate()
+        elif self.current_view == "mcp":
+            self.action_mcp_validate()
+        else:
+            self.notify("Nothing to validate here", severity="warning", timeout=2)
+
+    async def action_metrics_context(self) -> None:
+        """Context-aware metrics shortcut."""
+        if self.current_view == "skills":
+            await self.action_skill_metrics()
+        else:
+            self.notify("Metrics not available in this view", severity="warning", timeout=2)
+
+    async def action_context_action(self) -> None:
+        """Context-aware action for the 'c' binding."""
+        if self.current_view == "skills":
+            await self.action_skill_community()
+        elif self.current_view == "mcp":
+            await self.action_mcp_snippet()
+        else:
+            self.notify("No contextual action", severity="warning", timeout=2)
+
+    async def action_docs_context(self) -> None:
+        """Context-aware docs shortcut."""
+        if self.current_view == "mcp":
+            await self.action_mcp_docs()
+        else:
+            self.notify("Docs not available in this view", severity="warning", timeout=2)
+
+    async def action_details_context(self) -> None:
+        """Context-aware details shortcut."""
+        if self.current_view == "mcp":
+            await self.action_mcp_details()
+        else:
+            self.notify("Details not available", severity="warning", timeout=2)
 
     def action_export_cycle_format(self) -> None:
         """Toggle between agent-generic and Claude-specific export formats."""

@@ -68,6 +68,7 @@ Quick reference for claude-ctx TUI navigation and commands.
 | v      | Validate           | Run skill validation            |
 | m      | Metrics            | Show skill metrics              |
 | c      | Community          | Browse community skills         |
+| Ctrl+P | Palette Commands   | Type “Skill …” for Info/Versions/Deps/Agents/Compose/Analytics/Report/Trending or Community install/validate/rate/search |
 
 ### Workflows View
 | Key    | Action             | Description                     |

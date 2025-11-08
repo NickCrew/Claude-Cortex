@@ -51,6 +51,15 @@ Type to search:
 - **🏃 Show Orchestrate** - View orchestration tasks (Press `o` or select)
 - **📁 Export Context** - Export current context to file
 
+### 🧠 Skill Intelligence
+- **Skill Info** – Inspect metadata/frontmatter for the selected skill
+- **Skill Versions** – Show available versions + compatibility notes
+- **Skill Dependencies / Agents / Compose** – Visualize who depends on the skill and its compose tree
+- **Skill Analyze / Suggest** – Feed free-form text or a project path to get skill recommendations
+- **Skill Analytics / Report / Trending** – Pull the analytics dashboards, reports, and historical trends
+- **Skill Metrics Reset** – Clear stored metrics after large refactors
+- **Community Install / Validate / Rate / Search** – Work with the community catalog without leaving the TUI
+
 ## Visual Features
 
 ### Color-Coded Icons
