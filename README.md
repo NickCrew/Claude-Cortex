@@ -29,7 +29,7 @@ Universal visual excellence framework with platform detection:
 python examples/supersaiyan_demo.py  # See it in action!
 ```
 
-See [Super Saiyan Integration Guide](docs/SUPER_SAIYAN_INTEGRATION.md) for details.
+See [Super Saiyan Integration Guide](docs/guides/features/SUPER_SAIYAN_INTEGRATION.md) for details.
 
 ### 🤖 New: AI Intelligence & Automation
 
@@ -80,7 +80,7 @@ claude-ctx ai record-success --outcome "feature complete"
      ✓ security-auditor
 ```
 
-See [AI Intelligence Guide](docs/guides/AI_INTELLIGENCE_GUIDE.md) and [Watch Mode Guide](docs/guides/WATCH_MODE_GUIDE.md) for complete documentation.
+See [AI Intelligence Guide](docs/guides/development/AI_INTELLIGENCE_GUIDE.md) and [Watch Mode Guide](docs/guides/development/WATCH_MODE_GUIDE.md) for complete documentation.
 
 ### 🔌 New: MCP Server Management
 
@@ -117,7 +117,7 @@ claude-ctx tui
 # t=test, d=docs, c=copy, v=validate
 ```
 
-See [MCP Management Guide](docs/MCP_MANAGEMENT.md) for complete documentation.
+See [MCP Management Guide](docs/guides/mcp/MCP_MANAGEMENT.md) for complete documentation.
 
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
 
@@ -211,15 +211,15 @@ register-python-argcomplete --shell zsh claude-ctx > ~/.local/share/zsh/site-fun
 register-python-argcomplete --shell fish claude-ctx > ~/.config/fish/completions/claude-ctx.fish
 ```
 
-See [Shell Completions Guide](docs/COMPLETIONS.md) for detailed instructions.
+See [Shell Completions Guide](docs/guides/COMPLETIONS.md) for detailed instructions.
 
 ### Manual page (manpage)
 
-A comprehensive manual page is available in `docs/claude-ctx.1` and is automatically installed when using `./scripts/install.sh`.
+A comprehensive manual page is available in `docs/reference/claude-ctx.1` and is automatically installed when using `./scripts/install.sh`.
 
 **View locally:**
 ```bash
-man docs/claude-ctx.1
+man docs/reference/claude-ctx.1
 ```
 
 **Manual installation:**
@@ -234,90 +234,11 @@ man claude-ctx
 
 The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
 
-### Warp AI & Terminal AI Integration
+### Advanced Features
 
-Integrate `claude-ctx` with Warp AI and other terminal AI tools using convenient shell aliases:
-
-```bash
-# Install context export aliases for your shell
-claude-ctx install aliases
-
-# Preview what will be installed
-claude-ctx install aliases --dry-run
-
-# Show all available aliases
-claude-ctx install aliases --show
-```
-
-**Available aliases:**
-- `ctx` - Export full context (all components)
-- `ctx-light` - Lightweight export (excludes skills, mcp_docs)
-- `ctx-rules`, `ctx-agents`, `ctx-modes`, `ctx-core` - Specific exports
-- `ctx-list` - List available components
-- `ctx-copy` - Copy context to clipboard (macOS)
-- `ctx-agent-list`, `ctx-mode-list`, `ctx-tui` - Quick management
-
-**Usage with Warp AI:**
-```bash
-# Export context before asking Warp AI
-ctx
-
-# Ask Warp AI your question using Cmd+` (or your hotkey)
-# Warp AI will have access to your exported context
-```
-
-See [Warp AI Integration Guide](docs/WARP_AI_INTEGRATION.md) for complete documentation.
-
-## Hooks
-
-The `hooks/` directory contains example Claude Code hooks that work with claude-ctx agents and commands.
-
-### Implementation Quality Gate Hook
-
-A comprehensive three-phase quality gate for professional development:
-
-1. **Phase 1: Testing** - Automatic test generation with ≥85% coverage requirement
-2. **Phase 2: Documentation** - Intelligent routing (user-facing vs API) with ≥7.5/10 review score
-3. **Phase 3: Code Review** - Code quality and security review with priority-based issue resolution
-
-**Quick Install:**
-```bash
-cp hooks/examples/implementation-quality-gate.sh ~/.claude/hooks/
-chmod +x ~/.claude/hooks/implementation-quality-gate.sh
-```
-
-Then add to `~/.claude/settings.json`:
-```json
-{
-  "hooks": {
-    "user-prompt-submit": [
-      {
-        "command": "bash",
-        "args": ["~/.claude/hooks/implementation-quality-gate.sh"]
-      }
-    ]
-  }
-}
-```
-
-**Activate required agents:**
-```bash
-claude-ctx agent activate test-automator api-documenter tutorial-engineer \
-  technical-writer docs-architect quality-engineer code-reviewer
-```
-
-See `hooks/README.md` and `hooks/examples/HOOK_DOCUMENTATION.md` for complete documentation.
-
-## Credits
-
-- Portions of the agent/skill architecture—including the new `/ctx:brainstorm`, `/ctx:plan`, and `/ctx:execute-plan` flows—are adapted from the open source [obra/superpowers](https://github.com/obra/superpowers) project (MIT license). We keep the original license text in `skills/LICENSE.superpowers` and note attribution inside each borrowed skill to honor that work.
-- We also draw inspiration from [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework) for how it structures agent definitions, collaboration flows, and marketplace-ready packaging. Several of our modes/commands mirror best practices established there, and we credit the project here per its license.
-- Agent taxonomy and category conventions borrow from [VoltAgent’s awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents/tree/main/categories); their catalog informed how we grouped the new `/ctx:*` collaboration agents and skills.
-
-## Skill Auto-Suggestions
-
-- Install `hooks/examples/skill_auto_suggester.py` as a `user-prompt-submit` hook to auto-surface `/ctx:*` skills based on keywords.
-- Rules live in `skills/skill-rules.json`; edit the JSON to add/remove skills without touching the hook.
+For more advanced features, see the following guides:
+- [Warp AI & Terminal AI Integration](docs/guides/integrations.md)
+- [Hooks and Auto-Suggestions](docs/guides/hooks.md)
 
 ## Development notes
 

@@ -261,3 +261,164 @@ skills:
       - "GitOps automation"
       - "deployment workflow"
       - "reconciliation"
+
+  canvas-design:
+    keywords:
+      - "canvas design"
+      - "visual art"
+      - "poster"
+      - "design philosophy"
+      - "graphic design"
+
+  internal-comms:
+    keywords:
+      - "internal communications"
+      - "status report"
+      - "leadership update"
+      - "company newsletter"
+      - "FAQ"
+      - "incident report"
+
+  skill-creator:
+    keywords:
+      - "create skill"
+      - "new skill"
+      - "skill development"
+      - "skill authoring"
+
+  template-skill:
+    keywords:
+      - "skill template"
+      - "new skill template"
+      - "skill boilerplate"
+
+  webapp-testing:
+    keywords:
+      - "webapp testing"
+      - "playwright"
+      - "frontend testing"
+      - "UI testing"
+      - "browser automation"
+
+  condition-based-waiting:
+    keywords:
+      - "condition"
+      - "wait"
+      - "polling"
+      - "event-driven"
+      - "asynchronous"
+
+  defense-in-depth:
+    keywords:
+      - "defense in depth"
+      - "layered security"
+      - "security strategy"
+      - "multi-layered defense"
+
+  dispatching-parallel-agents:
+    keywords:
+      - "parallel agents"
+      - "concurrent tasks"
+      - "multi-agent"
+      - "dispatch"
+      - "orchestration"
+
+  finishing-a-development-branch:
+    keywords:
+      - "finish branch"
+      - "merge branch"
+      - "code review"
+      - "pull request"
+      - "cleanup branch"
+
+  receiving-code-review:
+    keywords:
+      - "receive review"
+      - "address feedback"
+      - "code changes"
+      - "review comments"
+
+  requesting-code-review:
+    keywords:
+      - "request review"
+      - "submit code"
+      - "code review process"
+      - "pull request"
+
+  root-cause-tracing:
+    keywords:
+      - "root cause"
+      - "debugging"
+      - "troubleshooting"
+      - "incident analysis"
+      - "post-mortem"
+
+  sharing-skills:
+    keywords:
+      - "share skill"
+      - "export skill"
+      - "skill distribution"
+      - "skill collaboration"
+
+  subagent-driven-development:
+    keywords:
+      - "subagent"
+      - "agent development"
+      - "modular agent"
+      - "agent orchestration"
+
+  systematic-debugging:
+    keywords:
+      - "systematic debug"
+      - "debug process"
+      - "troubleshoot"
+      - "bug fix strategy"
+
+  test-driven-development:
+    keywords:
+      - "TDD"
+      - "test driven"
+      - "unit test"
+      - "integration test"
+      - "red green refactor"
+
+  testing-anti-patterns:
+    keywords:
+      - "testing anti-patterns"
+      - "bad tests"
+      - "ineffective tests"
+      - "test smells"
+
+  testing-skills-with-subagents:
+    keywords:
+      - "test skills"
+      - "subagent testing"
+      - "skill validation"
+      - "agent testing"
+
+  using-git-worktrees:
+    keywords:
+      - "git worktree"
+      - "multiple branches"
+      - "git workflow"
+      - "parallel development"
+
+  using-superpowers:
+    keywords:
+      - "superpowers"
+      - "agent capabilities"
+      - "framework usage"
+
+  verification-before-completion:
+    keywords:
+      - "verify"
+      - "check before complete"
+      - "validation step"
+      - "pre-completion check"
+
+  writing-skills:
+    keywords:
+      - "write skill"
+      - "create skill"
+      - "skill development"
+      - "skill authoring"

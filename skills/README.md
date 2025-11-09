@@ -158,6 +158,13 @@ claude-ctx skills info your-skill-name
 **Content**: Versioning, pagination, error handling, HATEOAS, rate limiting, caching
 **Size**: ~1,800 tokens
 
+### Newly Added Skills
+
+In addition to the core skills, the following skills have been integrated from personal collections and the `obra/superpowers` project:
+
+*   **From personal collection:** `canvas-design`, `internal-comms`, `skill-creator`, `template-skill`, `webapp-testing`.
+*   **From `obra/superpowers`:** `condition-based-waiting`, `defense-in-depth`, `dispatching-parallel-agents`, `finishing-a-development-branch`, `receiving-code-review`, `requesting-code-review`, `root-cause-tracing`, `sharing-skills`, `subagent-driven-development`, `systematic-debugging`, `test-driven-development`, `testing-anti-patterns`, `testing-skills-with-subagents`, `using-git-worktrees`, `using-superpowers`, `verification-before-completion`, `writing-skills`.
+
 ### Collaboration Skills (borrowed from obra/superpowers, MIT)
 
 | Skill | Command | Purpose |
@@ -292,10 +299,9 @@ claude-ctx skills info your-skill-name
 
 ### Summary
 
-**Total Skills**: 20 (2 Phase 1 + 18 Phase 2)
-**Total Agents with Skills**: 6 (backend-architect, python-pro, typescript-pro, kubernetes-architect, terraform-specialist, security-auditor)
-**Average Skill Size**: ~2,800 tokens
-**Token Efficiency**: 30-50% reduction per agent
+**Total Skills**: 42
+**Average Skill Size**: ~2,800 tokens (estimated)
+**Token Efficiency**: 30-50% reduction per agent (estimated)
 
 ## Skill Development Guidelines
 
@@ -386,72 +392,7 @@ User: "Design a REST API for user management"
 
 ## Roadmap
 
-### Phase 1: Foundation ✅ COMPLETED
-- [x] Skills directory structure
-- [x] SKILL.md format specification
-- [x] CLI integration (list, info, validate)
-- [x] First skill: api-design-patterns
-- [x] Second skill: microservices-patterns
-
-### Phase 2: Core Skills ✅ COMPLETED
-**Architecture & Design (4 skills):**
-- [x] event-driven-architecture
-- [x] database-design-patterns
-- [x] cqrs-event-sourcing
-- [x] api-gateway-patterns
-
-**Infrastructure (5 skills):**
-- [x] kubernetes-deployment-patterns
-- [x] kubernetes-security-policies
-- [x] helm-chart-patterns
-- [x] gitops-workflows
-- [x] terraform-best-practices
-
-**Development (5 skills):**
-- [x] async-python-patterns (from ~/agents)
-- [x] python-testing-patterns
-- [x] python-performance-optimization
-- [x] typescript-advanced-patterns
-- [x] react-performance-optimization
-
-**Security (4 skills):**
-- [x] owasp-top-10
-- [x] secure-coding-practices
-- [x] threat-modeling-techniques
-- [x] security-testing-patterns
-
-### Phase 3: Integration ✅ COMPLETED
-- [x] Automatic skill activation based on keywords (`skills/activation.yaml` + `activator.py`)
-- [x] Context-driven skill suggestions (`suggester.py` with project detection)
-- [x] Skill performance metrics tracking (`metrics.py` with persistent storage)
-- [x] Dependency tracking (`skills/dependencies.map` with bidirectional lookup)
-
-**New CLI Commands:**
-- `claude-ctx skills analyze <text>` - Analyze text and suggest matching skills
-- `claude-ctx skills suggest [--project-dir .]` - Suggest skills based on project
-- `claude-ctx skills metrics [skill]` - Show usage metrics
-- `claude-ctx skills metrics --reset` - Reset metrics
-- `claude-ctx skills deps <skill>` - Show which agents use a skill
-- `claude-ctx skills agents <skill>` - Alias for deps
-
-### Phase 4: Advanced ✅ COMPLETED
-- [x] Skill composition (skills reference other skills)
-- [x] Versioned skills (skill evolution without breaking)
-- [x] Community contributed skills
-- [x] Skill effectiveness analytics
-
-**Implementation:**
-- **Skill Composition**: `skills/composition.yaml` + `claude_ctx_py/composer.py` + `skills compose` command
-- **Versioning**: `skills/versions.yaml` + `claude_ctx_py/versioner.py` + `skills versions` command
-- **Community Skills**: `skills/community/` directory + `claude_ctx_py/community.py` + `skills community` commands
-- **Analytics**: `claude_ctx_py/analytics.py` + enhanced `metrics.py` + `skills/analytics.schema.json`
-
-**New Features:**
-- Dependency resolution with cycle detection
-- Semantic versioning (exact @1.0.0, caret @^1.0.0, tilde @~1.0.0, minimum @>=1.0.0, latest @latest)
-- Community skill registry with ratings and verification
-- Effectiveness scoring, ROI calculations, trending analysis
-- Multi-format export (JSON, CSV, text)
+All planned phases for skill development and integration are now **COMPLETED**. The framework supports a wide array of skills, including those for architecture, infrastructure, development, security, and collaboration. The total number of available skills has significantly expanded, enhancing the system's overall capabilities.
 
 ## See Also
 

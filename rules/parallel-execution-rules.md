@@ -112,7 +112,7 @@ Workstream 4: Code review agent (runs after 1-3 complete)
 
 ### Workstream 2: Quality Assurance (PARALLEL)
 - Task agent: Generate tests + docs
-- Files: tests/feature.test.ts, docs/feature.md
+- Files: tests/feature.test.ts, feature.md
 
 ### Workstream 3: Code Review (AFTER 1 & 2)
 - Code review agent: Analyze changes

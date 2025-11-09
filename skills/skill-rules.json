@@ -30,6 +30,138 @@
       "command": "/dev:code-review",
       "description": "Trigger docs/code review agents before merge",
       "keywords": ["review", "quality", "ready to merge", "needs feedback"]
+    },
+    {
+      "name": "canvas-design",
+      "command": "/ctx:skill canvas-design",
+      "description": "Create visual art and designs.",
+      "keywords": ["canvas", "design", "art", "visual", "poster"]
+    },
+    {
+      "name": "internal-comms",
+      "command": "/ctx:skill internal-comms",
+      "description": "Generate internal communications.",
+      "keywords": ["internal comms", "status report", "newsletter", "FAQ"]
+    },
+    {
+      "name": "skill-creator",
+      "command": "/ctx:skill skill-creator",
+      "description": "Guide for creating new skills.",
+      "keywords": ["create skill", "new skill", "skill development"]
+    },
+    {
+      "name": "template-skill",
+      "command": "/ctx:skill template-skill",
+      "description": "Template for new skills.",
+      "keywords": ["skill template", "boilerplate"]
+    },
+    {
+      "name": "webapp-testing",
+      "command": "/ctx:skill webapp-testing",
+      "description": "Test web applications with Playwright.",
+      "keywords": ["webapp testing", "playwright", "frontend test"]
+    },
+    {
+      "name": "condition-based-waiting",
+      "command": "/ctx:skill condition-based-waiting",
+      "description": "Handle asynchronous operations with conditions.",
+      "keywords": ["condition", "wait", "polling", "asynchronous"]
+    },
+    {
+      "name": "defense-in-depth",
+      "command": "/ctx:skill defense-in-depth",
+      "description": "Implement layered security strategies.",
+      "keywords": ["defense in depth", "layered security", "security strategy"]
+    },
+    {
+      "name": "dispatching-parallel-agents",
+      "command": "/ctx:skill dispatching-parallel-agents",
+      "description": "Orchestrate parallel agent tasks.",
+      "keywords": ["parallel agents", "multi-agent", "orchestration"]
+    },
+    {
+      "name": "finishing-a-development-branch",
+      "command": "/ctx:skill finishing-a-development-branch",
+      "description": "Guide for completing development branches.",
+      "keywords": ["finish branch", "merge branch", "pull request"]
+    },
+    {
+      "name": "receiving-code-review",
+      "command": "/ctx:skill receiving-code-review",
+      "description": "Address feedback from code reviews.",
+      "keywords": ["receive review", "code review feedback"]
+    },
+    {
+      "name": "requesting-code-review",
+      "command": "/ctx:skill requesting-code-review",
+      "description": "Submit code for review.",
+      "keywords": ["request review", "submit code", "pull request"]
+    },
+    {
+      "name": "root-cause-tracing",
+      "command": "/ctx:skill root-cause-tracing",
+      "description": "Trace and identify root causes of issues.",
+      "keywords": ["root cause", "debugging", "troubleshooting"]
+    },
+    {
+      "name": "sharing-skills",
+      "command": "/ctx:skill sharing-skills",
+      "description": "Share and distribute skills.",
+      "keywords": ["share skill", "export skill", "skill distribution"]
+    },
+    {
+      "name": "subagent-driven-development",
+      "command": "/ctx:skill subagent-driven-development",
+      "description": "Develop using modular subagents.",
+      "keywords": ["subagent", "agent development", "modular agent"]
+    },
+    {
+      "name": "systematic-debugging",
+      "command": "/ctx:skill systematic-debugging",
+      "description": "Apply systematic debugging techniques.",
+      "keywords": ["systematic debug", "debug process", "bug fix"]
+    },
+    {
+      "name": "test-driven-development",
+      "command": "/ctx:skill test-driven-development",
+      "description": "Practice Test-Driven Development.",
+      "keywords": ["TDD", "test driven", "unit test"]
+    },
+    {
+      "name": "testing-anti-patterns",
+      "command": "/ctx:skill testing-anti-patterns",
+      "description": "Identify and avoid testing anti-patterns.",
+      "keywords": ["testing anti-patterns", "bad tests", "test smells"]
+    },
+    {
+      "name": "testing-skills-with-subagents",
+      "command": "/ctx:skill testing-skills-with-subagents",
+      "description": "Test skills using subagents.",
+      "keywords": ["test skills", "subagent testing", "skill validation"]
+    },
+    {
+      "name": "using-git-worktrees",
+      "command": "/ctx:skill using-git-worktrees",
+      "description": "Manage multiple Git branches with worktrees.",
+      "keywords": ["git worktree", "multiple branches", "git workflow"]
+    },
+    {
+      "name": "using-superpowers",
+      "command": "/ctx:skill using-superpowers",
+      "description": "Leverage the Superpowers framework.",
+      "keywords": ["superpowers", "framework usage", "agent capabilities"]
+    },
+    {
+      "name": "verification-before-completion",
+      "command": "/ctx:skill verification-before-completion",
+      "description": "Perform verification steps before task completion.",
+      "keywords": ["verify", "pre-completion check", "validation step"]
+    },
+    {
+      "name": "writing-skills",
+      "command": "/ctx:skill writing-skills",
+      "description": "Guide for writing effective skills.",
+      "keywords": ["write skill", "create skill", "skill authoring"]
     }
   ]
 }

@@ -6,12 +6,12 @@ kramdown:
   input: GFM
 header_pages:
   - index.md
-  - getting-started.md
-  - architecture.md
-  - agents.md
-  - skills.md
-  - model-optimization.md
-  - commands.md
+  - guides/getting-started.md
+  - guides/development/architecture.md
+  - guides/agents.md
+  - guides/skills.md
+  - guides/development/model-optimization.md
+  - guides/commands.md
 logo: /assets/images/hero.png
 github:
   repository_url: https://github.com/NickCrew/claude-ctx-plugin

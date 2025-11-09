@@ -67,8 +67,8 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
 ### Quick Links
 
 <div class="quick-links">
-  <a href="getting-started.html">Getting Started</a>
-  <a href="commands.html">Command Reference</a>
+  <a href="guides/getting-started.html">Getting Started</a>
+  <a href="guides/commands.html">Command Reference</a>
   <a href="#presentations">🎬 Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
@@ -195,8 +195,8 @@ claude-ctx ai record-success --outcome "feature complete"
 
 ### Documentation
 
-- [AI Intelligence Guide](guides/AI_INTELLIGENCE_GUIDE.html) - Complete system documentation
-- [Watch Mode Guide](guides/WATCH_MODE_GUIDE.html) - Real-time monitoring deep dive
+- [AI Intelligence Guide](guides/development/AI_INTELLIGENCE_GUIDE.html) - Complete system documentation
+- [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring deep dive
 
 ---
 
@@ -249,7 +249,7 @@ Edit `skills/skill-rules.json` to tweak keyword → `/ctx:*` mappings; no code c
 4. `/ctx:execute-plan` – drive execution via Task TUI + orchestrate view.
 5. `/dev:*` commands – build, test, review with quality gate hooks.
 
-See [skills.md](skills.md) for the full catalog and resource snippets.
+See [guides/skills.md](guides/skills.md) for the full catalog and resource snippets.
 
 ---
 
@@ -401,7 +401,7 @@ claude-ctx agent graph --export dependency-map.md
 - Manpage (`man claude-ctx`)
 - Development dependencies (pytest, mypy, black)
 
-For more detailed setup guidance (including shell completion and CLI overrides) see [Getting Started](getting-started.md).
+For more detailed setup guidance (including shell completion and CLI overrides) see [guides/getting-started.md](guides/getting-started.md).
 
 ---
 
@@ -454,7 +454,7 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 - `/test` - Test generation (1 command)
 - `/tools` - Tool selection (1 command)
 
-**Reference**: [Command Documentation](COMMANDS.md)
+**Reference**: [Command Documentation](guides/commands.md)
 
 ---
 
@@ -478,7 +478,7 @@ Agents are specialized personas with domain expertise and specific capabilities.
 - `terraform-specialist` - Infrastructure as code
 - `typescript-pro` - TypeScript expertise
 
-**Reference**: [Agent Documentation](AGENTS.md)
+**Reference**: [Agent Documentation](guides/agents.md)
 
 ---
 
@@ -568,7 +568,7 @@ Python CLI for managing context components outside of Claude Code.
 Comprehensive guides to claude-ctx architecture, optimization strategies, and advanced patterns.
 
 <div class="doc-grid">
-  <a href="architecture.html" class="doc-card">
+  <a href="guides/development/architecture.html" class="doc-card">
     <h3>Architecture & Design</h3>
     <p>System architecture, design patterns, and component interactions. Explore dependency injection, progressive disclosure, lazy loading, and extension points.</p>
     <span class="doc-card__arrow">→</span>
@@ -578,7 +578,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
     </div>
   </a>
 
-  <a href="agents.html" class="doc-card">
+  <a href="guides/agents.html" class="doc-card">
     <h3>Agent Catalog</h3>
     <p>Complete catalog of 78 specialized agents organized by category. Includes model assignments, dependencies, workflows, and activation criteria for all agents.</p>
     <span class="doc-card__arrow">→</span>
@@ -588,7 +588,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
     </div>
   </a>
 
-  <a href="skills.html" class="doc-card">
+  <a href="guides/skills.html" class="doc-card">
     <h3>Agent Skills</h3>
     <p>Progressive disclosure architecture for specialized knowledge. Learn how to create skills, integrate with agents, and achieve 30-50% token reduction.</p>
     <span class="doc-card__arrow">→</span>
@@ -598,7 +598,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
     </div>
   </a>
 
-  <a href="model-optimization.html" class="doc-card">
+  <a href="guides/development/model-optimization.html" class="doc-card">
     <h3>Model Optimization</h3>
     <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks.</p>
     <span class="doc-card__arrow">→</span>
@@ -618,7 +618,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
     </div>
   </a>
 
-  <a href="quality-improvements.html" class="doc-card">
+  <a href="guides/development/quality-improvements.html" class="doc-card">
     <h3>Quality & DevOps</h3>
     <p>Testing infrastructure with 150+ tests, code refactoring, error handling improvements, installation automation, and CI/CD pipeline. Grade improved from B+ to A.</p>
     <span class="doc-card__arrow">→</span>
@@ -811,37 +811,37 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ### Internal Documentation
 
 **Core Documentation**
-- [Getting Started](getting-started.html) - Installation and setup
-- [Installation Guide](INSTALL.html) - Detailed installation instructions
-- [Architecture Guide](architecture.html) - System design and patterns
-- [Command Reference](commands.html) - Complete command catalog
+- [Getting Started](guides/getting-started.html) - Installation and setup
+- [Installation Guide](guides/INSTALL.html) - Detailed installation instructions
+- [Architecture Guide](guides/development/architecture.html) - System design and patterns
+- [Command Reference](guides/commands.html) - Complete command catalog
 
 **Agent System**
-- [Agent Catalog](agents.html) - Complete agent reference with 78 agents
-- [Agent Skills Guide](skills.html) - Progressive disclosure and token optimization
-- [Model Optimization](model-optimization.html) - Haiku vs Sonnet strategy
+- [Agent Catalog](guides/agents.html) - Complete agent reference with 78 agents
+- [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
+- [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 
 **Feature Guides**
-- [AI Intelligence Guide](guides/AI_INTELLIGENCE_GUIDE.html) - AI intelligence & automation system
-- [Watch Mode Guide](guides/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
+- [AI Intelligence Guide](guides/development/AI_INTELLIGENCE_GUIDE.html) - AI intelligence & automation system
+- [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
 - [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) - Interactive command palette
 - [TUI Guide](guides/tui.html) - Terminal user interface
 - [TUI Quick Start](guides/tui-quick-start.html) - Get started with TUI in 5 minutes
 - [TUI Integration Guide](guides/tui-integration.html) - Integrate TUI into your workflow
 - [Skills TUI Integration](guides/skills-tui-integration.html) - Skills system TUI integration
-- [TUI Keyboard Reference](tui-keyboard-reference.html) - Complete keyboard shortcuts
-- [TUI Navigation](tui-navigation-summary.html) - Navigation patterns
+- [TUI Keyboard Reference](guides/tui/tui-keyboard-reference.html) - Complete keyboard shortcuts
+- [TUI Navigation](guides/tui/tui-navigation-summary.html) - Navigation patterns
 
 **CLI & Integration**
-- [Shell Completions](COMPLETIONS.html) - Bash, Zsh, and Fish completion scripts
-- [Warp AI Integration](WARP_AI_INTEGRATION.html) - Terminal AI tools integration with context export aliases
+- [Shell Completions](guides/COMPLETIONS.html) - Bash, Zsh, and Fish completion scripts
+- [Warp AI Integration](guides/features/WARP_AI_INTEGRATION.html) - Terminal AI tools integration with context export aliases
 
 **Advanced Features**
 - [Super Saiyan Mode](features/SUPER_SAIYAN_MODE.html) - Visual excellence framework
 - [Kamehameha Overview](features/KAMEHAMEHA_OVERVIEW.html) - Power levels and activation
-- [Super Saiyan Integration](SUPER_SAIYAN_INTEGRATION.html) - Integration guide
-- [Parallel Orchestration](PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
-- [Quality Improvements](quality-improvements.html) - Code quality enhancements
+- [Super Saiyan Integration](guides/features/SUPER_SAIYAN_INTEGRATION.html) - Integration guide
+- [Parallel Orchestration](guides/development/PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
+- [Quality Improvements](guides/development/quality-improvements.html) - Code quality enhancements
 
 ### External Resources
 - [Claude Code Documentation](https://docs.claude.com/claude-code)

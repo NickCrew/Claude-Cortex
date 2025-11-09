@@ -26,7 +26,7 @@ install:
 	@./scripts/install.sh
 
 install-dev:
-	@./scripts/install.sh --system-install=false
+	@./scripts/install.sh
 
 install-manpage:
 	@./scripts/install-manpage.sh
