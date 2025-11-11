@@ -66,7 +66,7 @@ class SuperSaiyanCard(Static):
         value: str,
         trend: str | None = None,
         sparkline: str | None = None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize Super Saiyan card.
 
@@ -275,7 +275,11 @@ class SuperSaiyanStatusBar(Static):
 
     def render(self) -> str:
         """Render status bar with live data."""
-        agent_text = f"[cyan]{self.agent_active}/{self.agent_total} agents" if self.agent_total else "[cyan]0 agents"
+        agent_text = (
+            f"[cyan]{self.agent_active}/{self.agent_total} agents"
+            if self.agent_total
+            else "[cyan]0 agents"
+        )
         task_text = f"[green]{self.task_active} active tasks"
         wave = self._WAVE_FRAMES[self.wave_phase]
         return (
@@ -346,8 +350,7 @@ def generate_sparkline(data: list[float]) -> str:
     range_val = max_val - min_val or 1
 
     return "".join(
-        chars[int((v - min_val) / range_val * (len(chars) - 1))]
-        for v in data
+        chars[int((v - min_val) / range_val * (len(chars) - 1))] for v in data
     )
 
 
@@ -388,16 +391,16 @@ def create_rich_table(
 
 # Color palette for Super Saiyan TUI
 SUPER_SAIYAN_THEME = {
-    "primary": "#3b82f6",      # Blue
-    "secondary": "#8b5cf6",    # Purple
-    "accent": "#06b6d4",       # Cyan
-    "success": "#10b981",      # Green
-    "warning": "#f59e0b",      # Yellow
-    "error": "#ef4444",        # Red
-    "info": "#3b82f6",         # Blue
-    "surface": "#0a0e27",      # Dark blue-gray
+    "primary": "#3b82f6",  # Blue
+    "secondary": "#8b5cf6",  # Purple
+    "accent": "#06b6d4",  # Cyan
+    "success": "#10b981",  # Green
+    "warning": "#f59e0b",  # Yellow
+    "error": "#ef4444",  # Red
+    "info": "#3b82f6",  # Blue
+    "surface": "#0a0e27",  # Dark blue-gray
     "surface-lighten-1": "#1a1f3a",
     "surface-lighten-2": "#242945",
-    "text": "#ffffff",         # White
+    "text": "#ffffff",  # White
     "text-muted": "#9ca3af",  # Gray
 }

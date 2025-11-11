@@ -32,12 +32,14 @@ def detect_project_type(project_dir: Path) -> Dict[str, bool]:
     features: Dict[str, bool] = {}
 
     # Python detection
-    features["has_python"] = any([
-        (project_dir / "requirements.txt").exists(),
-        (project_dir / "pyproject.toml").exists(),
-        (project_dir / "setup.py").exists(),
-        (project_dir / "Pipfile").exists(),
-    ])
+    features["has_python"] = any(
+        [
+            (project_dir / "requirements.txt").exists(),
+            (project_dir / "pyproject.toml").exists(),
+            (project_dir / "setup.py").exists(),
+            (project_dir / "Pipfile").exists(),
+        ]
+    )
 
     # TypeScript detection
     package_json_path = project_dir / "package.json"
@@ -106,11 +108,13 @@ def detect_project_type(project_dir: Path) -> Dict[str, bool]:
     features["has_terraform"] = len(list(project_dir.glob("*.tf"))) > 0
 
     # Docker detection
-    features["has_docker"] = any([
-        (project_dir / "Dockerfile").exists(),
-        (project_dir / "docker-compose.yml").exists(),
-        (project_dir / "docker-compose.yaml").exists(),
-    ])
+    features["has_docker"] = any(
+        [
+            (project_dir / "Dockerfile").exists(),
+            (project_dir / "docker-compose.yml").exists(),
+            (project_dir / "docker-compose.yaml").exists(),
+        ]
+    )
 
     # Backend detection (heuristic)
     backend_indicators = [
@@ -124,12 +128,20 @@ def detect_project_type(project_dir: Path) -> Dict[str, bool]:
 
     # Database detection
     db_indicators = []
-    for config_file in ["docker-compose.yml", "docker-compose.yaml", ".env", ".env.example"]:
+    for config_file in [
+        "docker-compose.yml",
+        "docker-compose.yaml",
+        ".env",
+        ".env.example",
+    ]:
         config_path = project_dir / config_file
         if config_path.exists():
             try:
                 content = config_path.read_text(encoding="utf-8").lower()
-                if any(db in content for db in ["postgres", "mysql", "mongodb", "redis", "database"]):
+                if any(
+                    db in content
+                    for db in ["postgres", "mysql", "mongodb", "redis", "database"]
+                ):
                     db_indicators.append(True)
                     break
             except Exception:
@@ -208,11 +220,13 @@ def suggest_skills_for_project(project_dir: Path) -> List[str]:
             suggestions.add("database-design-patterns")
 
     # Security suggestions (always relevant for web/backend projects)
-    if any([
-        features.get("has_backend", False),
-        features.get("has_react", False),
-        features.get("has_kubernetes", False),
-    ]):
+    if any(
+        [
+            features.get("has_backend", False),
+            features.get("has_react", False),
+            features.get("has_kubernetes", False),
+        ]
+    ):
         suggestions.add("owasp-top-10")
         suggestions.add("secure-coding-practices")
 

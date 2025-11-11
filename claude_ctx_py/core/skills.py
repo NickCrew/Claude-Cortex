@@ -28,12 +28,8 @@ from .base import (
     _extract_front_matter,
     _extract_scalar_from_paths,
     _resolve_claude_dir,
-    _tokenize_front_matter
+    _tokenize_front_matter,
 )
-
-
-
-
 
 
 def list_skills(home: Path | None = None) -> str:
@@ -63,9 +59,10 @@ def list_skills(home: Path | None = None) -> str:
             if front_matter:
                 lines = front_matter.strip().splitlines()
                 tokens = _tokenize_front_matter(lines)
-                description = _extract_scalar_from_paths(
-                    tokens, (("description",),)
-                ) or "No description"
+                description = (
+                    _extract_scalar_from_paths(tokens, (("description",),))
+                    or "No description"
+                )
             else:
                 description = "No description"
         except Exception:
@@ -85,13 +82,13 @@ def list_skills(home: Path | None = None) -> str:
         # Truncate description if too long
         max_desc_len = 80
         if len(description) > max_desc_len:
-            description = description[:max_desc_len-3] + "..."
+            description = description[: max_desc_len - 3] + "..."
 
-        lines.append(f"  {_color(skill_name.ljust(max_name_len), GREEN)}  {description}")
+        lines.append(
+            f"  {_color(skill_name.ljust(max_name_len), GREEN)}  {description}"
+        )
 
     return "\n".join(lines)
-
-
 
 
 def skill_info(skill: str, home: Path | None = None) -> Tuple[int, str]:
@@ -120,12 +117,10 @@ def skill_info(skill: str, home: Path | None = None) -> Tuple[int, str]:
     lines = front_matter.strip().splitlines()
     tokens = _tokenize_front_matter(lines)
 
-    skill_name = _extract_scalar_from_paths(
-        tokens, (("name",),)
-    ) or skill
-    description = _extract_scalar_from_paths(
-        tokens, (("description",),)
-    ) or "No description"
+    skill_name = _extract_scalar_from_paths(tokens, (("name",),)) or skill
+    description = (
+        _extract_scalar_from_paths(tokens, (("description",),)) or "No description"
+    )
 
     # Count tokens (rough estimate: words * 1.3)
     word_count = len(content.split())
@@ -145,8 +140,6 @@ def skill_info(skill: str, home: Path | None = None) -> Tuple[int, str]:
     ]
 
     return 0, "\n".join(output_lines)
-
-
 
 
 def skill_versions(skill: str, home: Path | None = None) -> Tuple[int, str]:
@@ -198,7 +191,10 @@ def skill_versions(skill: str, home: Path | None = None) -> Tuple[int, str]:
     if versions_file.is_file():
         try:
             import yaml
-            versions_data = yaml.safe_load(versions_file.read_text(encoding="utf-8")) or {}
+
+            versions_data = (
+                yaml.safe_load(versions_file.read_text(encoding="utf-8")) or {}
+            )
             skill_data = versions_data.get("skills", {}).get(skill, {})
             compatibility_info = skill_data.get("compatibility", {})
         except Exception:
@@ -247,12 +243,12 @@ def skill_versions(skill: str, home: Path | None = None) -> Tuple[int, str]:
     output_lines.append(_color("Usage in agent frontmatter:", BLUE))
     output_lines.append(f"  skills:")
     output_lines.append(f"    - {skill}@{current_version}  # Exact version")
-    output_lines.append(f"    - {skill}@^{current_version}  # Compatible with {current_version.split('.')[0]}.x")
+    output_lines.append(
+        f"    - {skill}@^{current_version}  # Compatible with {current_version.split('.')[0]}.x"
+    )
     output_lines.append(f"    - {skill}@latest  # Always use latest")
 
     return 0, "\n".join(output_lines)
-
-
 
 
 def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
@@ -267,14 +263,16 @@ def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
 
     if validate_all:
         skill_targets = [
-            p.name for p in sorted(skills_dir.iterdir())
+            p.name
+            for p in sorted(skills_dir.iterdir())
             if p.is_dir() and (p / "SKILL.md").is_file()
         ]
     elif skills:
         skill_targets = list(skills)
     else:
         skill_targets = [
-            p.name for p in sorted(skills_dir.iterdir())
+            p.name
+            for p in sorted(skills_dir.iterdir())
             if p.is_dir() and (p / "SKILL.md").is_file()
         ]
 
@@ -307,23 +305,33 @@ def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
             description = _extract_scalar_from_paths(tokens, (("description",),))
 
             if not name:
-                errors.append(f"  {_color('✗', RED)} {skill_name}: Missing 'name' field")
+                errors.append(
+                    f"  {_color('✗', RED)} {skill_name}: Missing 'name' field"
+                )
                 continue
 
             if not description:
-                errors.append(f"  {_color('✗', RED)} {skill_name}: Missing 'description' field")
+                errors.append(
+                    f"  {_color('✗', RED)} {skill_name}: Missing 'description' field"
+                )
                 continue
 
             if len(description) > 1024:
-                errors.append(f"  {_color('⚠', YELLOW)} {skill_name}: Description too long ({len(description)} > 1024 chars)")
+                errors.append(
+                    f"  {_color('⚠', YELLOW)} {skill_name}: Description too long ({len(description)} > 1024 chars)"
+                )
 
             if "Use when" not in description:
-                errors.append(f"  {_color('⚠', YELLOW)} {skill_name}: Description missing 'Use when' trigger")
+                errors.append(
+                    f"  {_color('⚠', YELLOW)} {skill_name}: Description missing 'Use when' trigger"
+                )
 
             results.append(f"  {_color('✓', GREEN)} {skill_name}: Valid")
 
         except Exception as exc:
-            errors.append(f"  {_color('✗', RED)} {skill_name}: Error reading file: {exc}")
+            errors.append(
+                f"  {_color('✗', RED)} {skill_name}: Error reading file: {exc}"
+            )
 
     output_lines: List[str] = [_color("=== Skill Validation ===", BLUE), ""]
 
@@ -336,16 +344,10 @@ def skill_validate(*skills: str, home: Path | None = None) -> Tuple[int, str]:
         output_lines.extend(errors)
 
     output_lines.append("")
-    output_lines.append(
-        f"Validated: {len(results)} passed, {len(errors)} issues"
-    )
+    output_lines.append(f"Validated: {len(results)} passed, {len(errors)} issues")
 
     exit_code = 0 if not errors else 1
     return exit_code, "\n".join(output_lines)
-
-
-
-
 
 
 def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
@@ -372,8 +374,6 @@ def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
         return 1, _color(f"Error: {e}", RED)
     except Exception as e:
         return 1, _color(f"Error analyzing text: {e}", RED)
-
-
 
 
 def skill_deps(skill: str, home: Path | None = None) -> Tuple[int, str]:
@@ -445,13 +445,9 @@ def skill_deps(skill: str, home: Path | None = None) -> Tuple[int, str]:
     return 0, "\n".join(output_lines)
 
 
-
-
 def skill_agents(skill: str, home: Path | None = None) -> Tuple[int, str]:
     """Alias for skill_deps - show which agents use a specific skill."""
     return skill_deps(skill, home)
-
-
 
 
 def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, str]:
@@ -489,29 +485,36 @@ def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, 
         ]
 
         # Show detected features
-        detected_features = [k.replace("has_", "").replace("_", " ").title()
-                           for k, v in features.items() if v]
+        detected_features = [
+            k.replace("has_", "").replace("_", " ").title()
+            for k, v in features.items()
+            if v
+        ]
         if detected_features:
             for feature in detected_features:
                 output_lines.append(f"  {_color('✓', GREEN)} {feature}")
         else:
             output_lines.append("  No specific features detected")
 
-        output_lines.extend([
-            "",
-            _color("Suggested skills:", BLUE),
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color("Suggested skills:", BLUE),
+            ]
+        )
 
         for skill in suggestions:
             output_lines.append(f"  {_color(skill, GREEN)}")
 
-        output_lines.extend([
-            "",
-            _color(f"Total suggestions: {len(suggestions)}", YELLOW),
-            "",
-            "To activate a skill:",
-            f"  {_color('claude-ctx skills activate <skill_name>', YELLOW)}",
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color(f"Total suggestions: {len(suggestions)}", YELLOW),
+                "",
+                "To activate a skill:",
+                f"  {_color('claude-ctx skills activate <skill_name>', YELLOW)}",
+            ]
+        )
 
         return 0, "\n".join(output_lines)
 
@@ -519,9 +522,9 @@ def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, 
         return 1, _color(f"Error analyzing project: {exc}", RED)
 
 
-
-
-def skill_metrics(skill_name: Optional[str] = None, home: Path | None = None) -> Tuple[int, str]:
+def skill_metrics(
+    skill_name: Optional[str] = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Show skill usage metrics.
 
     Args:
@@ -548,8 +551,6 @@ def skill_metrics(skill_name: Optional[str] = None, home: Path | None = None) ->
         return 1, _color(f"Error reading metrics: {exc}", RED)
 
 
-
-
 def skill_metrics_reset(home: Path | None = None) -> Tuple[int, str]:
     """Reset all skill metrics.
 
@@ -568,9 +569,9 @@ def skill_metrics_reset(home: Path | None = None) -> Tuple[int, str]:
         return 1, _color(f"Error resetting metrics: {exc}", RED)
 
 
-
-
-def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> Tuple[int, str]:
+def skill_analytics(
+    metric: Optional[str] = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Show skill effectiveness analytics.
 
     Args:
@@ -619,10 +620,16 @@ def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> T
             for i, (skill_name, roi_data) in enumerate(roi_list[:10], 1):
                 if "error" not in roi_data:
                     output.append(f"{i}. {skill_name}")
-                    output.append(f"   Cost Savings: ${roi_data['cost_savings_usd']:.2f}")
+                    output.append(
+                        f"   Cost Savings: ${roi_data['cost_savings_usd']:.2f}"
+                    )
                     output.append(f"   ROI: {roi_data['roi_percentage']:.1f}%")
                     output.append(f"   Activations: {roi_data['activation_count']}")
-                    status = "✓ Achieved" if roi_data['payback_achieved'] else f"Need {roi_data['payback_uses'] - roi_data['activation_count']} more"
+                    status = (
+                        "✓ Achieved"
+                        if roi_data["payback_achieved"]
+                        else f"Need {roi_data['payback_uses'] - roi_data['activation_count']} more"
+                    )
                     output.append(f"   Payback: {status}")
                     output.append("")
 
@@ -632,7 +639,9 @@ def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> T
             # Show effectiveness scores
             all_metrics = metrics.get_all_metrics()
             if not all_metrics:
-                return 0, _color("No metrics available for effectiveness analysis", YELLOW)
+                return 0, _color(
+                    "No metrics available for effectiveness analysis", YELLOW
+                )
 
             scores = [
                 (name, analytics.get_effectiveness_score(name, all_metrics))
@@ -645,8 +654,12 @@ def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> T
                 skill_data = all_metrics[skill_name]
                 output.append(f"{i}. {skill_name}")
                 output.append(f"   Effectiveness: {score:.1f}/100")
-                output.append(f"   Success Rate: {skill_data.get('success_rate', 0):.1%}")
-                output.append(f"   Activations: {skill_data.get('activation_count', 0)}")
+                output.append(
+                    f"   Success Rate: {skill_data.get('success_rate', 0):.1%}"
+                )
+                output.append(
+                    f"   Activations: {skill_data.get('activation_count', 0)}"
+                )
                 output.append(f"   Avg Tokens: {skill_data.get('avg_tokens', 0):,}")
                 output.append("")
 
@@ -667,8 +680,12 @@ def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> T
 
             output = [_color("\nSkill Analytics & Recommendations:", BLUE), ""]
             output.append(f"Total Skills Tracked: {len(all_metrics)}")
-            output.append(f"Total Activations: {sum(s.get('activation_count', 0) for s in all_metrics.values()):,}")
-            output.append(f"Total Tokens Saved: {sum(s.get('total_tokens_saved', 0) for s in all_metrics.values()):,}")
+            output.append(
+                f"Total Activations: {sum(s.get('activation_count', 0) for s in all_metrics.values()):,}"
+            )
+            output.append(
+                f"Total Tokens Saved: {sum(s.get('total_tokens_saved', 0) for s in all_metrics.values()):,}"
+            )
             output.append("")
             output.append(_color("Recommendations:", GREEN))
             for rec in recommendations:
@@ -686,8 +703,6 @@ def skill_analytics(metric: Optional[str] = None, home: Path | None = None) -> T
 
     except Exception as exc:
         return 1, _color(f"Error generating analytics: {exc}", RED)
-
-
 
 
 def skill_report(format: str = "text", home: Path | None = None) -> Tuple[int, str]:
@@ -716,12 +731,12 @@ def skill_report(format: str = "text", home: Path | None = None) -> Tuple[int, s
             return 0, _color(f"Analytics exported to: {export_path}", GREEN)
 
         else:
-            return 1, _color(f"Unsupported format: {format}. Use 'text', 'json', or 'csv'", RED)
+            return 1, _color(
+                f"Unsupported format: {format}. Use 'text', 'json', or 'csv'", RED
+            )
 
     except Exception as exc:
         return 1, _color(f"Error generating report: {exc}", RED)
-
-
 
 
 def skill_trending(days: int = 30, home: Path | None = None) -> Tuple[int, str]:
@@ -745,7 +760,9 @@ def skill_trending(days: int = 30, home: Path | None = None) -> Tuple[int, str]:
             return 0, _color(f"No skills used in the last {days} days", YELLOW)
 
         output = [_color(f"\nTrending Skills (Last {days} Days):", BLUE), ""]
-        output.append(f"{'Rank':<6} {'Skill':<40} {'Score':<10} {'Uses':<8} {'Days Ago':<10}")
+        output.append(
+            f"{'Rank':<6} {'Skill':<40} {'Score':<10} {'Uses':<8} {'Days Ago':<10}"
+        )
         output.append("-" * 80)
 
         for i, skill_data in enumerate(trending[:15], 1):
@@ -759,8 +776,6 @@ def skill_trending(days: int = 30, home: Path | None = None) -> Tuple[int, str]:
 
     except Exception as exc:
         return 1, _color(f"Error getting trending skills: {exc}", RED)
-
-
 
 
 def skill_compose(skill: str, home: Path | None = None) -> Tuple[int, str]:
@@ -809,35 +824,41 @@ def skill_compose(skill: str, home: Path | None = None) -> Tuple[int, str]:
     ]
 
     if not dependencies:
-        output_lines.extend([
-            _color("No dependencies", GREEN),
-            "",
-            "This skill can be loaded independently without other skills.",
-        ])
+        output_lines.extend(
+            [
+                _color("No dependencies", GREEN),
+                "",
+                "This skill can be loaded independently without other skills.",
+            ]
+        )
     else:
-        output_lines.extend([
-            _color(f"Direct dependencies: {len(composition_map.get(skill, []))}", BLUE),
-            _color(f"Total dependencies (transitive): {len(dependencies)}", BLUE),
-            "",
-            _color("Dependency tree:", BLUE),
-        ])
+        output_lines.extend(
+            [
+                _color(
+                    f"Direct dependencies: {len(composition_map.get(skill, []))}", BLUE
+                ),
+                _color(f"Total dependencies (transitive): {len(dependencies)}", BLUE),
+                "",
+                _color("Dependency tree:", BLUE),
+            ]
+        )
 
         # Generate and format tree
         tree = composer.get_dependency_tree(skill, composition_map)
         tree_str = composer.format_dependency_tree(tree)
         output_lines.append(tree_str)
 
-        output_lines.extend([
-            "",
-            _color("Load order:", BLUE),
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color("Load order:", BLUE),
+            ]
+        )
         for i, dep in enumerate(dependencies, 1):
             output_lines.append(f"  {i}. {dep}")
         output_lines.append(f"  {len(dependencies) + 1}. {skill}")
 
     return 0, "\n".join(output_lines)
-
-
 
 
 def skill_community_list(
@@ -886,10 +907,7 @@ def skill_community_list(
         filtered_skills = [
             skill
             for skill in filtered_skills
-            if any(
-                tag.lower() in tags_lower
-                for tag in skill.get("tags", [])
-            )
+            if any(tag.lower() in tags_lower for tag in skill.get("tags", []))
         ]
 
     # Filter by search query if provided
@@ -965,11 +983,16 @@ def skill_community_list(
         # Format installed status
         installed_str = _color(" [INSTALLED]", GREEN) if installed else ""
 
-        output_lines.extend([
-            _color(f"{name}", BLUE) + _color(f" v{version}", NC) + rating_str + installed_str,
-            f"  by {author}",
-            f"  {description}",
-        ])
+        output_lines.extend(
+            [
+                _color(f"{name}", BLUE)
+                + _color(f" v{version}", NC)
+                + rating_str
+                + installed_str,
+                f"  by {author}",
+                f"  {description}",
+            ]
+        )
 
         if tags_list:
             tags_str = ", ".join(tags_list[:5])  # Limit to first 5 tags
@@ -980,8 +1003,6 @@ def skill_community_list(
         output_lines.append("")
 
     return 0, "\n".join(output_lines)
-
-
 
 
 def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, str]:
@@ -1006,7 +1027,10 @@ def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, 
     claude_dir = _resolve_claude_dir(home)
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills community install <skill_name>"
+        return (
+            1,
+            _color("Usage:", RED) + " claude-ctx skills community install <skill_name>",
+        )
 
     # Check if skill is already installed
     skills_dir = claude_dir / "skills"
@@ -1047,8 +1071,6 @@ def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, 
     return 0, "\n".join(output_lines)
 
 
-
-
 def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int, str]:
     """Validate a community skill contribution.
 
@@ -1071,7 +1093,11 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
     claude_dir = _resolve_claude_dir(home)
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills community validate <skill_name>"
+        return (
+            1,
+            _color("Usage:", RED)
+            + " claude-ctx skills community validate <skill_name>",
+        )
 
     # Check community skills directory
     community_dir = claude_dir / "community" / "skills"
@@ -1117,16 +1143,18 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
         for i, error in enumerate(errors, 1):
             output_lines.append(f"  {i}. {error}")
 
-        output_lines.extend([
-            "",
-            _color("Fix these errors before submitting to the community.", YELLOW),
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color("Fix these errors before submitting to the community.", YELLOW),
+            ]
+        )
         return 1, "\n".join(output_lines)
 
 
-
-
-def skill_community_rate(skill: str, rating: int, home: Path | None = None) -> Tuple[int, str]:
+def skill_community_rate(
+    skill: str, rating: int, home: Path | None = None
+) -> Tuple[int, str]:
     """Rate a community skill.
 
     Submit a rating for a community skill. Ratings help other users discover
@@ -1149,7 +1177,11 @@ def skill_community_rate(skill: str, rating: int, home: Path | None = None) -> T
     claude_dir = _resolve_claude_dir(home)
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills community rate <skill_name> <rating>"
+        return (
+            1,
+            _color("Usage:", RED)
+            + " claude-ctx skills community rate <skill_name> <rating>",
+        )
 
     # Validate rating
     if not isinstance(rating, int) or rating < 1 or rating > 5:
@@ -1185,8 +1217,6 @@ def skill_community_rate(skill: str, rating: int, home: Path | None = None) -> T
     return 0, "\n".join(output_lines)
 
 
-
-
 def skill_community_search(
     query: str,
     tags: Optional[List[str]] = None,
@@ -1214,7 +1244,11 @@ def skill_community_search(
     claude_dir = _resolve_claude_dir(home)
 
     if not query:
-        return 1, _color("Usage:", RED) + " claude-ctx skills community search <query> [--tags tag1,tag2]"
+        return (
+            1,
+            _color("Usage:", RED)
+            + " claude-ctx skills community search <query> [--tags tag1,tag2]",
+        )
 
     # Perform search
     try:
@@ -1265,11 +1299,16 @@ def skill_community_search(
         # Format installed status
         installed_str = _color(" [INSTALLED]", GREEN) if installed else ""
 
-        output_lines.extend([
-            _color(f"{name}", BLUE) + _color(f" v{version}", NC) + rating_str + installed_str,
-            f"  by {author}",
-            f"  {description}",
-        ])
+        output_lines.extend(
+            [
+                _color(f"{name}", BLUE)
+                + _color(f" v{version}", NC)
+                + rating_str
+                + installed_str,
+                f"  by {author}",
+                f"  {description}",
+            ]
+        )
 
         if tags_list:
             tags_str = ", ".join(tags_list[:5])  # Limit to first 5 tags
@@ -1280,5 +1319,3 @@ def skill_community_search(
         output_lines.append("")
 
     return 0, "\n".join(output_lines)
-
-

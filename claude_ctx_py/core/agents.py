@@ -32,12 +32,8 @@ from .base import (
     _is_disabled,
     _iter_all_files,
     _resolve_claude_dir,
-    _tokenize_front_matter
+    _tokenize_front_matter,
 )
-
-
-
-
 
 
 @dataclass
@@ -51,13 +47,9 @@ class AgentGraphNode:
     recommends: List[str]
 
 
-
-
 def _agent_basename(path: Path) -> str:
     name = path.name
     return name[:-3] if name.endswith(".md") else name
-
-
 
 
 def _normalize_agent_filename(name: str) -> str:
@@ -69,8 +61,6 @@ def _normalize_agent_filename(name: str) -> str:
     return normalized
 
 
-
-
 def _find_disabled_agent_file(claude_dir: Path, filename: str) -> Optional[Path]:
     preferred = claude_dir / "agents-disabled" / filename
     if preferred.is_file():
@@ -79,8 +69,6 @@ def _find_disabled_agent_file(claude_dir: Path, filename: str) -> Optional[Path]
     if legacy.is_file():
         return legacy
     return None
-
-
 
 
 def _find_agent_file_any_state(claude_dir: Path, filename: str) -> Optional[Path]:
@@ -101,21 +89,15 @@ def _find_agent_file_any_state(claude_dir: Path, filename: str) -> Optional[Path
     return None
 
 
-
-
 def _normalize_dependency_name(value: str) -> str:
     if not value:
         return value
     return _display_agent_name(value.strip())
 
 
-
-
 def _parse_agent_dependencies(path: Path) -> Tuple[List[str], List[str]]:
     lines = _read_agent_front_matter_lines(path)
     return _parse_dependencies_from_front(lines)
-
-
 
 
 def _read_agent_front_matter_lines(path: Path) -> Optional[List[str]]:
@@ -131,8 +113,6 @@ def _read_agent_front_matter_lines(path: Path) -> Optional[List[str]]:
     return front.splitlines()
 
 
-
-
 def _parse_agent_metadata_name(lines: Optional[Iterable[str]]) -> Optional[str]:
     tokens = _tokenize_front_matter(lines)
     return _extract_scalar_from_paths(
@@ -142,8 +122,6 @@ def _parse_agent_metadata_name(lines: Optional[Iterable[str]]) -> Optional[str]:
             ("name",),
         ),
     )
-
-
 
 
 def _parse_dependencies_from_front(
@@ -170,15 +148,11 @@ def _parse_dependencies_from_front(
     return requires, recommends
 
 
-
-
 def _display_agent_name(value: str) -> str:
     trimmed = value.strip()
     if trimmed.endswith(".md"):
         return trimmed[:-3]
     return trimmed
-
-
 
 
 def _extract_agent_name(path: Path, lines: Optional[Iterable[str]] = None) -> str:
@@ -189,8 +163,6 @@ def _extract_agent_name(path: Path, lines: Optional[Iterable[str]] = None) -> st
     if metadata_name:
         return metadata_name
     return path.stem
-
-
 
 
 def _generate_dependency_map(claude_dir: Path) -> None:
@@ -229,8 +201,6 @@ def _generate_dependency_map(claude_dir: Path) -> None:
     dep_map_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-
-
 def _active_agent_files(claude_dir: Path) -> List[Path]:
     agents_dir = claude_dir / "agents"
     if not agents_dir.is_dir():
@@ -242,8 +212,6 @@ def _active_agent_files(claude_dir: Path) -> List[Path]:
     ]
 
 
-
-
 def _find_agent_dependents(claude_dir: Path, agent_name: str) -> List[str]:
     dependents: List[str] = []
     for path in _active_agent_files(claude_dir):
@@ -252,8 +220,6 @@ def _find_agent_dependents(claude_dir: Path, agent_name: str) -> List[str]:
         if agent_name in required_names:
             dependents.append(_agent_basename(path))
     return dependents
-
-
 
 
 def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
@@ -288,20 +254,26 @@ def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
                 continue
 
             name = _extract_agent_name(path, lines)
-            category = _extract_scalar_from_paths(
-                tokens,
-                (
-                    ("metadata", "category"),
-                    ("category",),
-                ),
-            ) or "unknown"
-            tier = _extract_scalar_from_paths(
-                tokens,
-                (
-                    ("metadata", "tier", "id"),
-                    ("tier", "id"),
-                ),
-            ) or "unknown"
+            category = (
+                _extract_scalar_from_paths(
+                    tokens,
+                    (
+                        ("metadata", "category"),
+                        ("category",),
+                    ),
+                )
+                or "unknown"
+            )
+            tier = (
+                _extract_scalar_from_paths(
+                    tokens,
+                    (
+                        ("metadata", "tier", "id"),
+                        ("tier", "id"),
+                    ),
+                )
+                or "unknown"
+            )
 
             requires_raw, recommends_raw = _parse_dependencies_from_front(lines)
             requires = [
@@ -337,8 +309,6 @@ def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
     return nodes
 
 
-
-
 def _format_dependency_entries(
     names: Sequence[str],
     status_lookup: dict[str, str],
@@ -351,8 +321,6 @@ def _format_dependency_entries(
         status = status_lookup.get(name, "missing")
         formatted.append(f"{name} ({status})")
     return ", ".join(formatted)
-
-
 
 
 def render_agent_graph(
@@ -415,8 +383,6 @@ def render_agent_graph(
     return "\n".join(lines)
 
 
-
-
 def export_agent_graph(nodes: Sequence[AgentGraphNode], destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     lines = [
@@ -428,8 +394,6 @@ def export_agent_graph(nodes: Sequence[AgentGraphNode], destination: Path) -> No
         recommends = ",".join(node.recommends)
         lines.append(f"{node.name}:{requires}:{recommends}")
     destination.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 
 
 def agent_graph(
@@ -459,8 +423,6 @@ def agent_graph(
     return 0, f"{output}\n{export_message}"
 
 
-
-
 def _iter_agent_paths(claude_dir: Path, directory: Path) -> List[Path]:
     if not directory.is_dir():
         return []
@@ -469,8 +431,6 @@ def _iter_agent_paths(claude_dir: Path, directory: Path) -> List[Path]:
         for path in sorted(directory.glob("*.md"))
         if path.is_file() and path.name != "TRIGGERS.md"
     ]
-
-
 
 
 def _resolve_agent_validation_target(claude_dir: Path, target: str) -> Optional[Path]:
@@ -495,8 +455,6 @@ def _resolve_agent_validation_target(claude_dir: Path, target: str) -> Optional[
     return None
 
 
-
-
 def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[dict], str]:
     schema_path = claude_dir / "schema" / "agent-schema-v2.yaml"
     if not schema_path.is_file():
@@ -506,9 +464,7 @@ def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[dict], str]:
     try:
         import yaml
     except ImportError:
-        message = (
-            f"{_color('[ERROR]', RED)} PyYAML is not installed. Install it to use 'agent validate'."
-        )
+        message = f"{_color('[ERROR]', RED)} PyYAML is not installed. Install it to use 'agent validate'."
         return 1, None, message
 
     try:
@@ -518,8 +474,6 @@ def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[dict], str]:
         return 1, None, message
 
     return 0, schema, ""
-
-
 
 
 def agent_validate(
@@ -539,17 +493,13 @@ def agent_validate(
     allowed_categories = set(fields.get("category", {}).get("enum", []))
     tier_fields = fields.get("tier", {}).get("properties", {})
     allowed_tiers = set(tier_fields.get("id", {}).get("enum", []))
-    allowed_strategies = set(
-        tier_fields.get("activation_strategy", {}).get("enum", [])
-    )
+    allowed_strategies = set(tier_fields.get("activation_strategy", {}).get("enum", []))
 
     include_all = bool(include_all) or not agent_names
 
     agent_paths: List[Path] = []
     if include_all:
-        agent_paths.extend(
-            _iter_agent_paths(claude_dir, claude_dir / "agents")
-        )
+        agent_paths.extend(_iter_agent_paths(claude_dir, claude_dir / "agents"))
         agent_paths.extend(
             _iter_agent_paths(claude_dir, claude_dir / "agents-disabled")
         )
@@ -571,7 +521,7 @@ def agent_validate(
 
     def dotted_get(data, dotted_key: str):
         current = data
-        for part in dotted_key.split('.'):
+        for part in dotted_key.split("."):
             if not isinstance(current, dict) or part not in current:
                 return None
             current = current[part]
@@ -589,11 +539,11 @@ def agent_validate(
             continue
 
         stripped = text.lstrip()
-        if not stripped.startswith('---'):
+        if not stripped.startswith("---"):
             errors.append(f"[ERROR] {path}: missing YAML front matter")
             continue
 
-        parts = stripped.split('---', 2)
+        parts = stripped.split("---", 2)
         if len(parts) < 3:
             errors.append(f"[ERROR] {path}: malformed front matter delimiter")
             continue
@@ -658,7 +608,7 @@ def agent_validate(
             local_errors.append("'dependencies' must be an object when provided")
 
         if local_errors:
-            joined = '; '.join(local_errors)
+            joined = "; ".join(local_errors)
             errors.append(f"[ERROR] {path}: {joined}")
             continue
 
@@ -670,24 +620,14 @@ def agent_validate(
     if errors:
         output_lines.extend(errors)
         if validated:
-            output_lines.append(
-                f"Validated {validated} agent(s) before failures."
-            )
-        output_lines.append(
-            _color("Agent metadata validation failed", RED)
-        )
+            output_lines.append(f"Validated {validated} agent(s) before failures.")
+        output_lines.append(_color("Agent metadata validation failed", RED))
         return 1, "\n".join(output_lines)
 
-    output_lines.append(
-        f"Validated {validated} agent(s) against schema v2.0."
-    )
-    output_lines.append(
-        _color("Agent metadata conforms to schema v2.0", GREEN)
-    )
+    output_lines.append(f"Validated {validated} agent(s) against schema v2.0.")
+    output_lines.append(_color("Agent metadata conforms to schema v2.0", GREEN))
 
     return 0, "\n".join(output_lines)
-
-
 
 
 def _agent_activate_recursive(
@@ -760,16 +700,14 @@ def _agent_activate_recursive(
     return 0
 
 
-
-
 def agent_activate(agent: str, home: Path | None = None) -> Tuple[int, str]:
     claude_dir = _resolve_claude_dir(home)
     messages: List[str] = []
     stack: List[str] = []
-    exit_code = _agent_activate_recursive(_display_agent_name(agent), claude_dir, stack, messages)
+    exit_code = _agent_activate_recursive(
+        _display_agent_name(agent), claude_dir, stack, messages
+    )
     return exit_code, "\n".join(messages)
-
-
 
 
 def agent_deactivate(
@@ -790,9 +728,7 @@ def agent_deactivate(
     dependents = _find_agent_dependents(claude_dir, agent_name)
     if dependents and not force:
         message = [
-            _color(
-                f"Cannot deactivate '{agent_name}' while required by:", RED
-            )
+            _color(f"Cannot deactivate '{agent_name}' while required by:", RED)
             + f" {' '.join(dependents)}",
             f"Use 'claude-ctx agent deps {agent_name}' to inspect relationships or '--force' to override.",
         ]
@@ -820,8 +756,6 @@ def agent_deactivate(
     return 0, "\n".join(messages)
 
 
-
-
 def list_agents(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     agents_dir = claude_dir / "agents"
@@ -847,8 +781,6 @@ def list_agents(home: Path | None = None) -> str:
     return "\n".join(lines)
 
 
-
-
 def agent_status(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     agents_dir = claude_dir / "agents"
@@ -861,8 +793,6 @@ def agent_status(home: Path | None = None) -> str:
             count += 1
     lines.append(_color(f"Total active agents: {count}", BLUE))
     return "\n".join(lines)
-
-
 
 
 def agent_deps(agent: str, home: Path | None = None) -> Tuple[int, str]:
@@ -894,9 +824,7 @@ def agent_deps(agent: str, home: Path | None = None) -> Tuple[int, str]:
         status_label = "active"
 
     # Build output lines
-    lines: List[str] = [
-        f"{_color('Agent:', BLUE)} {agent_name} ({status_label})"
-    ]
+    lines: List[str] = [f"{_color('Agent:', BLUE)} {agent_name} ({status_label})"]
 
     def _format_dependency_line(label: str, values: List[str]) -> None:
         formatted: List[str] = []
@@ -1019,5 +947,3 @@ BUILT_IN_PROFILES = [
     "product",
     "full",
 ]
-
-

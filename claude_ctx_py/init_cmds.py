@@ -53,7 +53,9 @@ def _get_project_state_dir(project_path: Path, home: Path | None = None) -> Path
     # Generate a new directory name using project name or timestamp
     project_name = project_path.name
     # Clean project name for filesystem
-    clean_name = "".join(c if c.isalnum() or c in ("-", "_") else "-" for c in project_name)
+    clean_name = "".join(
+        c if c.isalnum() or c in ("-", "_") else "-" for c in project_name
+    )
     return projects_dir / f"{clean_name}-{slug}"
 
 
@@ -75,7 +77,11 @@ def _detect_project_type(project_path: Path) -> dict:
     file_names = {f.name for f in files if f.is_file()}
 
     # Python detection
-    if "setup.py" in file_names or "pyproject.toml" in file_names or "requirements.txt" in file_names:
+    if (
+        "setup.py" in file_names
+        or "pyproject.toml" in file_names
+        or "requirements.txt" in file_names
+    ):
         detection["language"] = "python"
         detection["types"].append("python")
 
@@ -138,13 +144,17 @@ def _detect_project_type(project_path: Path) -> dict:
     return detection
 
 
-def _write_detection_json(state_dir: Path, project_path: Path, detection: dict, analysis_output: str = "") -> None:
+def _write_detection_json(
+    state_dir: Path, project_path: Path, detection: dict, analysis_output: str = ""
+) -> None:
     """Write detection results to JSON file."""
     slug = _generate_project_slug(project_path)
     data = {
         "path": str(project_path.resolve()),
         "slug": slug,
-        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc)
+        .isoformat()
+        .replace("+00:00", "Z"),
         **detection,
         "analysis_output": analysis_output,
     }
@@ -154,9 +164,13 @@ def _write_detection_json(state_dir: Path, project_path: Path, detection: dict, 
     detection_file.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
-def _write_session_log(state_dir: Path, project_path: Path, slug: str, analysis_output: str = "") -> None:
+def _write_session_log(
+    state_dir: Path, project_path: Path, slug: str, analysis_output: str = ""
+) -> None:
     """Write session log markdown file."""
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    timestamp = (
+        datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z")
+    )
 
     lines = [
         "# Init Detection Session",
@@ -196,7 +210,9 @@ def _recommend_profile(detection: dict) -> str:
     return "minimal"
 
 
-def init_detect(project_path: str | Path | None = None, home: Path | None = None) -> Tuple[int, str]:
+def init_detect(
+    project_path: str | Path | None = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Detect project type and recommend configuration."""
     if project_path is None:
         project_path = Path.cwd()
@@ -225,14 +241,18 @@ def init_detect(project_path: str | Path | None = None, home: Path | None = None
 
     # Recommend profile
     recommended_profile = _recommend_profile(detection)
-    analysis_lines.extend([
-        "",
-        "Recommended Configuration:",
-        f"  Profile: {recommended_profile}",
-    ])
+    analysis_lines.extend(
+        [
+            "",
+            "Recommended Configuration:",
+            f"  Profile: {recommended_profile}",
+        ]
+    )
 
     if detection["language"] or detection["framework"]:
-        analysis_lines.append(f"  Detected: {detection['language'] or 'unknown'} project")
+        analysis_lines.append(
+            f"  Detected: {detection['language'] or 'unknown'} project"
+        )
     else:
         analysis_lines.append("  Using basic configuration")
 
@@ -256,7 +276,9 @@ def init_detect(project_path: str | Path | None = None, home: Path | None = None
     return 0, "\n".join(output_lines)
 
 
-def init_minimal(project_path: str | Path | None = None, home: Path | None = None) -> Tuple[int, str]:
+def init_minimal(
+    project_path: str | Path | None = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Initialize with minimal profile without detection."""
     if project_path is None:
         project_path = Path.cwd()
@@ -271,7 +293,12 @@ def init_minimal(project_path: str | Path | None = None, home: Path | None = Non
     # Write state
     state_dir = _get_project_state_dir(project_path, home)
     slug = _generate_project_slug(project_path)
-    detection = {"language": None, "framework": None, "infrastructure": None, "types": []}
+    detection = {
+        "language": None,
+        "framework": None,
+        "infrastructure": None,
+        "types": [],
+    }
     analysis = "Initialized with minimal profile (no detection)"
     _write_detection_json(state_dir, project_path, detection, analysis)
     _write_session_log(state_dir, project_path, slug, analysis)
@@ -287,7 +314,9 @@ def init_minimal(project_path: str | Path | None = None, home: Path | None = Non
     return 0, "\n".join(lines)
 
 
-def init_profile(profile_name: str, project_path: str | Path | None = None, home: Path | None = None) -> Tuple[int, str]:
+def init_profile(
+    profile_name: str, project_path: str | Path | None = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Initialize with a specific profile."""
     if project_path is None:
         project_path = Path.cwd()
@@ -308,7 +337,12 @@ def init_profile(profile_name: str, project_path: str | Path | None = None, home
     # Write state
     state_dir = _get_project_state_dir(project_path, home)
     slug = _generate_project_slug(project_path)
-    detection = {"language": None, "framework": None, "infrastructure": None, "types": []}
+    detection = {
+        "language": None,
+        "framework": None,
+        "infrastructure": None,
+        "types": [],
+    }
     analysis = f"Initialized with {profile_name} profile"
     _write_detection_json(state_dir, project_path, detection, analysis)
     _write_session_log(state_dir, project_path, slug, analysis)
@@ -324,7 +358,9 @@ def init_profile(profile_name: str, project_path: str | Path | None = None, home
     return 0, "\n".join(lines)
 
 
-def init_status(project_path: str | Path | None = None, home: Path | None = None) -> Tuple[int, str]:
+def init_status(
+    project_path: str | Path | None = None, home: Path | None = None
+) -> Tuple[int, str]:
     """Show initialization status for a project."""
     if project_path is None:
         project_path = Path.cwd()

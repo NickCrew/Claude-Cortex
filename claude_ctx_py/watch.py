@@ -65,7 +65,7 @@ class WatchMode:
         """
         try:
             result = subprocess.run(
-                ['git', 'rev-parse', 'HEAD'],
+                ["git", "rev-parse", "HEAD"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -83,7 +83,7 @@ class WatchMode:
         try:
             # Get unstaged changes
             result = subprocess.run(
-                ['git', 'diff', '--name-only', 'HEAD'],
+                ["git", "diff", "--name-only", "HEAD"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -91,13 +91,13 @@ class WatchMode:
 
             # Get staged changes
             staged = subprocess.run(
-                ['git', 'diff', '--name-only', '--cached'],
+                ["git", "diff", "--name-only", "--cached"],
                 capture_output=True,
                 text=True,
                 check=True,
             )
 
-            all_files = set(result.stdout.split('\n') + staged.stdout.split('\n'))
+            all_files = set(result.stdout.split("\n") + staged.stdout.split("\n"))
             return [Path(f) for f in all_files if f.strip()]
 
         except Exception:
@@ -128,11 +128,7 @@ class WatchMode:
         return datetime.now().strftime("%H:%M:%S")
 
     def _print_notification(
-        self,
-        icon: str,
-        title: str,
-        message: str,
-        color: str = "white"
+        self, icon: str, title: str, message: str, color: str = "white"
     ) -> None:
         """Print a notification.
 
@@ -145,27 +141,29 @@ class WatchMode:
         timestamp = self._timestamp()
 
         # Store in history
-        self.notification_history.append({
-            'timestamp': timestamp,
-            'icon': icon,
-            'title': title,
-            'message': message,
-        })
+        self.notification_history.append(
+            {
+                "timestamp": timestamp,
+                "icon": icon,
+                "title": title,
+                "message": message,
+            }
+        )
 
         # Print with color
         color_codes = {
-            'red': '\033[91m',
-            'green': '\033[92m',
-            'yellow': '\033[93m',
-            'blue': '\033[94m',
-            'magenta': '\033[95m',
-            'cyan': '\033[96m',
-            'white': '\033[97m',
-            'dim': '\033[2m',
+            "red": "\033[91m",
+            "green": "\033[92m",
+            "yellow": "\033[93m",
+            "blue": "\033[94m",
+            "magenta": "\033[95m",
+            "cyan": "\033[96m",
+            "white": "\033[97m",
+            "dim": "\033[2m",
         }
 
-        reset = '\033[0m'
-        color_code = color_codes.get(color, color_codes['white'])
+        reset = "\033[0m"
+        color_code = color_codes.get(color, color_codes["white"])
 
         print(f"{color_code}[{timestamp}] {icon} {title}{reset}")
         if message:
@@ -205,10 +203,7 @@ class WatchMode:
 
         return False
 
-    def _recommendations_changed(
-        self,
-        new_recs: List[AgentRecommendation]
-    ) -> bool:
+    def _recommendations_changed(self, new_recs: List[AgentRecommendation]) -> bool:
         """Check if recommendations changed significantly.
 
         Args:
@@ -228,9 +223,7 @@ class WatchMode:
         return old_agents != new_agents
 
     def _show_recommendations(
-        self,
-        recommendations: List[AgentRecommendation],
-        context
+        self, recommendations: List[AgentRecommendation], context
     ) -> None:
         """Display recommendations.
 
@@ -243,7 +236,7 @@ class WatchMode:
                 "💤",
                 "No recommendations",
                 "Current context doesn't warrant any suggestions",
-                "dim"
+                "dim",
             )
             return
 
@@ -268,23 +261,25 @@ class WatchMode:
             "🔍",
             f"Context detected: {context_str}",
             f"{len(context.files_changed)} files changed",
-            "cyan"
+            "cyan",
         )
 
         # Show top recommendations
-        high_confidence = [r for r in recommendations if r.confidence >= self.notification_threshold]
+        high_confidence = [
+            r for r in recommendations if r.confidence >= self.notification_threshold
+        ]
 
         if high_confidence:
             print(f"  💡 Recommendations:\n")
             for rec in high_confidence[:5]:
                 # Urgency icon
                 urgency_icons = {
-                    'critical': '🔴',
-                    'high': '🟡',
-                    'medium': '🔵',
-                    'low': '⚪',
+                    "critical": "🔴",
+                    "high": "🟡",
+                    "medium": "🔵",
+                    "low": "⚪",
                 }
-                icon = urgency_icons.get(rec.urgency, '⚪')
+                icon = urgency_icons.get(rec.urgency, "⚪")
 
                 # Auto badge
                 auto_badge = " [AUTO]" if rec.auto_activate else ""
@@ -295,8 +290,7 @@ class WatchMode:
             print()
 
     def _handle_auto_activation(
-        self,
-        recommendations: List[AgentRecommendation]
+        self, recommendations: List[AgentRecommendation]
     ) -> None:
         """Handle auto-activation of agents.
 
@@ -313,10 +307,7 @@ class WatchMode:
             return
 
         self._print_notification(
-            "⚡",
-            f"Auto-activating {len(auto_agents)} agents...",
-            "",
-            "green"
+            "⚡", f"Auto-activating {len(auto_agents)} agents...", "", "green"
         )
 
         for agent_name in auto_agents:
@@ -344,7 +335,7 @@ class WatchMode:
                 "📝",
                 "Git commit detected",
                 f"HEAD: {current_head[:8] if current_head else 'unknown'}",
-                "yellow"
+                "yellow",
             )
             self.last_git_head = current_head
 
@@ -375,6 +366,7 @@ class WatchMode:
         Returns:
             Exit code
         """
+
         # Setup signal handlers
         def signal_handler(signum, frame):
             self.running = False
@@ -386,12 +378,7 @@ class WatchMode:
         self._print_banner()
 
         # Initial analysis
-        self._print_notification(
-            "🚀",
-            "Performing initial analysis...",
-            "",
-            "cyan"
-        )
+        self._print_notification("🚀", "Performing initial analysis...", "", "cyan")
         self._analyze_context()
 
         # Main loop
@@ -407,12 +394,7 @@ class WatchMode:
 
         finally:
             # Cleanup
-            self._print_notification(
-                "🛑",
-                "Watch mode stopped",
-                "",
-                "yellow"
-            )
+            self._print_notification("🛑", "Watch mode stopped", "", "yellow")
             self._print_statistics()
 
         return 0

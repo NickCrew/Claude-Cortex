@@ -22,7 +22,9 @@ def get_metrics_path() -> Path:
     Raises:
         MetricsFileError: If metrics directory cannot be created
     """
-    claude_home = os.environ.get("CLAUDE_CTX_HOME") or os.environ.get("CLAUDE_PLUGIN_ROOT")
+    claude_home = os.environ.get("CLAUDE_CTX_HOME") or os.environ.get(
+        "CLAUDE_PLUGIN_ROOT"
+    )
     if claude_home:
         base = Path(claude_home)
     else:
@@ -32,11 +34,7 @@ def get_metrics_path() -> Path:
     try:
         ensure_directory(metrics_dir, purpose="metrics storage")
     except Exception as exc:
-        raise MetricsFileError(
-            str(metrics_dir),
-            "create directory",
-            str(exc)
-        ) from exc
+        raise MetricsFileError(str(metrics_dir), "create directory", str(exc)) from exc
 
     return metrics_dir
 
@@ -71,9 +69,7 @@ def _save_metrics(metrics: Dict[str, Any]) -> None:
         safe_save_json(metrics_path, metrics)
     except Exception as exc:
         raise MetricsFileError(
-            str(metrics_path),
-            "write",
-            f"Failed to save metrics: {exc}"
+            str(metrics_path), "write", f"Failed to save metrics: {exc}"
         ) from exc
 
 
@@ -96,7 +92,7 @@ def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
             "total_tokens_saved": 0,
             "avg_tokens": 0,
             "last_activated": None,
-            "success_rate": 0.0
+            "success_rate": 0.0,
         }
 
     skill_metrics = metrics["skills"][skill_name]
@@ -157,10 +153,7 @@ def reset_metrics() -> None:
         metrics_path.unlink()
 
 
-def record_detailed_activation(
-    skill_name: str,
-    context: Dict[str, Any]
-) -> None:
+def record_detailed_activation(skill_name: str, context: Dict[str, Any]) -> None:
     """Record a detailed skill activation with rich context.
 
     Args:
@@ -202,19 +195,19 @@ def record_detailed_activation(
             "agent": context.get("agent", "unknown"),
             "task_type": context.get("task_type", "unknown"),
             "project_type": context.get("project_type", "unknown"),
-            "co_activated_skills": context.get("co_activated_skills", [])
+            "co_activated_skills": context.get("co_activated_skills", []),
         },
         "metrics": {
             "tokens_loaded": context.get("tokens_loaded", 0),
             "tokens_saved": context.get("tokens_saved", 0),
             "duration_ms": context.get("duration_ms", 0),
-            "success": context.get("success", True)
+            "success": context.get("success", True),
         },
         "effectiveness": {
             "relevance_score": context.get("relevance_score", 0.8),
             "completion_improvement": context.get("completion_improvement", 0.0),
-            "user_satisfaction": context.get("user_satisfaction", 3)
-        }
+            "user_satisfaction": context.get("user_satisfaction", 3),
+        },
     }
 
     # Add to activations list
@@ -229,9 +222,7 @@ def record_detailed_activation(
         safe_save_json(activations_file, activations_data)
     except Exception as exc:
         raise MetricsFileError(
-            str(activations_file),
-            "write",
-            f"Failed to save activation record: {exc}"
+            str(activations_file), "write", f"Failed to save activation record: {exc}"
         ) from exc
 
     # Also update the summary metrics
@@ -285,7 +276,7 @@ def get_impact_report(skill_name: str) -> Dict[str, Any]:
     return analytics.get_impact_report(skill_name, claude_dir)
 
 
-def generate_analytics_report(output_format: str = 'text') -> str:
+def generate_analytics_report(output_format: str = "text") -> str:
     """Generate comprehensive analytics report.
 
     Args:
@@ -335,9 +326,7 @@ def format_metrics(metrics: Dict[str, Any], skill_name: Optional[str] = None) ->
 
     # Sort by activation count (most used first)
     sorted_skills = sorted(
-        metrics.items(),
-        key=lambda x: x[1]["activation_count"],
-        reverse=True
+        metrics.items(), key=lambda x: x[1]["activation_count"], reverse=True
     )
 
     if not sorted_skills:
@@ -370,6 +359,8 @@ def format_metrics(metrics: Dict[str, Any], skill_name: Optional[str] = None) ->
     total_tokens = sum(m["total_tokens_saved"] for m in metrics.values())
 
     output.append("-" * 120)
-    output.append(f"\nTotal: {len(metrics)} skills, {total_activations} activations, {total_tokens:,} tokens saved")
+    output.append(
+        f"\nTotal: {len(metrics)} skills, {total_activations} activations, {total_tokens:,} tokens saved"
+    )
 
     return "\n".join(output)

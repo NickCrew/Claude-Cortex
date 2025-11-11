@@ -43,10 +43,10 @@ def parse_version(version_str: str) -> Tuple[int, int, int]:
         (2, 0, 1)
     """
     # Remove 'v' prefix if present
-    version_str = version_str.lstrip('v')
+    version_str = version_str.lstrip("v")
 
     # Match semantic version pattern
-    pattern = r'^(\d+)\.(\d+)\.(\d+)$'
+    pattern = r"^(\d+)\.(\d+)\.(\d+)$"
     match = re.match(pattern, version_str)
 
     if not match:
@@ -86,7 +86,7 @@ def check_compatibility(required: str, available: str) -> bool:
         False
     """
     # Handle 'latest' requirement
-    if required.lower() == 'latest':
+    if required.lower() == "latest":
         return True
 
     # Parse available version
@@ -96,15 +96,19 @@ def check_compatibility(required: str, available: str) -> bool:
         return False
 
     # Handle minimum version (>=)
-    if required.startswith('>='):
+    if required.startswith(">="):
         try:
             req_major, req_minor, req_patch = parse_version(required[2:])
-            return (avail_major, avail_minor, avail_patch) >= (req_major, req_minor, req_patch)
+            return (avail_major, avail_minor, avail_patch) >= (
+                req_major,
+                req_minor,
+                req_patch,
+            )
         except ValueError:
             return False
 
     # Handle caret (^) - allows minor and patch updates
-    if required.startswith('^'):
+    if required.startswith("^"):
         try:
             req_major, req_minor, req_patch = parse_version(required[1:])
             if avail_major != req_major:
@@ -114,7 +118,7 @@ def check_compatibility(required: str, available: str) -> bool:
             return False
 
     # Handle tilde (~) - allows patch updates only
-    if required.startswith('~'):
+    if required.startswith("~"):
         try:
             req_major, req_minor, req_patch = parse_version(required[1:])
             if (avail_major, avail_minor) != (req_major, req_minor):
@@ -126,7 +130,11 @@ def check_compatibility(required: str, available: str) -> bool:
     # Handle exact version match
     try:
         req_major, req_minor, req_patch = parse_version(required)
-        return (avail_major, avail_minor, avail_patch) == (req_major, req_minor, req_patch)
+        return (avail_major, avail_minor, avail_patch) == (
+            req_major,
+            req_minor,
+            req_patch,
+        )
     except ValueError:
         return False
 
@@ -161,8 +169,8 @@ def get_skill_versions(skill_name: str, claude_dir: Path) -> List[str]:
 
         # Extract version from directory name
         dir_name = skill_dir.name
-        if '@' in dir_name:
-            version = dir_name.split('@', 1)[1]
+        if "@" in dir_name:
+            version = dir_name.split("@", 1)[1]
             try:
                 # Validate it's a proper semantic version
                 parse_version(version)
@@ -172,10 +180,7 @@ def get_skill_versions(skill_name: str, claude_dir: Path) -> List[str]:
                 continue
 
     # Sort by semantic version (newest first)
-    versions.sort(
-        key=lambda v: parse_version(v),
-        reverse=True
-    )
+    versions.sort(key=lambda v: parse_version(v), reverse=True)
 
     return versions
 
@@ -222,11 +227,11 @@ def validate_version_requirement(requirement: str) -> bool:
         False
     """
     # Check for 'latest'
-    if requirement.lower() == 'latest':
+    if requirement.lower() == "latest":
         return True
 
     # Check for minimum version
-    if requirement.startswith('>='):
+    if requirement.startswith(">="):
         try:
             parse_version(requirement[2:])
             return True
@@ -234,7 +239,7 @@ def validate_version_requirement(requirement: str) -> bool:
             return False
 
     # Check for caret
-    if requirement.startswith('^'):
+    if requirement.startswith("^"):
         try:
             parse_version(requirement[1:])
             return True
@@ -242,7 +247,7 @@ def validate_version_requirement(requirement: str) -> bool:
             return False
 
     # Check for tilde
-    if requirement.startswith('~'):
+    if requirement.startswith("~"):
         try:
             parse_version(requirement[1:])
             return True
@@ -278,18 +283,17 @@ def parse_skill_with_version(skill_spec: str) -> Tuple[str, str]:
         >>> parse_skill_with_version("pdf")
         ("pdf", "latest")
     """
-    if '@' not in skill_spec:
+    if "@" not in skill_spec:
         return skill_spec, "latest"
 
-    parts = skill_spec.split('@', 1)
+    parts = skill_spec.split("@", 1)
     skill_name = parts[0].strip()
     version_req = parts[1].strip() if len(parts) > 1 else "latest"
 
     # Validate the version requirement
     if not validate_version_requirement(version_req):
         raise VersionFormatError(
-            version_req,
-            expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
+            version_req, expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
         )
 
     return skill_name, version_req
@@ -325,17 +329,14 @@ def format_skill_with_version(skill_name: str, version: str) -> str:
 
     if not validate_version_requirement(version):
         raise VersionFormatError(
-            version,
-            expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
+            version, expected_format="1.2.3, ^1.2.3, ~1.2.3, >=1.2.3, or 'latest'"
         )
 
     return f"{skill_name}@{version}"
 
 
 def resolve_version(
-    skill_name: str,
-    version_req: str,
-    claude_dir: Path
+    skill_name: str, version_req: str, claude_dir: Path
 ) -> Optional[str]:
     """Resolve a version requirement to a specific version.
 
@@ -354,7 +355,7 @@ def resolve_version(
         "2.1.0"
     """
     # Handle 'latest' requirement
-    if version_req.lower() == 'latest':
+    if version_req.lower() == "latest":
         return get_latest_version(skill_name, claude_dir)
 
     # Get all available versions

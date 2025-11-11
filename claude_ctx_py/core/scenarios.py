@@ -30,12 +30,8 @@ from .base import (
     _load_yaml,
     _load_yaml_dict,
     _now_iso,
-    _resolve_claude_dir
+    _resolve_claude_dir,
 )
-
-
-
-
 
 
 @dataclass
@@ -48,15 +44,11 @@ class ScenarioMetadata:
     source_file: Path
 
 
-
-
 def _scenario_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
     scenarios_dir = claude_dir / "scenarios"
     state_dir = scenarios_dir / ".state"
     lock_dir = scenarios_dir / ".locks"
     return scenarios_dir, state_dir, lock_dir
-
-
 
 
 def _ensure_scenarios_dir(claude_dir: Path) -> Tuple[Path, Path, Path]:
@@ -70,19 +62,13 @@ def _ensure_scenarios_dir(claude_dir: Path) -> Tuple[Path, Path, Path]:
     return scenarios_dir, state_dir, lock_dir
 
 
-
-
 def _scenario_schema_path(claude_dir: Path) -> Path:
     return claude_dir / "schema" / "scenario-schema-v1.yaml"
-
-
 
 
 def _scenario_lock_basename(value: str) -> str:
     sanitized = value.replace("/", "_").replace("\\", "_").strip()
     return sanitized or "scenario"
-
-
 
 
 def _scenario_init_state(state_file: Path, metadata: ScenarioMetadata) -> None:
@@ -95,8 +81,6 @@ def _scenario_init_state(state_file: Path, metadata: ScenarioMetadata) -> None:
         "phases": [],
     }
     state_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-
 
 
 def _scenario_update_phase_state(
@@ -117,11 +101,13 @@ def _scenario_update_phase_state(
         phases.append({})
 
     entry = phases[index] or {}
-    entry.update({
-        "name": phase_name,
-        "status": status,
-        "updated": _now_iso(),
-    })
+    entry.update(
+        {
+            "name": phase_name,
+            "status": status,
+            "updated": _now_iso(),
+        }
+    )
     if note:
         entry["note"] = note
     else:
@@ -129,8 +115,6 @@ def _scenario_update_phase_state(
     phases[index] = entry
 
     state_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
-
-
 
 
 def _scenario_finalize_state(state_file: Path, final_status: str) -> None:
@@ -141,8 +125,6 @@ def _scenario_finalize_state(state_file: Path, final_status: str) -> None:
     data["status"] = final_status
     data["completed"] = _now_iso()
     state_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
-
-
 
 
 def _collect_scenario_targets(
@@ -165,8 +147,6 @@ def _collect_scenario_targets(
         else:
             messages.append(_color(f"Scenario file not found: {raw}", RED))
     return targets
-
-
 
 
 def _parse_scenario_metadata(
@@ -222,8 +202,6 @@ def _parse_scenario_metadata(
     return 0, metadata, ""
 
 
-
-
 def scenario_list(home: Path | None = None) -> str:
     """List all available scenarios."""
     claude_dir = _resolve_claude_dir(home)
@@ -249,8 +227,6 @@ def scenario_list(home: Path | None = None) -> str:
         lines.append(f"- {name} [priority: {priority}]")
         lines.append(f"  {desc}")
     return "\n".join(lines)
-
-
 
 
 def scenario_validate(
@@ -349,8 +325,6 @@ def scenario_validate(
     return exit_code, "\n".join(messages)
 
 
-
-
 def scenario_status(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     _, state_dir, lock_dir = _ensure_scenarios_dir(claude_dir)
@@ -400,8 +374,6 @@ def scenario_status(home: Path | None = None) -> str:
     return "\n".join(lines)
 
 
-
-
 def scenario_stop(scenario_name: str, home: Path | None = None) -> Tuple[int, str]:
     """Stop a running scenario by clearing its lock."""
     claude_dir = _resolve_claude_dir(home)
@@ -420,8 +392,6 @@ def scenario_stop(scenario_name: str, home: Path | None = None) -> Tuple[int, st
         return 1, _color(f"Failed to clear lock: {exc}", RED)
 
     return 0, _color(f"Cleared lock for scenario '{scenario_name}'", GREEN)
-
-
 
 
 def scenario_run(
@@ -448,12 +418,21 @@ def scenario_run(
             run_mode = "automatic"
         elif normalized in ("--interactive", "interactive"):
             run_mode = "interactive"
-        elif normalized in ("--plan", "--preview", "--validate", "plan", "preview", "validate"):
+        elif normalized in (
+            "--plan",
+            "--preview",
+            "--validate",
+            "plan",
+            "preview",
+            "validate",
+        ):
             run_mode = "plan"
         else:
             warnings.append(_color(f"Ignoring unknown option '{option}'", YELLOW))
 
-    scenario_filename = scenario_name if scenario_name.endswith(".yaml") else f"{scenario_name}.yaml"
+    scenario_filename = (
+        scenario_name if scenario_name.endswith(".yaml") else f"{scenario_name}.yaml"
+    )
     scenario_file = scenarios_dir / scenario_filename
     if not scenario_file.is_file():
         message = _color(f"Scenario file not found: {scenario_name}", RED)
@@ -561,7 +540,10 @@ def scenario_run(
                 except ValueError:
                     filename = f"{agent}.md"
                 if _find_agent_file_any_state(claude_dir, filename) is None:
-                    lines.append("    " + _color(f"Warning: could not activate '{agent}'", YELLOW))
+                    lines.append(
+                        "    "
+                        + _color(f"Warning: could not activate '{agent}'", YELLOW)
+                    )
 
             _generate_dependency_map(claude_dir)
             _scenario_update_phase_state(
@@ -587,10 +569,6 @@ def scenario_run(
     return exit_code, "\n".join(lines)
 
 
-
-
 def scenario_preview(scenario_name: str, home: Path | None = None) -> Tuple[int, str]:
     """Preview a scenario without executing it."""
     return scenario_run(scenario_name, "plan", home=home)
-
-

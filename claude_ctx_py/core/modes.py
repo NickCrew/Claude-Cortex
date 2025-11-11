@@ -30,24 +30,16 @@ from .base import (
     _refresh_claude_md,
     _remove_exact_entries,
     _resolve_claude_dir,
-    _update_with_backup
+    _update_with_backup,
 )
-
-
-
-
 
 
 def _mode_active_file(claude_dir: Path) -> Path:
     return claude_dir / ".active-modes"
 
 
-
-
 def _mode_inactive_dir(claude_dir: Path) -> Path:
     return claude_dir / "modes" / "inactive"
-
-
 
 
 def mode_activate(mode: str, home: Path | None = None) -> tuple[int, str]:
@@ -74,8 +66,6 @@ def mode_activate(mode: str, home: Path | None = None) -> tuple[int, str]:
 
     _refresh_claude_md(claude_dir)
     return 0, _color(f"Activated mode: {mode}", GREEN)
-
-
 
 
 def mode_deactivate(mode: str, home: Path | None = None) -> tuple[int, str]:
@@ -106,8 +96,6 @@ def mode_deactivate(mode: str, home: Path | None = None) -> tuple[int, str]:
     return 0, _color(f"Deactivated mode: {mode}", YELLOW)
 
 
-
-
 def list_modes(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     modes_dir = claude_dir / "modes"
@@ -130,8 +118,6 @@ def list_modes(home: Path | None = None) -> str:
     return "\n".join(lines)
 
 
-
-
 def mode_status(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     active_file = claude_dir / ".active-modes"
@@ -143,5 +129,3 @@ def mode_status(home: Path | None = None) -> str:
     else:
         lines.append("  None")
     return "\n".join(lines)
-
-

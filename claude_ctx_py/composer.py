@@ -228,9 +228,7 @@ def get_dependency_tree(
 
     direct_deps = composition_map.get(skill_name, [])
     for dep in direct_deps:
-        dep_tree = get_dependency_tree(
-            dep, composition_map, level + 1, visited_copy
-        )
+        dep_tree = get_dependency_tree(dep, composition_map, level + 1, visited_copy)
         tree["dependencies"].append(dep_tree)
 
     return tree
@@ -272,7 +270,7 @@ def format_dependency_tree(
 
 
 def get_all_skills_with_dependencies(
-    composition_map: Dict[str, List[str]]
+    composition_map: Dict[str, List[str]],
 ) -> List[str]:
     """Get list of all skills that have at least one dependency.
 
@@ -282,7 +280,4 @@ def get_all_skills_with_dependencies(
     Returns:
         Sorted list of skill names with dependencies
     """
-    return sorted([
-        skill for skill, deps in composition_map.items()
-        if deps
-    ])
+    return sorted([skill for skill, deps in composition_map.items() if deps])

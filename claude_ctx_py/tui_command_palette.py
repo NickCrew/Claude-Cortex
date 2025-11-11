@@ -44,11 +44,14 @@ class CommandPalette(ModalScreen[Optional[str]]):
             with Vertical():
                 yield Static(f"{Icons.SEARCH} Command Palette", id="palette-title")
                 yield Input(placeholder="Summon anything…", id="palette-input")
-                yield Static("[dim italic]Neon holo-panel ready. Type to filter, press Enter to fire.[/dim italic]", id="palette-subtitle")
+                yield Static(
+                    "[dim italic]Neon holo-panel ready. Type to filter, press Enter to fire.[/dim italic]",
+                    id="palette-subtitle",
+                )
                 yield ListView(id="palette-results")
                 yield Static(
                     f"[dim]{Icons.ARROW_UP}/{Icons.ARROW_DOWN} Navigate  {Icons.SUCCESS} Select  Esc Close[/dim]",
-                    id="palette-help"
+                    id="palette-help",
                 )
 
     def on_mount(self) -> None:
@@ -71,7 +74,7 @@ class CommandPalette(ModalScreen[Optional[str]]):
             # Fuzzy search implementation
             self.filtered_commands = []
             for cmd in self.commands:
-                score = self._fuzzy_match(query, cmd['name'].lower())
+                score = self._fuzzy_match(query, cmd["name"].lower())
                 if score > 0:
                     self.filtered_commands.append((score, cmd))
 
@@ -127,9 +130,9 @@ class CommandPalette(ModalScreen[Optional[str]]):
                 return
 
             for idx, cmd in enumerate(self.filtered_commands[:10]):  # Show top 10
-                name = cmd['name']
-                description = cmd.get('description', '')
-                badge = cmd.get('badge')
+                name = cmd["name"]
+                description = cmd.get("description", "")
+                badge = cmd.get("badge")
                 name_text = self._highlight_query(name)
                 desc_text = self._highlight_query(description)
 
@@ -137,7 +140,9 @@ class CommandPalette(ModalScreen[Optional[str]]):
                 if idx == self.selected_index:
                     label = f"[reverse]{Icons.ARROW_RIGHT} {name_text}{badge_text}[/reverse] [dim]{desc_text}[/dim]"
                 else:
-                    label = f"{Icons.SPACE} {name_text}{badge_text} [dim]{desc_text}[/dim]"
+                    label = (
+                        f"{Icons.SPACE} {name_text}{badge_text} [dim]{desc_text}[/dim]"
+                    )
 
                 results.append(ListItem(Label(label)))
 
@@ -175,7 +180,7 @@ class CommandPalette(ModalScreen[Optional[str]]):
         """Select the current command."""
         if self.filtered_commands and self.selected_index < len(self.filtered_commands):
             selected = self.filtered_commands[self.selected_index]
-            self.dismiss(selected['action'])
+            self.dismiss(selected["action"])
         else:
             self.dismiss(None)
 
@@ -191,7 +196,9 @@ class CommandRegistry:
         """Initialize command registry."""
         self.commands: List[Dict[str, str]] = []
 
-    def register(self, name: str, description: str, action: str, badge: Optional[str] = None) -> None:
+    def register(
+        self, name: str, description: str, action: str, badge: Optional[str] = None
+    ) -> None:
         """Register a new command.
 
         Args:
@@ -199,16 +206,14 @@ class CommandRegistry:
             description: Brief description
             action: Action identifier (e.g., "show_agents")
         """
-        command = {
-            'name': name,
-            'description': description,
-            'action': action
-        }
+        command = {"name": name, "description": description, "action": action}
         if badge:
-            command['badge'] = badge
+            command["badge"] = badge
         self.commands.append(command)
 
-    def register_batch(self, commands: List[Tuple[str, str, str] | Tuple[str, str, str, str]]) -> None:
+    def register_batch(
+        self, commands: List[Tuple[str, str, str] | Tuple[str, str, str, str]]
+    ) -> None:
         """Register multiple commands at once.
 
         Args:
@@ -266,13 +271,38 @@ DEFAULT_COMMANDS = [
     ("Skill Agents", "Show agents using the skill", "skill_agents", "skills"),
     ("Skill Compose", "Show compose graph", "skill_compose", "skills"),
     ("Skill Analyze Text", "Analyze text to suggest skills", "skill_analyze", "ai"),
-    ("Skill Suggest Project", "Suggest skills for current project", "skill_suggest", "ai"),
+    (
+        "Skill Suggest Project",
+        "Suggest skills for current project",
+        "skill_suggest",
+        "ai",
+    ),
     ("Skill Analytics", "Show analytics dashboard", "skill_analytics", "metrics"),
     ("Skill Report", "Generate analytics report", "skill_report", "metrics"),
     ("Skill Trending", "Show trending skills", "skill_trending", "metrics"),
     ("Skill Metrics Reset", "Reset skill metrics", "skill_metrics_reset", "danger"),
-    ("Community Install Skill", "Install a community skill", "skill_community_install", "catalog"),
-    ("Community Validate Skill", "Validate a community skill", "skill_community_validate", "catalog"),
-    ("Community Rate Skill", "Rate a community skill", "skill_community_rate", "catalog"),
-    ("Community Search", "Search community skills", "skill_community_search", "catalog"),
+    (
+        "Community Install Skill",
+        "Install a community skill",
+        "skill_community_install",
+        "catalog",
+    ),
+    (
+        "Community Validate Skill",
+        "Validate a community skill",
+        "skill_community_validate",
+        "catalog",
+    ),
+    (
+        "Community Rate Skill",
+        "Rate a community skill",
+        "skill_community_rate",
+        "catalog",
+    ),
+    (
+        "Community Search",
+        "Search community skills",
+        "skill_community_search",
+        "catalog",
+    ),
 ]

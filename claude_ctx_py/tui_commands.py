@@ -61,7 +61,6 @@ class AgentCommandProvider(Provider):
                 "deactivate_agent",
                 CATEGORY_AGENT,
             ),
-
             # ═══════════════════════════════════════════════════════
             # MODE MANAGEMENT - Behavioral Control
             # ═══════════════════════════════════════════════════════
@@ -77,7 +76,6 @@ class AgentCommandProvider(Provider):
                 "toggle_mode",
                 CATEGORY_MODE,
             ),
-
             # ═══════════════════════════════════════════════════════
             # RULE MANAGEMENT - Policy Enforcement
             # ═══════════════════════════════════════════════════════
@@ -93,7 +91,6 @@ class AgentCommandProvider(Provider):
                 "toggle_rule",
                 CATEGORY_RULE,
             ),
-
             # ═══════════════════════════════════════════════════════
             # SYSTEM VIEWS - Monitoring & Control
             # ═══════════════════════════════════════════════════════
@@ -115,7 +112,6 @@ class AgentCommandProvider(Provider):
                 "show_orchestrate",
                 CATEGORY_VIEW,
             ),
-
             # ═══════════════════════════════════════════════════════
             # SYSTEM OPERATIONS - Core Functions
             # ═══════════════════════════════════════════════════════

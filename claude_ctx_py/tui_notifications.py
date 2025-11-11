@@ -53,7 +53,9 @@ class Toast:
         """
         self._add_notification("warning", message, duration)
 
-    def _add_notification(self, notif_type: NotificationType, message: str, duration: int) -> None:
+    def _add_notification(
+        self, notif_type: NotificationType, message: str, duration: int
+    ) -> None:
         """Add a notification to the queue.
 
         Args:
@@ -61,12 +63,14 @@ class Toast:
             message: Notification message
             duration: Duration in seconds
         """
-        self.notifications.append({
-            'type': notif_type,
-            'message': message,
-            'created': datetime.now(),
-            'expires': datetime.now() + timedelta(seconds=duration)
-        })
+        self.notifications.append(
+            {
+                "type": notif_type,
+                "message": message,
+                "created": datetime.now(),
+                "expires": datetime.now() + timedelta(seconds=duration),
+            }
+        )
 
     def render(self, max_notifications: int = 3) -> List[str]:
         """Render active notifications as formatted strings.
@@ -80,7 +84,7 @@ class Toast:
         now = datetime.now()
 
         # Remove expired notifications
-        self.notifications = [n for n in self.notifications if n['expires'] > now]
+        self.notifications = [n for n in self.notifications if n["expires"] > now]
 
         # Render active notifications (most recent first)
         active = self.notifications[-max_notifications:]
@@ -102,14 +106,14 @@ class Toast:
             Formatted notification string
         """
         icon_map = {
-            'success': (Icons.SUCCESS, 'green'),
-            'error': (Icons.ERROR, 'red'),
-            'info': (Icons.INFO, 'blue'),
-            'warning': (Icons.WARNING, 'yellow')
+            "success": (Icons.SUCCESS, "green"),
+            "error": (Icons.ERROR, "red"),
+            "info": (Icons.INFO, "blue"),
+            "warning": (Icons.WARNING, "yellow"),
         }
 
-        icon, color = icon_map.get(notif['type'], (Icons.INFO, 'blue'))
-        message = notif['message']
+        icon, color = icon_map.get(notif["type"], (Icons.INFO, "blue"))
+        message = notif["message"]
 
         return f"[{color}]{icon}[/{color}] {message}"
 
@@ -120,7 +124,7 @@ class Toast:
             True if there are active notifications
         """
         now = datetime.now()
-        self.notifications = [n for n in self.notifications if n['expires'] > now]
+        self.notifications = [n for n in self.notifications if n["expires"] > now]
         return len(self.notifications) > 0
 
     def clear(self) -> None:
@@ -134,7 +138,7 @@ class Toast:
             Number of active notifications
         """
         now = datetime.now()
-        self.notifications = [n for n in self.notifications if n['expires'] > now]
+        self.notifications = [n for n in self.notifications if n["expires"] > now]
         return len(self.notifications)
 
 
@@ -173,13 +177,13 @@ class StatusMessage:
             return ""
 
         icon_map = {
-            'success': (Icons.SUCCESS, 'green'),
-            'error': (Icons.ERROR, 'red'),
-            'info': (Icons.INFO, 'blue'),
-            'warning': (Icons.WARNING, 'yellow')
+            "success": (Icons.SUCCESS, "green"),
+            "error": (Icons.ERROR, "red"),
+            "info": (Icons.INFO, "blue"),
+            "warning": (Icons.WARNING, "yellow"),
         }
 
-        icon, color = icon_map.get(self._message_type, (Icons.INFO, 'blue'))
+        icon, color = icon_map.get(self._message_type, (Icons.INFO, "blue"))
         return f"[{color}]{icon}[/{color}] {self._message}"
 
     def has_message(self) -> bool:

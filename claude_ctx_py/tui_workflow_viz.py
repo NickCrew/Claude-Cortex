@@ -17,7 +17,7 @@ class WorkflowNode:
         node_id: str,
         name: str,
         status: str = "pending",
-        dependencies: Optional[List[str]] = None
+        dependencies: Optional[List[str]] = None,
     ):
         """Initialize workflow node.
 
@@ -116,7 +116,11 @@ class WorkflowTimeline:
                 return 0
 
             # Level is 1 + max level of dependencies
-            dep_levels = [get_level(dep_id) for dep_id in node.dependencies if dep_id in self.nodes]
+            dep_levels = [
+                get_level(dep_id)
+                for dep_id in node.dependencies
+                if dep_id in self.nodes
+            ]
             levels[node_id] = max(dep_levels, default=0) + 1
             return levels[node_id]
 
@@ -218,7 +222,9 @@ class WorkflowTimeline:
 
         # Find time bounds
         start_times = [n.start_time for n in self.nodes.values() if n.start_time]
-        end_times = [n.end_time or datetime.now() for n in self.nodes.values() if n.start_time]
+        end_times = [
+            n.end_time or datetime.now() for n in self.nodes.values() if n.start_time
+        ]
 
         if not start_times:
             return ["[dim]No workflow data available[/dim]"]
@@ -302,13 +308,13 @@ class WorkflowTimeline:
             total_duration = (workflow_end - workflow_start).total_seconds()
 
         return {
-            'total': total,
-            'complete': complete,
-            'running': running,
-            'pending': pending,
-            'errors': errors,
-            'completion_pct': (complete / total * 100) if total > 0 else 0,
-            'duration': total_duration,
+            "total": total,
+            "complete": complete,
+            "running": running,
+            "pending": pending,
+            "errors": errors,
+            "completion_pct": (complete / total * 100) if total > 0 else 0,
+            "duration": total_duration,
         }
 
 
@@ -352,7 +358,9 @@ class DependencyVisualizer:
 
         return lines
 
-    def _render_subtree(self, node: WorkflowNode, prefix: str, is_last: bool) -> List[str]:
+    def _render_subtree(
+        self, node: WorkflowNode, prefix: str, is_last: bool
+    ) -> List[str]:
         """Recursively render a subtree.
 
         Args:
@@ -374,10 +382,7 @@ class DependencyVisualizer:
         lines.append(node_line)
 
         # Find dependents (nodes that depend on this one)
-        dependents = [
-            n for n in self.nodes.values()
-            if node.node_id in n.dependencies
-        ]
+        dependents = [n for n in self.nodes.values() if node.node_id in n.dependencies]
 
         # Render dependents
         if dependents:
@@ -385,7 +390,9 @@ class DependencyVisualizer:
 
             for idx, dependent in enumerate(dependents):
                 is_last_dependent = idx == len(dependents) - 1
-                lines.extend(self._render_subtree(dependent, new_prefix, is_last_dependent))
+                lines.extend(
+                    self._render_subtree(dependent, new_prefix, is_last_dependent)
+                )
 
         return lines
 

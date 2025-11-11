@@ -45,3 +45,4 @@ Thumbs.db
 htmlcov/
 coverage.xml
 .tox/
+__pycache__

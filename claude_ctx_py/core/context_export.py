@@ -10,7 +10,15 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
-from .base import _resolve_claude_dir, _iter_md_files, _parse_active_entries, _color, GREEN, YELLOW, RED
+from .base import (
+    _resolve_claude_dir,
+    _iter_md_files,
+    _parse_active_entries,
+    _color,
+    GREEN,
+    YELLOW,
+    RED,
+)
 
 
 def _read_file_content(file_path: Path) -> str:
@@ -195,7 +203,9 @@ def _get_skills(claude_dir: Path) -> Dict[str, Path]:
     return skill_files
 
 
-def collect_context_components(claude_dir: Path | None = None) -> Dict[str, Dict[str, Path]]:
+def collect_context_components(
+    claude_dir: Path | None = None,
+) -> Dict[str, Dict[str, Path]]:
     """Collect all context components organized by category.
 
     Args:
@@ -256,7 +266,9 @@ def export_context(
     if agent_generic:
         lines.append("# AI Agent Context Export")
         lines.append("")
-        lines.append("This file contains the complete context configuration for AI agent interactions.")
+        lines.append(
+            "This file contains the complete context configuration for AI agent interactions."
+        )
         lines.append(f"Exported from: {claude_dir}")
         lines.append("")
         lines.append("---")
@@ -279,7 +291,10 @@ def export_context(
         "rules": ("Rules", "Active rule modules for workflow guidance"),
         "modes": ("Active Modes", "Currently active behavioral modes"),
         "agents": ("Active Agents", "Currently active specialized agents"),
-        "mcp_docs": ("MCP Documentation", "Model Context Protocol integration documentation"),
+        "mcp_docs": (
+            "MCP Documentation",
+            "Model Context Protocol integration documentation",
+        ),
         "skills": ("Skills", "Available skill definitions"),
     }
 

@@ -25,8 +25,6 @@ RED = "\033[0;31m"
 NC = "\033[0m"
 
 
-
-
 def _color(text: str, color: str) -> str:
     return f"{color}{text}{NC}"
 
@@ -35,8 +33,6 @@ try:  # pragma: no cover - dependency availability exercised in tests
     import yaml  # type: ignore
 except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
-
-
 
 
 def _resolve_claude_dir(home: Path | None = None) -> Path:
@@ -64,8 +60,6 @@ def _resolve_claude_dir(home: Path | None = None) -> Path:
     return base / ".claude"
 
 
-
-
 def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
     """Ensure init directories exist and return (state, projects, cache)."""
 
@@ -77,8 +71,6 @@ def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
         path.mkdir(parents=True, exist_ok=True)
 
     return state_dir, projects_dir, cache_dir
-
-
 
 
 def _init_slug_for_path(path: Path) -> str:
@@ -102,14 +94,10 @@ def _init_slug_for_path(path: Path) -> str:
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
 
 
-
-
 def _strip_ansi_codes(text: str) -> str:
     if not text:
         return ""
     return _ANSI_RE.sub("", text)
-
-
 
 
 def _run_detection_command(command: Sequence[str], cwd: Path) -> str:
@@ -130,25 +118,17 @@ def _run_detection_command(command: Sequence[str], cwd: Path) -> str:
     return result.stdout or ""
 
 
-
-
 def _run_detect_project_type(project_path: Path) -> str:
     return _run_detection_command(["detect_project_type"], project_path).strip()
-
-
 
 
 def _run_analyze_project(project_path: Path) -> str:
     return _run_detection_command(["analyze_project"], project_path)
 
 
-
-
 def _is_disabled(path: Path) -> bool:
     text = str(path)
     return "/disabled/" in text or "/inactive/" in text
-
-
 
 
 def _iter_md_files(directory: Path) -> List[Path]:
@@ -157,14 +137,10 @@ def _iter_md_files(directory: Path) -> List[Path]:
     return sorted(p for p in directory.glob("*.md") if p.is_file())
 
 
-
-
 def _iter_all_files(directory: Path) -> List[Path]:
     if not directory.is_dir():
         return []
     return sorted(p for p in directory.iterdir() if p.is_file())
-
-
 
 
 def _parse_active_entries(path: Path) -> List[str]:
@@ -178,8 +154,6 @@ def _parse_active_entries(path: Path) -> List[str]:
         if value:
             entries.append(value)
     return entries
-
-
 
 
 def _update_with_backup(path: Path, transform: Callable[[str], str]) -> None:
@@ -196,8 +170,6 @@ def _update_with_backup(path: Path, transform: Callable[[str], str]) -> None:
     path.write_text(updated, encoding="utf-8")
 
 
-
-
 def _uncomment_rule_line(content: str, rule: str) -> str:
     prefix = f"# @rules/{rule}.md"
     marker = "    # Uncomment to activate"
@@ -205,15 +177,13 @@ def _uncomment_rule_line(content: str, rule: str) -> str:
     lines = []
     for line in content.splitlines(keepends=True):
         if line.startswith(prefix):
-            remainder = line[len(prefix):]
+            remainder = line[len(prefix) :]
             if remainder.startswith(marker):
-                remainder = remainder[len(marker):]
+                remainder = remainder[len(marker) :]
             lines.append(f"{replacement}{remainder}")
         else:
             lines.append(line)
     return "".join(lines)
-
-
 
 
 def _comment_rule_line(content: str, rule: str) -> str:
@@ -222,13 +192,11 @@ def _comment_rule_line(content: str, rule: str) -> str:
     lines = []
     for line in content.splitlines(keepends=True):
         if line.startswith(prefix):
-            remainder = line[len(prefix):]
+            remainder = line[len(prefix) :]
             lines.append(f"{replacement}{remainder}")
         else:
             lines.append(line)
     return "".join(lines)
-
-
 
 
 def _remove_exact_entries(content: str, value: str) -> str:
@@ -242,8 +210,6 @@ def _remove_exact_entries(content: str, value: str) -> str:
     return "".join(result)
 
 
-
-
 def _extract_front_matter(text: str) -> Optional[str]:
     stripped = text.lstrip()
     if not stripped.startswith("---"):
@@ -255,8 +221,6 @@ def _extract_front_matter(text: str) -> Optional[str]:
 
 
 FrontMatterToken = Tuple[int, str]
-
-
 
 
 def _tokenize_front_matter(lines: Optional[Iterable[str]]) -> List[FrontMatterToken]:
@@ -273,8 +237,6 @@ def _tokenize_front_matter(lines: Optional[Iterable[str]]) -> List[FrontMatterTo
     return tokens
 
 
-
-
 def _strip_inline_comment(value: str) -> str:
     if not value:
         return value
@@ -283,15 +245,11 @@ def _strip_inline_comment(value: str) -> str:
     return value.strip()
 
 
-
-
 def _clean_scalar(value: str) -> str:
     value = _strip_inline_comment(value)
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
         value = value[1:-1]
     return value.strip()
-
-
 
 
 def _parse_inline_list(value: str) -> List[str]:
@@ -317,7 +275,7 @@ def _parse_inline_list(value: str) -> List[str]:
             current.append(char)
             continue
 
-        if char == ',':
+        if char == ",":
             item = "".join(current).strip()
             if item:
                 items.append(item)
@@ -333,8 +291,6 @@ def _parse_inline_list(value: str) -> List[str]:
     return [_clean_scalar(item) for item in items if _clean_scalar(item)]
 
 
-
-
 def _find_key(
     tokens: Sequence[FrontMatterToken],
     start_index: int,
@@ -347,11 +303,9 @@ def _find_key(
         if indent <= parent_indent:
             return None
         if stripped.startswith(prefix):
-            remainder = stripped[len(prefix):].strip()
+            remainder = stripped[len(prefix) :].strip()
             return index, indent, remainder
     return None
-
-
 
 
 def _locate_path(
@@ -368,8 +322,6 @@ def _locate_path(
     return index, parent_indent, remainder
 
 
-
-
 def _collect_list_items(
     tokens: Sequence[FrontMatterToken],
     start_index: int,
@@ -383,8 +335,6 @@ def _collect_list_items(
         if stripped.startswith("- "):
             values.append(_clean_scalar(stripped[2:]))
     return [value for value in values if value]
-
-
 
 
 def _extract_values_for_path(
@@ -406,8 +356,6 @@ def _extract_values_for_path(
     return _collect_list_items(tokens, index + 1, indent)
 
 
-
-
 def _extract_values_from_paths(
     tokens: Sequence[FrontMatterToken], paths: Sequence[Sequence[str]]
 ) -> List[str]:
@@ -416,8 +364,6 @@ def _extract_values_from_paths(
         if values is not None:
             return values
     return []
-
-
 
 
 def _extract_scalar_from_paths(
@@ -434,8 +380,6 @@ def _extract_scalar_from_paths(
     return None
 
 
-
-
 def _backup_config(claude_dir: Path) -> None:
     claude_md = claude_dir / "CLAUDE.md"
     if not claude_md.is_file():
@@ -445,12 +389,8 @@ def _backup_config(claude_dir: Path) -> None:
     backup_path.write_text(claude_md.read_text(encoding="utf-8"), encoding="utf-8")
 
 
-
-
 def _render_section(lines: Iterable[str]) -> str:
     return "\n".join(lines) + "\n"
-
-
 
 
 def _refresh_claude_md(claude_dir: Path) -> None:
@@ -526,8 +466,6 @@ def _refresh_claude_md(claude_dir: Path) -> None:
     claude_md.write_text("".join(sections), encoding="utf-8")
 
 
-
-
 def _load_yaml(path: Path) -> Tuple[bool, Any, str]:
     if yaml is None:
         return False, None, "PyYAML is not installed."
@@ -542,8 +480,6 @@ def _load_yaml(path: Path) -> Tuple[bool, Any, str]:
     return True, data, ""
 
 
-
-
 def _load_yaml_dict(path: Path) -> Tuple[bool, Dict[str, Any], str]:
     ok, data, error = _load_yaml(path)
     if not ok:
@@ -553,8 +489,6 @@ def _load_yaml_dict(path: Path) -> Tuple[bool, Dict[str, Any], str]:
     if not isinstance(data, dict):
         return False, {}, "Scenario definition must be a mapping"
     return True, data, ""
-
-
 
 
 def _flatten_mixed(items: Any) -> List[str]:
@@ -587,8 +521,6 @@ def _flatten_mixed(items: Any) -> List[str]:
     return result
 
 
-
-
 def _ensure_list(value: Any, label: str, messages: List[str]) -> List[Any]:
     if value is None:
         return []
@@ -598,15 +530,13 @@ def _ensure_list(value: Any, label: str, messages: List[str]) -> List[Any]:
     return []
 
 
-
-
 def _now_iso() -> str:
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
 
-
-
-def _load_detection_file(path: Path) -> Tuple[Optional[dict], Optional[str], Optional[str]]:
+def _load_detection_file(
+    path: Path,
+) -> Tuple[Optional[dict], Optional[str], Optional[str]]:
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
@@ -620,8 +550,6 @@ def _load_detection_file(path: Path) -> Tuple[Optional[dict], Optional[str], Opt
         return None, f"invalid JSON: {exc}", text
 
     return data, None, text
-
-
 
 
 def _resolve_init_target(
@@ -680,8 +608,6 @@ def _resolve_init_target(
     return slug, resolved_path, None
 
 
-
-
 def _prompt_user(prompt: str, default: str = "") -> str:
     """Prompt the user for input with an optional default."""
 
@@ -699,8 +625,6 @@ def _prompt_user(prompt: str, default: str = "") -> str:
     return response if response else default
 
 
-
-
 def _confirm(prompt: str, default: bool = True) -> bool:
     """Prompt the user to confirm an action."""
 
@@ -711,8 +635,6 @@ def _confirm(prompt: str, default: bool = True) -> bool:
         return default
 
     return response.lower() in {"y", "yes"}
-
-
 
 
 def _format_detection_summary(data: dict[str, object]) -> List[str]:
@@ -729,13 +651,11 @@ def _format_detection_summary(data: dict[str, object]) -> List[str]:
     return lines
 
 
-
-
 def _format_header(title: str) -> str:
     separator = "━" * 60
-    return f"{_color(separator, BLUE)}\n{_color(title, BLUE)}\n{_color(separator, BLUE)}"
-
-
+    return (
+        f"{_color(separator, BLUE)}\n{_color(title, BLUE)}\n{_color(separator, BLUE)}"
+    )
 
 
 def _parse_selection(
@@ -759,15 +679,17 @@ def _parse_selection(
     for selection in selections:
         match = lower_map.get(selection.lower())
         if not match:
-            return False, [], _color(
-                f"Unknown {label}: {selection}",
-                RED,
+            return (
+                False,
+                [],
+                _color(
+                    f"Unknown {label}: {selection}",
+                    RED,
+                ),
             )
         resolved.append(match)
 
     return True, resolved, None
-
-
 
 
 def _append_session_log(project_dir: Path, lines: Sequence[str]) -> None:
@@ -777,8 +699,6 @@ def _append_session_log(project_dir: Path, lines: Sequence[str]) -> None:
             handle.write("\n".join(lines) + "\n")
     except OSError:
         pass
-
-
 
 
 def _list_available_agents(claude_dir: Path) -> List[str]:
@@ -794,8 +714,6 @@ def _list_available_agents(claude_dir: Path) -> List[str]:
     return sorted(agents)
 
 
-
-
 def _list_available_modes(claude_dir: Path) -> List[str]:
     modes: Set[str] = set()
     for directory in [
@@ -808,5 +726,3 @@ def _list_available_modes(claude_dir: Path) -> List[str]:
                     continue
                 modes.add(path.stem)
     return sorted(modes)
-
-

@@ -11,8 +11,3 @@ from claude_ctx_py import community
 class TestCommunitySkillManagement:
     """Tests for community skill management functions."""
 
-    def test_placeholder(self) -> None:
-        """Placeholder test for community module."""
-        # This is a placeholder - actual implementation depends on
-        # the community module's functionality
-        assert True

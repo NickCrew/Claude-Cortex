@@ -46,7 +46,7 @@ class EnhancedOverview:
         subtitle: str,
         icon: str,
         color: str = "cyan",
-        progress: Optional[float] = None
+        progress: Optional[float] = None,
     ) -> str:
         """Create a compact metric card with visual flair."""
 
@@ -73,7 +73,7 @@ class EnhancedOverview:
         rules_active: int,
         rules_total: int,
         skills_total: int,
-        workflows_running: int
+        workflows_running: int,
     ) -> str:
         """Create a grid of status cards."""
 
@@ -90,10 +90,16 @@ class EnhancedOverview:
         workflow_status = f"{workflows_running} Running"
 
         # Color selection for progress bars
-        agent_color = 'green' if agent_pct >= 75 else 'yellow' if agent_pct >= 50 else 'cyan'
-        mode_color = 'green' if mode_pct >= 75 else 'yellow' if mode_pct >= 50 else 'cyan'
-        rule_color = 'green' if rule_pct >= 75 else 'yellow' if rule_pct >= 50 else 'cyan'
-        workflow_color = 'green' if workflows_running > 0 else 'dim'
+        agent_color = (
+            "green" if agent_pct >= 75 else "yellow" if agent_pct >= 50 else "cyan"
+        )
+        mode_color = (
+            "green" if mode_pct >= 75 else "yellow" if mode_pct >= 50 else "cyan"
+        )
+        rule_color = (
+            "green" if rule_pct >= 75 else "yellow" if rule_pct >= 50 else "cyan"
+        )
+        workflow_color = "green" if workflows_running > 0 else "dim"
 
         # Progress bars
         agent_bar = f"[{agent_color}]{'█' * int(agent_pct/5)}[/{agent_color}][dim]{'░' * (20 - int(agent_pct/5))}[/dim]"
@@ -106,7 +112,7 @@ class EnhancedOverview:
         agent_msg = f"{agent_pct:.0f}% operational"
         mode_msg = f"{mode_pct:.0f}% enabled"
         rule_msg = f"{rule_pct:.0f}% enforced"
-        workflow_msg = 'Active tasks' if workflows_running > 0 else 'No active tasks'
+        workflow_msg = "Active tasks" if workflows_running > 0 else "No active tasks"
 
         grid = f"""
 [bold cyan]📊 SYSTEM METRICS[/bold cyan]

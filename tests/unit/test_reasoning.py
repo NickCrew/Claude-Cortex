@@ -8,14 +8,10 @@ import json
 class TestReasoningCommand:
     """Tests for /reasoning:adjust command structure."""
 
-    def test_reasoning_command_exists(self, temp_claude_dir):
+    def test_reasoning_command_exists(self):
         """Test that reasoning/adjust.md command file exists."""
-        commands_dir = temp_claude_dir / "commands" / "reasoning"
-        adjust_file = commands_dir / "adjust.md"
-
-        # In actual deployment, verify the file exists
-        # For now, just test the expected structure
-        assert True  # Placeholder for file existence check
+        command_path = Path(__file__).parent.parent.parent / "commands" / "reasoning" / "adjust.md"
+        assert command_path.exists(), f"Command file not found at {command_path}"
 
     def test_reasoning_command_has_required_frontmatter(self):
         """Test that reasoning command has proper frontmatter."""

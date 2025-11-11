@@ -58,10 +58,11 @@ def get_effectiveness_score(skill_name: str, all_metrics: Dict) -> float:
     activation_count = skill.get("activation_count", 0)
     if all_metrics:
         max_activations = max(
-            (s.get("activation_count", 0) for s in all_metrics.values()),
-            default=1
+            (s.get("activation_count", 0) for s in all_metrics.values()), default=1
         )
-        usage_score = (activation_count / max_activations) * 20 if max_activations > 0 else 0
+        usage_score = (
+            (activation_count / max_activations) * 20 if max_activations > 0 else 0
+        )
     else:
         usage_score = 0.0
 
@@ -111,7 +112,7 @@ def calculate_roi(skill_name: str, claude_dir: Path) -> Dict:
             "tokens_saved": 0,
             "activations": 0,
             "cost_per_activation": 0.0,
-            "efficiency_ratio": 0.0
+            "efficiency_ratio": 0.0,
         }
 
     total_tokens = skill_metrics.get("total_tokens_saved", 0)
@@ -131,7 +132,7 @@ def calculate_roi(skill_name: str, claude_dir: Path) -> Dict:
         "tokens_saved": total_tokens,
         "activations": activations,
         "cost_per_activation": round(cost_per_activation, 4),
-        "efficiency_ratio": round(efficiency_ratio, 2)
+        "efficiency_ratio": round(efficiency_ratio, 2),
     }
 
 
@@ -214,7 +215,7 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
                 "skill": skill,
                 "activations": count,
                 "tokens_saved": skill_tokens[skill],
-                "trend_score": count * (skill_tokens[skill] / 1000)
+                "trend_score": count * (skill_tokens[skill] / 1000),
             }
             for skill, count in skill_counts.items()
         ]
@@ -279,7 +280,9 @@ def get_recommendations(usage_pattern: Dict, claude_dir: Path) -> List[str]:
         last_activated = metrics.get("last_activated")
         if last_activated:
             try:
-                last_time = datetime.fromisoformat(last_activated.replace("Z", "+00:00"))
+                last_time = datetime.fromisoformat(
+                    last_activated.replace("Z", "+00:00")
+                )
                 if last_time.replace(tzinfo=None) < cutoff:
                     recommendations.append(
                         f"'{skill_name}' hasn't been used in 30+ days. "
@@ -323,11 +326,8 @@ def export_analytics(format: str, claude_dir: Path) -> str:
 
     all_metrics = metrics_module.get_all_metrics()
 
-    if format not in ['json', 'csv', 'text']:
-        raise ExportError(
-            format,
-            reason="Supported formats: json, csv, text"
-        )
+    if format not in ["json", "csv", "text"]:
+        raise ExportError(format, reason="Supported formats: json, csv, text")
 
     # Create exports directory
     exports_dir = claude_dir / ".metrics" / "exports"
@@ -335,8 +335,7 @@ def export_analytics(format: str, claude_dir: Path) -> str:
         exports_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         raise ExportError(
-            format,
-            reason=f"Failed to create exports directory: {exc}"
+            format, reason=f"Failed to create exports directory: {exc}"
         ) from exc
 
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
@@ -344,27 +343,21 @@ def export_analytics(format: str, claude_dir: Path) -> str:
     filepath = exports_dir / filename
 
     try:
-        if format == 'json':
+        if format == "json":
             _export_json(all_metrics, filepath, claude_dir)
-        elif format == 'csv':
+        elif format == "csv":
             _export_csv(all_metrics, filepath, claude_dir)
-        elif format == 'text':
+        elif format == "text":
             _export_text(all_metrics, filepath, claude_dir)
     except Exception as exc:
-        raise ExportError(
-            format,
-            reason=f"Export operation failed: {exc}"
-        ) from exc
+        raise ExportError(format, reason=f"Export operation failed: {exc}") from exc
 
     return str(filepath)
 
 
 def _export_json(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
     """Export metrics as JSON."""
-    export_data = {
-        "exported_at": datetime.utcnow().isoformat() + "Z",
-        "skills": {}
-    }
+    export_data = {"exported_at": datetime.utcnow().isoformat() + "Z", "skills": {}}
 
     for skill_name, metrics in all_metrics.items():
         roi = calculate_roi(skill_name, claude_dir)
@@ -373,7 +366,7 @@ def _export_json(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
         export_data["skills"][skill_name] = {
             "metrics": metrics,
             "roi": roi,
-            "effectiveness_score": effectiveness
+            "effectiveness_score": effectiveness,
         }
 
     safe_save_json(filepath, export_data)
@@ -385,32 +378,36 @@ def _export_csv(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
         writer = csv.writer(f)
 
         # Header
-        writer.writerow([
-            "Skill Name",
-            "Activation Count",
-            "Total Tokens Saved",
-            "Avg Tokens",
-            "Success Rate",
-            "Last Activated",
-            "Cost Saved ($)",
-            "Effectiveness Score"
-        ])
+        writer.writerow(
+            [
+                "Skill Name",
+                "Activation Count",
+                "Total Tokens Saved",
+                "Avg Tokens",
+                "Success Rate",
+                "Last Activated",
+                "Cost Saved ($)",
+                "Effectiveness Score",
+            ]
+        )
 
         # Data rows
         for skill_name, metrics in all_metrics.items():
             roi = calculate_roi(skill_name, claude_dir)
             effectiveness = get_effectiveness_score(skill_name, all_metrics)
 
-            writer.writerow([
-                skill_name,
-                metrics.get("activation_count", 0),
-                metrics.get("total_tokens_saved", 0),
-                metrics.get("avg_tokens", 0),
-                f"{metrics.get('success_rate', 0.0):.2%}",
-                metrics.get("last_activated", "Never"),
-                f"${roi['cost_saved']:.4f}",
-                f"{effectiveness:.2f}"
-            ])
+            writer.writerow(
+                [
+                    skill_name,
+                    metrics.get("activation_count", 0),
+                    metrics.get("total_tokens_saved", 0),
+                    metrics.get("avg_tokens", 0),
+                    f"{metrics.get('success_rate', 0.0):.2%}",
+                    metrics.get("last_activated", "Never"),
+                    f"${roi['cost_saved']:.4f}",
+                    f"{effectiveness:.2f}",
+                ]
+            )
 
 
 def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
@@ -426,7 +423,9 @@ def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
 
         # Summary statistics
         total_skills = len(all_metrics)
-        total_activations = sum(m.get("activation_count", 0) for m in all_metrics.values())
+        total_activations = sum(
+            m.get("activation_count", 0) for m in all_metrics.values()
+        )
         total_tokens = sum(m.get("total_tokens_saved", 0) for m in all_metrics.values())
         total_cost_saved = (total_tokens / 1000) * TOKEN_COST_PER_1K
 
@@ -445,7 +444,7 @@ def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
         sorted_skills = sorted(
             all_metrics.items(),
             key=lambda x: get_effectiveness_score(x[0], all_metrics),
-            reverse=True
+            reverse=True,
         )
 
         for skill_name, metrics in sorted_skills:
@@ -455,11 +454,15 @@ def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
             f.write(f"Skill: {skill_name}\n")
             f.write(f"  Effectiveness Score: {effectiveness:.2f}/100\n")
             f.write(f"  Activations:         {metrics.get('activation_count', 0)}\n")
-            f.write(f"  Tokens Saved:        {metrics.get('total_tokens_saved', 0):,}\n")
+            f.write(
+                f"  Tokens Saved:        {metrics.get('total_tokens_saved', 0):,}\n"
+            )
             f.write(f"  Avg Tokens/Use:      {metrics.get('avg_tokens', 0):,}\n")
             f.write(f"  Success Rate:        {metrics.get('success_rate', 0.0):.1%}\n")
             f.write(f"  Cost Saved:          ${roi['cost_saved']:.4f}\n")
-            f.write(f"  Last Used:           {metrics.get('last_activated', 'Never')}\n")
+            f.write(
+                f"  Last Used:           {metrics.get('last_activated', 'Never')}\n"
+            )
             f.write("\n")
 
 
@@ -479,7 +482,7 @@ def visualize_metrics(metric: str, all_metrics: Dict) -> str:
     if not all_metrics:
         return "No metrics available to visualize."
 
-    supported_metrics = ['activations', 'tokens', 'effectiveness', 'success_rate']
+    supported_metrics = ["activations", "tokens", "effectiveness", "success_rate"]
     if metric not in supported_metrics:
         raise ValueError(
             f"Unsupported metric: {metric}. Use one of {supported_metrics}"
@@ -488,13 +491,13 @@ def visualize_metrics(metric: str, all_metrics: Dict) -> str:
     # Get data for the metric
     data = []
     for skill_name, metrics in all_metrics.items():
-        if metric == 'activations':
+        if metric == "activations":
             value = metrics.get("activation_count", 0)
-        elif metric == 'tokens':
+        elif metric == "tokens":
             value = metrics.get("total_tokens_saved", 0)
-        elif metric == 'effectiveness':
+        elif metric == "effectiveness":
             value = get_effectiveness_score(skill_name, all_metrics)
-        elif metric == 'success_rate':
+        elif metric == "success_rate":
             value = metrics.get("success_rate", 0.0) * 100
 
         data.append((skill_name, value))
@@ -519,10 +522,10 @@ def visualize_metrics(metric: str, all_metrics: Dict) -> str:
 
     # Title
     metric_titles = {
-        'activations': 'Skill Activations',
-        'tokens': 'Tokens Saved',
-        'effectiveness': 'Effectiveness Score',
-        'success_rate': 'Success Rate (%)'
+        "activations": "Skill Activations",
+        "tokens": "Tokens Saved",
+        "effectiveness": "Effectiveness Score",
+        "success_rate": "Success Rate (%)",
     }
     lines.append(f"\n{metric_titles[metric]}\n")
     lines.append("=" * 70 + "\n")
@@ -536,9 +539,9 @@ def visualize_metrics(metric: str, all_metrics: Dict) -> str:
         bar = "█" * bar_length
 
         # Format value based on metric type
-        if metric == 'tokens':
+        if metric == "tokens":
             value_str = f"{value:,}"
-        elif metric in ['effectiveness', 'success_rate']:
+        elif metric in ["effectiveness", "success_rate"]:
             value_str = f"{value:.1f}"
         else:
             value_str = str(int(value))
@@ -632,7 +635,7 @@ def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
     if not skill_metrics:
         return {
             "error": f"No metrics found for skill: {skill_name}",
-            "skill_name": skill_name
+            "skill_name": skill_name,
         }
 
     # Basic metrics
@@ -641,7 +644,7 @@ def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
         "total_tokens_saved": skill_metrics.get("total_tokens_saved", 0),
         "avg_tokens": skill_metrics.get("avg_tokens", 0),
         "success_rate": skill_metrics.get("success_rate", 0.0),
-        "last_activated": skill_metrics.get("last_activated")
+        "last_activated": skill_metrics.get("last_activated"),
     }
 
     # ROI calculations
@@ -654,7 +657,7 @@ def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
     trends = {
         "7_days": _count_activations_in_period(skill_name, 7, claude_dir),
         "30_days": _count_activations_in_period(skill_name, 30, claude_dir),
-        "90_days": _count_activations_in_period(skill_name, 90, claude_dir)
+        "90_days": _count_activations_in_period(skill_name, 90, claude_dir),
     }
 
     # Correlations
@@ -662,11 +665,9 @@ def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
     correlations = correlation_matrix.get(skill_name, {})
 
     # Sort correlations by score
-    top_correlations = sorted(
-        correlations.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:5]
+    top_correlations = sorted(correlations.items(), key=lambda x: x[1], reverse=True)[
+        :5
+    ]
 
     return {
         "skill_name": skill_name,
@@ -674,7 +675,7 @@ def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
         "roi": roi,
         "effectiveness_score": effectiveness,
         "trends": trends,
-        "top_correlations": dict(top_correlations)
+        "top_correlations": dict(top_correlations),
     }
 
 
@@ -733,7 +734,7 @@ def generate_analytics_report(output_format: str, claude_dir: Path) -> str:
     """
     from . import metrics as metrics_module
 
-    if output_format not in ['text', 'json']:
+    if output_format not in ["text", "json"]:
         raise ValueError(f"Unsupported format: {output_format}. Use 'text' or 'json'")
 
     all_metrics = metrics_module.get_all_metrics()
@@ -741,7 +742,7 @@ def generate_analytics_report(output_format: str, claude_dir: Path) -> str:
     if not all_metrics:
         return "No metrics available. Use skills to generate analytics."
 
-    if output_format == 'json':
+    if output_format == "json":
         return _generate_json_report(all_metrics, claude_dir)
     else:
         return _generate_text_report(all_metrics, claude_dir)
@@ -762,12 +763,12 @@ def _generate_json_report(all_metrics: Dict, claude_dir: Path) -> str:
             "total_cost_saved": sum(
                 calculate_roi(skill, claude_dir)["cost_saved"]
                 for skill in all_metrics.keys()
-            )
+            ),
         },
         "skills": {},
         "trending_7_days": get_trending_skills(7, claude_dir),
         "trending_30_days": get_trending_skills(30, claude_dir),
-        "recommendations": get_recommendations({}, claude_dir)
+        "recommendations": get_recommendations({}, claude_dir),
     }
 
     # Add detailed skill data
@@ -792,8 +793,7 @@ def _generate_text_report(all_metrics: Dict, claude_dir: Path) -> str:
     total_activations = sum(m.get("activation_count", 0) for m in all_metrics.values())
     total_tokens = sum(m.get("total_tokens_saved", 0) for m in all_metrics.values())
     total_cost_saved = sum(
-        calculate_roi(skill, claude_dir)["cost_saved"]
-        for skill in all_metrics.keys()
+        calculate_roi(skill, claude_dir)["cost_saved"] for skill in all_metrics.keys()
     )
 
     lines.append("EXECUTIVE SUMMARY")
@@ -811,7 +811,7 @@ def _generate_text_report(all_metrics: Dict, claude_dir: Path) -> str:
     sorted_by_effectiveness = sorted(
         all_metrics.keys(),
         key=lambda s: get_effectiveness_score(s, all_metrics),
-        reverse=True
+        reverse=True,
     )[:5]
 
     for i, skill_name in enumerate(sorted_by_effectiveness, 1):

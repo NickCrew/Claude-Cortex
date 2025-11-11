@@ -49,23 +49,23 @@ class SessionContext:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            'files_changed': self.files_changed,
-            'file_types': list(self.file_types),
-            'directories': list(self.directories),
-            'has_tests': self.has_tests,
-            'has_auth': self.has_auth,
-            'has_api': self.has_api,
-            'has_frontend': self.has_frontend,
-            'has_backend': self.has_backend,
-            'has_database': self.has_database,
-            'errors_count': self.errors_count,
-            'test_failures': self.test_failures,
-            'build_failures': self.build_failures,
-            'session_start': self.session_start.isoformat(),
-            'last_activity': self.last_activity.isoformat(),
-            'active_agents': self.active_agents,
-            'active_modes': self.active_modes,
-            'active_rules': self.active_rules,
+            "files_changed": self.files_changed,
+            "file_types": list(self.file_types),
+            "directories": list(self.directories),
+            "has_tests": self.has_tests,
+            "has_auth": self.has_auth,
+            "has_api": self.has_api,
+            "has_frontend": self.has_frontend,
+            "has_backend": self.has_backend,
+            "has_database": self.has_database,
+            "errors_count": self.errors_count,
+            "test_failures": self.test_failures,
+            "build_failures": self.build_failures,
+            "session_start": self.session_start.isoformat(),
+            "last_activity": self.last_activity.isoformat(),
+            "active_agents": self.active_agents,
+            "active_modes": self.active_modes,
+            "active_rules": self.active_rules,
         }
 
 
@@ -82,7 +82,7 @@ class AgentRecommendation:
 
     def should_notify(self) -> bool:
         """Determine if this should notify the user."""
-        return self.confidence >= 0.7 or self.urgency in ('high', 'critical')
+        return self.confidence >= 0.7 or self.urgency in ("high", "critical")
 
 
 @dataclass
@@ -118,11 +118,11 @@ class PatternLearner:
             return
 
         try:
-            with open(self.history_file, 'r') as f:
+            with open(self.history_file, "r") as f:
                 data = json.load(f)
-                self.patterns = data.get('patterns', {})
-                self.agent_sequences = data.get('agent_sequences', [])
-                self.success_contexts = data.get('success_contexts', [])
+                self.patterns = data.get("patterns", {})
+                self.agent_sequences = data.get("agent_sequences", [])
+                self.success_contexts = data.get("success_contexts", [])
         except Exception:
             pass
 
@@ -131,7 +131,7 @@ class PatternLearner:
         context: SessionContext,
         agents_used: List[str],
         duration: int,
-        outcome: str
+        outcome: str,
     ) -> None:
         """Record a successful session for learning.
 
@@ -142,11 +142,11 @@ class PatternLearner:
             outcome: Outcome description
         """
         session_data = {
-            'timestamp': datetime.now().isoformat(),
-            'context': context.to_dict(),
-            'agents': agents_used,
-            'duration': duration,
-            'outcome': outcome,
+            "timestamp": datetime.now().isoformat(),
+            "context": context.to_dict(),
+            "agents": agents_used,
+            "duration": duration,
+            "outcome": outcome,
         }
 
         # Store by primary context
@@ -174,19 +174,19 @@ class PatternLearner:
         components = []
 
         if context.has_frontend:
-            components.append('frontend')
+            components.append("frontend")
         if context.has_backend:
-            components.append('backend')
+            components.append("backend")
         if context.has_database:
-            components.append('database')
+            components.append("database")
         if context.has_tests:
-            components.append('tests')
+            components.append("tests")
         if context.has_auth:
-            components.append('auth')
+            components.append("auth")
         if context.has_api:
-            components.append('api')
+            components.append("api")
 
-        return '_'.join(sorted(components)) or 'general'
+        return "_".join(sorted(components)) or "general"
 
     def predict_agents(self, context: SessionContext) -> List[AgentRecommendation]:
         """Predict which agents should be activated based on context.
@@ -207,7 +207,7 @@ class PatternLearner:
             # Count agent frequency in similar contexts
             agent_counts = Counter()
             for session in similar_sessions:
-                agent_counts.update(session['agents'])
+                agent_counts.update(session["agents"])
 
             total_sessions = len(similar_sessions)
 
@@ -221,7 +221,7 @@ class PatternLearner:
                         agent_name=agent,
                         confidence=confidence,
                         reason=f"Used in {count}/{total_sessions} similar sessions",
-                        urgency='medium' if confidence >= 0.7 else 'low',
+                        urgency="medium" if confidence >= 0.7 else "low",
                         auto_activate=confidence >= 0.8,
                         context_triggers=[context_key],
                     )
@@ -236,8 +236,7 @@ class PatternLearner:
         return recommendations
 
     def _rule_based_recommendations(
-        self,
-        context: SessionContext
+        self, context: SessionContext
     ) -> List[AgentRecommendation]:
         """Generate rule-based recommendations based on context signals.
 
@@ -250,59 +249,69 @@ class PatternLearner:
         recommendations = []
 
         # Security recommendations
-        if context.has_auth or any('auth' in f.lower() for f in context.files_changed):
-            recommendations.append(AgentRecommendation(
-                agent_name='security-auditor',
-                confidence=0.9,
-                reason='Auth code detected - security review recommended',
-                urgency='high',
-                auto_activate=True,
-                context_triggers=['auth_code'],
-            ))
+        if context.has_auth or any("auth" in f.lower() for f in context.files_changed):
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name="security-auditor",
+                    confidence=0.9,
+                    reason="Auth code detected - security review recommended",
+                    urgency="high",
+                    auto_activate=True,
+                    context_triggers=["auth_code"],
+                )
+            )
 
         # Test recommendations
         if context.test_failures > 0:
-            recommendations.append(AgentRecommendation(
-                agent_name='test-automator',
-                confidence=0.95,
-                reason=f'{context.test_failures} test failures detected',
-                urgency='critical',
-                auto_activate=True,
-                context_triggers=['test_failures'],
-            ))
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name="test-automator",
+                    confidence=0.95,
+                    reason=f"{context.test_failures} test failures detected",
+                    urgency="critical",
+                    auto_activate=True,
+                    context_triggers=["test_failures"],
+                )
+            )
 
         # Code review recommendations
         if len(context.files_changed) >= 5:
-            recommendations.append(AgentRecommendation(
-                agent_name='code-reviewer',
-                confidence=0.85,
-                reason=f'{len(context.files_changed)} files changed - review recommended',
-                urgency='medium',
-                auto_activate=False,
-                context_triggers=['large_changeset'],
-            ))
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name="code-reviewer",
+                    confidence=0.85,
+                    reason=f"{len(context.files_changed)} files changed - review recommended",
+                    urgency="medium",
+                    auto_activate=False,
+                    context_triggers=["large_changeset"],
+                )
+            )
 
         # Performance recommendations
         if context.has_database or context.has_api:
-            recommendations.append(AgentRecommendation(
-                agent_name='performance-engineer',
-                confidence=0.7,
-                reason='Database/API changes - performance check recommended',
-                urgency='low',
-                auto_activate=False,
-                context_triggers=['database', 'api'],
-            ))
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name="performance-engineer",
+                    confidence=0.7,
+                    reason="Database/API changes - performance check recommended",
+                    urgency="low",
+                    auto_activate=False,
+                    context_triggers=["database", "api"],
+                )
+            )
 
         # Documentation recommendations
         if context.has_api and len(context.files_changed) >= 3:
-            recommendations.append(AgentRecommendation(
-                agent_name='api-documenter',
-                confidence=0.75,
-                reason='API changes detected - documentation update needed',
-                urgency='medium',
-                auto_activate=False,
-                context_triggers=['api_changes'],
-            ))
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name="api-documenter",
+                    confidence=0.75,
+                    reason="API changes detected - documentation update needed",
+                    urgency="medium",
+                    auto_activate=False,
+                    context_triggers=["api_changes"],
+                )
+            )
 
         return recommendations
 
@@ -324,7 +333,7 @@ class PatternLearner:
         # Find most common agent sequence
         sequence_counts = Counter()
         for session in similar_sessions:
-            seq_key = tuple(session['agents'])
+            seq_key = tuple(session["agents"])
             sequence_counts[seq_key] = sequence_counts.get(seq_key, 0) + 1
 
         if not sequence_counts:
@@ -335,8 +344,9 @@ class PatternLearner:
 
         # Calculate average duration for this sequence
         durations = [
-            s['duration'] for s in similar_sessions
-            if tuple(s['agents']) == most_common_seq
+            s["duration"]
+            for s in similar_sessions
+            if tuple(s["agents"]) == most_common_seq
         ]
         avg_duration = int(sum(durations) / len(durations)) if durations else 600
 
@@ -354,13 +364,13 @@ class PatternLearner:
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
-            'patterns': dict(self.patterns),
-            'agent_sequences': self.agent_sequences,
-            'success_contexts': self.success_contexts,
-            'last_updated': datetime.now().isoformat(),
+            "patterns": dict(self.patterns),
+            "agent_sequences": self.agent_sequences,
+            "success_contexts": self.success_contexts,
+            "last_updated": datetime.now().isoformat(),
         }
 
-        with open(self.history_file, 'w') as f:
+        with open(self.history_file, "w") as f:
             json.dump(data, f, indent=2)
 
 
@@ -388,20 +398,22 @@ class ContextDetector:
             directories.add(str(file_path.parent))
 
         # Detect context signals
-        has_tests = any('test' in str(f).lower() for f in files)
-        has_auth = any('auth' in str(f).lower() for f in files)
-        has_api = any('api' in str(f).lower() or 'routes' in str(f).lower() for f in files)
+        has_tests = any("test" in str(f).lower() for f in files)
+        has_auth = any("auth" in str(f).lower() for f in files)
+        has_api = any(
+            "api" in str(f).lower() or "routes" in str(f).lower() for f in files
+        )
         has_frontend = any(
             ext in file_types
-            for ext in {'.tsx', '.jsx', '.vue', '.svelte', '.html', '.css'}
+            for ext in {".tsx", ".jsx", ".vue", ".svelte", ".html", ".css"}
         )
         has_backend = any(
-            ext in file_types
-            for ext in {'.py', '.go', '.java', '.rs', '.rb'}
+            ext in file_types for ext in {".py", ".go", ".java", ".rs", ".rb"}
         )
         has_database = any(
-            'db' in str(f).lower() or 'migration' in str(f).lower()
-            or 'schema' in str(f).lower()
+            "db" in str(f).lower()
+            or "migration" in str(f).lower()
+            or "schema" in str(f).lower()
             for f in files
         )
 
@@ -437,16 +449,14 @@ class ContextDetector:
         try:
             # Get modified files from git
             result = subprocess.run(
-                ['git', 'diff', '--name-only', 'HEAD'],
+                ["git", "diff", "--name-only", "HEAD"],
                 capture_output=True,
                 text=True,
                 check=True,
             )
 
             files = [
-                Path(line.strip())
-                for line in result.stdout.split('\n')
-                if line.strip()
+                Path(line.strip()) for line in result.stdout.split("\n") if line.strip()
             ]
 
             return files
@@ -466,7 +476,7 @@ class IntelligentAgent:
         self.data_dir = data_dir
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
-        history_file = data_dir / 'session_history.json'
+        history_file = data_dir / "session_history.json"
         self.learner = PatternLearner(history_file)
         self.context_detector = ContextDetector()
 
@@ -534,10 +544,7 @@ class IntelligentAgent:
         return self.learner.predict_workflow(self.current_context)
 
     def record_session_success(
-        self,
-        agents_used: List[str],
-        duration: int,
-        outcome: str = "success"
+        self, agents_used: List[str], duration: int, outcome: str = "success"
     ) -> None:
         """Record a successful session for learning.
 
@@ -564,26 +571,40 @@ class IntelligentAgent:
         workflow = self.predict_workflow()
 
         return {
-            'agent_recommendations': [
+            "agent_recommendations": [
                 {
-                    'agent': rec.agent_name,
-                    'confidence': f"{rec.confidence * 100:.0f}%",
-                    'reason': rec.reason,
-                    'urgency': rec.urgency,
-                    'auto_activate': rec.auto_activate,
+                    "agent": rec.agent_name,
+                    "confidence": f"{rec.confidence * 100:.0f}%",
+                    "reason": rec.reason,
+                    "urgency": rec.urgency,
+                    "auto_activate": rec.auto_activate,
                 }
                 for rec in recommendations
             ],
-            'workflow_prediction': {
-                'name': workflow.workflow_name,
-                'agents': workflow.agents_sequence,
-                'confidence': f"{workflow.confidence * 100:.0f}%",
-                'estimated_time': f"{workflow.estimated_duration // 60}m {workflow.estimated_duration % 60}s",
-            } if workflow else None,
-            'context': {
-                'files_changed': len(self.current_context.files_changed) if self.current_context else 0,
-                'has_tests': self.current_context.has_tests if self.current_context else False,
-                'has_auth': self.current_context.has_auth if self.current_context else False,
-                'has_api': self.current_context.has_api if self.current_context else False,
-            }
+            "workflow_prediction": (
+                {
+                    "name": workflow.workflow_name,
+                    "agents": workflow.agents_sequence,
+                    "confidence": f"{workflow.confidence * 100:.0f}%",
+                    "estimated_time": f"{workflow.estimated_duration // 60}m {workflow.estimated_duration % 60}s",
+                }
+                if workflow
+                else None
+            ),
+            "context": {
+                "files_changed": (
+                    len(self.current_context.files_changed)
+                    if self.current_context
+                    else 0
+                ),
+                "has_tests": (
+                    self.current_context.has_tests if self.current_context else False
+                ),
+                "has_auth": (
+                    self.current_context.has_auth if self.current_context else False
+                ),
+                "has_api": (
+                    self.current_context.has_api if self.current_context else False
+                ),
+            },
         }

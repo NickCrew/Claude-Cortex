@@ -21,9 +21,7 @@ def load_activation_map(claude_dir: Path) -> Dict[str, List[str]]:
     activation_file = claude_dir / "skills" / "activation.yaml"
 
     if not activation_file.exists():
-        raise FileNotFoundError(
-            f"Activation file not found: {activation_file}"
-        )
+        raise FileNotFoundError(f"Activation file not found: {activation_file}")
 
     with open(activation_file, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
@@ -35,9 +33,7 @@ def load_activation_map(claude_dir: Path) -> Dict[str, List[str]]:
     activation_map = {}
     for skill_name, config in data["skills"].items():
         if "keywords" in config:
-            activation_map[skill_name] = [
-                kw.lower() for kw in config["keywords"]
-            ]
+            activation_map[skill_name] = [kw.lower() for kw in config["keywords"]]
 
     return activation_map
 
@@ -99,8 +95,6 @@ def suggest_skills(text: str, claude_dir: Path) -> str:
     for skill in matching_skills:
         lines.append(f"  - {skill}")
 
-    lines.append(
-        "\nTo view skill details, run: claude-ctx skills info <skill-name>"
-    )
+    lines.append("\nTo view skill details, run: claude-ctx skills info <skill-name>")
 
     return "\n".join(lines)

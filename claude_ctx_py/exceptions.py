@@ -32,8 +32,10 @@ class ClaudeCtxError(Exception):
 
 # File-related exceptions
 
+
 class FileOperationError(ClaudeCtxError):
     """Base class for file operation errors."""
+
     pass
 
 
@@ -43,7 +45,7 @@ class SkillNotFoundError(FileOperationError):
     def __init__(self, skill_name: str, search_paths: list = None):
         message = f"Skill '{skill_name}' not found"
         if search_paths:
-            paths = ', '.join(str(p) for p in search_paths)
+            paths = ", ".join(str(p) for p in search_paths)
             message += f" in: {paths}"
 
         recovery_hint = "Run 'claude-ctx skills list' to see available skills"
@@ -78,8 +80,10 @@ class FileAccessError(FileOperationError):
 
 # Validation exceptions
 
+
 class ValidationError(ClaudeCtxError):
     """Base class for validation errors."""
+
     pass
 
 
@@ -91,7 +95,9 @@ class YAMLValidationError(ValidationError, ValueError):
         if details:
             message += f": {details}"
 
-        recovery_hint = "Validate YAML syntax at https://www.yamllint.com/ or fix syntax errors"
+        recovery_hint = (
+            "Validate YAML syntax at https://www.yamllint.com/ or fix syntax errors"
+        )
         ValidationError.__init__(self, message, recovery_hint)
         self.filepath = filepath
 
@@ -100,7 +106,7 @@ class SkillValidationError(ValidationError):
     """Raised when skill content fails validation."""
 
     def __init__(self, skill_name: str, errors: list):
-        error_list = '\n  - '.join(errors)
+        error_list = "\n  - ".join(errors)
         message = f"Skill '{skill_name}' validation failed:\n  - {error_list}"
         recovery_hint = "Fix validation errors and try again"
         super().__init__(message, recovery_hint)
@@ -113,13 +119,16 @@ class VersionFormatError(ValidationError, ValueError):
 
     def __init__(self, version: str, expected_format: str = "X.Y.Z"):
         message = f"Invalid semantic version: '{version}'"
-        recovery_hint = f"Use semantic versioning format: {expected_format} (e.g., 1.2.3)"
+        recovery_hint = (
+            f"Use semantic versioning format: {expected_format} (e.g., 1.2.3)"
+        )
         ValidationError.__init__(self, message, recovery_hint)
         self.version = version
 
 
 class DependencyError(ValidationError):
     """Base class for dependency-related errors."""
+
     pass
 
 
@@ -127,7 +136,7 @@ class CircularDependencyError(DependencyError):
     """Raised when circular dependencies are detected."""
 
     def __init__(self, cycle_path: list):
-        cycle_str = ' -> '.join(cycle_path)
+        cycle_str = " -> ".join(cycle_path)
         message = f"Circular dependency detected: {cycle_str}"
         recovery_hint = "Remove one of the dependencies to break the cycle"
         super().__init__(message, recovery_hint)
@@ -150,8 +159,10 @@ class MissingDependencyError(DependencyError):
 
 # Version-related exceptions
 
+
 class VersionError(ClaudeCtxError):
     """Base class for version-related errors."""
+
     pass
 
 
@@ -174,7 +185,7 @@ class NoCompatibleVersionError(VersionError):
     """Raised when no version satisfies requirements."""
 
     def __init__(self, skill_name: str, requirement: str, available_versions: list):
-        versions_str = ', '.join(available_versions) if available_versions else 'none'
+        versions_str = ", ".join(available_versions) if available_versions else "none"
         message = f"No version of '{skill_name}' satisfies requirement '{requirement}'"
         message += f"\n  Available versions: {versions_str}"
 
@@ -187,8 +198,10 @@ class NoCompatibleVersionError(VersionError):
 
 # Community-related exceptions
 
+
 class CommunityError(ClaudeCtxError):
     """Base class for community skill errors."""
+
     pass
 
 
@@ -223,8 +236,10 @@ class RatingError(CommunityError):
 
 # Metrics and analytics exceptions
 
+
 class MetricsError(ClaudeCtxError):
     """Base class for metrics-related errors."""
+
     pass
 
 
@@ -270,8 +285,10 @@ class ExportError(MetricsError):
 
 # Composition and dependency resolution exceptions
 
+
 class CompositionError(ClaudeCtxError):
     """Base class for composition-related errors."""
+
     pass
 
 
@@ -285,6 +302,7 @@ class InvalidCompositionError(CompositionError, ValueError):
 
 
 # Missing package exceptions
+
 
 class MissingPackageError(ClaudeCtxError):
     """Raised when a required Python package is not installed."""

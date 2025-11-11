@@ -45,7 +45,7 @@ from .base import (
     _resolve_init_target,
     _run_analyze_project,
     _run_detect_project_type,
-    _strip_ansi_codes
+    _strip_ansi_codes,
 )
 
 # Import from other core modules
@@ -70,10 +70,6 @@ from .agents import (
 )
 from .modes import mode_activate, mode_deactivate, mode_status
 from .rules import rules_activate
-
-
-
-
 
 
 def _profile_reset(home: Path | None = None) -> Tuple[int, str]:
@@ -134,8 +130,6 @@ def _profile_reset(home: Path | None = None) -> Tuple[int, str]:
     return 0, _color("Reset to minimal configuration", GREEN)
 
 
-
-
 def profile_list(home: Path | None = None) -> str:
     """List all built-in and saved profiles."""
     claude_dir = _resolve_claude_dir(home)
@@ -154,8 +148,6 @@ def profile_list(home: Path | None = None) -> str:
             lines.append(f"  {_color(f'{profile_name} (saved)', GREEN)}")
 
     return "\n".join(lines)
-
-
 
 
 def profile_save(name: str, home: Path | None = None) -> Tuple[int, str]:
@@ -200,8 +192,6 @@ def profile_save(name: str, home: Path | None = None) -> Tuple[int, str]:
     return 0, _color(f"Saved profile: {name}", GREEN)
 
 
-
-
 def profile_minimal(home: Path | None = None) -> Tuple[int, str]:
     """Load the minimal profile, failing loudly if prerequisites are missing."""
 
@@ -211,8 +201,6 @@ def profile_minimal(home: Path | None = None) -> Tuple[int, str]:
 
     messages = [reset_message, _color("Loaded profile: minimal", GREEN)]
     return 0, "\n".join(messages)
-
-
 
 
 def profile_backend(home: Path | None = None) -> Tuple[int, str]:
@@ -244,9 +232,7 @@ def profile_backend(home: Path | None = None) -> Tuple[int, str]:
         if mode_message:
             messages.append(mode_message)
         else:
-            messages.append(
-                _color("Failed to activate Task_Management mode", RED)
-            )
+            messages.append(_color("Failed to activate Task_Management mode", RED))
         return exit_code, "\n".join(messages)
     if mode_message:
         messages.append(mode_message)
@@ -285,9 +271,7 @@ def _load_profile_with_agents(
             if message:
                 messages.append(message)
             else:
-                messages.append(
-                    _color(f"Failed to activate agent: {agent_name}", RED)
-                )
+                messages.append(_color(f"Failed to activate agent: {agent_name}", RED))
             return exit_code, "\n".join(messages)
         if message:
             messages.append(message)
@@ -299,9 +283,7 @@ def _load_profile_with_agents(
             if mode_message:
                 messages.append(mode_message)
             else:
-                messages.append(
-                    _color("Failed to activate Task_Management mode", RED)
-                )
+                messages.append(_color("Failed to activate Task_Management mode", RED))
             return exit_code, "\n".join(messages)
         if mode_message and exit_code == 0:
             messages.append(mode_message)
@@ -420,8 +402,6 @@ def profile_full(home: Path | None = None) -> Tuple[int, str]:
     )
 
 
-
-
 def init_detect(
     target: str | None = None,
     *,
@@ -481,7 +461,12 @@ def init_detect(
         parts = [part.strip() for part in detection_raw.split("|")]
         while len(parts) < 4:
             parts.append("")
-        detection_language, detection_framework, detection_infra, detection_types_raw = parts[:4]
+        (
+            detection_language,
+            detection_framework,
+            detection_infra,
+            detection_types_raw,
+        ) = parts[:4]
 
     types_list = [item for item in detection_types_raw.split() if item]
 
@@ -543,8 +528,6 @@ def init_detect(
     return 0, "\n".join(lines)
 
 
-
-
 def init_minimal(home: Path | None = None) -> Tuple[int, str]:
     """Apply minimal defaults via the init system."""
 
@@ -561,8 +544,6 @@ def init_minimal(home: Path | None = None) -> Tuple[int, str]:
     lines.append(_color("Initialized minimal claude-ctx configuration", GREEN))
 
     return 0, "\n".join(lines)
-
-
 
 
 def init_profile(
@@ -615,8 +596,6 @@ def init_profile(
     return 0, "\n".join(lines)
 
 
-
-
 def init_status(
     target: str | None = None,
     *,
@@ -659,13 +638,25 @@ def init_status(
     if not summary_path and resolved_path is not None:
         summary_path = str(resolved_path)
     summary_slug = base_data.get("slug") if isinstance(base_data, dict) else None
-    summary_timestamp = base_data.get("timestamp") if isinstance(base_data, dict) else None
-    summary_language = base_data.get("language") if isinstance(base_data, dict) else None
-    summary_framework = base_data.get("framework") if isinstance(base_data, dict) else None
-    summary_infra = base_data.get("infrastructure") if isinstance(base_data, dict) else None
+    summary_timestamp = (
+        base_data.get("timestamp") if isinstance(base_data, dict) else None
+    )
+    summary_language = (
+        base_data.get("language") if isinstance(base_data, dict) else None
+    )
+    summary_framework = (
+        base_data.get("framework") if isinstance(base_data, dict) else None
+    )
+    summary_infra = (
+        base_data.get("infrastructure") if isinstance(base_data, dict) else None
+    )
     types_val = base_data.get("types") if isinstance(base_data, dict) else None
     summary_types_list = types_val if isinstance(types_val, list) else []
-    summary_types = ", ".join(str(item) for item in summary_types_list) if summary_types_list else "none"
+    summary_types = (
+        ", ".join(str(item) for item in summary_types_list)
+        if summary_types_list
+        else "none"
+    )
     analysis_present = (
         "yes"
         if isinstance(base_data, dict) and base_data.get("analysis_output")
@@ -724,9 +715,7 @@ def init_status(
     ]
 
     if analysis_present == "yes":
-        summary_lines.append(
-            "    analyze_project output stored in detection.json"
-        )
+        summary_lines.append("    analyze_project output stored in detection.json")
 
     exit_code = 0
     if proj_error is not None or cache_error is not None or match_status == "mismatch":
@@ -736,21 +725,13 @@ def init_status(
 
     warnings: List[str] = []
     if proj_error:
-        warnings.append(
-            colorize(f"Project detection.json {proj_error}", RED)
-        )
+        warnings.append(colorize(f"Project detection.json {proj_error}", RED))
     if cache_error:
-        warnings.append(
-            colorize(f"Cache detection.json {cache_error}", RED)
-        )
+        warnings.append(colorize(f"Cache detection.json {cache_error}", RED))
     if match_status == "mismatch":
-        warnings.append(
-            colorize("Cache and project detection artifacts differ", RED)
-        )
+        warnings.append(colorize("Cache and project detection artifacts differ", RED))
     elif match_status == "unverified" and not (proj_error or cache_error):
-        warnings.append(
-            colorize("Unable to verify cache consistency", YELLOW)
-        )
+        warnings.append(colorize("Unable to verify cache consistency", YELLOW))
 
     warnings_text = "\n".join(warnings)
 
@@ -767,14 +748,12 @@ def init_status(
             f"No detection artifacts found for slug '{slug}'.",
             RED,
         )
-        warnings_text = "\n".join([
-            warning for warning in [warnings_text, error_text] if warning
-        ])
+        warnings_text = "\n".join(
+            [warning for warning in [warnings_text, error_text] if warning]
+        )
         return 1, "", warnings_text
 
     return exit_code, output_text, warnings_text
-
-
 
 
 def init_reset(
@@ -852,13 +831,9 @@ def init_reset(
         lines.append(f"  Project path: {_color(str(resolved_path), BLUE)}")
 
     if project_removed:
-        lines.append(
-            _color(f"  Removed project state: {project_dir}", GREEN)
-        )
+        lines.append(_color(f"  Removed project state: {project_dir}", GREEN))
     if cache_removed:
-        lines.append(
-            _color(f"  Removed cache state: {cache_project_dir}", GREEN)
-        )
+        lines.append(_color(f"  Removed cache state: {cache_project_dir}", GREEN))
 
     if not (project_removed or cache_removed):
         lines.append(
@@ -868,13 +843,9 @@ def init_reset(
             )
         )
 
-    lines.append(
-        f"{_color('TODO:', YELLOW)} Additional reset behaviors coming soon."
-    )
+    lines.append(f"{_color('TODO:', YELLOW)} Additional reset behaviors coming soon.")
 
     return 0, "\n".join(lines)
-
-
 
 
 def init_resume(
@@ -917,7 +888,9 @@ def init_resume(
 
     detection_data = proj_data or cache_data
     detection_source = (
-        "project" if proj_data is not None else "cache" if cache_data is not None else None
+        "project"
+        if proj_data is not None
+        else "cache" if cache_data is not None else None
     )
 
     warnings: List[str] = []
@@ -930,9 +903,7 @@ def init_resume(
         warning_lines = []
         if warnings:
             warning_lines.extend(warnings)
-        warning_lines.append(
-            f"no previous init detection found for slug '{slug}'"
-        )
+        warning_lines.append(f"no previous init detection found for slug '{slug}'")
         message = _color(
             "init_resume: " + "; ".join(warning_lines),
             YELLOW,
@@ -940,24 +911,16 @@ def init_resume(
         return 1, message
 
     timestamp = (
-        detection_data.get("timestamp")
-        if isinstance(detection_data, dict)
-        else None
+        detection_data.get("timestamp") if isinstance(detection_data, dict) else None
     )
     detected_path = (
-        detection_data.get("path")
-        if isinstance(detection_data, dict)
-        else None
+        detection_data.get("path") if isinstance(detection_data, dict) else None
     )
     language = (
-        detection_data.get("language")
-        if isinstance(detection_data, dict)
-        else None
+        detection_data.get("language") if isinstance(detection_data, dict) else None
     )
     framework = (
-        detection_data.get("framework")
-        if isinstance(detection_data, dict)
-        else None
+        detection_data.get("framework") if isinstance(detection_data, dict) else None
     )
     infrastructure = (
         detection_data.get("infrastructure")
@@ -965,9 +928,7 @@ def init_resume(
         else None
     )
     types_val = (
-        detection_data.get("types")
-        if isinstance(detection_data, dict)
-        else None
+        detection_data.get("types") if isinstance(detection_data, dict) else None
     )
     types_label = (
         ", ".join(str(item) for item in types_val)
@@ -975,7 +936,9 @@ def init_resume(
         else "none"
     )
 
-    summary_path = detected_path or (str(resolved_path) if resolved_path else "(unknown)")
+    summary_path = detected_path or (
+        str(resolved_path) if resolved_path else "(unknown)"
+    )
 
     lines = [
         _color("Init Resume", BLUE),
@@ -997,8 +960,6 @@ def init_resume(
     )
 
     return 0, "\n".join(lines)
-
-
 
 
 def init_wizard(
@@ -1202,9 +1163,7 @@ def init_wizard(
     wizard_lines.append("")
     wizard_lines.append(_color("Summary", BLUE))
     wizard_lines.extend(_format_detection_summary(detection_data))
-    wizard_lines.append(
-        f"  Profile: {profile_choice}"
-    )
+    wizard_lines.append(f"  Profile: {profile_choice}")
     wizard_lines.append(
         f"  Agents to activate: {', '.join(additional_agents) if additional_agents else 'none'}"
     )
@@ -1328,5 +1287,3 @@ def show_status(home: Path | None = None) -> str:
 
     sections.append("\n".join(lines))
     return "\n".join(sections)
-
-

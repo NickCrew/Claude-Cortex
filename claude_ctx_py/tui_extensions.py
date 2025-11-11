@@ -46,24 +46,28 @@ class ProfileViewMixin:
 
         # Add built-in profiles
         for profile_name in BUILT_IN_PROFILES:
-            profiles.append({
-                "name": profile_name,
-                "type": "built-in",
-                "description": f"Built-in {profile_name} profile",
-                "active": False,  # TODO: Detect active profile
-            })
+            profiles.append(
+                {
+                    "name": profile_name,
+                    "type": "built-in",
+                    "description": f"Built-in {profile_name} profile",
+                    "active": False,  # TODO: Detect active profile
+                }
+            )
 
         # Add saved profiles
         profiles_dir = claude_dir / "profiles"
         if profiles_dir.is_dir():
             for profile_file in sorted(profiles_dir.glob("*.profile")):
                 profile_name = profile_file.stem
-                profiles.append({
-                    "name": profile_name,
-                    "type": "saved",
-                    "description": "Custom saved profile",
-                    "active": False,
-                })
+                profiles.append(
+                    {
+                        "name": profile_name,
+                        "type": "saved",
+                        "description": "Custom saved profile",
+                        "active": False,
+                    }
+                )
 
         return profiles
 
@@ -94,7 +98,11 @@ class ProfileViewMixin:
                 indicator = ">" if is_selected else ""
 
                 # Status indicator
-                status_text = Text("Active", style="bold green") if profile["active"] else Text("", style="dim")
+                status_text = (
+                    Text("Active", style="bold green")
+                    if profile["active"]
+                    else Text("", style="dim")
+                )
 
                 # Type styling
                 type_style = "yellow" if profile["type"] == "built-in" else "blue"
@@ -165,6 +173,7 @@ class ProfileViewMixin:
                 exit_code, message = loader()
                 # Clean ANSI codes
                 import re
+
                 clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
                 self.state.status_message = clean_message.split("\n")[0]
                 if exit_code == 0:
@@ -234,8 +243,10 @@ class ExportViewMixin:
             is_selected = idx == self.state.selected_index
             checkbox = "[x]" if self.export_options[key] else "[ ]"
             prefix = "> " if is_selected else "  "
-            content.append(f"{prefix}{checkbox} {label}\n",
-                          style="reverse" if is_selected else None)
+            content.append(
+                f"{prefix}{checkbox} {label}\n",
+                style="reverse" if is_selected else None,
+            )
 
         content.append("\n")
 
@@ -243,8 +254,7 @@ class ExportViewMixin:
         content.append(f"Format: ", style="bold")
         formats = ["JSON", "XML", "Markdown"]
         format_display = " | ".join(
-            f"[{fmt}]" if fmt.lower() == self.export_format else fmt
-            for fmt in formats
+            f"[{fmt}]" if fmt.lower() == self.export_format else fmt for fmt in formats
         )
         content.append(f"{format_display}\n\n", style="cyan")
 
@@ -257,7 +267,9 @@ class ExportViewMixin:
         preview_lines = preview.split("\n")[:10]  # Show first 10 lines
         content.append("\n".join(preview_lines), style="dim")
         if len(preview.split("\n")) > 10:
-            content.append(f"\n... ({len(preview.split('\n')) - 10} more lines)", style="dim")
+            content.append(
+                f"\n... ({len(preview.split('\n')) - 10} more lines)", style="dim"
+            )
 
         content.append("\n\n")
 
@@ -273,7 +285,9 @@ class ExportViewMixin:
         controls.append("p", style="cyan")
         controls.append("=Clipboard", style="dim")
 
-        return Panel(content, title="Context Export", subtitle=controls, border_style="cyan")
+        return Panel(
+            content, title="Context Export", subtitle=controls, border_style="cyan"
+        )
 
     def generate_export_preview(self) -> str:
         """Generate a preview of the export."""
@@ -289,11 +303,7 @@ class ExportViewMixin:
         claude_dir = _resolve_claude_dir()
         components = collect_context_components(claude_dir)
 
-        preview = {
-            "type": "claude-ctx-export",
-            "format": "json",
-            "components": {}
-        }
+        preview = {"type": "claude-ctx-export", "format": "json", "components": {}}
 
         for category, files in components.items():
             if self.export_options.get(category, False):
@@ -347,7 +357,10 @@ Exported from: ~/.claude
 
             # Generate output path
             import tempfile
-            output_path = Path(tempfile.gettempdir()) / f"claude-ctx-export.{self.export_format}"
+
+            output_path = (
+                Path(tempfile.gettempdir()) / f"claude-ctx-export.{self.export_format}"
+            )
 
             # TODO: Support format parameter in export_context
             exit_code, message = export_context(
@@ -357,6 +370,7 @@ Exported from: ~/.claude
 
             # Clean ANSI codes
             import re
+
             clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
             self.state.status_message = clean_message.split("\n")[0]
         except Exception as e:
@@ -400,7 +414,9 @@ class WizardViewMixin:
         content = Text()
         content.append("Init Wizard\n", style="bold cyan")
         content.append("─" * 60 + "\n\n", style="dim")
-        content.append("This wizard will help you initialize your project configuration.\n\n")
+        content.append(
+            "This wizard will help you initialize your project configuration.\n\n"
+        )
         content.append("Press ", style="dim")
         content.append("Enter", style="cyan")
         content.append(" to start, or ", style="dim")
@@ -428,7 +444,9 @@ class WizardViewMixin:
         for idx, ptype in enumerate(project_types):
             is_selected = idx == self.state.selected_index
             prefix = "> " if is_selected else "  "
-            content.append(f"{prefix}{ptype}\n", style="reverse" if is_selected else None)
+            content.append(
+                f"{prefix}{ptype}\n", style="reverse" if is_selected else None
+            )
 
         content.append("\n")
         content.append("Enter", style="cyan")

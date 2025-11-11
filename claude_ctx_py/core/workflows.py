@@ -18,19 +18,7 @@ from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
 
 # Import from base module
-from .base import (
-    BLUE,
-    GREEN,
-    YELLOW,
-    RED,
-    NC,
-    _color,
-    _resolve_claude_dir
-)
-
-
-
-
+from .base import BLUE, GREEN, YELLOW, RED, NC, _color, _resolve_claude_dir
 
 
 def workflow_run(workflow: str, home: Path | None = None) -> Tuple[int, str]:
@@ -56,7 +44,9 @@ def workflow_run(workflow: str, home: Path | None = None) -> Tuple[int, str]:
     # Save workflow state
     (current_dir / "active_workflow").write_text(workflow, encoding="utf-8")
     (current_dir / "workflow_status").write_text("pending", encoding="utf-8")
-    (current_dir / "workflow_started").write_text(str(int(time.time())), encoding="utf-8")
+    (current_dir / "workflow_started").write_text(
+        str(int(time.time())), encoding="utf-8"
+    )
 
     lines: List[str] = [
         _color(f"Started workflow: {workflow}", GREEN),
@@ -89,8 +79,6 @@ def workflow_run(workflow: str, home: Path | None = None) -> Tuple[int, str]:
     return 0, "\n".join(lines)
 
 
-
-
 def workflow_list(home: Path | None = None) -> str:
     """List available workflows."""
     claude_dir = _resolve_claude_dir(home)
@@ -120,8 +108,6 @@ def workflow_list(home: Path | None = None) -> str:
             pass
 
     return "\n".join(lines)
-
-
 
 
 def workflow_status(home: Path | None = None) -> Tuple[int, str]:
@@ -168,8 +154,6 @@ def workflow_status(home: Path | None = None) -> Tuple[int, str]:
     return 0, "\n".join(lines)
 
 
-
-
 def workflow_resume(home: Path | None = None) -> Tuple[int, str]:
     """Resume interrupted workflow."""
     claude_dir = _resolve_claude_dir(home)
@@ -189,11 +173,11 @@ def workflow_resume(home: Path | None = None) -> Tuple[int, str]:
         lines.append(f"Resuming from step: {_color(step, YELLOW)}")
 
     lines.append("")
-    lines.append(_color("Continue in Claude Code - the workflow context has been restored", BLUE))
+    lines.append(
+        _color("Continue in Claude Code - the workflow context has been restored", BLUE)
+    )
 
     return 0, "\n".join(lines)
 
 
 # Scenario/Orchestrate functions
-
-

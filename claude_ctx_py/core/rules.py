@@ -32,12 +32,8 @@ from .base import (
     _remove_exact_entries,
     _resolve_claude_dir,
     _uncomment_rule_line,
-    _update_with_backup
+    _update_with_backup,
 )
-
-
-
-
 
 
 def rules_status(home: Path | None = None) -> str:
@@ -47,7 +43,11 @@ def rules_status(home: Path | None = None) -> str:
     lines: List[str] = [_color("Active rule modules:", BLUE)]
 
     if active_file.is_file():
-        entries = [line.strip() for line in active_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+        entries = [
+            line.strip()
+            for line in active_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
     else:
         entries = []
 
@@ -58,8 +58,6 @@ def rules_status(home: Path | None = None) -> str:
         lines.append("  None")
 
     return "\n".join(lines)
-
-
 
 
 def rules_activate(rule: str, home: Path | None = None) -> str:
@@ -76,8 +74,6 @@ def rules_activate(rule: str, home: Path | None = None) -> str:
     _update_with_backup(claude_md, lambda content: _uncomment_rule_line(content, rule))
 
     return _color(f"Activated rule module: {rule}", GREEN)
-
-
 
 
 def rules_deactivate(rule: str, home: Path | None = None) -> str:
@@ -98,8 +94,6 @@ def rules_deactivate(rule: str, home: Path | None = None) -> str:
     return _color(f"Deactivated rule module: {rule}", YELLOW)
 
 
-
-
 def list_rules(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     rules_dir = claude_dir / "rules"
@@ -118,5 +112,3 @@ def list_rules(home: Path | None = None) -> str:
             lines.append(f"  {rule_name} (inactive)")
 
     return "\n".join(lines)
-
-

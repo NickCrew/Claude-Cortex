@@ -57,7 +57,9 @@ def ai_recommend() -> int:
     if workflow:
         print(f"Workflow: {workflow.workflow_name}")
         print(f"Confidence: {workflow.confidence * 100:.0f}%")
-        print(f"Estimated Duration: {workflow.estimated_duration // 60}m {workflow.estimated_duration % 60}s")
+        print(
+            f"Estimated Duration: {workflow.estimated_duration // 60}m {workflow.estimated_duration % 60}s"
+        )
         print(f"Success Probability: {workflow.success_probability * 100:.0f}%")
         print(f"\nAgent Sequence:")
         for i, agent_name in enumerate(workflow.agents_sequence, 1):
@@ -92,7 +94,9 @@ def ai_recommend() -> int:
             print(f"Detected: {', '.join(contexts)}")
 
         if context.errors_count > 0 or context.test_failures > 0:
-            print(f"\n⚠️  Issues: {context.errors_count} errors, {context.test_failures} test failures")
+            print(
+                f"\n⚠️  Issues: {context.errors_count} errors, {context.test_failures} test failures"
+            )
 
     print("\n" + "═" * 70)
     print("\n💡 TIP: Press '0' in the TUI for interactive AI assistant")
@@ -173,13 +177,15 @@ def ai_export_json(output_file: str = "ai-recommendations.json") -> int:
 
     # Export to file
     output_path = Path(output_file)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(suggestions, f, indent=2)
 
     print(f"✓ Exported AI recommendations to {output_path}")
-    print(f"  {len(suggestions.get('agent_recommendations', []))} agent recommendations")
+    print(
+        f"  {len(suggestions.get('agent_recommendations', []))} agent recommendations"
+    )
 
-    workflow = suggestions.get('workflow_prediction')
+    workflow = suggestions.get("workflow_prediction")
     if workflow:
         print(f"  1 workflow prediction ({workflow['confidence']} confidence)")
 
@@ -220,9 +226,7 @@ def ai_record_success(outcome: str = "success") -> int:
 
     # Record success
     agent.record_session_success(
-        agents_used=active_agents,
-        duration=duration,
-        outcome=outcome
+        agents_used=active_agents, duration=duration, outcome=outcome
     )
 
     print(f"✓ Recorded successful session for learning")

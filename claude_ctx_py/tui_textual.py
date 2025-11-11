@@ -90,6 +90,7 @@ from .tui_dialogs import TaskEditorDialog, ConfirmDialog, PromptDialog, TextView
 @dataclass
 class RuleNode:
     """Represents a rule in the system."""
+
     name: str
     status: str  # "active" or "inactive"
     category: str
@@ -100,6 +101,7 @@ class RuleNode:
 @dataclass
 class AgentTask:
     """Represents an active agent task in the orchestration system."""
+
     agent_id: str
     agent_name: str
     workstream: str
@@ -113,6 +115,7 @@ class AgentTask:
 @dataclass
 class WorkflowInfo:
     """Information about a workflow."""
+
     name: str
     description: str
     status: str
@@ -126,6 +129,7 @@ class WorkflowInfo:
 @dataclass
 class ModeInfo:
     """Represents a behavioral mode in the system."""
+
     name: str
     status: str  # "active" or "inactive"
     purpose: str
@@ -432,7 +436,10 @@ class AgentTUI(App):
     """
 
     BINDINGS = [
-        *[Binding(key, f"view_{name}", label, show=True) for key, name, label in PRIMARY_VIEW_BINDINGS],
+        *[
+            Binding(key, f"view_{name}", label, show=True)
+            for key, name, label in PRIMARY_VIEW_BINDINGS
+        ],
         Binding("o", "view_orchestrate", "Orchestrate", show=True),
         Binding("g", "view_galaxy", "Galaxy", show=True),
         Binding("t", "view_tasks", "Tasks", show=True),
@@ -454,6 +461,9 @@ class AgentTUI(App):
         Binding("x", "export_clipboard", "Copy", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
         Binding("D", "profile_delete", "Delete Profile", show=False),
+        # Vi-style navigation
+        Binding("j", "cursor_down", "Cursor Down", show=False),
+        Binding("k", "cursor_up", "Cursor Up", show=False),
     ]
 
     # Register command provider for Textual's command palette
@@ -527,13 +537,13 @@ class AgentTUI(App):
         except Exception:
             return
 
-        agents = getattr(self, 'agents', [])
+        agents = getattr(self, "agents", [])
         agent_total = len(agents)
-        agent_active = sum(1 for a in agents if getattr(a, 'status', '') == "active")
-        tasks = getattr(self, 'agent_tasks', [])
-        task_active = sum(1 for t in tasks if getattr(t, 'status', '') == "running")
+        agent_active = sum(1 for a in agents if getattr(a, "status", "") == "active")
+        tasks = getattr(self, "agent_tasks", [])
+        task_active = sum(1 for t in tasks if getattr(t, "status", "") == "running")
         perf_text = ""
-        if hasattr(self, 'performance_monitor'):
+        if hasattr(self, "performance_monitor"):
             perf_text = self.performance_monitor.get_status_bar(compact=True)
 
         status_bar.update_payload(
@@ -594,7 +604,9 @@ class AgentTUI(App):
         if "name" in workflow_data and not isinstance(workflow_data["name"], str):
             return False
 
-        if "description" in workflow_data and not isinstance(workflow_data["description"], str):
+        if "description" in workflow_data and not isinstance(
+            workflow_data["description"], str
+        ):
             return False
 
         # Steps array is expected but can be empty
@@ -636,14 +648,14 @@ class AgentTUI(App):
         index = self._table_cursor_index()
         if index is None:
             return None
-        servers = getattr(self, 'mcp_servers', [])
+        servers = getattr(self, "mcp_servers", [])
         if index < 0 or index >= len(servers):
             return None
         return servers[index]
 
     def _selected_skill(self) -> Optional[Dict[str, str]]:
         index = self._table_cursor_index()
-        skills = getattr(self, 'skills', [])
+        skills = getattr(self, "skills", [])
         if index is None or not skills:
             return None
         if index < 0 or index >= len(skills):
@@ -665,7 +677,9 @@ class AgentTUI(App):
             skill = self._selected_skill()
             if skill:
                 return self._skill_slug(skill)
-        return await self._prompt_text(prompt_title, "Enter skill name", placeholder="e.g. observability/alerts")
+        return await self._prompt_text(
+            prompt_title, "Enter skill name", placeholder="e.g. observability/alerts"
+        )
 
     def _copy_to_clipboard(self, text: str) -> bool:
         """Attempt to copy text to the system clipboard."""
@@ -685,7 +699,11 @@ class AgentTUI(App):
 
         try:
             if shutil.which("xclip"):
-                subprocess.run(["xclip", "-selection", "clipboard"], check=True, input=text.encode("utf-8"))
+                subprocess.run(
+                    ["xclip", "-selection", "clipboard"],
+                    check=True,
+                    input=text.encode("utf-8"),
+                )
                 return True
         except Exception:
             pass
@@ -699,7 +717,9 @@ class AgentTUI(App):
         except Exception as exc:
             return 1, f"Failed to read profile: {exc}"
 
-        agents = [Path(entry).stem for entry in self._extract_profile_list(content, "AGENTS")]
+        agents = [
+            Path(entry).stem for entry in self._extract_profile_list(content, "AGENTS")
+        ]
         modes = self._extract_profile_list(content, "MODES")
         rules = self._extract_profile_list(content, "RULES")
 
@@ -721,7 +741,9 @@ class AgentTUI(App):
             exit_code, mode_message = mode_activate(mode_name)
             if mode_message:
                 messages.append(mode_message)
-            if exit_code != 0 and (not mode_message or "already active" not in mode_message.lower()):
+            if exit_code != 0 and (
+                not mode_message or "already active" not in mode_message.lower()
+            ):
                 return exit_code, "\n".join(messages)
 
         for rule_name in filter(None, rules):
@@ -755,7 +777,9 @@ class AgentTUI(App):
             return
         await self.push_screen(TextViewerDialog(title, body), wait_for_dismiss=True)
 
-    async def _prompt_text(self, title: str, prompt: str, *, default: str = "", placeholder: str = "") -> Optional[str]:
+    async def _prompt_text(
+        self, title: str, prompt: str, *, default: str = "", placeholder: str = ""
+    ) -> Optional[str]:
         dialog = PromptDialog(title, prompt, default=default, placeholder=placeholder)
         value = await self.push_screen(dialog, wait_for_dismiss=True)
         if value is None:
@@ -845,7 +869,7 @@ class AgentTUI(App):
             active_count = sum(1 for a in agents if a.status == "active")
             inactive_count = len(agents) - active_count
             self.status_message = f"Loaded {len(agents)} agents ({active_count} active, {inactive_count} inactive)"
-            if hasattr(self, 'metrics_collector'):
+            if hasattr(self, "metrics_collector"):
                 self.metrics_collector.record("agents_active", float(active_count))
             self.refresh_status_bar()
 
@@ -863,21 +887,27 @@ class AgentTUI(App):
             name = _extract_agent_name(path, lines)
             tokens = _tokenize_front_matter(lines)
 
-            category = _extract_scalar_from_paths(
-                tokens,
-                (
-                    ("metadata", "category"),
-                    ("category",),
-                ),
-            ) or "general"
+            category = (
+                _extract_scalar_from_paths(
+                    tokens,
+                    (
+                        ("metadata", "category"),
+                        ("category",),
+                    ),
+                )
+                or "general"
+            )
 
-            tier = _extract_scalar_from_paths(
-                tokens,
-                (
-                    ("metadata", "tier", "id"),
-                    ("tier", "id"),
-                ),
-            ) or "standard"
+            tier = (
+                _extract_scalar_from_paths(
+                    tokens,
+                    (
+                        ("metadata", "tier", "id"),
+                        ("tier", "id"),
+                    ),
+                )
+                or "standard"
+            )
 
             requires_raw, recommends_raw = _parse_dependencies_from_front(lines)
             requires = [item for item in requires_raw if item]
@@ -941,8 +971,14 @@ class AgentTUI(App):
             tokens = _tokenize_front_matter(lines)
 
             # Extract metadata
-            name = _extract_scalar_from_paths(tokens, (("name",),)) or skill_file.parent.name
-            description = _extract_scalar_from_paths(tokens, (("description",),)) or "No description"
+            name = (
+                _extract_scalar_from_paths(tokens, (("name",),))
+                or skill_file.parent.name
+            )
+            description = (
+                _extract_scalar_from_paths(tokens, (("description",),))
+                or "No description"
+            )
             category = _extract_scalar_from_paths(tokens, (("category",),)) or "general"
 
             # Determine location (user vs project)
@@ -960,7 +996,7 @@ class AgentTUI(App):
             # Truncate description if too long
             max_desc_len = 80
             if len(description) > max_desc_len:
-                description = description[:max_desc_len-3] + "..."
+                description = description[: max_desc_len - 3] + "..."
 
             return {
                 "name": name,
@@ -977,6 +1013,7 @@ class AgentTUI(App):
         """Check if a path is gitignored using git check-ignore."""
         try:
             import subprocess
+
             result = subprocess.run(
                 ["git", "check-ignore", "-q", str(path)],
                 cwd=path.parent,
@@ -995,7 +1032,7 @@ class AgentTUI(App):
         table.add_column("Location", key="location", width=12)
         table.add_column("Description", key="description")
 
-        if not hasattr(self, 'skills') or not self.skills:
+        if not hasattr(self, "skills") or not self.skills:
             table.add_row("[dim]No skills found[/dim]", "", "", "")
             return
 
@@ -1005,7 +1042,7 @@ class AgentTUI(App):
             "performance": "yellow",
             "testing": "green",
             "architecture": "blue",
-            "deployment": "magenta"
+            "deployment": "magenta",
         }
 
         for skill in self.skills:
@@ -1092,7 +1129,9 @@ class AgentTUI(App):
             )
             self.export_row_meta.append(("category", key))
 
-        format_label = "Agent-generic" if self.export_agent_generic else "Claude-specific"
+        format_label = (
+            "Agent-generic" if self.export_agent_generic else "Claude-specific"
+        )
         format_color = "green" if self.export_agent_generic else "yellow"
         table.add_row(
             "Format",
@@ -1147,16 +1186,18 @@ class AgentTUI(App):
                 task_data = json.loads(active_tasks_file.read_text(encoding="utf-8"))
 
                 for task_id, task_info in task_data.items():
-                    tasks.append(AgentTask(
-                        agent_id=task_id,
-                        agent_name=task_info.get("name", task_id),
-                        workstream=task_info.get("workstream", "primary"),
-                        status=task_info.get("status", "pending"),
-                        progress=task_info.get("progress", 0),
-                        category=task_info.get("category", "general"),
-                        started=task_info.get("started"),
-                        completed=task_info.get("completed"),
-                    ))
+                    tasks.append(
+                        AgentTask(
+                            agent_id=task_id,
+                            agent_name=task_info.get("name", task_id),
+                            workstream=task_info.get("workstream", "primary"),
+                            status=task_info.get("status", "pending"),
+                            progress=task_info.get("progress", 0),
+                            category=task_info.get("category", "general"),
+                            started=task_info.get("started"),
+                            completed=task_info.get("completed"),
+                        )
+                    )
         except Exception:
             # No active tasks or error reading - use empty list
             pass
@@ -1181,14 +1222,20 @@ class AgentTUI(App):
                 for path in _iter_md_files(rules_dir):
                     if _is_disabled(path):
                         continue
-                    node = self._parse_rule_file(path, "active" if path.stem in active_rule_names else "inactive")
+                    node = self._parse_rule_file(
+                        path, "active" if path.stem in active_rule_names else "inactive"
+                    )
                     if node:
                         rules.append(node)
 
             # Check disabled rules
             disabled_dirs = [
                 self._validate_path(claude_dir, claude_dir / "rules-disabled"),
-                self._validate_path(claude_dir, rules_dir / "disabled") if rules_dir.is_dir() else None,
+                (
+                    self._validate_path(claude_dir, rules_dir / "disabled")
+                    if rules_dir.is_dir()
+                    else None
+                ),
             ]
 
             for disabled_dir in disabled_dirs:
@@ -1204,7 +1251,7 @@ class AgentTUI(App):
             self.rules = rules
             active_count = sum(1 for r in rules if r.status == "active")
             self.status_message = f"Loaded {len(rules)} rules ({active_count} active)"
-            if hasattr(self, 'metrics_collector'):
+            if hasattr(self, "metrics_collector"):
                 self.metrics_collector.record("rules_active", float(active_count))
 
         except Exception as e:
@@ -1290,7 +1337,7 @@ class AgentTUI(App):
             self.modes = modes
             active_count = sum(1 for m in modes if m.status == "active")
             self.status_message = f"Loaded {len(modes)} modes ({active_count} active)"
-            if hasattr(self, 'metrics_collector'):
+            if hasattr(self, "metrics_collector"):
                 self.metrics_collector.record("modes_active", float(active_count))
 
         except Exception as e:
@@ -1323,7 +1370,11 @@ class AgentTUI(App):
                 elif line.startswith("**Purpose**:"):
                     # Extract purpose
                     purpose = line.split("**Purpose**:")[1].strip()
-                elif line.startswith("## ") and "Activation" not in line and not description:
+                elif (
+                    line.startswith("## ")
+                    and "Activation" not in line
+                    and not description
+                ):
                     # Use first non-activation h2 as description fallback
                     description = line[3:].strip()
 
@@ -1353,13 +1404,17 @@ class AgentTUI(App):
         try:
             claude_dir = _resolve_claude_dir()
             workflows_dir = self._validate_path(claude_dir, claude_dir / "workflows")
-            tasks_dir = self._validate_path(claude_dir, claude_dir / "tasks" / "current")
+            tasks_dir = self._validate_path(
+                claude_dir, claude_dir / "tasks" / "current"
+            )
 
             # Load active workflow status if exists
             active_workflow_file = tasks_dir / "active_workflow"
             active_workflow = None
             if active_workflow_file.is_file():
-                active_workflow = active_workflow_file.read_text(encoding="utf-8").strip()
+                active_workflow = active_workflow_file.read_text(
+                    encoding="utf-8"
+                ).strip()
 
             if workflows_dir.is_dir():
                 for workflow_file in sorted(workflows_dir.glob("*.yaml")):
@@ -1371,13 +1426,18 @@ class AgentTUI(App):
                         workflow_data = yaml.safe_load(content)
 
                         # Validate YAML structure
-                        if not self._validate_workflow_schema(workflow_data, workflow_file):
+                        if not self._validate_workflow_schema(
+                            workflow_data, workflow_file
+                        ):
                             # Skip malformed workflows
                             continue
 
                         name = workflow_data.get("name", workflow_file.stem)
                         description = workflow_data.get("description", "")
-                        steps = [step.get("name", "") for step in workflow_data.get("steps", [])]
+                        steps = [
+                            step.get("name", "")
+                            for step in workflow_data.get("steps", [])
+                        ]
 
                         # Determine status
                         status = "pending"
@@ -1392,11 +1452,15 @@ class AgentTUI(App):
 
                             started_file = tasks_dir / "workflow_started"
                             if started_file.is_file():
-                                started = float(started_file.read_text(encoding="utf-8").strip())
+                                started = float(
+                                    started_file.read_text(encoding="utf-8").strip()
+                                )
 
                             current_step_file = tasks_dir / "current_step"
                             if current_step_file.is_file():
-                                current_step = current_step_file.read_text(encoding="utf-8").strip()
+                                current_step = current_step_file.read_text(
+                                    encoding="utf-8"
+                                ).strip()
 
                             # Calculate progress based on current step
                             if current_step and steps:
@@ -1406,16 +1470,18 @@ class AgentTUI(App):
                                 except ValueError:
                                     progress = 0
 
-                        workflows.append(WorkflowInfo(
-                            name=name,
-                            description=description,
-                            status=status,
-                            progress=progress,
-                            started=started,
-                            steps=steps,
-                            current_step=current_step,
-                            file_path=workflow_file,
-                        ))
+                        workflows.append(
+                            WorkflowInfo(
+                                name=name,
+                                description=description,
+                                status=status,
+                                progress=progress,
+                                started=started,
+                                steps=steps,
+                                current_step=current_step,
+                                file_path=workflow_file,
+                            )
+                        )
 
                     except Exception:
                         # Skip malformed workflows
@@ -1425,7 +1491,7 @@ class AgentTUI(App):
             self.status_message = f"Error loading workflows: {e}"
 
         self.workflows = workflows
-        if hasattr(self, 'metrics_collector'):
+        if hasattr(self, "metrics_collector"):
             running = sum(1 for w in workflows if w.status == "running")
             self.metrics_collector.record("workflows_running", float(running))
 
@@ -1436,29 +1502,37 @@ class AgentTUI(App):
             claude_dir = _resolve_claude_dir()
 
             for name in BUILT_IN_PROFILES:
-                profiles.append({
-                    "name": name,
-                    "type": "built-in",
-                    "description": PROFILE_DESCRIPTIONS.get(name, "Built-in profile"),
-                    "path": None,
-                    "modified": None,
-                })
+                profiles.append(
+                    {
+                        "name": name,
+                        "type": "built-in",
+                        "description": PROFILE_DESCRIPTIONS.get(
+                            name, "Built-in profile"
+                        ),
+                        "path": None,
+                        "modified": None,
+                    }
+                )
 
             profiles_dir = claude_dir / "profiles"
             if profiles_dir.is_dir():
                 for profile_file in sorted(profiles_dir.glob("*.profile")):
                     modified_iso = None
                     try:
-                        modified_iso = datetime.fromtimestamp(profile_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+                        modified_iso = datetime.fromtimestamp(
+                            profile_file.stat().st_mtime
+                        ).strftime("%Y-%m-%d %H:%M")
                     except OSError:
                         modified_iso = None
-                    profiles.append({
-                        "name": profile_file.stem,
-                        "type": "saved",
-                        "description": "Saved profile snapshot",
-                        "path": str(profile_file),
-                        "modified": modified_iso,
-                    })
+                    profiles.append(
+                        {
+                            "name": profile_file.stem,
+                            "type": "saved",
+                            "description": "Saved profile snapshot",
+                            "path": str(profile_file),
+                            "modified": modified_iso,
+                        }
+                    )
 
             self.profiles = profiles
         except Exception as exc:
@@ -1529,7 +1603,7 @@ class AgentTUI(App):
         table.add_column("Category", key="category", width=20)
         table.add_column("Tier", key="tier", width=15)
 
-        if not hasattr(self, 'agents') or not self.agents:
+        if not hasattr(self, "agents") or not self.agents:
             table.add_row("[dim]No agents found[/dim]", "", "", "")
             return
 
@@ -1537,7 +1611,7 @@ class AgentTUI(App):
             "essential": "bold green",
             "standard": "cyan",
             "premium": "yellow",
-            "experimental": "magenta"
+            "experimental": "magenta",
         }
 
         for agent in self.agents:
@@ -1576,7 +1650,7 @@ class AgentTUI(App):
         table.add_column("Progress", key="progress", width=12)
         table.add_column("Started", key="started", width=18)
 
-        tasks = getattr(self, 'agent_tasks', [])
+        tasks = getattr(self, "agent_tasks", [])
         if not tasks:
             table.add_row("[dim]No tasks yet[/dim]", "", "", "", "", "")
             table.add_row("[dim]Press A to add a task[/dim]", "", "", "", "", "")
@@ -1607,7 +1681,6 @@ class AgentTUI(App):
                 started_text,
             )
 
-
     def show_rules_view(self, table: DataTable) -> None:
         """Show rules table with enhanced colors."""
         table.add_column("Name", key="name", width=25)
@@ -1615,7 +1688,7 @@ class AgentTUI(App):
         table.add_column("Category", key="category", width=15)
         table.add_column("Description", key="description")
 
-        if not hasattr(self, 'rules') or not self.rules:
+        if not hasattr(self, "rules") or not self.rules:
             table.add_row("[dim]No rules found[/dim]", "", "", "")
             return
 
@@ -1624,7 +1697,7 @@ class AgentTUI(App):
             "quality": "green",
             "workflow": "yellow",
             "parallel": "magenta",
-            "efficiency": "blue"
+            "efficiency": "blue",
         }
 
         for rule in self.rules:
@@ -1656,7 +1729,7 @@ class AgentTUI(App):
         table.add_column("Status", key="status", width=12)
         table.add_column("Purpose", key="purpose")
 
-        if not hasattr(self, 'modes') or not self.modes:
+        if not hasattr(self, "modes") or not self.modes:
             table.add_row("[dim]No modes found[/dim]", "", "")
             return
 
@@ -1682,17 +1755,25 @@ class AgentTUI(App):
         """Show overview with high-energy ASCII dashboard."""
         table.add_column("Dashboard", key="dashboard")
 
-        active_agents = sum(1 for a in getattr(self, 'agents', []) if a.status == "active")
-        total_agents = len(getattr(self, 'agents', []))
-        active_modes = sum(1 for m in getattr(self, 'modes', []) if m.status == "active")
-        total_modes = len(getattr(self, 'modes', []))
-        active_rules = sum(1 for r in getattr(self, 'rules', []) if r.status == "active")
-        total_rules = len(getattr(self, 'rules', []))
-        total_skills = len(getattr(self, 'skills', []))
-        running_workflows = sum(1 for w in getattr(self, 'workflows', []) if w.status == "running")
+        active_agents = sum(
+            1 for a in getattr(self, "agents", []) if a.status == "active"
+        )
+        total_agents = len(getattr(self, "agents", []))
+        active_modes = sum(
+            1 for m in getattr(self, "modes", []) if m.status == "active"
+        )
+        total_modes = len(getattr(self, "modes", []))
+        active_rules = sum(
+            1 for r in getattr(self, "rules", []) if r.status == "active"
+        )
+        total_rules = len(getattr(self, "rules", []))
+        total_skills = len(getattr(self, "skills", []))
+        running_workflows = sum(
+            1 for w in getattr(self, "workflows", []) if w.status == "running"
+        )
 
         def add_multiline(content: str):
-            for line in content.split('\n'):
+            for line in content.split("\n"):
                 table.add_row(line)
 
         hero = EnhancedOverview.create_hero_banner(active_agents, total_agents)
@@ -1719,7 +1800,7 @@ class AgentTUI(App):
         health = EnhancedOverview.create_system_health()
         add_multiline(health)
 
-        if hasattr(self, 'performance_monitor'):
+        if hasattr(self, "performance_monitor"):
             table.add_row("")
             table.add_row("[bold cyan]⚡ Performance Monitor[/bold cyan]")
             table.add_row(self.performance_monitor.get_status_bar(compact=False))
@@ -1730,7 +1811,7 @@ class AgentTUI(App):
         key = value.strip().lower()
         if key.endswith(".md"):
             key = key[:-3]
-        lookup = getattr(self, 'agent_slug_lookup', {})
+        lookup = getattr(self, "agent_slug_lookup", {})
         return lookup.get(key)
 
     def _tasks_dir(self) -> Path:
@@ -1745,7 +1826,7 @@ class AgentTUI(App):
     def _get_agent_category(self, identifier: Optional[str]) -> Optional[str]:
         if not identifier:
             return None
-        lookup = getattr(self, 'agent_category_lookup', {})
+        lookup = getattr(self, "agent_category_lookup", {})
         return lookup.get(identifier.lower())
 
     def _format_category(self, category: Optional[str]) -> str:
@@ -1753,13 +1834,15 @@ class AgentTUI(App):
             return "[dim]unknown[/dim]"
 
         key = category.lower()
-        palette = getattr(self, '_dynamic_category_palette', {})
+        palette = getattr(self, "_dynamic_category_palette", {})
         if key not in palette:
             base_color = self.CATEGORY_PALETTE.get(key)
             if base_color is None:
-                fallback_index = getattr(self, '_fallback_category_index', 0)
+                fallback_index = getattr(self, "_fallback_category_index", 0)
                 if self.CATEGORY_FALLBACK_COLORS:
-                    base_color = self.CATEGORY_FALLBACK_COLORS[fallback_index % len(self.CATEGORY_FALLBACK_COLORS)]
+                    base_color = self.CATEGORY_FALLBACK_COLORS[
+                        fallback_index % len(self.CATEGORY_FALLBACK_COLORS)
+                    ]
                     self._fallback_category_index = fallback_index + 1
                 else:
                     base_color = "white"
@@ -1770,14 +1853,14 @@ class AgentTUI(App):
         return f"[{color}]{category}[/{color}]"
 
     def _category_badges(self) -> List[str]:
-        lookup = getattr(self, 'agent_category_lookup', {})
+        lookup = getattr(self, "agent_category_lookup", {})
         categories = sorted(set(lookup.values())) if lookup else []
         if not categories:
             return ["[dim]n/a[/dim]"]
         return [self._format_category(cat) for cat in categories[:6]]
 
     def _generate_task_id(self, name: str) -> str:
-        base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip('-') or "task"
+        base = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "task"
         timestamp = int(time.time())
         return f"{base}-{timestamp}"
 
@@ -1797,7 +1880,7 @@ class AgentTUI(App):
         tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
     def _upsert_task(self, agent_id: Optional[str], payload: dict) -> None:
-        tasks = list(getattr(self, 'agent_tasks', []))
+        tasks = list(getattr(self, "agent_tasks", []))
         name = payload.get("name", "").strip()
         if not name:
             raise ValueError("Task name is required")
@@ -1834,8 +1917,25 @@ class AgentTUI(App):
                     updated = True
                     break
             if not updated:
-                tasks.append(AgentTask(
-                    agent_id=agent_id,
+                tasks.append(
+                    AgentTask(
+                        agent_id=agent_id,
+                        agent_name=name,
+                        workstream=workstream,
+                        status=status,
+                        progress=progress,
+                        category=category,
+                        started=(
+                            time.time() if status in ("running", "complete") else None
+                        ),
+                        completed=time.time() if status == "complete" else None,
+                    )
+                )
+        else:
+            new_id = self._generate_task_id(name)
+            tasks.append(
+                AgentTask(
+                    agent_id=new_id,
                     agent_name=name,
                     workstream=workstream,
                     status=status,
@@ -1843,26 +1943,15 @@ class AgentTUI(App):
                     category=category,
                     started=time.time() if status in ("running", "complete") else None,
                     completed=time.time() if status == "complete" else None,
-                ))
-        else:
-            new_id = self._generate_task_id(name)
-            tasks.append(AgentTask(
-                agent_id=new_id,
-                agent_name=name,
-                workstream=workstream,
-                status=status,
-                progress=progress,
-                category=category,
-                started=time.time() if status in ("running", "complete") else None,
-                completed=time.time() if status == "complete" else None,
-            ))
+                )
+            )
 
         self._save_tasks(tasks)
         self.load_agent_tasks()
         self.update_view()
 
     def _remove_task(self, agent_id: str) -> None:
-        tasks = [t for t in getattr(self, 'agent_tasks', []) if t.agent_id != agent_id]
+        tasks = [t for t in getattr(self, "agent_tasks", []) if t.agent_id != agent_id]
         self._save_tasks(tasks)
         self.load_agent_tasks()
         self.update_view()
@@ -1870,7 +1959,7 @@ class AgentTUI(App):
     def _selected_task_index(self) -> Optional[int]:
         if self.current_view != "tasks":
             return None
-        tasks = getattr(self, 'agent_tasks', [])
+        tasks = getattr(self, "agent_tasks", [])
         if not tasks:
             return None
         table = self.query_one(DataTable)
@@ -1879,7 +1968,7 @@ class AgentTUI(App):
         return min(table.cursor_row, len(tasks) - 1)
 
     def _build_agent_nodes(self) -> List[WorkflowNode]:
-        agents = getattr(self, 'agents', [])
+        agents = getattr(self, "agents", [])
         if not agents:
             return []
 
@@ -1887,7 +1976,7 @@ class AgentTUI(App):
         for agent in agents:
             node_id = agent.slug or agent.name.replace(" ", "-")
             dependencies = []
-            for dep in getattr(agent, 'requires', []) or []:
+            for dep in getattr(agent, "requires", []) or []:
                 normalized = self._normalize_agent_dependency(dep)
                 if normalized:
                     dependencies.append(normalized)
@@ -1934,7 +2023,9 @@ class AgentTUI(App):
             tree_lines = tree_lines[:max_lines] + ["[dim]…truncated[/dim]"]
         graph_widget.update("\n".join(tree_lines))
 
-        active_agents = sum(1 for a in getattr(self, 'agents', []) if a.status == "active")
+        active_agents = sum(
+            1 for a in getattr(self, "agents", []) if a.status == "active"
+        )
         dependency_edges = sum(len(node.dependencies) for node in nodes)
         stats_lines = [
             f"[cyan]Active:[/cyan] {active_agents}/{len(nodes)}",
@@ -1963,7 +2054,7 @@ class AgentTUI(App):
         table.add_column("Started", key="started")
         table.add_column("Description", key="description")
 
-        if not hasattr(self, 'workflows') or not self.workflows:
+        if not hasattr(self, "workflows") or not self.workflows:
             table.add_row("No workflows found", "", "", "", "")
             return
 
@@ -1991,7 +2082,11 @@ class AgentTUI(App):
                 started_text = Format.time_ago(started_dt)
 
             # Use Format.truncate for description
-            description = Format.truncate(workflow.description, 40) if workflow.description else ""
+            description = (
+                Format.truncate(workflow.description, 40)
+                if workflow.description
+                else ""
+            )
 
             # Add icon to name
             name = f"{Icons.PLAY} {workflow.name}"
@@ -2012,15 +2107,39 @@ class AgentTUI(App):
         table.add_column("Status", key="status")
         table.add_column("Progress", key="progress")
 
-        tasks = getattr(self, 'agent_tasks', [])
+        tasks = getattr(self, "agent_tasks", [])
 
         if not tasks:
             # Show example/placeholder data with enhanced visuals
             placeholder_rows = [
-                (f"{Icons.CODE} [Agent-1] Implementation", "development", "primary", StatusIcon.running(), 75),
-                (f"{Icons.TEST} [Agent-2] Code Review", "quality", "quality", StatusIcon.active(), 100),
-                (f"{Icons.TEST} [Agent-3] Test Automation", "testing", "quality", StatusIcon.running(), 60),
-                (f"{Icons.DOC} [Agent-4] Documentation", "documentation", "quality", StatusIcon.pending(), 0),
+                (
+                    f"{Icons.CODE} [Agent-1] Implementation",
+                    "development",
+                    "primary",
+                    StatusIcon.running(),
+                    75,
+                ),
+                (
+                    f"{Icons.TEST} [Agent-2] Code Review",
+                    "quality",
+                    "quality",
+                    StatusIcon.active(),
+                    100,
+                ),
+                (
+                    f"{Icons.TEST} [Agent-3] Test Automation",
+                    "testing",
+                    "quality",
+                    StatusIcon.running(),
+                    60,
+                ),
+                (
+                    f"{Icons.DOC} [Agent-4] Documentation",
+                    "documentation",
+                    "quality",
+                    StatusIcon.pending(),
+                    0,
+                ),
             ]
             for name, category, workstream, status_icon, progress in placeholder_rows:
                 table.add_row(
@@ -2072,10 +2191,14 @@ class AgentTUI(App):
                 )
 
             # Calculate and display metrics
-            total_progress = sum(t.progress for t in tasks) // len(tasks) if tasks else 0
+            total_progress = (
+                sum(t.progress for t in tasks) // len(tasks) if tasks else 0
+            )
             running_count = sum(1 for t in tasks if t.status == "running")
             complete_count = sum(1 for t in tasks if t.status == "complete")
-            parallel_efficiency = int((running_count / len(tasks)) * 100) if tasks else 0
+            parallel_efficiency = (
+                int((running_count / len(tasks)) * 100) if tasks else 0
+            )
 
             # Add metrics section
             table.add_row("", "", "", "", "")
@@ -2088,7 +2211,9 @@ class AgentTUI(App):
             # Estimate completion time
             if running_count > 0 and total_progress > 0:
                 estimated_minutes = int((100 - total_progress) * 0.5)
-                table.add_row("Estimated Completion:", "", f"{estimated_minutes}m", "", "")
+                table.add_row(
+                    "Estimated Completion:", "", f"{estimated_minutes}m", "", ""
+                )
             else:
                 table.add_row("Estimated Completion:", "", "TBD", "", "")
 
@@ -2101,10 +2226,12 @@ class AgentTUI(App):
         table.add_column("Notes")
 
         if self.mcp_error:
-            table.add_row("[red]Error[/red]", Format.truncate(self.mcp_error, 40), "", "", "")
+            table.add_row(
+                "[red]Error[/red]", Format.truncate(self.mcp_error, 40), "", "", ""
+            )
             return
 
-        servers = getattr(self, 'mcp_servers', [])
+        servers = getattr(self, "mcp_servers", [])
         if not servers:
             table.add_row("[dim]No MCP servers configured[/dim]", "", "", "", "")
             return
@@ -2149,12 +2276,12 @@ class AgentTUI(App):
         table.add_column("Confidence", key="confidence", width=12)
         table.add_column("Reason")
 
-        if not hasattr(self, 'intelligent_agent'):
+        if not hasattr(self, "intelligent_agent"):
             table.add_row(
                 "[dim]System[/dim]",
                 "[yellow]AI Assistant not initialized[/yellow]",
                 "",
-                ""
+                "",
             )
             return
 
@@ -2163,16 +2290,13 @@ class AgentTUI(App):
 
         # Show header
         table.add_row(
-            "[bold cyan]🤖 INTELLIGENT RECOMMENDATIONS[/bold cyan]",
-            "",
-            "",
-            ""
+            "[bold cyan]🤖 INTELLIGENT RECOMMENDATIONS[/bold cyan]", "", "", ""
         )
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
             "",
-            ""
+            "",
         )
         table.add_row("", "", "", "")
 
@@ -2181,7 +2305,7 @@ class AgentTUI(App):
                 "[dim]Agent[/dim]",
                 "[dim]No recommendations[/dim]",
                 "",
-                "[dim]Context analysis found no suggestions[/dim]"
+                "[dim]Context analysis found no suggestions[/dim]",
             )
         else:
             # Show agent recommendations
@@ -2216,22 +2340,17 @@ class AgentTUI(App):
                     f"[{urgency_color}]{urgency_icon} Agent[/{urgency_color}]",
                     f"[bold]{rec.agent_name}[/bold]{auto_text}",
                     confidence_text,
-                    f"[dim italic]{rec.reason}[/dim italic]"
+                    f"[dim italic]{rec.reason}[/dim italic]",
                 )
 
         # Show workflow prediction if available
         table.add_row("", "", "", "")
-        table.add_row(
-            "[bold magenta]🎯 WORKFLOW PREDICTION[/bold magenta]",
-            "",
-            "",
-            ""
-        )
+        table.add_row("[bold magenta]🎯 WORKFLOW PREDICTION[/bold magenta]", "", "", "")
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
             "",
-            ""
+            "",
         )
         table.add_row("", "", "", "")
 
@@ -2245,69 +2364,48 @@ class AgentTUI(App):
                 "[cyan]Workflow[/cyan]",
                 f"[bold]{workflow.workflow_name}[/bold]",
                 f"[green]{confidence_pct}%[/green]",
-                f"[dim]Based on {workflow.based_on_pattern} pattern[/dim]"
+                f"[dim]Based on {workflow.based_on_pattern} pattern[/dim]",
             )
 
             table.add_row(
                 "[cyan]Est. Duration[/cyan]",
                 f"[yellow]{workflow.estimated_duration // 60}m {workflow.estimated_duration % 60}s[/yellow]",
                 "",
-                ""
+                "",
             )
 
             table.add_row(
-                "[cyan]Success Rate[/cyan]",
-                f"[green]{success_pct}%[/green]",
-                "",
-                ""
+                "[cyan]Success Rate[/cyan]", f"[green]{success_pct}%[/green]", "", ""
             )
 
             table.add_row("", "", "", "")
-            table.add_row(
-                "[cyan]Agent Sequence:[/cyan]",
-                "",
-                "",
-                ""
-            )
+            table.add_row("[cyan]Agent Sequence:[/cyan]", "", "", "")
 
             for i, agent in enumerate(workflow.agents_sequence, 1):
-                table.add_row(
-                    "",
-                    f"[dim]{i}.[/dim] {Icons.CODE} {agent}",
-                    "",
-                    ""
-                )
+                table.add_row("", f"[dim]{i}.[/dim] {Icons.CODE} {agent}", "", "")
         else:
             table.add_row(
                 "[dim]Workflow[/dim]",
                 "[dim]Not enough data[/dim]",
                 "",
-                "[dim italic]Need 3+ similar sessions for prediction[/dim italic]"
+                "[dim italic]Need 3+ similar sessions for prediction[/dim italic]",
             )
 
         # Show context info
         table.add_row("", "", "", "")
-        table.add_row(
-            "[bold yellow]📊 CONTEXT ANALYSIS[/bold yellow]",
-            "",
-            "",
-            ""
-        )
+        table.add_row("[bold yellow]📊 CONTEXT ANALYSIS[/bold yellow]", "", "", "")
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
             "",
-            ""
+            "",
         )
         table.add_row("", "", "", "")
 
         context = self.intelligent_agent.current_context
         if context:
             table.add_row(
-                "[cyan]Files Changed[/cyan]",
-                f"{len(context.files_changed)}",
-                "",
-                ""
+                "[cyan]Files Changed[/cyan]", f"{len(context.files_changed)}", "", ""
             )
 
             # Show detected contexts
@@ -2327,10 +2425,7 @@ class AgentTUI(App):
 
             if contexts_detected:
                 table.add_row(
-                    "[cyan]Detected:[/cyan]",
-                    ", ".join(contexts_detected),
-                    "",
-                    ""
+                    "[cyan]Detected:[/cyan]", ", ".join(contexts_detected), "", ""
                 )
 
             # Show errors if any
@@ -2339,35 +2434,30 @@ class AgentTUI(App):
                     "[red]Issues:[/red]",
                     f"[red]{context.errors_count} errors, {context.test_failures} test failures[/red]",
                     "",
-                    ""
+                    "",
                 )
 
         # Show actions
         table.add_row("", "", "", "")
-        table.add_row(
-            "[bold green]⚡ QUICK ACTIONS[/bold green]",
-            "",
-            "",
-            ""
-        )
+        table.add_row("[bold green]⚡ QUICK ACTIONS[/bold green]", "", "", "")
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
             "",
-            ""
+            "",
         )
         table.add_row("", "", "", "")
         table.add_row(
             "",
             "[dim cyan]Press [white]A[/white] → Auto-activate recommended agents[/dim cyan]",
             "",
-            ""
+            "",
         )
         table.add_row(
             "",
             "[dim cyan]Press [white]R[/white] → Refresh recommendations[/dim cyan]",
             "",
-            ""
+            "",
         )
 
     def action_view_overview(self) -> None:
@@ -2438,7 +2528,7 @@ class AgentTUI(App):
         self.status_message = "Switched to AI Assistant"
         self.notify("🤖 AI Assistant", severity="information", timeout=1)
         # Refresh recommendations when entering view
-        if hasattr(self, 'intelligent_agent'):
+        if hasattr(self, "intelligent_agent"):
             self.intelligent_agent.analyze_context()
 
     def action_view_galaxy(self) -> None:
@@ -2495,7 +2585,9 @@ class AgentTUI(App):
         if self.current_view != "profiles":
             self.action_view_profiles()
 
-        dialog = PromptDialog("Save Profile", "Enter profile name", placeholder="team-alpha")
+        dialog = PromptDialog(
+            "Save Profile", "Enter profile name", placeholder="team-alpha"
+        )
         name = await self.push_screen(dialog, wait_for_dismiss=True)
         if not name:
             return
@@ -2516,7 +2608,9 @@ class AgentTUI(App):
 
         profile = self._selected_profile()
         if not profile or profile.get("type") != "saved":
-            self.notify("Select a saved profile to delete", severity="warning", timeout=2)
+            self.notify(
+                "Select a saved profile to delete", severity="warning", timeout=2
+            )
             return
 
         confirm = await self.push_screen(
@@ -2600,7 +2694,9 @@ class AgentTUI(App):
         )
 
     async def action_skill_suggest(self) -> None:
-        path = await self._prompt_text("Suggest Skills", "Project directory", default=".")
+        path = await self._prompt_text(
+            "Suggest Skills", "Project directory", default="."
+        )
         if path is None:
             return
         await self._handle_skill_result(
@@ -2622,7 +2718,9 @@ class AgentTUI(App):
         )
 
     async def action_skill_report(self) -> None:
-        fmt = await self._prompt_text("Skill Report", "Format (text/json/csv)", default="text")
+        fmt = await self._prompt_text(
+            "Skill Report", "Format (text/json/csv)", default="text"
+        )
         if fmt is None:
             return
         await self._handle_skill_result(
@@ -2632,7 +2730,9 @@ class AgentTUI(App):
         )
 
     async def action_skill_trending(self) -> None:
-        days_input = await self._prompt_text("Skill Trending", "Days to include", default="30")
+        days_input = await self._prompt_text(
+            "Skill Trending", "Days to include", default="30"
+        )
         if days_input is None:
             return
         try:
@@ -2686,7 +2786,9 @@ class AgentTUI(App):
         name = await self._prompt_text("Community Rate", "Skill name")
         if not name:
             return
-        rating_input = await self._prompt_text("Community Rate", "Rating 1-5", default="5")
+        rating_input = await self._prompt_text(
+            "Community Rate", "Rating 1-5", default="5"
+        )
         if rating_input is None:
             return
         try:
@@ -2761,7 +2863,9 @@ class AgentTUI(App):
         if exit_code == 0:
             self.notify(f"Metrics loaded for {slug}", severity="information", timeout=2)
         else:
-            self.notify(f"Metrics unavailable for {slug}", severity="warning", timeout=2)
+            self.notify(
+                f"Metrics unavailable for {slug}", severity="warning", timeout=2
+            )
 
     async def action_skill_community(self) -> None:
         """Show community skill listings."""
@@ -2792,7 +2896,9 @@ class AgentTUI(App):
         if self.current_view == "skills":
             await self.action_skill_metrics()
         else:
-            self.notify("Metrics not available in this view", severity="warning", timeout=2)
+            self.notify(
+                "Metrics not available in this view", severity="warning", timeout=2
+            )
 
     async def action_context_action(self) -> None:
         """Context-aware action for the 'c' binding."""
@@ -2808,7 +2914,9 @@ class AgentTUI(App):
         if self.current_view == "mcp":
             await self.action_mcp_docs()
         else:
-            self.notify("Docs not available in this view", severity="warning", timeout=2)
+            self.notify(
+                "Docs not available in this view", severity="warning", timeout=2
+            )
 
     async def action_details_context(self) -> None:
         """Context-aware details shortcut."""
@@ -2832,7 +2940,9 @@ class AgentTUI(App):
             self.action_view_export()
 
         default_path = str(self._default_export_path())
-        dialog = PromptDialog("Export Context", "Write export to path", default=default_path)
+        dialog = PromptDialog(
+            "Export Context", "Write export to path", default=default_path
+        )
         target = await self.push_screen(dialog, wait_for_dismiss=True)
         if not target:
             return
@@ -2901,7 +3011,11 @@ class AgentTUI(App):
                 note = warnings[0]
             self.notify(f"{server.name}: {note}", severity="success", timeout=2)
         else:
-            self.notify(errors[0] if errors else "Validation failed", severity="error", timeout=3)
+            self.notify(
+                errors[0] if errors else "Validation failed",
+                severity="error",
+                timeout=3,
+            )
 
     async def action_mcp_details(self) -> None:
         """Show detailed information for the selected server."""
@@ -2918,7 +3032,9 @@ class AgentTUI(App):
             self.notify(output, severity="error", timeout=3)
             return
 
-        await self.push_screen(TextViewerDialog(f"MCP: {server.name}", output), wait_for_dismiss=True)
+        await self.push_screen(
+            TextViewerDialog(f"MCP: {server.name}", output), wait_for_dismiss=True
+        )
 
     async def action_mcp_docs(self) -> None:
         """Open MCP documentation for the selected server."""
@@ -2935,7 +3051,9 @@ class AgentTUI(App):
             self.notify(output, severity="error", timeout=3)
             return
 
-        await self.push_screen(TextViewerDialog(f"Docs: {server.name}", output), wait_for_dismiss=True)
+        await self.push_screen(
+            TextViewerDialog(f"Docs: {server.name}", output), wait_for_dismiss=True
+        )
 
     async def action_mcp_snippet(self) -> None:
         """Generate config snippet for the selected server."""
@@ -2947,8 +3065,12 @@ class AgentTUI(App):
             self.notify("Select an MCP server", severity="warning", timeout=2)
             return
 
-        snippet = generate_config_snippet(server.name, server.command, args=server.args, env=server.env)
-        await self.push_screen(TextViewerDialog(f"Snippet: {server.name}", snippet), wait_for_dismiss=True)
+        snippet = generate_config_snippet(
+            server.name, server.command, args=server.args, env=server.env
+        )
+        await self.push_screen(
+            TextViewerDialog(f"Snippet: {server.name}", snippet), wait_for_dismiss=True
+        )
         if self._copy_to_clipboard(snippet):
             self.notify("Snippet copied", severity="success", timeout=2)
         else:
@@ -2968,7 +3090,9 @@ class AgentTUI(App):
         if exit_code != 0:
             self.notify(output, severity="error", timeout=3)
             return
-        await self.push_screen(TextViewerDialog(f"Test: {server.name}", output), wait_for_dismiss=True)
+        await self.push_screen(
+            TextViewerDialog(f"Test: {server.name}", output), wait_for_dismiss=True
+        )
 
     async def action_mcp_diagnose(self) -> None:
         """Run diagnostics across all MCP servers."""
@@ -2976,7 +3100,9 @@ class AgentTUI(App):
         if exit_code != 0:
             self.notify(output, severity="error", timeout=3)
             return
-        await self.push_screen(TextViewerDialog("MCP Diagnose", output), wait_for_dismiss=True)
+        await self.push_screen(
+            TextViewerDialog("MCP Diagnose", output), wait_for_dismiss=True
+        )
 
     def action_auto_activate(self) -> None:
         """Auto-activate agents or add task when in Tasks view."""
@@ -2985,14 +3111,16 @@ class AgentTUI(App):
             self.push_screen(dialog, callback=self._handle_add_task)
             return
 
-        if not hasattr(self, 'intelligent_agent'):
+        if not hasattr(self, "intelligent_agent"):
             self.notify("AI Assistant not initialized", severity="error", timeout=2)
             return
 
         auto_agents = self.intelligent_agent.get_auto_activations()
 
         if not auto_agents:
-            self.notify("No auto-activation recommendations", severity="information", timeout=2)
+            self.notify(
+                "No auto-activation recommendations", severity="information", timeout=2
+            )
             return
 
         activated_count = 0
@@ -3006,7 +3134,11 @@ class AgentTUI(App):
                 pass
 
         if activated_count > 0:
-            self.notify(f"✓ Auto-activated {activated_count} agents", severity="success", timeout=3)
+            self.notify(
+                f"✓ Auto-activated {activated_count} agents",
+                severity="success",
+                timeout=3,
+            )
             self.load_agents()
             self.update_view()
         else:
@@ -3014,7 +3146,7 @@ class AgentTUI(App):
 
     def _check_auto_activations(self) -> None:
         """Check for high-confidence auto-activations on startup."""
-        if not hasattr(self, 'intelligent_agent'):
+        if not hasattr(self, "intelligent_agent"):
             return
 
         auto_agents = self.intelligent_agent.get_auto_activations()
@@ -3027,7 +3159,7 @@ class AgentTUI(App):
             self.notify(
                 f"🤖 AI Suggestion: {agents_str} (Press 'A' to auto-activate)",
                 severity="information",
-                timeout=5
+                timeout=5,
             )
 
     def _handle_add_task(self, result: Optional[dict]) -> None:
@@ -3055,14 +3187,18 @@ class AgentTUI(App):
                 "category": task.category,
                 "status": task.status,
                 "progress": task.progress,
-            }
+            },
         )
         self.push_screen(
             dialog,
-            callback=lambda result, agent_id=task.agent_id, label=task.agent_name: self._handle_edit_task(agent_id, label, result),
+            callback=lambda result, agent_id=task.agent_id, label=task.agent_name: self._handle_edit_task(
+                agent_id, label, result
+            ),
         )
 
-    def _handle_edit_task(self, agent_id: str, label: str, result: Optional[dict]) -> None:
+    def _handle_edit_task(
+        self, agent_id: str, label: str, result: Optional[dict]
+    ) -> None:
         if not result:
             return
         try:
@@ -3081,7 +3217,9 @@ class AgentTUI(App):
         dialog = ConfirmDialog("Delete Task", f"Remove {task.agent_name}?")
         self.push_screen(
             dialog,
-            callback=lambda confirm, agent_id=task.agent_id, label=task.agent_name: self._handle_delete_task(agent_id, label, confirm),
+            callback=lambda confirm, agent_id=task.agent_id, label=task.agent_name: self._handle_delete_task(
+                agent_id, label, confirm
+            ),
         )
 
     def _handle_delete_task(self, agent_id: str, label: str, confirm: bool) -> None:
@@ -3110,7 +3248,9 @@ class AgentTUI(App):
                 self.update_view()
             elif kind == "format":
                 self.export_agent_generic = not self.export_agent_generic
-                self.status_message = "Agent generic" if self.export_agent_generic else "Claude format"
+                self.status_message = (
+                    "Agent generic" if self.export_agent_generic else "Claude format"
+                )
                 self.update_view()
             else:
                 self.notify("Preview is read-only", severity="information", timeout=2)
@@ -3126,6 +3266,7 @@ class AgentTUI(App):
                 if row_key and len(row_key) > 0:
                     # Get plain text from first column (strip Rich markup and icons)
                     from rich.text import Text
+
                     raw_name = str(row_key[0])
                     # Use Rich to strip markup, then remove icon emoji
                     plain_text = Text.from_markup(raw_name).plain
@@ -3144,14 +3285,23 @@ class AgentTUI(App):
 
                             # Remove ANSI codes
                             import re
+
                             clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
                             self.status_message = clean_message.split("\n")[0]
 
                             if exit_code == 0:
                                 if agent.status == "active":
-                                    self.notify(f"✓ Deactivated {agent.name}", severity="success", timeout=2)
+                                    self.notify(
+                                        f"✓ Deactivated {agent.name}",
+                                        severity="success",
+                                        timeout=2,
+                                    )
                                 else:
-                                    self.notify(f"✓ Activated {agent.name}", severity="success", timeout=2)
+                                    self.notify(
+                                        f"✓ Activated {agent.name}",
+                                        severity="success",
+                                        timeout=2,
+                                    )
                                 self.load_agents()
                                 self.update_view()
 
@@ -3159,13 +3309,21 @@ class AgentTUI(App):
                                 table = self.query_one(DataTable)
                                 if table.row_count > 0:
                                     # Keep at same index, or last row if we were at the end
-                                    new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                    new_cursor_row = min(
+                                        saved_cursor_row, table.row_count - 1
+                                    )
                                     table.move_cursor(row=new_cursor_row)
                             else:
-                                self.notify(f"✗ Failed to toggle {agent.name}", severity="error", timeout=3)
+                                self.notify(
+                                    f"✗ Failed to toggle {agent.name}",
+                                    severity="error",
+                                    timeout=3,
+                                )
                         except Exception as e:
                             self.status_message = f"Error: {e}"
-                            self.notify(f"✗ Error: {str(e)[:50]}", severity="error", timeout=3)
+                            self.notify(
+                                f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                            )
 
         elif self.current_view == "rules":
             table = self.query_one(DataTable)
@@ -3186,13 +3344,22 @@ class AgentTUI(App):
 
                             # Remove ANSI codes
                             import re
+
                             clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
                             self.status_message = clean_message.split("\n")[0]
 
                             if rule.status == "active":
-                                self.notify(f"✓ Deactivated {rule.name}", severity="success", timeout=2)
+                                self.notify(
+                                    f"✓ Deactivated {rule.name}",
+                                    severity="success",
+                                    timeout=2,
+                                )
                             else:
-                                self.notify(f"✓ Activated {rule.name}", severity="success", timeout=2)
+                                self.notify(
+                                    f"✓ Activated {rule.name}",
+                                    severity="success",
+                                    timeout=2,
+                                )
 
                             self.load_rules()
                             self.update_view()
@@ -3200,11 +3367,15 @@ class AgentTUI(App):
                             # Restore cursor to same position (showing next rule)
                             table = self.query_one(DataTable)
                             if table.row_count > 0:
-                                new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                new_cursor_row = min(
+                                    saved_cursor_row, table.row_count - 1
+                                )
                                 table.move_cursor(row=new_cursor_row)
                         except Exception as e:
                             self.status_message = f"Error: {e}"
-                            self.notify(f"✗ Error: {str(e)[:50]}", severity="error", timeout=3)
+                            self.notify(
+                                f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                            )
 
         elif self.current_view == "modes":
             table = self.query_one(DataTable)
@@ -3225,27 +3396,44 @@ class AgentTUI(App):
 
                             # Remove ANSI codes
                             import re
+
                             clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
                             self.status_message = clean_message.split("\n")[0]
 
                             if exit_code == 0:
                                 if mode.status == "active":
-                                    self.notify(f"✓ Deactivated {mode.name}", severity="success", timeout=2)
+                                    self.notify(
+                                        f"✓ Deactivated {mode.name}",
+                                        severity="success",
+                                        timeout=2,
+                                    )
                                 else:
-                                    self.notify(f"✓ Activated {mode.name}", severity="success", timeout=2)
+                                    self.notify(
+                                        f"✓ Activated {mode.name}",
+                                        severity="success",
+                                        timeout=2,
+                                    )
                                 self.load_modes()
                                 self.update_view()
 
                                 # Restore cursor to same position (showing next mode)
                                 table = self.query_one(DataTable)
                                 if table.row_count > 0:
-                                    new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                    new_cursor_row = min(
+                                        saved_cursor_row, table.row_count - 1
+                                    )
                                     table.move_cursor(row=new_cursor_row)
                             else:
-                                self.notify(f"✗ Failed to toggle {mode.name}", severity="error", timeout=3)
+                                self.notify(
+                                    f"✗ Failed to toggle {mode.name}",
+                                    severity="error",
+                                    timeout=3,
+                                )
                         except Exception as e:
                             self.status_message = f"Error: {e}"
-                            self.notify(f"✗ Error: {str(e)[:50]}", severity="error", timeout=3)
+                            self.notify(
+                                f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                            )
 
     def action_refresh(self) -> None:
         """Refresh current view."""
@@ -3268,13 +3456,13 @@ class AgentTUI(App):
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
-        self.notify(f"🔄 Refreshed {self.current_view}", severity="information", timeout=1)
+        self.notify(
+            f"🔄 Refreshed {self.current_view}", severity="information", timeout=1
+        )
 
     def action_help(self) -> None:
         """Show help."""
-        self.status_message = (
-            "Help: 1-6=Core views, 7=MCP, 8=Profiles, 9=Export, 0=AI, G=Galaxy, T=Tasks, Ctrl+P=Commands"
-        )
+        self.status_message = "Help: 1-6=Core views, 7=MCP, 8=Profiles, 9=Export, 0=AI, G=Galaxy, T=Tasks, Ctrl+P=Commands"
 
     async def action_command_palette(self) -> None:
         """Show command palette for quick navigation."""
@@ -3353,4 +3541,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(main())

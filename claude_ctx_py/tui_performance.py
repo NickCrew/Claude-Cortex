@@ -36,20 +36,21 @@ class SystemMetrics:
         """
         try:
             import psutil
+
             process = psutil.Process(os.getpid())
             mem_info = process.memory_info()
 
             return {
-                'rss': mem_info.rss,  # Resident Set Size
-                'rss_formatted': Format.bytes(mem_info.rss),
-                'percent': process.memory_percent(),
+                "rss": mem_info.rss,  # Resident Set Size
+                "rss_formatted": Format.bytes(mem_info.rss),
+                "percent": process.memory_percent(),
             }
         except ImportError:
             # Fallback if psutil not available
             return {
-                'rss': 0,
-                'rss_formatted': 'N/A',
-                'percent': 0.0,
+                "rss": 0,
+                "rss_formatted": "N/A",
+                "percent": 0.0,
             }
 
     def get_cpu_usage(self) -> float:
@@ -60,6 +61,7 @@ class SystemMetrics:
         """
         try:
             import psutil
+
             process = psutil.Process(os.getpid())
             # Get CPU percent with interval for accuracy
             return process.cpu_percent(interval=0.1)
@@ -74,10 +76,12 @@ class SystemMetrics:
         """
         try:
             import psutil
+
             process = psutil.Process(os.getpid())
             return process.num_threads()
         except ImportError:
             import threading
+
             return threading.active_count()
 
     def should_update(self) -> bool:
@@ -134,8 +138,10 @@ class PerformanceMonitor:
 
         # Memory
         mem = self.metrics.get_memory_usage()
-        mem_color = self._get_mem_color(mem['percent'])
-        parts.append(f"[{mem_color}]{Icons.METRICS} {mem['rss_formatted']}[/{mem_color}]")
+        mem_color = self._get_mem_color(mem["percent"])
+        parts.append(
+            f"[{mem_color}]{Icons.METRICS} {mem['rss_formatted']}[/{mem_color}]"
+        )
 
         # CPU
         cpu = self.metrics.get_cpu_usage()
@@ -157,7 +163,7 @@ class PerformanceMonitor:
         mem = self.metrics.get_memory_usage()
         cpu = self.metrics.get_cpu_usage()
 
-        mem_color = self._get_mem_color(mem['percent'])
+        mem_color = self._get_mem_color(mem["percent"])
         cpu_color = self._get_cpu_color(cpu)
 
         return f"[{mem_color}]{mem['rss_formatted']}[/{mem_color}] [{cpu_color}]{cpu:.0f}%[/{cpu_color}]"
@@ -210,14 +216,14 @@ class TaskPerformanceTracker:
             task_name: Human-readable task name
         """
         self.tasks[task_id] = {
-            'name': task_name,
-            'start_time': time.time(),
-            'end_time': None,
-            'duration': None,
-            'status': 'running',
+            "name": task_name,
+            "start_time": time.time(),
+            "end_time": None,
+            "duration": None,
+            "status": "running",
         }
 
-    def end_task(self, task_id: str, status: str = 'complete') -> None:
+    def end_task(self, task_id: str, status: str = "complete") -> None:
         """End tracking a task.
 
         Args:
@@ -225,11 +231,11 @@ class TaskPerformanceTracker:
             status: Final status (complete, error, cancelled)
         """
         if task_id in self.tasks:
-            self.tasks[task_id]['end_time'] = time.time()
-            self.tasks[task_id]['duration'] = (
-                self.tasks[task_id]['end_time'] - self.tasks[task_id]['start_time']
+            self.tasks[task_id]["end_time"] = time.time()
+            self.tasks[task_id]["duration"] = (
+                self.tasks[task_id]["end_time"] - self.tasks[task_id]["start_time"]
             )
-            self.tasks[task_id]['status'] = status
+            self.tasks[task_id]["status"] = status
 
     def get_task_duration(self, task_id: str) -> Optional[float]:
         """Get task duration.
@@ -245,12 +251,12 @@ class TaskPerformanceTracker:
 
         task = self.tasks[task_id]
 
-        if task['duration'] is not None:
-            return task['duration']
+        if task["duration"] is not None:
+            return task["duration"]
 
-        if task['end_time'] is None:
+        if task["end_time"] is None:
             # Still running
-            return time.time() - task['start_time']
+            return time.time() - task["start_time"]
 
         return None
 
@@ -262,12 +268,12 @@ class TaskPerformanceTracker:
         """
         return [
             {
-                'id': task_id,
-                'name': task['name'],
-                'duration': time.time() - task['start_time'],
+                "id": task_id,
+                "name": task["name"],
+                "duration": time.time() - task["start_time"],
             }
             for task_id, task in self.tasks.items()
-            if task['status'] == 'running'
+            if task["status"] == "running"
         ]
 
     def get_completed_tasks(self) -> List[Dict[str, any]]:
@@ -278,13 +284,13 @@ class TaskPerformanceTracker:
         """
         return [
             {
-                'id': task_id,
-                'name': task['name'],
-                'duration': task['duration'],
-                'status': task['status'],
+                "id": task_id,
+                "name": task["name"],
+                "duration": task["duration"],
+                "status": task["status"],
             }
             for task_id, task in self.tasks.items()
-            if task['status'] != 'running'
+            if task["status"] != "running"
         ]
 
     def get_summary(self) -> Dict[str, any]:
@@ -296,16 +302,16 @@ class TaskPerformanceTracker:
         completed = self.get_completed_tasks()
         running = self.get_running_tasks()
 
-        total_time = sum(t['duration'] for t in completed if t['duration'] is not None)
+        total_time = sum(t["duration"] for t in completed if t["duration"] is not None)
         avg_time = total_time / len(completed) if completed else 0
 
         return {
-            'total_tasks': len(self.tasks),
-            'running': len(running),
-            'completed': len([t for t in completed if t['status'] == 'complete']),
-            'failed': len([t for t in completed if t['status'] == 'error']),
-            'total_time': total_time,
-            'avg_time': avg_time,
+            "total_tasks": len(self.tasks),
+            "running": len(running),
+            "completed": len([t for t in completed if t["status"] == "complete"]),
+            "failed": len([t for t in completed if t["status"] == "error"]),
+            "total_time": total_time,
+            "avg_time": avg_time,
         }
 
     def clear_completed(self) -> None:
@@ -313,7 +319,7 @@ class TaskPerformanceTracker:
         self.tasks = {
             task_id: task
             for task_id, task in self.tasks.items()
-            if task['status'] == 'running'
+            if task["status"] == "running"
         }
 
 
@@ -324,9 +330,9 @@ class PerformanceAlert:
         """Initialize performance alert system."""
         self.alerts: List[Dict[str, any]] = []
         self.thresholds = {
-            'memory_percent': 85.0,
-            'cpu_percent': 90.0,
-            'task_duration': 300.0,  # 5 minutes
+            "memory_percent": 85.0,
+            "cpu_percent": 90.0,
+            "task_duration": 300.0,  # 5 minutes
         }
 
     def check_metrics(self, metrics: SystemMetrics) -> List[str]:
@@ -342,17 +348,13 @@ class PerformanceAlert:
 
         # Check memory
         mem = metrics.get_memory_usage()
-        if mem['percent'] > self.thresholds['memory_percent']:
-            alerts.append(
-                f"{Icons.WARNING} High memory usage: {mem['percent']:.1f}%"
-            )
+        if mem["percent"] > self.thresholds["memory_percent"]:
+            alerts.append(f"{Icons.WARNING} High memory usage: {mem['percent']:.1f}%")
 
         # Check CPU
         cpu = metrics.get_cpu_usage()
-        if cpu > self.thresholds['cpu_percent']:
-            alerts.append(
-                f"{Icons.WARNING} High CPU usage: {cpu:.1f}%"
-            )
+        if cpu > self.thresholds["cpu_percent"]:
+            alerts.append(f"{Icons.WARNING} High CPU usage: {cpu:.1f}%")
 
         return alerts
 

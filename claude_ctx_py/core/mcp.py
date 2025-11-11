@@ -44,7 +44,13 @@ def _get_claude_config_path() -> Path:
     home = Path.home()
 
     if system == "Darwin":  # macOS
-        return home / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
+        return (
+            home
+            / "Library"
+            / "Application Support"
+            / "Claude"
+            / "claude_desktop_config.json"
+        )
     elif system == "Linux":
         return home / ".config" / "Claude" / "claude_desktop_config.json"
     elif system == "Windows":
@@ -71,6 +77,7 @@ class MCPServerInfo:
         tools: Available tools/capabilities (if known)
         docs_path: Path to local documentation (if available)
     """
+
     name: str
     command: str
     args: List[str] = field(default_factory=list)
@@ -126,6 +133,7 @@ class MCPServerCapabilities:
         version: Server/protocol version
         metadata: Additional metadata
     """
+
     tools: List[str] = field(default_factory=list)
     resources: List[str] = field(default_factory=list)
     prompts: List[str] = field(default_factory=list)
@@ -134,6 +142,7 @@ class MCPServerCapabilities:
 
 
 # Core MCP management functions
+
 
 def discover_servers(
     config_path: Optional[Path] = None,
@@ -418,11 +427,7 @@ def generate_config_snippet(
         config["env"] = env
 
     # Create full mcpServers object
-    full_config = {
-        "mcpServers": {
-            name: config
-        }
-    }
+    full_config = {"mcpServers": {name: config}}
 
     # Generate formatted JSON
     json_str = json.dumps(full_config, indent=indent)
@@ -524,7 +529,9 @@ def export_servers_list(
         for server in servers:
             args_str = " ".join(server.args) if server.args else "-"
             docs_str = "✓" if server.docs_path else "-"
-            lines.append(f"| {server.name} | `{server.command}` | `{args_str}` | {docs_str} |")
+            lines.append(
+                f"| {server.name} | `{server.command}` | `{args_str}` | {docs_str} |"
+            )
 
         return True, "\n".join(lines), ""
 
@@ -545,6 +552,7 @@ def export_servers_list(
 
 
 # Convenience exception classes for MCP-specific errors
+
 
 class MCPConfigError(ClaudeCtxError):
     """Raised when MCP configuration is invalid or missing."""
@@ -570,6 +578,7 @@ class MCPServerNotFoundError(ClaudeCtxError):
 
 
 # CLI-facing functions
+
 
 def mcp_list(config_path: Optional[Path] = None) -> Tuple[int, str]:
     """List all MCP servers with status.

@@ -24,7 +24,13 @@ from .exceptions import (
     SkillNotFoundError,
     SkillValidationError,
 )
-from .error_utils import safe_load_yaml, safe_read_file, safe_write_file, safe_save_json, safe_load_json
+from .error_utils import (
+    safe_load_yaml,
+    safe_read_file,
+    safe_write_file,
+    safe_save_json,
+    safe_load_json,
+)
 
 
 def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
@@ -71,7 +77,7 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
         return False, [f"Failed to read file: {e}"]
 
     # Extract frontmatter
-    frontmatter_match = re.match(r'^---\n(.*?)\n---\n', content, re.DOTALL)
+    frontmatter_match = re.match(r"^---\n(.*?)\n---\n", content, re.DOTALL)
     if not frontmatter_match:
         errors.append("Missing YAML frontmatter (must start with --- and end with ---)")
         return False, errors
@@ -90,25 +96,25 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
         return False, errors
 
     # Validate required fields
-    required_fields = ['name', 'version', 'author', 'license', 'description']
+    required_fields = ["name", "version", "author", "license", "description"]
     for field in required_fields:
         if field not in frontmatter:
             errors.append(f"Missing required field: {field}")
 
     # Validate name format (hyphen-case)
-    if 'name' in frontmatter:
-        name = frontmatter['name']
+    if "name" in frontmatter:
+        name = frontmatter["name"]
         if not isinstance(name, str):
             errors.append("Field 'name' must be a string")
-        elif not re.match(r'^[a-z0-9]+(-[a-z0-9]+)*$', name):
+        elif not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", name):
             errors.append(
                 f"Field 'name' must be in hyphen-case format (lowercase letters, "
                 f"numbers, and hyphens only): got '{name}'"
             )
 
     # Validate description length
-    if 'description' in frontmatter:
-        description = frontmatter['description']
+    if "description" in frontmatter:
+        description = frontmatter["description"]
         if not isinstance(description, str):
             errors.append("Field 'description' must be a string")
         elif len(description) >= 1024:
@@ -118,45 +124,51 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
             )
 
     # Validate version format (semver)
-    if 'version' in frontmatter:
-        version = frontmatter['version']
+    if "version" in frontmatter:
+        version = frontmatter["version"]
         if not isinstance(version, str):
             errors.append("Field 'version' must be a string")
-        elif not re.match(r'^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$', version):
+        elif not re.match(
+            r"^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$", version
+        ):
             errors.append(
                 f"Field 'version' must follow semver format (e.g., 1.0.0): got '{version}'"
             )
 
     # Validate license
-    if 'license' in frontmatter:
-        license_value = frontmatter['license']
+    if "license" in frontmatter:
+        license_value = frontmatter["license"]
         if not isinstance(license_value, str):
             errors.append("Field 'license' must be a string")
-        elif license_value != 'Apache-2.0':
+        elif license_value != "Apache-2.0":
             errors.append(
                 f"Field 'license' must be 'Apache-2.0' for community contributions: "
                 f"got '{license_value}'"
             )
 
     # Validate tags
-    if 'tags' in frontmatter:
-        tags = frontmatter['tags']
+    if "tags" in frontmatter:
+        tags = frontmatter["tags"]
         if not isinstance(tags, list):
             errors.append("Field 'tags' must be a list")
         elif len(tags) < 1:
             errors.append("Field 'tags' must contain at least 1 tag")
         elif len(tags) > 10:
-            errors.append(f"Field 'tags' must contain at most 10 tags: got {len(tags)} tags")
+            errors.append(
+                f"Field 'tags' must contain at most 10 tags: got {len(tags)} tags"
+            )
         else:
             for i, tag in enumerate(tags):
                 if not isinstance(tag, str):
-                    errors.append(f"Tag at index {i} must be a string: got {type(tag).__name__}")
+                    errors.append(
+                        f"Tag at index {i} must be a string: got {type(tag).__name__}"
+                    )
     else:
         errors.append("Missing required field: tags")
 
     # Validate token budget
-    if 'token_budget' in frontmatter:
-        token_budget = frontmatter['token_budget']
+    if "token_budget" in frontmatter:
+        token_budget = frontmatter["token_budget"]
         if not isinstance(token_budget, int):
             errors.append("Field 'token_budget' must be an integer")
         elif token_budget < 800:
@@ -171,10 +183,10 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
         errors.append("Missing required field: token_budget")
 
     # Extract content after frontmatter
-    content_after_frontmatter = content[frontmatter_match.end():]
+    content_after_frontmatter = content[frontmatter_match.end() :]
 
     # Validate required sections
-    required_sections = ['## Purpose', '## Usage']
+    required_sections = ["## Purpose", "## Usage"]
     for section in required_sections:
         if section not in content_after_frontmatter:
             errors.append(f"Missing required section: {section}")
@@ -225,7 +237,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict]:
             content = skill_file.read_text(encoding="utf-8")
 
             # Extract frontmatter
-            frontmatter_match = re.match(r'^---\n(.*?)\n---\n', content, re.DOTALL)
+            frontmatter_match = re.match(r"^---\n(.*?)\n---\n", content, re.DOTALL)
             if not frontmatter_match:
                 continue
 
@@ -239,27 +251,29 @@ def get_community_skills(claude_dir: Path) -> List[Dict]:
 
             # Load rating if available
             rating = None
-            ratings_file = claude_dir / "community" / "ratings" / f"{skill_file.stem}.json"
+            ratings_file = (
+                claude_dir / "community" / "ratings" / f"{skill_file.stem}.json"
+            )
             if ratings_file.exists():
                 try:
                     ratings_data = json.loads(ratings_file.read_text(encoding="utf-8"))
-                    if 'average' in ratings_data:
-                        rating = ratings_data['average']
+                    if "average" in ratings_data:
+                        rating = ratings_data["average"]
                 except Exception:
                     pass
 
             # Build skill metadata
             skill_info = {
-                'name': frontmatter.get('name', skill_file.stem),
-                'version': frontmatter.get('version', 'unknown'),
-                'author': frontmatter.get('author', 'unknown'),
-                'description': frontmatter.get('description', ''),
-                'tags': frontmatter.get('tags', []),
-                'license': frontmatter.get('license', 'unknown'),
-                'token_budget': frontmatter.get('token_budget', 0),
-                'installed': installed,
-                'rating': rating,
-                'file': str(skill_file),
+                "name": frontmatter.get("name", skill_file.stem),
+                "version": frontmatter.get("version", "unknown"),
+                "author": frontmatter.get("author", "unknown"),
+                "description": frontmatter.get("description", ""),
+                "tags": frontmatter.get("tags", []),
+                "license": frontmatter.get("license", "unknown"),
+                "token_budget": frontmatter.get("token_budget", 0),
+                "installed": installed,
+                "rating": rating,
+                "file": str(skill_file),
             }
 
             skills.append(skill_info)
@@ -269,7 +283,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict]:
             continue
 
     # Sort by name
-    skills.sort(key=lambda s: s['name'])
+    skills.sort(key=lambda s: s["name"])
 
     return skills
 
@@ -302,20 +316,14 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
 
     # Ensure community directory exists
     if not community_dir.exists():
-        raise SkillNotFoundError(
-            skill_name,
-            search_paths=[community_dir]
-        )
+        raise SkillNotFoundError(skill_name, search_paths=[community_dir])
 
     skills_dir.mkdir(parents=True, exist_ok=True)
 
     # Find skill file
     skill_file = community_dir / f"{skill_name}.md"
     if not skill_file.exists():
-        raise SkillNotFoundError(
-            skill_name,
-            search_paths=[community_dir]
-        )
+        raise SkillNotFoundError(skill_name, search_paths=[community_dir])
 
     # Validate skill before installation
     is_valid, errors = validate_contribution(skill_file)
@@ -330,8 +338,7 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
         return True
     except Exception as exc:
         raise SkillInstallationError(
-            skill_name,
-            reason=f"Failed to copy skill file: {exc}"
+            skill_name, reason=f"Failed to copy skill file: {exc}"
         ) from exc
 
 
@@ -361,7 +368,7 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
         raise RatingError(
             skill_name,
             rating_value=rating,
-            reason="Rating must be an integer between 1 and 5"
+            reason="Rating must be an integer between 1 and 5",
         )
 
     ratings_dir = claude_dir / "community" / "ratings"
@@ -370,23 +377,25 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
     ratings_file = ratings_dir / f"{skill_name}.json"
 
     # Load existing ratings
-    ratings_data: Dict = {'ratings': [], 'average': 0.0}
+    ratings_data: Dict = {"ratings": [], "average": 0.0}
     if ratings_file.exists():
         try:
             ratings_data = safe_load_json(ratings_file)
         except Exception:
             # Start fresh if existing file is corrupted
-            ratings_data = {'ratings': [], 'average': 0.0}
+            ratings_data = {"ratings": [], "average": 0.0}
 
     # Add new rating
-    if 'ratings' not in ratings_data:
-        ratings_data['ratings'] = []
+    if "ratings" not in ratings_data:
+        ratings_data["ratings"] = []
 
-    ratings_data['ratings'].append(rating)
+    ratings_data["ratings"].append(rating)
 
     # Calculate average
-    if ratings_data['ratings']:
-        ratings_data['average'] = sum(ratings_data['ratings']) / len(ratings_data['ratings'])
+    if ratings_data["ratings"]:
+        ratings_data["average"] = sum(ratings_data["ratings"]) / len(
+            ratings_data["ratings"]
+        )
 
     # Save ratings
     try:
@@ -394,9 +403,7 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
         return True
     except Exception as exc:
         raise RatingError(
-            skill_name,
-            rating_value=rating,
-            reason=f"Failed to save rating: {exc}"
+            skill_name, rating_value=rating, reason=f"Failed to save rating: {exc}"
         ) from exc
 
 
@@ -437,14 +444,14 @@ def search_skills(query: str, tags: List[str], claude_dir: Path) -> List[Dict]:
 
         # Check tag filter
         if tags_lower:
-            skill_tags_lower = [tag.lower() for tag in skill.get('tags', [])]
+            skill_tags_lower = [tag.lower() for tag in skill.get("tags", [])]
             if not any(tag in skill_tags_lower for tag in tags_lower):
                 continue  # Skip skills that don't match tag filter
 
         # Calculate relevance score
         if query_lower:
-            name_lower = skill.get('name', '').lower()
-            description_lower = skill.get('description', '').lower()
+            name_lower = skill.get("name", "").lower()
+            description_lower = skill.get("description", "").lower()
 
             # Exact name match: +100
             if name_lower == query_lower:
@@ -460,7 +467,7 @@ def search_skills(query: str, tags: List[str], claude_dir: Path) -> List[Dict]:
 
         # Add tag match bonus
         if tags_lower:
-            skill_tags_lower = [tag.lower() for tag in skill.get('tags', [])]
+            skill_tags_lower = [tag.lower() for tag in skill.get("tags", [])]
             matching_tags = sum(1 for tag in tags_lower if tag in skill_tags_lower)
             relevance += matching_tags * 5
 

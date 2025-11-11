@@ -51,7 +51,8 @@ class MCPViewMixin:
 
         filter_lower = self.mcp_filter.lower()
         return [
-            server for server in self.mcp_servers
+            server
+            for server in self.mcp_servers
             if filter_lower in server.name.lower()
             or filter_lower in server.command.lower()
             or (server.description and filter_lower in server.description.lower())
@@ -86,7 +87,9 @@ class MCPViewMixin:
         if not self.mcp_servers:
             table.add_row("", "", "No MCP servers configured", "", "", "")
         elif not servers:
-            table.add_row("", "", f"No servers matching '{self.mcp_filter}'", "", "", "")
+            table.add_row(
+                "", "", f"No servers matching '{self.mcp_filter}'", "", "", ""
+            )
         else:
             for idx, server in enumerate(servers):
                 is_selected = idx == self.state.selected_index
@@ -102,7 +105,11 @@ class MCPViewMixin:
                     args_text = args_text[:15] + "..."
 
                 # Documentation indicator
-                docs_text = Text("✓", style="green") if server.docs_path else Text("-", style="dim")
+                docs_text = (
+                    Text("✓", style="green")
+                    if server.docs_path
+                    else Text("-", style="dim")
+                )
 
                 # Row style
                 row_style = "reverse" if is_selected else None
@@ -153,7 +160,9 @@ class MCPViewMixin:
         """Render detailed view of selected MCP server."""
         server = self.mcp_selected_server
         if not server:
-            return Panel(Text("No server selected", style="dim"), title="Server Details")
+            return Panel(
+                Text("No server selected", style="dim"), title="Server Details"
+            )
 
         content = Text()
 
@@ -177,7 +186,10 @@ class MCPViewMixin:
             for key, value in server.env.items():
                 # Mask sensitive values
                 display_value = value
-                if any(sensitive in key.lower() for sensitive in ["key", "secret", "token", "password"]):
+                if any(
+                    sensitive in key.lower()
+                    for sensitive in ["key", "secret", "token", "password"]
+                ):
                     display_value = "*" * 8
                 content.append(f"  {key}=", style="yellow")
                 content.append(f"{display_value}\n", style="dim")
@@ -242,8 +254,7 @@ class MCPViewMixin:
         if key in ("j", "KEY_DOWN"):
             if servers:
                 self.state.selected_index = min(
-                    self.state.selected_index + 1,
-                    len(servers) - 1
+                    self.state.selected_index + 1, len(servers) - 1
                 )
             return True
 
@@ -256,7 +267,9 @@ class MCPViewMixin:
             if servers and self.state.selected_index < len(servers):
                 self.mcp_selected_server = servers[self.state.selected_index]
                 self.mcp_show_details = True
-                self.state.status_message = f"Viewing details for {self.mcp_selected_server.name}"
+                self.state.status_message = (
+                    f"Viewing details for {self.mcp_selected_server.name}"
+                )
             return True
 
         # Back from details
@@ -362,7 +375,9 @@ class MCPViewMixin:
             )
             # TODO: Implement clipboard support
             # For now, just show a preview in status message
-            self.state.status_message = f"Config snippet generated (clipboard not yet implemented)"
+            self.state.status_message = (
+                f"Config snippet generated (clipboard not yet implemented)"
+            )
         except Exception as e:
             self.state.status_message = f"Error generating config: {e}"
 

@@ -13,10 +13,15 @@ class Sparkline:
     """ASCII sparkline generator for mini graphs."""
 
     # Unicode block characters for sparklines
-    BLOCKS = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+    BLOCKS = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 
     @staticmethod
-    def generate(data: List[float], width: int = 20, min_val: Optional[float] = None, max_val: Optional[float] = None) -> str:
+    def generate(
+        data: List[float],
+        width: int = 20,
+        min_val: Optional[float] = None,
+        max_val: Optional[float] = None,
+    ) -> str:
         """Generate a sparkline from data points.
 
         Args:
@@ -54,10 +59,12 @@ class Sparkline:
             # Normalize to 0-1 range
             normalized = (value - min_val) / (max_val - min_val)
             # Map to block character index
-            block_idx = min(int(normalized * len(Sparkline.BLOCKS)), len(Sparkline.BLOCKS) - 1)
+            block_idx = min(
+                int(normalized * len(Sparkline.BLOCKS)), len(Sparkline.BLOCKS) - 1
+            )
             sparkline.append(Sparkline.BLOCKS[block_idx])
 
-        return ''.join(sparkline)
+        return "".join(sparkline)
 
     @staticmethod
     def generate_with_trend(data: List[float], width: int = 20) -> str:
@@ -76,7 +83,9 @@ class Sparkline:
         # Calculate trend
         recent_avg = sum(data[-3:]) / min(3, len(data))
         older_avg = sum(data[:3]) / min(3, len(data))
-        trend_pct = ((recent_avg - older_avg) / older_avg * 100) if older_avg != 0 else 0
+        trend_pct = (
+            ((recent_avg - older_avg) / older_avg * 100) if older_avg != 0 else 0
+        )
 
         # Choose color based on trend
         if trend_pct > 5:
@@ -104,7 +113,7 @@ class DashboardCard:
         trend: Optional[float] = None,
         sparkline_data: Optional[List[float]] = None,
         icon: str = Icons.INFO,
-        width: int = 30
+        width: int = 30,
     ) -> List[str]:
         """Create a dashboard card with stats and optional sparkline.
 
@@ -153,7 +162,7 @@ class DashboardCard:
 
         # Subtitle row (if provided)
         if subtitle:
-            sub_text = subtitle[:width - 4]
+            sub_text = subtitle[: width - 4]
             sub_padding = width - len(sub_text) - 3
             lines.append(f"│ [dim]{sub_text}[/dim]{' ' * sub_padding}│")
 
@@ -169,10 +178,7 @@ class DashboardCard:
 
     @staticmethod
     def create_compact(
-        title: str,
-        value: str,
-        icon: str = Icons.INFO,
-        color: str = "cyan"
+        title: str, value: str, icon: str = Icons.INFO, color: str = "cyan"
     ) -> str:
         """Create a compact single-line dashboard card.
 
@@ -208,7 +214,7 @@ class DashboardGrid:
         """Pad a single line to match width without breaking borders."""
         if width_diff <= 0:
             return line
-        if line.endswith('│'):
+        if line.endswith("│"):
             return f"{line[:-1]}{' ' * width_diff}│"
         return f"{line}{' ' * width_diff}"
 
@@ -243,7 +249,7 @@ class DashboardGrid:
                 new_card.append(DashboardGrid._pad_line(line, width_diff))
 
             if len(new_card) < max_height:
-                padding_lines = [' ' * max_width] * (max_height - len(new_card))
+                padding_lines = [" " * max_width] * (max_height - len(new_card))
                 new_card.extend(padding_lines)
 
             padded_cards.append(new_card)
@@ -256,9 +262,9 @@ class DashboardGrid:
                 if row_idx < len(card):
                     row_parts.append(card[row_idx])
                 else:
-                    row_parts.append(' ' * len(card[0]))
+                    row_parts.append(" " * len(card[0]))
 
-            combined.append((' ' * spacing).join(row_parts))
+            combined.append((" " * spacing).join(row_parts))
 
         return combined
 
@@ -285,14 +291,11 @@ class MetricsCollector:
         if metric_name not in self.metrics:
             self.metrics[metric_name] = []
 
-        self.metrics[metric_name].append({
-            'value': value,
-            'timestamp': datetime.now()
-        })
+        self.metrics[metric_name].append({"value": value, "timestamp": datetime.now()})
 
         # Trim to max history
         if len(self.metrics[metric_name]) > self.max_history:
-            self.metrics[metric_name] = self.metrics[metric_name][-self.max_history:]
+            self.metrics[metric_name] = self.metrics[metric_name][-self.max_history :]
 
     def get_values(self, metric_name: str, count: Optional[int] = None) -> List[float]:
         """Get metric values.
@@ -307,7 +310,7 @@ class MetricsCollector:
         if metric_name not in self.metrics:
             return []
 
-        values = [m['value'] for m in self.metrics[metric_name]]
+        values = [m["value"] for m in self.metrics[metric_name]]
 
         if count is not None:
             return values[-count:]
@@ -330,7 +333,7 @@ class MetricsCollector:
             return 0.0
 
         recent = sum(values[-window:]) / window
-        older = sum(values[-window * 2:-window]) / window
+        older = sum(values[-window * 2 : -window]) / window
 
         if older == 0:
             return 0.0

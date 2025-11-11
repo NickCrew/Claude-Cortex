@@ -47,12 +47,16 @@ def build_parser() -> argparse.ArgumentParser:
     agent_sub = agent_parser.add_subparsers(dest="agent_command")
     agent_sub.add_parser("list", help="List available agents")
     agent_sub.add_parser("status", help="Show active agents")
-    agent_activate = agent_sub.add_parser("activate", help="Activate one or more agents")
+    agent_activate = agent_sub.add_parser(
+        "activate", help="Activate one or more agents"
+    )
     agent_activate.add_argument("agents", nargs="+", help="Agent name(s) (without .md)")
     agent_deactivate = agent_sub.add_parser(
         "deactivate", help="Deactivate one or more agents"
     )
-    agent_deactivate.add_argument("agents", nargs="+", help="Agent name(s) (without .md)")
+    agent_deactivate.add_argument(
+        "agents", nargs="+", help="Agent name(s) (without .md)"
+    )
     agent_deactivate.add_argument(
         "--force",
         action="store_true",
@@ -90,7 +94,9 @@ def build_parser() -> argparse.ArgumentParser:
     rules_sub = rules_parser.add_subparsers(dest="rules_command")
     rules_sub.add_parser("list", help="List available rules")
     rules_sub.add_parser("status", help="Show active rule modules")
-    rules_activate = rules_sub.add_parser("activate", help="Activate one or more rule modules")
+    rules_activate = rules_sub.add_parser(
+        "activate", help="Activate one or more rule modules"
+    )
     rules_activate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
     rules_deactivate = rules_sub.add_parser(
         "deactivate", help="Deactivate one or more rule modules"
@@ -168,7 +174,14 @@ def build_parser() -> argparse.ArgumentParser:
     skills_analytics_parser.add_argument(
         "--metric",
         dest="analytics_metric",
-        choices=["trending", "roi", "effectiveness", "tokens", "activations", "success_rate"],
+        choices=[
+            "trending",
+            "roi",
+            "effectiveness",
+            "tokens",
+            "activations",
+            "success_rate",
+        ],
         help="Specific metric to display",
     )
     skills_report_parser = skills_sub.add_parser(
@@ -356,7 +369,9 @@ def build_parser() -> argparse.ArgumentParser:
     profile_parser = subparsers.add_parser("profile", help="Profile commands")
     profile_sub = profile_parser.add_subparsers(dest="profile_command")
     profile_sub.add_parser("list", help="List available profiles")
-    profile_save_parser = profile_sub.add_parser("save", help="Save current configuration to a profile")
+    profile_save_parser = profile_sub.add_parser(
+        "save", help="Save current configuration to a profile"
+    )
     profile_save_parser.add_argument("name", help="Profile name")
 
     # Add subcommands for all built-in profiles
@@ -380,7 +395,9 @@ def build_parser() -> argparse.ArgumentParser:
     # Workflow commands
     workflow_parser = subparsers.add_parser("workflow", help="Workflow commands")
     workflow_sub = workflow_parser.add_subparsers(dest="workflow_command")
-    workflow_run_parser = workflow_sub.add_parser("run", help="Run a predefined workflow")
+    workflow_run_parser = workflow_sub.add_parser(
+        "run", help="Run a predefined workflow"
+    )
     workflow_run_parser.add_argument("workflow", help="Workflow name")
     workflow_sub.add_parser("list", help="List available workflows")
     workflow_sub.add_parser("status", help="Show current workflow progress")
@@ -388,9 +405,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Orchestrate/Scenario commands
     orchestrate_parser = subparsers.add_parser(
-        "orchestrate",
-        help="Scenario orchestration commands",
-        aliases=["orch"]
+        "orchestrate", help="Scenario orchestration commands", aliases=["orch"]
     )
     orchestrate_sub = orchestrate_parser.add_subparsers(dest="orchestrate_command")
     orchestrate_sub.add_parser("list", help="List available scenarios")
@@ -413,9 +428,7 @@ def build_parser() -> argparse.ArgumentParser:
         "stop", help="Stop a running scenario"
     )
     orchestrate_stop_parser.add_argument("scenario", help="Scenario name")
-    orchestrate_run_parser = orchestrate_sub.add_parser(
-        "run", help="Run a scenario"
-    )
+    orchestrate_run_parser = orchestrate_sub.add_parser("run", help="Run a scenario")
     orchestrate_run_parser.add_argument("scenario", help="Scenario name")
     orchestrate_run_parser.add_argument(
         "mode_args",
@@ -454,20 +467,26 @@ def build_parser() -> argparse.ArgumentParser:
     ai_parser = subparsers.add_parser("ai", help="AI assistant commands")
     ai_sub = ai_parser.add_subparsers(dest="ai_command")
     ai_sub.add_parser("recommend", help="Show intelligent agent recommendations")
-    ai_sub.add_parser("auto-activate", help="Auto-activate high-confidence recommendations")
+    ai_sub.add_parser(
+        "auto-activate", help="Auto-activate high-confidence recommendations"
+    )
     ai_export = ai_sub.add_parser("export", help="Export recommendations to JSON")
     ai_export.add_argument(
         "--output",
         default="ai-recommendations.json",
         help="Output file path (default: ai-recommendations.json)",
     )
-    ai_record = ai_sub.add_parser("record-success", help="Record current session as successful for learning")
+    ai_record = ai_sub.add_parser(
+        "record-success", help="Record current session as successful for learning"
+    )
     ai_record.add_argument(
         "--outcome",
         default="success",
         help="Outcome description (default: success)",
     )
-    ai_watch = ai_sub.add_parser("watch", help="Watch mode - real-time monitoring and recommendations")
+    ai_watch = ai_sub.add_parser(
+        "watch", help="Watch mode - real-time monitoring and recommendations"
+    )
     ai_watch.add_argument(
         "--no-auto-activate",
         dest="no_auto_activate",
@@ -490,8 +509,12 @@ def build_parser() -> argparse.ArgumentParser:
     # Context export commands
     export_parser = subparsers.add_parser("export", help="Export context commands")
     export_sub = export_parser.add_subparsers(dest="export_command")
-    export_list = export_sub.add_parser("list", help="List available context components")
-    export_context = export_sub.add_parser("context", help="Export context to markdown file")
+    export_list = export_sub.add_parser(
+        "list", help="List available context components"
+    )
+    export_context = export_sub.add_parser(
+        "context", help="Export context to markdown file"
+    )
     export_context.add_argument(
         "output",
         help="Output file path (e.g., my-context.md) or '-' for stdout",
@@ -518,62 +541,49 @@ def build_parser() -> argparse.ArgumentParser:
 
     # Completion command
     completion_parser = subparsers.add_parser(
-        "completion",
-        help="Generate shell completion scripts"
+        "completion", help="Generate shell completion scripts"
     )
     completion_parser.add_argument(
-        "shell",
-        choices=["bash", "zsh", "fish"],
-        help="Shell type (bash, zsh, or fish)"
+        "shell", choices=["bash", "zsh", "fish"], help="Shell type (bash, zsh, or fish)"
     )
     completion_parser.add_argument(
-        "--install",
-        action="store_true",
-        help="Show installation instructions"
+        "--install", action="store_true", help="Show installation instructions"
     )
 
     # Install command
     install_parser = subparsers.add_parser(
-        "install",
-        help="Install shell integrations (aliases, completions)"
+        "install", help="Install shell integrations (aliases, completions)"
     )
     install_sub = install_parser.add_subparsers(dest="install_command")
 
     # Install aliases
     aliases_parser = install_sub.add_parser(
-        "aliases",
-        help="Install shell aliases for Warp AI and terminal AI tools"
+        "aliases", help="Install shell aliases for Warp AI and terminal AI tools"
     )
     aliases_parser.add_argument(
         "--shell",
         choices=["bash", "zsh", "fish"],
-        help="Target shell (auto-detected if not specified)"
+        help="Target shell (auto-detected if not specified)",
     )
     aliases_parser.add_argument(
         "--rc-file",
         dest="rc_file",
         type=Path,
-        help="Target RC file (auto-detected if not specified)"
+        help="Target RC file (auto-detected if not specified)",
     )
     aliases_parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Reinstall even if already installed"
+        "--force", action="store_true", help="Reinstall even if already installed"
     )
     aliases_parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would be done without making changes"
+        help="Show what would be done without making changes",
     )
     aliases_parser.add_argument(
-        "--uninstall",
-        action="store_true",
-        help="Remove installed aliases"
+        "--uninstall", action="store_true", help="Remove installed aliases"
     )
     aliases_parser.add_argument(
-        "--show",
-        action="store_true",
-        help="Show available aliases without installing"
+        "--show", action="store_true", help="Show available aliases without installing"
     )
 
     return parser
@@ -739,7 +749,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         if args.skills_command == "community":
             community_command = getattr(args, "community_command", None)
             if community_command == "list":
-                tags = [getattr(args, "community_list_tag")] if getattr(args, "community_list_tag", None) else None
+                tags = (
+                    [getattr(args, "community_list_tag")]
+                    if getattr(args, "community_list_tag", None)
+                    else None
+                )
                 search = getattr(args, "community_list_search", None)
                 verified = getattr(args, "community_list_verified", False)
                 sort_by = getattr(args, "community_list_sort", "name")
@@ -951,9 +965,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 0
     elif args.command == "tui":
         from . import tui_textual
+
         return tui_textual.main()
     elif args.command == "ai":
         from . import cmd_ai
+
         if args.ai_command == "recommend":
             return cmd_ai.ai_recommend()
         elif args.ai_command == "auto-activate":
@@ -964,6 +980,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             return cmd_ai.ai_record_success(args.outcome)
         elif args.ai_command == "watch":
             from . import watch
+
             return watch.watch_main(
                 auto_activate=not args.no_auto_activate,
                 threshold=args.threshold,
@@ -1026,9 +1043,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             # Uninstall aliases
             if args.uninstall:
                 exit_code, message = shell_integration.uninstall_aliases(
-                    shell=args.shell,
-                    rc_file=args.rc_file,
-                    dry_run=args.dry_run
+                    shell=args.shell, rc_file=args.rc_file, dry_run=args.dry_run
                 )
                 _print(message)
                 return exit_code
@@ -1038,7 +1053,7 @@ def main(argv: Iterable[str] | None = None) -> int:
                 shell=args.shell,
                 rc_file=args.rc_file,
                 force=args.force,
-                dry_run=args.dry_run
+                dry_run=args.dry_run,
             )
             _print(message)
             return exit_code

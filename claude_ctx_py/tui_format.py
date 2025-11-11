@@ -45,7 +45,7 @@ class Format:
             >>> Format.bytes(1048576)
             '1.0MB'
         """
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
             if size < 1024.0:
                 return f"{size:.1f}{unit}"
             size /= 1024.0
@@ -162,7 +162,7 @@ class Format:
         """
         if len(text) <= max_length:
             return text
-        return text[:max_length - len(suffix)] + suffix
+        return text[: max_length - len(suffix)] + suffix
 
     @staticmethod
     def list_items(items: list, max_items: int = 3) -> str:

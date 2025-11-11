@@ -23,7 +23,7 @@ from .exceptions import (
     YAMLValidationError,
 )
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def safe_read_file(filepath: Path, encoding: str = "utf-8") -> str:
@@ -42,10 +42,7 @@ def safe_read_file(filepath: Path, encoding: str = "utf-8") -> str:
         UnicodeDecodeError: If file encoding is invalid
     """
     if not filepath.exists():
-        raise SkillNotFoundError(
-            filepath.stem,
-            search_paths=[filepath.parent]
-        )
+        raise SkillNotFoundError(filepath.stem, search_paths=[filepath.parent])
 
     try:
         return filepath.read_text(encoding=encoding)
@@ -57,15 +54,12 @@ def safe_read_file(filepath: Path, encoding: str = "utf-8") -> str:
             exc.object,
             exc.start,
             exc.end,
-            f"Invalid {encoding} encoding in '{filepath}'. Try a different encoding."
+            f"Invalid {encoding} encoding in '{filepath}'. Try a different encoding.",
         ) from exc
 
 
 def safe_write_file(
-    filepath: Path,
-    content: str,
-    encoding: str = "utf-8",
-    create_parents: bool = True
+    filepath: Path, content: str, encoding: str = "utf-8", create_parents: bool = True
 ) -> None:
     """Safely write to a file with descriptive error handling.
 
@@ -84,8 +78,7 @@ def safe_write_file(
         filepath.parent.mkdir(parents=True, exist_ok=True)
     elif not filepath.parent.exists():
         raise DirectoryNotFoundError(
-            str(filepath.parent),
-            purpose="parent directory for file write"
+            str(filepath.parent), purpose="parent directory for file write"
         )
 
     try:
@@ -117,10 +110,7 @@ def safe_load_yaml(filepath: Path) -> Dict[str, Any]:
         FileAccessError: If file can't be read
     """
     if yaml is None:
-        raise MissingPackageError(
-            "pyyaml",
-            purpose="YAML file parsing"
-        )
+        raise MissingPackageError("pyyaml", purpose="YAML file parsing")
 
     content = safe_read_file(filepath)
 
@@ -128,7 +118,7 @@ def safe_load_yaml(filepath: Path) -> Dict[str, Any]:
         data = yaml.safe_load(content)
     except yaml.YAMLError as exc:
         # Extract line and column info if available
-        if hasattr(exc, 'problem_mark'):
+        if hasattr(exc, "problem_mark"):
             mark = exc.problem_mark
             details = f"line {mark.line + 1}, column {mark.column + 1}"
         else:
@@ -141,8 +131,7 @@ def safe_load_yaml(filepath: Path) -> Dict[str, Any]:
 
     if not isinstance(data, dict):
         raise YAMLValidationError(
-            str(filepath),
-            f"Expected dictionary, got {type(data).__name__}"
+            str(filepath), f"Expected dictionary, got {type(data).__name__}"
         )
 
     return data
@@ -160,17 +149,13 @@ def safe_save_yaml(filepath: Path, data: Dict[str, Any]) -> None:
         FileAccessError: If file can't be written
     """
     if yaml is None:
-        raise MissingPackageError(
-            "pyyaml",
-            purpose="YAML file writing"
-        )
+        raise MissingPackageError("pyyaml", purpose="YAML file writing")
 
     try:
         content = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
     except yaml.YAMLError as exc:
         raise YAMLValidationError(
-            str(filepath),
-            f"Failed to serialize data: {exc}"
+            str(filepath), f"Failed to serialize data: {exc}"
         ) from exc
 
     safe_write_file(filepath, content)
@@ -197,23 +182,18 @@ def safe_load_json(filepath: Path) -> Dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise InvalidMetricsDataError(
             str(filepath),
-            f"Invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
+            f"Invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}",
         ) from exc
 
     if not isinstance(data, dict):
         raise InvalidMetricsDataError(
-            str(filepath),
-            f"Expected JSON object, got {type(data).__name__}"
+            str(filepath), f"Expected JSON object, got {type(data).__name__}"
         )
 
     return data
 
 
-def safe_save_json(
-    filepath: Path,
-    data: Dict[str, Any],
-    indent: int = 2
-) -> None:
+def safe_save_json(filepath: Path, data: Dict[str, Any], indent: int = 2) -> None:
     """Safely save data to a JSON file.
 
     Args:
@@ -228,24 +208,17 @@ def safe_save_json(
         content = json.dumps(data, indent=indent)
     except (TypeError, ValueError) as exc:
         raise MetricsFileError(
-            str(filepath),
-            "serialize",
-            f"Data is not JSON serializable: {exc}"
+            str(filepath), "serialize", f"Data is not JSON serializable: {exc}"
         ) from exc
 
     try:
         safe_write_file(filepath, content)
     except (FileAccessError, OSError) as exc:
-        raise MetricsFileError(
-            str(filepath),
-            "write",
-            str(exc)
-        ) from exc
+        raise MetricsFileError(str(filepath), "write", str(exc)) from exc
 
 
 def with_file_error_context(
-    operation: str,
-    filepath: Path
+    operation: str, filepath: Path
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """Decorator to add file operation context to errors.
 
@@ -261,29 +234,26 @@ def with_file_error_context(
         def load_skill():
             return skill_file.read_text()
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapper(*args, **kwargs) -> T:
             try:
                 return func(*args, **kwargs)
             except FileNotFoundError as exc:
                 raise SkillNotFoundError(
-                    filepath.stem,
-                    search_paths=[filepath.parent]
+                    filepath.stem, search_paths=[filepath.parent]
                 ) from exc
             except PermissionError as exc:
                 raise FileAccessError(str(filepath), operation) from exc
             except OSError as exc:
-                raise OSError(
-                    f"Failed to {operation} '{filepath}': {exc}"
-                ) from exc
+                raise OSError(f"Failed to {operation} '{filepath}': {exc}") from exc
+
         return wrapper
+
     return decorator
 
 
-def ensure_directory(
-    directory: Path,
-    purpose: str = ""
-) -> None:
+def ensure_directory(directory: Path, purpose: str = "") -> None:
     """Ensure a directory exists, creating it if necessary.
 
     Args:
@@ -309,7 +279,7 @@ def handle_file_operation(
     operation: Callable[[], T],
     filepath: Path,
     operation_name: str,
-    default_on_error: Optional[T] = None
+    default_on_error: Optional[T] = None,
 ) -> Tuple[bool, Optional[T], Optional[str]]:
     """Execute a file operation with consistent error handling.
 
@@ -376,13 +346,13 @@ def format_error_for_cli(error: Exception) -> str:
 
     # Add recovery hints for common errors
     hints = {
-        'FileNotFoundError': 'Check that the path is correct',
-        'PermissionError': 'Check file/directory permissions',
-        'JSONDecodeError': 'Verify JSON syntax is valid',
-        'UnicodeDecodeError': 'Try a different file encoding',
-        'OSError': 'Check disk space and permissions',
+        "FileNotFoundError": "Check that the path is correct",
+        "PermissionError": "Check file/directory permissions",
+        "JSONDecodeError": "Verify JSON syntax is valid",
+        "UnicodeDecodeError": "Try a different file encoding",
+        "OSError": "Check disk space and permissions",
     }
 
-    hint = hints.get(error_type, 'See documentation for more information')
+    hint = hints.get(error_type, "See documentation for more information")
 
     return f"{error_type}: {message}\n  Hint: {hint}"

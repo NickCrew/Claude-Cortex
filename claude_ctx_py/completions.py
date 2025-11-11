@@ -5,7 +5,7 @@ from __future__ import annotations
 
 def generate_bash_completion() -> str:
     """Generate bash completion script."""
-    return '''# Bash completion for claude-ctx
+    return """# Bash completion for claude-ctx
 # Source this file or add it to ~/.bash_completion.d/
 
 _claude_ctx_completion() {
@@ -95,12 +95,12 @@ _claude_ctx_completion() {
 }
 
 complete -F _claude_ctx_completion claude-ctx
-'''
+"""
 
 
 def generate_zsh_completion() -> str:
     """Generate zsh completion script."""
-    return '''#compdef claude-ctx
+    return """#compdef claude-ctx
 # Zsh completion for claude-ctx
 
 _claude_ctx() {
@@ -257,12 +257,12 @@ _claude_ctx() {
 }
 
 _claude_ctx "$@"
-'''
+"""
 
 
 def generate_fish_completion() -> str:
     """Generate fish completion script."""
-    return '''# Fish completion for claude-ctx
+    return """# Fish completion for claude-ctx
 
 # Top-level commands
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
@@ -323,7 +323,7 @@ complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_se
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "bash" -d "Bash completion"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "zsh" -d "Zsh completion"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "fish" -d "Fish completion"
-'''
+"""
 
 
 def get_completion_script(shell: str) -> str:
