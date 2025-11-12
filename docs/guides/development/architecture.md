@@ -330,6 +330,130 @@ RULES="workflow-rules quality-rules"
 
 ---
 
+## Component Relationships & Layered Architecture
+
+### No Redundancy - Clear Separation
+
+The claude-ctx components form a **well-layered architecture** with no redundancy. Each component serves a distinct purpose:
+
+| Component | Purpose | Analogy |
+|-----------|---------|---------|
+| **Agents** | WHO does work | Team members with expertise |
+| **Modes** | HOW to execute | Workflow methodology (Agile/Waterfall) |
+| **Rules** | WHAT to enforce | Company policies |
+| **Skills** | Reusable patterns | Playbooks & SOPs |
+| **Profiles** | Agent bundles | Team composition |
+| **Scenarios** | Workflow tests | Integration tests |
+
+### Key Distinctions
+
+**Agents vs Modes**:
+- **Agents** = Individual workers (personas with specific expertise)
+- **Modes** = Orchestration strategy (how workers collaborate)
+- Example: `code-reviewer` agent + `Parallel_Orchestration` mode = parallel code review
+
+**Rules vs Modes**:
+- **Rules** = Permanent policies (WHAT standards to meet)
+- **Modes** = Switchable strategies (HOW to apply those standards)
+- Example: `quality-gate-rules` defines 85% coverage; `Parallel_Orchestration` enforces it
+
+**Skills vs Modes**:
+- **Skills** = Passive documentation (reference library)
+- **Modes** = Active behavior changes (execution strategy)
+- Example: `systematic-debugging` documents a process; modes actively change execution
+
+### Execution Flow
+
+```
+User Request → MODE (strategy)
+                ↓
+            References RULES (policies)
+                ↓
+            Orchestrates AGENTS (workers)
+                ↓
+            May invoke SKILLS (patterns)
+                ↓
+            Validated by SCENARIOS (tests)
+```
+
+### Layered Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│ LAYER 1: Configuration                              │
+│ → Profiles (pre-configured agent bundles)           │
+└─────────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────┐
+│ LAYER 2: Behavioral                                 │
+│ → Modes (strategies) + Rules (policies)             │
+└─────────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────┐
+│ LAYER 3: Execution                                  │
+│ → Agents (specialized workers)                      │
+└─────────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────┐
+│ LAYER 4: Knowledge                                  │
+│ → Skills (patterns and best practices)              │
+└─────────────────────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────┐
+│ LAYER 5: Validation                                 │
+│ → Scenarios (workflow tests)                        │
+└─────────────────────────────────────────────────────┘
+```
+
+### Concrete Example
+
+**Task**: "Add user authentication with tests"
+
+1. **MODE activates**: `Parallel_Orchestration`
+   - Sets execution strategy: parallel workstreams + quality gates
+   - Declares dependencies: `parallel-execution-rules`, `quality-gate-rules`
+   - Overrides: `test_coverage_min: 85`
+
+2. **RULES enforce**:
+   - `quality-gate-rules`: Mandates tests with ≥85% coverage
+   - `parallel-execution-rules`: Requires parallel agent execution
+
+3. **AGENTS execute** (in parallel):
+   - `general-purpose`: Implements authentication code
+   - `test-automator`: Writes test suite (runs in parallel)
+   - `code-reviewer`: Reviews code quality (runs in parallel)
+
+4. **SKILLS may be invoked**:
+   - `test-driven-development`: Provides TDD workflow pattern
+   - `secure-coding-practices`: Provides auth security checklist
+
+5. **PROFILE** (optional):
+   - `full-stack` profile pre-configured these agents
+
+### Component Relationships
+
+**Modes ↔ Rules**:
+- Modes **reference** rules via `dependencies` field
+- Modes can **override** rule thresholds via `overrides` field
+- Rules are permanent; modes are switchable
+
+**Modes ↔ Agents**:
+- Modes **orchestrate** agents (define how/when agents run)
+- Modes can specify preferred agents for tasks
+- Agents execute independently of modes
+
+**Modes ↔ Skills**:
+- Skills can **recommend** mode activation
+- Modes can **invoke** skills for specific patterns
+- Skills are passive; modes are active
+
+**Modes ↔ Modes**:
+- Modes can **conflict** with each other (mutually exclusive)
+- Modes can **depend** on other modes
+- Modes belong to **groups** (only one per group active)
+
+---
+
 ## Workflow Orchestration
 
 ### Multi-Phase Workflows
