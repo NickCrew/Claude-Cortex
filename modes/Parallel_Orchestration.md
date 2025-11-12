@@ -1,3 +1,29 @@
+---
+name: Parallel_Orchestration
+category: execution
+priority: high
+conflicts:
+  - Sequential_Processing
+  - Serial_Execution
+dependencies:
+  - parallel-execution-rules
+  - quality-gate-rules
+group: orchestration
+overrides:
+  quality_score_min: 7
+  test_coverage_min: 85
+tags:
+  - performance
+  - parallel
+  - quality
+  - agents
+auto_activate_triggers:
+  - multi_file_operations
+  - code_generation
+  - feature_request
+  - bug_fix
+---
+
 # Parallel Orchestration Mode
 
 **Purpose**: Enforce parallel-first execution with mandatory quality gates

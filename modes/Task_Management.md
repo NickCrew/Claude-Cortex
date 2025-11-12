@@ -1,3 +1,20 @@
+---
+name: Task_Management
+category: planning
+priority: medium
+group: planning_methodology
+tags:
+  - tasks
+  - planning
+  - organization
+  - memory
+  - workflow
+auto_activate_triggers:
+  - multi_step_operations
+  - complex_scope
+  - delegation_needed
+---
+
 # Task Management Mode
 
 **Purpose**: Hierarchical task organization with persistent memory for complex multi-step operations

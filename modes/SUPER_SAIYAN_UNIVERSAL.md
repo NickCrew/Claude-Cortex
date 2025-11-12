@@ -1,3 +1,26 @@
+---
+name: SUPER_SAIYAN_UNIVERSAL
+category: visual
+priority: medium
+conflicts:
+  - Minimal_UI
+  - Token_Efficient
+group: visual_style
+tags:
+  - ui
+  - ux
+  - accessibility
+  - visual
+  - design
+  - animation
+  - universal
+auto_activate_triggers:
+  - ui_work
+  - visual_design
+  - frontend_development
+  - user_experience
+---
+
 # Super Saiyan Mode: Universal Edition 🔥🌍
 
 **The Platform-Agnostic Visual Excellence Framework**
