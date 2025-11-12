@@ -836,3 +836,198 @@ def mcp_snippet(
     )
 
     return 0, snippet
+
+
+# Configuration modification functions
+
+
+def add_mcp_server(
+    name: str,
+    command: str,
+    args: Optional[List[str]] = None,
+    env: Optional[Dict[str, str]] = None,
+    description: str = "",
+    config_path: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """Add a new MCP server to the configuration.
+
+    Args:
+        name: Server name/identifier
+        command: Executable command
+        args: Optional command line arguments
+        env: Optional environment variables
+        description: Optional server description
+        config_path: Optional path to config file (uses platform default if None)
+
+    Returns:
+        Tuple of (success, message)
+
+    Examples:
+        >>> success, msg = add_mcp_server("my-server", "npx", ["-y", "@my/package"])
+        >>> if success:
+        ...     print("Server added successfully")
+    """
+    if config_path is None:
+        config_path = _get_claude_config_path()
+
+    # Validate inputs
+    if not name:
+        return False, "Server name is required"
+    if not command:
+        return False, "Server command is required"
+
+    # Read existing config
+    try:
+        if config_path.exists():
+            text = config_path.read_text(encoding="utf-8")
+            config = json.loads(text)
+        else:
+            config = {}
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"Failed to read config: {exc}"
+
+    # Ensure mcpServers section exists
+    if "mcpServers" not in config:
+        config["mcpServers"] = {}
+
+    # Check if server already exists
+    if name in config["mcpServers"]:
+        return False, f"Server '{name}' already exists. Use update to modify it."
+
+    # Create server config
+    server_config: Dict[str, Any] = {
+        "command": command,
+    }
+    if args:
+        server_config["args"] = args
+    if env:
+        server_config["env"] = env
+    if description:
+        server_config["description"] = description
+
+    # Add server to config
+    config["mcpServers"][name] = server_config
+
+    # Write config back
+    try:
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        return True, f"Added server '{name}'"
+    except OSError as exc:
+        return False, f"Failed to write config: {exc}"
+
+
+def remove_mcp_server(
+    name: str,
+    config_path: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """Remove an MCP server from the configuration.
+
+    Args:
+        name: Server name to remove
+        config_path: Optional path to config file (uses platform default if None)
+
+    Returns:
+        Tuple of (success, message)
+
+    Examples:
+        >>> success, msg = remove_mcp_server("my-server")
+        >>> if success:
+        ...     print("Server removed successfully")
+    """
+    if config_path is None:
+        config_path = _get_claude_config_path()
+
+    if not config_path.exists():
+        return False, f"Config file not found: {config_path}"
+
+    # Read config
+    try:
+        text = config_path.read_text(encoding="utf-8")
+        config = json.loads(text)
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"Failed to read config: {exc}"
+
+    # Check if mcpServers section exists
+    if "mcpServers" not in config or not isinstance(config["mcpServers"], dict):
+        return False, "No MCP servers configured"
+
+    # Check if server exists
+    if name not in config["mcpServers"]:
+        return False, f"Server '{name}' not found"
+
+    # Remove server
+    del config["mcpServers"][name]
+
+    # Write config back
+    try:
+        config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        return True, f"Removed server '{name}'"
+    except OSError as exc:
+        return False, f"Failed to write config: {exc}"
+
+
+def update_mcp_server(
+    name: str,
+    command: Optional[str] = None,
+    args: Optional[List[str]] = None,
+    env: Optional[Dict[str, str]] = None,
+    description: Optional[str] = None,
+    config_path: Optional[Path] = None,
+) -> Tuple[bool, str]:
+    """Update an existing MCP server configuration.
+
+    Args:
+        name: Server name to update
+        command: Optional new command
+        args: Optional new arguments (None to keep existing)
+        env: Optional new environment (None to keep existing)
+        description: Optional new description (None to keep existing)
+        config_path: Optional path to config file (uses platform default if None)
+
+    Returns:
+        Tuple of (success, message)
+
+    Examples:
+        >>> success, msg = update_mcp_server("my-server", description="Updated desc")
+        >>> if success:
+        ...     print("Server updated successfully")
+    """
+    if config_path is None:
+        config_path = _get_claude_config_path()
+
+    if not config_path.exists():
+        return False, f"Config file not found: {config_path}"
+
+    # Read config
+    try:
+        text = config_path.read_text(encoding="utf-8")
+        config = json.loads(text)
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"Failed to read config: {exc}"
+
+    # Check if mcpServers section exists
+    if "mcpServers" not in config or not isinstance(config["mcpServers"], dict):
+        return False, "No MCP servers configured"
+
+    # Check if server exists
+    if name not in config["mcpServers"]:
+        return False, f"Server '{name}' not found"
+
+    # Update server config
+    server_config = config["mcpServers"][name]
+    if command is not None:
+        server_config["command"] = command
+    if args is not None:
+        server_config["args"] = args
+    if env is not None:
+        server_config["env"] = env
+    if description is not None:
+        server_config["description"] = description
+
+    # Write config back
+    try:
+        config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+        return True, f"Updated server '{name}'"
+    except OSError as exc:
+        return False, f"Failed to write config: {exc}"

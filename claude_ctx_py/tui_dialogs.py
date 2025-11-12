@@ -333,3 +333,82 @@ class TextViewerDialog(ModalScreen[None]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.dismiss()
+
+
+class MCPServerDialog(ModalScreen[Optional[dict]]):
+    """Dialog for adding or editing MCP server configuration."""
+
+    BINDINGS = [
+        Binding("escape", "close", "Cancel"),
+        Binding("ctrl+s", "submit", "Save"),
+    ]
+
+    def __init__(self, title: str, defaults: Optional[dict] = None):
+        super().__init__()
+        self.title = title
+        self.defaults = defaults or {}
+
+    def compose(self) -> ComposeResult:
+        with Container(id="dialog"):
+            with Vertical():
+                yield Static(
+                    f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title"
+                )
+                yield Input(
+                    value=self.defaults.get("name", ""),
+                    placeholder="Server name (e.g., context7)",
+                    id="mcp-name",
+                    disabled=bool(self.defaults.get("name")),  # Can't change name when editing
+                )
+                yield Input(
+                    value=self.defaults.get("command", ""),
+                    placeholder="Command (e.g., npx, uvx)",
+                    id="mcp-command",
+                )
+                yield Input(
+                    value=self.defaults.get("args", ""),
+                    placeholder="Arguments (space-separated, e.g., -y @package/name)",
+                    id="mcp-args",
+                )
+                yield Input(
+                    value=self.defaults.get("description", ""),
+                    placeholder="Description (optional)",
+                    id="mcp-description",
+                )
+                with Container(id="dialog-buttons"):
+                    yield Button("Save", variant="success", id="save")
+                    yield Button("Cancel", variant="error", id="cancel")
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+    def action_submit(self) -> None:
+        self._submit()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            self._submit()
+        else:
+            self.dismiss(None)
+
+    def _submit(self) -> None:
+        name = self.query_one("#mcp-name", Input).value.strip()
+        command = self.query_one("#mcp-command", Input).value.strip()
+        args_str = self.query_one("#mcp-args", Input).value.strip()
+        description = self.query_one("#mcp-description", Input).value.strip()
+
+        if not name or not command:
+            self.dismiss(None)
+            return
+
+        # Parse args string into list
+        args = args_str.split() if args_str else []
+
+        self.dismiss(
+            {
+                "name": name,
+                "command": command,
+                "args": args,
+                "description": description,
+            }
+        )

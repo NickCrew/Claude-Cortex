@@ -78,6 +78,9 @@ from .core.mcp import (
     mcp_docs,
     mcp_test,
     mcp_diagnose,
+    add_mcp_server,
+    remove_mcp_server,
+    update_mcp_server,
     MCPServerInfo,
 )
 from .core.agents import BUILT_IN_PROFILES
@@ -92,7 +95,13 @@ from .tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from .tui_overview_enhanced import EnhancedOverview
 from .intelligence import IntelligentAgent, AgentRecommendation, WorkflowPrediction
 from .tui_supersaiyan import SuperSaiyanStatusBar
-from .tui_dialogs import TaskEditorDialog, ConfirmDialog, PromptDialog, TextViewerDialog
+from .tui_dialogs import (
+    TaskEditorDialog,
+    ConfirmDialog,
+    PromptDialog,
+    TextViewerDialog,
+    MCPServerDialog,
+)
 from .tui_log_viewer import LogViewerScreen
 
 
@@ -504,13 +513,16 @@ class AgentTUI(App):
         Binding("ctrl+e", "edit_item", "Edit", show=False),
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
         Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
+        Binding("ctrl+a", "mcp_add", "Add MCP", show=False),
+        Binding("E", "mcp_edit", "Edit MCP", show=False),
+        Binding("X", "mcp_remove", "Remove MCP", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
         Binding("e", "export_run", "Export", show=False),
         Binding("x", "export_clipboard", "Copy", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
         Binding("D", "profile_delete", "Delete Profile", show=False),
         Binding("P", "scenario_preview", "Preview", show=False),
-        Binding("R", "scenario_run_auto", "Run", show=False),
+        Binding("R", "run_selected", "Run", show=False),
         Binding("V", "scenario_validate_selected", "Validate Scenario", show=False),
         Binding("H", "scenario_status_history", "Scenario Status", show=False),
         # Vi-style navigation
@@ -682,10 +694,19 @@ class AgentTUI(App):
                 "context_action",
                 "edit_item",
             },
-            "mcp": {"details_context", "docs_context", "mcp_test_selected", "mcp_diagnose"},
+            "mcp": {
+                "details_context",
+                "docs_context",
+                "mcp_test_selected",
+                "mcp_diagnose",
+                "mcp_add",
+                "mcp_edit",
+                "mcp_remove",
+            },
             "profiles": {"toggle", "profile_save_prompt", "profile_delete"},
             "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
-            "scenarios": {"scenario_preview", "scenario_run_auto"},
+            "workflows": {"run_selected"},
+            "scenarios": {"scenario_preview", "run_selected"},
             "ai_assistant": {"auto_activate"},
         }
 
@@ -831,6 +852,15 @@ class AgentTUI(App):
         if index < 0 or index >= len(skills):
             return None
         return skills[index]
+
+    def _selected_workflow(self) -> Optional[WorkflowInfo]:
+        index = self._table_cursor_index()
+        workflows = getattr(self, "workflows", [])
+        if index is None or not workflows:
+            return None
+        if index < 0 or index >= len(workflows):
+            return None
+        return workflows[index]
 
     def _selected_scenario(self) -> Optional[ScenarioInfo]:
         index = self._table_cursor_index()
@@ -2965,6 +2995,20 @@ class AgentTUI(App):
         if hasattr(self, "intelligent_agent"):
             self.intelligent_agent.analyze_context()
 
+    async def action_run_selected(self) -> None:
+        """Run the highlighted item in workflows or scenarios view."""
+        if self.current_view == "workflows":
+            await self._run_selected_workflow()
+            return
+        if self.current_view == "scenarios":
+            await self.action_scenario_run_auto()
+            return
+        self.notify(
+            "Run action is only available in Workflows or Scenarios views",
+            severity="warning",
+            timeout=2,
+        )
+
     async def action_scenario_preview(self) -> None:
         """Preview the selected scenario definition."""
         if self.current_view != "scenarios":
@@ -3036,6 +3080,39 @@ class AgentTUI(App):
             timeout=3,
         )
         self.load_scenarios()
+        self.update_view()
+
+    async def _run_selected_workflow(self) -> None:
+        """Run the highlighted workflow and stream output in a log viewer."""
+        workflow = self._selected_workflow()
+        if not workflow:
+            self.notify("Select a workflow to run", severity="warning", timeout=2)
+            return
+
+        workflow_name = workflow.file_path.stem if workflow.file_path else workflow.name
+        self.status_message = f"Running workflow: {workflow.name}"
+
+        python_executable = sys.executable
+        command = [
+            python_executable,
+            "-m",
+            "claude_ctx_py.cli",
+            "workflow",
+            "run",
+            workflow_name,
+        ]
+
+        await self.app.push_screen(
+            LogViewerScreen(command, title=f"Running Workflow: {workflow.name}")
+        )
+
+        self.notify(
+            f"Workflow '{workflow.name}' finished.",
+            severity="information",
+            timeout=3,
+        )
+        self.load_workflows()
+        self.load_agent_tasks()
         self.update_view()
 
     async def action_scenario_validate_selected(self) -> None:
@@ -3647,6 +3724,88 @@ class AgentTUI(App):
         await self.push_screen(
             TextViewerDialog("MCP Diagnose", output), wait_for_dismiss=True
         )
+
+    async def action_mcp_add(self) -> None:
+        """Add a new MCP server."""
+        dialog = MCPServerDialog("Add MCP Server")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result:
+            success, message = add_mcp_server(
+                name=result["name"],
+                command=result["command"],
+                args=result.get("args", []),
+                description=result.get("description", ""),
+            )
+            if success:
+                self.notify(message, severity="success", timeout=2)
+                self.load_mcp_servers()
+                self.update_view()
+            else:
+                self.notify(message, severity="error", timeout=3)
+
+    async def action_mcp_edit(self) -> None:
+        """Edit the selected MCP server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        # Prepare defaults for dialog
+        defaults = {
+            "name": server.name,
+            "command": server.command,
+            "args": " ".join(server.args) if server.args else "",
+            "description": server.description or "",
+        }
+
+        dialog = MCPServerDialog(f"Edit MCP Server: {server.name}", defaults=defaults)
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result:
+            success, message = update_mcp_server(
+                name=result["name"],
+                command=result["command"],
+                args=result.get("args", []),
+                description=result.get("description", ""),
+            )
+            if success:
+                self.notify(message, severity="success", timeout=2)
+                self.load_mcp_servers()
+                self.update_view()
+            else:
+                self.notify(message, severity="error", timeout=3)
+
+    async def action_mcp_remove(self) -> None:
+        """Remove the selected MCP server."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        server = self._selected_mcp_server()
+        if not server:
+            self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+
+        # Confirm deletion
+        confirmed = await self.push_screen(
+            ConfirmDialog(
+                f"Remove MCP server '{server.name}'?",
+                "This will remove the server from your Claude Desktop configuration.",
+            ),
+            wait_for_dismiss=True,
+        )
+
+        if confirmed:
+            success, message = remove_mcp_server(server.name)
+            if success:
+                self.notify(message, severity="success", timeout=2)
+                self.load_mcp_servers()
+                self.update_view()
+            else:
+                self.notify(message, severity="error", timeout=3)
 
     def action_auto_activate(self) -> None:
         """Auto-activate agents or add task when in Tasks view."""
