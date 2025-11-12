@@ -38,8 +38,22 @@ claude-ctx = "claude_ctx_py.cli:main"
 where = ["."]
 include = ["claude_ctx_py*"]
 
+[tool.setuptools.package-data]
+"*" = ["docs/reference/architecture/*"]
+
 [tool.setuptools.data-files]
-"share/man/man1" = ["docs/claude-ctx.1"]
+"share/man/man1" = [
+    "docs/reference/claude-ctx.1",
+    "docs/reference/claude-ctx-tui.1",
+    "docs/reference/claude-ctx-workflow.1",
+]
+"share/claude-ctx/docs" = [
+    "docs/reference/architecture/architecture-diagrams.md",
+    "docs/reference/architecture/quick-reference.md",
+    "docs/reference/architecture/DIAGRAMS_README.md",
+    "docs/reference/architecture/VISUAL_SUMMARY.txt",
+    "docs/reference/architecture/README.md",
+]
 
 
 [tool.mypy]

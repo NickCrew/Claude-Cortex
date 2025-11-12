@@ -1,0 +1,24 @@
+# MANIFEST.in - Include additional files in source distribution
+
+# Documentation
+include README.md
+include LICENSE
+recursive-include docs *.md *.txt *.1
+recursive-include docs/reference/architecture *
+
+# Scripts
+recursive-include scripts *.sh
+
+# Tests
+recursive-include tests *.py
+
+# Configuration examples
+include pyproject.toml
+include Makefile
+
+# Exclude build artifacts
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.egg-info

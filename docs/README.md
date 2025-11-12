@@ -2,6 +2,25 @@
 
 Comprehensive documentation for the claude-ctx context management framework.
 
+## 📐 Architecture Documentation
+
+**NEW**: Comprehensive visual documentation of the three-layer system!
+
+- **[Architecture Diagrams](reference/architecture/architecture-diagrams.md)** - 10+ Mermaid diagrams showing system architecture, flows, and integration patterns
+- **[Quick Reference](reference/architecture/quick-reference.md)** - One-page cheat sheet for daily use (commands, modes, workflows)
+- **[Visual Summary](reference/architecture/VISUAL_SUMMARY.txt)** - Beautiful ASCII art diagram for terminal viewing
+- **[Diagrams Guide](reference/architecture/DIAGRAMS_README.md)** - How to use, read, and maintain all diagrams
+
+**After installation**: These docs are available at `~/.claude/docs/`
+
+**Quick view**:
+```bash
+cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
+/docs:diagrams                               # View via command
+```
+
+---
+
 ## Documentation Map
 
 ### Core Guides

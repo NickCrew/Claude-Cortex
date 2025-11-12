@@ -204,10 +204,15 @@ install_fish_completions() {
 }
 
 install_manpage() {
-    log_info "Installing manpage..."
+    log_info "Installing manpage(s)..."
 
-    local manpage_source="${PROJECT_ROOT}/docs/claude-ctx.1"
-    local manpage_name="claude-ctx.1"
+    local manpage_dir="${PROJECT_ROOT}/docs/reference"
+    local manpage_sources=("${manpage_dir}"/*.1)
+
+    if [[ ${#manpage_sources[@]} -eq 0 ]]; then
+        log_error "No manpage sources found under ${manpage_dir}"
+        return 1
+    fi
 
     # Determine installation directory
     if [[ "${OSTYPE}" == "darwin"* ]]; then
@@ -228,25 +233,23 @@ install_manpage() {
         return 1
     fi
 
-    # Check if manpage source exists
-    if [[ ! -f "${manpage_source}" ]]; then
-        log_error "Manpage source not found at ${manpage_source}"
-        return 1
-    fi
+    for manpage_source in "${manpage_sources[@]}"; do
+        local manpage_name
+        manpage_name="$(basename "${manpage_source}")"
 
-    # Check if we need sudo
-    if [[ ! -w "${MAN_DIR}" ]]; then
-        log_info "Installing to ${MAN_DIR} (requires sudo)..."
-        sudo install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}" || {
-            log_error "Failed to install manpage"
-            return 1
-        }
-    else
-        install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}" || {
-            log_error "Failed to install manpage"
-            return 1
-        }
-    fi
+        if [[ ! -w "${MAN_DIR}" ]]; then
+            log_info "Installing ${manpage_name} to ${MAN_DIR} (requires sudo)..."
+            sudo install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}" || {
+                log_error "Failed to install ${manpage_name}"
+                return 1
+            }
+        else
+            install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}" || {
+                log_error "Failed to install ${manpage_name}"
+                return 1
+            }
+        fi
+    done
 
     # Update man database
     log_info "Updating man database..."
@@ -258,8 +261,8 @@ install_manpage() {
         sudo makewhatis "${MAN_DIR}" 2>/dev/null || true
     fi
 
-    log_success "Manpage installed to ${MAN_DIR}/${manpage_name}"
-    log_info "View with: man claude-ctx"
+    log_success "Installed ${#manpage_sources[@]} manpage(s) to ${MAN_DIR}"
+    log_info "Primary entry point: man claude-ctx"
 }
 
 verify_installation() {
@@ -365,6 +368,13 @@ detect_shell
 if [[ "${INSTALL_PACKAGE}" == "true" ]]; then
     install_package || exit 1
     echo ""
+
+    # Install architecture documentation
+    if [[ -f "${SCRIPT_DIR}/post-install-docs.sh" ]]; then
+        log_info "Installing architecture documentation..."
+        "${SCRIPT_DIR}/post-install-docs.sh" || log_warn "Documentation installation failed (non-fatal)"
+        echo ""
+    fi
 fi
 
 if [[ "${INSTALL_COMPLETIONS}" == "true" ]]; then
