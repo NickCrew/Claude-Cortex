@@ -101,6 +101,12 @@ class AgentCommandProvider(Provider):
                 CATEGORY_VIEW,
             ),
             (
+                f"[blue]🗺[/] [bold]Show Scenarios[/bold] [dim blue]◎[/dim blue]",
+                f"[dim]Review crisis scenarios [dim white]│[/dim white] Hotkey: [yellow]S[/yellow] [dim white]│[/dim white] Mode: [cyan]Plan[/cyan][/dim]",
+                "show_scenarios",
+                CATEGORY_VIEW,
+            ),
+            (
                 f"[cyan]⚙[/] [bold]Show Workflows[/bold] [dim cyan]↻[/dim cyan]",
                 f"[dim]Monitor workflows [dim white]│[/dim white] Hotkey: [yellow]6[/yellow] [dim white]│[/dim white] Status: [green]Running[/green][/dim]",
                 "show_workflows",
@@ -174,6 +180,10 @@ class AgentCommandProvider(Provider):
             app.status_message = "Select a rule and press Space to toggle"
         elif action == "show_skills":
             app.current_view = "skills"
+            app.update_view()
+        elif action == "show_scenarios":
+            app.current_view = "scenarios"
+            app.load_scenarios()
             app.update_view()
         elif action == "show_workflows":
             app.current_view = "workflows"

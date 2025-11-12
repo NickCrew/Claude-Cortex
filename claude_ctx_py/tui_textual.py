@@ -10,8 +10,9 @@ import tempfile
 import time
 import yaml
 import re
+import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -35,11 +36,18 @@ from .core import (
     _tokenize_front_matter,
     _extract_scalar_from_paths,
     _extract_front_matter,
+    _ensure_scenarios_dir,
+    _scenario_lock_basename,
+    _parse_scenario_metadata,
     collect_context_components,
     export_context,
     init_profile,
     profile_save,
     _profile_reset,
+    scenario_preview,
+    scenario_run,
+    scenario_validate,
+    scenario_status,
     skill_validate,
     skill_metrics,
     skill_metrics_reset,
@@ -61,7 +69,7 @@ from .core import (
 )
 from .core.rules import rules_activate, rules_deactivate
 from .core.modes import mode_activate, mode_deactivate
-from .core.base import _iter_md_files, _parse_active_entries
+from .core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes
 from .core.mcp import (
     discover_servers,
     validate_server_config,
@@ -85,6 +93,7 @@ from .tui_overview_enhanced import EnhancedOverview
 from .intelligence import IntelligentAgent, AgentRecommendation, WorkflowPrediction
 from .tui_supersaiyan import SuperSaiyanStatusBar
 from .tui_dialogs import TaskEditorDialog, ConfirmDialog, PromptDialog, TextViewerDialog
+from .tui_log_viewer import LogViewerScreen
 
 
 @dataclass
@@ -137,6 +146,25 @@ class ModeInfo:
     path: Path
 
 
+@dataclass
+class ScenarioInfo:
+    """Represents a scenario definition and its runtime metadata."""
+
+    name: str
+    description: str
+    priority: str
+    scenario_type: str
+    phase_names: List[str]
+    agents: List[str]
+    profiles: List[str]
+    status: str
+    started_at: Optional[datetime]
+    completed_at: Optional[datetime]
+    lock_holder: Optional[str]
+    file_path: Path
+    error: Optional[str] = None
+
+
 PROFILE_DESCRIPTIONS: Dict[str, str] = {
     "minimal": "Load minimal profile (essential agents only)",
     "frontend": "Load frontend profile (TypeScript + review)",
@@ -176,6 +204,23 @@ PRIMARY_VIEW_BINDINGS = [
     ("0", "ai_assistant", "AI Assistant"),
 ]
 
+VIEW_TITLES: Dict[str, str] = {
+    "overview": f"{Icons.METRICS} Overview",
+    "agents": f"{Icons.CODE} Agents",
+    "modes": f"{Icons.FILTER} Modes",
+    "rules": f"{Icons.DOC} Rules",
+    "skills": f"{Icons.CODE} Skills",
+    "workflows": f"{Icons.PLAY} Workflows",
+    "scenarios": f"{Icons.PLAY} Scenarios",
+    "orchestrate": "⚙ Orchestrate",
+    "mcp": f"{Icons.METRICS} MCP Servers",
+    "profiles": "👤 Profiles",
+    "export": f"{Icons.FILE} Export",
+    "ai_assistant": "🤖 AI Assistant",
+    "tasks": f"{Icons.TEST} Tasks",
+    "galaxy": "✦ Agent Galaxy",
+}
+
 
 class AgentTUI(App):
     """Textual TUI for claude-ctx management."""
@@ -212,6 +257,7 @@ class AgentTUI(App):
         self.export_options: Dict[str, bool] = DEFAULT_EXPORT_OPTIONS.copy()
         self.export_agent_generic: bool = True
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
+        self.scenarios: List[ScenarioInfo] = []
 
     CSS = """
     /* Super Saiyan Mode Colors 🔥 */
@@ -440,6 +486,7 @@ class AgentTUI(App):
             Binding(key, f"view_{name}", label, show=True)
             for key, name, label in PRIMARY_VIEW_BINDINGS
         ],
+        Binding("S", "view_scenarios", "Scenarios", show=True),
         Binding("o", "view_orchestrate", "Orchestrate", show=True),
         Binding("g", "view_galaxy", "Galaxy", show=True),
         Binding("t", "view_tasks", "Tasks", show=True),
@@ -448,12 +495,13 @@ class AgentTUI(App):
         Binding("?", "help", "Help"),
         Binding("space", "toggle", "Toggle"),
         Binding("r", "refresh", "Refresh"),
-        Binding("a", "auto_activate", "Auto-Activate"),
+        Binding("a", "auto_activate", "Auto-Activate", show=False),
+        Binding("s", "details_context", "Details", show=False),
         Binding("v", "validate_context", "Validate", show=False),
         Binding("m", "metrics_context", "Metrics", show=False),
-        Binding("c", "context_action", "Action", show=False),
+        Binding("c", "context_action", "Actions", show=False),
         Binding("d", "docs_context", "Docs", show=False),
-        Binding("s", "details_context", "Details", show=False),
+        Binding("ctrl+e", "edit_item", "Edit", show=False),
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
         Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
@@ -461,6 +509,10 @@ class AgentTUI(App):
         Binding("x", "export_clipboard", "Copy", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
         Binding("D", "profile_delete", "Delete Profile", show=False),
+        Binding("P", "scenario_preview", "Preview", show=False),
+        Binding("R", "scenario_run_auto", "Run", show=False),
+        Binding("V", "scenario_validate_selected", "Validate Scenario", show=False),
+        Binding("H", "scenario_status_history", "Scenario Status", show=False),
         # Vi-style navigation
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
@@ -487,6 +539,62 @@ class AgentTUI(App):
         yield SuperSaiyanStatusBar(id="status-bar")
         yield Footer()
 
+    def _selected_agent(self) -> Optional[AgentGraphNode]:
+        index = self._table_cursor_index()
+        agents = getattr(self, "agents", [])
+        if index is None or not agents:
+            return None
+        if index < 0 or index >= len(agents):
+            return None
+        return agents[index]
+
+    def action_edit_item(self) -> None:
+        """Open the selected item's source file in the default editor."""
+        file_path: Optional[Path] = None
+        item_name: Optional[str] = None
+
+        if self.current_view == "agents":
+            agent = self._selected_agent()
+            if agent:
+                file_path = agent.path
+                item_name = agent.name
+        elif self.current_view == "rules":
+            # Assuming a _selected_rule() helper or direct access
+            index = self._table_cursor_index()
+            if index is not None and 0 <= index < len(self.rules):
+                rule = self.rules[index]
+                file_path = rule.path
+                item_name = rule.name
+        elif self.current_view == "modes":
+            # Assuming a _selected_mode() helper or direct access
+            index = self._table_cursor_index()
+            if index is not None and 0 <= index < len(self.modes):
+                mode = self.modes[index]
+                file_path = mode.path
+                item_name = mode.name
+        elif self.current_view == "skills":
+            skill = self._selected_skill()
+            if skill and "path" in skill:
+                file_path = Path(skill["path"])
+                item_name = skill["name"]
+
+        if file_path and item_name:
+            try:
+                # Use a cross-platform way to open the file
+                if sys.platform == "darwin":
+                    subprocess.Popen(["open", str(file_path)])
+                elif sys.platform == "win32":
+                    os.startfile(str(file_path))
+                else:  # linux and other UNIX
+                    editor = os.environ.get("EDITOR", "vi")
+                    # This runs in the background and doesn't block the TUI
+                    subprocess.Popen([editor, str(file_path)])
+                self.status_message = f"Opening {item_name}..."
+            except Exception as e:
+                self.status_message = f"Error opening file: {e}"
+        else:
+            self.status_message = "No editable item selected."
+
     def on_mount(self) -> None:
         """Load initial data when app starts."""
         # Initialize performance monitor and command registry
@@ -509,6 +617,7 @@ class AgentTUI(App):
         self.load_skills()
         self.load_agent_tasks()
         self.load_workflows()
+        self.load_scenarios()
         self.load_profiles()
         self.load_mcp_servers()
         self.update_view()
@@ -559,6 +668,50 @@ class AgentTUI(App):
         """Update display when view changes."""
         self.update_view()
         self.refresh_status_bar()
+
+        # Dynamically update footer bindings based on context
+        view_bindings = {
+            "agents": {"toggle", "details_context", "validate_context", "edit_item"},
+            "rules": {"toggle", "edit_item"},
+            "modes": {"toggle", "edit_item"},
+            "skills": {
+                "details_context",
+                "validate_context",
+                "metrics_context",
+                "docs_context",
+                "context_action",
+                "edit_item",
+            },
+            "mcp": {"details_context", "docs_context", "mcp_test_selected", "mcp_diagnose"},
+            "profiles": {"toggle", "profile_save_prompt", "profile_delete"},
+            "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
+            "scenarios": {"scenario_preview", "scenario_run_auto"},
+            "ai_assistant": {"auto_activate"},
+        }
+
+        # Get the set of keys to show for the current view, default to empty set
+        keys_to_show = view_bindings.get(self.current_view, set())
+
+        # Update visibility for all bindings
+        # Note: This dynamic binding visibility is disabled for now
+        # as it's not compatible with the current Textual API
+        # TODO: Re-implement using check_action_state or similar approach
+        try:
+            # Try to access bindings through the namespace if available
+            if hasattr(self, 'namespace_bindings'):
+                for key, binding in self.namespace_bindings.items():
+                    if binding.key in keys_to_show or binding.key in [
+                        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+                        "S", "o", "g", "t", "ctrl+p", "q", "?", "r"
+                    ]:
+                        binding.show = True
+                    else:
+                        binding.show = False
+        except Exception:
+            # Silently ignore binding visibility errors to avoid crashes
+            pass
+
+        self.refresh(layout=True)
 
     def _validate_path(self, base_dir: Path, subpath: Path) -> Path:
         """
@@ -620,6 +773,23 @@ class AgentTUI(App):
 
         return True
 
+    def _parse_iso_datetime(self, value: Optional[str]) -> Optional[datetime]:
+        """Parse ISO8601 timestamps produced by scenario state files."""
+        if not value:
+            return None
+        normalized = value.strip()
+        if not normalized:
+            return None
+        try:
+            if normalized.endswith("Z"):
+                normalized = normalized[:-1] + "+00:00"
+            dt = datetime.fromisoformat(normalized)
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+        except Exception:
+            return None
+
     def _table_cursor_index(self) -> Optional[int]:
         """Return the current row index in the main DataTable."""
         try:
@@ -661,6 +831,15 @@ class AgentTUI(App):
         if index < 0 or index >= len(skills):
             return None
         return skills[index]
+
+    def _selected_scenario(self) -> Optional[ScenarioInfo]:
+        index = self._table_cursor_index()
+        scenarios = getattr(self, "scenarios", [])
+        if index is None or not scenarios:
+            return None
+        if index < 0 or index >= len(scenarios):
+            return None
+        return scenarios[index]
 
     def _skill_slug(self, skill: Dict[str, str]) -> str:
         path_value = skill.get("path")
@@ -916,6 +1095,7 @@ class AgentTUI(App):
             return AgentGraphNode(
                 name=name,
                 slug=path.stem,
+                path=path,
                 category=category,
                 tier=tier,
                 status=status,
@@ -1337,12 +1517,22 @@ class AgentTUI(App):
             self.modes = modes
             active_count = sum(1 for m in modes if m.status == "active")
             self.status_message = f"Loaded {len(modes)} modes ({active_count} active)"
+
+            # Debug logging
+            print(f"[DEBUG] load_modes: Loaded {len(modes)} modes")
+            for mode in modes:
+                print(f"[DEBUG]   - {mode.name} ({mode.status}): {mode.purpose[:50]}...")
+
             if hasattr(self, "metrics_collector"):
                 self.metrics_collector.record("modes_active", float(active_count))
 
         except Exception as e:
+            import traceback
+            error_detail = traceback.format_exc()
             self.status_message = f"Error loading modes: {e}"
             self.modes = []
+            # Log full traceback for debugging
+            print(f"[DEBUG] Mode loading error:\n{error_detail}")
 
     def _parse_mode_file(self, path: Path, status: str):
         """Parse a mode file and return a ModeInfo."""
@@ -1357,19 +1547,26 @@ class AgentTUI(App):
             display_name = name
             purpose = ""
             description = ""
+            subtitle = ""
 
+            found_title = False
             for i, line in enumerate(lines):
                 line = line.strip()
-                if line.startswith("# "):
+                if line.startswith("# ") and not found_title:
                     # Extract title (e.g., "# Task Management Mode" -> "Task Management")
+                    # Only use the FIRST h1 heading
                     title = line[2:].strip()
                     if title.endswith(" Mode"):
                         display_name = title[:-5]  # Remove " Mode" suffix
                     else:
                         display_name = title
+                    found_title = True
                 elif line.startswith("**Purpose**:"):
                     # Extract purpose
                     purpose = line.split("**Purpose**:")[1].strip()
+                elif not subtitle and line.startswith("**") and not line.startswith("**Purpose**") and ":" not in line:
+                    # Extract subtitle/tagline (e.g., "**Universal Visual Excellence Mode**")
+                    subtitle = line.replace("**", "").strip()
                 elif (
                     line.startswith("## ")
                     and "Activation" not in line
@@ -1378,25 +1575,36 @@ class AgentTUI(App):
                     # Use first non-activation h2 as description fallback
                     description = line[3:].strip()
 
+            # Build final purpose: prefer explicit Purpose, then subtitle, then description
+            if not purpose:
+                purpose = subtitle or description
+
             # Use purpose as description if available, otherwise use first description
             final_description = purpose if purpose else description
             if not final_description:
-                # Fallback: use first non-empty, non-heading line
+                # Fallback: use first non-empty, non-heading, non-bold line
                 for line in lines:
                     line = line.strip()
-                    if line and not line.startswith("#") and not line.startswith("**"):
-                        final_description = line[:80]  # Limit length
+                    if line and not line.startswith("#") and not line.startswith("**") and not line.startswith(">"):
+                        final_description = line[:100]  # Limit length
                         break
 
             return ModeInfo(
                 name=display_name,
                 status=status,
-                purpose=purpose or "No purpose specified",
+                purpose=purpose or final_description or "Behavioral mode",
                 description=final_description or "No description available",
                 path=path,
             )
-        except Exception:
-            return None
+        except Exception as e:
+            # Return a placeholder instead of None so user can see something went wrong
+            return ModeInfo(
+                name=path.stem,
+                status=status,
+                purpose=f"Error parsing mode: {str(e)[:50]}",
+                description="Failed to parse mode file",
+                path=path,
+            )
 
     def load_workflows(self) -> None:
         """Load workflows from the workflows directory."""
@@ -1495,6 +1703,121 @@ class AgentTUI(App):
             running = sum(1 for w in workflows if w.status == "running")
             self.metrics_collector.record("workflows_running", float(running))
 
+    def load_scenarios(self) -> None:
+        """Load scenario metadata and runtime state."""
+        scenarios: List[ScenarioInfo] = []
+        try:
+            claude_dir = _resolve_claude_dir()
+            scenarios_dir, state_dir, lock_dir = _ensure_scenarios_dir(claude_dir)
+            scenarios_dir = self._validate_path(claude_dir, scenarios_dir)
+            state_dir = self._validate_path(claude_dir, state_dir)
+            lock_dir = self._validate_path(claude_dir, lock_dir)
+
+            # Cache latest state per scenario (by modification time)
+            state_cache: Dict[str, Dict[str, Optional[datetime]]] = {}
+            state_files = []
+            for state_file in state_dir.glob("*.json"):
+                try:
+                    mtime = state_file.stat().st_mtime
+                except OSError:
+                    mtime = 0
+                state_files.append((mtime, state_file))
+            for _mtime, state_file in sorted(state_files, key=lambda x: x[0], reverse=True):
+                try:
+                    data = json.loads(state_file.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                scenario_name = str(data.get("scenario") or state_file.stem)
+                if scenario_name in state_cache:
+                    continue
+                state_cache[scenario_name] = {
+                    "status": str(data.get("status", "pending")),
+                    "started": self._parse_iso_datetime(data.get("started")),
+                    "completed": self._parse_iso_datetime(data.get("completed")),
+                }
+
+            lock_map: Dict[str, Optional[str]] = {}
+            for lock_file in lock_dir.glob("*.lock"):
+                try:
+                    exec_id = lock_file.read_text(encoding="utf-8").strip() or None
+                except OSError:
+                    exec_id = None
+                lock_map[lock_file.stem] = exec_id
+
+            for scenario_file in sorted(scenarios_dir.glob("*.yaml")):
+                if scenario_file.stem == "README":
+                    continue
+
+                code, metadata, error_msg = _parse_scenario_metadata(scenario_file)
+                if code != 0 or metadata is None:
+                    scenarios.append(
+                        ScenarioInfo(
+                            name=scenario_file.stem,
+                            description=error_msg or "Invalid scenario definition",
+                            priority="-",
+                            scenario_type="invalid",
+                            phase_names=[],
+                            agents=[],
+                            profiles=[],
+                            status="invalid",
+                            started_at=None,
+                            completed_at=None,
+                            lock_holder=None,
+                            file_path=scenario_file,
+                            error=error_msg or "Invalid scenario definition",
+                        )
+                    )
+                    continue
+
+                phase_names = [phase.name for phase in metadata.phases]
+                agents: List[str] = []
+                profiles: List[str] = []
+                for phase in metadata.phases:
+                    for agent in phase.agents:
+                        if agent not in agents:
+                            agents.append(agent)
+                    for profile in phase.profiles:
+                        if profile not in profiles:
+                            profiles.append(profile)
+
+                state_entry = state_cache.get(metadata.name)
+                status = state_entry.get("status") if state_entry else "pending"
+                started_at = state_entry.get("started") if state_entry else None
+                completed_at = state_entry.get("completed") if state_entry else None
+
+                lock_key = _scenario_lock_basename(metadata.name)
+                lock_holder = lock_map.get(lock_key)
+                if lock_holder is not None:
+                    status = "running"
+
+                scenarios.append(
+                    ScenarioInfo(
+                        name=metadata.name,
+                        description=metadata.description,
+                        priority=metadata.priority,
+                        scenario_type=metadata.scenario_type,
+                        phase_names=phase_names,
+                        agents=agents,
+                        profiles=profiles,
+                        status=status,
+                        started_at=started_at,
+                        completed_at=completed_at,
+                        lock_holder=lock_holder,
+                        file_path=scenario_file,
+                    )
+                )
+
+        except Exception as exc:  # pragma: no cover - defensive guard
+            self.scenarios = []
+            self.status_message = f"Error loading scenarios: {exc}"[:160]
+            return
+
+        self.scenarios = scenarios
+        if hasattr(self, "metrics_collector"):
+            self.metrics_collector.record("scenarios_total", float(len(scenarios)))
+            running = sum(1 for s in scenarios if s.status == "running")
+            self.metrics_collector.record("scenarios_running", float(running))
+
     def load_profiles(self) -> None:
         """Load available profiles (built-in + saved)."""
         try:
@@ -1558,6 +1881,7 @@ class AgentTUI(App):
         switcher = self.query_one("#view-switcher", ContentSwitcher)
         table = self.query_one("#main-table", DataTable)
         table.clear(columns=True)
+        self._apply_view_title(table, self.current_view)
 
         if self.current_view == "galaxy":
             switcher.current = "galaxy-view"
@@ -1580,6 +1904,8 @@ class AgentTUI(App):
             self.show_skills_view(table)
         elif self.current_view == "workflows":
             self.show_workflows_view(table)
+        elif self.current_view == "scenarios":
+            self.show_scenarios_view(table)
         elif self.current_view == "orchestrate":
             self.show_orchestrate_view(table)
         elif self.current_view == "mcp":
@@ -1595,6 +1921,14 @@ class AgentTUI(App):
         else:
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
+
+    def _apply_view_title(self, table: DataTable, view: str) -> None:
+        """Set border title on the main data table for the active view."""
+        title = VIEW_TITLES.get(view, view.replace("_", " ").title())
+        try:
+            table.border_title = title
+        except Exception:
+            pass
 
     def show_agents_view(self, table: DataTable) -> None:
         """Show agents table with enhanced colors and formatting."""
@@ -1729,15 +2063,21 @@ class AgentTUI(App):
         table.add_column("Status", key="status", width=12)
         table.add_column("Purpose", key="purpose")
 
+        # Debug logging
+        has_modes_attr = hasattr(self, "modes")
+        modes_value = getattr(self, "modes", None)
+        modes_count = len(modes_value) if modes_value else 0
+        print(f"[DEBUG] show_modes_view: has_attr={has_modes_attr}, modes={modes_value is not None}, count={modes_count}")
+
         if not hasattr(self, "modes") or not self.modes:
             table.add_row("[dim]No modes found[/dim]", "", "")
             return
 
         for mode in self.modes:
-            # Color-coded status
+            # Color-coded status (match rules view styling)
             if mode.status == "active":
-                status_text = f"[bold magenta]● ACTIVE[/bold magenta]"
-                name = f"[bold magenta]{Icons.FILTER} {mode.name}[/bold magenta]"
+                status_text = f"[bold green]● ACTIVE[/bold green]"
+                name = f"[bold]{Icons.FILTER} {mode.name}[/bold]"
             else:
                 status_text = f"[dim]○ inactive[/dim]"
                 name = f"[dim]{Icons.FILTER} {mode.name}[/dim]"
@@ -2096,6 +2436,93 @@ class AgentTUI(App):
                 status_text,
                 progress_text,
                 started_text,
+                description,
+            )
+
+    def show_scenarios_view(self, table: DataTable) -> None:
+        """Show scenario catalog."""
+        table.add_column("Scenario", key="scenario", width=32)
+        table.add_column("Status", key="status", width=14)
+        table.add_column("Priority", key="priority", width=12)
+        table.add_column("Phases", key="phases", width=18)
+        table.add_column("Agents", key="agents", width=24)
+        table.add_column("Last Run", key="last_run", width=14)
+        table.add_column("Description", key="description")
+
+        scenarios = getattr(self, "scenarios", [])
+        if not scenarios:
+            table.add_row("[dim]No scenarios found[/dim]", "", "", "", "", "", "")
+            table.add_row(
+                "[dim]Add YAML files under ~/.claude/scenarios[/dim]",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            )
+            return
+
+        priority_colors = {
+            "critical": "red",
+            "high": "yellow",
+            "medium": "green",
+            "normal": "green",
+            "low": "cyan",
+        }
+
+        for scenario in scenarios:
+            icon = Icons.PLAY if scenario.status != "invalid" else Icons.WARNING
+            name = f"{icon} {scenario.name}"
+
+            status_key = (scenario.status or "pending").lower()
+            if status_key == "running":
+                status_text = StatusIcon.running()
+            elif status_key in ("completed", "complete", "success"):
+                status_text = StatusIcon.active()
+            elif status_key in ("failed", "error"):
+                status_text = StatusIcon.error()
+            elif status_key == "invalid":
+                status_text = StatusIcon.warning()
+            else:
+                status_text = StatusIcon.pending()
+
+            priority_color = priority_colors.get(scenario.priority.lower(), "white")
+            priority_text = (
+                f"[{priority_color}]{scenario.priority}[/{priority_color}]"
+                if scenario.priority and scenario.priority != "-"
+                else "[dim]-[/dim]"
+            )
+
+            phases_preview = (
+                Format.list_items(scenario.phase_names, max_items=2)
+                if scenario.phase_names
+                else "-"
+            )
+            phases_text = f"{len(scenario.phase_names)} | {phases_preview}" if scenario.phase_names else "0"
+
+            agents_text = (
+                Format.list_items(scenario.agents, max_items=3)
+                if scenario.agents
+                else "-"
+            )
+
+            last_run_text = "-"
+            if scenario.completed_at:
+                last_run_text = Format.time_ago(scenario.completed_at)
+            elif scenario.started_at:
+                last_run_text = Format.time_ago(scenario.started_at)
+
+            description = scenario.description or scenario.error or ""
+            description = Format.truncate(description, 60) if description else ""
+
+            table.add_row(
+                name,
+                status_text,
+                priority_text,
+                phases_text,
+                agents_text,
+                last_run_text,
                 description,
             )
 
@@ -2496,6 +2923,13 @@ class AgentTUI(App):
         self.status_message = "Switched to Workflows"
         self.notify("🔄 Workflows", severity="information", timeout=1)
 
+    def action_view_scenarios(self) -> None:
+        """Switch to scenarios view."""
+        self.current_view = "scenarios"
+        self.load_scenarios()
+        self.status_message = "Switched to Scenarios"
+        self.notify("🗺 Scenarios", severity="information", timeout=1)
+
     def action_view_orchestrate(self) -> None:
         """Switch to orchestrate view."""
         self.current_view = "orchestrate"
@@ -2530,6 +2964,116 @@ class AgentTUI(App):
         # Refresh recommendations when entering view
         if hasattr(self, "intelligent_agent"):
             self.intelligent_agent.analyze_context()
+
+    async def action_scenario_preview(self) -> None:
+        """Preview the selected scenario definition."""
+        if self.current_view != "scenarios":
+            return
+        scenario = self._selected_scenario()
+        if not scenario:
+            self.notify("Select a scenario to preview", severity="warning", timeout=2)
+            return
+        exit_code, message = scenario_preview(scenario.file_path.stem)
+        cleaned = _strip_ansi_codes(message or "")
+        if exit_code != 0:
+            self.status_message = cleaned.split("\n")[0][:160]
+            self.notify(
+                f"✗ Failed to preview {scenario.name}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        await self.push_screen(
+            TextViewerDialog(f"Scenario Preview: {scenario.name}", cleaned)
+        )
+        self.status_message = f"Previewed {scenario.name}"
+
+    async def action_scenario_run_auto(self) -> None:
+        """Run the selected scenario in automatic mode."""
+        if self.current_view != "scenarios":
+            return
+        scenario = self._selected_scenario()
+        if not scenario:
+            self.notify("Select a scenario to run", severity="warning", timeout=2)
+            return
+        if scenario.status == "invalid":
+            self.notify(
+                f"Cannot run invalid scenario '{scenario.name}'",
+                severity="error",
+                timeout=3,
+            )
+            return
+        if scenario.lock_holder:
+            self.notify(
+                f"Scenario '{scenario.name}' already running",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        confirm = await self.push_screen(
+            ConfirmDialog(
+                "Run Scenario",
+                f"Execute scenario '{scenario.name}' in automatic mode?",
+                default=True,
+            )
+        )
+        if confirm is not True:
+            self.status_message = "Scenario run cancelled"
+            return
+
+        self.status_message = f"Running scenario: {scenario.name}"
+        
+        python_executable = sys.executable
+        command = [python_executable, "-m", "claude_ctx_py.cli", "orchestrate", "run", scenario.file_path.stem, "--auto"]
+
+        await self.app.push_screen(LogViewerScreen(command, title=f"Running Scenario: {scenario.name}"))
+        
+        self.notify(
+            f"Scenario '{scenario.name}' finished.",
+            severity="information",
+            timeout=3,
+        )
+        self.load_scenarios()
+        self.update_view()
+
+    async def action_scenario_validate_selected(self) -> None:
+        """Validate the selected scenario against the schema."""
+        if self.current_view != "scenarios":
+            return
+        scenario = self._selected_scenario()
+        if not scenario:
+            self.notify("Select a scenario to validate", severity="warning", timeout=2)
+            return
+
+        exit_code, message = scenario_validate(scenario.file_path.stem)
+        cleaned = _strip_ansi_codes(message or "")
+        await self.push_screen(
+            TextViewerDialog(f"Scenario Validation: {scenario.name}", cleaned)
+        )
+
+        if exit_code == 0:
+            self.notify(
+                f"Scenario '{scenario.name}' is valid",
+                severity="success",
+                timeout=2,
+            )
+            self.status_message = f"Validated {scenario.name}"
+        else:
+            self.notify(
+                f"Scenario '{scenario.name}' failed validation",
+                severity="error",
+                timeout=3,
+            )
+            self.status_message = f"Validation errors for {scenario.name}"
+
+    async def action_scenario_status_history(self) -> None:
+        """Show scenario locks and recent executions."""
+        report = scenario_status()
+        cleaned = _strip_ansi_codes(report or "No scenario executions logged yet.")
+        await self.push_screen(TextViewerDialog("Scenario Status", cleaned))
+        self.status_message = "Scenario status displayed"
 
     def action_view_galaxy(self) -> None:
         """Switch to the agent galaxy visualization."""
@@ -3447,6 +3991,8 @@ class AgentTUI(App):
             self.load_skills()
         elif self.current_view == "workflows":
             self.load_workflows()
+        elif self.current_view == "scenarios":
+            self.load_scenarios()
         elif self.current_view == "orchestrate":
             self.load_agent_tasks()
         elif self.current_view == "mcp":
@@ -3462,74 +4008,15 @@ class AgentTUI(App):
 
     def action_help(self) -> None:
         """Show help."""
-        self.status_message = "Help: 1-6=Core views, 7=MCP, 8=Profiles, 9=Export, 0=AI, G=Galaxy, T=Tasks, Ctrl+P=Commands"
+        self.status_message = (
+            "Help: 1-6 core views, S=Scenarios, 7=MCP, 8=Profiles, 9=Export, 0=AI, "
+            "G=Galaxy, T=Tasks, P=Preview scenario, R=Run scenario, V=Validate, "
+            "H=Scenario status, Ctrl+P=Commands"
+        )
 
-    async def action_command_palette(self) -> None:
-        """Show command palette for quick navigation."""
-        commands = self.command_registry.get_all()
-        result = await self.push_screen(CommandPalette(commands), wait_for_dismiss=True)
-
-        if result:
-            # Execute the selected command
-            if result == "show_agents":
-                self.action_view_agents()
-            elif result == "show_skills":
-                self.action_view_skills()
-            elif result == "show_modes":
-                self.action_view_modes()
-            elif result == "show_rules":
-                self.action_view_rules()
-            elif result == "show_workflows":
-                self.action_view_workflows()
-            elif result == "show_orchestrate":
-                self.action_view_orchestrate()
-            elif result == "show_mcp":
-                self.action_view_mcp()
-            elif result == "show_profiles":
-                self.action_view_profiles()
-            elif result == "show_export":
-                self.action_view_export()
-            elif result == "show_tasks":
-                self.action_view_tasks()
-            elif result == "show_galaxy":
-                self.action_view_galaxy()
-            elif result == "activate_agent":
-                # Switch to agents view and show instruction
-                self.action_view_agents()
-                self.status_message = "Select an agent and press Space to activate"
-            elif result == "deactivate_agent":
-                # Switch to agents view and show instruction
-                self.action_view_agents()
-                self.status_message = "Select an agent and press Space to deactivate"
-            elif result == "toggle_mode":
-                # Switch to modes view
-                self.action_view_modes()
-                self.status_message = "Select a mode and press Space to toggle"
-            elif result == "toggle_rule":
-                # Switch to rules view
-                self.action_view_rules()
-                self.status_message = "Select a rule and press Space to toggle"
-            elif result == "create_skill":
-                self.status_message = "Skill creation wizard (not yet implemented)"
-            elif result == "add_task":
-                await self.action_add_task()
-            elif result == "edit_task":
-                await self.action_edit_task()
-            elif result == "delete_task":
-                await self.action_delete_task()
-            elif result == "export_context":
-                self.current_view = "export"
-                self.update_view()
-            elif result == "show_help":
-                self.action_help()
-            elif result == "refresh":
-                self.action_refresh()
-            elif result == "auto_activate":
-                await self.action_auto_activate()
-            elif result == "quit":
-                self.exit()
-            else:
-                self.status_message = f"Command: {result} (not yet implemented)"
+    def action_command_palette(self) -> None:
+        """Show the command palette."""
+        self.run_in_worker(lambda: self.app.push_screen(CommandPalette(), self._on_command_palette_select))
 
 
 def main() -> int:

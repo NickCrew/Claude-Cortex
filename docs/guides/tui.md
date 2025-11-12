@@ -23,6 +23,12 @@
 - Configuration and theming design
 - Testing strategy and success metrics
 
+### 4. **tui/tui-entity-guide.md** - Entity Relationships in the TUI
+- Explains how profiles, modes, workflows, scenarios, and agents differ
+- Shows which TUI view or hotkey manages each entity
+- Maps how scenarios trigger profiles/modes and feed workflows
+- Includes practical end-to-end flow for staying oriented
+
 ---
 
 ## Current State Summary

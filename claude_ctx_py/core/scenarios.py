@@ -35,6 +35,19 @@ from .base import (
 
 
 @dataclass
+class ScenarioPhase:
+    """Normalized representation of a scenario phase."""
+
+    name: str
+    description: str
+    condition: str
+    parallel: bool
+    agents: List[str]
+    profiles: List[str]
+    success: List[str]
+
+
+@dataclass
 class ScenarioMetadata:
     name: str
     description: str
