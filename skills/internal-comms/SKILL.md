@@ -1,7 +1,7 @@
 ---
 name: internal-comms
 description: A set of resources to help write all kinds of internal communications, using company-specific formats. Use when asked to write internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).
-license: Complete terms in LICENSE.txt
+license: MIT License - Complete terms in LICENSE.txt
 ---
 
 ## When to use this skill

@@ -574,7 +574,7 @@ Agents:   v=validate (placeholder), Space=toggle, Enter=details
 Skills:   v=validate, m=metrics, c=community
 Modes:    Space=toggle, Enter=details
 Rules:    Space=toggle, Enter=details
-Workflows: r=run, Space=resume, s=stop (placeholders)
+Workflows: Shift+R=run, Space=resume, s=stop (now wired)
 ```
 
 ---
@@ -721,4 +721,3 @@ create_mode_details_panel()  # Mode details
 3. **User experience**: No animations or transitions
 4. **Accessibility**: No contrast modes or larger text options
 5. **Documentation**: UI patterns not explicitly documented
-

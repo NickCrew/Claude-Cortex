@@ -13,6 +13,13 @@
 
 ## 🔴 CRITICAL Execution Rules (ALWAYS ENFORCED)
 
+### Git Commits (ZERO TOLERANCE)
+- **NEVER sign commits as Claude/AI** - This is FORBIDDEN
+- NO AI attribution in commit messages or metadata
+- Follow conventional commit format (atomic, professional)
+- All commits authored by USER with their git identity
+- See: @rules/git-rules.md
+
 ### Parallel Execution (MANDATORY)
 - **Serial execution is a FAILURE** unless dependencies proven
 - ALWAYS launch parallel agents in single message

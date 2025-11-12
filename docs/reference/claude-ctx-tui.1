@@ -1,0 +1,118 @@
+.TH CLAUDE-CTX-TUI 1 "2025-11-12" "claude-ctx 1.0" "User Commands"
+.SH NAME
+claude-ctx-tui \- Launch the Claude CTX Rich/Textual dashboard
+.SH SYNOPSIS
+.B claude-ctx tui
+[B-hR]
+.SH DESCRIPTION
+The Bclaude-ctx tuiR command opens a Rich/Textual interface that surfaces every
+part of the Claude CTX context bundle in one place. Views are arranged across a
+number row (1-9 plus dedicated hotkeys) and show counts, statuses, dependency
+information, orchestration progress, and export options without leaving the
+terminal. The TUI reads the same Claude home directory used by the CLI and
+updates automatically when agents, workflows, or scenarios change on disk.
+
+The header shows the current view title, the body renders the selected table or
+panel, and the footer lists context-aware shortcuts. Press B?R at any time for a
+full keyboard reference.
+.SH VIEWS
+.TP
+.B 1 \(em Overview
+System status banner with counts for agents, modes, rules, skills, running
+workflows, and quick hints.
+.TP
+.B 2 \(em Agents
+Toggle agents with BSpaceR, open details with BEnterR, and filter with B/R.
+.TP
+.B 3 \(em Modes
+Show active/inactive modes, each with purpose text. Toggling mirrors
+Bclaude-ctx modeR commands.
+.TP
+.B 4 \(em Rules
+List rule modules by category with the same toggle semantics as the CLI.
+.TP
+.B 5 \(em Skills
+View installed skills plus validation (BvR), metrics (BmR), and community info
+(BcR).
+.TP
+.B 6 \(em Workflows
+Display YAML workflows, statuses, progress bars, current steps, and elapsed time.
+Press (\fBShift+R\fR) to run the highlighted workflow without leaving the dashboard,\nor (\fBs\fR) to stop the active workflow.
+.TP
+.B 7 \(em MCP
+Inspect configured Model Context Protocol servers, run diagnostics, and trigger
+snippets.
+.TP
+.B 8 \(em Profiles
+Apply built-in profiles (BSpaceR), save the current snapshot (BnR), or delete
+saved profiles (BDR).
+.TP
+.B 9 \(em Export
+Pick which categories to export, choose Claude-specific vs agent-generic output,
+and trigger exports (BeR) or clipboard copies (BxR).
+.TP
+.B 0 \(em AI Assistant
+Display live recommendations, workflow predictions, and auto-activation
+candidates.
+.TP
+.B S \(em Scenarios
+Load YAML scenarios, show priorities, phase counts, agents, and timestamps.
+Preview (BPR), auto-run (BShift+RR), stop (BsR), validate (BVR), or
+show historical locks (BHR).
+.TP
+.B o \(em Orchestrate
+Live task board that aggregates active agents by workstream with progress bars
+and parallel efficiency hints.
+.TP
+.B t \(em Tasks
+Manage custom tasks created during orchestration or diagnostics.
+.TP
+.B g \(em Galaxy
+Graph visualization for agents and their dependencies.
+.SH KEYBOARD SHORTCUTS
+.TP
+.B 1-9,0,S,o,t,g
+Jump directly to a view (see above).
+.TP
+.B Space
+Contextual toggle (agents, modes, rules, export categories, profiles).
+.TP
+.B Enter
+Open a detail drawer when available.
+.TP
+.B /
+Filter the active table.
+.TP
+.B r
+Refresh the current view.
+.TP
+.B ?
+Display the global help overlay.
+.TP
+.B q
+Quit the TUI.
+.TP
+.B Ctrl+P
+Open the command palette for fuzzy view/action search.
+.SH FILES
+.TP
+.B ~/.claude
+Default Claude home inspected by the TUI (overridable via BCLAUDE_CTX_HOMER).
+.TP
+.B ~/.claude/tasks/current
+Task state files used by the Orchestrate and Tasks views.
+.TP
+.B ~/.claude/workflows/, ~/.claude/scenarios/, ~/.claude/profiles/
+Backing stores for the corresponding views.
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_CTX_HOME
+Override the Claude home path scanned by the TUI.
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Alternate override automatically set inside Claude Code.
+.SH SEE ALSO
+.BR claude-ctx (1),
+.BR claude-ctx-workflow (1),
+Idocs/guides/tui.mdR,
+Idocs/guides/tui/tui-entity-guide.mdR

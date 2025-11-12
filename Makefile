@@ -43,10 +43,10 @@ uninstall:
 	@echo "  Fish: rm ~/.config/fish/completions/claude-ctx.fish"
 
 test:
-	@pytest
+	@.venv/bin/pytest
 
 test-cov:
-	@pytest --cov=claude_ctx_py --cov-report=term-missing --cov-report=html
+	@.venv/bin/pytest --cov=claude_ctx_py --cov-report=term-missing --cov-report=html
 	@echo ""
 	@echo "Coverage report: htmlcov/index.html"
 

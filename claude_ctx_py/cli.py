@@ -402,6 +402,14 @@ def build_parser() -> argparse.ArgumentParser:
     workflow_sub.add_parser("list", help="List available workflows")
     workflow_sub.add_parser("status", help="Show current workflow progress")
     workflow_sub.add_parser("resume", help="Resume interrupted workflow")
+    workflow_stop_parser = workflow_sub.add_parser(
+        "stop", help="Stop the currently running workflow"
+    )
+    workflow_stop_parser.add_argument(
+        "workflow",
+        nargs="?",
+        help="Optional workflow name to confirm stopping",
+    )
 
     # Orchestrate/Scenario commands
     orchestrate_parser = subparsers.add_parser(
@@ -922,6 +930,10 @@ def main(argv: Iterable[str] | None = None) -> int:
             return exit_code
         if args.workflow_command == "resume":
             exit_code, message = core.workflow_resume()
+            _print(message)
+            return exit_code
+        if args.workflow_command == "stop":
+            exit_code, message = core.workflow_stop(getattr(args, "workflow", None))
             _print(message)
             return exit_code
     elif args.command in ("orchestrate", "orch"):

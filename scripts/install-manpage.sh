@@ -4,8 +4,14 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MANPAGE_SOURCE="${SCRIPT_DIR}/../docs/claude-ctx.1"
-MANPAGE_NAME="claude-ctx.1"
+shopt -s nullglob
+MANPAGE_SOURCES=("${SCRIPT_DIR}/../docs/reference"/*.1)
+shopt -u nullglob
+
+if [[ ${#MANPAGE_SOURCES[@]} -eq 0 ]]; then
+    echo "Error: No manpage sources found under docs/reference" >&2
+    exit 1
+fi
 
 # Determine installation directory
 if [[ "${OSTYPE}" == "darwin"* ]]; then
@@ -26,20 +32,18 @@ else
     exit 1
 fi
 
-# Check if manpage source exists
-if [[ ! -f "${MANPAGE_SOURCE}" ]]; then
-    echo "Error: Manpage source not found at ${MANPAGE_SOURCE}" >&2
-    exit 1
-fi
+# Install each manpage
+for manpage_source in "${MANPAGE_SOURCES[@]}"; do
+    manpage_name="$(basename "${manpage_source}")"
 
-# Check if we need sudo
-if [[ ! -w "${MAN_DIR}" ]]; then
-    echo "Installing manpage to ${MAN_DIR} (requires sudo)..."
-    sudo install -m 644 "${MANPAGE_SOURCE}" "${MAN_DIR}/${MANPAGE_NAME}"
-else
-    echo "Installing manpage to ${MAN_DIR}..."
-    install -m 644 "${MANPAGE_SOURCE}" "${MAN_DIR}/${MANPAGE_NAME}"
-fi
+    if [[ ! -w "${MAN_DIR}" ]]; then
+        echo "Installing ${manpage_name} to ${MAN_DIR} (requires sudo)..."
+        sudo install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}"
+    else
+        echo "Installing ${manpage_name} to ${MAN_DIR}..."
+        install -m 644 "${manpage_source}" "${MAN_DIR}/${manpage_name}"
+    fi
+done
 
 # Update man database
 echo "Updating man database..."
@@ -51,6 +55,5 @@ elif command -v makewhatis &> /dev/null; then
     sudo makewhatis "${MAN_DIR}"
 fi
 
-echo "✓ Manpage installed successfully"
-echo "  View with: man claude-ctx"
-echo "  Location: ${MAN_DIR}/${MANPAGE_NAME}"
+echo "✓ Installed ${#MANPAGE_SOURCES[@]} manpage(s) into ${MAN_DIR}"
+echo "  Primary entry point: man claude-ctx"

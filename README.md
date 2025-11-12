@@ -222,6 +222,9 @@ A comprehensive manual page is available in `docs/reference/claude-ctx.1` and is
 man docs/reference/claude-ctx.1
 ```
 
+Dedicated entries are also available for the TUI (`man claude-ctx-tui`) and the
+workflow/scenario orchestration commands (`man claude-ctx-workflow`).
+
 **Manual installation:**
 ```bash
 ./scripts/install-manpage.sh

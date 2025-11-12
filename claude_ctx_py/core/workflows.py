@@ -180,4 +180,37 @@ def workflow_resume(home: Path | None = None) -> Tuple[int, str]:
     return 0, "\n".join(lines)
 
 
+def workflow_stop(workflow: Optional[str] = None, home: Path | None = None) -> Tuple[int, str]:
+    """Stop the active workflow by clearing its task state."""
+    claude_dir = _resolve_claude_dir(home)
+    tasks_dir = claude_dir / "tasks"
+    current_dir = tasks_dir / "current"
+    active_workflow_file = current_dir / "active_workflow"
+
+    if not active_workflow_file.is_file():
+        return 0, _color("No active workflow to stop", YELLOW)
+
+    active_workflow = active_workflow_file.read_text(encoding="utf-8").strip()
+    if workflow and workflow.strip() and workflow.strip() != active_workflow:
+        return 1, _color(
+            f"Active workflow '{active_workflow}' does not match '{workflow}'", YELLOW
+        )
+
+    for artifact in [
+        "active_workflow",
+        "workflow_status",
+        "workflow_started",
+        "current_step",
+    ]:
+        path = current_dir / artifact
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            return 1, _color(f"Failed to remove {artifact}: {exc}", RED)
+
+    return 0, _color(f"Stopped workflow '{active_workflow}'", GREEN)
+
+
 # Scenario/Orchestrate functions

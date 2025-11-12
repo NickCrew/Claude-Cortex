@@ -469,7 +469,7 @@ Comprehensive manual page documenting all commands:
 man claude-ctx
 
 # Or view locally
-man docs/claude-ctx.1
+man docs/reference/claude-ctx.1
 ```
 
 **Manpage sections:**
@@ -635,7 +635,7 @@ git commit -m "Your changes"
 
 **Installation (3 files):**
 - `scripts/install.sh` - Unified installer
-- `docs/claude-ctx.1` - Manpage
+- `docs/reference/claude-ctx.1` - Manpage
 - `Makefile` - Development targets
 
 ### Modified Files (12)

@@ -13,7 +13,7 @@ import shutil
 import subprocess
 import time
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
 
@@ -38,13 +38,18 @@ from .base import (
 
 @dataclass
 class AgentGraphNode:
+    """Represents an agent in the dependency graph."""
+
     name: str
     slug: str
+    path: Path
     category: str
     tier: str
-    status: str
-    requires: List[str]
-    recommends: List[str]
+    status: str  # "active" or "disabled"
+    requires: List[str] = field(default_factory=list)
+    recommends: List[str] = field(default_factory=list)
+    required_by: List[str] = field(default_factory=list)
+    recommended_by: List[str] = field(default_factory=list)
 
 
 def _agent_basename(path: Path) -> str:
