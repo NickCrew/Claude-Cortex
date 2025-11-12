@@ -563,16 +563,27 @@ thead th {
 }
 
 tbody tr {
+  background: rgba(12, 35, 64, 0.4);
   transition: background 0.2s ease;
 }
 
+tbody tr:nth-child(even) {
+  background: rgba(12, 35, 64, 0.25);
+}
+
 tbody tr:hover {
-  background: rgba(56, 189, 255, 0.08);
+  background: rgba(56, 189, 255, 0.15) !important;
 }
 
 tbody td {
   padding: 0.9rem 1.2rem;
   border-top: 1px solid rgba(56, 189, 255, 0.12);
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+tbody td strong,
+tbody td b {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Breadcrumbs */
