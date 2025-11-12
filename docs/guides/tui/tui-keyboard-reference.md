@@ -73,9 +73,18 @@ Quick reference for claude-ctx TUI navigation and commands.
 ### Workflows View
 | Key    | Action             | Description                     |
 |--------|--------------------|---------------------------------|
-| r      | Run                | Run selected workflow           |
+| Shift+R | Run               | Run selected workflow           |
 | Space  | Resume             | Resume paused workflow          |
-| s      | Stop               | Stop running workflow           |
+| s      | Stop               | Stop the active workflow        |
+
+### Scenarios View
+| Key      | Action   | Description                       |
+|----------|----------|-----------------------------------|
+| P        | Preview  | Show scenario definition/details  |
+| Shift+R  | Run      | Auto-run selected scenario        |
+| s        | Stop     | Clear the selected scenario lock  |
+| V        | Validate | Validate scenario schema          |
+| H        | History  | Show recent scenario status       |
 
 ### Profile View
 | Key    | Action             | Description                     |

@@ -48,6 +48,7 @@ from .core import (
     scenario_run,
     scenario_validate,
     scenario_status,
+    scenario_stop,
     skill_validate,
     skill_metrics,
     skill_metrics_reset,
@@ -66,9 +67,15 @@ from .core import (
     skill_community_validate,
     skill_community_rate,
     skill_community_search,
+    workflow_stop,
 )
 from .core.rules import rules_activate, rules_deactivate
-from .core.modes import mode_activate, mode_deactivate
+from .core.modes import (
+    mode_activate,
+    mode_deactivate,
+    mode_activate_intelligent,
+    mode_deactivate_intelligent,
+)
 from .core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes
 from .core.mcp import (
     discover_servers,
@@ -101,6 +108,7 @@ from .tui_dialogs import (
     PromptDialog,
     TextViewerDialog,
     MCPServerDialog,
+    HelpDialog,
 )
 from .tui_log_viewer import LogViewerScreen
 
@@ -523,6 +531,7 @@ class AgentTUI(App):
         Binding("D", "profile_delete", "Delete Profile", show=False),
         Binding("P", "scenario_preview", "Preview", show=False),
         Binding("R", "run_selected", "Run", show=False),
+        Binding("s", "stop_selected", "Stop", show=False),
         Binding("V", "scenario_validate_selected", "Validate Scenario", show=False),
         Binding("H", "scenario_status_history", "Scenario Status", show=False),
         # Vi-style navigation
@@ -705,8 +714,8 @@ class AgentTUI(App):
             },
             "profiles": {"toggle", "profile_save_prompt", "profile_delete"},
             "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
-            "workflows": {"run_selected"},
-            "scenarios": {"scenario_preview", "run_selected"},
+            "workflows": {"run_selected", "stop_selected"},
+            "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
             "ai_assistant": {"auto_activate"},
         }
 
@@ -3009,6 +3018,20 @@ class AgentTUI(App):
             timeout=2,
         )
 
+    async def action_stop_selected(self) -> None:
+        """Stop the highlighted workflow or scenario."""
+        if self.current_view == "workflows":
+            await self._stop_selected_workflow()
+            return
+        if self.current_view == "scenarios":
+            await self._stop_selected_scenario()
+            return
+        self.notify(
+            "Stop action is only available in Workflows or Scenarios views",
+            severity="warning",
+            timeout=2,
+        )
+
     async def action_scenario_preview(self) -> None:
         """Preview the selected scenario definition."""
         if self.current_view != "scenarios":
@@ -3113,6 +3136,47 @@ class AgentTUI(App):
         )
         self.load_workflows()
         self.load_agent_tasks()
+        self.update_view()
+
+    async def _stop_selected_workflow(self) -> None:
+        workflow = self._selected_workflow()
+        if not workflow:
+            self.notify("Select a workflow to stop", severity="warning", timeout=2)
+            return
+
+        workflow_name = workflow.file_path.stem if workflow.file_path else workflow.name
+        exit_code, message = workflow_stop(workflow_name)
+        clean = self._clean_ansi(message)
+
+        if exit_code == 0:
+            self.notify(clean or f"Stopped {workflow.name}", severity="information", timeout=2)
+            self.status_message = clean or f"Stopped {workflow.name}"
+        else:
+            self.notify(clean or "Failed to stop workflow", severity="error", timeout=3)
+            self.status_message = clean or f"Failed to stop {workflow.name}"
+
+        self.load_workflows()
+        self.load_agent_tasks()
+        self.update_view()
+
+    async def _stop_selected_scenario(self) -> None:
+        scenario = self._selected_scenario()
+        if not scenario:
+            self.notify("Select a scenario to stop", severity="warning", timeout=2)
+            return
+
+        scenario_name = scenario.file_path.stem if scenario.file_path else scenario.name
+        exit_code, message = scenario_stop(scenario_name)
+        clean = self._clean_ansi(message)
+
+        if exit_code == 0:
+            self.notify(clean or f"Stopped {scenario.name}", severity="information", timeout=2)
+            self.status_message = clean or f"Stopped {scenario.name}"
+        else:
+            self.notify(clean or "Failed to stop scenario", severity="error", timeout=3)
+            self.status_message = clean or f"Failed to stop {scenario.name}"
+
+        self.load_scenarios()
         self.update_view()
 
     async def action_scenario_validate_selected(self) -> None:
@@ -4036,7 +4100,17 @@ class AgentTUI(App):
 
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
-                    rule_name = str(row_key[0])
+                    # Get plain text from first column (strip Rich markup and icons)
+                    from rich.text import Text
+
+                    raw_name = str(row_key[0])
+                    # Use Rich to strip markup, then remove icon emoji
+                    plain_text = Text.from_markup(raw_name).plain
+                    # Remove the icon (first character if it's an emoji)
+                    rule_name = plain_text.strip()
+                    if rule_name and len(rule_name) > 0 and ord(rule_name[0]) > 127:
+                        rule_name = rule_name[1:].strip()
+
                     rule = next((r for r in self.rules if r.name == rule_name), None)
                     if rule:
                         try:
@@ -4088,14 +4162,30 @@ class AgentTUI(App):
 
                 row_key = table.get_row_at(table.cursor_row)
                 if row_key and len(row_key) > 0:
-                    mode_name = str(row_key[0])
+                    # Get plain text from first column (strip Rich markup and icons)
+                    from rich.text import Text
+
+                    raw_name = str(row_key[0])
+                    # Use Rich to strip markup, then remove icon emoji
+                    plain_text = Text.from_markup(raw_name).plain
+                    # Remove the icon (first character if it's an emoji)
+                    mode_name = plain_text.strip()
+                    if mode_name and len(mode_name) > 0 and ord(mode_name[0]) > 127:
+                        mode_name = mode_name[1:].strip()
+
                     mode = next((m for m in self.modes if m.name == mode_name), None)
                     if mode:
                         try:
                             if mode.status == "active":
-                                exit_code, message = mode_deactivate(mode.path.stem)
+                                # Use intelligent deactivation
+                                exit_code, message, affected_modes = mode_deactivate_intelligent(
+                                    mode.path.stem
+                                )
                             else:
-                                exit_code, message = mode_activate(mode.path.stem)
+                                # Use intelligent activation
+                                exit_code, message, deactivated_modes = mode_activate_intelligent(
+                                    mode.path.stem
+                                )
 
                             # Remove ANSI codes
                             import re
@@ -4105,16 +4195,24 @@ class AgentTUI(App):
 
                             if exit_code == 0:
                                 if mode.status == "active":
+                                    # Deactivation successful
+                                    notify_msg = f"✓ Deactivated {mode.name}"
+                                    if affected_modes:
+                                        notify_msg += f" (affects: {', '.join(affected_modes)})"
                                     self.notify(
-                                        f"✓ Deactivated {mode.name}",
-                                        severity="success",
-                                        timeout=2,
+                                        notify_msg,
+                                        severity="warning" if affected_modes else "success",
+                                        timeout=3 if affected_modes else 2,
                                     )
                                 else:
+                                    # Activation successful
+                                    notify_msg = f"✓ Activated {mode.name}"
+                                    if deactivated_modes:
+                                        notify_msg += f" (auto-deactivated: {', '.join(deactivated_modes)})"
                                     self.notify(
-                                        f"✓ Activated {mode.name}",
-                                        severity="success",
-                                        timeout=2,
+                                        notify_msg,
+                                        severity="information" if deactivated_modes else "success",
+                                        timeout=3 if deactivated_modes else 2,
                                     )
                                 self.load_modes()
                                 self.update_view()
@@ -4127,10 +4225,11 @@ class AgentTUI(App):
                                     )
                                     table.move_cursor(row=new_cursor_row)
                             else:
+                                # Show error message
                                 self.notify(
-                                    f"✗ Failed to toggle {mode.name}",
+                                    f"✗ {clean_message}",
                                     severity="error",
-                                    timeout=3,
+                                    timeout=5,
                                 )
                         except Exception as e:
                             self.status_message = f"Error: {e}"
@@ -4166,12 +4265,8 @@ class AgentTUI(App):
         )
 
     def action_help(self) -> None:
-        """Show help."""
-        self.status_message = (
-            "Help: 1-6 core views, S=Scenarios, 7=MCP, 8=Profiles, 9=Export, 0=AI, "
-            "G=Galaxy, T=Tasks, P=Preview scenario, R=Run scenario, V=Validate, "
-            "H=Scenario status, Ctrl+P=Commands"
-        )
+        """Show comprehensive keyboard shortcuts help."""
+        self.push_screen(HelpDialog(current_view=self.current_view))
 
     def action_command_palette(self) -> None:
         """Show the command palette."""

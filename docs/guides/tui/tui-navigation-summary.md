@@ -87,7 +87,8 @@ q      - Quit
 Agents:      Space=toggle, Enter=details
 Modes:       Space=toggle, Enter=details
 Skills:      v=validate, m=metrics, c=community
-Workflows:   r=run, Space=resume, s=stop
+Workflows:   Shift+R=run, Space=resume, s=stop
+Scenarios:   Shift+R=run, s=stop, P=preview, V=validate, H=history
 Profile:     n=new, e=edit, d=delete
 Export:      e=export, f=format, p=clipboard
 ```
@@ -137,7 +138,8 @@ view_hints = {
     "agents": "Space=toggle, Enter=details, /=filter",
     "modes": "Space=toggle, Enter=details, /=filter",
     "skills": "v=validate, m=metrics, c=community",
-    "workflows": "r=run, Space=resume, s=stop",
+    "workflows": "Shift+R=run, Space=resume, s=stop",
+    "scenarios": "Shift+R=run, s=stop, P=preview, V=validate, H=history",
     ...
 }
 ```

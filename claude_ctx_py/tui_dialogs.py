@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical
+from textual.containers import Container, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Static, Button, Input
 from textual.binding import Binding
@@ -15,6 +15,16 @@ from .tui_format import Format
 
 class ConfirmDialog(ModalScreen[bool]):
     """Confirmation dialog modal."""
+
+    CSS = """
+    ConfirmDialog {
+        align: center middle;
+    }
+    
+    ConfirmDialog #dialog {
+        opacity: 1;
+    }
+    """
 
     BINDINGS = [
         Binding("y", "confirm_yes", "Yes"),
@@ -71,6 +81,16 @@ class ConfirmDialog(ModalScreen[bool]):
 class ErrorDialog(ModalScreen[None]):
     """Error dialog modal."""
 
+    CSS = """
+    ErrorDialog {
+        align: center middle;
+    }
+    
+    ErrorDialog #dialog {
+        opacity: 1;
+    }
+    """
+
     BINDINGS = [
         Binding("escape", "close", "Close"),
         Binding("enter", "close", "Close"),
@@ -116,6 +136,16 @@ class ErrorDialog(ModalScreen[None]):
 
 class InfoDialog(ModalScreen[None]):
     """Information dialog modal."""
+
+    CSS = """
+    InfoDialog {
+        align: center middle;
+    }
+    
+    InfoDialog #dialog {
+        opacity: 1;
+    }
+    """
 
     BINDINGS = [
         Binding("escape", "close", "Close"),
@@ -178,6 +208,16 @@ class LoadingOverlay(ModalScreen[None]):
 
 class TaskEditorDialog(ModalScreen[Optional[dict]]):
     """Dialog for creating or editing orchestration tasks."""
+
+    CSS = """
+    TaskEditorDialog {
+        align: center middle;
+    }
+    
+    TaskEditorDialog #dialog {
+        opacity: 1;
+    }
+    """
 
     BINDINGS = [
         Binding("escape", "close", "Cancel"),
@@ -261,6 +301,16 @@ class TaskEditorDialog(ModalScreen[Optional[dict]]):
 class PromptDialog(ModalScreen[Optional[str]]):
     """Simple prompt dialog to capture a single line of text."""
 
+    CSS = """
+    PromptDialog {
+        align: center middle;
+    }
+    
+    PromptDialog #dialog {
+        opacity: 1;
+    }
+    """
+
     BINDINGS = [
         Binding("escape", "close", "Cancel"),
         Binding("enter", "submit", "Save"),
@@ -306,6 +356,16 @@ class PromptDialog(ModalScreen[Optional[str]]):
 class TextViewerDialog(ModalScreen[None]):
     """Scrollable text viewer for long-form content (docs, snippets, logs)."""
 
+    CSS = """
+    TextViewerDialog {
+        align: center middle;
+    }
+    
+    TextViewerDialog #dialog {
+        opacity: 1;
+    }
+    """
+
     BINDINGS = [
         Binding("escape", "close", "Close"),
         Binding("enter", "close", "Close"),
@@ -337,6 +397,16 @@ class TextViewerDialog(ModalScreen[None]):
 
 class MCPServerDialog(ModalScreen[Optional[dict]]):
     """Dialog for adding or editing MCP server configuration."""
+
+    CSS = """
+    MCPServerDialog {
+        align: center middle;
+    }
+    
+    MCPServerDialog #dialog {
+        opacity: 1;
+    }
+    """
 
     BINDINGS = [
         Binding("escape", "close", "Cancel"),
@@ -412,3 +482,175 @@ class MCPServerDialog(ModalScreen[Optional[dict]]):
                 "description": description,
             }
         )
+
+
+class HelpDialog(ModalScreen[None]):
+    """Comprehensive keyboard shortcuts help dialog."""
+
+    CSS = """
+    HelpDialog {
+        align: center middle;
+    }
+
+    HelpDialog #dialog {
+        opacity: 1;
+        width: 80%;
+        max-height: 85%;
+    }
+
+    HelpDialog #help-scroll {
+        height: auto;
+        max-height: 50vh;
+        border: solid $accent-darken-1;
+        background: $surface;
+        padding: 1;
+    }
+
+    HelpDialog #dialog-message {
+        text-style: none;
+        background: transparent;
+    }
+    """
+
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("enter", "close", "Close"),
+        Binding("q", "close", "Close"),
+    ]
+
+    def __init__(self, current_view: str = "overview"):
+        super().__init__()
+        self.title = f"⌨️  Keyboard Shortcuts (Current: {current_view.title()})"
+        self.current_view = current_view
+
+    def compose(self) -> ComposeResult:
+        help_text = self._generate_help_text()
+        with Container(id="dialog"):
+            with Vertical():
+                yield Static(f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title")
+                with VerticalScroll(id="help-scroll"):
+                    yield Static(help_text, id="dialog-message")
+                yield Button("Close (ESC/Q)", variant="primary", id="close")
+
+    def _generate_help_text(self) -> str:
+        """Generate formatted help text with all shortcuts."""
+        global_shortcuts = """[bold cyan]━━━ GLOBAL SHORTCUTS ━━━[/bold cyan]
+
+[bold]General:[/bold]
+  [cyan]?[/cyan]      → Show this help
+  [cyan]r[/cyan]      → Refresh current view
+  [cyan]q[/cyan]      → Quit application
+  [cyan]Ctrl+P[/cyan] → Command palette
+  [cyan]Space[/cyan]  → Toggle selected item
+
+[bold]Navigation (Vi-style):[/bold]
+  [cyan]j/k[/cyan]    → Cursor down/up
+  [cyan]↑/↓[/cyan]    → Cursor up/down
+"""
+
+        view_shortcuts = {
+            "overview": """
+[bold]Metrics & monitoring[/bold]
+""",
+            "agents": """
+[bold]Agent Management:[/bold]
+  [cyan]Space[/cyan]  → Toggle agent active/inactive
+  [cyan]s[/cyan]      → Show agent details
+  [cyan]v[/cyan]      → Validate agent
+  [cyan]Ctrl+E[/cyan] → Edit agent file
+""",
+            "modes": """
+[bold]Mode Management:[/bold]
+  [cyan]Space[/cyan]  → Toggle mode active/inactive
+  [cyan]Ctrl+E[/cyan] → Edit mode file
+""",
+            "rules": """
+[bold]Rule Management:[/bold]
+  [cyan]Space[/cyan]  → Toggle rule active/inactive
+  [cyan]Ctrl+E[/cyan] → Edit rule file
+""",
+            "skills": """
+[bold]Skill Management:[/bold]
+  [cyan]s[/cyan]      → Show skill details
+  [cyan]v[/cyan]      → Validate skill
+  [cyan]m[/cyan]      → Show skill metrics
+  [cyan]d[/cyan]      → View skill docs
+  [cyan]c[/cyan]      → Skill actions menu
+  [cyan]Ctrl+E[/cyan] → Edit skill file
+""",
+            "workflows": """
+[bold]Workflow Management:[/bold]
+  [cyan]R[/cyan] → Run selected workflow
+  [cyan]s[/cyan] → Show workflow details
+""",
+            "scenarios": """
+[bold]Scenario Management:[/bold]
+  [cyan]P[/cyan] → Preview scenario
+  [cyan]R[/cyan] → Run scenario
+  [cyan]V[/cyan] → Validate scenario
+  [cyan]H[/cyan] → Show scenario status/history
+""",
+            "mcp": """
+[bold]MCP Server Management:[/bold]
+  [cyan]Ctrl+A[/cyan] → Add new MCP server
+  [cyan]E[/cyan]      → Edit selected server
+  [cyan]X[/cyan]      → Remove selected server
+  [cyan]s[/cyan]      → Show server details
+  [cyan]d[/cyan]      → View server docs
+  [cyan]v[/cyan]      → Validate server
+  [cyan]Ctrl+T[/cyan] → Test selected server
+  [cyan]Ctrl+D[/cyan] → Diagnose all servers
+""",
+            "profiles": """
+[bold]Profile Management:[/bold]
+  [cyan]Space[/cyan] → Load selected profile
+  [cyan]n[/cyan]     → Save new profile
+  [cyan]D[/cyan]     → Delete profile
+""",
+            "export": """
+[bold]Export Management:[/bold]
+  [cyan]Space[/cyan] → Toggle export category
+  [cyan]f[/cyan]     → Cycle export format
+  [cyan]e[/cyan]     → Execute export
+  [cyan]x[/cyan]     → Copy to clipboard
+""",
+            "ai_assistant": """
+[bold]AI Assistant:[/bold]
+  [cyan]a[/cyan] → Auto-activate recommended agents
+""",
+            "tasks": """
+[bold]Task Management:[/bold]
+  [cyan]a[/cyan]      → Add new task
+  [cyan]Space[/cyan]  → Toggle task status
+  [cyan]Ctrl+E[/cyan] → Edit task
+""",
+            "galaxy": """
+[bold]Agent Galaxy View:[/bold]
+  Visual dependency graph
+""",
+            "orchestrate": """
+[bold]Orchestrate View:[/bold]
+  Workstream management
+""",
+        }
+
+        current_view_help = view_shortcuts.get(self.current_view, "")
+
+        if current_view_help:
+            current_section = f"\n[bold cyan]━━━ {self.current_view.upper()} VIEW ━━━[/bold cyan]\n{current_view_help}"
+        else:
+            current_section = ""
+
+        footer = """
+[bold cyan]━━━━━━━━━━━━━━━━━━━━━━[/bold cyan]
+
+[dim]↑/↓ or j/k to scroll • ESC, Q, or Enter to close[/dim]
+"""
+
+        return global_shortcuts + current_section + footer
+
+    def action_close(self) -> None:
+        self.dismiss()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.dismiss()
