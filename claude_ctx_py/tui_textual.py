@@ -4270,7 +4270,35 @@ class AgentTUI(App):
 
     def action_command_palette(self) -> None:
         """Show the command palette."""
-        self.run_in_worker(lambda: self.app.push_screen(CommandPalette(), self._on_command_palette_select))
+        self.push_screen(
+            CommandPalette(self.command_registry.commands),
+            self._on_command_selected
+        )
+
+    def _on_command_selected(self, command_action: Optional[str]) -> None:
+        """Handle command selection from palette.
+
+        Args:
+            command_action: The action identifier of the selected command, or None if dismissed
+        """
+        if command_action:
+            # Execute the action by name
+            try:
+                action_method = getattr(self, f"action_{command_action}", None)
+                if action_method and callable(action_method):
+                    action_method()
+                else:
+                    self.notify(
+                        f"Unknown command action: {command_action}",
+                        severity="warning",
+                        timeout=3
+                    )
+            except Exception as e:
+                self.notify(
+                    f"Error executing command: {e}",
+                    severity="error",
+                    timeout=5
+                )
 
 
 def main() -> int:
