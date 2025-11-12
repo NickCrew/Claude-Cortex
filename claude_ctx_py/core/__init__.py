@@ -156,10 +156,12 @@ from .workflows import (
     workflow_list,
     workflow_status,
     workflow_resume,
+    workflow_stop,
 )
 
 # Export all functions from scenarios
 from .scenarios import (
+    ScenarioPhase,
     ScenarioMetadata,
     _scenario_dirs,
     _ensure_scenarios_dir,
@@ -360,6 +362,7 @@ __all__ = [
     "workflow_list",
     "workflow_status",
     "workflow_resume",
+    "workflow_stop",
     # Scenario functions
     "_scenario_dirs",
     "_ensure_scenarios_dir",
