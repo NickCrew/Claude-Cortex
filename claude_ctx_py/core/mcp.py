@@ -196,6 +196,7 @@ def discover_servers(
         command = server_config.get("command", "")
         args = server_config.get("args", [])
         env = server_config.get("env", {})
+        description = server_config.get("description", "")
 
         if not isinstance(args, list):
             args = []
@@ -210,6 +211,7 @@ def discover_servers(
             command=command,
             args=args,
             env=env,
+            description=description,
             docs_path=docs_path,
         )
 
