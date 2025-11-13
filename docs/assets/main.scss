@@ -536,39 +536,43 @@ td code {
   opacity: 0.5;
 }
 
-/* Enhanced Tables */
+/* Enhanced Tables - Force Dark Theme */
 table {
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  margin: 1.5rem 0;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  margin: 1.5rem 0 !important;
+  background: transparent !important;
+  border: 1px solid rgba(56, 189, 255, 0.2) !important;
 }
 
 thead {
-  background: linear-gradient(135deg, rgba(56, 189, 255, 0.25), rgba(12, 35, 64, 0.7));
+  background: linear-gradient(135deg, rgba(56, 189, 255, 0.25), rgba(12, 35, 64, 0.7)) !important;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 thead th {
-  padding: 1rem 1.2rem;
-  font-weight: 700;
-  color: #38bdff;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  padding: 1rem 1.2rem !important;
+  font-weight: 700 !important;
+  color: #38bdff !important;
+  text-transform: uppercase !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.05em !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 tbody tr {
-  background: rgba(12, 35, 64, 0.4);
-  transition: background 0.2s ease;
+  background: rgba(12, 35, 64, 0.4) !important;
+  transition: background 0.2s ease !important;
 }
 
 tbody tr:nth-child(even) {
-  background: rgba(12, 35, 64, 0.25);
+  background: rgba(12, 35, 64, 0.25) !important;
 }
 
 tbody tr:hover {
@@ -576,14 +580,48 @@ tbody tr:hover {
 }
 
 tbody td {
-  padding: 0.9rem 1.2rem;
-  border-top: 1px solid rgba(56, 189, 255, 0.12);
+  padding: 0.9rem 1.2rem !important;
+  border-top: 1px solid rgba(56, 189, 255, 0.12) !important;
   color: rgba(255, 255, 255, 0.9) !important;
+  background: transparent !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
 }
 
 tbody td strong,
 tbody td b {
   color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Force override any minima defaults */
+.page-content table,
+.wrapper table,
+article table,
+main table {
+  background: transparent !important;
+}
+
+.page-content tbody tr,
+.wrapper tbody tr,
+article tbody tr,
+main tbody tr {
+  background: rgba(12, 35, 64, 0.4) !important;
+}
+
+.page-content tbody tr:nth-child(even),
+.wrapper tbody tr:nth-child(even),
+article tbody tr:nth-child(even),
+main tbody tr:nth-child(even) {
+  background: rgba(12, 35, 64, 0.25) !important;
+}
+
+.page-content tbody td,
+.wrapper tbody td,
+article tbody td,
+main tbody td {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* Breadcrumbs */
