@@ -97,11 +97,11 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
   <a href="presentations/tui-showcase.html" class="doc-card" target="_blank">
     <h3>🎨 TUI Dashboard Showcase</h3>
     <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
-    <p class="muted"><strong>Views:</strong> Dashboard Overview • AI Assistant • Agent Management • Commands • Rules • Workflows • Orchestration</p>
+    <p class="muted"><strong>Views:</strong> Dashboard Overview (2 parts) • AI Assistant • Agents • Commands • Modes • Profiles • Rules • Orchestration • Workflows • MCP • Scenarios • Export • Keybindings</p>
     <span class="doc-card__arrow">Launch →</span>
     <div class="doc-card__meta">
-      <span>9 slides</span>
-      <span>7 screenshots</span>
+      <span>18 slides</span>
+      <span>15+ screenshots</span>
     </div>
   </a>
 </div>
