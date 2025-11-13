@@ -7,6 +7,7 @@ name = "claude-ctx-py"
 version = "0.1.0"
 description = "Python rewrite of claude-ctx list and status commands"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

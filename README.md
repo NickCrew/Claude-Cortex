@@ -243,6 +243,21 @@ For more advanced features, see the following guides:
 - [Warp AI & Terminal AI Integration](docs/guides/integrations.md)
 - [Hooks and Auto-Suggestions](docs/guides/hooks.md)
 
+## License & Attribution
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### Credits
+
+Claude CTX builds upon ideas and patterns from several excellent projects in the Claude Code ecosystem:
+
+- **[obra/superpowers](https://github.com/obra/superpowers)** - Systematic debugging and quality gate patterns (MIT License)
+- **[VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents)** - Specialized agent architecture and modular design (MIT License)
+- **[SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)** - Behavioral modes, slash commands, and MCP integration patterns (MIT License)
+- **[just-every/code](https://github.com/just-every/code)** - Multi-agent orchestration and reasoning control concepts (Apache-2.0 License)
+
+See [CREDITS.md](CREDITS.md) for detailed attribution and a complete list of inspirations and dependencies.
+
 ## Development notes
 
 - Update the version in `.claude-plugin/plugin.json` whenever you publish a new release.
