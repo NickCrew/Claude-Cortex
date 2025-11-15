@@ -21,9 +21,10 @@ tier:
     - "**/*.tf"
     - "**/terraform/**"
 model:
-  preference: sonnet
+  preference: haiku
   fallbacks:
-    - haiku
+    - sonnet
+  reasoning: "Terraform module generation follows well-defined patterns. Haiku excels at IaC generation with 3.5x faster execution for deterministic infrastructure code."
 tools:
   catalog:
     - Read

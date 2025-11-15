@@ -20,9 +20,10 @@ tier:
     - "**/infra/**"
     - "**/cloud/**"
 model:
-  preference: opus
+  preference: sonnet
   fallbacks:
-    - sonnet
+    - haiku
+  reasoning: "Cloud architecture design requires complex reasoning for cost optimization, multi-region strategies, and system-wide trade-offs. Sonnet provides superior architectural decision-making."
 tools:
   catalog:
     - Read

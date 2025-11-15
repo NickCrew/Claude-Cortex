@@ -20,9 +20,10 @@ tier:
     - "Dockerfile"
     - "docker-compose*.yml"
 model:
-  preference: sonnet
+  preference: haiku
   fallbacks:
-    - haiku
+    - sonnet
+  reasoning: "CI/CD pipeline configuration and deployment workflows follow established patterns. Haiku provides fast, deterministic execution for build and deployment tasks."
 tools:
   catalog:
     - Read

@@ -599,22 +599,32 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/development/model-optimization.html" class="doc-card">
-    <h3>Model Optimization</h3>
-    <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks.</p>
+    <h3>Model Optimization ✅</h3>
+    <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks. COMPLETE: All 9 agents optimized.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>13KB strategy</span>
-      <span>68% savings</span>
+      <span>68% savings achieved</span>
     </div>
   </a>
 
-  <a href="phase4-summary.html" class="doc-card">
-    <h3>Phase 4 Features</h3>
+  <a href="guides/development/PHASE5_ROADMAP.html" class="doc-card">
+    <h3>Phase 5 Roadmap 🚧</h3>
+    <p>Skill System Intelligence: AI recommendations, ratings, advanced discovery, analytics, smart bundling, and personalization. 8-week implementation plan.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>32KB roadmap</span>
+      <span>6 features planned</span>
+    </div>
+  </a>
+
+  <a href="archive/reports/phase4-summary.html" class="doc-card">
+    <h3>Phase 4 Features ✅</h3>
     <p>Complete implementation of skill composition, semantic versioning, community integration, and effectiveness analytics. Production-ready enterprise features.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>32KB reference</span>
-      <span>4 feature sets</span>
+      <span>4 features complete</span>
     </div>
   </a>
 

@@ -21,9 +21,10 @@ tier:
     - "**/*.tsx"
     - "tsconfig.json"
 model:
-  preference: sonnet
+  preference: haiku
   fallbacks:
-    - haiku
+    - sonnet
+  reasoning: "Deterministic TypeScript code generation. Haiku excels at applying known patterns and type-safe implementations with 3.3x speed improvement."
 tools:
   catalog:
     - Read

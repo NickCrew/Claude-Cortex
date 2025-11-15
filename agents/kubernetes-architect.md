@@ -27,9 +27,10 @@ tier:
     - "**/helm/**"
     - "**/manifests/**"
 model:
-  preference: opus
+  preference: haiku
   fallbacks:
     - sonnet
+  reasoning: "Kubernetes manifest generation is deterministic and pattern-based. Haiku handles YAML scaffolding efficiently with significant speed improvements."
 tools:
   catalog:
     - Read

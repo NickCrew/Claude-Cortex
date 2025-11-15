@@ -19,9 +19,10 @@ tier:
     - "**/auth/**"
     - "**/security/**"
 model:
-  preference: opus
+  preference: sonnet
   fallbacks:
-    - sonnet
+    - haiku
+  reasoning: "Security vulnerability analysis and threat modeling are security-critical tasks requiring deep reasoning. Sonnet ensures thorough OWASP compliance and vulnerability detection."
 tools:
   catalog:
     - Read
