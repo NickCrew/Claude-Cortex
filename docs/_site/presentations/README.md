@@ -186,8 +186,8 @@ No build step required - presentations work standalone.
 - **Reveal.js Docs:** https://revealjs.com/
 - **Google Fonts:** https://fonts.google.com/specimen/Rubik
 - **Project README:** ../README.md
-- **AI Intelligence Guide:** ../docs/guides/AI_INTELLIGENCE_GUIDE.md
-- **Watch Mode Guide:** ../docs/guides/WATCH_MODE_GUIDE.md
+- **AI Intelligence Guide:** ../guides/development/AI_INTELLIGENCE_GUIDE.md
+- **Watch Mode Guide:** ../guides/development/WATCH_MODE_GUIDE.md
 
 ## 🎭 Presentation Tips
 

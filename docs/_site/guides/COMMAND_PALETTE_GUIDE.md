@@ -44,8 +44,21 @@ Type to search:
 ### 📁 Other Views
 - **💻 Show Skills** - Browse available skills (Press 5 or select)
 - **🏃 Show Workflows** - View workflow execution (Press 6 or select)
-- **🏃 Show Orchestrate** - View orchestration tasks (Press 7 or select)
+- **🛰 Show MCP** - Manage MCP servers (Press 7 or select)
+- **👤 Show Profiles** - Manage saved/built-in profiles (Press 8 or select)
+- **📦 Show Export** - Configure context export (Press 9 or select)
+- **🤖 Show AI Assistant** - Open AI assistant view (Press 0 or select)
+- **🏃 Show Orchestrate** - View orchestration tasks (Press `o` or select)
 - **📁 Export Context** - Export current context to file
+
+### 🧠 Skill Intelligence
+- **Skill Info** – Inspect metadata/frontmatter for the selected skill
+- **Skill Versions** – Show available versions + compatibility notes
+- **Skill Dependencies / Agents / Compose** – Visualize who depends on the skill and its compose tree
+- **Skill Analyze / Suggest** – Feed free-form text or a project path to get skill recommendations
+- **Skill Analytics / Report / Trending** – Pull the analytics dashboards, reports, and historical trends
+- **Skill Metrics Reset** – Clear stored metrics after large refactors
+- **Community Install / Validate / Rate / Search** – Work with the community catalog without leaving the TUI
 
 ## Visual Features
 

@@ -46,3 +46,5 @@ htmlcov/
 coverage.xml
 .tox/
 __pycache__
+docs/_site/ 
+docs/vendor/

@@ -31,7 +31,7 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/claude-ctx-plugin/">Overview</a><a class="page-link" href="/claude-ctx-plugin/getting-started.html">Getting Started</a><a class="page-link" href="/claude-ctx-plugin/architecture.html">Architecture</a><a class="page-link" href="/claude-ctx-plugin/agents.html">Agents</a><a class="page-link" href="/claude-ctx-plugin/skills.html">Skills</a><a class="page-link" href="/claude-ctx-plugin/model-optimization.html">Model Optimization</a><a class="page-link" href="/claude-ctx-plugin/commands.html">Command Reference</a></div>
+        <div class="trigger"><a class="page-link" href="/claude-ctx-plugin/">Overview</a><a class="page-link" href="/claude-ctx-plugin/guides/getting-started.html">Getting Started</a><a class="page-link" href="/claude-ctx-plugin/guides/development/architecture.html">Architecture</a><a class="page-link" href="/claude-ctx-plugin/guides/agents.html">Agents</a><a class="page-link" href="/claude-ctx-plugin/guides/skills.html">Skills</a><a class="page-link" href="/claude-ctx-plugin/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/claude-ctx-plugin/guides/commands.html">Command Reference</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -39,7 +39,7 @@
         <h1 id="claude-ctx-plugin---documentation-index">Claude CTX Plugin - Documentation Index</h1>
 
 <blockquote>
-  <p>Version 0.1.0 · Last updated 2025-10-17</p>
+  <p>Version 1.1.0 · Last updated November 15, 2025</p>
 </blockquote>
 
 <div class="hero">
@@ -91,20 +91,22 @@
     <div class="metric-sublabel">Progressive skill disclosure</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">20</div>
+    <div class="metric-value">42</div>
     <div class="metric-label">Skills Available</div>
-    <div class="metric-sublabel">Phase 4 Complete</div>
+    <div class="metric-sublabel">AI-powered + Ratings</div>
   </div>
 </div>
 
 <h3 id="quick-links">Quick Links</h3>
 
 <div class="quick-links">
-  <a href="getting-started.html">Getting Started</a>
-  <a href="commands.html">Command Reference</a>
+  <a href="tutorials/getting-started-tui.html">🎓 TUI Tutorial</a>
+  <a href="guides/getting-started.html">Getting Started</a>
+  <a href="guides/commands.html">Command Reference</a>
   <a href="#presentations">🎬 Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
+  <a href="#collaboration">Collaboration Flow</a>
   <a href="#project-structure">Project Structure</a>
 </div>
 
@@ -129,17 +131,41 @@
   <a href="presentations/tui-showcase.html" class="doc-card" target="_blank">
     <h3>🎨 TUI Dashboard Showcase</h3>
     <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
-    <p class="muted"><strong>Views:</strong> Dashboard Overview • AI Assistant • Agent Management • Commands • Rules • Workflows • Orchestration</p>
+    <p class="muted"><strong>Views:</strong> Dashboard Overview (2 parts) • AI Assistant • Agents • Commands • Modes • Profiles • Rules • Orchestration • Workflows • MCP • Scenarios • Export • Keybindings</p>
     <span class="doc-card__arrow">Launch →</span>
     <div class="doc-card__meta">
-      <span>9 slides</span>
-      <span>7 screenshots</span>
+      <span>18 slides</span>
+      <span>15+ screenshots</span>
     </div>
   </a>
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
   <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+</div>
+
+<hr />
+
+<h2 id="tutorials">🎓 Tutorials</h2>
+
+<p>Hands-on tutorials to master claude-ctx from beginner to advanced.</p>
+
+<div class="doc-grid">
+  <a href="tutorials/getting-started-tui.html" class="doc-card">
+    <h3>📚 Getting Started with Claude CTX TUI</h3>
+    <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
+    <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents &amp; Modes • Skills &amp; Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
+    <span class="doc-card__arrow">Start Tutorial →</span>
+    <div class="doc-card__meta">
+      <span>⏱️ 20-30 minutes</span>
+      <span>✅ 15+ checkpoints</span>
+      <span>🎯 60+ examples</span>
+    </div>
+  </a>
+</div>
+
+<div class="callout" style="margin-top: 1rem;">
+  <strong>👉 New to claude-ctx?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
 </div>
 
 <hr />
@@ -196,7 +222,7 @@ claude-ctx ai watch
 <h3 id="tui-ai-assistant">TUI AI Assistant</h3>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
-<span class="c"># Press '8' for AI Assistant view</span>
+<span class="c"># Press '0' for AI Assistant view</span>
 <span class="c"># Press 'A' to auto-activate recommendations</span>
 </code></pre></div></div>
 
@@ -226,9 +252,118 @@ claude-ctx ai record-success <span class="nt">--outcome</span> <span class="s2">
 <h3 id="documentation">Documentation</h3>
 
 <ul>
-  <li><a href="guides/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - Complete system documentation</li>
-  <li><a href="guides/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring deep dive</li>
+  <li><a href="guides/development/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - Complete system documentation</li>
+  <li><a href="guides/development/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring deep dive</li>
 </ul>
+
+<hr />
+
+<h2 id="collaboration">🤝 Collaboration Flow &amp; Skill Auto-Suggestions</h2>
+
+<p><strong>New in November 2025</strong> – Inspired by Superpowers and SuperClaude frameworks.</p>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>/ctx:brainstorm</h3>
+    <p>Supersaiyan-aligned ideation capturing goals, success signals, and solution options.</p>
+  </div>
+  <div class="feature-card">
+    <h3>/ctx:plan</h3>
+    <p>Transforms brainstorms into stream-based plans and seeds the Task TUI automatically.</p>
+  </div>
+  <div class="feature-card">
+    <h3>/ctx:execute-plan</h3>
+    <p>Locks plans into orchestration view, enforces verification, and syncs tasks.</p>
+  </div>
+  <div class="feature-card">
+    <h3>Skill Auto-Suggester Hook</h3>
+    <p>`hooks/examples/skill_auto_suggester.py` reads <code>skills/skill-rules.json</code> and surfaces relevant skills after each prompt.</p>
+  </div>
+</div>
+
+<h3 id="install-the-skill-auto-suggester-hook">Install the skill auto-suggester hook</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cp </span>hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
+<span class="nb">chmod</span> +x ~/.claude/hooks/skill_auto_suggester.py
+
+<span class="c"># settings.json snippet</span>
+<span class="o">{</span>
+  <span class="s2">"hooks"</span>: <span class="o">{</span>
+    <span class="s2">"user-prompt-submit"</span>: <span class="o">[</span>
+      <span class="o">{</span><span class="s2">"command"</span>: <span class="s2">"python3"</span>, <span class="s2">"args"</span>: <span class="o">[</span><span class="s2">"~/.claude/hooks/skill_auto_suggester.py"</span><span class="o">]}</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Edit <code class="language-plaintext highlighter-rouge">skills/skill-rules.json</code> to tweak keyword → <code class="language-plaintext highlighter-rouge">/ctx:*</code> mappings; no code changes required.</p>
+
+<h3 id="recommended-workflow">Recommended workflow</h3>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">/session:load</code> – loads context and reminds you to brainstorm.</li>
+  <li><code class="language-plaintext highlighter-rouge">/ctx:brainstorm</code> – capture options + constraints.</li>
+  <li><code class="language-plaintext highlighter-rouge">/ctx:plan</code> – define workstreams, DoD, verification, and seed tasks.</li>
+  <li><code class="language-plaintext highlighter-rouge">/ctx:execute-plan</code> – drive execution via Task TUI + orchestrate view.</li>
+  <li><code class="language-plaintext highlighter-rouge">/dev:*</code> commands – build, test, review with quality gate hooks.</li>
+</ol>
+
+<p>See <a href="/claude-ctx-plugin/guides/skills.html">guides/skills.md</a> for the full catalog and resource snippets.</p>
+
+<hr />
+
+<h2 id="skills-intelligence">🧠 AI-Powered Skills &amp; Rating System</h2>
+
+<p><strong>New in Phase 5 (November 2025)</strong> – Intelligent skill discovery and community feedback.</p>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🎯 AI Recommendations</h3>
+    <p>Get personalized skill suggestions based on your project type, tech stack, and current task. Confidence scoring and reasoning included.</p>
+  </div>
+  <div class="feature-card">
+    <h3>⭐ Rating &amp; Reviews</h3>
+    <p>Rate skills 1-5 stars with optional reviews. Track quality metrics, success rates, and community feedback. Anonymous and private.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 Quality Metrics</h3>
+    <p>View aggregated ratings, helpful percentages, task success correlation, usage counts, and token efficiency for every skill.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📈 Top Rated Skills</h3>
+    <p>Discover highest-rated skills by category. Export ratings data in JSON or CSV for analysis and reporting.</p>
+  </div>
+</div>
+
+<h3 id="quick-start">Quick Start</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Get AI-recommended skills for your project</span>
+claude-ctx skills recommend
+
+<span class="c"># Rate a skill you just used</span>
+claude-ctx skills rate owasp-top-10 <span class="nt">--stars</span> 5 <span class="nt">--review</span> <span class="s2">"Essential for security"</span>
+
+<span class="c"># View ratings and reviews</span>
+claude-ctx skills ratings owasp-top-10
+
+<span class="c"># See top-rated skills</span>
+claude-ctx skills top-rated
+</code></pre></div></div>
+
+<p><strong>Example recommendation output:</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>=== AI-Recommended Skills ===
+
+Based on project type: python-fastapi
+Active context: Building REST API with authentication
+
+1. api-design-patterns (Confidence: 95%)
+   Why: FastAPI project with REST API requirements
+
+2. secure-coding-practices (Confidence: 90%)
+   Why: Authentication requires security best practices
+</code></pre></div></div>
+
+<p><strong>Documentation</strong>: <a href="/claude-ctx-plugin/guides/skills.html">Skills Guide</a> - Complete reference including AI recommendations and rating system</p>
 
 <hr />
 
@@ -378,7 +513,7 @@ claude-ctx agent graph <span class="nt">--export</span> dependency-map.md
   <li>Development dependencies (pytest, mypy, black)</li>
 </ul>
 
-<p>For more detailed setup guidance (including shell completion and CLI overrides) see <a href="/claude-ctx-plugin/getting-started.html">Getting Started</a>.</p>
+<p>For more detailed setup guidance (including shell completion and CLI overrides) see <a href="/claude-ctx-plugin/guides/getting-started.html">guides/getting-started.md</a>.</p>
 
 <hr />
 
@@ -436,7 +571,7 @@ claude-ctx mode status
   <li><code class="language-plaintext highlighter-rouge">/tools</code> - Tool selection (1 command)</li>
 </ul>
 
-<p><strong>Reference</strong>: <a href="COMMANDS.md">Command Documentation</a></p>
+<p><strong>Reference</strong>: <a href="/claude-ctx-plugin/guides/commands.html">Command Documentation</a></p>
 
 <hr />
 
@@ -464,7 +599,7 @@ claude-ctx mode status
   <li><code class="language-plaintext highlighter-rouge">typescript-pro</code> - TypeScript expertise</li>
 </ul>
 
-<p><strong>Reference</strong>: <a href="AGENTS.md">Agent Documentation</a></p>
+<p><strong>Reference</strong>: <a href="/claude-ctx-plugin/guides/agents.html">Agent Documentation</a></p>
 
 <hr />
 
@@ -568,7 +703,7 @@ claude-ctx mode status
 <p>Comprehensive guides to claude-ctx architecture, optimization strategies, and advanced patterns.</p>
 
 <div class="doc-grid">
-  <a href="architecture.html" class="doc-card">
+  <a href="guides/development/architecture.html" class="doc-card">
     <h3>Architecture &amp; Design</h3>
     <p>System architecture, design patterns, and component interactions. Explore dependency injection, progressive disclosure, lazy loading, and extension points.</p>
     <span class="doc-card__arrow">→</span>
@@ -578,7 +713,7 @@ claude-ctx mode status
     </div>
   </a>
 
-  <a href="agents.html" class="doc-card">
+  <a href="guides/agents.html" class="doc-card">
     <h3>Agent Catalog</h3>
     <p>Complete catalog of 78 specialized agents organized by category. Includes model assignments, dependencies, workflows, and activation criteria for all agents.</p>
     <span class="doc-card__arrow">→</span>
@@ -588,7 +723,7 @@ claude-ctx mode status
     </div>
   </a>
 
-  <a href="skills.html" class="doc-card">
+  <a href="guides/skills.html" class="doc-card">
     <h3>Agent Skills</h3>
     <p>Progressive disclosure architecture for specialized knowledge. Learn how to create skills, integrate with agents, and achieve 30-50% token reduction.</p>
     <span class="doc-card__arrow">→</span>
@@ -598,27 +733,37 @@ claude-ctx mode status
     </div>
   </a>
 
-  <a href="model-optimization.html" class="doc-card">
-    <h3>Model Optimization</h3>
-    <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks.</p>
+  <a href="guides/development/model-optimization.html" class="doc-card">
+    <h3>Model Optimization ✅</h3>
+    <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks. COMPLETE: All 9 agents optimized.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>13KB strategy</span>
-      <span>68% savings</span>
+      <span>68% savings achieved</span>
     </div>
   </a>
 
-  <a href="phase4-summary.html" class="doc-card">
-    <h3>Phase 4 Features</h3>
+  <a href="guides/development/PHASE5_ROADMAP.html" class="doc-card">
+    <h3>Phase 5 Roadmap ⚡</h3>
+    <p>Skill System Intelligence: AI recommendations ✅, ratings &amp; feedback ✅, advanced discovery, analytics, smart bundling, and personalization. Features 1-2 complete.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>32KB roadmap</span>
+      <span>2/6 features complete</span>
+    </div>
+  </a>
+
+  <a href="archive/reports/phase4-summary.html" class="doc-card">
+    <h3>Phase 4 Features ✅</h3>
     <p>Complete implementation of skill composition, semantic versioning, community integration, and effectiveness analytics. Production-ready enterprise features.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>32KB reference</span>
-      <span>4 feature sets</span>
+      <span>4 features complete</span>
     </div>
   </a>
 
-  <a href="quality-improvements.html" class="doc-card">
+  <a href="guides/development/quality-improvements.html" class="doc-card">
     <h3>Quality &amp; DevOps</h3>
     <p>Testing infrastructure with 150+ tests, code refactoring, error handling improvements, installation automation, and CI/CD pipeline. Grade improved from B+ to A.</p>
     <span class="doc-card__arrow">→</span>
@@ -848,39 +993,45 @@ claude-ctx mode status
 
 <p><strong>Core Documentation</strong></p>
 <ul>
-  <li><a href="getting-started.html">Getting Started</a> - Installation and setup</li>
-  <li><a href="INSTALL.html">Installation Guide</a> - Detailed installation instructions</li>
-  <li><a href="architecture.html">Architecture Guide</a> - System design and patterns</li>
-  <li><a href="commands.html">Command Reference</a> - Complete command catalog</li>
+  <li><a href="guides/getting-started.html">Getting Started</a> - Installation and setup</li>
+  <li><a href="guides/INSTALL.html">Installation Guide</a> - Detailed installation instructions</li>
+  <li><a href="guides/development/architecture.html">Architecture Guide</a> - System design and patterns</li>
+  <li><a href="guides/commands.html">Command Reference</a> - Complete command catalog</li>
 </ul>
 
 <p><strong>Agent System</strong></p>
 <ul>
-  <li><a href="agents.html">Agent Catalog</a> - Complete agent reference with 78 agents</li>
-  <li><a href="skills.html">Agent Skills Guide</a> - Progressive disclosure and token optimization</li>
-  <li><a href="model-optimization.html">Model Optimization</a> - Haiku vs Sonnet strategy</li>
+  <li><a href="guides/agents.html">Agent Catalog</a> - Complete agent reference with 78 agents</li>
+  <li><a href="guides/skills.html">Agent Skills Guide</a> - Progressive disclosure and token optimization</li>
+  <li><a href="guides/development/model-optimization.html">Model Optimization</a> - Haiku vs Sonnet strategy</li>
 </ul>
 
 <p><strong>Feature Guides</strong></p>
 <ul>
-  <li><a href="guides/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - AI intelligence &amp; automation system</li>
-  <li><a href="guides/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring and auto-activation</li>
+  <li><a href="guides/development/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a> - AI intelligence &amp; automation system</li>
+  <li><a href="guides/development/WATCH_MODE_GUIDE.html">Watch Mode Guide</a> - Real-time monitoring and auto-activation</li>
   <li><a href="guides/COMMAND_PALETTE_GUIDE.html">Command Palette Guide</a> - Interactive command palette</li>
   <li><a href="guides/tui.html">TUI Guide</a> - Terminal user interface</li>
   <li><a href="guides/tui-quick-start.html">TUI Quick Start</a> - Get started with TUI in 5 minutes</li>
   <li><a href="guides/tui-integration.html">TUI Integration Guide</a> - Integrate TUI into your workflow</li>
   <li><a href="guides/skills-tui-integration.html">Skills TUI Integration</a> - Skills system TUI integration</li>
-  <li><a href="tui-keyboard-reference.html">TUI Keyboard Reference</a> - Complete keyboard shortcuts</li>
-  <li><a href="tui-navigation-summary.html">TUI Navigation</a> - Navigation patterns</li>
+  <li><a href="guides/tui/tui-keyboard-reference.html">TUI Keyboard Reference</a> - Complete keyboard shortcuts</li>
+  <li><a href="guides/tui/tui-navigation-summary.html">TUI Navigation</a> - Navigation patterns</li>
+</ul>
+
+<p><strong>CLI &amp; Integration</strong></p>
+<ul>
+  <li><a href="guides/COMPLETIONS.html">Shell Completions</a> - Bash, Zsh, and Fish completion scripts</li>
+  <li><a href="guides/features/WARP_AI_INTEGRATION.html">Warp AI Integration</a> - Terminal AI tools integration with context export aliases</li>
 </ul>
 
 <p><strong>Advanced Features</strong></p>
 <ul>
   <li><a href="features/SUPER_SAIYAN_MODE.html">Super Saiyan Mode</a> - Visual excellence framework</li>
   <li><a href="features/KAMEHAMEHA_OVERVIEW.html">Kamehameha Overview</a> - Power levels and activation</li>
-  <li><a href="SUPER_SAIYAN_INTEGRATION.html">Super Saiyan Integration</a> - Integration guide</li>
-  <li><a href="PARALLEL_ORCHESTRATION_GUIDE.html">Parallel Orchestration</a> - Multi-agent coordination</li>
-  <li><a href="quality-improvements.html">Quality Improvements</a> - Code quality enhancements</li>
+  <li><a href="guides/features/SUPER_SAIYAN_INTEGRATION.html">Super Saiyan Integration</a> - Integration guide</li>
+  <li><a href="guides/development/PARALLEL_ORCHESTRATION_GUIDE.html">Parallel Orchestration</a> - Multi-agent coordination</li>
+  <li><a href="guides/development/quality-improvements.html">Quality Improvements</a> - Code quality enhancements</li>
 </ul>
 
 <h3 id="external-resources">External Resources</h3>

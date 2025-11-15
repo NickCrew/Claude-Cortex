@@ -2,29 +2,48 @@
 
 Comprehensive documentation for the claude-ctx context management framework.
 
+## 📐 Architecture Documentation
+
+**NEW**: Comprehensive visual documentation of the three-layer system!
+
+- **[Architecture Diagrams](reference/architecture/architecture-diagrams.md)** - 10+ Mermaid diagrams showing system architecture, flows, and integration patterns
+- **[Quick Reference](reference/architecture/quick-reference.md)** - One-page cheat sheet for daily use (commands, modes, workflows)
+- **[Visual Summary](reference/architecture/VISUAL_SUMMARY.txt)** - Beautiful ASCII art diagram for terminal viewing
+- **[Diagrams Guide](reference/architecture/DIAGRAMS_README.md)** - How to use, read, and maintain all diagrams
+
+**After installation**: These docs are available at `~/.claude/docs/`
+
+**Quick view**:
+```bash
+cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
+/docs:diagrams                               # View via command
+```
+
+---
+
 ## Documentation Map
 
 ### Core Guides
 
-**[Architecture](./architecture.md)** - System design and technical architecture
+**[Architecture](./guides/development/architecture.md)** - System design and technical architecture
 - Component overview and system architecture
 - Dependency management and workflow orchestration
 - Performance characteristics and design patterns
 - Extension points and future enhancements
 
-**[Agent Catalog](./agents.md)** - Complete agent reference
-- 78 agents organized by category
+**[Agent Catalog](./guides/agents.md)** - Complete agent reference
+- 74 agents organized by category
 - Model assignments (Haiku/Sonnet/Opus)
 - Dependencies and relationships
 - Use cases and activation patterns
 
-**[Agent Skills](./skills.md)** - Progressive disclosure system
-- Available skills (api-design-patterns, microservices-patterns)
+**[Agent Skills](./guides/skills.md)** - Progressive disclosure system
+- 42 available skills
 - Creating new skills with templates
 - Token efficiency metrics (30-50% savings)
 - Integration with agents
 
-**[Model Optimization](./model-optimization.md)** - Cost and performance strategy
+**[Model Optimization](./guides/development/model-optimization.md)** - Cost and performance strategy
 - Haiku vs Sonnet assignment criteria
 - Hybrid orchestration patterns
 - Cost analysis (68% savings)
@@ -46,13 +65,13 @@ claude-ctx is a context orchestration framework that provides:
 
 ### Key Concepts
 
-**Agents**: Specialized AI agents with focused responsibilities (78 total)
-- 11 active by default
-- 67 available on-demand
+**Agents**: Specialized AI agents with focused responsibilities (74 total)
+- 9 active by default
+- 65 available on-demand
 - Each has dependencies, workflows, and metrics
 
 **Skills**: Modular knowledge packages that load progressively
-- 2 available (api-design-patterns, microservices-patterns)
+- 42 available skills
 - 30-50% token reduction per agent
 - Shared across multiple agents
 
@@ -190,8 +209,8 @@ claude-ctx status
 ┌─────────────────────────────────────┐
 │      Context Storage                │
 │  agents/    skills/    modes/       │
-│  11 active  2 skills   3 active     │
-│  67 inactive           4 inactive   │
+│  9 active   42 skills  3 active     │
+│  65 inactive           4 inactive   │
 └─────────────────────────────────────┘
 ```
 
@@ -255,30 +274,7 @@ See [~/agents](https://github.com/wshobson/agents) for:
 
 ## Roadmap
 
-### Phase 1: Foundation (Complete)
-- [x] Agent system with dependencies
-- [x] CLI for management
-- [x] Skills progressive disclosure
-- [x] Model optimization strategy
-- [x] Comprehensive documentation
-
-### Phase 2: Core Skills (Next 2 Months)
-- [ ] 10 additional skills (k8s, security, testing, etc.)
-- [ ] Auto-activation based on keywords
-- [ ] Skill performance metrics
-- [ ] Community contribution guide
-
-### Phase 3: Advanced Features (Months 3-6)
-- [ ] Smart routing (complexity-based model selection)
-- [ ] Auto-escalation (Haiku → Sonnet when needed)
-- [ ] Cross-session memory
-- [ ] Distributed execution
-
-### Phase 4: Optimization (Months 6-12)
-- [ ] ML-based agent selection
-- [ ] Adaptive skill loading
-- [ ] Performance analytics dashboard
-- [ ] Enterprise features
+All planned phases for skill development and integration are now **COMPLETED**. The framework supports a wide array of skills, including those for architecture, infrastructure, development, security, and collaboration. The total number of available skills has significantly expanded, enhancing the system's overall capabilities.
 
 ---
 
@@ -290,7 +286,7 @@ See [~/agents](https://github.com/wshobson/agents) for:
 2. Define dependencies and workflows
 3. Create agent .md with frontmatter
 4. Validate: `claude-ctx agent validate`
-5. Document in agents.md
+5. Document in guides/agents.md
 6. Assign model (Haiku/Sonnet)
 
 ### Creating Skills
@@ -301,13 +297,13 @@ See [~/agents](https://github.com/wshobson/agents) for:
 4. Structure with progressive tiers
 5. Link to agent frontmatter
 6. Validate: `claude-ctx skills validate`
-7. Document in skills.md
+7. Document in guides/skills.md
 
 ### Documentation Updates
 
-- Keep architecture.md aligned with system changes
-- Update agents.md when adding/modifying agents
-- Update skills.md when adding skills
+- Keep guides/development/architecture.md aligned with system changes
+- Update guides/agents.md when adding/modifying agents
+- Update guides/skills.md when adding skills
 - Include examples and use cases
 
 ---
@@ -315,9 +311,9 @@ See [~/agents](https://github.com/wshobson/agents) for:
 ## Resources
 
 ### Internal
-- [Main README](../README.md) - Project overview
-- [Skills README](../skills/README.md) - Skill integration guide
-- [CLI Source](../claude_ctx_py/) - Python CLI implementation
+- [Main README](../../README.md) - Project overview
+- [Skills README](../../skills/README.md) - Skill integration guide
+- [CLI Source](../../claude_ctx_py/) - Python CLI implementation
 
 ### External
 - [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code/overview)
@@ -329,4 +325,4 @@ See [~/agents](https://github.com/wshobson/agents) for:
 
 ## License
 
-MIT License - see [LICENSE](../LICENSE) file for details.
+MIT License - see [LICENSE](../../LICENSE) file for details.

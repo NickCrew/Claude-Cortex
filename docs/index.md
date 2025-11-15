@@ -67,6 +67,7 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
 ### Quick Links
 
 <div class="quick-links">
+  <a href="tutorials/getting-started-tui.html">🎓 TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>
   <a href="#presentations">🎬 Presentations</a>
@@ -108,6 +109,30 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="callout" style="margin-top: 1rem;">
   <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+</div>
+
+---
+
+## 🎓 Tutorials {#tutorials}
+
+Hands-on tutorials to master claude-ctx from beginner to advanced.
+
+<div class="doc-grid">
+  <a href="tutorials/getting-started-tui.html" class="doc-card">
+    <h3>📚 Getting Started with Claude CTX TUI</h3>
+    <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
+    <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
+    <span class="doc-card__arrow">Start Tutorial →</span>
+    <div class="doc-card__meta">
+      <span>⏱️ 20-30 minutes</span>
+      <span>✅ 15+ checkpoints</span>
+      <span>🎯 60+ examples</span>
+    </div>
+  </a>
+</div>
+
+<div class="callout" style="margin-top: 1rem;">
+  <strong>👉 New to claude-ctx?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
 </div>
 
 ---
