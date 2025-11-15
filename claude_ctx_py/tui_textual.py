@@ -67,6 +67,7 @@ from .core import (
     skill_community_validate,
     skill_community_rate,
     skill_community_search,
+    skill_recommend,
     workflow_stop,
 )
 from .core.rules import rules_activate, rules_deactivate
@@ -2808,6 +2809,91 @@ class AgentTUI(App):
                     confidence_text,
                     f"[dim italic]{rec.reason}[/dim italic]",
                 )
+
+        # Show skill recommendations
+        table.add_row("", "", "", "")
+        table.add_row("[bold green]✨ SKILL RECOMMENDATIONS[/bold green]", "", "", "")
+        table.add_row(
+            "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
+            "",
+            "",
+            "",
+        )
+        table.add_row("", "", "", "")
+
+        # Get skill recommendations using the recommender directly
+        try:
+            from . import skill_recommender, intelligence
+
+            # Create context from current project
+            cwd = Path.cwd()
+            python_files = list(cwd.glob("**/*.py"))[:20]
+
+            context = intelligence.SessionContext(
+                files_changed=[str(f.relative_to(cwd)) for f in python_files] if python_files else [],
+                file_types={f.suffix for f in python_files} if python_files else set(),
+                directories={str(f.parent.relative_to(cwd)) for f in python_files} if python_files else set(),
+                has_tests=any('test' in str(f) for f in python_files) if python_files else False,
+                has_auth=any('auth' in str(f) for f in python_files) if python_files else False,
+                has_api=any('api' in str(f) for f in python_files) if python_files else False,
+                has_frontend=(cwd / 'src').exists() or (cwd / 'frontend').exists(),
+                has_backend=(cwd / 'backend').exists() or (cwd / 'server').exists(),
+                has_database=any('db' in str(f) or 'database' in str(f) for f in python_files) if python_files else False,
+                errors_count=0,
+                test_failures=0,
+                build_failures=0,
+                session_start=datetime.now(timezone.utc),
+                last_activity=datetime.now(timezone.utc),
+                active_agents=[],
+                active_modes=[],
+                active_rules=[],
+            )
+
+            recommender = skill_recommender.SkillRecommender()
+            recommendations = recommender.recommend_for_context(context)
+
+            if recommendations:
+                # Show top 5 skill recommendations
+                for rec in recommendations[:5]:
+                    confidence_pct = int(rec.confidence * 100)
+
+                    # Color by confidence
+                    if rec.confidence >= 0.8:
+                        confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
+                        skill_icon = "✓"
+                        skill_color = "green"
+                    elif rec.confidence >= 0.6:
+                        confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
+                        skill_icon = "•"
+                        skill_color = "yellow"
+                    else:
+                        confidence_text = f"[dim]{confidence_pct}%[/dim]"
+                        skill_icon = "○"
+                        skill_color = "dim"
+
+                    # Auto-activate indicator
+                    auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
+
+                    table.add_row(
+                        f"[{skill_color}]{skill_icon} Skill[/{skill_color}]",
+                        f"[bold]{rec.skill_name}[/bold]{auto_text}",
+                        confidence_text,
+                        f"[dim italic]{rec.reason}[/dim italic]",
+                    )
+            else:
+                table.add_row(
+                    "[dim]Skills[/dim]",
+                    "[dim]No recommendations[/dim]",
+                    "",
+                    "[dim]Skills will be recommended based on project context[/dim]",
+                )
+        except Exception as e:
+            table.add_row(
+                "[dim]Skills[/dim]",
+                f"[red]Error: {str(e)[:30]}[/red]",
+                "",
+                f"[dim]{type(e).__name__}[/dim]",
+            )
 
         # Show workflow prediction if available
         table.add_row("", "", "", "")

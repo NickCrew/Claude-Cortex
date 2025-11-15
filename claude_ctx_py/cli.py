@@ -204,6 +204,101 @@ def build_parser() -> argparse.ArgumentParser:
         default=30,
         help="Number of days to look back (default: 30)",
     )
+    skills_recommend_parser = skills_sub.add_parser(
+        "recommend", help="Get AI-powered skill recommendations"
+    )
+    skills_feedback_parser = skills_sub.add_parser(
+        "feedback", help="Provide feedback on skill recommendations"
+    )
+    skills_feedback_parser.add_argument("skill", help="Skill name")
+    skills_feedback_parser.add_argument(
+        "rating",
+        choices=["helpful", "not-helpful"],
+        help="Was the recommendation helpful?",
+    )
+    skills_feedback_parser.add_argument(
+        "--comment",
+        dest="feedback_comment",
+        help="Optional comment explaining your feedback",
+    )
+    # Rating commands
+    skills_rate_parser = skills_sub.add_parser(
+        "rate", help="Rate a skill with stars and optional review"
+    )
+    skills_rate_parser.add_argument("skill", help="Skill name to rate")
+    skills_rate_parser.add_argument(
+        "--stars",
+        dest="stars",
+        type=int,
+        required=True,
+        choices=[1, 2, 3, 4, 5],
+        help="Star rating (1-5)",
+    )
+    skills_rate_parser.add_argument(
+        "--helpful",
+        dest="helpful",
+        action="store_true",
+        default=True,
+        help="Mark as helpful (default: True)",
+    )
+    skills_rate_parser.add_argument(
+        "--not-helpful",
+        dest="not_helpful",
+        action="store_true",
+        help="Mark as not helpful",
+    )
+    skills_rate_parser.add_argument(
+        "--succeeded",
+        dest="task_succeeded",
+        action="store_true",
+        default=True,
+        help="Task succeeded with this skill (default: True)",
+    )
+    skills_rate_parser.add_argument(
+        "--failed",
+        dest="task_failed",
+        action="store_true",
+        help="Task failed despite using this skill",
+    )
+    skills_rate_parser.add_argument(
+        "--review",
+        dest="review",
+        help="Optional written review",
+    )
+    skills_ratings_parser = skills_sub.add_parser(
+        "ratings", help="Show ratings and reviews for a skill"
+    )
+    skills_ratings_parser.add_argument("skill", help="Skill name")
+    skills_top_rated_parser = skills_sub.add_parser(
+        "top-rated", help="Show top-rated skills"
+    )
+    skills_top_rated_parser.add_argument(
+        "--category",
+        dest="top_rated_category",
+        help="Optional category filter",
+    )
+    skills_top_rated_parser.add_argument(
+        "--limit",
+        dest="top_rated_limit",
+        type=int,
+        default=10,
+        help="Maximum number of skills to show (default: 10)",
+    )
+    skills_export_ratings_parser = skills_sub.add_parser(
+        "export-ratings", help="Export skill ratings data"
+    )
+    skills_export_ratings_parser.add_argument(
+        "--skill",
+        dest="export_skill",
+        help="Optional skill name to filter by (exports all if not specified)",
+    )
+    skills_export_ratings_parser.add_argument(
+        "--format",
+        dest="export_format",
+        choices=["json", "csv"],
+        default="json",
+        help="Export format (default: json)",
+    )
     skills_community_parser = skills_sub.add_parser(
         "community", help="Community skill commands"
     )
@@ -752,6 +847,47 @@ def main(argv: Iterable[str] | None = None) -> int:
         if args.skills_command == "trending":
             days = getattr(args, "trending_days", 30)
             exit_code, message = core.skill_trending(days)
+            _print(message)
+            return exit_code
+        if args.skills_command == "recommend":
+            exit_code, message = core.skill_recommend()
+            _print(message)
+            return exit_code
+        if args.skills_command == "feedback":
+            skill = getattr(args, "skill", None)
+            rating = getattr(args, "rating", None)
+            comment = getattr(args, "feedback_comment", None)
+            exit_code, message = core.skill_feedback(skill, rating, comment)
+            _print(message)
+            return exit_code
+        if args.skills_command == "rate":
+            skill = getattr(args, "skill", None)
+            stars = getattr(args, "stars", None)
+            # Handle helpful flags (not-helpful overrides default)
+            helpful = not getattr(args, "not_helpful", False)
+            # Handle succeeded flags (failed overrides default)
+            task_succeeded = not getattr(args, "task_failed", False)
+            review = getattr(args, "review", None)
+            exit_code, message = core.skill_rate(
+                skill, stars, helpful, task_succeeded, review
+            )
+            _print(message)
+            return exit_code
+        if args.skills_command == "ratings":
+            skill = getattr(args, "skill", None)
+            exit_code, message = core.skill_ratings(skill)
+            _print(message)
+            return exit_code
+        if args.skills_command == "top-rated":
+            category = getattr(args, "top_rated_category", None)
+            limit = getattr(args, "top_rated_limit", 10)
+            exit_code, message = core.skill_top_rated(category, limit)
+            _print(message)
+            return exit_code
+        if args.skills_command == "export-ratings":
+            skill = getattr(args, "export_skill", None)
+            format = getattr(args, "export_format", "json")
+            exit_code, message = core.skill_ratings_export(skill, format)
             _print(message)
             return exit_code
         if args.skills_command == "community":

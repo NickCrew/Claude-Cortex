@@ -1319,3 +1319,512 @@ def skill_community_search(
         output_lines.append("")
 
     return 0, "\n".join(output_lines)
+
+def skill_recommend(home: Path | None = None) -> Tuple[int, str]:
+    """Show AI-powered skill recommendations based on current context.
+
+    Uses the SkillRecommender engine to analyze the current session context
+    and suggest relevant skills based on active files, agents, and patterns.
+
+    Args:
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from .. import skill_recommender, intelligence
+
+    try:
+        # Initialize recommender
+        recommender = skill_recommender.SkillRecommender(home=home)
+
+        # Build session context
+        # For CLI usage, we'll use a minimal context based on current directory
+        cwd = Path.cwd()
+        python_files = list(cwd.glob("**/*.py"))[:20]
+
+        # Create a minimal session context
+        context = intelligence.SessionContext(
+            files_changed=[str(f.relative_to(cwd)) for f in python_files],
+            file_types={f.suffix for f in python_files},
+            directories={str(f.parent.relative_to(cwd)) for f in python_files},
+            has_tests=any('test' in str(f) for f in python_files),
+            has_auth=any('auth' in str(f) for f in python_files),
+            has_api=any('api' in str(f) for f in python_files),
+            has_frontend=(cwd / 'src').exists() or (cwd / 'frontend').exists(),
+            has_backend=(cwd / 'backend').exists() or (cwd / 'server').exists(),
+            has_database=any('db' in str(f) or 'database' in str(f) for f in python_files),
+            errors_count=0,
+            test_failures=0,
+            build_failures=0,
+            session_start=datetime.datetime.now(),
+            last_activity=datetime.datetime.now(),
+            active_agents=[],
+            active_modes=[],
+            active_rules=[],
+        )
+
+        # Get recommendations
+        recommendations = recommender.recommend_for_context(context)
+
+        if not recommendations:
+            return 0, _color("No skill recommendations at this time.", YELLOW)
+
+        # Format output
+        output_lines: List[str] = [
+            _color("=== AI-Powered Skill Recommendations ===", BLUE),
+            "",
+            _color("Based on your current context:", BLUE),
+        ]
+
+        # Group recommendations by confidence
+        high_conf = [r for r in recommendations if r.confidence >= 0.8]
+        med_conf = [r for r in recommendations if 0.6 <= r.confidence < 0.8]
+        low_conf = [r for r in recommendations if r.confidence < 0.6]
+
+        if high_conf:
+            output_lines.extend(
+                [
+                    "",
+                    _color("High Confidence (Auto-Activate):", GREEN),
+                ]
+            )
+            for rec in high_conf:
+                output_lines.append(
+                    f"  {_color('✓', GREEN)} {_color(rec.skill_name, BLUE)} "
+                    f"({int(rec.confidence * 100)}%)"
+                )
+                output_lines.append(f"    {rec.reason}")
+                if rec.related_agents:
+                    agents_str = ", ".join(rec.related_agents[:3])
+                    output_lines.append(f"    Related agents: {agents_str}")
+
+        if med_conf:
+            output_lines.extend(
+                [
+                    "",
+                    _color("Medium Confidence:", YELLOW),
+                ]
+            )
+            for rec in med_conf:
+                output_lines.append(
+                    f"  {_color('•', YELLOW)} {_color(rec.skill_name, BLUE)} "
+                    f"({int(rec.confidence * 100)}%)"
+                )
+                output_lines.append(f"    {rec.reason}")
+
+        if low_conf:
+            output_lines.extend(
+                [
+                    "",
+                    _color("Low Confidence:", NC),
+                ]
+            )
+            for rec in low_conf[:3]:  # Limit to top 3
+                output_lines.append(
+                    f"  {_color('○', NC)} {rec.skill_name} "
+                    f"({int(rec.confidence * 100)}%)"
+                )
+
+        # Add usage tip
+        output_lines.extend(
+            [
+                "",
+                _color("Tip:", BLUE)
+                + " Use 'claude-ctx skills feedback <skill_name> <helpful|not-helpful>' to improve recommendations",
+            ]
+        )
+
+        return 0, "\n".join(output_lines)
+
+    except Exception as exc:
+        return 1, _color(f"Error generating recommendations: {exc}", RED)
+
+
+def skill_feedback(
+    skill: str, rating: str, comment: str | None = None, home: Path | None = None
+) -> Tuple[int, str]:
+    """Provide feedback on a skill recommendation.
+
+    Args:
+        skill: Name of the skill
+        rating: Feedback rating ("helpful" or "not-helpful")
+        comment: Optional comment explaining the feedback
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+    """
+    from .. import skill_recommender
+
+    if not skill:
+        return 1, _color("Usage:", RED) + " claude-ctx skills feedback <skill_name> <helpful|not-helpful> [comment]"
+
+    # Validate rating
+    rating_lower = rating.lower()
+    if rating_lower not in ["helpful", "not-helpful"]:
+        return 1, _color("Rating must be 'helpful' or 'not-helpful'", RED)
+
+    helpful = rating_lower == "helpful"
+
+    try:
+        # Initialize recommender
+        recommender = skill_recommender.SkillRecommender(home=home)
+
+        # Record feedback
+        recommender.record_feedback(
+            skill_name=skill, helpful=helpful, comment=comment or ""
+        )
+
+        # Show confirmation
+        feedback_emoji = "👍" if helpful else "👎"
+        feedback_text = _color("helpful", GREEN) if helpful else _color("not helpful", RED)
+
+        output_lines: List[str] = [
+            _color("=== Feedback Recorded ===", BLUE),
+            "",
+            f"Skill: {_color(skill, BLUE)}",
+            f"Rating: {feedback_emoji} {feedback_text}",
+        ]
+
+        if comment:
+            output_lines.extend(
+                [
+                    f"Comment: {comment}",
+                ]
+            )
+
+        output_lines.extend(
+            [
+                "",
+                _color(
+                    "Thank you! Your feedback helps improve future recommendations.", GREEN
+                ),
+            ]
+        )
+
+        return 0, "\n".join(output_lines)
+
+    except Exception as exc:
+        return 1, _color(f"Error recording feedback: {exc}", RED)
+
+
+def skill_rate(
+    skill: str,
+    stars: int,
+    helpful: bool = True,
+    task_succeeded: bool = True,
+    review: Optional[str] = None,
+    home: Path | None = None,
+) -> Tuple[int, str]:
+    """Rate a skill with stars and optional review.
+
+    Args:
+        skill: Name of the skill to rate
+        stars: Star rating (1-5)
+        helpful: Was the skill helpful? (default: True)
+        task_succeeded: Did the task succeed? (default: True)
+        review: Optional written review
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+
+    Examples:
+        >>> skill_rate("owasp-top-10", 5, helpful=True, review="Essential for security")
+        >>> skill_rate("api-design-patterns", 4)
+    """
+    from .. import skill_rating
+
+    if not skill:
+        return 1, _color("Usage:", RED) + " claude-ctx skills rate <skill_name> --stars <1-5> [--review 'text']"
+
+    try:
+        # Initialize rating collector
+        collector = skill_rating.SkillRatingCollector(home=home)
+
+        # Check if user has already rated this skill
+        existing = collector.has_user_rated(skill)
+        if existing:
+            user_rating = collector.get_user_rating(skill)
+            if user_rating:
+                return 1, _color(
+                    f"You've already rated '{skill}' ({user_rating.stars} stars). "
+                    f"Multiple ratings not yet supported.",
+                    YELLOW,
+                )
+
+        # Record rating
+        rating = collector.record_rating(
+            skill=skill,
+            stars=stars,
+            helpful=helpful,
+            task_succeeded=task_succeeded,
+            review=review,
+        )
+
+        # Show confirmation with star display
+        stars_display = "⭐" * stars
+        helpful_emoji = "👍" if helpful else "👎"
+
+        output_lines: List[str] = [
+            _color("=== Rating Recorded ===", BLUE),
+            "",
+            f"Skill: {_color(skill, BLUE)}",
+            f"Stars: {_color(stars_display, YELLOW)} ({stars}/5)",
+            f"Helpful: {helpful_emoji} {_color('Yes' if helpful else 'No', GREEN if helpful else RED)}",
+        ]
+
+        if review:
+            output_lines.extend([
+                "",
+                _color("Your Review:", BLUE),
+                f"  {review}",
+            ])
+
+        output_lines.extend([
+            "",
+            _color("Thank you for rating this skill!", GREEN),
+            "",
+            _color("View skill ratings with:", BLUE) + " claude-ctx skills ratings <skill_name>",
+        ])
+
+        return 0, "\n".join(output_lines)
+
+    except ValueError as exc:
+        return 1, _color(f"Invalid rating: {exc}", RED)
+    except Exception as exc:
+        return 1, _color(f"Error recording rating: {exc}", RED)
+
+
+def skill_ratings(
+    skill: str,
+    home: Path | None = None,
+) -> Tuple[int, str]:
+    """Show ratings and reviews for a skill.
+
+    Args:
+        skill: Name of the skill
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+
+    Examples:
+        >>> skill_ratings("owasp-top-10")
+    """
+    from .. import skill_rating
+
+    if not skill:
+        return 1, _color("Usage:", RED) + " claude-ctx skills ratings <skill_name>"
+
+    try:
+        # Initialize rating collector
+        collector = skill_rating.SkillRatingCollector(home=home)
+
+        # Get quality metrics
+        metrics = collector.get_skill_score(skill)
+
+        if not metrics:
+            return 0, _color(f"No ratings yet for '{skill}'", YELLOW)
+
+        # Format star display
+        star_display = metrics.star_display()
+
+        # Build output
+        output_lines: List[str] = [
+            _color(f"=== Ratings: {skill} ===", BLUE),
+            "",
+            _color(star_display, YELLOW),
+            f"Based on {_color(str(metrics.total_ratings), BLUE)} rating{'s' if metrics.total_ratings != 1 else ''}",
+            "",
+        ]
+
+        # Rating distribution
+        output_lines.extend([
+            _color("Rating Distribution:", BLUE),
+            f"  ⭐⭐⭐⭐⭐  {metrics.stars_5:>3} ({metrics.stars_5 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+            f"  ⭐⭐⭐⭐   {metrics.stars_4:>3} ({metrics.stars_4 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+            f"  ⭐⭐⭐    {metrics.stars_3:>3} ({metrics.stars_3 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+            f"  ⭐⭐     {metrics.stars_2:>3} ({metrics.stars_2 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+            f"  ⭐      {metrics.stars_1:>3} ({metrics.stars_1 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+            "",
+        ])
+
+        # Quality metrics
+        output_lines.extend([
+            _color("Quality Metrics:", BLUE),
+            f"  {_color('👍', GREEN)} {metrics.helpful_percentage:.0f}% found helpful",
+            f"  {_color('✅', GREEN)} {metrics.success_correlation:.0f}% task success rate",
+            f"  {_color('🔄', BLUE)} Used {metrics.usage_count} times",
+        ])
+
+        if metrics.token_efficiency:
+            output_lines.append(f"  {_color('📊', YELLOW)} {metrics.token_efficiency:.0f}% avg token reduction")
+
+        # Recent reviews
+        reviews = collector.get_recent_reviews(skill, limit=5)
+        if reviews:
+            output_lines.extend([
+                "",
+                _color("Recent Reviews:", BLUE),
+            ])
+
+            for review in reviews:
+                stars_display = "⭐" * review["stars"]
+                time_ago = review["time_ago"]
+                review_text = review["review"]
+
+                output_lines.extend([
+                    "",
+                    f"  {_color(stars_display, YELLOW)} - {time_ago}",
+                    f"    {review_text}",
+                ])
+
+        return 0, "\n".join(output_lines)
+
+    except Exception as exc:
+        return 1, _color(f"Error retrieving ratings: {exc}", RED)
+
+
+def skill_top_rated(
+    category: Optional[str] = None,
+    limit: int = 10,
+    home: Path | None = None,
+) -> Tuple[int, str]:
+    """Show top-rated skills.
+
+    Args:
+        category: Optional category filter (future implementation)
+        limit: Maximum number of skills to show (default: 10)
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+
+    Examples:
+        >>> skill_top_rated(limit=10)
+        >>> skill_top_rated(category="security", limit=5)
+    """
+    from .. import skill_rating
+
+    try:
+        # Initialize rating collector
+        collector = skill_rating.SkillRatingCollector(home=home)
+
+        # Get top-rated skills
+        top_rated = collector.get_top_rated(category=category, limit=limit)
+
+        if not top_rated:
+            return 0, _color("No rated skills found", YELLOW)
+
+        # Build output
+        output_lines: List[str] = [
+            _color("=== Top-Rated Skills ===", BLUE),
+            "",
+        ]
+
+        if category:
+            output_lines.append(_color(f"Category: {category}", BLUE))
+            output_lines.append("")
+
+        output_lines.append(_color(f"Showing top {len(top_rated)} skills:", GREEN))
+        output_lines.append("")
+
+        # Table header
+        output_lines.append(
+            f"{'Rank':<6} {'Skill':<35} {'Rating':<15} {'Ratings':<10} {'Success':<8}"
+        )
+        output_lines.append("-" * 80)
+
+        # List skills
+        for i, (skill_name, metrics) in enumerate(top_rated, 1):
+            # Truncate skill name if too long
+            display_name = skill_name[:34] if len(skill_name) > 34 else skill_name
+
+            # Star display (compact)
+            full_stars = int(metrics.avg_rating)
+            stars = "⭐" * full_stars
+
+            output_lines.append(
+                f"{i:<6} {display_name:<35} {stars:<7} {metrics.avg_rating:.1f}/5 "
+                f"{metrics.total_ratings:<10} {metrics.success_correlation:.0f}%"
+            )
+
+        output_lines.extend([
+            "",
+            _color("View details with:", BLUE) + " claude-ctx skills ratings <skill_name>",
+        ])
+
+        return 0, "\n".join(output_lines)
+
+    except Exception as exc:
+        return 1, _color(f"Error retrieving top-rated skills: {exc}", RED)
+
+
+def skill_ratings_export(
+    skill: Optional[str] = None,
+    format: str = "json",
+    home: Path | None = None,
+) -> Tuple[int, str]:
+    """Export skill ratings data.
+
+    Args:
+        skill: Optional skill name to filter by (exports all if None)
+        format: Export format ("json" or "csv", default: "json")
+        home: Optional path to Claude directory
+
+    Returns:
+        Tuple of (exit_code, output_message)
+
+    Examples:
+        >>> skill_ratings_export(format="json")  # Export all ratings as JSON
+        >>> skill_ratings_export(skill="owasp-top-10", format="csv")  # Export specific skill as CSV
+    """
+    from .. import skill_rating
+    import json as json_lib
+    import csv
+    import io
+
+    try:
+        # Initialize rating collector
+        collector = skill_rating.SkillRatingCollector(home=home)
+
+        # Get export data
+        data = collector.export_ratings(skill=skill)
+
+        if format == "json":
+            # Export as JSON
+            json_output = json_lib.dumps(data, indent=2)
+            return 0, json_output
+
+        elif format == "csv":
+            # Export ratings as CSV
+            output = io.StringIO()
+            writer = csv.writer(output)
+
+            # Write header
+            writer.writerow([
+                "skill_name", "stars", "timestamp", "project_type",
+                "review", "was_helpful", "task_succeeded"
+            ])
+
+            # Write rows
+            for rating in data["ratings"]:
+                writer.writerow([
+                    rating["skill_name"],
+                    rating["stars"],
+                    rating["timestamp"],
+                    rating["project_type"],
+                    rating["review"] or "",
+                    rating["was_helpful"],
+                    rating["task_succeeded"],
+                ])
+
+            return 0, output.getvalue()
+
+        else:
+            return 1, _color(f"Unsupported format: {format}. Use 'json' or 'csv'", RED)
+
+    except Exception as exc:
+        return 1, _color(f"Error exporting ratings: {exc}", RED)
