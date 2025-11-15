@@ -330,6 +330,8 @@ Project type: FastAPI microservices
 
 ## CLI Commands
 
+### Basic Commands
+
 ```bash
 # List all available skills
 claude-ctx skills list
@@ -343,9 +345,127 @@ claude-ctx skills validate api-design-patterns
 # Validate all skills
 claude-ctx skills validate --all
 
-# Show which agents use a skill (future)
+# Show which agents use a skill
 claude-ctx skills deps api-design-patterns
 ```
+
+### AI-Powered Recommendations
+
+```bash
+# Get AI-recommended skills for your project
+claude-ctx skills recommend
+
+# Get recommendations for a specific project type
+claude-ctx skills recommend --project-type python-fastapi
+
+# Specify task context for better recommendations
+claude-ctx skills recommend --task "building REST API with authentication"
+
+# Limit number of recommendations (default: 5)
+claude-ctx skills recommend --limit 10
+```
+
+**How it works:**
+- Analyzes your project files (package.json, requirements.txt, etc.)
+- Detects frameworks and tech stack
+- Uses AI to match relevant skills to your context
+- Provides confidence scores and reasoning for each recommendation
+
+**Example output:**
+```
+=== AI-Recommended Skills ===
+
+Based on project type: python-fastapi
+Active context: Building REST API with authentication
+
+Top 5 Recommendations:
+
+1. api-design-patterns (Confidence: 95%)
+   REST API design patterns including versioning, pagination, and error handling
+   Why: FastAPI project with REST API requirements
+
+2. secure-coding-practices (Confidence: 90%)
+   Secure coding patterns for authentication and authorization
+   Why: Authentication implementation requires security best practices
+
+3. python-testing-patterns (Confidence: 85%)
+   Python testing patterns using pytest, mocking, and fixtures
+   Why: FastAPI projects benefit from comprehensive testing
+
+4. async-python-patterns (Confidence: 80%)
+   Python asyncio and concurrent programming for high-performance APIs
+   Why: FastAPI is built on async Python
+
+5. owasp-top-10 (Confidence: 75%)
+   Security vulnerabilities and remediation for web applications
+   Why: Authentication systems require security awareness
+```
+
+### Skill Rating & Feedback
+
+Rate skills to help improve recommendations and track quality:
+
+```bash
+# Rate a skill (1-5 stars)
+claude-ctx skills rate owasp-top-10 --stars 5
+
+# Add a review
+claude-ctx skills rate python-testing-patterns --stars 4 \
+  --review "Great patterns, very helpful for pytest"
+
+# Mark as helpful/not helpful
+claude-ctx skills rate api-design-patterns --stars 5 --helpful
+
+# Mark if task succeeded/failed
+claude-ctx skills rate microservices-patterns --stars 3 --failed
+
+# View skill ratings and reviews
+claude-ctx skills ratings owasp-top-10
+
+# See top-rated skills
+claude-ctx skills top-rated
+
+# Filter by category (future)
+claude-ctx skills top-rated --category security
+
+# Export ratings for analysis
+claude-ctx skills export-ratings --format json
+claude-ctx skills export-ratings --skill owasp-top-10 --format csv
+```
+
+**Example rating display:**
+```
+=== Ratings: owasp-top-10 ===
+
+⭐⭐⭐⭐⭐ 4.8/5.0
+Based on 127 ratings
+
+Rating Distribution:
+  ⭐⭐⭐⭐⭐  120 ( 94.5%)
+  ⭐⭐⭐⭐     5 (  3.9%)
+  ⭐⭐⭐      2 (  1.6%)
+  ⭐⭐       0 (  0.0%)
+  ⭐        0 (  0.0%)
+
+Quality Metrics:
+  👍 95% found helpful
+  ✅ 89% task success rate
+  🔄 Used 450 times
+  📊 35% avg token reduction
+
+Recent Reviews:
+
+  ⭐⭐⭐⭐⭐ - 2 days ago
+    Essential for security reviews
+
+  ⭐⭐⭐⭐ - 1 week ago
+    Good coverage, could be more concise
+```
+
+**Privacy:**
+- Ratings are anonymous (SHA-256 hash of machine ID + username)
+- No personal data collected
+- Stored locally in `~/.claude/data/skill-ratings.db`
 
 ---
 

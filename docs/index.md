@@ -58,9 +58,9 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
     <div class="metric-sublabel">Progressive skill disclosure</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">20</div>
+    <div class="metric-value">42</div>
     <div class="metric-label">Skills Available</div>
-    <div class="metric-sublabel">Phase 4 Complete</div>
+    <div class="metric-sublabel">AI-powered + Ratings</div>
   </div>
 </div>
 
@@ -250,6 +250,63 @@ Edit `skills/skill-rules.json` to tweak keyword → `/ctx:*` mappings; no code c
 5. `/dev:*` commands – build, test, review with quality gate hooks.
 
 See [guides/skills.md](guides/skills.md) for the full catalog and resource snippets.
+
+---
+
+## 🧠 AI-Powered Skills & Rating System {#skills-intelligence}
+
+**New in Phase 5 (November 2025)** – Intelligent skill discovery and community feedback.
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🎯 AI Recommendations</h3>
+    <p>Get personalized skill suggestions based on your project type, tech stack, and current task. Confidence scoring and reasoning included.</p>
+  </div>
+  <div class="feature-card">
+    <h3>⭐ Rating & Reviews</h3>
+    <p>Rate skills 1-5 stars with optional reviews. Track quality metrics, success rates, and community feedback. Anonymous and private.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 Quality Metrics</h3>
+    <p>View aggregated ratings, helpful percentages, task success correlation, usage counts, and token efficiency for every skill.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📈 Top Rated Skills</h3>
+    <p>Discover highest-rated skills by category. Export ratings data in JSON or CSV for analysis and reporting.</p>
+  </div>
+</div>
+
+### Quick Start
+
+```bash
+# Get AI-recommended skills for your project
+claude-ctx skills recommend
+
+# Rate a skill you just used
+claude-ctx skills rate owasp-top-10 --stars 5 --review "Essential for security"
+
+# View ratings and reviews
+claude-ctx skills ratings owasp-top-10
+
+# See top-rated skills
+claude-ctx skills top-rated
+```
+
+**Example recommendation output:**
+```
+=== AI-Recommended Skills ===
+
+Based on project type: python-fastapi
+Active context: Building REST API with authentication
+
+1. api-design-patterns (Confidence: 95%)
+   Why: FastAPI project with REST API requirements
+
+2. secure-coding-practices (Confidence: 90%)
+   Why: Authentication requires security best practices
+```
+
+**Documentation**: [Skills Guide](guides/skills.md) - Complete reference including AI recommendations and rating system
 
 ---
 
@@ -609,12 +666,12 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/development/PHASE5_ROADMAP.html" class="doc-card">
-    <h3>Phase 5 Roadmap 🚧</h3>
-    <p>Skill System Intelligence: AI recommendations, ratings, advanced discovery, analytics, smart bundling, and personalization. 8-week implementation plan.</p>
+    <h3>Phase 5 Roadmap ⚡</h3>
+    <p>Skill System Intelligence: AI recommendations ✅, ratings & feedback ✅, advanced discovery, analytics, smart bundling, and personalization. Features 1-2 complete.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>32KB roadmap</span>
-      <span>6 features planned</span>
+      <span>2/6 features complete</span>
     </div>
   </a>
 
