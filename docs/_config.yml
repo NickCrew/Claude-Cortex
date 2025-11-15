@@ -6,12 +6,8 @@ kramdown:
   input: GFM
 header_pages:
   - index.md
-  - guides/getting-started.md
-  - guides/development/architecture.md
-  - guides/agents.md
-  - guides/skills.md
-  - guides/development/model-optimization.md
-  - guides/commands.md
+  - guides/index.md
+  - reference/index.md
 logo: /assets/images/hero.png
 github:
   repository_url: https://github.com/NickCrew/claude-ctx-plugin
@@ -21,3 +17,25 @@ baseurl: /claude-ctx-plugin
 minima:
   skin: dark
   date_format: "%Y-%m-%d"
+exclude:
+  - archive
+  - designs
+  - features
+  - presentations
+  - vendor
+  - WHATS_NEW.md
+  - CREATE_THESE_ISSUES.md
+  - TEST_COVERAGE_PLAN.md
+  - GITHUB_ISSUES_TEST_COVERAGE.md
+  - README.md
+defaults:
+  - scope:
+      path: "guides"
+      type: "pages"
+    values:
+      layout: page
+  - scope:
+      path: "reference"
+      type: "pages"
+    values:
+      layout: page

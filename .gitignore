@@ -46,3 +46,10 @@ htmlcov/
 coverage.xml
 .tox/
 __pycache__
+
+# Docs site
+docs/_site/
+docs/vendor/
+docs/.bundle/*
+!docs/.bundle/config
+docs/.jekyll-cache/

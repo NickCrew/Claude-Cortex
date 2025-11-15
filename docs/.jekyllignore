@@ -1,0 +1,10 @@
+archive/
+designs/
+features/
+presentations/
+vendor/
+WHATS_NEW.md
+CREATE_THESE_ISSUES.md
+TEST*.md
+GITHUB_ISSUES_TEST_COVERAGE.md
+README.md
