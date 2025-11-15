@@ -14,7 +14,7 @@ def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
     """Integrate argcomplete if it is available."""
 
     try:  # pragma: no cover - optional dependency
-        import argcomplete  # type: ignore
+        import argcomplete
     except ImportError:  # pragma: no cover
         return
 

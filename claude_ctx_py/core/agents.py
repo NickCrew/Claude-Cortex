@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set,
 try:  # pragma: no cover - dependency availability exercised in tests
     import yaml
 except ImportError:  # pragma: no cover
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 # Import from base module
 from .base import (
@@ -473,7 +473,7 @@ def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[Dict[str, Any]],
         return 1, None, message
 
     if yaml is None:
-        message = f"{_color('[ERROR]', RED)} PyYAML is not installed. Install it to use 'agent validate'."
+        message = f"{_color('[ERROR]', RED)} PyYAML is not installed. Install it to use 'agent validate'."  # type: ignore[unreachable]
         return 1, None, message
 
     try:
@@ -559,7 +559,7 @@ def agent_validate(
 
         header = parts[1]
         if yaml is None:
-            errors.append(
+            errors.append(  # type: ignore[unreachable]
                 f"[ERROR] {path}: PyYAML is not installed. Install it to validate agents."
             )
             continue

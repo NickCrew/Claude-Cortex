@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set,
 try:  # pragma: no cover - dependency availability exercised in tests
     import yaml
 except ImportError:  # pragma: no cover
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 # Import from base module
 from .base import (
@@ -231,7 +231,7 @@ def scenario_list(home: Path | None = None) -> str:
     scenarios_dir, _, _ = _ensure_scenarios_dir(claude_dir)
 
     if yaml is None:
-        return _color("PyYAML is required to manage scenarios.", RED)
+        return _color("PyYAML is required to manage scenarios.", RED)  # type: ignore[unreachable]
 
     entries: List[Tuple[str, str, str]] = []
     for scenario_file in sorted(scenarios_dir.glob("*.yaml")):
@@ -260,7 +260,7 @@ def scenario_validate(
     scenarios_dir, _, _ = _ensure_scenarios_dir(claude_dir)
 
     if yaml is None:
-        return 1, _color("PyYAML is required to validate scenarios.", RED)
+        return 1, _color("PyYAML is required to validate scenarios.", RED)  # type: ignore[unreachable]
 
     messages: List[str] = []
     targets = _collect_scenario_targets(scenario_names, scenarios_dir, messages)
@@ -462,7 +462,7 @@ def scenario_run(
         return 1, f"{message}\n{scenario_list(home=home)}"
 
     if yaml is None:
-        return 1, _color("PyYAML is required to run scenarios.", RED)
+        return 1, _color("PyYAML is required to run scenarios.", RED)  # type: ignore[unreachable]
 
     code, metadata, error_msg = _parse_scenario_metadata(scenario_file)
     if code != 0 or metadata is None:

@@ -32,7 +32,7 @@ def _color(text: str, color: str) -> str:
 try:  # pragma: no cover - dependency availability exercised in tests
     import yaml
 except ImportError:  # pragma: no cover
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 
 def _resolve_claude_dir(home: Path | None = None) -> Path:
@@ -468,7 +468,7 @@ def _refresh_claude_md(claude_dir: Path) -> None:
 
 def _load_yaml(path: Path) -> Tuple[bool, Any, str]:
     if yaml is None:
-        return False, None, "PyYAML is not installed."
+        return False, None, "PyYAML is not installed."  # type: ignore[unreachable]
     try:
         text = path.read_text(encoding="utf-8")
     except OSError as exc:

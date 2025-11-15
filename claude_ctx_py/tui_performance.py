@@ -35,7 +35,7 @@ class SystemMetrics:
             Dictionary with memory stats
         """
         try:
-            import psutil
+            import psutil  # type: ignore[import-untyped]
 
             process = psutil.Process(os.getpid())
             mem_info = process.memory_info()
@@ -64,7 +64,7 @@ class SystemMetrics:
 
             process = psutil.Process(os.getpid())
             # Get CPU percent with interval for accuracy
-            return process.cpu_percent(interval=0.1)
+            return process.cpu_percent(interval=0.1)  # type: ignore[no-any-return]
         except ImportError:
             return 0.0
 
@@ -78,7 +78,7 @@ class SystemMetrics:
             import psutil
 
             process = psutil.Process(os.getpid())
-            return process.num_threads()
+            return process.num_threads()  # type: ignore[no-any-return]
         except ImportError:
             import threading
 

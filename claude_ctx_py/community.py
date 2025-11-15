@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Tuple
 try:
     import yaml
 except ImportError:
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 from .exceptions import (
     MissingPackageError,
@@ -223,7 +223,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict[str, Any]]:
         ...     print(f"{skill['name']} v{skill['version']} by {skill['author']}")
     """
     if yaml is None:
-        return []
+        return []  # type: ignore[unreachable]
 
     community_dir = claude_dir / "community" / "skills"
     if not community_dir.exists():

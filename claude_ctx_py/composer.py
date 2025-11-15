@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Set, Tuple
 try:  # pragma: no cover - dependency availability exercised in tests
     import yaml
 except ImportError:  # pragma: no cover
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 from .exceptions import (
     CircularDependencyError,
@@ -61,6 +61,9 @@ def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
     # Validate structure
     composition_map: Dict[str, List[str]] = {}
     for skill, deps in data.items():
+        # Skip non-string keys
+        if not isinstance(skill, str):
+            continue
 
         if deps is None:
             composition_map[skill] = []

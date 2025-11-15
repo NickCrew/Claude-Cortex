@@ -19,7 +19,7 @@ The module is now organized as:
 try:  # pragma: no cover - optional dependency
     import yaml
 except ImportError:  # pragma: no cover
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 # Export all constants
 from .base import (

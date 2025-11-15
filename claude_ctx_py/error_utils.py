@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 try:
     import yaml
 except ImportError:
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 from .exceptions import (
     DirectoryNotFoundError,

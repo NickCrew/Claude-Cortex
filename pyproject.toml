@@ -25,6 +25,7 @@ dev = [
     "pytest-mock>=3.12.0",
     "mypy>=1.7.0",
     "types-PyYAML>=6.0.0",
+    "types-psutil>=5.9.0",
     "black>=23.0.0",
     "PyYAML>=6.0.0",
 ]
@@ -73,6 +74,10 @@ pretty = true
 
 [[tool.mypy.overrides]]
 module = "yaml.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "psutil.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -146,3 +151,13 @@ extend-exclude = '''
   | htmlcov
 )/
 '''
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+build_command = "python -m build"
+commit_parser = "angular"
+tag_format = "v{version}"
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false

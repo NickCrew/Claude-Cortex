@@ -7,7 +7,7 @@ permalink: /
 
 # Claude CTX Plugin - Documentation Index
 
-> Version 0.1.0 · Last updated 2025-11-07
+> Version 1.1.0 · Last updated November 15, 2025
 
 <div class="hero">
   <div class="hero__copy">

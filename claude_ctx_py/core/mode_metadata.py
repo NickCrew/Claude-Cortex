@@ -10,7 +10,7 @@ import re
 try:
     import yaml
 except ImportError:
-    yaml = None
+    yaml = None  # type: ignore[assignment]
 
 
 @dataclass
@@ -67,7 +67,7 @@ def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict[str, Any]], str]
 
     if yaml is None:
         # Can't parse YAML without library
-        return None, content
+        return None, content  # type: ignore[unreachable]
 
     try:
         metadata = yaml.safe_load(yaml_content)

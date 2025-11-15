@@ -4330,7 +4330,7 @@ class AgentTUI(App[None]):
         self.status_message = f"Deleted task {label}"
         self.notify("✓ Task deleted", severity="information", timeout=2)
 
-    def action_toggle(self) -> None:
+    def action_toggle(self) -> None:  # type: ignore[override]
         """Toggle selected item."""
         if self.current_view == "profiles":
             self.action_profile_apply()
