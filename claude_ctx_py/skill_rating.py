@@ -82,7 +82,7 @@ class SkillRatingCollector:
         self.db_path = self.home / "data" / "skill-ratings.db"
         self._init_database()
 
-    def _init_database(self):
+    def _init_database(self) -> None:
         """Initialize SQLite database for ratings."""
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -232,7 +232,7 @@ class SkillRatingCollector:
         succeeded: bool,
         duration_minutes: Optional[float] = None,
         tokens_saved: Optional[float] = None,
-    ):
+    ) -> None:
         """
         Record skill usage for success correlation tracking.
 
@@ -395,7 +395,7 @@ class SkillRatingCollector:
 
             return reviews
 
-    def _update_metrics(self, skill: str):
+    def _update_metrics(self, skill: str) -> None:
         """Update aggregated metrics for a skill."""
         with sqlite3.connect(self.db_path) as conn:
             # Calculate rating stats
@@ -470,13 +470,14 @@ class SkillRatingCollector:
         """Check if current user has already rated this skill."""
         user_hash = self._get_user_hash()
         with sqlite3.connect(self.db_path) as conn:
-            count = conn.execute(
+            result = conn.execute(
                 """
                 SELECT COUNT(*) FROM skill_ratings
                 WHERE skill_name = ? AND user_hash = ?
             """,
                 (skill, user_hash),
-            ).fetchone()[0]
+            ).fetchone()
+            count: int = result[0] if result else 0
             return count > 0
 
     def get_user_rating(self, skill: str) -> Optional[SkillRating]:

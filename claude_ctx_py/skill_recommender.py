@@ -94,7 +94,7 @@ class SkillRecommender:
         self._init_database()
         self._load_rules()
 
-    def _init_database(self):
+    def _init_database(self) -> None:
         """Initialize SQLite database for recommendations and feedback."""
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -148,7 +148,7 @@ class SkillRecommender:
         conn.commit()
         conn.close()
 
-    def _load_rules(self):
+    def _load_rules(self) -> None:
         """Load recommendation rules from configuration file."""
         self.rules: List[Dict[str, Any]] = []
 
@@ -232,7 +232,7 @@ class SkillRecommender:
             }
         ]
 
-    def _save_rules(self):
+    def _save_rules(self) -> None:
         """Save recommendation rules to configuration file."""
         self.rules_path.parent.mkdir(parents=True, exist_ok=True)
         rules_data = {"rules": self.rules}
@@ -375,7 +375,7 @@ class SkillRecommender:
             LIMIT 10
         """)
 
-        skill_scores: Counter = Counter()
+        skill_scores: Counter[str] = Counter()
         for row in cursor.fetchall():
             try:
                 skills = json.loads(row[0])
@@ -436,7 +436,7 @@ class SkillRecommender:
         self,
         recommendations: List[SkillRecommendation],
         context: SessionContext
-    ):
+    ) -> None:
         """Record recommendations to history database."""
         context_hash = self._compute_context_hash(context)
         timestamp = datetime.now().isoformat()
@@ -453,7 +453,7 @@ class SkillRecommender:
         conn.commit()
         conn.close()
 
-    def record_activation(self, skill_name: str, context_hash: str):
+    def record_activation(self, skill_name: str, context_hash: str) -> None:
         """Record that a recommended skill was activated."""
         conn = sqlite3.connect(self.db_path)
 
@@ -474,7 +474,7 @@ class SkillRecommender:
         was_helpful: bool,
         context_hash: str,
         comment: Optional[str] = None
-    ):
+    ) -> None:
         """Update recommendation model based on user feedback."""
         conn = sqlite3.connect(self.db_path)
         timestamp = datetime.now().isoformat()
@@ -565,7 +565,7 @@ class SkillRecommender:
         skill_name: str,
         helpful: bool,
         comment: str = ""
-    ):
+    ) -> None:
         """Record user feedback on a skill (standalone, without context hash).
 
         For CLI usage where we don't have access to the full context hash.
@@ -630,7 +630,7 @@ def provide_feedback(
     context_hash: str,
     comment: Optional[str] = None,
     home: Path | None = None
-):
+) -> None:
     """Provide feedback on a skill recommendation."""
     recommender = SkillRecommender(home)
     recommender.learn_from_feedback(skill, helpful, context_hash, comment)
