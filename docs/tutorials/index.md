@@ -15,7 +15,7 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 ### Getting Started
 
 <div class="doc-grid">
-  <a href="getting-started-tui.html" class="doc-card">
+  <a href="getting-started-tui/" class="doc-card">
     <h3>📖 Getting Started with Claude CTX TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI.</p>
     <p class="muted"><strong>Topics:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
@@ -33,7 +33,7 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 ## Tutorial Series by Level
 
 ### Beginner
-- **[Getting Started with TUI](getting-started-tui.html)** — Your first 30 minutes with claude-ctx
+- **[Getting Started with TUI](getting-started-tui/)** — Your first 30 minutes with claude-ctx
 - *Coming Soon:* **Quick CLI Reference** — Essential commands for power users
 
 ### Intermediate

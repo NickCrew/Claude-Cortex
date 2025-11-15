@@ -67,7 +67,7 @@ The Claude CTX Plugin is a comprehensive context management toolkit packaged as 
 ### Quick Links
 
 <div class="quick-links">
-  <a href="tutorials/getting-started-tui.html">🎓 TUI Tutorial</a>
+  <a href="tutorials/getting-started-tui/">🎓 TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>
   <a href="#presentations">🎬 Presentations</a>
@@ -118,7 +118,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
 Hands-on tutorials to master claude-ctx from beginner to advanced.
 
 <div class="doc-grid">
-  <a href="tutorials/getting-started-tui.html" class="doc-card">
+  <a href="tutorials/getting-started-tui/" class="doc-card">
     <h3>📚 Getting Started with Claude CTX TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
     <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>

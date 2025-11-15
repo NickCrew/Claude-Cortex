@@ -6,6 +6,7 @@ kramdown:
   input: GFM
 header_pages:
   - index.md
+  - tutorials/index.md
   - guides/getting-started.md
   - guides/development/architecture.md
   - guides/agents.md
