@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 from .exceptions import (
     DirectoryNotFoundError,
@@ -42,7 +42,7 @@ def safe_read_file(filepath: Path, encoding: str = "utf-8") -> str:
         UnicodeDecodeError: If file encoding is invalid
     """
     if not filepath.exists():
-        raise SkillNotFoundError(filepath.stem, search_paths=[filepath.parent])
+        raise SkillNotFoundError(filepath.stem, search_paths=[str(filepath.parent)])
 
     try:
         return filepath.read_text(encoding=encoding)
@@ -236,12 +236,12 @@ def with_file_error_context(
     """
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        def wrapper(*args, **kwargs) -> T:
+        def wrapper(*args: Any, **kwargs: Any) -> T:
             try:
                 return func(*args, **kwargs)
             except FileNotFoundError as exc:
                 raise SkillNotFoundError(
-                    filepath.stem, search_paths=[filepath.parent]
+                    filepath.stem, search_paths=[str(filepath.parent)]
                 ) from exc
             except PermissionError as exc:
                 raise FileAccessError(str(filepath), operation) from exc
@@ -307,18 +307,23 @@ def handle_file_operation(
         error = f"File not found: {filepath}"
         if default_on_error is not None:
             return False, default_on_error, error
-        raise SkillNotFoundError(filepath.stem, search_paths=[filepath.parent])
+        raise SkillNotFoundError(filepath.stem, search_paths=[str(filepath.parent)])
     except PermissionError:
         error = f"Permission denied: cannot {operation_name} '{filepath}'"
         if default_on_error is not None:
             return False, default_on_error, error
         raise FileAccessError(str(filepath), operation_name)
-    except (json.JSONDecodeError, yaml.YAMLError if yaml else Exception) as exc:
+    except json.JSONDecodeError as exc:
         error = f"Invalid file format in '{filepath}': {exc}"
         if default_on_error is not None:
             return False, default_on_error, error
         raise InvalidMetricsDataError(str(filepath), str(exc))
     except Exception as exc:
+        if yaml is not None and isinstance(exc, yaml.YAMLError):
+            error = f"Invalid file format in '{filepath}': {exc}"
+            if default_on_error is not None:
+                return False, default_on_error, error
+            raise InvalidMetricsDataError(str(filepath), str(exc))
         error = f"Failed to {operation_name} '{filepath}': {exc}"
         if default_on_error is not None:
             return False, default_on_error, error

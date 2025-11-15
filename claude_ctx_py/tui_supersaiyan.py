@@ -6,6 +6,8 @@ design principles: accessibility first, performance always, delight users.
 
 from __future__ import annotations
 
+from typing import Any
+
 from textual.widgets import Static, DataTable, Button
 from textual.containers import Container
 from textual.reactive import reactive
@@ -66,8 +68,8 @@ class SuperSaiyanCard(Static):
         value: str,
         trend: str | None = None,
         sparkline: str | None = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         """Initialize Super Saiyan card.
 
         Args:
@@ -101,7 +103,7 @@ class SuperSaiyanCard(Static):
         self.add_class("mounted")
 
 
-class SuperSaiyanTable(DataTable):
+class SuperSaiyanTable(DataTable[Any]):
     """Enhanced DataTable with Super Saiyan styling.
 
     Features:

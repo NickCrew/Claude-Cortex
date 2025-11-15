@@ -23,7 +23,9 @@ from .core.mcp import (
 class MCPViewMixin:
     """Mixin for MCP server management view functionality."""
 
-    def __init__(self, *args, **kwargs):
+    state: Any
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.mcp_servers: List[MCPServerInfo] = []
         self.mcp_filter: str = ""

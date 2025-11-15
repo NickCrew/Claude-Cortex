@@ -205,7 +205,7 @@ class PatternLearner:
 
         if similar_sessions:
             # Count agent frequency in similar contexts
-            agent_counts = Counter()
+            agent_counts: Counter[str] = Counter()
             for session in similar_sessions:
                 agent_counts.update(session["agents"])
 
@@ -331,7 +331,7 @@ class PatternLearner:
             return None
 
         # Find most common agent sequence
-        sequence_counts = Counter()
+        sequence_counts: Counter[Tuple[str, ...]] = Counter()
         for session in similar_sessions:
             seq_key = tuple(session["agents"])
             sequence_counts[seq_key] = sequence_counts.get(seq_key, 0) + 1
@@ -508,6 +508,7 @@ class IntelligentAgent:
         if self.current_context is None:
             self.analyze_context()
 
+        assert self.current_context is not None
         self.recommendations = self.learner.predict_agents(self.current_context)
         return self.recommendations
 
@@ -541,6 +542,7 @@ class IntelligentAgent:
         if self.current_context is None:
             self.analyze_context()
 
+        assert self.current_context is not None
         return self.learner.predict_workflow(self.current_context)
 
     def record_session_success(

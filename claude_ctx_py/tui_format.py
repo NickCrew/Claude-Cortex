@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Union
+from typing import Sequence, Union
 
 
 class Format:
@@ -45,11 +45,12 @@ class Format:
             >>> Format.bytes(1048576)
             '1.0MB'
         """
+        size_value = float(size)
         for unit in ["B", "KB", "MB", "GB", "TB"]:
-            if size < 1024.0:
-                return f"{size:.1f}{unit}"
-            size /= 1024.0
-        return f"{size:.1f}PB"
+            if size_value < 1024.0:
+                return f"{size_value:.1f}{unit}"
+            size_value /= 1024.0
+        return f"{size_value:.1f}PB"
 
     @staticmethod
     def percent(value: float, total: float) -> str:
@@ -165,7 +166,7 @@ class Format:
         return text[: max_length - len(suffix)] + suffix
 
     @staticmethod
-    def list_items(items: list, max_items: int = 3) -> str:
+    def list_items(items: Sequence[object], max_items: int = 3) -> str:
         """Format list with overflow indicator.
 
         Args:

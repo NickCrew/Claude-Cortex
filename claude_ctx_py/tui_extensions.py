@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from .core.base import _parse_active_entries, _resolve_claude_dir
 from .core.profiles import (
     profile_list,
     profile_save,
@@ -27,8 +28,6 @@ from .core.profiles import (
     profile_full,
     init_wizard as core_init_wizard,
     BUILT_IN_PROFILES,
-    _resolve_claude_dir,
-    _parse_active_entries,
 )
 from .core.context_export import export_context, collect_context_components
 from .core.agents import agent_status
@@ -38,6 +37,9 @@ from .core.rules import rules_status
 
 class ProfileViewMixin:
     """Mixin for profile view functionality."""
+
+    state: Any
+    load_agents: Callable[[], None]
 
     def load_profiles(self) -> List[Dict[str, Any]]:
         """Load available profiles."""
@@ -207,7 +209,9 @@ class ProfileViewMixin:
 class ExportViewMixin:
     """Mixin for export view functionality."""
 
-    def __init__(self, *args, **kwargs):
+    state: Any
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.export_options = {
             "core": True,
@@ -264,12 +268,12 @@ class ExportViewMixin:
 
         # Generate preview
         preview = self.generate_export_preview()
-        preview_lines = preview.split("\n")[:10]  # Show first 10 lines
+        preview_lines_all = preview.splitlines()
+        preview_lines = preview_lines_all[:10]  # Show first 10 lines
         content.append("\n".join(preview_lines), style="dim")
-        if len(preview.split("\n")) > 10:
-            content.append(
-                f"\n... ({len(preview.split('\n')) - 10} more lines)", style="dim"
-            )
+        if len(preview_lines_all) > 10:
+            remaining = len(preview_lines_all) - 10
+            content.append(f"\n... ({remaining} more lines)", style="dim")
 
         content.append("\n\n")
 
@@ -303,11 +307,16 @@ class ExportViewMixin:
         claude_dir = _resolve_claude_dir()
         components = collect_context_components(claude_dir)
 
-        preview = {"type": "claude-ctx-export", "format": "json", "components": {}}
+        preview: Dict[str, Any] = {
+            "type": "claude-ctx-export",
+            "format": "json",
+            "components": {},
+        }
+        selected_components: Dict[str, List[str]] = preview["components"]
 
         for category, files in components.items():
             if self.export_options.get(category, False):
-                preview["components"][category] = list(files.keys())
+                selected_components[category] = list(files.keys())
 
         return json.dumps(preview, indent=2)
 
@@ -385,11 +394,13 @@ Exported from: ~/.claude
 class WizardViewMixin:
     """Mixin for init wizard functionality."""
 
-    def __init__(self, *args, **kwargs):
+    state: Any
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.wizard_active = False
         self.wizard_step = 0
-        self.wizard_selections = {}
+        self.wizard_selections: Dict[str, Any] = {}
 
     def render_wizard_view(self) -> Panel:
         """Render the init wizard view."""

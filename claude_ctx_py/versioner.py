@@ -13,7 +13,7 @@ Supported version specifications:
 
 import re
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import Any, Dict, List, Tuple, Optional
 import yaml
 
 from .exceptions import (
@@ -372,7 +372,7 @@ def resolve_version(
     return None
 
 
-def load_skill_metadata(skill_dir: Path) -> dict:
+def load_skill_metadata(skill_dir: Path) -> Dict[str, Any]:
     """Load metadata from a skill's YAML file.
 
     Args:

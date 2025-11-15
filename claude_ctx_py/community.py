@@ -10,12 +10,12 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 try:
     import yaml
 except ImportError:
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 from .exceptions import (
     MissingPackageError,
@@ -195,7 +195,7 @@ def validate_contribution(skill_path: Path) -> Tuple[bool, List[str]]:
     return len(errors) == 0, errors
 
 
-def get_community_skills(claude_dir: Path) -> List[Dict]:
+def get_community_skills(claude_dir: Path) -> List[Dict[str, Any]]:
     """Get list of available community skills.
 
     Scans the community skills directory and returns metadata for all available
@@ -229,7 +229,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict]:
     if not community_dir.exists():
         return []
 
-    skills: List[Dict] = []
+    skills: List[Dict[str, Any]] = []
 
     # Scan for skill files
     for skill_file in community_dir.glob("*.md"):
@@ -377,7 +377,7 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
     ratings_file = ratings_dir / f"{skill_name}.json"
 
     # Load existing ratings
-    ratings_data: Dict = {"ratings": [], "average": 0.0}
+    ratings_data: Dict[str, Any] = {"ratings": [], "average": 0.0}
     if ratings_file.exists():
         try:
             ratings_data = safe_load_json(ratings_file)
@@ -407,7 +407,9 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
         ) from exc
 
 
-def search_skills(query: str, tags: List[str], claude_dir: Path) -> List[Dict]:
+def search_skills(
+    query: str, tags: List[str], claude_dir: Path
+) -> List[Dict[str, Any]]:
     """Search for community skills by query and tags.
 
     Searches available community skills using a text query and optional tag
@@ -437,7 +439,7 @@ def search_skills(query: str, tags: List[str], claude_dir: Path) -> List[Dict]:
     tags_lower = [tag.lower() for tag in tags] if tags else []
 
     # Filter skills
-    matching_skills: List[Tuple[Dict, int]] = []
+    matching_skills: List[Tuple[Dict[str, Any], int]] = []
 
     for skill in all_skills:
         relevance = 0

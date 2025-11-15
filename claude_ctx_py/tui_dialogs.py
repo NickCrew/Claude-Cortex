@@ -2,15 +2,30 @@
 
 from __future__ import annotations
 
+from typing import Dict, List, Optional, TypedDict, cast
+
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Container, Vertical, VerticalScroll
 from textual.screen import ModalScreen
-from textual.widgets import Static, Button, Input
-from textual.binding import Binding
-from typing import Optional
+from textual.widgets import Button, Input, Static
 
 from .tui_icons import Icons
 from .tui_format import Format
+
+class TaskEditorData(TypedDict, total=False):
+    name: str
+    workstream: str
+    category: str
+    status: str
+    progress: str
+
+
+class MCPServerData(TypedDict, total=False):
+    name: str
+    command: str
+    args: List[str]
+    description: str
 
 
 class ConfirmDialog(ModalScreen[bool]):
@@ -206,7 +221,7 @@ class LoadingOverlay(ModalScreen[None]):
     # No bindings - loading overlay can't be dismissed by user
 
 
-class TaskEditorDialog(ModalScreen[Optional[dict]]):
+class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
     """Dialog for creating or editing orchestration tasks."""
 
     CSS = """
@@ -224,10 +239,10 @@ class TaskEditorDialog(ModalScreen[Optional[dict]]):
         Binding("enter", "submit", "Save"),
     ]
 
-    def __init__(self, title: str, defaults: Optional[dict] = None):
+    def __init__(self, title: str, defaults: Optional[TaskEditorData] = None):
         super().__init__()
         self.title = title
-        self.defaults = defaults or {}
+        self.defaults: TaskEditorData = cast(TaskEditorData, dict(defaults or {}))
 
     def compose(self) -> ComposeResult:
         with Container(id="dialog"):
@@ -395,7 +410,7 @@ class TextViewerDialog(ModalScreen[None]):
         self.dismiss()
 
 
-class MCPServerDialog(ModalScreen[Optional[dict]]):
+class MCPServerDialog(ModalScreen[Optional[MCPServerData]]):
     """Dialog for adding or editing MCP server configuration."""
 
     CSS = """
@@ -413,10 +428,10 @@ class MCPServerDialog(ModalScreen[Optional[dict]]):
         Binding("ctrl+s", "submit", "Save"),
     ]
 
-    def __init__(self, title: str, defaults: Optional[dict] = None):
+    def __init__(self, title: str, defaults: Optional[MCPServerData] = None):
         super().__init__()
         self.title = title
-        self.defaults = defaults or {}
+        self.defaults: MCPServerData = cast(MCPServerData, dict(defaults or {}))
 
     def compose(self) -> ComposeResult:
         with Container(id="dialog"):
@@ -435,8 +450,13 @@ class MCPServerDialog(ModalScreen[Optional[dict]]):
                     placeholder="Command (e.g., npx, uvx)",
                     id="mcp-command",
                 )
+                args_value = self.defaults.get("args", "")
+                if isinstance(args_value, list):
+                    args_text = " ".join(args_value)
+                else:
+                    args_text = str(args_value or "")
                 yield Input(
-                    value=self.defaults.get("args", ""),
+                    value=args_text,
                     placeholder="Arguments (space-separated, e.g., -y @package/name)",
                     id="mcp-args",
                 )

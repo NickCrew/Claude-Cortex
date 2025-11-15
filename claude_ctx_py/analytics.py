@@ -8,20 +8,19 @@ import math
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
-from .exceptions import (
-    ExportError,
-    InvalidMetricsDataError,
-    MetricsFileError,
-)
+from .exceptions import ExportError, InvalidMetricsDataError, MetricsFileError
 from .error_utils import safe_load_json, safe_save_json, safe_write_file
+
+MetricRow = Dict[str, Any]
+MetricsMap = Mapping[str, MetricRow]
 
 # Token cost per 1K tokens
 TOKEN_COST_PER_1K = 0.003
 
 
-def get_effectiveness_score(skill_name: str, all_metrics: Dict) -> float:
+def get_effectiveness_score(skill_name: str, all_metrics: MetricsMap) -> float:
     """Calculate effectiveness score for a skill (0-100).
 
     Scoring algorithm:
@@ -80,10 +79,10 @@ def get_effectiveness_score(skill_name: str, all_metrics: Dict) -> float:
         recency_score = 0.0
 
     total_score = success_score + token_efficiency + usage_score + recency_score
-    return round(total_score, 2)
+    return float(round(total_score, 2))
 
 
-def calculate_roi(skill_name: str, claude_dir: Path) -> Dict:
+def calculate_roi(skill_name: str, claude_dir: Path) -> Dict[str, float | int]:
     """Calculate return on investment for a skill.
 
     ROI calculation:
@@ -172,7 +171,7 @@ def _calculate_efficiency_ratio(skill_name: str, claude_dir: Path) -> float:
         return 1.0
 
 
-def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
+def get_trending_skills(days: int, claude_dir: Path) -> List[MetricRow]:
     """Get trending skills based on recent activity.
 
     Args:
@@ -210,18 +209,22 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
                 continue
 
         # Create trending list sorted by activation count
-        trending = [
-            {
-                "skill": skill,
-                "activations": count,
-                "tokens_saved": skill_tokens[skill],
-                "trend_score": count * (skill_tokens[skill] / 1000),
-            }
-            for skill, count in skill_counts.items()
-        ]
+        trending: List[MetricRow] = []
+        for skill, count in skill_counts.items():
+            tokens_saved = skill_tokens[skill]
+            efficiency = (tokens_saved / 1000) if tokens_saved else 1.0
+            trend_score = count * efficiency
+            trending.append(
+                {
+                    "skill": skill,
+                    "activations": count,
+                    "tokens_saved": tokens_saved,
+                    "trend_score": trend_score,
+                }
+            )
 
         # Sort by trend score (activations * tokens efficiency)
-        trending.sort(key=lambda x: x["trend_score"], reverse=True)
+        trending.sort(key=lambda item: float(item["trend_score"]), reverse=True)
 
         return trending
 
@@ -229,7 +232,9 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[Dict]:
         return []
 
 
-def get_recommendations(usage_pattern: Dict, claude_dir: Path) -> List[str]:
+def get_recommendations(
+    usage_pattern: Mapping[str, Any], claude_dir: Path
+) -> List[str]:
     """Generate skill usage recommendations.
 
     Analyzes usage patterns to recommend:
@@ -247,8 +252,8 @@ def get_recommendations(usage_pattern: Dict, claude_dir: Path) -> List[str]:
     """
     from . import metrics as metrics_module
 
-    recommendations = []
-    all_metrics = metrics_module.get_all_metrics()
+    recommendations: List[str] = []
+    all_metrics: Dict[str, Dict[str, Any]] = metrics_module.get_all_metrics()
 
     if not all_metrics:
         return ["No metrics available yet. Use skills to generate recommendations."]
@@ -355,15 +360,19 @@ def export_analytics(format: str, claude_dir: Path) -> str:
     return str(filepath)
 
 
-def _export_json(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
+def _export_json(all_metrics: MetricsMap, filepath: Path, claude_dir: Path) -> None:
     """Export metrics as JSON."""
-    export_data = {"exported_at": datetime.utcnow().isoformat() + "Z", "skills": {}}
+    skills_data: Dict[str, Dict[str, Any]] = {}
+    export_data: Dict[str, Any] = {
+        "exported_at": datetime.utcnow().isoformat() + "Z",
+        "skills": skills_data,
+    }
 
     for skill_name, metrics in all_metrics.items():
         roi = calculate_roi(skill_name, claude_dir)
         effectiveness = get_effectiveness_score(skill_name, all_metrics)
 
-        export_data["skills"][skill_name] = {
+        skills_data[skill_name] = {
             "metrics": metrics,
             "roi": roi,
             "effectiveness_score": effectiveness,
@@ -372,7 +381,7 @@ def _export_json(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
     safe_save_json(filepath, export_data)
 
 
-def _export_csv(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
+def _export_csv(all_metrics: MetricsMap, filepath: Path, claude_dir: Path) -> None:
     """Export metrics as CSV."""
     with open(filepath, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -410,11 +419,11 @@ def _export_csv(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
             )
 
 
-def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
+def _export_text(all_metrics: MetricsMap, filepath: Path, claude_dir: Path) -> None:
     """Export metrics as formatted text."""
     from . import metrics as metrics_module
 
-    lines = []
+    lines: List[str] = []
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("=" * 80 + "\n")
         f.write("SKILL ANALYTICS REPORT\n")
@@ -466,7 +475,7 @@ def _export_text(all_metrics: Dict, filepath: Path, claude_dir: Path) -> None:
             f.write("\n")
 
 
-def visualize_metrics(metric: str, all_metrics: Dict) -> str:
+def visualize_metrics(metric: str, all_metrics: MetricsMap) -> str:
     """Generate ASCII bar chart visualization of metrics.
 
     Args:
@@ -554,7 +563,7 @@ def visualize_metrics(metric: str, all_metrics: Dict) -> str:
     return "".join(lines)
 
 
-def get_correlation_matrix(all_metrics: Dict) -> Dict[str, Dict[str, float]]:
+def get_correlation_matrix(all_metrics: MetricsMap) -> Dict[str, Dict[str, float]]:
     """Calculate skill co-activation correlation matrix.
 
     Analyzes detailed activation logs to find skills that are frequently
@@ -612,7 +621,7 @@ def get_correlation_matrix(all_metrics: Dict) -> Dict[str, Dict[str, float]]:
         return {}
 
 
-def get_impact_report(skill_name: str, claude_dir: Path) -> Dict:
+def get_impact_report(skill_name: str, claude_dir: Path) -> Dict[str, Any]:
     """Generate comprehensive impact analysis for a skill.
 
     Args:
@@ -748,9 +757,10 @@ def generate_analytics_report(output_format: str, claude_dir: Path) -> str:
         return _generate_text_report(all_metrics, claude_dir)
 
 
-def _generate_json_report(all_metrics: Dict, claude_dir: Path) -> str:
+def _generate_json_report(all_metrics: MetricsMap, claude_dir: Path) -> str:
     """Generate JSON format analytics report."""
-    report = {
+    skills_section: Dict[str, Any] = {}
+    report: Dict[str, Any] = {
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "summary": {
             "total_skills": len(all_metrics),
@@ -765,7 +775,7 @@ def _generate_json_report(all_metrics: Dict, claude_dir: Path) -> str:
                 for skill in all_metrics.keys()
             ),
         },
-        "skills": {},
+        "skills": skills_section,
         "trending_7_days": get_trending_skills(7, claude_dir),
         "trending_30_days": get_trending_skills(30, claude_dir),
         "recommendations": get_recommendations({}, claude_dir),
@@ -773,14 +783,14 @@ def _generate_json_report(all_metrics: Dict, claude_dir: Path) -> str:
 
     # Add detailed skill data
     for skill_name in all_metrics.keys():
-        report["skills"][skill_name] = get_impact_report(skill_name, claude_dir)
+        skills_section[skill_name] = get_impact_report(skill_name, claude_dir)
 
     return json.dumps(report, indent=2)
 
 
-def _generate_text_report(all_metrics: Dict, claude_dir: Path) -> str:
+def _generate_text_report(all_metrics: MetricsMap, claude_dir: Path) -> str:
     """Generate text format analytics report."""
-    lines = []
+    lines: List[str] = []
 
     # Header
     lines.append("\n" + "=" * 80)

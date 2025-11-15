@@ -15,6 +15,12 @@ The module is now organized as:
 - profiles.py: Profile and initialization functions
 """
 
+# Re-export optional dependency handle for compatibility
+try:  # pragma: no cover - optional dependency
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
+
 # Export all constants
 from .base import (
     BLUE,
@@ -22,7 +28,6 @@ from .base import (
     YELLOW,
     RED,
     NC,
-    yaml,
     FrontMatterToken,
 )
 

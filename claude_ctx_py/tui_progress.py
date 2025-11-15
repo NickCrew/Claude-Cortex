@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 
 class ProgressBar:
     """Enhanced progress bar with color gradients."""
@@ -78,7 +80,7 @@ class ProgressBar:
         return f"[{color}]{'█' * filled}[/{color}][dim]{'░' * empty}[/dim]"
 
     @staticmethod
-    def status_bar(steps: list, current_step: int) -> str:
+    def status_bar(steps: Sequence[str], current_step: int) -> str:
         """Step-based progress indicator.
 
         Args:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Dict, Optional, Set, Tuple
+from typing import Any, List, Dict, Optional, Set, Tuple
 from datetime import datetime, timedelta
 from .tui_icons import Icons
 from .tui_format import Format
@@ -103,8 +103,7 @@ class WorkflowTimeline:
         Returns:
             Dictionary mapping node_id to level (0 = no deps, 1+ = has deps)
         """
-        levels = {}
-        processed: Set[str] = set()
+        levels: Dict[str, int] = {}
 
         def get_level(node_id: str) -> int:
             if node_id in levels:
@@ -285,7 +284,7 @@ class WorkflowTimeline:
 
         return lines
 
-    def get_summary(self) -> Dict[str, any]:
+    def get_summary(self) -> Dict[str, Any]:
         """Get workflow execution summary.
 
         Returns:

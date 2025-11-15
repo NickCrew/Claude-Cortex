@@ -29,12 +29,12 @@ def workflow_run(workflow: str, home: Path | None = None) -> Tuple[int, str]:
 
     if not workflow_file.is_file():
         available = workflow_list(home=home)
-        lines = [
+        missing_message_lines = [
             _color(f"Workflow {workflow!r} not found", RED),
             "Available workflows:",
             available,
         ]
-        return 1, "\n".join(lines)
+        return 1, "\n".join(missing_message_lines)
 
     # Create task directory for this workflow
     tasks_dir = claude_dir / "tasks"

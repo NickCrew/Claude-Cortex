@@ -11,7 +11,7 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, RichLog
 
 
-class LogViewerScreen(Screen):
+class LogViewerScreen(Screen[None]):
     """A screen to display real-time output from a subprocess."""
 
     BINDINGS = [
@@ -29,17 +29,19 @@ class LogViewerScreen(Screen):
     ) -> None:
         super().__init__(name=name, id=id, classes=classes)
         self.command = command
-        self.title = title
+        self._header_title = title
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
-        yield Header(self.title)
+        yield Header(show_clock=False)
         yield Container(RichLog(id="log-output", wrap=True, highlight=True), id="log-container")
         yield Footer()
 
     async def on_mount(self) -> None:
         """Start the subprocess and stream its output."""
         log = self.query_one(RichLog)
+        if self.app is not None:
+            self.app.title = self._header_title
         log.write(f"$ {' '.join(self.command)}\n")
 
         try:

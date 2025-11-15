@@ -33,7 +33,7 @@ class ModeMetadata:
         return {"low": 1, "medium": 2, "high": 3}.get(self.priority.lower(), 2)
 
 
-def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict], str]:
+def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict[str, Any]], str]:
     """
     Parse YAML frontmatter from markdown content.
 
@@ -71,7 +71,9 @@ def parse_yaml_frontmatter(content: str) -> Tuple[Optional[Dict], str]:
 
     try:
         metadata = yaml.safe_load(yaml_content)
-        return metadata, remaining_content
+        if isinstance(metadata, dict):
+            return metadata, remaining_content
+        return None, content
     except yaml.YAMLError:
         return None, content
 

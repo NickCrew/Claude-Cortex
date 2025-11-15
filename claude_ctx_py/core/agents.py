@@ -15,7 +15,12 @@ import time
 import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+
+try:  # pragma: no cover - dependency availability exercised in tests
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
 
 # Import from base module
 from .base import (
@@ -295,6 +300,7 @@ def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
             node = AgentGraphNode(
                 name=name,
                 slug=path.stem,
+                path=path,
                 category=category,
                 tier=tier,
                 status=status,
@@ -460,15 +466,13 @@ def _resolve_agent_validation_target(claude_dir: Path, target: str) -> Optional[
     return None
 
 
-def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[dict], str]:
+def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[Dict[str, Any]], str]:
     schema_path = claude_dir / "schema" / "agent-schema-v2.yaml"
     if not schema_path.is_file():
         message = f"[ERROR] Schema file missing: {schema_path}"
         return 1, None, message
 
-    try:
-        import yaml
-    except ImportError:
+    if yaml is None:
         message = f"{_color('[ERROR]', RED)} PyYAML is not installed. Install it to use 'agent validate'."
         return 1, None, message
 
@@ -509,7 +513,7 @@ def agent_validate(
             _iter_agent_paths(claude_dir, claude_dir / "agents-disabled")
         )
 
-    seen_paths: set[Path] = set(agent_paths)
+    seen_paths: Set[Path] = set(agent_paths)
 
     for name in agent_names:
         resolved = _resolve_agent_validation_target(claude_dir, name)
@@ -524,8 +528,8 @@ def agent_validate(
     if not agent_paths:
         return 0, _color("No agent files found for validation", YELLOW)
 
-    def dotted_get(data, dotted_key: str):
-        current = data
+    def dotted_get(data: Dict[str, Any], dotted_key: str) -> Optional[Any]:
+        current: Any = data
         for part in dotted_key.split("."):
             if not isinstance(current, dict) or part not in current:
                 return None
@@ -554,9 +558,7 @@ def agent_validate(
             continue
 
         header = parts[1]
-        try:
-            import yaml  # type: ignore
-        except ImportError:
+        if yaml is None:
             errors.append(
                 f"[ERROR] {path}: PyYAML is not installed. Install it to validate agents."
             )

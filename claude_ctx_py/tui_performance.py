@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import time
-from typing import Dict, Optional, List
+from typing import Any, Dict, List, Optional, TypedDict
 from datetime import datetime, timedelta
 from .tui_icons import Icons
 from .tui_format import Format
@@ -13,7 +13,7 @@ from .tui_format import Format
 class SystemMetrics:
     """System performance metrics collector."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize system metrics collector."""
         self.start_time = time.time()
         self._last_check = time.time()
@@ -28,7 +28,7 @@ class SystemMetrics:
         elapsed = time.time() - self.start_time
         return Format.duration(int(elapsed))
 
-    def get_memory_usage(self) -> Dict[str, any]:
+    def get_memory_usage(self) -> Dict[str, Any]:
         """Get memory usage information.
 
         Returns:
@@ -100,7 +100,7 @@ class SystemMetrics:
 class PerformanceMonitor:
     """Performance monitor for TUI status bar."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance monitor."""
         self.metrics = SystemMetrics()
         self._cached_display = ""
@@ -201,12 +201,20 @@ class PerformanceMonitor:
             return "green"
 
 
+class TaskRecord(TypedDict, total=False):
+    name: str
+    start_time: float
+    end_time: Optional[float]
+    duration: Optional[float]
+    status: str
+
+
 class TaskPerformanceTracker:
     """Track performance of individual tasks and agents."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize task performance tracker."""
-        self.tasks: Dict[str, Dict[str, any]] = {}
+        self.tasks: Dict[str, TaskRecord] = {}
 
     def start_task(self, task_id: str, task_name: str) -> None:
         """Start tracking a task.
@@ -230,12 +238,15 @@ class TaskPerformanceTracker:
             task_id: Task identifier
             status: Final status (complete, error, cancelled)
         """
-        if task_id in self.tasks:
-            self.tasks[task_id]["end_time"] = time.time()
-            self.tasks[task_id]["duration"] = (
-                self.tasks[task_id]["end_time"] - self.tasks[task_id]["start_time"]
-            )
-            self.tasks[task_id]["status"] = status
+        record = self.tasks.get(task_id)
+        if record is None:
+            return
+
+        end_time = time.time()
+        start_time = record.get("start_time", end_time)
+        record["end_time"] = end_time
+        record["duration"] = float(end_time - start_time)
+        record["status"] = status
 
     def get_task_duration(self, task_id: str) -> Optional[float]:
         """Get task duration.
@@ -251,16 +262,21 @@ class TaskPerformanceTracker:
 
         task = self.tasks[task_id]
 
-        if task["duration"] is not None:
-            return task["duration"]
+        duration = task.get("duration")
+        if isinstance(duration, (int, float)):
+            return float(duration)
 
-        if task["end_time"] is None:
-            # Still running
-            return time.time() - task["start_time"]
+        end_time = task.get("end_time")
+        start_time = task.get("start_time")
+        if end_time is None and isinstance(start_time, (int, float)):
+            return float(time.time() - start_time)
+
+        if isinstance(end_time, (int, float)) and isinstance(start_time, (int, float)):
+            return float(end_time - start_time)
 
         return None
 
-    def get_running_tasks(self) -> List[Dict[str, any]]:
+    def get_running_tasks(self) -> List[Dict[str, Any]]:
         """Get list of currently running tasks.
 
         Returns:
@@ -270,13 +286,14 @@ class TaskPerformanceTracker:
             {
                 "id": task_id,
                 "name": task["name"],
-                "duration": time.time() - task["start_time"],
+                "duration": time.time()
+                - float(task.get("start_time", time.time())),
             }
             for task_id, task in self.tasks.items()
             if task["status"] == "running"
         ]
 
-    def get_completed_tasks(self) -> List[Dict[str, any]]:
+    def get_completed_tasks(self) -> List[Dict[str, Any]]:
         """Get list of completed tasks.
 
         Returns:
@@ -293,7 +310,7 @@ class TaskPerformanceTracker:
             if task["status"] != "running"
         ]
 
-    def get_summary(self) -> Dict[str, any]:
+    def get_summary(self) -> Dict[str, Any]:
         """Get performance summary.
 
         Returns:
@@ -302,8 +319,13 @@ class TaskPerformanceTracker:
         completed = self.get_completed_tasks()
         running = self.get_running_tasks()
 
-        total_time = sum(t["duration"] for t in completed if t["duration"] is not None)
-        avg_time = total_time / len(completed) if completed else 0
+        duration_values = [
+            float(t["duration"])
+            for t in completed
+            if isinstance(t.get("duration"), (int, float))
+        ]
+        total_time = sum(duration_values)
+        avg_time = total_time / len(duration_values) if duration_values else 0.0
 
         return {
             "total_tasks": len(self.tasks),
@@ -326,9 +348,9 @@ class TaskPerformanceTracker:
 class PerformanceAlert:
     """Alert system for performance issues."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance alert system."""
-        self.alerts: List[Dict[str, any]] = []
+        self.alerts: List[str] = []
         self.thresholds = {
             "memory_percent": 85.0,
             "cpu_percent": 90.0,

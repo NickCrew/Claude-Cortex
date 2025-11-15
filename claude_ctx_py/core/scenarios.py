@@ -15,7 +15,12 @@ import time
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+
+try:  # pragma: no cover - dependency availability exercised in tests
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
 
 # Import from base module
 from .base import (
@@ -31,6 +36,11 @@ from .base import (
     _load_yaml_dict,
     _now_iso,
     _resolve_claude_dir,
+)
+from .agents import (
+    _find_agent_file_any_state,
+    _generate_dependency_map,
+    _normalize_agent_filename,
 )
 
 
@@ -191,7 +201,7 @@ def _parse_scenario_metadata(
         parallel = bool(raw.get("parallel", False))
         agents = _flatten_mixed(raw.get("agents") or [])
         profiles = _flatten_mixed(raw.get("profiles") or [])
-        success = _flatten_mixed(raw.get("success_criteria") or [])
+        success_criteria = _flatten_mixed(raw.get("success_criteria") or [])
         phases.append(
             ScenarioPhase(
                 name=phase_name,
@@ -200,7 +210,7 @@ def _parse_scenario_metadata(
                 parallel=parallel,
                 agents=agents,
                 profiles=profiles,
-                success=success,
+                success=success_criteria,
             )
         )
 
@@ -459,7 +469,7 @@ def scenario_run(
         return 1, _color(f"Error: {error_msg}", RED)
 
     if run_mode == "plan":
-        lines: List[str] = [
+        preview_lines: List[str] = [
             *warnings,
             _color(f"Scenario preview: {metadata.name}", BLUE),
             f"Description: {metadata.description}",
@@ -469,20 +479,20 @@ def scenario_run(
         ]
 
         for idx, phase in enumerate(metadata.phases, 1):
-            lines.append("")
-            lines.append(f"- Phase {idx}: {phase.name}")
+            preview_lines.append("")
+            preview_lines.append(f"- Phase {idx}: {phase.name}")
             if phase.description:
-                lines.append(f"  {phase.description}")
-            lines.append(f"  condition: {phase.condition}")
-            lines.append(f"  parallel: {'true' if phase.parallel else 'false'}")
+                preview_lines.append(f"  {phase.description}")
+            preview_lines.append(f"  condition: {phase.condition}")
+            preview_lines.append(f"  parallel: {'true' if phase.parallel else 'false'}")
             if phase.profiles:
-                lines.append(f"  profiles: {','.join(phase.profiles)}")
+                preview_lines.append(f"  profiles: {','.join(phase.profiles)}")
             if phase.agents:
-                lines.append(f"  agents: {','.join(phase.agents)}")
+                preview_lines.append(f"  agents: {','.join(phase.agents)}")
             if phase.success:
-                lines.append(f"  success checks: {','.join(phase.success)}")
+                preview_lines.append(f"  success checks: {','.join(phase.success)}")
 
-        return 0, "\n".join(lines)
+        return 0, "\n".join(preview_lines)
 
     input_cb = input_fn or input
     lock_name = _scenario_lock_basename(metadata.name)

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from textual.command import Provider, Hit, DiscoveryHit
-from textual.types import IgnoreReturnCallbackType
+from typing import AsyncIterator, Protocol, runtime_checkable
 
+from textual.command import Hit, Provider
 from .tui_icons import Icons
 
 # Visual category markers
@@ -15,19 +15,32 @@ CATEGORY_VIEW = "👁️  VIEW"
 CATEGORY_SYSTEM = "⚙️  SYSTEM"
 
 
+@runtime_checkable
+class _CommandApp(Protocol):
+    current_view: str
+    status_message: str
+
+    def update_view(self) -> None:
+        ...
+
+    def load_scenarios(self) -> None:
+        ...
+
+
 class AgentCommandProvider(Provider):
     """Command provider for agent-related commands - SUPER SAIYAN MODE! ⚡"""
 
-    async def discover(self):
+    async def discover(self) -> AsyncIterator[Hit]:
         """Show default commands with MAXIMUM VISUAL IMPACT!"""
         # Category: Agent Management
-        yield DiscoveryHit(
+        yield Hit(
+            1.0,
             f"[reverse][bold yellow]━━━ {CATEGORY_AGENT} MANAGEMENT ━━━━━━━━━━━━━━━━━━━[/bold yellow][/reverse]",
             lambda: None,
             help="[dim italic]Control and manage your AI agents[/dim italic]",
         )
 
-    async def search(self, query: str):
+    async def search(self, query: str) -> AsyncIterator[Hit]:
         """Search for agent commands with ULTRA styling!
 
         Args:
@@ -145,13 +158,16 @@ class AgentCommandProvider(Provider):
                     help=help_text,
                 )
 
-    def _run_command(self, action: str) -> IgnoreReturnCallbackType:
+    def _run_command(self, action: str) -> None:
         """Execute a command action.
 
         Args:
             action: The action identifier
         """
-        app = self.app
+        app_obj = getattr(self, "app", None)
+        if not isinstance(app_obj, _CommandApp):
+            return
+        app = app_obj
 
         if action == "show_agents":
             app.current_view = "agents"

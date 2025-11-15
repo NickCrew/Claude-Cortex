@@ -6,7 +6,7 @@ import datetime
 import hashlib
 import json
 from pathlib import Path
-from typing import Tuple
+from typing import List, Tuple, TypedDict
 
 # Import color constants and helpers from core
 from .core import (
@@ -19,6 +19,13 @@ from .core import (
     profile_backend,
     profile_minimal,
 )
+
+
+class DetectionResult(TypedDict):
+    language: str | None
+    framework: str | None
+    infrastructure: str | None
+    types: List[str]
 
 
 def _generate_project_slug(project_path: Path) -> str:
@@ -59,9 +66,9 @@ def _get_project_state_dir(project_path: Path, home: Path | None = None) -> Path
     return projects_dir / f"{clean_name}-{slug}"
 
 
-def _detect_project_type(project_path: Path) -> dict:
+def _detect_project_type(project_path: Path) -> DetectionResult:
     """Detect project type, language, and framework."""
-    detection = {
+    detection: DetectionResult = {
         "language": None,
         "framework": None,
         "infrastructure": None,
@@ -145,7 +152,10 @@ def _detect_project_type(project_path: Path) -> dict:
 
 
 def _write_detection_json(
-    state_dir: Path, project_path: Path, detection: dict, analysis_output: str = ""
+    state_dir: Path,
+    project_path: Path,
+    detection: DetectionResult,
+    analysis_output: str = "",
 ) -> None:
     """Write detection results to JSON file."""
     slug = _generate_project_slug(project_path)
@@ -189,7 +199,7 @@ def _write_session_log(
     log_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _recommend_profile(detection: dict) -> str:
+def _recommend_profile(detection: DetectionResult) -> str:
     """Recommend a profile based on project detection."""
     language = detection.get("language")
     framework = detection.get("framework")
@@ -293,7 +303,7 @@ def init_minimal(
     # Write state
     state_dir = _get_project_state_dir(project_path, home)
     slug = _generate_project_slug(project_path)
-    detection = {
+    detection: DetectionResult = {
         "language": None,
         "framework": None,
         "infrastructure": None,
@@ -337,7 +347,7 @@ def init_profile(
     # Write state
     state_dir = _get_project_state_dir(project_path, home)
     slug = _generate_project_slug(project_path)
-    detection = {
+    detection: DetectionResult = {
         "language": None,
         "framework": None,
         "infrastructure": None,

@@ -1245,6 +1245,7 @@ __all__ = [
     "profile_save",
     "profile_minimal",
     "profile_backend",
+    "BUILT_IN_PROFILES",
     "workflow_run",
     "workflow_list",
     "workflow_status",

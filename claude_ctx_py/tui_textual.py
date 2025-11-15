@@ -14,12 +14,14 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, TypedDict
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
-from textual.widgets import Header, Footer, Static, DataTable, ContentSwitcher
+from textual.widgets import ContentSwitcher, DataTable, Footer, Header, Static
+
+AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
 from .core import (
@@ -62,6 +64,7 @@ from .core import (
     skill_report,
     skill_trending,
     skill_analytics,
+    skill_rate,
     skill_community_list,
     skill_community_install,
     skill_community_validate,
@@ -101,17 +104,26 @@ from .tui_dashboard import MetricsCollector
 from .tui_performance import PerformanceMonitor
 from .tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from .tui_overview_enhanced import EnhancedOverview
-from .intelligence import IntelligentAgent, AgentRecommendation, WorkflowPrediction
+from .intelligence import (
+    AgentRecommendation,
+    IntelligentAgent,
+    SessionContext,
+    WorkflowPrediction,
+)
 from .tui_supersaiyan import SuperSaiyanStatusBar
 from .tui_dialogs import (
+    MCPServerData,
+    MCPServerDialog,
+    TaskEditorData,
     TaskEditorDialog,
     ConfirmDialog,
+    HelpDialog,
     PromptDialog,
     TextViewerDialog,
-    MCPServerDialog,
-    HelpDialog,
 )
 from .tui_log_viewer import LogViewerScreen
+from .skill_rating import SkillRatingCollector, SkillQualityMetrics
+from .skill_rating_prompts import SkillRatingPromptManager
 
 
 @dataclass
@@ -183,6 +195,12 @@ class ScenarioInfo:
     error: Optional[str] = None
 
 
+class ScenarioRuntimeState(TypedDict):
+    status: str
+    started: Optional[datetime]
+    completed: Optional[datetime]
+
+
 PROFILE_DESCRIPTIONS: Dict[str, str] = {
     "minimal": "Load minimal profile (essential agents only)",
     "frontend": "Load frontend profile (TypeScript + review)",
@@ -240,7 +258,7 @@ VIEW_TITLES: Dict[str, str] = {
 }
 
 
-class AgentTUI(App):
+class AgentTUI(App[None]):
     """Textual TUI for claude-ctx management."""
 
     CATEGORY_PALETTE = {
@@ -267,8 +285,12 @@ class AgentTUI(App):
         "orange3",
     ]
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self.agents: List[AgentGraphNode] = []
+        self.rules: List[RuleNode] = []
+        self.modes: List[ModeInfo] = []
+        self.workflows: List[WorkflowInfo] = []
         self.profiles: List[Dict[str, Optional[str]]] = []
         self.mcp_servers: List[MCPServerInfo] = []
         self.mcp_error: Optional[str] = None
@@ -276,6 +298,10 @@ class AgentTUI(App):
         self.export_agent_generic: bool = True
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
         self.scenarios: List[ScenarioInfo] = []
+        self.skills: List[Dict[str, Any]] = []
+        self.skill_rating_collector: Optional[SkillRatingCollector] = None
+        self.skill_rating_error: Optional[str] = None
+        self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
 
     CSS = """
     /* Super Saiyan Mode Colors 🔥 */
@@ -513,6 +539,7 @@ class AgentTUI(App):
         Binding("?", "help", "Help"),
         Binding("space", "toggle", "Toggle"),
         Binding("r", "refresh", "Refresh"),
+        Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
         Binding("a", "auto_activate", "Auto-Activate", show=False),
         Binding("s", "details_context", "Details", show=False),
         Binding("v", "validate_context", "Validate", show=False),
@@ -563,7 +590,7 @@ class AgentTUI(App):
 
     def _selected_agent(self) -> Optional[AgentGraphNode]:
         index = self._table_cursor_index()
-        agents = getattr(self, "agents", [])
+        agents = self.agents
         if index is None or not agents:
             return None
         if index < 0 or index >= len(agents):
@@ -653,6 +680,9 @@ class AgentTUI(App):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
+        # Schedule background check for pending skill rating prompts
+        self.call_after_refresh(self._maybe_prompt_for_skill_ratings)
+
     def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""
         self.refresh_status_bar()
@@ -727,20 +757,8 @@ class AgentTUI(App):
         # Note: This dynamic binding visibility is disabled for now
         # as it's not compatible with the current Textual API
         # TODO: Re-implement using check_action_state or similar approach
-        try:
-            # Try to access bindings through the namespace if available
-            if hasattr(self, 'namespace_bindings'):
-                for key, binding in self.namespace_bindings.items():
-                    if binding.key in keys_to_show or binding.key in [
-                        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-                        "S", "o", "g", "t", "ctrl+p", "q", "?", "r"
-                    ]:
-                        binding.show = True
-                    else:
-                        binding.show = False
-        except Exception:
-            # Silently ignore binding visibility errors to avoid crashes
-            pass
+        # Note: binding visibility updates are disabled until Textual exposes
+        # a public API for manipulating bindings at runtime.
 
         self.refresh(layout=True)
 
@@ -769,7 +787,7 @@ class AgentTUI(App):
 
         return subpath_resolved
 
-    def _validate_workflow_schema(self, workflow_data: dict, file_path: Path) -> bool:
+    def _validate_workflow_schema(self, workflow_data: Any, file_path: Path) -> bool:
         """
         Validate that a workflow YAML has the expected structure.
 
@@ -849,14 +867,14 @@ class AgentTUI(App):
         index = self._table_cursor_index()
         if index is None:
             return None
-        servers = getattr(self, "mcp_servers", [])
+        servers = self.mcp_servers
         if index < 0 or index >= len(servers):
             return None
         return servers[index]
 
-    def _selected_skill(self) -> Optional[Dict[str, str]]:
+    def _selected_skill(self) -> Optional[Dict[str, Any]]:
         index = self._table_cursor_index()
-        skills = getattr(self, "skills", [])
+        skills = self.skills
         if index is None or not skills:
             return None
         if index < 0 or index >= len(skills):
@@ -865,7 +883,7 @@ class AgentTUI(App):
 
     def _selected_workflow(self) -> Optional[WorkflowInfo]:
         index = self._table_cursor_index()
-        workflows = getattr(self, "workflows", [])
+        workflows = self.workflows
         if index is None or not workflows:
             return None
         if index < 0 or index >= len(workflows):
@@ -874,17 +892,18 @@ class AgentTUI(App):
 
     def _selected_scenario(self) -> Optional[ScenarioInfo]:
         index = self._table_cursor_index()
-        scenarios = getattr(self, "scenarios", [])
+        scenarios = self.scenarios
         if index is None or not scenarios:
             return None
         if index < 0 or index >= len(scenarios):
             return None
         return scenarios[index]
 
-    def _skill_slug(self, skill: Dict[str, str]) -> str:
+    def _skill_slug(self, skill: Dict[str, Any]) -> str:
         path_value = skill.get("path")
         if not path_value:
-            return skill.get("name", "").replace(" ", "-")
+            name_value = str(skill.get("name", ""))
+            return name_value.replace(" ", "-")
         skill_path = Path(path_value)
         # SKILL.md lives inside the skill directory; use parent directory name
         if skill_path.name.lower() == "skill.md":
@@ -1008,14 +1027,14 @@ class AgentTUI(App):
 
     async def _handle_skill_result(
         self,
-        func,
+        func: Callable[..., Tuple[int, str]],
         *,
-        args: Optional[List[str]] = None,
+        args: Optional[Sequence[str]] = None,
         title: str,
         success: Optional[str] = None,
         error: Optional[str] = None,
     ) -> None:
-        args = args or []
+        args = list(args or [])
         try:
             exit_code, message = func(*args)
         except Exception as exc:
@@ -1028,7 +1047,7 @@ class AgentTUI(App):
 
         if exit_code == 0:
             if success:
-                self.notify(success, severity="success", timeout=2)
+                self.notify(success, severity="information", timeout=2)
         else:
             self.notify(error or f"{title} failed", severity="error", timeout=3)
 
@@ -1096,7 +1115,7 @@ class AgentTUI(App):
             self.status_message = f"Error loading agents: {e}"
             self.agents = []
 
-    def _parse_agent_file(self, path, status: str):
+    def _parse_agent_file(self, path: Path, status: str) -> Optional[AgentGraphNode]:
         """Parse an agent file and return an AgentGraphNode."""
         try:
             lines = _read_agent_front_matter_lines(path)
@@ -1171,14 +1190,22 @@ class AgentTUI(App):
             # Sort by category then name
             skills.sort(key=lambda s: (s["category"].lower(), s["name"].lower()))
 
+            self._attach_skill_ratings(skills)
             self.skills = skills
-            self.status_message = f"Loaded {len(skills)} skills"
+            if self.skill_rating_error:
+                self.status_message = (
+                    f"Loaded {len(skills)} skills (ratings offline)"
+                )
+            else:
+                self.status_message = f"Loaded {len(skills)} skills"
 
         except Exception as e:
             self.status_message = f"Error loading skills: {e}"
             self.skills = []
 
-    def _parse_skill_file(self, skill_file: Path, claude_dir: Path):
+    def _parse_skill_file(
+        self, skill_file: Path, claude_dir: Path
+    ) -> Optional[Dict[str, Any]]:
         """Parse a skill file and return skill data dictionary."""
         try:
             content = skill_file.read_text(encoding="utf-8")
@@ -1220,11 +1247,13 @@ class AgentTUI(App):
 
             return {
                 "name": name,
+                "slug": skill_file.parent.name,
                 "description": description,
                 "category": category,
                 "location": location,
                 "status": status,
                 "path": str(skill_file),
+                "rating_metrics": None,
             }
         except Exception:
             return None
@@ -1245,15 +1274,104 @@ class AgentTUI(App):
             # If git is not available or any error, assume not ignored
             return False
 
-    def show_skills_view(self, table: DataTable) -> None:
+    def _get_skill_rating_collector(self) -> Optional[SkillRatingCollector]:
+        """Instantiate (or return cached) rating collector."""
+        if self.skill_rating_collector is not None:
+            return self.skill_rating_collector
+
+        try:
+            self.skill_rating_collector = SkillRatingCollector()
+            self.skill_rating_error = None
+        except Exception as exc:
+            # Surface error but don't crash the skills view
+            self.skill_rating_collector = None
+            self.skill_rating_error = str(exc)
+        return self.skill_rating_collector
+
+    def _get_skill_prompt_manager(self) -> Optional[SkillRatingPromptManager]:
+        """Lazy-load the prompt manager used for auto-rating nudges."""
+        if isinstance(self.skill_prompt_manager, SkillRatingPromptManager):
+            return self.skill_prompt_manager
+
+        try:
+            self.skill_prompt_manager = SkillRatingPromptManager()
+        except Exception as exc:
+            # Surface one-time status so the user understands why prompts are missing
+            self.status_message = f"Rating prompts unavailable: {exc}"[:120]
+            self.skill_prompt_manager = None
+        return self.skill_prompt_manager
+
+    def _attach_skill_ratings(self, skills: List[Dict[str, Any]]) -> None:
+        """Populate rating metrics for every known skill (if available)."""
+        collector = self._get_skill_rating_collector()
+        if not collector:
+            for skill in skills:
+                skill["rating_metrics"] = None
+            return
+
+        for skill in skills:
+            slug = skill.get("slug") or self._skill_slug(skill)
+            try:
+                metrics = collector.get_skill_score(slug)
+            except Exception as exc:
+                self.skill_rating_error = str(exc)
+                metrics = None
+            skill["rating_metrics"] = metrics
+
+    def _format_skill_rating(self, skill: Dict[str, Any]) -> str:
+        """Return a human-friendly rating summary for the table."""
+        metrics = skill.get("rating_metrics")
+        if isinstance(metrics, SkillQualityMetrics):
+            total_text = f"{metrics.total_ratings} rating"
+            if metrics.total_ratings != 1:
+                total_text += "s"
+            helpful_text = f"{int(metrics.helpful_percentage)}% helpful"
+            return (
+                f"[gold1]{metrics.star_display()}[/gold1]\n"
+                f"[dim]{total_text} · {helpful_text}[/dim]"
+            )
+
+        if self.skill_rating_error:
+            summary = self.skill_rating_error.splitlines()[0][:48]
+            return f"[red]Unavailable[/red]\n[dim]{summary}[/dim]"
+
+        return "[dim]No ratings yet[/dim]"
+
+    async def _maybe_prompt_for_skill_ratings(self) -> None:
+        """Surface auto-prompts for recently used skills."""
+        manager = self._get_skill_prompt_manager()
+        if not manager:
+            return
+
+        try:
+            prompts = manager.detect_due_prompts(limit=3)
+        except Exception as exc:
+            self.status_message = f"Unable to check rating prompts: {exc}"[:120]
+            return
+
+        for prompt in prompts:
+            manager.mark_prompted(prompt.skill)
+            reason = prompt.reason
+            dialog = ConfirmDialog(
+                "Rate Skill",
+                f"{prompt.skill}\n{reason}\n\nWould you like to rate this skill now?",
+            )
+            confirm = await self.push_screen(dialog, wait_for_dismiss=True)
+            if not confirm:
+                continue
+
+            await self._rate_skill_interactive(prompt.skill, prompt.skill)
+
+    def show_skills_view(self, table: DataTable[Any]) -> None:
         """Show skills table with enhanced colors (READ-ONLY)."""
         table.add_column("Name", key="name", width=25)
-        table.add_column("Category", key="category", width=18)
-        table.add_column("Location", key="location", width=12)
+        table.add_column("Rating", key="rating", width=18)
+        table.add_column("Category", key="category", width=15)
+        table.add_column("Location", key="location", width=10)
         table.add_column("Description", key="description")
 
         if not hasattr(self, "skills") or not self.skills:
-            table.add_row("[dim]No skills found[/dim]", "", "", "")
+            table.add_row("[dim]No skills found[/dim]", "", "", "", "")
             return
 
         category_colors = {
@@ -1286,14 +1404,17 @@ class AgentTUI(App):
             # Truncate description - show more text
             description = f"[dim]{Format.truncate(skill['description'], 150)}[/dim]"
 
+            rating_text = self._format_skill_rating(skill)
+
             table.add_row(
                 name,
+                rating_text,
                 category_text,
                 location_text,
                 description,
             )
 
-    def show_profiles_view(self, table: DataTable) -> None:
+    def show_profiles_view(self, table: DataTable[Any]) -> None:
         """Render profile management view."""
         table.add_column("Profile", width=28)
         table.add_column("Type", width=12)
@@ -1307,7 +1428,8 @@ class AgentTUI(App):
         for profile in self.profiles:
             name = profile.get("name", "unknown")
             ptype = profile.get("type", "built-in")
-            description = Format.truncate(profile.get("description", ""), 60)
+            description_value = profile.get("description") or ""
+            description = Format.truncate(description_value, 60)
             updated = profile.get("modified") or "-"
             icon = Icons.SUCCESS if ptype == "built-in" else Icons.DOC
             if ptype == "built-in":
@@ -1322,7 +1444,7 @@ class AgentTUI(App):
                 updated,
             )
 
-    def show_export_view(self, table: DataTable) -> None:
+    def show_export_view(self, table: DataTable[Any]) -> None:
         """Render export configuration view."""
         table.add_column("Component", width=26)
         table.add_column("State", width=20)
@@ -1478,7 +1600,7 @@ class AgentTUI(App):
             self.status_message = f"Error loading rules: {e}"
             self.rules = []
 
-    def _parse_rule_file(self, path: Path, status: str):
+    def _parse_rule_file(self, path: Path, status: str) -> Optional[RuleNode]:
         """Parse a rule file and return a RuleNode."""
         try:
             name = path.stem
@@ -1574,7 +1696,7 @@ class AgentTUI(App):
             # Log full traceback for debugging
             print(f"[DEBUG] Mode loading error:\n{error_detail}")
 
-    def _parse_mode_file(self, path: Path, status: str):
+    def _parse_mode_file(self, path: Path, status: str) -> Optional[ModeInfo]:
         """Parse a mode file and return a ModeInfo."""
         try:
             name = path.stem
@@ -1754,7 +1876,7 @@ class AgentTUI(App):
             lock_dir = self._validate_path(claude_dir, lock_dir)
 
             # Cache latest state per scenario (by modification time)
-            state_cache: Dict[str, Dict[str, Optional[datetime]]] = {}
+            state_cache: Dict[str, ScenarioRuntimeState] = {}
             state_files = []
             for state_file in state_dir.glob("*.json"):
                 try:
@@ -1821,9 +1943,14 @@ class AgentTUI(App):
                             profiles.append(profile)
 
                 state_entry = state_cache.get(metadata.name)
-                status = state_entry.get("status") if state_entry else "pending"
-                started_at = state_entry.get("started") if state_entry else None
-                completed_at = state_entry.get("completed") if state_entry else None
+                if state_entry is not None:
+                    status = state_entry["status"]
+                    started_at = state_entry["started"]
+                    completed_at = state_entry["completed"]
+                else:
+                    status = "pending"
+                    started_at = None
+                    completed_at = None
 
                 lock_key = _scenario_lock_basename(metadata.name)
                 lock_holder = lock_map.get(lock_key)
@@ -1962,7 +2089,7 @@ class AgentTUI(App):
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
 
-    def _apply_view_title(self, table: DataTable, view: str) -> None:
+    def _apply_view_title(self, table: AnyDataTable, view: str) -> None:
         """Set border title on the main data table for the active view."""
         title = VIEW_TITLES.get(view, view.replace("_", " ").title())
         try:
@@ -1970,7 +2097,7 @@ class AgentTUI(App):
         except Exception:
             pass
 
-    def show_agents_view(self, table: DataTable) -> None:
+    def show_agents_view(self, table: AnyDataTable) -> None:
         """Show agents table with enhanced colors and formatting."""
         table.add_column("Name", key="name", width=35)
         table.add_column("Status", key="status", width=12)
@@ -2015,7 +2142,7 @@ class AgentTUI(App):
                 tier_text,
             )
 
-    def show_tasks_view(self, table: DataTable) -> None:
+    def show_tasks_view(self, table: AnyDataTable) -> None:
         """Show task management table."""
         table.add_column("Task", key="task", width=30)
         table.add_column("Category", key="category", width=16)
@@ -2055,7 +2182,7 @@ class AgentTUI(App):
                 started_text,
             )
 
-    def show_rules_view(self, table: DataTable) -> None:
+    def show_rules_view(self, table: AnyDataTable) -> None:
         """Show rules table with enhanced colors."""
         table.add_column("Name", key="name", width=25)
         table.add_column("Status", key="status", width=12)
@@ -2097,7 +2224,7 @@ class AgentTUI(App):
                 description,
             )
 
-    def show_modes_view(self, table: DataTable) -> None:
+    def show_modes_view(self, table: AnyDataTable) -> None:
         """Show modes table with enhanced colors."""
         table.add_column("Name", key="name", width=30)
         table.add_column("Status", key="status", width=12)
@@ -2131,7 +2258,7 @@ class AgentTUI(App):
                 purpose,
             )
 
-    def show_overview(self, table: DataTable) -> None:
+    def show_overview(self, table: AnyDataTable) -> None:
         """Show overview with high-energy ASCII dashboard."""
         table.add_column("Dashboard", key="dashboard")
 
@@ -2152,7 +2279,7 @@ class AgentTUI(App):
             1 for w in getattr(self, "workflows", []) if w.status == "running"
         )
 
-        def add_multiline(content: str):
+        def add_multiline(content: str) -> None:
             for line in content.split("\n"):
                 table.add_row(line)
 
@@ -2259,7 +2386,7 @@ class AgentTUI(App):
             }
         tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-    def _upsert_task(self, agent_id: Optional[str], payload: dict) -> None:
+    def _upsert_task(self, agent_id: Optional[str], payload: Dict[str, Any]) -> None:
         tasks = list(getattr(self, "agent_tasks", []))
         name = payload.get("name", "").strip()
         if not name:
@@ -2343,9 +2470,10 @@ class AgentTUI(App):
         if not tasks:
             return None
         table = self.query_one(DataTable)
-        if table.cursor_row is None:
+        row_value = getattr(table, "cursor_row", None)
+        if not isinstance(row_value, int):
             return None
-        return min(table.cursor_row, len(tasks) - 1)
+        return min(row_value, len(tasks) - 1)
 
     def _build_agent_nodes(self) -> List[WorkflowNode]:
         agents = getattr(self, "agents", [])
@@ -2426,7 +2554,7 @@ class AgentTUI(App):
 
         stats_widget.update("\n".join(stats_lines))
 
-    def show_workflows_view(self, table: DataTable) -> None:
+    def show_workflows_view(self, table: AnyDataTable) -> None:
         """Show workflows table."""
         table.add_column("Name", key="name")
         table.add_column("Status", key="status")
@@ -2479,7 +2607,7 @@ class AgentTUI(App):
                 description,
             )
 
-    def show_scenarios_view(self, table: DataTable) -> None:
+    def show_scenarios_view(self, table: AnyDataTable) -> None:
         """Show scenario catalog."""
         table.add_column("Scenario", key="scenario", width=32)
         table.add_column("Status", key="status", width=14)
@@ -2566,7 +2694,7 @@ class AgentTUI(App):
                 description,
             )
 
-    def show_orchestrate_view(self, table: DataTable) -> None:
+    def show_orchestrate_view(self, table: AnyDataTable) -> None:
         """Show orchestration dashboard with active agents and metrics."""
         table.add_column("Agent", key="agent")
         table.add_column("Category", key="category", width=16)
@@ -2684,7 +2812,7 @@ class AgentTUI(App):
             else:
                 table.add_row("Estimated Completion:", "", "TBD", "", "")
 
-    def show_mcp_view(self, table: DataTable) -> None:
+    def show_mcp_view(self, table: AnyDataTable) -> None:
         """Show MCP server overview with validation status."""
         table.add_column("Server", width=24)
         table.add_column("Command", width=30)
@@ -2736,7 +2864,7 @@ class AgentTUI(App):
                 Format.truncate(note, 60),
             )
 
-    def show_ai_assistant_view(self, table: DataTable) -> None:
+    def show_ai_assistant_view(self, table: AnyDataTable) -> None:
         """Show AI assistant recommendations and predictions."""
         table.add_column("Type", key="type", width=20)
         table.add_column("Recommendation", key="recommendation", width=30)
@@ -2753,7 +2881,7 @@ class AgentTUI(App):
             return
 
         # Get recommendations
-        recommendations = self.intelligent_agent.get_recommendations()
+        agent_recommendations = self.intelligent_agent.get_recommendations()
 
         # Show header
         table.add_row(
@@ -2767,7 +2895,7 @@ class AgentTUI(App):
         )
         table.add_row("", "", "", "")
 
-        if not recommendations:
+        if not agent_recommendations:
             table.add_row(
                 "[dim]Agent[/dim]",
                 "[dim]No recommendations[/dim]",
@@ -2776,7 +2904,7 @@ class AgentTUI(App):
             )
         else:
             # Show agent recommendations
-            for rec in recommendations[:10]:  # Top 10
+            for rec in agent_recommendations[:10]:  # Top 10
                 # Color by urgency
                 if rec.urgency == "critical":
                     urgency_color = "red"
@@ -2850,19 +2978,19 @@ class AgentTUI(App):
             )
 
             recommender = skill_recommender.SkillRecommender()
-            recommendations = recommender.recommend_for_context(context)
+            skill_recommendations = recommender.recommend_for_context(context)
 
-            if recommendations:
+            if skill_recommendations:
                 # Show top 5 skill recommendations
-                for rec in recommendations[:5]:
-                    confidence_pct = int(rec.confidence * 100)
+                for skill_rec in skill_recommendations[:5]:
+                    confidence_pct = int(skill_rec.confidence * 100)
 
                     # Color by confidence
-                    if rec.confidence >= 0.8:
+                    if skill_rec.confidence >= 0.8:
                         confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
                         skill_icon = "✓"
                         skill_color = "green"
-                    elif rec.confidence >= 0.6:
+                    elif skill_rec.confidence >= 0.6:
                         confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
                         skill_icon = "•"
                         skill_color = "yellow"
@@ -2872,13 +3000,17 @@ class AgentTUI(App):
                         skill_color = "dim"
 
                     # Auto-activate indicator
-                    auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
+                    auto_text = (
+                        " [bold cyan]AUTO[/bold cyan]"
+                        if skill_rec.auto_activate
+                        else ""
+                    )
 
                     table.add_row(
                         f"[{skill_color}]{skill_icon} Skill[/{skill_color}]",
-                        f"[bold]{rec.skill_name}[/bold]{auto_text}",
+                        f"[bold]{skill_rec.skill_name}[/bold]{auto_text}",
                         confidence_text,
-                        f"[dim italic]{rec.reason}[/dim italic]",
+                        f"[dim italic]{skill_rec.reason}[/dim italic]",
                     )
             else:
                 table.add_row(
@@ -2954,25 +3086,30 @@ class AgentTUI(App):
         )
         table.add_row("", "", "", "")
 
-        context = self.intelligent_agent.current_context
-        if context:
+        session_context: Optional[SessionContext] = (
+            self.intelligent_agent.current_context
+        )
+        if session_context:
             table.add_row(
-                "[cyan]Files Changed[/cyan]", f"{len(context.files_changed)}", "", ""
+                "[cyan]Files Changed[/cyan]",
+                f"{len(session_context.files_changed)}",
+                "",
+                "",
             )
 
             # Show detected contexts
             contexts_detected = []
-            if context.has_frontend:
+            if session_context.has_frontend:
                 contexts_detected.append("[blue]Frontend[/blue]")
-            if context.has_backend:
+            if session_context.has_backend:
                 contexts_detected.append("[green]Backend[/green]")
-            if context.has_database:
+            if session_context.has_database:
                 contexts_detected.append("[magenta]Database[/magenta]")
-            if context.has_tests:
+            if session_context.has_tests:
                 contexts_detected.append("[yellow]Tests[/yellow]")
-            if context.has_auth:
+            if session_context.has_auth:
                 contexts_detected.append("[red]Auth[/red]")
-            if context.has_api:
+            if session_context.has_api:
                 contexts_detected.append("[cyan]API[/cyan]")
 
             if contexts_detected:
@@ -2981,10 +3118,13 @@ class AgentTUI(App):
                 )
 
             # Show errors if any
-            if context.errors_count > 0 or context.test_failures > 0:
+            if (
+                session_context.errors_count > 0
+                or session_context.test_failures > 0
+            ):
                 table.add_row(
                     "[red]Issues:[/red]",
-                    f"[red]{context.errors_count} errors, {context.test_failures} test failures[/red]",
+                    f"[red]{session_context.errors_count} errors, {session_context.test_failures} test failures[/red]",
                     "",
                     "",
                 )
@@ -3170,7 +3310,8 @@ class AgentTUI(App):
                 "Run Scenario",
                 f"Execute scenario '{scenario.name}' in automatic mode?",
                 default=True,
-            )
+            ),
+            wait_for_dismiss=True,
         )
         if confirm is not True:
             self.status_message = "Scenario run cancelled"
@@ -3283,7 +3424,7 @@ class AgentTUI(App):
         if exit_code == 0:
             self.notify(
                 f"Scenario '{scenario.name}' is valid",
-                severity="success",
+                severity="information",
                 timeout=2,
             )
             self.status_message = f"Validated {scenario.name}"
@@ -3341,7 +3482,7 @@ class AgentTUI(App):
         clean = self._clean_ansi(message)
         if exit_code == 0:
             self.status_message = clean.split("\n")[0] if clean else f"Applied {name}"
-            self.notify(f"✓ Applied {name}", severity="success", timeout=2)
+            self.notify(f"✓ Applied {name}", severity="information", timeout=2)
             self.load_agents()
             self.load_modes()
             self.load_rules()
@@ -3366,7 +3507,7 @@ class AgentTUI(App):
         exit_code, message = profile_save(name.strip())
         clean = self._clean_ansi(message)
         if exit_code == 0:
-            self.notify(clean or f"Saved profile {name}", severity="success", timeout=2)
+            self.notify(clean or f"Saved profile {name}", severity="information", timeout=2)
             self.load_profiles()
             self.update_view()
         else:
@@ -3513,9 +3654,118 @@ class AgentTUI(App):
             return
         await self._handle_skill_result(
             skill_trending,
-            args=[days],
+            args=[str(days)],
             title=f"Trending Skills ({days}d)",
         )
+
+    async def _rate_skill_interactive(
+        self, skill_slug: str, display_name: Optional[str] = None
+    ) -> bool:
+        """Shared rating flow used by manual and auto prompts."""
+
+        label = display_name or skill_slug
+        title = f"Rate Skill · {label}"
+
+        stars_input = await self._prompt_text(
+            title,
+            f"Stars 1-5 for {label}",
+            default="5",
+        )
+        if stars_input is None:
+            return False
+        try:
+            stars = int(stars_input)
+        except ValueError:
+            self.notify(
+                "Rating must be a number between 1-5",
+                severity="error",
+                timeout=2,
+            )
+            return False
+        if stars < 1 or stars > 5:
+            self.notify(
+                "Rating must be between 1 and 5 stars",
+                severity="error",
+                timeout=2,
+            )
+            return False
+
+        helpful_input = await self._prompt_text(
+            "Was it helpful?",
+            "y/n",
+            default="y",
+        )
+        if helpful_input is None:
+            return False
+
+        succeeded_input = await self._prompt_text(
+            "Did the task succeed?",
+            "y/n",
+            default="y",
+        )
+        if succeeded_input is None:
+            return False
+
+        review = await self._prompt_text(
+            "Optional Review",
+            "Share a short review (Enter to skip)",
+            default="",
+        )
+        if review is None:
+            return False
+
+        helpful_value = (helpful_input or "y").strip().lower() not in {"n", "no"}
+        succeeded_value = (succeeded_input or "y").strip().lower() not in {
+            "n",
+            "no",
+        }
+        review_value = review.strip() or None
+
+        try:
+            exit_code, output = skill_rate(
+                skill_slug,
+                stars=stars,
+                helpful=helpful_value,
+                task_succeeded=succeeded_value,
+                review=review_value,
+            )
+        except Exception as exc:
+            self.notify(f"Rating failed: {exc}", severity="error", timeout=3)
+            return False
+
+        cleaned = self._clean_ansi(output)
+        if cleaned:
+            await self._show_text_dialog(f"Skill Rating · {label}", cleaned)
+
+        if exit_code == 0:
+            self.notify(f"Thanks for rating {label}", severity="information", timeout=2)
+            # Refresh cached metrics so the table reflects new data
+            self.skill_rating_collector = None
+            self.skill_prompt_manager = None  # ensure future prompts see new state
+            self.load_skills()
+            self.update_view()
+            manager = self._get_skill_prompt_manager()
+            if manager:
+                manager.mark_rated(skill_slug)
+            return True
+
+        self.notify(
+            f"Unable to rate {label}", severity="error", timeout=3
+        )
+        return False
+
+    async def action_skill_rate_selected(self) -> None:
+        """Collect a rating for the highlighted skill."""
+        if self.current_view != "skills":
+            self.action_view_skills()
+
+        skill = self._selected_skill()
+        if not skill:
+            self.notify("Select a skill to rate", severity="warning", timeout=2)
+            return
+
+        slug = self._skill_slug(skill)
+        await self._rate_skill_interactive(slug, skill.get("name", slug))
 
     async def action_skill_metrics_reset(self) -> None:
         confirm = await self.push_screen(
@@ -3569,7 +3819,7 @@ class AgentTUI(App):
             return
         await self._handle_skill_result(
             skill_community_rate,
-            args=[name, rating],
+            args=[name, str(rating)],
             title=f"Community Rate · {name}",
             success=f"Rated {name} ({rating})",
         )
@@ -3606,7 +3856,7 @@ class AgentTUI(App):
             await self._show_text_dialog(f"Skill Validation · {slug}", clean)
 
         if exit_code == 0:
-            self.notify(f"✓ {slug} validated", severity="success", timeout=2)
+            self.notify(f"✓ {slug} validated", severity="information", timeout=2)
         else:
             self.notify(f"Validation issues for {slug}", severity="error", timeout=3)
 
@@ -3729,7 +3979,7 @@ class AgentTUI(App):
         clean = self._clean_ansi(message)
         if exit_code == 0:
             self.status_message = clean or f"Exported to {output_path}"
-            self.notify(self.status_message, severity="success", timeout=2)
+            self.notify(self.status_message, severity="information", timeout=2)
         else:
             self.status_message = clean or "Export failed"
             self.notify(self.status_message, severity="error", timeout=3)
@@ -3761,7 +4011,7 @@ class AgentTUI(App):
         tmp_path.unlink(missing_ok=True)
 
         if self._copy_to_clipboard(content):
-            self.notify("Copied export to clipboard", severity="success", timeout=2)
+            self.notify("Copied export to clipboard", severity="information", timeout=2)
         else:
             self.notify("Clipboard unavailable", severity="warning", timeout=3)
 
@@ -3780,7 +4030,7 @@ class AgentTUI(App):
             note = "All checks passed"
             if warnings:
                 note = warnings[0]
-            self.notify(f"{server.name}: {note}", severity="success", timeout=2)
+            self.notify(f"{server.name}: {note}", severity="information", timeout=2)
         else:
             self.notify(
                 errors[0] if errors else "Validation failed",
@@ -3843,7 +4093,7 @@ class AgentTUI(App):
             TextViewerDialog(f"Snippet: {server.name}", snippet), wait_for_dismiss=True
         )
         if self._copy_to_clipboard(snippet):
-            self.notify("Snippet copied", severity="success", timeout=2)
+            self.notify("Snippet copied", severity="information", timeout=2)
         else:
             self.notify("Snippet ready", severity="information", timeout=2)
 
@@ -3888,7 +4138,7 @@ class AgentTUI(App):
                 description=result.get("description", ""),
             )
             if success:
-                self.notify(message, severity="success", timeout=2)
+                self.notify(message, severity="information", timeout=2)
                 self.load_mcp_servers()
                 self.update_view()
             else:
@@ -3905,10 +4155,10 @@ class AgentTUI(App):
             return
 
         # Prepare defaults for dialog
-        defaults = {
+        defaults: MCPServerData = {
             "name": server.name,
             "command": server.command,
-            "args": " ".join(server.args) if server.args else "",
+            "args": list(server.args),
             "description": server.description or "",
         }
 
@@ -3923,7 +4173,7 @@ class AgentTUI(App):
                 description=result.get("description", ""),
             )
             if success:
-                self.notify(message, severity="success", timeout=2)
+                self.notify(message, severity="information", timeout=2)
                 self.load_mcp_servers()
                 self.update_view()
             else:
@@ -3951,7 +4201,7 @@ class AgentTUI(App):
         if confirmed:
             success, message = remove_mcp_server(server.name)
             if success:
-                self.notify(message, severity="success", timeout=2)
+                self.notify(message, severity="information", timeout=2)
                 self.load_mcp_servers()
                 self.update_view()
             else:
@@ -3989,7 +4239,7 @@ class AgentTUI(App):
         if activated_count > 0:
             self.notify(
                 f"✓ Auto-activated {activated_count} agents",
-                severity="success",
+                severity="information",
                 timeout=3,
             )
             self.load_agents()
@@ -4015,14 +4265,14 @@ class AgentTUI(App):
                 timeout=5,
             )
 
-    def _handle_add_task(self, result: Optional[dict]) -> None:
+    def _handle_add_task(self, result: Optional[TaskEditorData]) -> None:
         if not result:
             return
         try:
-            self._upsert_task(None, result)
+            self._upsert_task(None, dict(result))
             self.current_view = "tasks"
             self.status_message = f"Created task {result.get('name', '')}"
-            self.notify("✓ Task added", severity="success", timeout=2)
+            self.notify("✓ Task added", severity="information", timeout=2)
         except Exception as exc:
             self.notify(f"Failed to add task: {exc}", severity="error", timeout=3)
 
@@ -4032,16 +4282,14 @@ class AgentTUI(App):
             self.notify("Select a task in Tasks view", severity="warning", timeout=2)
             return
         task = self.agent_tasks[index]
-        dialog = TaskEditorDialog(
-            "Edit Task",
-            defaults={
-                "name": task.agent_name,
-                "workstream": task.workstream,
-                "category": task.category,
-                "status": task.status,
-                "progress": task.progress,
-            },
-        )
+        defaults: TaskEditorData = {
+            "name": task.agent_name,
+            "workstream": task.workstream,
+            "category": task.category,
+            "status": task.status,
+            "progress": str(task.progress),
+        }
+        dialog = TaskEditorDialog("Edit Task", defaults=defaults)
         self.push_screen(
             dialog,
             callback=lambda result, agent_id=task.agent_id, label=task.agent_name: self._handle_edit_task(
@@ -4050,14 +4298,14 @@ class AgentTUI(App):
         )
 
     def _handle_edit_task(
-        self, agent_id: str, label: str, result: Optional[dict]
+        self, agent_id: str, label: str, result: Optional[TaskEditorData]
     ) -> None:
         if not result:
             return
         try:
-            self._upsert_task(agent_id, result)
+            self._upsert_task(agent_id, dict(result))
             self.status_message = f"Updated task {label}"
-            self.notify("✓ Task updated", severity="success", timeout=2)
+            self.notify("✓ Task updated", severity="information", timeout=2)
         except Exception as exc:
             self.notify(f"Failed to update task: {exc}", severity="error", timeout=3)
 
@@ -4146,13 +4394,13 @@ class AgentTUI(App):
                                 if agent.status == "active":
                                     self.notify(
                                         f"✓ Deactivated {agent.name}",
-                                        severity="success",
+                                        severity="information",
                                         timeout=2,
                                     )
                                 else:
                                     self.notify(
                                         f"✓ Activated {agent.name}",
-                                        severity="success",
+                                        severity="information",
                                         timeout=2,
                                     )
                                 self.load_agents()
@@ -4214,13 +4462,13 @@ class AgentTUI(App):
                             if rule.status == "active":
                                 self.notify(
                                     f"✓ Deactivated {rule.name}",
-                                    severity="success",
+                                    severity="information",
                                     timeout=2,
                                 )
                             else:
                                 self.notify(
                                     f"✓ Activated {rule.name}",
-                                    severity="success",
+                                    severity="information",
                                     timeout=2,
                                 )
 
@@ -4287,7 +4535,9 @@ class AgentTUI(App):
                                         notify_msg += f" (affects: {', '.join(affected_modes)})"
                                     self.notify(
                                         notify_msg,
-                                        severity="warning" if affected_modes else "success",
+                                        severity="warning"
+                                        if affected_modes
+                                        else "information",
                                         timeout=3 if affected_modes else 2,
                                     )
                                 else:
@@ -4297,7 +4547,7 @@ class AgentTUI(App):
                                         notify_msg += f" (auto-deactivated: {', '.join(deactivated_modes)})"
                                     self.notify(
                                         notify_msg,
-                                        severity="information" if deactivated_modes else "success",
+                                        severity="information",
                                         timeout=3 if deactivated_modes else 2,
                                     )
                                 self.load_modes()

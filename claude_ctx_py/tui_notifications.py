@@ -13,7 +13,7 @@ NotificationType = Literal["success", "error", "info", "warning"]
 class Toast:
     """Temporary notification system."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize toast notification manager."""
         self.notifications: List[Dict[str, Any]] = []
 
@@ -145,7 +145,7 @@ class Toast:
 class StatusMessage:
     """Persistent status message display."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize status message manager."""
         self._message = ""
         self._message_type: NotificationType = "info"

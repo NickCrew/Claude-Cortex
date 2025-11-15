@@ -36,7 +36,7 @@ class DependencyGraph:
         level: int = 0,
         max_depth: int = 3,
         prefix: str = "",
-    ):
+    ) -> None:
         """Recursively add dependencies to the line list.
 
         Args:

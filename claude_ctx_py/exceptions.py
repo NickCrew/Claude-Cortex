@@ -4,6 +4,13 @@ This module defines a hierarchy of exceptions used throughout the plugin
 to provide specific, actionable error messages with recovery suggestions.
 """
 
+from __future__ import annotations
+
+from pathlib import Path
+from typing import List, Optional, Sequence, Union
+
+PathLike = Union[str, Path]
+
 
 class ClaudeCtxError(Exception):
     """Base exception for all claude-ctx errors.
@@ -42,7 +49,9 @@ class FileOperationError(ClaudeCtxError):
 class SkillNotFoundError(FileOperationError):
     """Raised when a requested skill file cannot be found."""
 
-    def __init__(self, skill_name: str, search_paths: list = None):
+    def __init__(
+        self, skill_name: str, search_paths: Optional[Sequence[PathLike]] = None
+    ) -> None:
         message = f"Skill '{skill_name}' not found"
         if search_paths:
             paths = ", ".join(str(p) for p in search_paths)
@@ -51,7 +60,7 @@ class SkillNotFoundError(FileOperationError):
         recovery_hint = "Run 'claude-ctx skills list' to see available skills"
         super().__init__(message, recovery_hint)
         self.skill_name = skill_name
-        self.search_paths = search_paths
+        self.search_paths = list(search_paths) if search_paths else None
 
 
 class DirectoryNotFoundError(FileOperationError):
@@ -105,13 +114,13 @@ class YAMLValidationError(ValidationError, ValueError):
 class SkillValidationError(ValidationError):
     """Raised when skill content fails validation."""
 
-    def __init__(self, skill_name: str, errors: list):
+    def __init__(self, skill_name: str, errors: Sequence[str]) -> None:
         error_list = "\n  - ".join(errors)
         message = f"Skill '{skill_name}' validation failed:\n  - {error_list}"
         recovery_hint = "Fix validation errors and try again"
         super().__init__(message, recovery_hint)
         self.skill_name = skill_name
-        self.validation_errors = errors
+        self.validation_errors = list(errors)
 
 
 class VersionFormatError(ValidationError, ValueError):
@@ -135,12 +144,13 @@ class DependencyError(ValidationError):
 class CircularDependencyError(DependencyError):
     """Raised when circular dependencies are detected."""
 
-    def __init__(self, cycle_path: list):
-        cycle_str = " -> ".join(cycle_path)
+    def __init__(self, cycle_path: Sequence[str]) -> None:
+        cycle_list = list(cycle_path)
+        cycle_str = " -> ".join(cycle_list)
         message = f"Circular dependency detected: {cycle_str}"
         recovery_hint = "Remove one of the dependencies to break the cycle"
         super().__init__(message, recovery_hint)
-        self.cycle_path = cycle_path
+        self.cycle_path = cycle_list
 
 
 class MissingDependencyError(DependencyError):
@@ -184,8 +194,14 @@ class VersionCompatibilityError(VersionError):
 class NoCompatibleVersionError(VersionError):
     """Raised when no version satisfies requirements."""
 
-    def __init__(self, skill_name: str, requirement: str, available_versions: list):
-        versions_str = ", ".join(available_versions) if available_versions else "none"
+    def __init__(
+        self,
+        skill_name: str,
+        requirement: str,
+        available_versions: Sequence[str],
+    ) -> None:
+        available_list = list(available_versions)
+        versions_str = ", ".join(available_list) if available_list else "none"
         message = f"No version of '{skill_name}' satisfies requirement '{requirement}'"
         message += f"\n  Available versions: {versions_str}"
 
@@ -193,7 +209,7 @@ class NoCompatibleVersionError(VersionError):
         super().__init__(message, recovery_hint)
         self.skill_name = skill_name
         self.requirement = requirement
-        self.available_versions = available_versions
+        self.available_versions = available_list
 
 
 # Community-related exceptions
@@ -221,7 +237,9 @@ class SkillInstallationError(CommunityError):
 class RatingError(CommunityError):
     """Raised when skill rating fails."""
 
-    def __init__(self, skill_name: str, rating_value: int = None, reason: str = ""):
+    def __init__(
+        self, skill_name: str, rating_value: Optional[int] = None, reason: str = ""
+    ) -> None:
         message = f"Failed to rate skill '{skill_name}'"
         if rating_value is not None:
             message += f" with value {rating_value}"

@@ -57,8 +57,8 @@ def list_skills(home: Path | None = None) -> str:
             content = skill_file.read_text(encoding="utf-8")
             front_matter = _extract_front_matter(content)
             if front_matter:
-                lines = front_matter.strip().splitlines()
-                tokens = _tokenize_front_matter(lines)
+                front_lines = front_matter.strip().splitlines()
+                tokens = _tokenize_front_matter(front_lines)
                 description = (
                     _extract_scalar_from_paths(tokens, (("description",),))
                     or "No description"
@@ -152,7 +152,7 @@ def skill_versions(skill: str, home: Path | None = None) -> Tuple[int, str]:
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import versioner
+    from .. import versioner
 
     claude_dir = _resolve_claude_dir(home)
     skills_dir = claude_dir / "skills"
@@ -360,7 +360,7 @@ def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import activator
+    from .. import activator
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -582,7 +582,7 @@ def skill_analytics(
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import analytics, metrics
+    from .. import analytics, metrics
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -666,8 +666,10 @@ def skill_analytics(
             return 0, "\n".join(output)
 
         elif metric in ("tokens", "activations", "success_rate"):
-            # Show visualizations
-            visualization = analytics.visualize_metrics(metric, claude_dir)
+            all_metrics = metrics.get_all_metrics()
+            if not all_metrics:
+                return 0, _color("No metrics available for analytics", YELLOW)
+            visualization = analytics.visualize_metrics(metric, all_metrics)
             return 0, visualization
 
         else:
@@ -715,7 +717,7 @@ def skill_report(format: str = "text", home: Path | None = None) -> Tuple[int, s
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import analytics, metrics
+    from .. import analytics, metrics
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -749,7 +751,7 @@ def skill_trending(days: int = 30, home: Path | None = None) -> Tuple[int, str]:
     Returns:
         Tuple of (exit_code, output_message)
     """
-    from . import analytics
+    from .. import analytics
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -788,7 +790,7 @@ def skill_compose(skill: str, home: Path | None = None) -> Tuple[int, str]:
     Returns:
         Tuple of (exit_code, message)
     """
-    from . import composer
+    from .. import composer
 
     claude_dir = _resolve_claude_dir(home)
     skills_dir = claude_dir / "skills"
@@ -888,7 +890,7 @@ def skill_community_list(
         >>> skill_community_list(tags=["react"], sort_by="rating")  # Filter by tag and sort
         >>> skill_community_list(search="hooks")  # Search for skills matching "hooks"
     """
-    from . import community
+    from .. import community
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -1022,7 +1024,7 @@ def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, 
     Examples:
         >>> skill_community_install("react-hooks")  # Install the react-hooks skill
     """
-    from . import community
+    from .. import community
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -1088,7 +1090,7 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
     Examples:
         >>> skill_community_validate("my-new-skill")  # Validate a skill before submission
     """
-    from . import community
+    from .. import community
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -1172,7 +1174,7 @@ def skill_community_rate(
         >>> skill_community_rate("react-hooks", 5)  # Give 5 stars
         >>> skill_community_rate("python-utils", 4)  # Give 4 stars
     """
-    from . import community
+    from .. import community
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -1239,7 +1241,7 @@ def skill_community_search(
         >>> skill_community_search("react")  # Search for "react"
         >>> skill_community_search("hooks", tags=["frontend"])  # Search with tag filter
     """
-    from . import community
+    from .. import community
 
     claude_dir = _resolve_claude_dir(home)
 
@@ -1535,6 +1537,7 @@ def skill_rate(
         >>> skill_rate("api-design-patterns", 4)
     """
     from .. import skill_rating
+    from ..skill_rating_prompts import SkillRatingPromptManager
 
     if not skill:
         return 1, _color("Usage:", RED) + " claude-ctx skills rate <skill_name> --stars <1-5> [--review 'text']"
@@ -1588,6 +1591,11 @@ def skill_rate(
             "",
             _color("View skill ratings with:", BLUE) + " claude-ctx skills ratings <skill_name>",
         ])
+
+        try:
+            SkillRatingPromptManager(home=home).mark_rated(skill)
+        except Exception:
+            pass
 
         return 0, "\n".join(output_lines)
 

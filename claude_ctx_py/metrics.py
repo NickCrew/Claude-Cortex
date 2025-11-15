@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -73,13 +73,71 @@ def _save_metrics(metrics: Dict[str, Any]) -> None:
         ) from exc
 
 
-def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
+def _utc_now_iso() -> str:
+    """Return current UTC timestamp in ISO format with trailing Z."""
+
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _activations_path() -> Path:
+    """Return the path to the detailed activations log."""
+
+    return get_metrics_path() / "activations.json"
+
+
+def _load_activation_data() -> Dict[str, Any]:
+    """Load activation log contents, returning an empty structure on error."""
+
+    path = _activations_path()
+    if not path.exists():
+        return {"activations": []}
+
+    try:
+        data = safe_load_json(path)
+    except (InvalidMetricsDataError, FileNotFoundError):
+        return {"activations": []}
+
+    activations = data.get("activations")
+    if not isinstance(activations, list):
+        data["activations"] = []
+    return data
+
+
+def _save_activation_data(data: Dict[str, Any]) -> None:
+    """Persist activation log data to disk."""
+
+    path = _activations_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    safe_save_json(path, data)
+
+
+def _append_activation_record(record: Dict[str, Any]) -> None:
+    """Append a single activation record, trimming history to 1000 entries."""
+
+    data = _load_activation_data()
+    activations = data.setdefault("activations", [])
+    activations.append(record)
+    if len(activations) > 1000:
+        data["activations"] = activations[-1000:]
+    _save_activation_data(data)
+
+
+def record_activation(
+    skill_name: str,
+    tokens_used: int,
+    success: bool,
+    *,
+    context: Optional[Dict[str, Any]] = None,
+    log_detail: bool = True,
+) -> None:
     """Record a skill activation.
 
     Args:
         skill_name: Name of the skill being activated
         tokens_used: Number of tokens used/saved by the skill
         success: Whether the activation was successful
+        context: Optional metadata about the activation (agent, task_type, etc.)
+        log_detail: Whether to append this activation to the detailed log
     """
     metrics = load_metrics()
 
@@ -107,7 +165,7 @@ def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
     )
 
     # Update timestamp
-    skill_metrics["last_activated"] = datetime.utcnow().isoformat() + "Z"
+    skill_metrics["last_activated"] = _utc_now_iso()
 
     # Update success rate
     # Track successes based on previous rate and new result
@@ -118,6 +176,36 @@ def record_activation(skill_name: str, tokens_used: int, success: bool) -> None:
     skill_metrics["success_rate"] = new_successes / skill_metrics["activation_count"]
 
     _save_metrics(metrics)
+
+    if log_detail:
+        activation_context = context or {}
+        activation_record = {
+            "activation_id": str(uuid.uuid4()),
+            "skill_name": skill_name,
+            "timestamp": _utc_now_iso(),
+            "context": {
+                "agent": activation_context.get("agent", "unknown"),
+                "task_type": activation_context.get("task_type", "unknown"),
+                "project_type": activation_context.get("project_type", "unknown"),
+                "co_activated_skills": activation_context.get(
+                    "co_activated_skills", []
+                ),
+            },
+            "metrics": {
+                "tokens_loaded": activation_context.get("tokens_loaded", 0),
+                "tokens_saved": tokens_used,
+                "duration_ms": activation_context.get("duration_ms", 0),
+                "success": success,
+            },
+            "effectiveness": {
+                "relevance_score": activation_context.get("relevance_score", 0.8),
+                "completion_improvement": activation_context.get(
+                    "completion_improvement", 0.0
+                ),
+                "user_satisfaction": activation_context.get("user_satisfaction", 3),
+            },
+        }
+        _append_activation_record(activation_record)
 
 
 def get_skill_metrics(skill_name: str) -> Optional[Dict[str, Any]]:
@@ -173,24 +261,10 @@ def record_detailed_activation(skill_name: str, context: Dict[str, Any]) -> None
     Raises:
         MetricsFileError: If activation record cannot be saved
     """
-    metrics_path = get_metrics_path()
-
-    # Load or initialize detailed activations log
-    activations_file = metrics_path / "activations.json"
-
-    if activations_file.exists():
-        try:
-            activations_data = safe_load_json(activations_file)
-        except (InvalidMetricsDataError, FileNotFoundError):
-            activations_data = {"activations": []}
-    else:
-        activations_data = {"activations": []}
-
-    # Create activation record
     activation_record = {
         "activation_id": str(uuid.uuid4()),
         "skill_name": skill_name,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": _utc_now_iso(),
         "context": {
             "agent": context.get("agent", "unknown"),
             "task_type": context.get("task_type", "unknown"),
@@ -210,25 +284,18 @@ def record_detailed_activation(skill_name: str, context: Dict[str, Any]) -> None
         },
     }
 
-    # Add to activations list
-    activations_data["activations"].append(activation_record)
-
-    # Keep only last 1000 activations to prevent unbounded growth
-    if len(activations_data["activations"]) > 1000:
-        activations_data["activations"] = activations_data["activations"][-1000:]
-
-    # Save detailed activations
-    try:
-        safe_save_json(activations_file, activations_data)
-    except Exception as exc:
-        raise MetricsFileError(
-            str(activations_file), "write", f"Failed to save activation record: {exc}"
-        ) from exc
+    _append_activation_record(activation_record)
 
     # Also update the summary metrics
     tokens_saved = context.get("tokens_saved", 0)
     success = context.get("success", True)
-    record_activation(skill_name, tokens_saved, success)
+    record_activation(
+        skill_name,
+        tokens_saved,
+        success,
+        context=context,
+        log_detail=False,
+    )
 
 
 def get_effectiveness_score(skill_name: str) -> float:

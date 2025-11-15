@@ -11,7 +11,8 @@ import subprocess
 import signal
 import sys
 from pathlib import Path
-from typing import Set, Optional, List
+from types import FrameType
+from typing import Any, Deque, Dict, List, Optional, Set
 from datetime import datetime
 from collections import deque
 
@@ -49,7 +50,7 @@ class WatchMode:
         self.last_git_head = self._get_git_head()
         self.last_recommendations: List[AgentRecommendation] = []
         self.activated_agents: Set[str] = set()
-        self.notification_history: deque = deque(maxlen=50)
+        self.notification_history: Deque[Dict[str, str]] = deque(maxlen=50)
 
         # Statistics
         self.checks_performed = 0
@@ -223,7 +224,7 @@ class WatchMode:
         return old_agents != new_agents
 
     def _show_recommendations(
-        self, recommendations: List[AgentRecommendation], context
+        self, recommendations: List[AgentRecommendation], context: Any
     ) -> None:
         """Display recommendations.
 
@@ -368,7 +369,7 @@ class WatchMode:
         """
 
         # Setup signal handlers
-        def signal_handler(signum, frame):
+        def signal_handler(signum: int, frame: Optional[FrameType]) -> None:
             self.running = False
 
         signal.signal(signal.SIGINT, signal_handler)

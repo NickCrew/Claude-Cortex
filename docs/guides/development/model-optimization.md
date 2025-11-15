@@ -151,6 +151,19 @@ These agents may use either model based on task complexity:
 
 ---
 
+## Feedback-Driven Optimization
+
+Continuous feedback keeps the model strategy aligned with real-world behaviour:
+
+- **Ratings as Signals** – Every `claude-ctx skills rate <skill>` call feeds the rating database (`skill-ratings.db`). The optimizer consumes average stars, helpful %, and success correlation when deciding whether a Haiku skill should escalate to Sonnet for better reliability.
+- **Auto-Prompt Collection** – The TUI now surfaces rating prompts after a skill has been activated multiple times in the last 12 hours. That keeps recency high without relying on CLI usage.
+- **Activation Telemetry** – `metrics.record_activation` logs agent/task context for each invocation; `SkillRatingPromptManager` uses the shared `activations.json` file to detect hot skills, and the orchestrator reuses the same data when rebalancing Sonnet vs Haiku allocations.
+- **Analytics Hooks** – `skills ratings`, `skills top-rated`, and `skills export-ratings` expose the same metrics so humans can audit routing decisions, while the auto-router automatically penalizes chronically low-rated skills until they’re retrained or moved to Sonnet permanently.
+
+The net effect: high-confidence skills stay on the cheaper model tier, while anything with shaky feedback is automatically escalated or flagged for improvement without waiting for manual reviews.
+
+---
+
 ## Hybrid Orchestration Patterns
 
 ### Pattern 1: Design → Implement → Review
@@ -343,27 +356,9 @@ Savings: 68% reduction
 
 ---
 
-## Migration Plan (Historical Reference)
+## Migration Notes
 
-### Phase 1: Core Agents ✅ COMPLETE
-- ✅ Updated code generation agents (python-pro, typescript-pro)
-- ✅ Deployed Haiku for deterministic code tasks
-- ✅ Validated 94% success rate (target: >90%)
-
-### Phase 2: Testing & IaC ✅ COMPLETE
-- ✅ Migrated infrastructure agents (terraform-specialist, kubernetes-architect)
-- ✅ Migrated deployment agent (deployment-engineer)
-- ✅ Achieved 68% cost savings (exceeded target: 40%)
-
-### Phase 3: Architecture & Security ✅ COMPLETE
-- ✅ Optimized cloud-architect (opus → sonnet)
-- ✅ Optimized security-auditor (opus → sonnet)
-- ✅ Measured 3.5x latency improvements for Haiku agents
-
-### Phase 4: Validation & Documentation ✅ COMPLETE
-- ✅ Added reasoning fields to all agent model specifications
-- ✅ Validated YAML syntax across all agents
-- ✅ Updated documentation with implementation status
+The four-phase rollout (core agents → testing & IaC → architecture & security → validation & documentation) completed on **2025‑11‑14**. The tables above reflect the final state; keep them handy when onboarding new agents or evaluating future model swaps.
 
 ---
 

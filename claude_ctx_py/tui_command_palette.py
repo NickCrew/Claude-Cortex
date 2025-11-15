@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Dict, Callable, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
 from textual.screen import ModalScreen
@@ -72,15 +72,15 @@ class CommandPalette(ModalScreen[Optional[str]]):
             self.filtered_commands = self.commands.copy()
         else:
             # Fuzzy search implementation
-            self.filtered_commands = []
+            scored_commands: List[Tuple[int, Dict[str, str]]] = []
             for cmd in self.commands:
                 score = self._fuzzy_match(query, cmd["name"].lower())
                 if score > 0:
-                    self.filtered_commands.append((score, cmd))
+                    scored_commands.append((score, cmd))
 
-            # Sort by score (highest first)
-            self.filtered_commands.sort(key=lambda x: x[0], reverse=True)
-            self.filtered_commands = [cmd for score, cmd in self.filtered_commands]
+            # Sort by score (highest first) and drop scores
+            scored_commands.sort(key=lambda item: item[0], reverse=True)
+            self.filtered_commands = [cmd for _, cmd in scored_commands]
 
         self.selected_index = 0
         self._update_results()
@@ -189,10 +189,13 @@ class CommandPalette(ModalScreen[Optional[str]]):
         self.dismiss(None)
 
 
+CommandTuple = Union[Tuple[str, str, str], Tuple[str, str, str, str]]
+
+
 class CommandRegistry:
     """Registry for available commands in the TUI."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize command registry."""
         self.commands: List[Dict[str, str]] = []
 
@@ -211,9 +214,7 @@ class CommandRegistry:
             command["badge"] = badge
         self.commands.append(command)
 
-    def register_batch(
-        self, commands: List[Tuple[str, str, str] | Tuple[str, str, str, str]]
-    ) -> None:
+    def register_batch(self, commands: Sequence[CommandTuple]) -> None:
         """Register multiple commands at once.
 
         Args:
@@ -241,7 +242,7 @@ class CommandRegistry:
 
 
 # Default command registry for TUI
-DEFAULT_COMMANDS = [
+DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Show Agents", "View and manage agents", "show_agents", "core"),
     ("Show Skills", "Browse available skills", "show_skills", "catalog"),
     ("Show Modes", "View active modes", "show_modes", "context"),

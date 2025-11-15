@@ -82,6 +82,38 @@ claude-ctx ai record-success --outcome "feature complete"
 
 See [AI Intelligence Guide](docs/guides/development/AI_INTELLIGENCE_GUIDE.md) and [Watch Mode Guide](docs/guides/development/WATCH_MODE_GUIDE.md) for complete documentation.
 
+### ⭐ New: Skill Ratings & Auto-Feedback Loops
+
+**Phase 5** introduces a first-class feedback engine so skills can improve themselves:
+
+- **Ratings & Reviews** – `claude-ctx skills rate <skill>` stores star ratings, helpful/not-helpful votes, and optional text feedback in `~/.claude/data/skill-ratings.db`.
+- **Quality Metrics** – `claude-ctx skills ratings <skill>` shows averages, distributions, success correlation, and token efficiency; `skills top-rated`, `skills export-ratings`, and `skills analytics` expose the aggregate view.
+- **TUI Surfacing** – The Skills table now includes a **Rating** column (press `5`). Select a skill and press `Ctrl+R` to launch an inline rating dialog without leaving the terminal.
+- **Auto Prompts** – Recent skill activations trigger modal prompts shortly after the TUI launches. The prompt explains why the skill was selected (usage count, task types, success rate) and offers to collect feedback on the spot. Dismiss once to snooze for 24 h; rating it clears future prompts until another burst of usage.
+- **Recommendation Feedback Loop** – Ratings feed back into the AI recommender, so highly rated skills are prioritized and low-signal ones get demoted automatically (Feature 2 of the Phase 5 roadmap).
+
+```bash
+# Record a rating and optional review
+claude-ctx skills rate owasp-top-10 --stars 5 --review "Still the best security checklist"
+
+# Inspect ratings/metrics
+claude-ctx skills ratings owasp-top-10
+claude-ctx skills top-rated --limit 5
+
+# Export for analysis
+claude-ctx skills export-ratings --format csv > skill-feedback.csv
+```
+
+Within the TUI:
+
+```
+claude-ctx tui
+# Press 5 for Skills view, highlight a skill, press Ctrl+R to rate
+# Auto prompts appear when the assistant detects a frequently used skill that lacks fresh feedback
+```
+
+See [Phase 5 Roadmap](docs/guides/development/PHASE5_ROADMAP.md) for the broader Intelligence + Feedback plan.
+
 ### 🔌 New: MCP Server Management
 
 **Intelligent MCP server management** - Observe, validate, and document your Model Context Protocol servers:
@@ -263,6 +295,10 @@ See [CREDITS.md](CREDITS.md) for detailed attribution and a complete list of ins
 - Update the version in `.claude-plugin/plugin.json` whenever you publish a new release.
 - Keep semantic changes to commands or agents alongside changelog entries in `CLAUDE.md` or `RULES.md`.
 - Use `claude plugin validate .` to confirm the manifest structure prior to publishing.
+- **Run strict type checks before opening a PR.**
+  - `python3 -m mypy --strict claude_ctx_py`
+  - The CI harness also drops the latest failure output in `/tmp/mypy.log`; keep that file around when iterating locally so you can jump directly to errors with your editor.
+  - New modules should prefer `TypedDict`/`Protocol` over raw `dict`/`Any`, and Textual mixins need explicit state attributes so the UI keeps passing `--strict`.
 
 For marketplace configuration examples, see `../claude-private-marketplace`.
 

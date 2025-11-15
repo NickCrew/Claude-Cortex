@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, cast
 
 from . import core
 
@@ -18,7 +18,7 @@ def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
     except ImportError:  # pragma: no cover
         return
 
-    argcomplete.autocomplete(parser)  # type: ignore[attr-defined]
+    argcomplete.autocomplete(parser)
 
 
 def _print(text: str) -> None:
@@ -854,15 +854,15 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(message)
             return exit_code
         if args.skills_command == "feedback":
-            skill = getattr(args, "skill", None)
-            rating = getattr(args, "rating", None)
+            skill = cast(str, args.skill)
+            rating = cast(str, args.rating)
             comment = getattr(args, "feedback_comment", None)
             exit_code, message = core.skill_feedback(skill, rating, comment)
             _print(message)
             return exit_code
         if args.skills_command == "rate":
-            skill = getattr(args, "skill", None)
-            stars = getattr(args, "stars", None)
+            skill = cast(str, args.skill)
+            stars = cast(int, args.stars)
             # Handle helpful flags (not-helpful overrides default)
             helpful = not getattr(args, "not_helpful", False)
             # Handle succeeded flags (failed overrides default)
@@ -874,7 +874,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(message)
             return exit_code
         if args.skills_command == "ratings":
-            skill = getattr(args, "skill", None)
+            skill = cast(str, args.skill)
             exit_code, message = core.skill_ratings(skill)
             _print(message)
             return exit_code
@@ -885,7 +885,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             _print(message)
             return exit_code
         if args.skills_command == "export-ratings":
-            skill = getattr(args, "export_skill", None)
+            skill = cast(str, args.export_skill)
             format = getattr(args, "export_format", "json")
             exit_code, message = core.skill_ratings_export(skill, format)
             _print(message)
@@ -907,23 +907,25 @@ def main(argv: Iterable[str] | None = None) -> int:
                 _print(message)
                 return exit_code
             if community_command == "install":
-                skill = getattr(args, "skill", None)
+                skill = cast(str, args.skill)
                 exit_code, message = core.skill_community_install(skill)
                 _print(message)
                 return exit_code
             if community_command == "validate":
-                skill = getattr(args, "skill", None)
+                skill = cast(str, args.skill)
                 exit_code, message = core.skill_community_validate(skill)
                 _print(message)
                 return exit_code
             if community_command == "rate":
-                skill = getattr(args, "skill", None)
-                rating = getattr(args, "community_rating", None)
-                exit_code, message = core.skill_community_rate(skill, rating)
+                skill = cast(str, args.skill)
+                community_rating = cast(int, args.community_rating)
+                exit_code, message = core.skill_community_rate(
+                    skill, community_rating
+                )
                 _print(message)
                 return exit_code
             if community_command == "search":
-                query = getattr(args, "query", None)
+                query = cast(str, args.query)
                 tags = getattr(args, "community_search_tags", None)
                 exit_code, message = core.skill_community_search(query, tags=tags)
                 _print(message)
@@ -1145,6 +1147,7 @@ def main(argv: Iterable[str] | None = None) -> int:
             from pathlib import Path
 
             # Support "-" for stdout
+            output_path: Path | str
             if args.output == "-":
                 output_path = "-"
             else:

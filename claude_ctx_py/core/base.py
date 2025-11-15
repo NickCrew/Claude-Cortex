@@ -15,7 +15,7 @@ import time
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 
 BLUE = "\033[0;34m"
@@ -30,9 +30,9 @@ def _color(text: str, color: str) -> str:
 
 
 try:  # pragma: no cover - dependency availability exercised in tests
-    import yaml  # type: ignore
+    import yaml
 except ImportError:  # pragma: no cover
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 def _resolve_claude_dir(home: Path | None = None) -> Path:
@@ -536,7 +536,7 @@ def _now_iso() -> str:
 
 def _load_detection_file(
     path: Path,
-) -> Tuple[Optional[dict], Optional[str], Optional[str]]:
+) -> Tuple[Optional[Dict[str, Any]], Optional[str], Optional[str]]:
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
@@ -548,6 +548,9 @@ def _load_detection_file(
         data = json.loads(text)
     except json.JSONDecodeError as exc:
         return None, f"invalid JSON: {exc}", text
+
+    if not isinstance(data, dict):
+        return None, "invalid JSON structure", text
 
     return data, None, text
 
@@ -617,7 +620,7 @@ def _prompt_user(prompt: str, default: str = "") -> str:
         display = f"{prompt}: "
 
     try:
-        response = builtins.input(display)  # type: ignore[attr-defined]
+        response = builtins.input(display)
     except (EOFError, KeyboardInterrupt):
         return default
 
