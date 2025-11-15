@@ -35,7 +35,7 @@ class SystemMetrics:
             Dictionary with memory stats
         """
         try:
-            import psutil  # type: ignore[import-untyped]
+            import psutil
 
             process = psutil.Process(os.getpid())
             mem_info = process.memory_info()

@@ -63,7 +63,7 @@ def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
     for skill, deps in data.items():
         # Skip non-string keys
         if not isinstance(skill, str):
-            continue
+            continue  # type: ignore[unreachable]
 
         if deps is None:
             composition_map[skill] = []
