@@ -29,9 +29,13 @@ jobs:
     - name: Run mypy on Phase 4 modules
       run: |
         mypy claude_ctx_py/activator.py \
-             claude_ctx_py/suggester.py \
              claude_ctx_py/composer.py \
-             claude_ctx_py/metrics.py
+             claude_ctx_py/metrics.py \
+             claude_ctx_py/analytics.py \
+             claude_ctx_py/community.py \
+             claude_ctx_py/versioner.py \
+             claude_ctx_py/exceptions.py \
+             claude_ctx_py/error_utils.py
 
     - name: Run mypy on all modules (informational)
       continue-on-error: true
