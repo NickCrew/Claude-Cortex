@@ -28,6 +28,7 @@ dev = [
     "types-psutil>=5.9.0",
     "black>=23.0.0",
     "PyYAML>=6.0.0",
+    "build>=1.0.0",
 ]
 
 [project.urls]
