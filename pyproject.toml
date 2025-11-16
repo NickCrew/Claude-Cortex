@@ -29,6 +29,7 @@ dev = [
     "black>=23.0.0",
     "PyYAML>=6.0.0",
     "build>=1.0.0",
+    "python-semantic-release>=9.0.0",
 ]
 
 [project.urls]
@@ -155,10 +156,57 @@ extend-exclude = '''
 
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
+version_variables = []
 build_command = "python -m build"
+dist_path = "dist/"
+upload_to_vcs_release = true
+upload_to_pypi = true
+upload_to_repository = true
+remove_dist = false
+patch_without_tag = false
+major_on_zero = true
+allow_zero_version = true
 commit_parser = "angular"
+logging_use_named_masks = false
 tag_format = "v{version}"
 
 [tool.semantic_release.branches.main]
 match = "main"
 prerelease = false
+
+[tool.semantic_release.changelog]
+template_dir = "templates"
+changelog_file = "CHANGELOG.md"
+exclude_commit_patterns = []
+
+[tool.semantic_release.changelog.environment]
+block_start_string = "{%"
+block_end_string = "%}"
+variable_start_string = "{{"
+variable_end_string = "}}"
+comment_start_string = "{#"
+comment_end_string = "#}"
+trim_blocks = false
+lstrip_blocks = false
+newline_sequence = "\n"
+keep_trailing_newline = false
+extensions = []
+autoescape = true
+
+[tool.semantic_release.commit_author]
+env = "GIT_COMMIT_AUTHOR"
+default = "semantic-release <semantic-release>"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "style", "refactor", "test"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.remote]
+name = "origin"
+type = "github"
+ignore_token_for_push = false
+
+[tool.semantic_release.publish]
+dist_glob_patterns = ["dist/*"]
+upload_to_vcs_release = true
