@@ -10,6 +10,8 @@ The TUI now has a **beautiful, functional command palette** with visual styling 
 
 Press **Ctrl+P** in the TUI to open the command palette.
 
+> **New:** The palette now launches on its own worker, so it stays responsive even if other dialogs (task details, log viewers, etc.) are open. If Ctrl+P used to throw a `NoActiveWorker` error in older builds, that workflow is now fixed.
+
 ### Search for Commands
 
 Type to search:
@@ -105,6 +107,7 @@ COMMAND_PROVIDERS = [AgentCommandProvider]
 2. **Learn shortcuts**: Command descriptions show keyboard shortcuts
 3. **Visual cues**: Icon colors indicate action type (view, activate, toggle, etc.)
 4. **Context help**: Descriptions explain what happens after selecting
+5. **Safe reopening**: Because the palette runs in a dedicated worker, you can pop it open repeatedly—even while workflows are launching or logs are streaming—without destabilising the TUI.
 
 ## Example Workflows
 

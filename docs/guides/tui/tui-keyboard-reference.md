@@ -86,6 +86,13 @@ Quick reference for claude-ctx TUI navigation and commands.
 | V        | Validate | Validate scenario schema          |
 | H        | History  | Show recent scenario status       |
 
+### Tasks View
+| Key | Action        | Description                                        |
+|-----|--------------|----------------------------------------------------|
+| s   | Details      | Open the full task modal with raw notes + metadata |
+| L   | Stream Log   | Tail the backing log inside the TUI log viewer     |
+| O   | Open Log     | Launch the log in your OS viewer/editor            |
+
 ### Profile View
 | Key    | Action             | Description                     |
 |--------|--------------------|---------------------------------|

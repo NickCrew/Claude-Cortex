@@ -19,6 +19,8 @@ class TaskEditorData(TypedDict, total=False):
     category: str
     status: str
     progress: str
+    description: str
+    raw_notes: str
 
 
 class MCPServerData(TypedDict, total=False):
@@ -275,6 +277,11 @@ class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
                     placeholder="Progress 0-100",
                     id="task-progress",
                 )
+                yield Input(
+                    value=self.defaults.get("description", ""),
+                    placeholder="Details / notes (optional)",
+                    id="task-description",
+                )
                 with Container(id="dialog-buttons"):
                     yield Button("Save", variant="success", id="save")
                     yield Button("Cancel", variant="error", id="cancel")
@@ -297,6 +304,7 @@ class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
         category = self.query_one("#task-category", Input).value.strip()
         status = self.query_one("#task-status", Input).value.strip()
         progress = self.query_one("#task-progress", Input).value.strip()
+        description = self.query_one("#task-description", Input).value.strip()
 
         if not name:
             self.dismiss(None)
@@ -309,6 +317,8 @@ class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
                 "category": category or "general",
                 "status": status or "pending",
                 "progress": progress or "0",
+                "description": description,
+                "raw_notes": description,
             }
         )
 
@@ -375,9 +385,26 @@ class TextViewerDialog(ModalScreen[None]):
     TextViewerDialog {
         align: center middle;
     }
-    
+
     TextViewerDialog #dialog {
         opacity: 1;
+    }
+
+    TextViewerDialog #dialog-scroll {
+        max-height: 60vh;
+        width: 80%;
+        max-width: 95vw;
+    }
+
+    TextViewerDialog #dialog-message {
+        text-style: none;
+        text-align: left;
+    }
+
+    TextViewerDialog #dialog-hint {
+        text-align: center;
+        color: $text-muted;
+        padding: 0 1;
     }
     """
 
@@ -397,9 +424,15 @@ class TextViewerDialog(ModalScreen[None]):
                 yield Static(
                     f"{Icons.DOC} [bold]{self.title}[/bold]", id="dialog-title"
                 )
+                with VerticalScroll(id="dialog-scroll"):
+                    yield Static(
+                        self.body,
+                        id="dialog-message",
+                        markup=False,
+                    )
                 yield Static(
-                    f"[dim]{Format.truncate(self.body, 4000)}[/dim]",
-                    id="dialog-message",
+                    "[dim]Use ↑/↓, PageUp/PageDown, or mouse wheel to scroll[/dim]",
+                    id="dialog-hint",
                 )
                 yield Button("Close", variant="primary", id="close")
 
@@ -408,6 +441,13 @@ class TextViewerDialog(ModalScreen[None]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.dismiss()
+
+    def on_mount(self) -> None:
+        """Focus the scroll region so keyboard scrolling works immediately."""
+        try:
+            self.query_one("#dialog-scroll", VerticalScroll).focus()
+        except Exception:
+            pass
 
 
 class MCPServerDialog(ModalScreen[Optional[MCPServerData]]):

@@ -13,7 +13,7 @@ Understand how the TUI slices the Claude CTX plugin into manageable pieces so yo
 | Profiles   | Bundles of agents + modes + rules + resource limits | `profiles/**.profile` | View `8` (Profiles) | One tap switches the entire operating posture |
 | Workflows  | Ordered, restartable sequences of steps | `workflows/*.yaml` | View `6` (Workflows) | Drive long-running operations; feed Orchestrate view |
 | Scenarios  | Event playbooks with triggers, phases, monitoring, and rollback | `scenarios/*.yaml` | Hotkey `S` (Scenarios view) | Can activate profiles, agents, and workflows per phase |
-| Orchestrate / Tasks | Real-time agent task board, regardless of origin | Hotkey `o` (Orchestrate) / `t` (Tasks) | Pulls from workflow/scenario executions |
+| Orchestrate / Tasks | Real-time agent task board with per-task notes + log streaming | Hotkey `o` (Orchestrate) / `t` (Tasks) | Pulls from workflow/scenario executions |
 | AI Assistant | Predictive recommendations across the stack | View `0` | Suggests which profile/workflow/scenario fits the current repo state |
 | Shortcuts / Help | Keyboard overlays and command palette tips | `docs/guides/tui/tui-keyboard-reference.md` | `?` (help overlay) / `Ctrl+P` (command palette) | Keeps operators aligned on the hotkeys tied to each entity |
 
@@ -43,7 +43,7 @@ Workflows are ideal for predictable, repeatable sequences (feature work, bug fix
 4. **Skills (5)** – Optional but handy: when a workflow step references `/dev:git` or `/ctx:test`, the skill view lets you validate/install them before orchestrating.
 5. **Workflows (6)** – Shows YAML-derived metadata, current step, and progress bar. Press `Shift+R` to launch the highlighted workflow or `s` to stop the active one; the Orchestrate view reflects each agent task once it starts.
 6. **Scenarios (`S`)** – Catalog every operational playbook living under `~/.claude/scenarios`. Rows display priority coloring, count of phases/agents, last run timestamp, and quick actions (`P`, `Shift+R`, `s`, `V`, `H`).
-7. **Orchestrate (`o`) & Tasks (`t`)** – Live task board that aggregates whatever the workflows/scenarios launched. Critical for verifying that the parallel workstreams a profile demands are actually running.
+7. **Orchestrate (`o`) & Tasks (`t`)** – Live task board that aggregates whatever the workflows/scenarios launched. Press `s` for the full detail modal, `L` to tail the source log inside the TUI, or `O` to pop the log open in your native viewer. Critical for verifying that the parallel workstreams a profile demands are actually running.
 8. **Profiles (8)** – When you apply or save a profile snapshot, the next pass through Overview/Agents/Modes immediately reflects the new state.
 9. **AI Assistant (0)** – Consumes metrics collected from agents/modes/workflows to recommend “next best” actions (e.g., “Run performance-optimize workflow” when runtime metrics spike). It is a guidance layer that keeps the pieces aligned.
 

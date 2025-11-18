@@ -149,6 +149,9 @@ class AgentTask:
     category: str = "general"
     started: Optional[float] = None
     completed: Optional[float] = None
+    description: str = ""
+    raw_notes: str = ""
+    source_path: Optional[str] = None
 
 
 @dataclass
@@ -302,6 +305,7 @@ class AgentTUI(App[None]):
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
+        self._tasks_state_signature: Optional[str] = None
 
     CSS = """
     /* Super Saiyan Mode Colors 🔥 */
@@ -562,6 +566,8 @@ class AgentTUI(App[None]):
         Binding("s", "stop_selected", "Stop", show=False),
         Binding("V", "scenario_validate_selected", "Validate Scenario", show=False),
         Binding("H", "scenario_status_history", "Scenario Status", show=False),
+        Binding("L", "task_open_source", "Open Log", show=False),
+        Binding("O", "task_open_external", "Open File", show=False),
         # Vi-style navigation
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
@@ -673,6 +679,7 @@ class AgentTUI(App[None]):
 
         # Start performance monitoring timer
         self.set_interval(1.0, self.update_performance_status)
+        self.set_interval(2.0, self._poll_tasks_file_changes)
 
         # Force initial status bar update
         self.watch_status_message(self.status_message)
@@ -748,6 +755,7 @@ class AgentTUI(App[None]):
             "workflows": {"run_selected", "stop_selected"},
             "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
             "ai_assistant": {"auto_activate"},
+            "tasks": {"details_context", "edit_item", "task_open_source", "task_open_external"},
         }
 
         # Get the set of keys to show for the current view, default to empty set
@@ -1519,6 +1527,7 @@ class AgentTUI(App[None]):
     def load_agent_tasks(self) -> None:
         """Load active agent tasks for orchestration view."""
         tasks: List[AgentTask] = []
+        tasks_dir: Optional[Path] = None
         try:
             tasks_dir = self._tasks_dir()
 
@@ -1538,14 +1547,24 @@ class AgentTUI(App[None]):
                             category=task_info.get("category", "general"),
                             started=task_info.get("started"),
                             completed=task_info.get("completed"),
+                            description=task_info.get("description", ""),
+                            raw_notes=task_info.get("raw_notes", ""),
+                            source_path=task_info.get("source_path"),
                         )
                     )
         except Exception:
             # No active tasks or error reading - use empty list
-            pass
+            tasks_dir = tasks_dir or None
+
+        if not tasks and tasks_dir is not None:
+            tasks = self._build_workflow_task_fallback(tasks_dir)
 
         tasks.sort(key=lambda t: t.agent_name.lower())
         self.agent_tasks = tasks
+        if tasks_dir is not None:
+            self._tasks_state_signature = self._compute_tasks_state_signature(tasks_dir)
+        else:
+            self._tasks_state_signature = self._project_agent_signature()
         self.refresh_status_bar()
 
     def load_rules(self) -> None:
@@ -2150,11 +2169,12 @@ class AgentTUI(App[None]):
         table.add_column("Status", key="status", width=12)
         table.add_column("Progress", key="progress", width=12)
         table.add_column("Started", key="started", width=18)
+        table.add_column("Details", key="details", width=48)
 
         tasks = getattr(self, "agent_tasks", [])
         if not tasks:
-            table.add_row("[dim]No tasks yet[/dim]", "", "", "", "", "")
-            table.add_row("[dim]Press A to add a task[/dim]", "", "", "", "", "")
+            table.add_row("[dim]No tasks yet[/dim]", "", "", "", "", "", "")
+            table.add_row("[dim]Press A to add a task[/dim]", "", "", "", "", "", "")
             return
 
         for task in tasks:
@@ -2173,6 +2193,12 @@ class AgentTUI(App[None]):
                 started_dt = datetime.fromtimestamp(task.started)
                 started_text = Format.time_ago(started_dt)
 
+            details_text = (
+                Format.truncate(task.description, 90)
+                if task.description
+                else "[dim]No details[/dim]"
+            )
+
             table.add_row(
                 f"{Icons.CODE} {task.agent_name}",
                 self._format_category(task.category or task.workstream),
@@ -2180,6 +2206,7 @@ class AgentTUI(App[None]):
                 status_icon,
                 progress_bar,
                 started_text,
+                details_text,
             )
 
     def show_rules_view(self, table: AnyDataTable) -> None:
@@ -2330,6 +2357,275 @@ class AgentTUI(App[None]):
     def _tasks_file_path(self) -> Path:
         return self._tasks_dir() / "active_agents.json"
 
+    def _build_workflow_task_fallback(self, tasks_dir: Path) -> List[AgentTask]:
+        """Generate synthetic tasks from workflow + active project sessions."""
+        fallback: List[AgentTask] = []
+        active_file = tasks_dir / "active_workflow"
+        workflow_name = ""
+        if active_file.is_file():
+            try:
+                workflow_name = active_file.read_text(encoding="utf-8").strip()
+            except OSError:
+                workflow_name = ""
+
+        workflow_name = workflow_name or "Active Workflow"
+        status_file = tasks_dir / "workflow_status"
+        try:
+            status_raw = status_file.read_text(encoding="utf-8").strip()
+        except OSError:
+            status_raw = ""
+
+        status_normalized = (status_raw or "running").lower()
+        if status_normalized in {"done", "completed"}:
+            status_normalized = "complete"
+
+        started_file = tasks_dir / "workflow_started"
+        started: Optional[float] = None
+        if started_file.is_file():
+            try:
+                started = float(started_file.read_text(encoding="utf-8").strip())
+            except ValueError:
+                started = None
+
+        current_step_file = tasks_dir / "current_step"
+        try:
+            current_step = current_step_file.read_text(encoding="utf-8").strip()
+        except OSError:
+            current_step = ""
+
+        progress_lookup = {
+            "pending": 5,
+            "running": 45,
+            "paused": 30,
+            "complete": 100,
+            "error": 0,
+        }
+        progress = progress_lookup.get(status_normalized, 10)
+        display_name = workflow_name
+        if current_step:
+            display_name = f"{workflow_name} · {current_step}"
+
+        description_bits = [f"Status: {status_normalized.title()}"]
+        if current_step:
+            description_bits.append(f"Current step: {current_step}")
+        if started:
+            started_dt = datetime.fromtimestamp(started)
+            description_bits.append(f"Started {Format.time_ago(started_dt)}")
+        description_text = " • ".join(description_bits)
+
+        fallback.append(
+            AgentTask(
+                agent_id=f"workflow::{workflow_name.lower().replace(' ', '-')}",
+                agent_name=display_name,
+                workstream="workflow",
+                status=status_normalized,
+                progress=progress,
+                category="workflow",
+                started=started,
+                completed=None,
+                description=description_text,
+                raw_notes=f"Workflow file: {tasks_dir}",
+                source_path=str(tasks_dir / "workflow_status"),
+            )
+        )
+
+        project_tasks = self._collect_project_agent_tasks()
+        seen_ids = {task.agent_id for task in fallback}
+        for task in project_tasks:
+            if task.agent_id in seen_ids:
+                continue
+            fallback.append(task)
+            seen_ids.add(task.agent_id)
+        return fallback
+
+    def _collect_project_agent_tasks(self) -> List[AgentTask]:
+        """Read recent agent launch logs to synthesize tasks for active projects."""
+        claude_dir = _resolve_claude_dir()
+        projects_root = claude_dir / "projects"
+        if not projects_root.is_dir():
+            return []
+
+        agent_files: List[Path] = []
+        for project_dir in projects_root.iterdir():
+            if not project_dir.is_dir():
+                continue
+            agent_files.extend(sorted(project_dir.glob("agent-*.jsonl")))
+
+        now = time.time()
+        # Sort by modification time (newest first) and limit to avoid heavy parsing
+        agent_files = sorted(
+            (path for path in agent_files if path.is_file()),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+
+        tasks: List[AgentTask] = []
+        max_files = 40
+        max_age_seconds = 24 * 3600
+        for path in agent_files[:max_files]:
+            try:
+                mtime = path.stat().st_mtime
+            except OSError:
+                continue
+            if now - mtime > max_age_seconds:
+                continue
+            try:
+                raw = path.read_text(encoding="utf-8").strip()
+                if not raw:
+                    continue
+                record = json.loads(raw)
+            except Exception:
+                continue
+
+            text_blocks: List[str] = []
+            message = record.get("message", {})
+            for block in message.get("content", []):
+                if isinstance(block, dict) and block.get("type") == "text":
+                    text_blocks.append(block.get("text", ""))
+            if not text_blocks:
+                continue
+            full_text = "\n".join(text_blocks)
+            if "Workstreams" not in full_text:
+                continue
+
+            project_tasks = self._parse_workstream_sections(
+                full_text, path, record, mtime
+            )
+            tasks.extend(project_tasks)
+            if len(tasks) >= 12:
+                break
+        return tasks
+
+    def _parse_workstream_sections(
+        self, text: str, agent_file: Path, record: Dict[str, Any], mtime: float
+    ) -> List[AgentTask]:
+        """Extract structured tasks from rich workstream summaries."""
+        tasks: List[AgentTask] = []
+        workstream_pattern = re.compile(
+            r"###\s+\d+\.\s+\*\*(.+?)\*\*\s*\(([^)]+)\)", re.IGNORECASE
+        )
+        matches = list(workstream_pattern.finditer(text))
+        if not matches:
+            return tasks
+
+        cwd = record.get("cwd") or record.get("message", {}).get("cwd", "")
+        project_name = Path(cwd).name if cwd else "project"
+
+        for idx, match in enumerate(matches):
+            name = match.group(1).strip()
+            agent_label = match.group(2).strip()
+            next_start = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+            section_body = text[match.end() : next_start]
+            raw_section = section_body.strip()
+            description_lines = []
+            for line in section_body.splitlines():
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith("###"):
+                    break
+                if stripped.startswith("-") or stripped.startswith("•"):
+                    description_lines.append(stripped.lstrip("-• "))
+            if description_lines:
+                description = "; ".join(description_lines)
+            else:
+                paragraph_lines = [
+                    line.strip()
+                    for line in section_body.splitlines()
+                    if line.strip() and not line.strip().startswith("###")
+                ]
+                description = " ".join(paragraph_lines[:2])
+            if cwd:
+                description = (description + f" • Path: {cwd}").strip()
+            description = description.strip()
+
+            heading_meta = f"{name} {agent_label}".lower()
+            status = "running"
+            if "after" in heading_meta or "pending" in heading_meta:
+                status = "pending"
+
+            progress = 60 if status == "running" else 15
+            agent_slug = re.sub(r"[^a-z0-9]+", "-", f"{agent_label}-{name}".lower()).strip("-")
+            agent_id = f"project::{agent_file.stem}::{agent_slug or 'agent'}"
+
+            tasks.append(
+                AgentTask(
+                    agent_id=agent_id,
+                    agent_name=name,
+                    workstream=project_name,
+                    status=status,
+                    progress=progress,
+                    category="workflow",
+                    started=mtime if status == "running" else None,
+                    completed=None,
+                    description=description,
+                    raw_notes=raw_section,
+                    source_path=str(agent_file),
+                )
+            )
+        return tasks
+
+    def _project_agent_signature(self) -> str:
+        claude_dir = _resolve_claude_dir()
+        projects_root = claude_dir / "projects"
+        if not projects_root.is_dir():
+            return "no-projects"
+
+        now = time.time()
+        max_age_seconds = 24 * 3600
+        records: List[str] = []
+        for project_dir in projects_root.iterdir():
+            if not project_dir.is_dir():
+                continue
+            for agent_file in project_dir.glob("agent-*.jsonl"):
+                try:
+                    mtime = agent_file.stat().st_mtime
+                except OSError:
+                    continue
+                if now - mtime > max_age_seconds:
+                    continue
+                records.append(f"{project_dir.name}/{agent_file.name}:{mtime}")
+
+        if not records:
+            return "no-active-project-agents"
+
+        records.sort()
+        return "|".join(records)
+
+
+    def _compute_tasks_state_signature(self, tasks_dir: Path) -> str:
+        """Return a signature tracking relevant workflow/task files."""
+        anchors = [
+            "active_agents.json",
+            "active_workflow",
+            "workflow_status",
+            "workflow_started",
+            "current_step",
+        ]
+        parts: List[str] = []
+        for name in anchors:
+            path = tasks_dir / name
+            if path.is_file():
+                try:
+                    parts.append(f"{name}:{path.stat().st_mtime}")
+                except OSError:
+                    parts.append(f"{name}:err")
+            else:
+                parts.append(f"{name}:missing")
+        parts.append(self._project_agent_signature())
+        return "|".join(parts)
+
+    def _poll_tasks_file_changes(self) -> None:
+        """Reload tasks when task/workflow state files change on disk."""
+        tasks_dir = self._tasks_dir()
+        signature = self._compute_tasks_state_signature(tasks_dir)
+        if signature == self._tasks_state_signature:
+            return
+
+        self.load_agent_tasks()
+        if self.current_view in {"tasks", "orchestrate"}:
+            self.update_view()
+
     def _get_agent_category(self, identifier: Optional[str]) -> Optional[str]:
         if not identifier:
             return None
@@ -2383,6 +2679,9 @@ class AgentTUI(App[None]):
                 "category": task.category,
                 "started": task.started,
                 "completed": task.completed,
+                "description": task.description,
+                "raw_notes": task.raw_notes,
+                "source_path": task.source_path,
             }
         tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -2399,6 +2698,9 @@ class AgentTUI(App[None]):
         except (TypeError, ValueError):
             progress = 0
         progress = max(0, min(progress, 100))
+        description = payload.get("description", "") or ""
+        description = description.strip()
+        raw_notes = payload.get("raw_notes", "") or description
 
         def adjust_times(existing: AgentTask) -> None:
             if status == "running" and not existing.started:
@@ -2420,24 +2722,28 @@ class AgentTUI(App[None]):
                     task.status = status
                     task.progress = progress
                     task.category = category
+                    task.description = description
+                    task.raw_notes = raw_notes
                     adjust_times(task)
                     updated = True
                     break
             if not updated:
                 tasks.append(
-                    AgentTask(
-                        agent_id=agent_id,
-                        agent_name=name,
-                        workstream=workstream,
-                        status=status,
-                        progress=progress,
-                        category=category,
-                        started=(
-                            time.time() if status in ("running", "complete") else None
-                        ),
-                        completed=time.time() if status == "complete" else None,
-                    )
+                AgentTask(
+                    agent_id=agent_id,
+                    agent_name=name,
+                    workstream=workstream,
+                    status=status,
+                    progress=progress,
+                    category=category,
+                    started=(
+                        time.time() if status in ("running", "complete") else None
+                    ),
+                    completed=time.time() if status == "complete" else None,
+                    description=description,
+                    raw_notes=raw_notes,
                 )
+            )
         else:
             new_id = self._generate_task_id(name)
             tasks.append(
@@ -2450,6 +2756,8 @@ class AgentTUI(App[None]):
                     category=category,
                     started=time.time() if status in ("running", "complete") else None,
                     completed=time.time() if status == "complete" else None,
+                    description=description,
+                    raw_notes=raw_notes,
                 )
             )
 
@@ -3451,6 +3759,7 @@ class AgentTUI(App[None]):
 
     def action_view_tasks(self) -> None:
         """Switch to tasks view."""
+        self.load_agent_tasks()
         self.current_view = "tasks"
         self.status_message = "Switched to Tasks"
         self.notify("🗂 Tasks", severity="information", timeout=1)
@@ -3941,10 +4250,179 @@ class AgentTUI(App[None]):
 
     async def action_details_context(self) -> None:
         """Context-aware details shortcut."""
-        if self.current_view == "mcp":
+        if self.current_view == "agents":
+            # Running in a worker ensures push_screen wait semantics work reliably
+            self.run_worker(self._show_selected_agent_definition(), exclusive=True)
+            return
+        elif self.current_view == "mcp":
             await self.action_mcp_details()
+        elif self.current_view == "tasks":
+            self.run_worker(self._show_task_details(), exclusive=True)
+            return
         else:
             self.notify("Details not available", severity="warning", timeout=2)
+
+    async def _show_selected_agent_definition(self) -> None:
+        """Open the full agent definition for the selected agent."""
+        agent = self._selected_agent()
+        if not agent:
+            self.notify(
+                "Select an agent to view its definition",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        try:
+            claude_dir = _resolve_claude_dir()
+            agent_path = self._validate_path(claude_dir, agent.path)
+        except ValueError:
+            agent_path = agent.path
+
+        try:
+            definition = agent_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to load {agent.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        await self._show_text_dialog(f"{agent.name} Definition", definition)
+        self.status_message = f"Viewing definition for {agent.name}"
+        self.refresh_status_bar()
+
+    async def _show_task_details(self) -> None:
+        index = self._selected_task_index()
+        if index is None:
+            self.notify("Select a task to view details", severity="warning", timeout=2)
+            return
+        tasks = getattr(self, "agent_tasks", [])
+        if not tasks or index >= len(tasks):
+            self.notify("No task details available", severity="warning", timeout=2)
+            return
+        task = tasks[index]
+        lines = [
+            f"Task: {task.agent_name}",
+            f"Workstream: {task.workstream}",
+            f"Category: {task.category}",
+            f"Status: {task.status.title()}",
+            f"Progress: {task.progress}%",
+        ]
+        if task.started:
+            started_dt = datetime.fromtimestamp(task.started)
+            lines.append(f"Started: {started_dt.isoformat(timespec='seconds')}")
+        if task.completed:
+            completed_dt = datetime.fromtimestamp(task.completed)
+            lines.append(f"Completed: {completed_dt.isoformat(timespec='seconds')}")
+        if task.source_path:
+            lines.append(
+                f"Source log: {task.source_path} (press L to stream, O to open externally)"
+            )
+        lines.append("")
+        summary = task.description or "No summary captured for this task."
+        lines.append("Summary:")
+        lines.append(summary)
+        if task.raw_notes:
+            lines.append("")
+            lines.append("Raw Notes:")
+            lines.append(task.raw_notes)
+        await self._show_text_dialog(f"Task · {task.agent_name}", "\n".join(lines))
+        self.status_message = f"Viewing details for {task.agent_name}"
+        self.refresh_status_bar()
+
+    async def action_task_open_source(self) -> None:
+        """Stream the underlying log file for the selected task."""
+        if self.current_view != "tasks":
+            self.notify("Switch to Tasks view to open logs", severity="warning", timeout=2)
+            return
+        index = self._selected_task_index()
+        if index is None:
+            self.notify("Select a task to open its log", severity="warning", timeout=2)
+            return
+        tasks = getattr(self, "agent_tasks", [])
+        if not tasks or index >= len(tasks):
+            self.notify("No task selected", severity="warning", timeout=2)
+            return
+        task = tasks[index]
+        if not task.source_path:
+            self.notify("Task has no associated log", severity="warning", timeout=2)
+            return
+
+        path = Path(task.source_path)
+        try:
+            claude_dir = _resolve_claude_dir()
+            path = self._validate_path(claude_dir, path)
+        except ValueError:
+            path = Path(task.source_path)
+
+        if not path.exists():
+            self.notify("Log file missing", severity="error", timeout=2)
+            return
+
+        command = ["tail", "-n", "200", "-f", str(path)]
+        self.run_worker(
+            self._open_task_log(command, task.agent_name), exclusive=True
+        )
+
+    async def _open_task_log(self, command: List[str], label: str) -> None:
+        await self.push_screen(
+            LogViewerScreen(command, title=f"Task Log · {label}"),
+            wait_for_dismiss=True,
+        )
+        self.status_message = f"Streaming log for {label}"
+        self.refresh_status_bar()
+
+    async def action_task_open_external(self) -> None:
+        """Open the task log in the system viewer/editor."""
+        if self.current_view != "tasks":
+            self.notify("Switch to Tasks view to open logs", severity="warning", timeout=2)
+            return
+        index = self._selected_task_index()
+        if index is None:
+            self.notify("Select a task to open its log", severity="warning", timeout=2)
+            return
+        tasks = getattr(self, "agent_tasks", [])
+        if not tasks or index >= len(tasks):
+            self.notify("No task selected", severity="warning", timeout=2)
+            return
+        task = tasks[index]
+        if not task.source_path:
+            self.notify("Task has no associated log", severity="warning", timeout=2)
+            return
+
+        path = Path(task.source_path)
+        try:
+            claude_dir = _resolve_claude_dir()
+            path = self._validate_path(claude_dir, path)
+        except ValueError:
+            path = Path(task.source_path)
+
+        if not path.exists():
+            self.notify("Log file missing", severity="error", timeout=2)
+            return
+
+        opened = self._open_path_external(path)
+        if opened:
+            self.status_message = f"Opened {path.name}"
+            self.notify("Opened log in system viewer", severity="information", timeout=2)
+        else:
+            self.notify("Failed to open log", severity="error", timeout=2)
+
+    def _open_path_external(self, path: Path) -> bool:
+        try:
+            if sys.platform == "darwin":
+                subprocess.Popen(["open", str(path)])
+            elif sys.platform.startswith("linux"):
+                subprocess.Popen(["xdg-open", str(path)])
+            elif sys.platform == "win32":
+                os.startfile(str(path))  # type: ignore[attr-defined]
+            else:
+                return False
+            return True
+        except Exception:
+            return False
 
     def action_export_cycle_format(self) -> None:
         """Toggle between agent-generic and Claude-specific export formats."""
@@ -4269,7 +4747,9 @@ class AgentTUI(App[None]):
         if not result:
             return
         try:
-            self._upsert_task(None, dict(result))
+            payload = dict(result)
+            payload.setdefault("raw_notes", payload.get("description", ""))
+            self._upsert_task(None, payload)
             self.current_view = "tasks"
             self.status_message = f"Created task {result.get('name', '')}"
             self.notify("✓ Task added", severity="information", timeout=2)
@@ -4288,6 +4768,8 @@ class AgentTUI(App[None]):
             "category": task.category,
             "status": task.status,
             "progress": str(task.progress),
+            "description": task.description,
+            "raw_notes": task.raw_notes,
         }
         dialog = TaskEditorDialog("Edit Task", defaults=defaults)
         self.push_screen(
@@ -4303,7 +4785,9 @@ class AgentTUI(App[None]):
         if not result:
             return
         try:
-            self._upsert_task(agent_id, dict(result))
+            payload = dict(result)
+            payload.setdefault("raw_notes", task.raw_notes)
+            self._upsert_task(agent_id, payload)
             self.status_message = f"Updated task {label}"
             self.notify("✓ Task updated", severity="information", timeout=2)
         except Exception as exc:
@@ -4589,6 +5073,8 @@ class AgentTUI(App[None]):
             self.load_scenarios()
         elif self.current_view == "orchestrate":
             self.load_agent_tasks()
+        elif self.current_view == "tasks":
+            self.load_agent_tasks()
         elif self.current_view == "mcp":
             self.load_mcp_servers()
         elif self.current_view == "profiles":
@@ -4606,9 +5092,12 @@ class AgentTUI(App[None]):
 
     def action_command_palette(self) -> None:
         """Show the command palette."""
-        self.push_screen(
+        self.run_worker(self._open_command_palette(), exclusive=True)
+
+    async def _open_command_palette(self) -> None:
+        await self.push_screen(
             CommandPalette(self.command_registry.commands),
-            self._on_command_selected
+            self._on_command_selected,
         )
 
     def _on_command_selected(self, command_action: Optional[str]) -> None:

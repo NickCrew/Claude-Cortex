@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import List
+from contextlib import suppress
+from typing import List, Optional
 
 from textual.app import ComposeResult
 from textual.containers import Container
@@ -30,6 +31,8 @@ class LogViewerScreen(Screen[None]):
         super().__init__(name=name, id=id, classes=classes)
         self.command = command
         self._header_title = title
+        self._process: Optional[asyncio.subprocess.Process] = None
+        self._runner: Optional[asyncio.Task[None]] = None
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the screen."""
@@ -43,24 +46,63 @@ class LogViewerScreen(Screen[None]):
         if self.app is not None:
             self.app.title = self._header_title
         log.write(f"$ {' '.join(self.command)}\n")
+        self._runner = asyncio.create_task(self._run_command(log))
 
+    async def on_unmount(self) -> None:
+        """Terminate the subprocess when the screen is closed."""
+        if self._runner and not self._runner.done():
+            self._runner.cancel()
+            with suppress(asyncio.CancelledError):
+                await self._runner
+        self._runner = None
+
+    async def _run_command(self, log: RichLog) -> None:
         try:
-            process = await asyncio.create_subprocess_exec(
+            self._process = await asyncio.create_subprocess_exec(
                 *self.command,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            await asyncio.gather(
-                self._read_stream(process.stdout, log),
-                self._read_stream(process.stderr, log)
+            assert self._process.stdout is not None
+            assert self._process.stderr is not None
+
+            stdout_task = asyncio.create_task(
+                self._read_stream(self._process.stdout, log)
+            )
+            stderr_task = asyncio.create_task(
+                self._read_stream(self._process.stderr, log)
             )
 
-            await process.wait()
-            log.write(f"\n[bold green]Process finished with exit code {process.returncode}[/bold green]")
+            try:
+                await asyncio.gather(stdout_task, stderr_task)
+            finally:
+                for task in (stdout_task, stderr_task):
+                    if not task.done():
+                        task.cancel()
 
+            await self._process.wait()
+            log.write(
+                f"\n[bold green]Process finished with exit code {self._process.returncode}[/bold green]"
+            )
+
+        except asyncio.CancelledError:
+            await self._terminate_process()
+            raise
         except Exception as e:
             log.write(f"\n[bold red]Failed to start process: {e}[/bold red]")
+        finally:
+            self._process = None
+
+    async def _terminate_process(self) -> None:
+        if self._process and self._process.returncode is None:
+            self._process.terminate()
+            with suppress(asyncio.TimeoutError):
+                await asyncio.wait_for(self._process.wait(), timeout=1.0)
+            if self._process.returncode is None:
+                self._process.kill()
+                with suppress(asyncio.TimeoutError):
+                    await asyncio.wait_for(self._process.wait(), timeout=1.0)
 
     async def _read_stream(self, stream: asyncio.StreamReader | None, log: RichLog) -> None:
         """Read from a stream and write to the log widget."""

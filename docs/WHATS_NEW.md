@@ -1,5 +1,16 @@
 # What's New in Claude-ctx
 
+## 2025-11-18: Task Log Streaming & Palette Hardening
+
+### 🔍 Task Detail Panel + Log Actions
+- The Tasks view now surfaces every workstream with inline summaries and a detail modal (`s`) that shows raw notes, timestamps, and the source log path.
+- Two new shortcuts ship with the view: `L` tails the underlying `agent-*.jsonl` file inside the TUI log viewer, and `O` opens the same file via `open`/`xdg-open`/`start` so you can keep digging in your native editor.
+- Docs updated: [Entity guide](guides/tui/tui-entity-guide.html) and [keyboard reference](guides/tui/tui-keyboard-reference.html) call out the new workflow, and the screenshots section now has placeholders for Tasks view details.
+
+### 🎛 Command Palette Reliability
+- Ctrl+P previously threw `NoActiveWorker` in edge cases (e.g., when other modals were open). The palette now launches on its own worker, so you can summon it repeatedly while logs stream or tasks refresh.
+- The [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) has been refreshed to note the stability fix and reiterate the quick actions you can stack while workflows run.
+
 ## 2025-11-11: Major Enhancement - Three-Layer System & Visual Documentation
 
 ### 🎨 New Behavioral Modes (4 added)
