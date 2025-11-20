@@ -6,8 +6,8 @@ Understand how the TUI slices the Claude CTX plugin into manageable pieces so yo
 
 | Entity     | What it controls | Source files | TUI entry point | Downstream impact |
 |------------|-----------------|--------------|-----------------|-------------------|
-| Agents     | Individual specialists with triggers, dependencies, and skills | `agents/*.md`, `agents-disabled/` | View `2` (Agents) | Form the workforce that workflows/scenarios schedule |
-| Modes      | Behavioral overlays that rewrite execution rules (e.g., `Parallel_Orchestration`) | `modes/`, `modes-inactive/` | View `3` (Modes) | Change how every active agent executes tasks |
+| Agents     | Individual specialists with triggers, dependencies, and skills | `agents/*.md`, `inactive/agents/` | View `2` (Agents) | Form the workforce that workflows/scenarios schedule |
+| Modes      | Behavioral overlays that rewrite execution rules (e.g., `Parallel_Orchestration`) | `modes/`, `inactive/modes/` | View `3` (Modes) | Change how every active agent executes tasks |
 | Rules      | Instruction blocks (workflow, quality, efficiency) loaded into `CLAUDE.md` | `rules/*.md` | View `4` (Rules) | Provide guardrails that profiles/modes rely on |
 | Skills     | Discrete capabilities/commands surfaced in the palette | `skills/**/SKILL.md` | View `5` (Skills) | Extend what agents can automate |
 | Profiles   | Bundles of agents + modes + rules + resource limits | `profiles/**.profile` | View `8` (Profiles) | One tap switches the entire operating posture |
@@ -19,7 +19,7 @@ Understand how the TUI slices the Claude CTX plugin into manageable pieces so yo
 
 ## Profiles vs. Modes
 
-* **Modes** are single behavioral overlays. The TUI loads everything under `modes/` (active) and `modes/inactive/` (available) and exposes them in View `3`. Press `Space` to toggle a mode on or off; the status chip flips between `● ACTIVE` and `○ inactive`.
+* **Modes** are single behavioral overlays. The TUI loads everything under `modes/` (active) and `inactive/modes/` (available, legacy `modes/inactive/` supported) and exposes them in View `3`. Press `Space` to toggle a mode on or off; the status chip flips between `● ACTIVE` and `○ inactive`.
 * **Profiles** bundle multiple modes, rules, and agent tiers. Looking at `profiles/enhanced/incident-response.profile` you can see `MODES="Orchestration"`, `RULES="workflow-rules efficiency-rules"`, agent tiers, activation strategy, and workflow hints. In View `8`, `Space` applies a profile, `n` snapshots the current selection, and `D` deletes a saved profile. Applying a profile simultaneously toggles the listed modes/rules and preloads the referenced agents, so it is the fastest way to change the operating posture.
 
 Use modes when you need a targeted behavior tweak (e.g., temporarily enabling `Super_Saiyan`), and use profiles when you need a whole operating bundle (agents + modes + rules + concurrency limits).

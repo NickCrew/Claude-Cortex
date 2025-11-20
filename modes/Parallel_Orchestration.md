@@ -43,10 +43,11 @@ auto_activate_triggers:
 - NO code merges without passing all gates
 
 ### 3. Agent Maximization is MANDATORY
-- Use maximum available agents for every task
+- Use maximum available Task agents (visible subagents) for every task
 - Idle agents during execution = planning failure
 - Workstream coordination is required
 - Agent output monitored and integrated
+- User can see all agents' progress in real-time
 
 ## Auto-Activation Triggers
 
@@ -84,13 +85,13 @@ This mode ACTIVATES AUTOMATICALLY when:
 
 ### Phase 3: Execution (Parallel)
 **REQUIRED STEPS**:
-1. **Single Message Launch**: ALL parallel agents in ONE message
-2. **Quality Parallel Launch**: Quality workstream launches with primary
-3. **Progress Monitoring**: Track all agent outputs
+1. **Single Message Launch**: ALL parallel Task agents in ONE message (visible to user)
+2. **Quality Parallel Launch**: Quality workstream launches with primary via Task tool
+3. **Progress Monitoring**: User and Claude track all agent outputs in real-time
 4. **Coordination**: Manage dependencies between workstreams
 5. **Integration**: Merge results as agents complete
 
-**OUTPUT**: All workstreams running simultaneously
+**OUTPUT**: All Task agents (visible subagents) running simultaneously, user can monitor progress
 
 ### Phase 4: Validation (After Completion)
 **REQUIRED STEPS**:
@@ -204,14 +205,23 @@ This mode ACTIVATES AUTOMATICALLY when:
 
 ## Parallel Execution Patterns
 
-### Pattern 1: Independent Tool Calls
+### Pattern 1: Simple Operations (Direct Tool Calls)
 ```markdown
-✅ CORRECT:
+✅ CORRECT for quick reads (1-2 files):
 <function_calls>
 <invoke name="Read"><parameter name="file_path">file1.ts</parameter></invoke>
 <invoke name="Read"><parameter name="file_path">file2.ts</parameter></invoke>
-<invoke name="Read"><parameter name="file_path">file3.ts</parameter></invoke>
 </function_calls>
+
+✅ BETTER for 3+ files or complex work (Visible Task agents):
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze files 1-5</description>
+  <prompt>Read and analyze files 1-5...</prompt>
+</invoke>
+</function_calls>
+User can now monitor this agent's progress!
 
 ❌ WRONG (Sequential):
 Read file1 → Then read file2 → Then read file3
@@ -333,10 +343,13 @@ Quality Agents → Reports → Validation Check
 **Fix**: STOP, add quality workstream, launch in parallel
 
 **Failure**: Single agent when multiple possible
-**Fix**: STOP, split work, launch multiple agents
+**Fix**: STOP, split work, launch multiple Task agents (visible subagents)
 
-**Failure**: Sequential tool calls when batchable
-**Fix**: STOP, batch tool calls in single message
+**Failure**: Using direct tool calls for complex work
+**Fix**: STOP, use Task tool so user can monitor progress
+
+**Failure**: No visible progress for user
+**Fix**: STOP, switch to Task agents instead of direct tool calls
 
 **Failure**: Quality gate failure (score <7, coverage <85%)
 **Fix**: Address issues, re-run quality gate (max 3 iterations)

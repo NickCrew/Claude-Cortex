@@ -189,7 +189,10 @@ The status bar shows real-time feedback:
 - `✗ Validation failed: <error>` - After validation failure
 - `Config snippet generated` - After copying config
 - `No documentation found for <server>` - When docs unavailable
+- `Docs only: <server>` - Documentation exists but MCP server isn’t installed
 - `Error: <message>` - For any errors encountered
+
+When documentation lives in `~/.claude/mcp/docs` but the Claude Desktop config lacks a matching `mcpServers` entry, the TUI now surfaces a “Docs only” row. This makes gaps obvious (for example, `BrowserTools` will appear with a yellow warning until you add it via “Add MCP” or `claude-ctx mcp add browser-tools`).
 
 ## Future Enhancements
 
@@ -211,6 +214,7 @@ The MCP view is implemented as a mixin class (`MCPViewMixin`) that can be compos
 ```
 MCPViewMixin
 ├── Server Discovery (from claude_desktop_config.json)
+├── Doc-only Detection (~/.claude/mcp/docs vs config)
 ├── Server Filtering (name, command, description)
 ├── Validation (config checks, command existence)
 ├── Documentation Lookup (~/.claude/mcp/docs/)
@@ -236,11 +240,11 @@ This follows the same pattern as:
 │   Status  Server Name  Command              Args                   │
 │ > ●       context7     npx                  -y @context7/mcp-...   │
 │   ●       sequential   npx                  -y @sequential/m...    │
-│   ●       browser      npx                  -y @browser/mcp-...    │
+│   ○       BrowserTools Not configured      -                      ✓ │
 └───────────────────────────────────────────────────────────────────┘
 Controls: Enter=Details  t=Test  d=Docs  c=Copy Config  /=Filter  r=Reload
 
-Status: Loaded 3 MCP server(s)
+Status: Loaded 2 MCP server(s) + 1 docs
 ```
 
 After pressing Enter:

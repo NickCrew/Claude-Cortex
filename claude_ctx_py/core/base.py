@@ -92,6 +92,40 @@ def _init_slug_for_path(path: Path) -> str:
 
 
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
+_CLAUDE_MD_PATTERNS: Dict[str, Tuple[re.Pattern[str], ...]] = {
+    "rules": (
+        re.compile(r"^@rules/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
+    ),
+    "modes": (
+        re.compile(r"^@modes/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
+        re.compile(r"^@inactive/modes/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
+    ),
+}
+_INACTIVE_ALIAS_MAP: Dict[str, Tuple[str, ...]] = {
+    "agents": ("agents-disabled", "agents/disabled"),
+    "modes": ("modes-inactive", "modes/inactive"),
+    "rules": ("rules-inactive", "rules-disabled", "rules/disabled"),
+}
+
+
+def _normalize_context_slug(category: str, slug: str) -> str:
+    """Normalize CLAUDE.md slugs for comparisons."""
+    category = category.lower()
+    slug = slug.strip().lstrip("./")
+
+    # Strip explicit category prefixes (e.g., modes/foo -> foo)
+    prefix = f"{category}/"
+    if slug.startswith(prefix):
+        slug = slug[len(prefix) :]
+
+    # Strip inactive/<category>/ prefixes
+    inactive_prefix = f"inactive/{category}/"
+    if slug.startswith(inactive_prefix):
+        slug = slug[len(inactive_prefix) :]
+    elif slug.startswith("inactive/"):
+        slug = slug[len("inactive/") :]
+
+    return slug
 
 
 def _strip_ansi_codes(text: str) -> str:
@@ -208,6 +242,77 @@ def _remove_exact_entries(content: str, value: str) -> str:
             continue
         result.append(line)
     return "".join(result)
+
+
+def _parse_claude_md_refs(claude_dir: Path, category: str) -> Set[str]:
+    """Extract active context references from CLAUDE.md for a given category.
+
+    Args:
+        claude_dir: Path to the CLAUDE home directory
+        category: Supported category name ("rules" or "modes")
+
+    Returns:
+        Set of normalized slug strings (lowercase, POSIX separators, no ".md")
+    """
+    claude_md = claude_dir / "CLAUDE.md"
+    if not claude_md.is_file():
+        return set()
+
+    category_key = category.lower()
+    patterns = _CLAUDE_MD_PATTERNS.get(category_key)
+    if patterns is None:
+        return set()
+
+    refs: Set[str] = set()
+    try:
+        for raw_line in claude_md.read_text(encoding="utf-8").splitlines():
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            for pattern in patterns:
+                matcher = pattern.match(stripped)
+                if not matcher:
+                    continue
+                slug = matcher.group(1).strip().replace("\\", "/").lower()
+                slug = _normalize_context_slug(category_key, slug)
+                if slug:
+                    refs.add(slug)
+                break
+    except OSError:
+        return set()
+
+    return refs
+
+
+def _inactive_root(claude_dir: Path) -> Path:
+    return claude_dir / "inactive"
+
+
+def _expand_relative_path(base: Path, specification: str) -> Path:
+    path = base
+    for part in specification.split("/"):
+        if part:
+            path = path / part
+    return path
+
+
+def _inactive_category_dir(claude_dir: Path, category: str) -> Path:
+    path = _inactive_root(claude_dir) / category
+    return path
+
+
+def _ensure_inactive_category_dir(claude_dir: Path, category: str) -> Path:
+    path = _inactive_category_dir(claude_dir, category)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _inactive_dir_candidates(claude_dir: Path, category: str) -> List[Path]:
+    canonical = _inactive_category_dir(claude_dir, category)
+    candidates = [canonical]
+    for alias in _INACTIVE_ALIAS_MAP.get(category, ()):  # legacy locations
+        candidates.append(_expand_relative_path(claude_dir, alias))
+    return candidates
 
 
 def _extract_front_matter(text: str) -> Optional[str]:
@@ -398,18 +503,18 @@ def _refresh_claude_md(claude_dir: Path) -> None:
 
     rules_dir = claude_dir / "rules"
     modes_dir = claude_dir / "modes"
-    inactive_modes_dir = modes_dir / "inactive"
+    inactive_modes_dir = _inactive_category_dir(claude_dir, "modes")
 
     active_rules = set(_parse_active_entries(claude_dir / ".active-rules"))
     available_rules = (
         sorted(p.stem for p in rules_dir.glob("*.md")) if rules_dir.is_dir() else []
     )
     active_modes = _parse_active_entries(claude_dir / ".active-modes")
-    inactive_modes = (
-        sorted(p.stem for p in inactive_modes_dir.glob("*.md"))
-        if inactive_modes_dir.is_dir()
-        else []
-    )
+    inactive_mode_names: Set[str] = set()
+    for directory in _inactive_dir_candidates(claude_dir, "modes"):
+        if directory.is_dir():
+            inactive_mode_names.update(p.stem for p in directory.glob("*.md"))
+    inactive_modes = sorted(inactive_mode_names)
 
     claude_md = claude_dir / "CLAUDE.md"
     _backup_config(claude_dir)
@@ -448,7 +553,7 @@ def _refresh_claude_md(claude_dir: Path) -> None:
     mode_lines.extend(f"@modes/{mode}.md" for mode in active_modes)
     mode_lines.append("")
     mode_lines.append("# Inactive Modes (move to active/ as needed)")
-    mode_lines.extend(f"# @modes/inactive/{mode}.md" for mode in inactive_modes)
+    mode_lines.extend(f"# @inactive/modes/{mode}.md" for mode in inactive_modes)
     mode_lines.append("")
     sections.append(_render_section(mode_lines))
 
@@ -706,11 +811,7 @@ def _append_session_log(project_dir: Path, lines: Sequence[str]) -> None:
 
 def _list_available_agents(claude_dir: Path) -> List[str]:
     agents: Set[str] = set()
-    for directory in [
-        claude_dir / "agents",
-        claude_dir / "agents-disabled",
-        claude_dir / "agents" / "disabled",
-    ]:
+    for directory in [claude_dir / "agents", *_inactive_dir_candidates(claude_dir, "agents")]:
         if directory.is_dir():
             for path in directory.glob("*.md"):
                 agents.add(path.stem)
@@ -719,10 +820,7 @@ def _list_available_agents(claude_dir: Path) -> List[str]:
 
 def _list_available_modes(claude_dir: Path) -> List[str]:
     modes: Set[str] = set()
-    for directory in [
-        claude_dir / "modes",
-        claude_dir / "modes" / "inactive",
-    ]:
+    for directory in [claude_dir / "modes", *_inactive_dir_candidates(claude_dir, "modes")]:
         if directory.is_dir():
             for path in directory.glob("*.md"):
                 if path.stem == "Task_Management":

@@ -8,8 +8,8 @@ This repository packages the `claude-ctx` context management toolkit as a Claude
 ## What's inside
 
 - `commands/` – slash command definitions that surface curated behavioural prompts
-- `agents/` and `agents-disabled/` – Claude subagents with dependency metadata
-- `modes/` and `modes-inactive/` – opinionated context modules that toggle workflow defaults
+- `agents/` and `inactive/agents/` – Claude subagents with dependency metadata (move files into `inactive/agents` to park them)
+- `modes/` and `inactive/modes/` – opinionated context modules that toggle workflow defaults without polluting the active tree
 - `rules/` – reusable rule sets referenced by the CLI and plugin commands
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
 - `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `claude-ctx`

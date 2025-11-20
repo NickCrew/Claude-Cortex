@@ -365,16 +365,12 @@ claude-ctx-plugin/
 │   ├── dependencies.map         # Agent dependency graph
 │   └── triggers.yaml            # Agent activation triggers
 │
-├── agents-disabled/   # Disabled agents library (65 agents available)
+├── inactive/
+│   ├── agents/        # Disabled agents library (65 agents available)
+│   └── modes/         # Archived behavioral modes
 │
 ├── modes/             # Active behavioral modes
 │   └── Task_Management.md
-│
-├── modes-inactive/    # Inactive modes (can be activated as needed)
-│   ├── Brainstorming.md
-│   ├── Introspection.md
-│   ├── Orchestration.md
-│   └── Token_Efficiency.md
 │
 ├── rules/             # Reusable rule sets
 │   ├── workflow-rules.md       # Git workflow, task patterns
@@ -541,13 +537,13 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 ---
 
 ### 2. Agent System
-**Location**: `agents/` and `agents-disabled/`
+**Location**: `agents/` and `inactive/agents/`
 **Active Agents**: 11 | **Available**: 65
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
 - **Dependency Management**: `dependencies.map` tracks agent relationships
 - **Trigger System**: `triggers.yaml` defines automatic activation patterns
-- **Activation Control**: Move between `agents/` and `agents-disabled/` to control availability
+- **Activation Control**: Move between `agents/` and `inactive/agents/` to control availability
 
 **Active Agents**:
 - `cloud-architect` - Cloud infrastructure design
@@ -565,7 +561,7 @@ Agents are specialized personas with domain expertise and specific capabilities.
 ---
 
 ### 3. Mode System
-**Location**: `modes/` and `modes-inactive/`
+**Location**: `modes/` and `inactive/modes/`
 **Active Modes**: 1 | **Available**: 4
 
 Modes are opinionated context modules that toggle workflow defaults and behavioral patterns.
@@ -579,7 +575,7 @@ Modes are opinionated context modules that toggle workflow defaults and behavior
 - `Orchestration` - Multi-tool optimization
 - `Token_Efficiency` - Symbol-enhanced communication
 
-**Activation**: Move mode files between `modes/` and `modes-inactive/` or use flags
+**Activation**: Move mode files between `modes/` and `inactive/modes/` (legacy `modes/inactive/` supported) or use flags
 
 ---
 
@@ -864,7 +860,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 4. Validate command syntax in markdown files
 
 ### Agent Not Activating
-1. Check agent location (`agents/` vs `agents-disabled/`)
+1. Check agent location (`agents/` vs `inactive/agents/`)
 2. Review `triggers.yaml` for activation conditions
 3. Verify dependencies in `dependencies.map`
 4. Manually invoke with `/agent activate <name>`
@@ -885,7 +881,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 4. Update command count in this index
 
 ### Creating Agents
-1. Create markdown file in `agents-disabled/`
+1. Create markdown file in `inactive/agents/`
 2. Define triggers in `triggers.yaml`
 3. Add dependencies to `dependencies.map`
 4. Move to `agents/` when ready for activation

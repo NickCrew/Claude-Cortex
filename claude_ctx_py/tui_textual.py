@@ -14,7 +14,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, TypedDict
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -72,6 +72,9 @@ from .core import (
     skill_community_search,
     skill_recommend,
     workflow_stop,
+    _parse_claude_md_refs,
+    _inactive_dir_candidates,
+    _inactive_category_dir,
 )
 from .core.rules import rules_activate, rules_deactivate
 from .core.modes import (
@@ -93,6 +96,7 @@ from .core.mcp import (
     remove_mcp_server,
     update_mcp_server,
     MCPServerInfo,
+    list_doc_only_servers,
 )
 from .core.agents import BUILT_IN_PROFILES
 from .tui_icons import Icons, StatusIcon
@@ -124,6 +128,7 @@ from .tui_dialogs import (
 from .tui_log_viewer import LogViewerScreen
 from .skill_rating import SkillRatingCollector, SkillQualityMetrics
 from .skill_rating_prompts import SkillRatingPromptManager
+from .slash_commands import SlashCommandInfo, scan_slash_commands
 
 
 @dataclass
@@ -248,6 +253,7 @@ VIEW_TITLES: Dict[str, str] = {
     "agents": f"{Icons.CODE} Agents",
     "modes": f"{Icons.FILTER} Modes",
     "rules": f"{Icons.DOC} Rules",
+    "commands": f"{Icons.DOC} Slash Commands",
     "skills": f"{Icons.CODE} Skills",
     "workflows": f"{Icons.PLAY} Workflows",
     "scenarios": f"{Icons.PLAY} Scenarios",
@@ -290,6 +296,7 @@ class AgentTUI(App[None]):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self.claude_home: Path = _resolve_claude_dir()
         self.agents: List[AgentGraphNode] = []
         self.rules: List[RuleNode] = []
         self.modes: List[ModeInfo] = []
@@ -302,6 +309,7 @@ class AgentTUI(App[None]):
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
         self.scenarios: List[ScenarioInfo] = []
         self.skills: List[Dict[str, Any]] = []
+        self.slash_commands: List[SlashCommandInfo] = []
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
@@ -538,6 +546,7 @@ class AgentTUI(App[None]):
         Binding("o", "view_orchestrate", "Orchestrate", show=True),
         Binding("g", "view_galaxy", "Galaxy", show=True),
         Binding("t", "view_tasks", "Tasks", show=True),
+        Binding("/", "view_commands", "Slash Cmds", show=True),
         Binding("ctrl+p", "command_palette", "Commands", show=True),
         Binding("q", "quit", "Quit"),
         Binding("?", "help", "Help"),
@@ -632,6 +641,11 @@ class AgentTUI(App[None]):
             if skill and "path" in skill:
                 file_path = Path(skill["path"])
                 item_name = skill["name"]
+        elif self.current_view == "commands":
+            command = self._selected_command()
+            if command:
+                file_path = command.path
+                item_name = command.command
 
         if file_path and item_name:
             try:
@@ -660,6 +674,7 @@ class AgentTUI(App[None]):
 
         # Initialize intelligent agent for auto-activation and recommendations
         claude_dir = _resolve_claude_dir()
+        self.claude_home = claude_dir
         self.intelligent_agent = IntelligentAgent(claude_dir / "intelligence")
 
         # Analyze context and get initial recommendations
@@ -670,6 +685,7 @@ class AgentTUI(App[None]):
         self.load_rules()
         self.load_modes()
         self.load_skills()
+        self.load_slash_commands()
         self.load_agent_tasks()
         self.load_workflows()
         self.load_scenarios()
@@ -741,6 +757,7 @@ class AgentTUI(App[None]):
                 "context_action",
                 "edit_item",
             },
+            "commands": {"details_context", "edit_item"},
             "mcp": {
                 "details_context",
                 "docs_context",
@@ -889,6 +906,59 @@ class AgentTUI(App[None]):
             return None
         return skills[index]
 
+    def _selected_command(self) -> Optional[SlashCommandInfo]:
+        index = self._table_cursor_index()
+        commands = self.slash_commands
+        if index is None or not commands:
+            return None
+        if index < 0 or index >= len(commands):
+            return None
+        return commands[index]
+
+    def _normalize_slug(self, value: str) -> str:
+        """Normalize a slug for comparison (lowercase, no .md, POSIX separators)."""
+        candidate = value.strip().replace("\\", "/")
+        if candidate.endswith(".md"):
+            candidate = candidate[:-3]
+        return candidate.lower()
+
+    def _relative_slug(self, path: Path, base_dir: Path) -> str:
+        """Compute normalized slug for a file relative to a base directory."""
+        try:
+            relative = path.relative_to(base_dir)
+        except ValueError:
+            relative = path
+        return self._normalize_slug(relative.as_posix())
+
+    def _active_rule_slugs(self, claude_dir: Path) -> Set[str]:
+        """Combine CLAUDE.md and .active-rules entries into a slug set."""
+        from_claude = _parse_claude_md_refs(claude_dir, "rules")
+        from_file = {
+            self._normalize_slug(entry)
+            for entry in _parse_active_entries(claude_dir / ".active-rules")
+        }
+        return from_claude | from_file
+
+    def _active_mode_slugs(self, claude_dir: Path) -> Set[str]:
+        """Combine CLAUDE.md and .active-modes entries into a slug set."""
+        from_claude = _parse_claude_md_refs(claude_dir, "modes")
+        from_file = {
+            self._normalize_slug(entry)
+            for entry in _parse_active_entries(claude_dir / ".active-modes")
+        }
+        return from_claude | from_file
+
+    def _ensure_configured_mcp(self, server: MCPServerInfo, action: str) -> bool:
+        """Ensure an MCP server is configured before running certain actions."""
+        if getattr(server, "doc_only", False):
+            self.notify(
+                f"{server.name} is not configured. Use 'Add MCP' to install before {action}.",
+                severity="warning",
+                timeout=3,
+            )
+            return False
+        return True
+
     def _selected_workflow(self) -> Optional[WorkflowInfo]:
         index = self._table_cursor_index()
         workflows = self.workflows
@@ -906,6 +976,29 @@ class AgentTUI(App[None]):
         if index < 0 or index >= len(scenarios):
             return None
         return scenarios[index]
+
+    def _format_command_stack(self, command: SlashCommandInfo) -> str:
+        """Summarize linked assets for a slash command."""
+        sections: List[str] = []
+        if command.agents:
+            sections.append(
+                "[cyan]Agents:[/cyan] "
+                + Format.truncate(Format.list_items(command.agents, 2), 40)
+            )
+        if command.personas:
+            sections.append(
+                "[magenta]Personas:[/magenta] "
+                + Format.truncate(Format.list_items(command.personas, 2), 40)
+            )
+        if command.mcp_servers:
+            sections.append(
+                "[yellow]MCP:[/yellow] "
+                + Format.truncate(Format.list_items(command.mcp_servers, 2), 40)
+            )
+
+        if not sections:
+            return "[dim]—[/dim]"
+        return "  |  ".join(sections)
 
     def _skill_slug(self, skill: Dict[str, Any]) -> str:
         path_value = skill.get("path")
@@ -1080,12 +1173,7 @@ class AgentTUI(App[None]):
                         seen_names.add(node.name)
 
             # Check disabled agents
-            disabled_dirs = [
-                claude_dir / "agents-disabled",
-                agents_dir / "disabled" if agents_dir.is_dir() else None,
-            ]
-
-            for disabled_dir in disabled_dirs:
+            for disabled_dir in _inactive_dir_candidates(claude_dir, "agents"):
                 if disabled_dir and disabled_dir.is_dir():
                     for path in _iter_all_files(disabled_dir):
                         if not path.name.endswith(".md"):
@@ -1210,6 +1298,38 @@ class AgentTUI(App[None]):
         except Exception as e:
             self.status_message = f"Error loading skills: {e}"
             self.skills = []
+
+    def load_slash_commands(self) -> None:
+        """Load slash command metadata from the commands directory."""
+        try:
+            claude_dir = _resolve_claude_dir()
+            commands_dir = self._validate_path(claude_dir, claude_dir / "commands")
+        except ValueError:
+            claude_dir = _resolve_claude_dir()
+            commands_dir = claude_dir / "commands"
+
+        if not commands_dir.exists():
+            self.slash_commands = []
+            self.status_message = "Commands directory not found"
+            return
+
+        try:
+            commands = scan_slash_commands(commands_dir, home_dir=claude_dir)
+        except Exception as exc:
+            self.slash_commands = []
+            self.status_message = f"Error loading slash commands: {exc}"[:160]
+            return
+
+        self.slash_commands = commands
+        namespace_count = len({cmd.namespace for cmd in commands})
+        if commands:
+            self.status_message = (
+                f"Loaded {len(commands)} slash commands"
+                if namespace_count <= 1
+                else f"Loaded {len(commands)} slash commands across {namespace_count} namespaces"
+            )
+        else:
+            self.status_message = "No slash commands found"
 
     def _parse_skill_file(
         self, skill_file: Path, claude_dir: Path
@@ -1422,6 +1542,60 @@ class AgentTUI(App[None]):
                 description,
             )
 
+    def show_commands_view(self, table: AnyDataTable) -> None:
+        """Render slash command catalog."""
+        table.add_column("Command", width=32)
+        table.add_column("Category", width=16)
+        table.add_column("Complexity", width=12)
+        table.add_column("Stack", width=32)
+        table.add_column("Description")
+
+        commands = getattr(self, "slash_commands", [])
+        if not commands:
+            table.add_row("[dim]No slash commands found[/dim]", "", "", "", "")
+            return
+
+        category_colors: Dict[str, str] = {}
+        fallback_colors = self.CATEGORY_FALLBACK_COLORS
+
+        complexity_palette = {
+            "basic": "green",
+            "standard": "cyan",
+            "advanced": "magenta",
+            "expert": "yellow",
+            "over9000": "bright_magenta",
+        }
+
+        for cmd in commands:
+            icon = Icons.CODE if cmd.location == "user" else Icons.DOC
+            icon_color = "cyan" if cmd.location == "user" else "magenta"
+            command_text = (
+                f"[{icon_color}]{icon}[/{icon_color}] /{cmd.namespace}:{cmd.name}"
+            )
+
+            cat_key = cmd.category.lower()
+            color = category_colors.get(cat_key)
+            if not color:
+                color = self.CATEGORY_PALETTE.get(cat_key)
+                if not color:
+                    color = fallback_colors[len(category_colors) % len(fallback_colors)]
+                category_colors[cat_key] = color
+            category_text = f"[{color}]{cmd.category.title()}[/{color}]"
+
+            comp_color = complexity_palette.get(cmd.complexity.lower(), "white")
+            complexity_text = f"[{comp_color}]{cmd.complexity.title()}[/{comp_color}]"
+
+            stack_text = self._format_command_stack(cmd)
+            description = f"[dim]{Format.truncate(cmd.description, 110)}[/dim]"
+
+            table.add_row(
+                command_text,
+                category_text,
+                complexity_text,
+                stack_text,
+                description,
+            )
+
     def show_profiles_view(self, table: DataTable[Any]) -> None:
         """Render profile management view."""
         table.add_column("Profile", width=28)
@@ -1570,12 +1744,9 @@ class AgentTUI(App[None]):
     def load_rules(self) -> None:
         """Load rules from the system."""
         try:
-            rules = []
+            rules: List[RuleNode] = []
             claude_dir = _resolve_claude_dir()
-
-            # Load active rules list
-            active_rules_file = claude_dir / ".active-rules"
-            active_rule_names = set(_parse_active_entries(active_rules_file))
+            active_rule_slugs = self._active_rule_slugs(claude_dir)
 
             # Check active rules
             rules_dir = self._validate_path(claude_dir, claude_dir / "rules")
@@ -1583,26 +1754,23 @@ class AgentTUI(App[None]):
                 for path in _iter_md_files(rules_dir):
                     if _is_disabled(path):
                         continue
+                    slug = self._relative_slug(path, rules_dir)
+                    status = "active" if slug in active_rule_slugs else "inactive"
                     node = self._parse_rule_file(
-                        path, "active" if path.stem in active_rule_names else "inactive"
+                        path,
+                        status,
                     )
                     if node:
                         rules.append(node)
 
             # Check disabled rules
-            disabled_dirs = [
-                self._validate_path(claude_dir, claude_dir / "rules-disabled"),
-                (
-                    self._validate_path(claude_dir, rules_dir / "disabled")
-                    if rules_dir.is_dir()
-                    else None
-                ),
-            ]
-
-            for disabled_dir in disabled_dirs:
-                if disabled_dir and disabled_dir.is_dir():
-                    for path in _iter_md_files(disabled_dir):
-                        node = self._parse_rule_file(path, "inactive")
+            for disabled_dir in _inactive_dir_candidates(claude_dir, "rules"):
+                valid_dir = self._validate_path(claude_dir, disabled_dir)
+                if valid_dir.is_dir():
+                    for path in _iter_md_files(valid_dir):
+                        slug = self._relative_slug(path, valid_dir)
+                        status = "active" if slug in active_rule_slugs else "inactive"
+                        node = self._parse_rule_file(path, status)
                         if node:
                             rules.append(node)
 
@@ -1670,8 +1838,9 @@ class AgentTUI(App[None]):
     def load_modes(self) -> None:
         """Load behavioral modes from the system."""
         try:
-            modes = []
+            modes: List[ModeInfo] = []
             claude_dir = _resolve_claude_dir()
+            active_mode_slugs = self._active_mode_slugs(claude_dir)
 
             # Load active modes from modes/ directory
             modes_dir = self._validate_path(claude_dir, claude_dir / "modes")
@@ -1679,16 +1848,20 @@ class AgentTUI(App[None]):
                 for path in _iter_md_files(modes_dir):
                     if _is_disabled(path):
                         continue
-                    node = self._parse_mode_file(path, "active")
+                    slug = self._relative_slug(path, modes_dir)
+                    status = "active" if slug in active_mode_slugs else "inactive"
+                    node = self._parse_mode_file(path, status)
                     if node:
                         modes.append(node)
 
-            # Load inactive modes from modes/inactive/ directory
-            if modes_dir.is_dir():
-                inactive_dir = self._validate_path(claude_dir, modes_dir / "inactive")
-                if inactive_dir.is_dir():
-                    for path in _iter_md_files(inactive_dir):
-                        node = self._parse_mode_file(path, "inactive")
+            # Load inactive modes from inactive/modes/ directory (legacy dirs supported)
+            for inactive_dir in _inactive_dir_candidates(claude_dir, "modes"):
+                valid_dir = self._validate_path(claude_dir, inactive_dir)
+                if valid_dir.is_dir():
+                    for path in _iter_md_files(valid_dir):
+                        slug = self._relative_slug(path, valid_dir)
+                        status = "active" if slug in active_mode_slugs else "inactive"
+                        node = self._parse_mode_file(path, status)
                         if node:
                             modes.append(node)
 
@@ -2053,14 +2226,28 @@ class AgentTUI(App[None]):
         try:
             success, servers, error = discover_servers()
             if success:
-                self.mcp_servers = servers
+                claude_dir = _resolve_claude_dir()
+                doc_only = list_doc_only_servers(
+                    {server.name for server in servers}, claude_dir
+                )
+                combined = servers + doc_only
+                combined.sort(key=lambda s: (getattr(s, "doc_only", False), s.name.lower()))
+                self.mcp_servers = combined
                 self.mcp_error = None
+                doc_note = (
+                    f" + {len(doc_only)} docs"
+                    if doc_only
+                    else ""
+                )
+                self.status_message = f"Loaded {len(servers)} MCP server(s){doc_note}"
             else:
                 self.mcp_servers = []
                 self.mcp_error = error
+                self.status_message = f"Error loading MCP servers: {error}"
         except Exception as exc:
             self.mcp_servers = []
             self.mcp_error = str(exc)
+            self.status_message = f"Failed to load MCP servers: {exc}"
 
     def update_view(self) -> None:
         """Update the table based on current view."""
@@ -2088,6 +2275,8 @@ class AgentTUI(App[None]):
             self.show_modes_view(table)
         elif self.current_view == "skills":
             self.show_skills_view(table)
+        elif self.current_view == "commands":
+            self.show_commands_view(table)
         elif self.current_view == "workflows":
             self.show_workflows_view(table)
         elif self.current_view == "scenarios":
@@ -2312,6 +2501,8 @@ class AgentTUI(App[None]):
 
         hero = EnhancedOverview.create_hero_banner(active_agents, total_agents)
         add_multiline(hero)
+        claude_home = getattr(self, "claude_home", _resolve_claude_dir())
+        table.add_row(f"[bold cyan]CLAUDE_CTX_HOME[/bold cyan]: [dim]{claude_home}[/dim]")
         table.add_row("")
 
         metrics_grid = EnhancedOverview.create_status_grid(
@@ -3141,28 +3332,35 @@ class AgentTUI(App[None]):
 
         for server in servers:
             args = " ".join(server.args) if server.args else ""
-            command_text = Format.truncate(f"{server.command} {args}".strip(), 30)
             docs_text = "[green]✓[/green]" if server.docs_path else "[dim]-[/dim]"
 
-            try:
-                is_valid, errors, warnings = validate_server_config(server.name)
-            except Exception as exc:
-                is_valid = False
-                errors = [str(exc)]
-                warnings = []
-
-            if is_valid:
-                status_text = "[green]Valid[/green]"
+            if getattr(server, "doc_only", False):
+                command_text = "[dim]Not configured[/dim]"
+                status_text = "[yellow]Docs only[/yellow]"
+                note = server.description or "Add this server via 'Add MCP'"
             else:
-                status_text = f"[red]{len(errors)} issue(s)[/red]"
-            if warnings:
-                status_text += f" [yellow]{len(warnings)} warn[/yellow]"
+                command_text = Format.truncate(
+                    f"{server.command} {args}".strip(), 30
+                )
+                try:
+                    is_valid, errors, warnings = validate_server_config(server.name)
+                except Exception as exc:
+                    is_valid = False
+                    errors = [str(exc)]
+                    warnings = []
 
-            note = server.description or ""
-            if errors:
-                note = errors[0]
-            elif warnings:
-                note = warnings[0]
+                if is_valid:
+                    status_text = "[green]Valid[/green]"
+                else:
+                    status_text = f"[red]{len(errors)} issue(s)[/red]"
+                if warnings:
+                    status_text += f" [yellow]{len(warnings)} warn[/yellow]"
+
+                note = server.description or ""
+                if errors:
+                    note = errors[0]
+                elif warnings:
+                    note = warnings[0]
 
             table.add_row(
                 f"{Icons.CODE} {server.name}",
@@ -3489,6 +3687,13 @@ class AgentTUI(App[None]):
         self.current_view = "skills"
         self.status_message = "Switched to Skills"
         self.notify("💎 Skills", severity="information", timeout=1)
+
+    def action_view_commands(self) -> None:
+        """Switch to slash commands view."""
+        self.current_view = "commands"
+        self.load_slash_commands()
+        self.status_message = "Switched to Slash Commands"
+        self.notify("⌘ Slash Commands", severity="information", timeout=1)
 
     def action_view_workflows(self) -> None:
         """Switch to workflows view."""
@@ -4259,6 +4464,9 @@ class AgentTUI(App[None]):
         elif self.current_view == "tasks":
             self.run_worker(self._show_task_details(), exclusive=True)
             return
+        elif self.current_view == "commands":
+            self.run_worker(self._show_selected_command_definition(), exclusive=True)
+            return
         else:
             self.notify("Details not available", severity="warning", timeout=2)
 
@@ -4291,6 +4499,48 @@ class AgentTUI(App[None]):
 
         await self._show_text_dialog(f"{agent.name} Definition", definition)
         self.status_message = f"Viewing definition for {agent.name}"
+        self.refresh_status_bar()
+
+    async def _show_selected_command_definition(self) -> None:
+        """Open the selected slash command for review."""
+        command = self._selected_command()
+        if not command:
+            self.notify(
+                "Select a slash command to view details",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        try:
+            claude_dir = _resolve_claude_dir()
+            command_path = self._validate_path(claude_dir, command.path)
+        except ValueError:
+            command_path = command.path
+
+        try:
+            body = command_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to load {command.command}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        meta_lines = [
+            f"Command : {command.command}",
+            f"Category: {command.category}",
+            f"Complexity: {command.complexity}",
+            f"Agents  : {', '.join(command.agents) if command.agents else '—'}",
+            f"Personas: {', '.join(command.personas) if command.personas else '—'}",
+            f"MCP     : {', '.join(command.mcp_servers) if command.mcp_servers else '—'}",
+            f"Path    : {command.path}",
+            "",
+        ]
+        meta_lines.append(body)
+        await self._show_text_dialog(f"{command.command} Definition", "\n".join(meta_lines))
+        self.status_message = f"Viewing slash command {command.command}"
         self.refresh_status_bar()
 
     async def _show_task_details(self) -> None:
@@ -4502,6 +4752,8 @@ class AgentTUI(App[None]):
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
             return
+        if not self._ensure_configured_mcp(server, "validating"):
+            return
 
         valid, errors, warnings = validate_server_config(server.name)
         if valid:
@@ -4525,6 +4777,8 @@ class AgentTUI(App[None]):
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
             return
+        if not self._ensure_configured_mcp(server, "viewing details"):
+            return
 
         exit_code, output = mcp_show(server.name)
         if exit_code != 0:
@@ -4544,7 +4798,24 @@ class AgentTUI(App[None]):
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
             return
-
+        if getattr(server, "doc_only", False):
+            if server.docs_path and server.docs_path.exists():
+                try:
+                    content = server.docs_path.read_text(encoding="utf-8")
+                except OSError as exc:
+                    self.notify(
+                        f"Failed to read docs: {exc}", severity="error", timeout=3
+                    )
+                    return
+                await self.push_screen(
+                    TextViewerDialog(f"Docs: {server.name}", content),
+                    wait_for_dismiss=True,
+                )
+            else:
+                self.notify(
+                    "Documentation file missing", severity="warning", timeout=2
+                )
+            return
         exit_code, output = mcp_docs(server.name)
         if exit_code != 0:
             self.notify(output, severity="error", timeout=3)
@@ -4562,6 +4833,8 @@ class AgentTUI(App[None]):
         server = self._selected_mcp_server()
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+        if not self._ensure_configured_mcp(server, "generating a config snippet"):
             return
 
         snippet = generate_config_snippet(
@@ -4583,6 +4856,8 @@ class AgentTUI(App[None]):
         server = self._selected_mcp_server()
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+        if not self._ensure_configured_mcp(server, "testing"):
             return
 
         exit_code, output = mcp_test(server.name)
@@ -4631,6 +4906,8 @@ class AgentTUI(App[None]):
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
             return
+        if not self._ensure_configured_mcp(server, "editing"):
+            return
 
         # Prepare defaults for dialog
         defaults: MCPServerData = {
@@ -4665,6 +4942,8 @@ class AgentTUI(App[None]):
         server = self._selected_mcp_server()
         if not server:
             self.notify("Select an MCP server", severity="warning", timeout=2)
+            return
+        if not self._ensure_configured_mcp(server, "removing"):
             return
 
         # Confirm deletion
@@ -5067,6 +5346,8 @@ class AgentTUI(App[None]):
             self.load_modes()
         elif self.current_view == "skills":
             self.load_skills()
+        elif self.current_view == "commands":
+            self.load_slash_commands()
         elif self.current_view == "workflows":
             self.load_workflows()
         elif self.current_view == "scenarios":

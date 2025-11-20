@@ -131,6 +131,12 @@ class AgentCommandProvider(Provider):
                 "show_orchestrate",
                 CATEGORY_VIEW,
             ),
+            (
+                f"[white]⌘[/] [bold]Show Slash Commands[/bold] [dim white]╱[/dim white]",
+                f"[dim]Browse slash command catalog [dim white]│[/dim white] Hotkey: [white]/[/white][/dim]",
+                "show_commands",
+                CATEGORY_VIEW,
+            ),
             # ═══════════════════════════════════════════════════════
             # SYSTEM OPERATIONS - Core Functions
             # ═══════════════════════════════════════════════════════
@@ -206,6 +212,11 @@ class AgentCommandProvider(Provider):
             app.update_view()
         elif action == "show_orchestrate":
             app.current_view = "orchestrate"
+            app.update_view()
+        elif action == "show_commands":
+            app.current_view = "commands"
+            if hasattr(app, "load_slash_commands"):
+                app.load_slash_commands()
             app.update_view()
         elif action == "export_context":
             app.current_view = "export"

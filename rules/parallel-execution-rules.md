@@ -6,17 +6,19 @@
 
 ## Mandatory Parallel Execution
 
-### 🔴 ALWAYS Use Parallel Agents When:
+### 🔴 ALWAYS Use Task Tool (Visible Subagents) When:
 1. **Multiple Independent Tasks**: >2 tasks with no dependencies → Launch parallel Task agents
-2. **Multi-File Operations**: >3 files → Use parallel tool calls or delegate to agents
-3. **Multi-Domain Work**: Code + Tests + Docs → MUST run in parallel workstreams
-4. **Analysis + Implementation**: Research in parallel with execution planning
-5. **Quality Gates**: Code review, testing, documentation MUST run concurrently with implementation
+2. **Multi-File Operations**: >3 files → Launch Task agents for each workstream
+3. **Multi-Domain Work**: Code + Tests + Docs → MUST run in parallel Task agents
+4. **Analysis + Implementation**: Research in parallel with execution planning via Task agents
+5. **Quality Gates**: Code review, testing, documentation MUST run concurrently via Task agents
+6. **User Visibility**: User needs to monitor progress → Use Task tool (NOT direct tool calls)
 
 ### Parallel Execution Triggers (Auto-Activate)
 
 **File Count Triggers:**
-- 3-7 files → Parallel tool calls in single message
+- 1-2 files → Direct tool calls (simple operations only)
+- 3-7 files → Launch Task agents for visibility and progress tracking
 - 8-15 files → Launch 2-3 parallel Task agents
 - 16+ files → Full delegation mode with agent coordination
 
@@ -32,14 +34,19 @@
 
 ## Parallel Execution Patterns
 
-### Pattern 1: Multi-File Changes
+### Pattern 1: Multi-File Changes (Simple Operations)
 ```
 ❌ WRONG (Serial):
 - Read file1 → Edit file1 → Read file2 → Edit file2
 
-✅ CORRECT (Parallel):
-- Single message: Read(file1, file2, file3) in parallel
-- Single message: Edit(file1, file2, file3) in parallel
+✅ CORRECT for 1-2 files (Direct tools):
+- Single message: Read(file1, file2) in parallel
+- Single message: Edit(file1, file2) in parallel
+
+✅ BETTER for 3+ files (Visible subagents):
+- Launch Task agent for file group 1-3
+- Launch Task agent for file group 4-6 (parallel)
+- User can monitor both agents' progress
 ```
 
 ### Pattern 2: Complex Features
@@ -119,13 +126,31 @@ Workstream 4: Code review agent (runs after 1-3 complete)
 - Quality gate: MUST pass before merge
 ```
 
-## Agent Parallelization Rules
+## Task Tool vs Direct Tool Calls
 
-### 🔴 ALWAYS Use Task Tool When:
-1. Subtask has >5 steps
-2. Subtask requires >3 tool calls
-3. Subtask is in different domain (code vs tests vs docs)
-4. Subtask can run independently for >30 seconds
+### 🔴 ALWAYS Use Task Tool (Visible Subagents) When:
+1. **Complex work**: Subtask has >5 steps or >3 tool calls
+2. **Different domains**: Code vs tests vs docs (parallel workstreams)
+3. **Long-running**: Subtask can run independently for >30 seconds
+4. **User visibility**: User needs to monitor progress and status
+5. **Multi-file work**: Operating on >2 files with non-trivial changes
+
+### ✅ Direct Tool Calls (Only for Simple Operations):
+1. **Single reads**: Reading 1-2 files for quick inspection
+2. **Simple searches**: Grep/Glob for quick discovery
+3. **Atomic operations**: Single-step operations with no dependencies
+4. **Fast operations**: Complete in <10 seconds total
+
+**Default**: When in doubt, use Task tool for visibility
+
+## Why Task Tool (Visible Subagents)?
+
+### User Benefits:
+1. **Progress Monitoring**: User can see agents working in real-time
+2. **Status Visibility**: Each agent shows current status and progress
+3. **Early Detection**: User can spot issues while agents are still running
+4. **Transparency**: User understands what's happening at all times
+5. **Cancellation**: User can stop agents if needed
 
 ### Agent Launch Protocol:
 ```markdown
@@ -174,8 +199,9 @@ Workstream 4: Code review agent (runs after 1-3 complete)
 ### Failure Modes (Auto-Correct):
 ❌ Serial execution when parallel possible → STOP and replan
 ❌ Quality gate missing → ADD quality workstream immediately
-❌ Single agent when multiple possible → LAUNCH parallel agents
-❌ Sequential tool calls when batchable → BATCH in single message
+❌ Single agent when multiple possible → LAUNCH parallel Task agents
+❌ Direct tool calls for complex work → LAUNCH Task agents for visibility
+❌ No visible progress for user → SWITCH to Task tool subagents
 
 ## Examples
 

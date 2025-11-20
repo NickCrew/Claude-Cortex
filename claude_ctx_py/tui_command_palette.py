@@ -245,6 +245,7 @@ class CommandRegistry:
 DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Show Agents", "View and manage agents", "show_agents", "core"),
     ("Show Skills", "Browse available skills", "show_skills", "catalog"),
+    ("Show Slash Commands", "Browse slash command library", "view_commands", "commands"),
     ("Show Modes", "View active modes", "show_modes", "context"),
     ("Show Rules", "View active rules", "show_rules", "policy"),
     ("Show Workflows", "View workflow execution", "show_workflows", "ops"),

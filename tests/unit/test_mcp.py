@@ -22,6 +22,7 @@ from claude_ctx_py.core.mcp import (
     get_server_command_line,
     export_servers_list,
     _get_claude_config_path,
+    list_doc_only_servers,
 )
 
 
@@ -122,6 +123,7 @@ class TestMCPServerInfo:
         assert server.command == "node"
         assert server.args == ["server.js"]
         assert server.env == {"API_KEY": "test"}
+        assert server.doc_only is False
 
     def test_to_dict(self):
         """Test converting to dictionary."""
@@ -134,6 +136,7 @@ class TestMCPServerInfo:
         assert data["name"] == "test-server"
         assert data["command"] == "node"
         assert data["args"] == ["server.js"]
+        assert data["doc_only"] is False
 
     def test_is_valid_success(self):
         """Test validation of valid server."""
@@ -581,3 +584,35 @@ class TestEdgeCases:
         # Validation should warn about empty values
         valid, errors, warnings = validate_server_config("test", mock_config_path)
         assert any("empty" in w.lower() for w in warnings)
+
+
+class TestDocOnlyServers:
+    """Tests for discovering documentation-only MCP entries."""
+
+    def test_list_doc_only_servers_detects_docs_without_config(self, tmp_path: Path):
+        """Doc files without config entries should produce placeholder servers."""
+        claude_dir = tmp_path
+        docs_dir = claude_dir / "mcp" / "docs"
+        docs_dir.mkdir(parents=True)
+        browser_doc = docs_dir / "BrowserTools.md"
+        browser_doc.write_text("# Browser Tools docs", encoding="utf-8")
+
+        placeholders = list_doc_only_servers([], claude_dir=claude_dir)
+
+        assert len(placeholders) == 1
+        server = placeholders[0]
+        assert server.name == "BrowserTools"
+        assert server.doc_only is True
+        assert server.docs_path == browser_doc
+        assert server.command == ""
+
+    def test_list_doc_only_servers_respects_existing_configs(self, tmp_path: Path):
+        """Doc helper should ignore servers that are already configured."""
+        claude_dir = tmp_path
+        docs_dir = claude_dir / "mcp" / "docs"
+        docs_dir.mkdir(parents=True)
+        (docs_dir / "Context7.md").write_text("# docs", encoding="utf-8")
+
+        placeholders = list_doc_only_servers({"context7"}, claude_dir=claude_dir)
+
+        assert placeholders == []

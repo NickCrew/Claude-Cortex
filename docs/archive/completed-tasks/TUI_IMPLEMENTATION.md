@@ -102,7 +102,7 @@ class TUIState:
 
 The TUI loads agents from three sources:
 1. `~/.claude/agents/` (active agents)
-2. `~/.claude/agents-disabled/` (disabled agents)
+2. `~/.claude/inactive/agents/` (disabled agents)
 3. `~/.claude/agents/disabled/` (legacy disabled location)
 
 Agents are parsed from YAML front matter with:

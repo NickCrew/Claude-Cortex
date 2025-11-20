@@ -2,7 +2,7 @@
 
 ## Overview
 
-Updated the TUI to support 9 different views with comprehensive navigation and help system.
+Updated the TUI to support 10 different views with comprehensive navigation and help system.
 
 ## Key Changes
 
@@ -31,7 +31,7 @@ class ViewState:
 
 ### 2. View System
 
-**9 Supported Views:**
+**10 Supported Views:**
 1. **Overview** - System summary dashboard
 2. **Agents** - Agent management (fully implemented)
 3. **Modes** - Behavioral modes (placeholder)
@@ -41,6 +41,9 @@ class ViewState:
 7. **Orchestrate** - Parallel execution dashboard (placeholder)
 8. **Profile** - Profile management (placeholder)
 9. **Export** - Context export (placeholder)
+10. **Slash Commands** - Catalog of `/namespace:command` behaviors (press `/`)
+
+The Slash Commands view lists every curated command with its namespace, category, complexity, and linked assets (agents, personas, and MCP servers). Press `/` from any screen to jump into the catalog, `s` to preview the full Markdown definition, or `Ctrl+E` to open the source file in your editor for rapid tweaks.
 
 **View Switching:**
 - Press 1-9 to switch views instantly
@@ -49,7 +52,7 @@ class ViewState:
 
 ### 3. Navigation Keys
 
-**View Navigation (1-9):**
+**View Navigation (1-9 + Slash Commands):**
 ```
 1 - Overview
 2 - Agents
@@ -60,6 +63,7 @@ class ViewState:
 7 - Orchestrate
 8 - Profile
 9 - Export
+/  - Slash Commands
 ```
 
 **Global Navigation:**
@@ -87,6 +91,7 @@ q      - Quit
 Agents:      Space=toggle, Enter=details
 Modes:       Space=toggle, Enter=details
 Skills:      v=validate, m=metrics, c=community
+Slash Cmds:  s=details, Ctrl+E=open in editor
 Workflows:   Shift+R=run, Space=resume, s=stop
 Scenarios:   Shift+R=run, s=stop, P=preview, V=validate, H=history
 Profile:     n=new, e=edit, d=delete

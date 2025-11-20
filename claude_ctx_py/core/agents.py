@@ -36,6 +36,9 @@ from .base import (
     _extract_values_from_paths,
     _is_disabled,
     _iter_all_files,
+    _inactive_category_dir,
+    _inactive_dir_candidates,
+    _ensure_inactive_category_dir,
     _resolve_claude_dir,
     _tokenize_front_matter,
 )
@@ -72,12 +75,10 @@ def _normalize_agent_filename(name: str) -> str:
 
 
 def _find_disabled_agent_file(claude_dir: Path, filename: str) -> Optional[Path]:
-    preferred = claude_dir / "agents-disabled" / filename
-    if preferred.is_file():
-        return preferred
-    legacy = claude_dir / "agents" / "disabled" / filename
-    if legacy.is_file():
-        return legacy
+    for directory in _inactive_dir_candidates(claude_dir, "agents"):
+        candidate = directory / filename
+        if candidate.is_file():
+            return candidate
     return None
 
 
@@ -88,13 +89,10 @@ def _find_agent_file_any_state(claude_dir: Path, filename: str) -> Optional[Path
     if active_path.is_file():
         return active_path
 
-    disabled_external = claude_dir / "agents-disabled" / filename
-    if disabled_external.is_file():
-        return disabled_external
-
-    disabled_legacy = agents_dir / "disabled" / filename
-    if disabled_legacy.is_file():
-        return disabled_legacy
+    for directory in _inactive_dir_candidates(claude_dir, "agents"):
+        candidate = directory / filename
+        if candidate.is_file():
+            return candidate
 
     return None
 
@@ -189,8 +187,8 @@ def _generate_dependency_map(claude_dir: Path) -> None:
             dep_entries.append((agent_name, requires, recommends))
 
     collect(agents_dir)
-    collect(claude_dir / "agents-disabled")
-    collect(agents_dir / "disabled")
+    for directory in _inactive_dir_candidates(claude_dir, "agents"):
+        collect(directory)
 
     dep_map_path = agents_dir / "dependencies.map"
     if not dep_entries:
@@ -236,11 +234,11 @@ def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
     """Collect v2 agent metadata for graph rendering."""
 
     claude_dir = _resolve_claude_dir(home)
-    agent_dirs = [
-        (claude_dir / "agents", "active"),
-        (claude_dir / "agents-disabled", "disabled"),
-        (claude_dir / "agents" / "disabled", "disabled"),
-    ]
+    agent_dirs = [(claude_dir / "agents", "active")]
+    agent_dirs.extend(
+        (directory, "disabled")
+        for directory in _inactive_dir_candidates(claude_dir, "agents")
+    )
 
     nodes_by_name: dict[str, AgentGraphNode] = {}
 
@@ -454,11 +452,9 @@ def _resolve_agent_validation_target(claude_dir: Path, target: str) -> Optional[
     except ValueError:
         return None
 
-    for directory in (
-        claude_dir / "agents",
-        claude_dir / "agents-disabled",
-        claude_dir / "agents" / "disabled",
-    ):
+    directories = [claude_dir / "agents"]
+    directories.extend(_inactive_dir_candidates(claude_dir, "agents"))
+    for directory in directories:
         path = directory / normalized
         if path.is_file() and path.name != "TRIGGERS.md":
             return path
@@ -509,9 +505,8 @@ def agent_validate(
     agent_paths: List[Path] = []
     if include_all:
         agent_paths.extend(_iter_agent_paths(claude_dir, claude_dir / "agents"))
-        agent_paths.extend(
-            _iter_agent_paths(claude_dir, claude_dir / "agents-disabled")
-        )
+        for directory in _inactive_dir_candidates(claude_dir, "agents"):
+            agent_paths.extend(_iter_agent_paths(claude_dir, directory))
 
     seen_paths: Set[Path] = set(agent_paths)
 
@@ -660,7 +655,7 @@ def _agent_activate_recursive(
         messages.append(
             _color(f"Agent '{agent_name}' not found in disabled agents", RED)
         )
-        messages.append("Checked: agents-disabled/ and agents/disabled/")
+        messages.append("Checked: inactive/agents/, agents-disabled/, and agents/disabled/")
         return 1
 
     if agent_name in stack:
@@ -741,12 +736,7 @@ def agent_deactivate(
         ]
         return 1, "\n".join(message)
 
-    disabled_dir = claude_dir / "agents-disabled"
-    if disabled_dir.is_dir():
-        destination_dir = disabled_dir
-    else:
-        destination_dir = agents_dir / "disabled"
-        destination_dir.mkdir(parents=True, exist_ok=True)
+    destination_dir = _ensure_inactive_category_dir(claude_dir, "agents")
 
     destination = destination_dir / filename
     if destination.exists():
@@ -766,20 +756,17 @@ def agent_deactivate(
 def list_agents(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     agents_dir = claude_dir / "agents"
-    disabled_external_dir = claude_dir / "agents-disabled"
 
     lines: List[str] = [_color("Available agents:", BLUE)]
 
-    disabled_dir = agents_dir / "disabled"
-    for path in _iter_all_files(disabled_dir):
-        if not path.name.endswith(".md"):
-            continue
-        lines.append(f"  {_agent_basename(path)} (disabled - in agents/disabled/)")
-
-    for path in _iter_all_files(disabled_external_dir):
-        if not path.name.endswith(".md"):
-            continue
-        lines.append(f"  {_agent_basename(path)} (disabled - in agents-disabled/)")
+    for directory in _inactive_dir_candidates(claude_dir, "agents"):
+        rel_prefix = "inactive/agents" if directory == _inactive_category_dir(claude_dir, "agents") else directory.relative_to(claude_dir)
+        for path in _iter_all_files(directory):
+            if not path.name.endswith(".md"):
+                continue
+            lines.append(
+                f"  {_agent_basename(path)} (disabled - in {rel_prefix}/)"
+            )
 
     for path in _iter_all_files(agents_dir):
         if path.name.endswith(".md") and not _is_disabled(path):

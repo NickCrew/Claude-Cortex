@@ -29,6 +29,9 @@ from .base import (
     _iter_md_files,
     _refresh_claude_md,
     _remove_exact_entries,
+    _inactive_category_dir,
+    _inactive_dir_candidates,
+    _ensure_inactive_category_dir,
     _resolve_claude_dir,
     _update_with_backup,
 )
@@ -46,21 +49,29 @@ def _mode_active_file(claude_dir: Path) -> Path:
 
 
 def _mode_inactive_dir(claude_dir: Path) -> Path:
-    return claude_dir / "modes" / "inactive"
+    return _ensure_inactive_category_dir(claude_dir, "modes")
+
+
+def _find_inactive_mode_file(claude_dir: Path, mode: str) -> Optional[Path]:
+    filename = f"{mode}.md"
+    for directory in _inactive_dir_candidates(claude_dir, "modes"):
+        candidate = directory / filename
+        if candidate.is_file():
+            return candidate
+    return None
 
 
 def mode_activate(mode: str, home: Path | None = None) -> tuple[int, str]:
     claude_dir = _resolve_claude_dir(home)
     modes_dir = claude_dir / "modes"
     inactive_dir = _mode_inactive_dir(claude_dir)
-    inactive_path = inactive_dir / f"{mode}.md"
+    inactive_path = _find_inactive_mode_file(claude_dir, mode)
     active_path = modes_dir / f"{mode}.md"
 
-    if not inactive_path.is_file():
+    if inactive_path is None:
         return 1, _color(f"Mode '{mode}' not found in inactive modes", RED)
 
     modes_dir.mkdir(parents=True, exist_ok=True)
-    inactive_dir.mkdir(parents=True, exist_ok=True)
     active_path.parent.mkdir(parents=True, exist_ok=True)
 
     if active_path.exists():
@@ -80,7 +91,7 @@ def mode_deactivate(mode: str, home: Path | None = None) -> tuple[int, str]:
     modes_dir = claude_dir / "modes"
     active_path = modes_dir / f"{mode}.md"
     inactive_dir = _mode_inactive_dir(claude_dir)
-    inactive_path = inactive_dir / f"{mode}.md"
+    inactive_path = _find_inactive_mode_file(claude_dir, mode)
 
     if not active_path.is_file():
         return 1, _color(f"Mode '{mode}' is not currently active", RED)
@@ -109,13 +120,9 @@ def list_modes(home: Path | None = None) -> str:
 
     lines: List[str] = [_color("Available modes:", BLUE)]
 
-    inactive_dir = modes_dir / "inactive"
-    for path in _iter_md_files(inactive_dir):
-        lines.append(f"  {path.stem} (inactive)")
-
-    disabled_dir = modes_dir / "disabled"
-    for path in _iter_md_files(disabled_dir):
-        lines.append(f"  {path.stem} (disabled)")
+    for directory in _inactive_dir_candidates(claude_dir, "modes"):
+        for path in _iter_md_files(directory):
+            lines.append(f"  {path.stem} (inactive)")
 
     for path in _iter_md_files(modes_dir):
         if _is_disabled(path):
@@ -206,7 +213,7 @@ def mode_activate_intelligent(
     active_path = modes_dir / f"{mode}.md"
 
     # Check if mode exists
-    if not inactive_path.is_file():
+    if inactive_path is None:
         return 1, _color(f"Mode '{mode}' not found in inactive modes", RED), []
 
     # Parse metadata for the mode we're activating
@@ -289,7 +296,6 @@ def mode_activate_intelligent(
 
     # Activate the mode
     modes_dir.mkdir(parents=True, exist_ok=True)
-    inactive_dir.mkdir(parents=True, exist_ok=True)
     active_path.parent.mkdir(parents=True, exist_ok=True)
 
     if active_path.exists():

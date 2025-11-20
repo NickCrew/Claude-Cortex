@@ -93,8 +93,9 @@ agents/
 ├── agent-name.md              # Active agent (loaded when triggered)
 └── dependencies.map           # Dependency graph export
 
-agents-disabled/
-└── agent-name.md              # Inactive (can be activated via CLI)
+inactive/
+└── agents/
+    └── agent-name.md          # Inactive (can be activated via CLI)
 ```
 
 **Agent Frontmatter (v2.0):**
@@ -236,10 +237,11 @@ modes/
 ├── Project_Memory.md
 └── Agile_Sprint.md
 
-modes-inactive/
-├── Deep_Analysis.md
-├── Rapid_Prototyping.md
-└── Documentation_Focus.md
+inactive/
+└── modes/
+    ├── Deep_Analysis.md
+    ├── Rapid_Prototyping.md
+    └── Documentation_Focus.md
 ```
 
 **Mode Content:**

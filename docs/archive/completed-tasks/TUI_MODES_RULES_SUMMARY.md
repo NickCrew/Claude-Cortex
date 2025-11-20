@@ -109,7 +109,7 @@ All views support the same consistent controls:
 - **Category Detection**: Automatic based on filename keywords
 
 ### Status Persistence
-- Modes: Status tracked via active file location (.claude/modes vs .claude/modes/inactive)
+- Modes: Status tracked via active file location (.claude/modes vs .claude/inactive/modes)
 - Rules: Status tracked via `.active-rules` file in claude directory
 
 ## Testing Recommendations

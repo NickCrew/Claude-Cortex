@@ -18,7 +18,7 @@ import os
 import platform
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from ..exceptions import (
     ClaudeCtxError,
@@ -26,6 +26,7 @@ from ..exceptions import (
     ValidationError,
     YAMLValidationError,
 )
+from .base import _resolve_claude_dir
 
 
 # Platform-specific config paths
@@ -85,6 +86,7 @@ class MCPServerInfo:
     description: str = ""
     tools: List[str] = field(default_factory=list)
     docs_path: Optional[Path] = None
+    doc_only: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
@@ -96,6 +98,7 @@ class MCPServerInfo:
             "description": self.description,
             "tools": self.tools,
             "docs_path": str(self.docs_path) if self.docs_path else None,
+            "doc_only": self.doc_only,
         }
 
     def is_valid(self) -> Tuple[bool, List[str]]:
@@ -218,6 +221,39 @@ def discover_servers(
         servers.append(server)
 
     return True, servers, ""
+
+
+def list_doc_only_servers(
+    configured_names: Iterable[str],
+    claude_dir: Optional[Path] = None,
+) -> List[MCPServerInfo]:
+    """Return MCP servers that have docs installed but are missing config entries."""
+
+    if claude_dir is None:
+        claude_dir = _resolve_claude_dir()
+
+    docs_dir = claude_dir / "mcp" / "docs"
+    if not docs_dir.is_dir():
+        return []
+
+    configured = {name.lower() for name in configured_names}
+    doc_servers: List[MCPServerInfo] = []
+
+    for doc_path in sorted(docs_dir.glob("*.md")):
+        name = doc_path.stem
+        if name.lower() in configured:
+            continue
+        doc_servers.append(
+            MCPServerInfo(
+                name=name,
+                command="",
+                description="Documentation installed – server not configured",
+                docs_path=doc_path,
+                doc_only=True,
+            )
+        )
+
+    return doc_servers
 
 
 def get_server_info(
