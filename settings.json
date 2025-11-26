@@ -4,6 +4,7 @@
     "command": "/Users/nferguson/bin/ccstatusline",
     "padding": 0
   },
+  "includeCoAuthoredBy": false,
   "enabledPlugins": {},
   "extraKnownMarketplaces": {},
   "outputStyle": "Default",

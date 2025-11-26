@@ -1529,8 +1529,9 @@ class AgentTUI(App[None]):
             else:
                 location_text = f"[dim]{location}[/dim]"
 
-            # Truncate description - show more text
-            description = f"[dim]{Format.truncate(skill['description'], 150)}[/dim]"
+            # Truncate description - show more text, escape Rich markup
+            desc_text = Format.truncate(skill['description'], 150).replace("[", "\\[")
+            description = f"[dim]{desc_text}[/dim]"
 
             rating_text = self._format_skill_rating(skill)
 
@@ -1586,7 +1587,8 @@ class AgentTUI(App[None]):
             complexity_text = f"[{comp_color}]{cmd.complexity.title()}[/{comp_color}]"
 
             stack_text = self._format_command_stack(cmd)
-            description = f"[dim]{Format.truncate(cmd.description, 110)}[/dim]"
+            desc_text = Format.truncate(cmd.description, 110).replace("[", "\\[")
+            description = f"[dim]{desc_text}[/dim]"
 
             table.add_row(
                 command_text,
@@ -2404,9 +2406,10 @@ class AgentTUI(App[None]):
         table.add_column("Status", key="status", width=12)
         table.add_column("Category", key="category", width=15)
         table.add_column("Description", key="description")
+        table.add_column("Source", key="source", width=36)
 
         if not hasattr(self, "rules") or not self.rules:
-            table.add_row("[dim]No rules found[/dim]", "", "", "")
+            table.add_row("[dim]No rules found[/dim]", "", "", "", "")
             return
 
         category_colors = {
@@ -2416,6 +2419,13 @@ class AgentTUI(App[None]):
             "parallel": "magenta",
             "efficiency": "blue",
         }
+
+        claude_dir = _resolve_claude_dir()
+        def _relpath(path: Path) -> str:
+            try:
+                return path.relative_to(claude_dir).as_posix()
+            except ValueError:
+                return path.as_posix()
 
         for rule in self.rules:
             # Color-coded status
@@ -2430,14 +2440,18 @@ class AgentTUI(App[None]):
             cat_color = category_colors.get(rule.category.lower(), "white")
             category_text = f"[{cat_color}]{rule.category}[/{cat_color}]"
 
-            # Truncate description but show more characters
-            description = f"[dim]{Format.truncate(rule.description, 120)}[/dim]"
+            # Truncate description but show more characters - escape Rich markup
+            desc_text = Format.truncate(rule.description, 120).replace("[", "\\[")
+            description = f"[dim]{desc_text}[/dim]"
+
+            source = f"[dim]{Format.truncate(_relpath(rule.path), 60)}[/dim]"
 
             table.add_row(
                 name,
                 status_text,
                 category_text,
                 description,
+                source,
             )
 
     def show_modes_view(self, table: AnyDataTable) -> None:
@@ -2445,6 +2459,7 @@ class AgentTUI(App[None]):
         table.add_column("Name", key="name", width=30)
         table.add_column("Status", key="status", width=12)
         table.add_column("Purpose", key="purpose")
+        table.add_column("Source", key="source", width=36)
 
         # Debug logging
         has_modes_attr = hasattr(self, "modes")
@@ -2453,8 +2468,15 @@ class AgentTUI(App[None]):
         print(f"[DEBUG] show_modes_view: has_attr={has_modes_attr}, modes={modes_value is not None}, count={modes_count}")
 
         if not hasattr(self, "modes") or not self.modes:
-            table.add_row("[dim]No modes found[/dim]", "", "")
+            table.add_row("[dim]No modes found[/dim]", "", "", "")
             return
+
+        claude_dir = _resolve_claude_dir()
+        def _relpath(path: Path) -> str:
+            try:
+                return path.relative_to(claude_dir).as_posix()
+            except ValueError:
+                return path.as_posix()
 
         for mode in self.modes:
             # Color-coded status (match rules view styling)
@@ -2465,13 +2487,17 @@ class AgentTUI(App[None]):
                 status_text = f"[dim]○ inactive[/dim]"
                 name = f"[dim]{Icons.FILTER} {mode.name}[/dim]"
 
-            # Show more of the purpose
-            purpose = f"[dim italic]{Format.truncate(mode.purpose, 150)}[/dim italic]"
+            # Show more of the purpose - escape Rich markup characters
+            purpose_text = Format.truncate(mode.purpose, 150).replace("[", "\\[")
+            purpose = f"[dim italic]{purpose_text}[/dim italic]"
+
+            source = f"[dim]{Format.truncate(_relpath(mode.path), 60)}[/dim]"
 
             table.add_row(
                 name,
                 status_text,
                 purpose,
+                source,
             )
 
     def show_overview(self, table: AnyDataTable) -> None:
@@ -2540,10 +2566,70 @@ class AgentTUI(App[None]):
         return lookup.get(key)
 
     def _tasks_dir(self) -> Path:
-        claude_dir = _resolve_claude_dir()
-        tasks_dir = claude_dir / "tasks" / "current"
-        tasks_dir.mkdir(parents=True, exist_ok=True)
-        return self._validate_path(claude_dir, tasks_dir)
+        """Locate the most relevant tasks/current directory.
+
+        Preference order:
+        1) Explicit override via CLAUDE_TASKS_HOME (if set)
+        2) Primary CLAUDE_CTX_HOME/.claude
+        3) Project-local .claude next to the current working directory
+
+        The newest directory that already exists and contains any task files
+        (active_agents.json, active_workflow, workflow_status, workflow_started)
+        wins. If none exist, we create the primary directory under CLAUDE_CTX_HOME.
+        """
+
+        def candidates() -> list[Path]:
+            roots: list[Path] = []
+            env_root = os.environ.get("CLAUDE_TASKS_HOME")
+            if env_root:
+                roots.append(Path(env_root).expanduser())
+            roots.append(_resolve_claude_dir())
+            roots.append(Path.cwd() / ".claude")
+            seen: set[Path] = set()
+            uniq: list[Path] = []
+            for root in roots:
+                if root in seen:
+                    continue
+                seen.add(root)
+                uniq.append(root)
+            return [root / "tasks" / "current" for root in uniq]
+
+        task_files = {
+            "active_agents.json",
+            "active_workflow",
+            "workflow_status",
+            "workflow_started",
+        }
+
+        viable: list[tuple[float, Path]] = []
+        for candidate in candidates():
+            try:
+                validated = self._validate_path(candidate.parents[1], candidate)
+            except Exception:
+                continue
+            if validated.exists():
+                try:
+                    if any((validated / name).exists() for name in task_files):
+                        mtime = max(
+                            (validated / name).stat().st_mtime
+                            for name in task_files
+                            if (validated / name).exists()
+                        )
+                    else:
+                        mtime = validated.stat().st_mtime
+                    viable.append((mtime, validated))
+                except OSError:
+                    continue
+
+        if viable:
+            # newest wins
+            viable.sort(key=lambda t: t[0], reverse=True)
+            return viable[0][1]
+
+        # fallback: create primary under CLAUDE_CTX_HOME
+        primary = _resolve_claude_dir() / "tasks" / "current"
+        primary.mkdir(parents=True, exist_ok=True)
+        return self._validate_path(primary.parents[1], primary)
 
     def _tasks_file_path(self) -> Path:
         return self._tasks_dir() / "active_agents.json"
@@ -5065,7 +5151,7 @@ class AgentTUI(App[None]):
             return
         try:
             payload = dict(result)
-            payload.setdefault("raw_notes", task.raw_notes)
+            payload["raw_notes"] = result.get("raw_notes", "")
             self._upsert_task(agent_id, payload)
             self.status_message = f"Updated task {label}"
             self.notify("✓ Task updated", severity="information", timeout=2)

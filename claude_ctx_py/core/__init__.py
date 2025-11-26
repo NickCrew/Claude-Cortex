@@ -151,10 +151,13 @@ from .skills import (
 from .modes import (
     _mode_active_file,
     _mode_inactive_dir,
+    _parse_claude_md_modes,
+    _get_active_modes,
     mode_activate,
     mode_deactivate,
     list_modes,
     mode_status,
+    mode_add_to_claude_md,
 )
 
 # Export all functions from rules
@@ -251,7 +254,11 @@ from .mcp import (
     mcp_test,
     mcp_diagnose,
     mcp_snippet,
+    list_doc_only_servers,
 )
+
+# Export doctor function
+from .doctor import doctor_run
 
 __all__ = [
     # Constants
@@ -454,4 +461,6 @@ __all__ = [
     "mcp_diagnose",
     "mcp_snippet",
     "list_doc_only_servers",
+    # Doctor functions
+    "doctor_run",
 ]
