@@ -4,10 +4,41 @@ description: "Intelligent MCP tool selection based on complexity scoring and ope
 category: special
 complexity: high
 mcp-servers: [codanna, morphllm]
-personas: []
+personas: [architect, performance-engineer, tool-specialist]
+subagents: []
 ---
 
 # /tools:select - Intelligent MCP Tool Selection
+
+## Personas (Thinking Modes)
+- **architect**: Complexity assessment, capability matching, operation analysis
+- **performance-engineer**: Performance vs accuracy trade-offs, tool efficiency comparison
+- **tool-specialist**: MCP tool capabilities, strength/weakness analysis, optimal routing
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Tool selection is direct analysis and decision.
+
+**Why no delegation**:
+- ❌ Fast complexity scoring (<5 seconds)
+- ❌ Direct capability matching logic
+- ❌ Simple scoring matrix application
+- ❌ No external execution required (just decision)
+
+**All work done directly**:
+- Parse operation requirements
+- Apply complexity scoring
+- Match against Codanna and Morphllm capabilities
+- Select optimal tool
+- Provide confidence metrics
+
+**Note**: This command uses MCP servers (Codanna, Morphllm) for understanding their capabilities, but doesn't delegate the selection logic itself. Personas guide the selection criteria.
+
+## Tool Coordination
+- **Codanna MCP**: Capability query (direct API for metadata)
+- **Morphllm MCP**: Capability query (direct API for metadata)
+- **Direct analysis**: Complexity scoring and matching (direct logic)
+- **No delegation needed**: Decision-making is direct
 
 ## Triggers
 - Operations requiring optimal MCP tool selection between Codanna and Morphllm

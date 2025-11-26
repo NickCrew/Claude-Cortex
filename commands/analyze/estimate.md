@@ -4,7 +4,8 @@ description: "Provide development estimates for tasks, features, or projects wit
 category: special
 complexity: standard
 mcp-servers: [sequential, context7]
-personas: [architect, performance, project-manager]
+personas: [architect, performance-engineer, project-manager]
+subagents: [Explore, general-purpose]
 ---
 
 # /analyze:estimate - Development Estimation
@@ -38,11 +39,69 @@ Key behaviors:
 - **Context7 MCP**: Framework-specific estimation patterns and historical benchmark data
 - **Persona Coordination**: Architect (design complexity), Performance (optimization effort), Project Manager (timeline)
 
+## Personas (Thinking Modes)
+- **architect**: Design complexity assessment, component organization, integration points
+- **performance-engineer**: Performance optimization effort, technical debt evaluation
+- **project-manager**: Timeline estimation, resource allocation, risk assessment
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large project estimation (>10 components)
+- ✅ Requires deep codebase analysis
+- ✅ Multi-domain complexity assessment
+- ✅ Detailed breakdown requested (--breakdown flag)
+
+**Available subagents**:
+- **Explore**: Codebase complexity analysis, pattern discovery, scope evaluation
+- **general-purpose**: Estimation calculation, breakdown generation, risk assessment
+
+**Delegation strategy for comprehensive estimation**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze codebase for estimation context</description>
+  <prompt>
+    Explore for estimation:
+    - Component complexity
+    - Dependencies and integrations
+    - Framework patterns
+    - Existing implementations
+    - Technical debt factors
+    Thoroughness: medium
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Generate detailed estimation</description>
+  <prompt>
+    Estimate: [target]
+    Type: [time|effort|complexity]
+    Unit: [hours|days|weeks]
+    - Apply architect + performance + PM personas
+    - Use Sequential for systematic analysis
+    - Use Context7 for framework benchmarks
+    - Provide confidence intervals
+    - Include risk factors
+    - Generate breakdown if requested
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple task estimation (<5 steps)
+- ❌ Quick complexity score (no detailed analysis)
+- ❌ Rough estimate (order of magnitude)
+
 ## Tool Coordination
-- **Read/Grep/Glob**: Codebase analysis for complexity assessment and scope evaluation
-- **TodoWrite**: Estimation breakdown and progress tracking for complex estimation workflows
-- **Task**: Advanced delegation for multi-domain estimation requiring systematic coordination
-- **Bash**: Project analysis and dependency evaluation for accurate complexity scoring
+- **Task tool**: Delegates for large/complex estimation requiring codebase analysis
+- **Read/Grep/Glob**: Codebase analysis (direct for simple, by subagent for complex)
+- **TodoWrite**: Estimation breakdown tracking
+- **Bash**: Project analysis (by subagent when needed)
+- **Sequential MCP**: Systematic estimation methodology
+- **Context7 MCP**: Framework-specific benchmarks
 
 ## Key Patterns
 - **Scope Analysis**: Project requirements → complexity factors → framework patterns → risk assessment

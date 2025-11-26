@@ -81,7 +81,9 @@ Each command file includes:
 name: command-name
 description: What the command does
 category: namespace
-agents: [agent1, agent2]
+personas: [thinking, modes]           # Conceptual guidance
+subagents: [claude, code, workers]   # Task tool delegation targets
+mcp-servers: [external, integrations] # Optional MCP integrations
 ---
 
 # Command Documentation
@@ -109,26 +111,53 @@ agents: [agent1, agent2]
    - Output format
    - Examples
 
-## Agent Integration
+## Execution Architecture
 
-Commands can invoke specialized agents:
+Commands coordinate two types of guidance:
 
-**Development Agents:**
-- `code-reviewer` - Code quality analysis
-- `refactoring-expert` - Code refactoring
+### Personas (Thinking Modes)
+Conceptual roles that guide Claude's perspective and decision-making:
+- `architect` - System design thinking
+- `frontend` - UI/UX focus
+- `backend` - API and data modeling
+- `security` - Security-first mindset
+- `qa-specialist` - Quality standards
+
+*Personas influence HOW Claude thinks, not WHAT tools are used.*
+
+### Subagents (Workers via Task Tool)
+Specialized agents launched via Claude Code's Task tool for complex work:
+
+**Development Subagents:**
+- `general-purpose` - Versatile implementation work
+- `code-reviewer` - Code quality and security analysis
 - `typescript-pro` / `python-pro` - Language specialists
 
-**Testing Agents:**
-- `test-automator` - Test generation
+**Testing Subagents:**
+- `test-automator` - Test generation and execution
 - `quality-engineer` - Quality assurance
 
-**Deployment Agents:**
+**Deployment Subagents:**
 - `deployment-engineer` - Release preparation
 - `devops-architect` - Infrastructure
 
-**Analysis Agents:**
+**Analysis Subagents:**
+- `Explore` - Codebase exploration and discovery
 - `security-auditor` - Security assessment
 - `performance-engineer` - Performance analysis
+
+**When commands delegate** (use Task tool to launch subagents):
+- ✅ Complex operations (>3 files, >5 steps)
+- ✅ Multi-domain work (code + tests + docs)
+- ✅ Parallel workstreams possible
+- ✅ User needs progress visibility
+
+**When commands use direct tools**:
+- Simple operations (1-2 files)
+- Quick reads/searches
+- Atomic changes
+
+See: [`docs/architecture/terminology.md`](../docs/architecture/terminology.md) for complete architecture explanation.
 
 ## Best Practices
 

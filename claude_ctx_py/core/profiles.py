@@ -150,6 +150,61 @@ def profile_list(home: Path | None = None) -> str:
     return "\n".join(lines)
 
 
+def _get_active_agents_list(claude_dir: Path) -> List[str]:
+    """Get list of currently active agent names."""
+    active_file = claude_dir / ".active-agents"
+    if not active_file.is_file():
+        return []
+
+    return [
+        line.strip()
+        for line in active_file.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def _get_active_rules_list(claude_dir: Path) -> List[str]:
+    """Get list of currently active rule names."""
+    active_file = claude_dir / ".active-rules"
+    if not active_file.is_file():
+        return []
+
+    return [
+        line.strip()
+        for line in active_file.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+
+def _get_current_active_state(claude_dir: Path) -> Tuple[Set[str], Set[str], Set[str]]:
+    """Get the current active agents, modes, and rules as sets."""
+    active_agents = set(_get_active_agents_list(claude_dir))
+    # _get_active_modes is in claude_ctx_py/core/modes.py
+    from .modes import _get_active_modes
+    active_modes = set(_get_active_modes(claude_dir))
+    active_rules = set(_get_active_rules_list(claude_dir))
+    return active_agents, active_modes, active_rules
+
+
+def _get_profile_state(profile_path: Path) -> Tuple[Set[str], Set[str], Set[str]]:
+    """Parse a .profile file and return the agents, modes, and rules as sets."""
+    content = profile_path.read_text(encoding="utf-8")
+    profile_agents: Set[str] = set()
+    profile_modes: Set[str] = set()
+    profile_rules: Set[str] = set()
+
+    for line in content.splitlines():
+        if line.startswith("AGENTS=\""):
+            profile_agents = set(line.strip().split("=\"", 1)[1][:-1].split())
+        elif line.startswith("MODES=\""):
+            profile_modes = set(line.strip().split("=\"", 1)[1][:-1].split())
+        elif line.startswith("RULES=\""):
+            profile_rules = set(line.strip().split("=\"", 1)[1][:-1].split())
+
+    return profile_agents, profile_modes, profile_rules
+
+
 def profile_save(name: str, home: Path | None = None) -> Tuple[int, str]:
     """Save current configuration state to a named profile."""
     claude_dir = _resolve_claude_dir(home)

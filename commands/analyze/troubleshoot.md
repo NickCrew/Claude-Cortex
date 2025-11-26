@@ -3,8 +3,9 @@ name: troubleshoot
 description: "Diagnose and resolve issues in code, builds, deployments, and system behavior"
 category: utility
 complexity: basic
-mcp-servers: []
-personas: []
+mcp-servers: [sequential]
+personas: [debugger, system-analyst, devops-engineer]
+subagents: [general-purpose, Explore]
 ---
 
 # /analyze:troubleshoot - Issue Diagnosis and Resolution
@@ -33,11 +34,66 @@ Key behaviors:
 - Structured debugging methodologies with comprehensive problem analysis
 - Safe fix application with verification and documentation
 
+## Personas (Thinking Modes)
+- **debugger**: Systematic debugging, hypothesis testing, root cause analysis
+- **system-analyst**: System behavior understanding, pattern recognition, integration analysis
+- **devops-engineer**: Deployment expertise, environment configuration, infrastructure knowledge
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Complex multi-component issues
+- ✅ Requires deep codebase exploration
+- ✅ Performance profiling needed
+- ✅ System-wide debugging (>5 components)
+
+**Available subagents**:
+- **Explore**: Codebase investigation, pattern discovery, dependency analysis
+- **general-purpose**: Issue diagnosis, fix implementation, validation
+
+**Delegation strategy for complex troubleshooting**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Investigate codebase for issue context</description>
+  <prompt>
+    Explore for troubleshooting:
+    - Related components
+    - Error propagation paths
+    - Dependency relationships
+    - Similar patterns
+    Thoroughness: medium
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Diagnose and resolve issue</description>
+  <prompt>
+    Issue: [description]
+    Type: [bug|build|performance|deployment]
+    - Systematic root cause analysis
+    - Hypothesis testing
+    - Apply fix (if --fix flag)
+    - Validation
+    Use Sequential for structured debugging.
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple bug fix (clear error message, single file)
+- ❌ Configuration issue (obvious solution)
+- ❌ Log analysis only (no code changes)
+
 ## Tool Coordination
-- **Read**: Log analysis and system state examination
-- **Bash**: Diagnostic command execution and system investigation
-- **Grep**: Error pattern detection and log analysis
-- **Write**: Diagnostic reports and resolution documentation
+- **Task tool**: Delegates for complex multi-component issues
+- **Read**: Log analysis (direct for simple, by subagent for complex)
+- **Bash**: Diagnostics (direct for simple, by subagent for complex)
+- **Grep**: Error patterns (direct for simple, by subagent for complex)
+- **Write**: Reports (direct)
+- **Sequential MCP**: Structured debugging reasoning
 
 ## Key Patterns
 - **Bug Investigation**: Error analysis → stack trace examination → code inspection → fix validation

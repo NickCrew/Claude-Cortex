@@ -3,8 +3,9 @@ name: system
 description: "Design system architecture, APIs, and component interfaces with comprehensive specifications"
 category: utility
 complexity: basic
-mcp-servers: []
-personas: []
+mcp-servers: [context7, sequential]
+personas: [architect, system-designer]
+subagents: [Explore, general-purpose]
 ---
 
 # /design:system - System and Component Design
@@ -33,11 +34,65 @@ Key behaviors:
 - Multi-format output (diagrams, specifications, code) based on needs
 - Validation against existing system architecture and constraints
 
+## Personas (Thinking Modes)
+- **architect**: System structure, scalability patterns, component relationships
+- **system-designer**: Design principles, interface contracts, specification clarity
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large system design (>10 components)
+- ✅ Existing system analysis needed for integration
+- ✅ Complex API specification (>20 endpoints)
+- ✅ Multi-system architecture design
+
+**Available subagents**:
+- **Explore**: Existing system analysis, pattern discovery, integration points
+- **general-purpose**: Complex design analysis, specification generation
+
+**Delegation strategy for comprehensive design**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze existing system architecture</description>
+  <prompt>
+    Explore for design context:
+    - Current architecture patterns
+    - Existing APIs and interfaces
+    - Component relationships
+    - Integration points
+    Thoroughness: medium
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Generate design specification</description>
+  <prompt>
+    Create [architecture|api|component|database] design:
+    - Type: [type]
+    - Format: [diagram|spec|code]
+    - Apply architect + system-designer thinking
+    - Use Context7 for best practices
+    - Use Sequential for complex analysis
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple component design (single component, clear interface)
+- ❌ Small API spec (<10 endpoints)
+- ❌ Diagram-only output (no deep analysis)
+- ❌ Design refinement (already have context)
+
 ## Tool Coordination
-- **Read**: Requirements analysis and existing system examination
-- **Grep/Glob**: Pattern analysis and system structure investigation
-- **Write**: Design documentation and specification generation
-- **Bash**: External design tool integration when needed
+- **Task tool**: Launches subagents for complex system design requiring exploration
+- **Read**: Requirements, existing specs (direct for simple, by subagent for complex)
+- **Grep/Glob**: Pattern analysis (by subagent for complex)
+- **Write**: Design documentation (direct for simple, by subagent for complex)
+- **Context7**: Best practices and design patterns
+- **Sequential**: Multi-step design analysis
 
 ## Key Patterns
 - **Architecture Design**: Requirements → system structure → scalability planning

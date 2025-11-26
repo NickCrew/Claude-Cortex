@@ -4,7 +4,8 @@ description: "Generate comprehensive project documentation and knowledge base wi
 category: special
 complexity: standard
 mcp-servers: [sequential, context7]
-personas: [architect, scribe, quality]
+personas: [architect, technical-writer, quality-engineer]
+subagents: [Explore, technical-writer, api-documenter]
 ---
 
 # /docs:index - Project Documentation
@@ -38,11 +39,74 @@ Key behaviors:
 - **Context7 MCP**: Framework-specific documentation patterns and established standards
 - **Persona Coordination**: Architect (structure), Scribe (content), Quality (validation)
 
+## Personas (Thinking Modes)
+- **architect**: Structural organization, cross-referencing strategy, logical documentation hierarchy
+- **technical-writer**: Clear communication, audience-appropriate content, comprehensive coverage
+- **quality-engineer**: Documentation completeness, accuracy verification, standards compliance
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large project documentation (>10 components)
+- ✅ Comprehensive API documentation
+- ✅ Knowledge base generation
+- ✅ Multi-type documentation (structure + API + guides)
+
+**Available subagents**:
+- **Explore**: Project structure analysis, component discovery, relationship mapping
+- **technical-writer**: User guides, tutorials, knowledge base content
+- **api-documenter**: API reference documentation, endpoint descriptions, schemas
+
+**Delegation strategy for comprehensive docs**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze project structure and components</description>
+  <prompt>
+    Explore project for documentation:
+    - Component identification
+    - API endpoints discovery
+    - Architecture patterns
+    - Cross-reference opportunities
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>api-documenter</subagent_type>
+  <description>Generate API documentation</description>
+  <prompt>
+    Create API documentation:
+    - Endpoint descriptions
+    - Request/response schemas
+    - Authentication
+    - Usage examples
+    Format: [md|json|yaml]
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>technical-writer</subagent_type>
+  <description>Generate project documentation</description>
+  <prompt>
+    Create project docs with architect guidance:
+    - Project structure overview
+    - Component relationships
+    - Getting started guide
+    - Cross-references
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple README updates
+- ❌ Single component documentation
+- ❌ Quick API reference for <5 endpoints
+
 ## Tool Coordination
-- **Read/Grep/Glob**: Project structure analysis and content extraction for documentation generation
-- **Write**: Documentation creation with intelligent organization and cross-referencing
-- **TodoWrite**: Progress tracking for complex multi-component documentation workflows
-- **Task**: Advanced delegation for large-scale documentation requiring systematic coordination
+- **Task tool**: Delegates to Explore, technical-writer, api-documenter for comprehensive documentation
+- **Read/Grep/Glob**: Project analysis (by subagents for complex, direct for simple)
+- **Write**: Documentation creation (by subagents for complex, direct for simple)
+- **TodoWrite**: Progress tracking for multi-component workflows
 
 ## Key Patterns
 - **Structure Analysis**: Project examination → component identification → logical organization → cross-referencing

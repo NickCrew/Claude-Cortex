@@ -174,6 +174,15 @@ claude-ctx profile backend
 ```bash
 # Show all status
 claude-ctx status
+
+### Diagnostics
+```bash
+# Run system check
+claude-ctx doctor
+
+# Attempt auto-fix
+claude-ctx doctor --fix
+```
 ```
 
 ---

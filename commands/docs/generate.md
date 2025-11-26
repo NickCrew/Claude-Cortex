@@ -4,7 +4,8 @@ description: "Generate focused documentation for components, functions, APIs, an
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [technical-writer, developer]
+subagents: [technical-writer, api-documenter]
 ---
 
 # /docs:generate - Focused Documentation Generation
@@ -33,11 +34,66 @@ Key behaviors:
 - Consistent formatting and cross-reference integration
 - Language-specific documentation patterns and conventions
 
+## Personas (Thinking Modes)
+- **technical-writer**: Clear communication, audience-appropriate language, comprehensive coverage
+- **developer**: Code understanding, practical examples, implementation focus
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ API documentation (>5 endpoints or complex interfaces)
+- ✅ Multi-component documentation projects
+- ✅ Comprehensive user guides requiring >10 pages
+- ✅ Documentation requiring deep code analysis
+
+**Available subagents**:
+- **technical-writer**: User guides, tutorials, explanatory documentation
+- **api-documenter**: API reference, endpoint documentation, schemas
+
+**Delegation strategy for API docs**:
+```xml
+<invoke name="Task">
+  <subagent_type>api-documenter</subagent_type>
+  <description>Generate API documentation for [path]</description>
+  <prompt>
+    Create comprehensive API documentation:
+    - Endpoint descriptions
+    - Request/response schemas
+    - Authentication requirements
+    - Usage examples
+    - Error responses
+    Style: [brief|detailed]
+  </prompt>
+</invoke>
+```
+
+**Delegation strategy for user guides**:
+```xml
+<invoke name="Task">
+  <subagent_type>technical-writer</subagent_type>
+  <description>Generate user guide for [feature]</description>
+  <prompt>
+    Create user-focused documentation:
+    - Feature overview
+    - Step-by-step tutorials
+    - Code examples
+    - Common use cases
+    - Troubleshooting
+  </prompt>
+</invoke>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple inline comments (single file, <50 lines)
+- ❌ Basic JSDoc/docstring generation
+- ❌ Quick README updates
+
 ## Tool Coordination
-- **Read**: Component analysis and existing documentation review
-- **Grep**: Reference extraction and pattern identification
-- **Write**: Documentation file creation with proper formatting
-- **Glob**: Multi-file documentation projects and organization
+- **Task tool**: Delegates to technical-writer or api-documenter for complex docs
+- **Read**: Component analysis (direct or by subagent)
+- **Grep**: Reference extraction (direct or by subagent)
+- **Write**: Documentation file creation (direct for simple, by subagent for complex)
+- **Glob**: Multi-file coordination
 
 ## Key Patterns
 - **Inline Documentation**: Code analysis → JSDoc/docstring generation → inline comments

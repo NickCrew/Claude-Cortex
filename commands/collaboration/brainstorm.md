@@ -4,7 +4,8 @@ description: "Kick-off brainstorming flow adapted from Superpowers, wired to cla
 category: collaboration
 complexity: standard
 mcp-servers: []
-personas: [architect, product]
+personas: [architect, product-manager]
+subagents: [Explore]
 ---
 
 # /ctx:brainstorm – Structured Ideation
@@ -24,6 +25,47 @@ personas: [architect, product]
 ## Output
 - Markdown block following the template in `skills/collaboration/brainstorming/SKILL.md`.
 - Optional file drop under `docs/plans/<date>-brainstorm.md`.
+
+## Personas (Thinking Modes)
+- **architect**: System design thinking, technical feasibility, architecture patterns
+- **product-manager**: User value, business goals, success metrics, prioritization
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large existing codebase (need to explore assets/constraints)
+- ✅ Technical feasibility research (>3 solution options requiring deep analysis)
+- ✅ Multi-domain brainstorm (frontend + backend + infrastructure)
+
+**Available subagents**:
+- **Explore**: Discover existing assets (agents, modes, rules, workflows)
+
+**Delegation strategy for codebase exploration**:
+```xml
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Discover existing assets and constraints</description>
+  <prompt>
+    Explore project for brainstorming context:
+    - Existing agents, modes, rules, workflows
+    - Current architecture patterns
+    - Technical constraints and capabilities
+    - Reusable components
+    Thoroughness: quick (just need overview)
+  </prompt>
+</invoke>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple brainstorming session (no codebase exploration)
+- ❌ Conceptual ideation (no technical validation needed)
+- ❌ Quick option generation (<3 solutions)
+
+## Tool Coordination
+- **Task tool**: Launches Explore for codebase asset discovery when needed
+- **Read**: Existing plans, docs, constraints (direct)
+- **Write**: Brainstorm output markdown (direct)
+- **TodoWrite**: Seed Task TUI entries for follow-up
 
 ## Follow-up
 - Run `/ctx:plan` immediately, feeding it the brainstorm output.

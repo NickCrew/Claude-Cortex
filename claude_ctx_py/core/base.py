@@ -530,43 +530,45 @@ def _refresh_claude_md(claude_dir: Path) -> None:
                 "@PRINCIPLES.md",
                 "@RULES.md",
                 "",
-                "# Workflow Rules (load for all development tasks)",
+                "# Always-On Rules",
                 "@rules/workflow-rules.md",
+                "@rules/parallel-execution-rules.md",
+                "@rules/quality-gate-rules.md",
                 "",
-                "# Conditional Rules (load as needed)",
+                "# Optional Rules (HTML-commented; uncomment to activate)",
             ]
         )
     )
 
+    always_on_rules = {"workflow-rules", "parallel-execution-rules", "quality-gate-rules"}
     rule_lines: List[str] = []
     for rule in available_rules:
-        if rule == "workflow-rules":
+        if rule in always_on_rules:
             continue
         if rule in active_rules:
             rule_lines.append(f"@rules/{rule}.md")
         else:
-            rule_lines.append(f"# @rules/{rule}.md    # Uncomment to activate")
+            rule_lines.append(f"<!-- @rules/{rule}.md -->")
     rule_lines.append("")
     sections.append(_render_section(rule_lines))
 
     mode_lines: List[str] = ["# Active Behavioral Modes"]
     mode_lines.extend(f"@modes/{mode}.md" for mode in active_modes)
     mode_lines.append("")
-    mode_lines.append("# Inactive Modes (move to active/ as needed)")
-    mode_lines.extend(f"# @inactive/modes/{mode}.md" for mode in inactive_modes)
+    mode_lines.append("# Inactive Modes (HTML-commented; uncomment to activate)")
+    mode_lines.extend(f"<!-- @modes/{mode}.md -->" for mode in inactive_modes)
     mode_lines.append("")
     sections.append(_render_section(mode_lines))
 
-    sections.append(
-        _render_section(
-            [
-                "# MCP Documentation",
-                "@mcp/docs/Context7.md",
-                "@mcp/docs/Sequential.md",
-                "@mcp/docs/Serena.md",
-            ]
-        )
-    )
+    mcp_dir = claude_dir / "mcp" / "docs"
+    mcp_docs = sorted(p.stem for p in _iter_md_files(mcp_dir)) if mcp_dir.is_dir() else []
+    default_active_mcp = {"Context7", "Sequential", "Codanna"}
+    mcp_lines: List[str] = ["# MCP Documentation"]
+    for doc in mcp_docs:
+        entry = f"@mcp/docs/{doc}.md" if doc in default_active_mcp else f"<!-- @mcp/docs/{doc}.md -->"
+        mcp_lines.append(entry)
+    mcp_lines.append("")
+    sections.append(_render_section(mcp_lines))
 
     claude_md.write_text("".join(sections), encoding="utf-8")
 

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+import re
 from pathlib import Path
-from typing import Iterable, List, cast
+from typing import Iterable, List, cast, Dict, Any, Callable
 
 from . import core
 
@@ -25,13 +26,7 @@ def _print(text: str) -> None:
     sys.stdout.write(text + "\n")
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="claude-ctx",
-        description="Python implementation of claude-ctx list and status commands",
-    )
-    subparsers = parser.add_subparsers(dest="command")
-
+def _build_mode_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     mode_parser = subparsers.add_parser("mode", help="Mode commands")
     mode_sub = mode_parser.add_subparsers(dest="mode_command")
     mode_sub.add_parser("list", help="List available modes")
@@ -43,6 +38,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     mode_deactivate.add_argument("modes", nargs="+", help="Mode name(s) (without .md)")
 
+
+def _build_agent_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     agent_parser = subparsers.add_parser("agent", help="Agent commands")
     agent_sub = agent_parser.add_subparsers(dest="agent_command")
     agent_sub.add_parser("list", help="List available agents")
@@ -90,6 +87,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Agent names or paths to validate",
     )
 
+
+def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     rules_parser = subparsers.add_parser("rules", help="Rule commands")
     rules_sub = rules_parser.add_subparsers(dest="rules_command")
     rules_sub.add_parser("list", help="List available rules")
@@ -103,6 +102,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
 
+
+def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     skills_parser = subparsers.add_parser("skills", help="Skill commands")
     skills_sub = skills_parser.add_subparsers(dest="skills_command")
     skills_sub.add_parser("list", help="List available skills")
@@ -369,7 +370,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Filter by tags",
     )
 
-    # MCP commands
+
+def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     mcp_parser = subparsers.add_parser("mcp", help="MCP server commands")
     mcp_sub = mcp_parser.add_subparsers(dest="mcp_command")
     mcp_sub.add_parser("list", help="List all MCP servers with status")
@@ -383,6 +385,8 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_snippet_parser = mcp_sub.add_parser("snippet", help="Generate config snippet")
     mcp_snippet_parser.add_argument("server", help="Server name")
 
+
+def _build_init_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     init_parser = subparsers.add_parser("init", help="Initialization commands")
     init_parser.add_argument(
         "--interactive",
@@ -460,7 +464,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Project path (defaults to current working directory)",
     )
 
-    # Profile commands
+
+def _build_profile_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     profile_parser = subparsers.add_parser("profile", help="Profile commands")
     profile_sub = profile_parser.add_subparsers(dest="profile_command")
     profile_sub.add_parser("list", help="List available profiles")
@@ -487,7 +492,8 @@ def build_parser() -> argparse.ArgumentParser:
     for profile_name, description in profile_descriptions.items():
         profile_sub.add_parser(profile_name, help=description)
 
-    # Workflow commands
+
+def _build_workflow_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     workflow_parser = subparsers.add_parser("workflow", help="Workflow commands")
     workflow_sub = workflow_parser.add_subparsers(dest="workflow_command")
     workflow_run_parser = workflow_sub.add_parser(
@@ -506,7 +512,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional workflow name to confirm stopping",
     )
 
-    # Orchestrate/Scenario commands
+
+def _build_orchestrate_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Scenario orchestration commands", aliases=["orch"]
     )
@@ -561,12 +568,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     orchestrate_preview_parser.add_argument("scenario", help="Scenario name")
 
-    subparsers.add_parser("status", help="Show overall status")
 
-    # TUI command
-    subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
-
-    # AI assistant commands
+def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     ai_parser = subparsers.add_parser("ai", help="AI assistant commands")
     ai_sub = ai_parser.add_subparsers(dest="ai_command")
     ai_sub.add_parser("recommend", help="Show intelligent agent recommendations")
@@ -609,7 +612,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Check interval in seconds (default: 2.0)",
     )
 
-    # Context export commands
+
+def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     export_parser = subparsers.add_parser("export", help="Export context commands")
     export_sub = export_parser.add_subparsers(dest="export_command")
     export_list = export_sub.add_parser(
@@ -642,7 +646,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use Claude-specific format instead of agent-generic",
     )
 
-    # Completion command
+
+def _build_completion_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     completion_parser = subparsers.add_parser(
         "completion", help="Generate shell completion scripts"
     )
@@ -653,7 +658,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--install", action="store_true", help="Show installation instructions"
     )
 
-    # Install command
+
+def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     install_parser = subparsers.add_parser(
         "install", help="Install shell integrations (aliases, completions)"
     )
@@ -689,7 +695,587 @@ def build_parser() -> argparse.ArgumentParser:
         "--show", action="store_true", help="Show available aliases without installing"
     )
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="claude-ctx",
+        description="Python implementation of claude-ctx list and status commands",
+    )
+    subparsers = parser.add_subparsers(dest="command")
+
+    _build_mode_parser(subparsers)
+    _build_agent_parser(subparsers)
+    _build_rules_parser(subparsers)
+    _build_skills_parser(subparsers)
+    _build_mcp_parser(subparsers)
+    _build_init_parser(subparsers)
+    _build_profile_parser(subparsers)
+    _build_workflow_parser(subparsers)
+    _build_orchestrate_parser(subparsers)
+    subparsers.add_parser("status", help="Show overall status")
+    subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
+    _build_ai_parser(subparsers)
+    _build_export_parser(subparsers)
+    _build_completion_parser(subparsers)
+    _build_install_parser(subparsers)
+    _build_doctor_parser(subparsers)
+
     return parser
+
+
+def _handle_mode_command(args: argparse.Namespace) -> int:
+    if args.mode_command == "list":
+        _print(core.list_modes())
+        return 0
+    if args.mode_command == "status":
+        _print(core.mode_status())
+        return 0
+    if args.mode_command == "activate":
+        messages = []
+        final_exit_code = 0
+        for mode in args.modes:
+            exit_code, message = core.mode_activate(mode)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.mode_command == "deactivate":
+        messages = []
+        final_exit_code = 0
+        for mode in args.modes:
+            exit_code, message = core.mode_deactivate(mode)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    return 1
+
+
+def _handle_agent_command(args: argparse.Namespace) -> int:
+    if args.agent_command == "list":
+        _print(core.list_agents())
+        return 0
+    if args.agent_command == "status":
+        _print(core.agent_status())
+        return 0
+    if args.agent_command == "activate":
+        messages = []
+        final_exit_code = 0
+        for agent in args.agents:
+            exit_code, message = core.agent_activate(agent)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.agent_command == "deactivate":
+        messages = []
+        final_exit_code = 0
+        for agent in args.agents:
+            exit_code, message = core.agent_deactivate(agent, force=args.force)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.agent_command == "deps":
+        exit_code, message = core.agent_deps(args.agent)
+        _print(message)
+        return exit_code
+    if args.agent_command == "graph":
+        exit_code, message = core.agent_graph(export_path=args.export)
+        _print(message)
+        return exit_code
+    if args.agent_command == "validate":
+        exit_code, message = core.agent_validate(
+            *args.agents, include_all=getattr(args, "include_all", False)
+        )
+        _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_rules_command(args: argparse.Namespace) -> int:
+    if args.rules_command == "list":
+        _print(core.list_rules())
+        return 0
+    if args.rules_command == "status":
+        _print(core.rules_status())
+        return 0
+    if args.rules_command == "activate":
+        messages = []
+        for rule in args.rules:
+            messages.append(core.rules_activate(rule))
+        _print("\n".join(messages))
+        return 0
+    if args.rules_command == "deactivate":
+        messages = []
+        for rule in args.rules:
+            messages.append(core.rules_deactivate(rule))
+        _print("\n".join(messages))
+        return 0
+    return 1
+
+
+def _handle_skills_command(args: argparse.Namespace) -> int:
+    if args.skills_command == "list":
+        _print(core.list_skills())
+        return 0
+    if args.skills_command == "info":
+        exit_code, message = core.skill_info(args.skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "validate":
+        targets = list(getattr(args, "skills", []) or [])
+        if getattr(args, "validate_all", False):
+            targets.insert(0, "--all")
+        exit_code, message = core.skill_validate(*targets)
+        _print(message)
+        return exit_code
+    if args.skills_command == "analyze":
+        text = getattr(args, "text", "")
+        exit_code, message = core.skill_analyze(text)
+        _print(message)
+        return exit_code
+    if args.skills_command == "suggest":
+        project_dir = getattr(args, "suggest_project_dir", ".")
+        exit_code, message = core.skill_suggest(project_dir)
+        _print(message)
+        return exit_code
+    if args.skills_command == "metrics":
+        if getattr(args, "metrics_reset", False):
+            exit_code, message = core.skill_metrics_reset()
+            _print(message)
+            return exit_code
+        skill_name = getattr(args, "skill", None)
+        exit_code, message = core.skill_metrics(skill_name)
+        _print(message)
+        return exit_code
+    if args.skills_command == "deps":
+        exit_code, message = core.skill_deps(args.skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "agents":
+        exit_code, message = core.skill_agents(args.skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "compose":
+        exit_code, message = core.skill_compose(args.skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "versions":
+        exit_code, message = core.skill_versions(args.skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "analytics":
+        metric = getattr(args, "analytics_metric", None)
+        exit_code, message = core.skill_analytics(metric)
+        _print(message)
+        return exit_code
+    if args.skills_command == "report":
+        format = getattr(args, "report_format", "text")
+        exit_code, message = core.skill_report(format)
+        _print(message)
+        return exit_code
+    if args.skills_command == "trending":
+        days = getattr(args, "trending_days", 30)
+        exit_code, message = core.skill_trending(days)
+        _print(message)
+        return exit_code
+    if args.skills_command == "recommend":
+        exit_code, message = core.skill_recommend()
+        _print(message)
+        return exit_code
+    if args.skills_command == "feedback":
+        skill = cast(str, args.skill)
+        rating = cast(str, args.rating)
+        comment = getattr(args, "feedback_comment", None)
+        exit_code, message = core.skill_feedback(skill, rating, comment)
+        _print(message)
+        return exit_code
+    if args.skills_command == "rate":
+        skill = cast(str, args.skill)
+        stars = cast(int, args.stars)
+        helpful = not getattr(args, "not_helpful", False)
+        task_succeeded = not getattr(args, "task_failed", False)
+        review = getattr(args, "review", None)
+        exit_code, message = core.skill_rate(
+            skill, stars, helpful, task_succeeded, review
+        )
+        _print(message)
+        return exit_code
+    if args.skills_command == "ratings":
+        skill = cast(str, args.skill)
+        exit_code, message = core.skill_ratings(skill)
+        _print(message)
+        return exit_code
+    if args.skills_command == "top-rated":
+        category = getattr(args, "top_rated_category", None)
+        limit = getattr(args, "top_rated_limit", 10)
+        exit_code, message = core.skill_top_rated(category, limit)
+        _print(message)
+        return exit_code
+    if args.skills_command == "export-ratings":
+        skill = cast(str, args.export_skill)
+        format = getattr(args, "export_format", "json")
+        exit_code, message = core.skill_ratings_export(skill, format)
+        _print(message)
+        return exit_code
+    if args.skills_command == "community":
+        community_command = getattr(args, "community_command", None)
+        if community_command == "list":
+            tags = (
+                [getattr(args, "community_list_tag")]
+                if getattr(args, "community_list_tag", None)
+                else None
+            )
+            search = getattr(args, "community_list_search", None)
+            verified = getattr(args, "community_list_verified", False)
+            sort_by = getattr(args, "community_list_sort", "name")
+            exit_code, message = core.skill_community_list(
+                tags=tags, search=search, verified=verified, sort_by=sort_by
+            )
+            _print(message)
+            return exit_code
+        if community_command == "install":
+            skill = cast(str, args.skill)
+            exit_code, message = core.skill_community_install(skill)
+            _print(message)
+            return exit_code
+        if community_command == "validate":
+            skill = cast(str, args.skill)
+            exit_code, message = core.skill_community_validate(skill)
+            _print(message)
+            return exit_code
+        if community_command == "rate":
+            skill = cast(str, args.skill)
+            community_rating = cast(int, args.community_rating)
+            exit_code, message = core.skill_community_rate(
+                skill, community_rating
+            )
+            _print(message)
+            return exit_code
+        if community_command == "search":
+            query = cast(str, args.query)
+            tags = getattr(args, "community_search_tags", None)
+            exit_code, message = core.skill_community_search(query, tags=tags)
+            _print(message)
+            return exit_code
+    return 1
+
+
+def _handle_mcp_command(args: argparse.Namespace) -> int:
+    if args.mcp_command == "list":
+        exit_code, message = core.mcp_list()
+        _print(message)
+        return exit_code
+    if args.mcp_command == "show":
+        exit_code, message = core.mcp_show(args.server)
+        _print(message)
+        return exit_code
+    if args.mcp_command == "docs":
+        exit_code, message = core.mcp_docs(args.server)
+        _print(message)
+        return exit_code
+    if args.mcp_command == "test":
+        exit_code, message = core.mcp_test(args.server)
+        _print(message)
+        return exit_code
+    if args.mcp_command == "diagnose":
+        exit_code, message = core.mcp_diagnose()
+        _print(message)
+        return exit_code
+    if args.mcp_command == "snippet":
+        exit_code, message = core.mcp_snippet(args.server)
+        _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_init_command(args: argparse.Namespace) -> int:
+    init_command = getattr(args, "init_command", None)
+    if init_command == "detect":
+        exit_code, message = core.init_detect(
+            getattr(args, "path", None),
+            cwd=Path.cwd(),
+        )
+        if message:
+            _print(message)
+        return exit_code
+    if init_command == "minimal":
+        exit_code, message = core.init_minimal()
+        if message:
+            _print(message)
+        return exit_code
+    if init_command == "profile":
+        exit_code, message = core.init_profile(getattr(args, "name", None))
+        if message:
+            _print(message)
+        return exit_code
+    if init_command == "status":
+        exit_code, output, warnings = core.init_status(
+            getattr(args, "target", None),
+            json_output=getattr(args, "json", False),
+            cwd=Path.cwd(),
+        )
+        if warnings:
+            if not warnings.endswith("\n"):
+                warnings = warnings + "\n"
+            sys.stderr.write(warnings)
+        if output:
+            if getattr(args, "json", False):
+                sys.stdout.write(output)
+                if not output.endswith("\n"):
+                    sys.stdout.write("\n")
+            else:
+                _print(output)
+        return exit_code
+    if init_command == "reset":
+        exit_code, message = core.init_reset(
+            getattr(args, "target", None),
+            cwd=Path.cwd(),
+        )
+        if message:
+            _print(message)
+        return exit_code
+    if init_command == "resume":
+        exit_code, message = core.init_resume(
+            getattr(args, "target", None),
+            cwd=Path.cwd(),
+        )
+        if message:
+            _print(message)
+        return exit_code
+    if init_command == "wizard":
+        exit_code, message = core.init_wizard(
+            getattr(args, "target", None),
+            cwd=Path.cwd(),
+        )
+        if message:
+            _print(message)
+        return exit_code
+
+    if getattr(args, "init_resume_flag", False):
+        exit_code, message = core.init_resume(cwd=Path.cwd())
+    else:
+        exit_code, message = core.init_wizard(cwd=Path.cwd())
+    if message:
+        _print(message)
+    return exit_code
+
+
+def _handle_profile_command(args: argparse.Namespace) -> int:
+    if args.profile_command == "list":
+        _print(core.profile_list())
+        return 0
+    if args.profile_command == "save":
+        exit_code, message = core.profile_save(args.name)
+        _print(message)
+        return exit_code
+
+    # Handle all built-in profile commands dynamically
+    profile_loaders = {
+        "minimal": core.profile_minimal,
+        "frontend": core.profile_frontend,
+        "web-dev": core.profile_web_dev,
+        "backend": core.profile_backend,
+        "devops": core.profile_devops,
+        "documentation": core.profile_documentation,
+        "data-ai": core.profile_data_ai,
+        "quality": core.profile_quality,
+        "meta": core.profile_meta,
+        "developer-experience": core.profile_developer_experience,
+        "product": core.profile_product,
+        "full": core.profile_full,
+    }
+    loader = profile_loaders.get(args.profile_command)
+    if loader:
+        exit_code, message = loader()
+        _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_workflow_command(args: argparse.Namespace) -> int:
+    if args.workflow_command == "run":
+        exit_code, message = core.workflow_run(args.workflow)
+        _print(message)
+        return exit_code
+    if args.workflow_command == "list":
+        _print(core.workflow_list())
+        return 0
+    if args.workflow_command == "status":
+        exit_code, message = core.workflow_status()
+        _print(message)
+        return exit_code
+    if args.workflow_command == "resume":
+        exit_code, message = core.workflow_resume()
+        _print(message)
+        return exit_code
+    if args.workflow_command == "stop":
+        exit_code, message = core.workflow_stop(getattr(args, "workflow", None))
+        _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_orchestrate_command(args: argparse.Namespace) -> int:
+    if args.orchestrate_command == "list":
+        _print(core.scenario_list())
+        return 0
+    if args.orchestrate_command == "validate":
+        targets = list(getattr(args, "scenarios", []) or [])
+        if getattr(args, "validate_all", False):
+            targets.insert(0, "--all")
+        exit_code, message = core.scenario_validate(*targets)
+        _print(message)
+        return exit_code
+    if args.orchestrate_command == "status":
+        _print(core.scenario_status())
+        return 0
+    if args.orchestrate_command == "stop":
+        exit_code, message = core.scenario_stop(args.scenario)
+        _print(message)
+        return exit_code
+    if args.orchestrate_command == "run":
+        options: List[str] = []
+        if getattr(args, "run_auto", False):
+            options.append("--auto")
+        if getattr(args, "run_interactive", False):
+            options.append("--interactive")
+        if getattr(args, "run_plan", False) or getattr(args, "run_validate", False):
+            options.append("--plan")
+        if getattr(args, "run_preview", False):
+            options.append("--preview")
+        options.extend(getattr(args, "mode_args", []) or [])
+        exit_code, message = core.scenario_run(args.scenario, *options)
+        _print(message)
+        return exit_code
+    if args.orchestrate_command == "preview":
+        exit_code, message = core.scenario_preview(args.scenario)
+        _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_ai_command(args: argparse.Namespace) -> int:
+    from . import cmd_ai
+
+    if args.ai_command == "recommend":
+        return cmd_ai.ai_recommend()
+    elif args.ai_command == "auto-activate":
+        return cmd_ai.ai_auto_activate()
+    elif args.ai_command == "export":
+        return cmd_ai.ai_export_json(args.output)
+    elif args.ai_command == "record-success":
+        return cmd_ai.ai_record_success(args.outcome)
+    elif args.ai_command == "watch":
+        from . import watch
+
+        return watch.watch_main(
+            auto_activate=not args.no_auto_activate,
+            threshold=args.threshold,
+            interval=args.interval,
+            )
+    else:
+        _print("AI command required. Use 'claude-ctx ai --help' for options.")
+        return 1
+
+
+def _handle_export_command(args: argparse.Namespace) -> int:
+    if args.export_command == "list":
+        _print(core.list_context_components())
+        return 0
+    if args.export_command == "context":
+        from pathlib import Path
+
+        # Support "-" for stdout
+        output_path: Path | str
+        if args.output == "-":
+            output_path = "-"
+        else:
+            output_path = Path(args.output)
+
+        exclude_categories = set(args.exclude_categories or [])
+        exclude_files = set(args.exclude_files or [])
+        agent_generic = not args.no_agent_generic
+
+        exit_code, message = core.export_context(
+            output_path=output_path,
+            exclude_categories=exclude_categories,
+            exclude_files=exclude_files,
+            agent_generic=agent_generic,
+        )
+        if message:  # Only print if there's a message (empty for stdout)
+            _print(message)
+        return exit_code
+    return 1
+
+
+def _handle_completion_command(args: argparse.Namespace) -> int:
+    from . import completions
+
+    try:
+        if args.install:
+            # Show installation instructions
+            instructions = completions.get_installation_instructions(args.shell)
+            _print(instructions)
+        else:
+            # Generate completion script
+            script = completions.get_completion_script(args.shell)
+            _print(script)
+        return 0
+    except ValueError as e:
+        _print(f"Error: {e}")
+        return 1
+
+
+def _handle_install_command(args: argparse.Namespace) -> int:
+    if args.install_command == "aliases":
+        from . import shell_integration
+
+        # Show aliases without installing
+        if args.show:
+            _print(shell_integration.show_aliases())
+            return 0
+
+        # Uninstall aliases
+        if args.uninstall:
+            exit_code, message = shell_integration.uninstall_aliases(
+                shell=args.shell, rc_file=args.rc_file, dry_run=args.dry_run
+            )
+            _print(message)
+            return exit_code
+
+        # Install aliases
+        exit_code, message = shell_integration.install_aliases(
+            shell=args.shell,
+            rc_file=args.rc_file,
+            force=args.force,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    else:
+        _print("Install subcommand required. Use 'claude-ctx install --help'")
+        return 1
+
+
+def _build_doctor_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    doctor_parser = subparsers.add_parser(
+        "doctor", help="Diagnose and fix context issues"
+    )
+    doctor_parser.add_argument(
+        "--fix", action="store_true", help="Attempt to auto-fix issues"
+    )
+
+
+def _handle_doctor_command(args: argparse.Namespace) -> int:
+    exit_code, message = core.doctor_run(fix=args.fix)
+    _print(message)
+    return exit_code
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -697,520 +1283,35 @@ def main(argv: Iterable[str] | None = None) -> int:
     _enable_argcomplete(parser)
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    if args.command == "mode":
-        if args.mode_command == "list":
-            _print(core.list_modes())
-            return 0
-        if args.mode_command == "status":
-            _print(core.mode_status())
-            return 0
-        if args.mode_command == "activate":
-            messages = []
-            final_exit_code = 0
-            for mode in args.modes:
-                exit_code, message = core.mode_activate(mode)
-                messages.append(message)
-                if exit_code != 0:
-                    final_exit_code = exit_code
-            _print("\n".join(messages))
-            return final_exit_code
-        if args.mode_command == "deactivate":
-            messages = []
-            final_exit_code = 0
-            for mode in args.modes:
-                exit_code, message = core.mode_deactivate(mode)
-                messages.append(message)
-                if exit_code != 0:
-                    final_exit_code = exit_code
-            _print("\n".join(messages))
-            return final_exit_code
-    elif args.command == "agent":
-        if args.agent_command == "list":
-            _print(core.list_agents())
-            return 0
-        if args.agent_command == "status":
-            _print(core.agent_status())
-            return 0
-        if args.agent_command == "activate":
-            messages = []
-            final_exit_code = 0
-            for agent in args.agents:
-                exit_code, message = core.agent_activate(agent)
-                messages.append(message)
-                if exit_code != 0:
-                    final_exit_code = exit_code
-            _print("\n".join(messages))
-            return final_exit_code
-        if args.agent_command == "deactivate":
-            messages = []
-            final_exit_code = 0
-            for agent in args.agents:
-                exit_code, message = core.agent_deactivate(agent, force=args.force)
-                messages.append(message)
-                if exit_code != 0:
-                    final_exit_code = exit_code
-            _print("\n".join(messages))
-            return final_exit_code
-        if args.agent_command == "deps":
-            exit_code, message = core.agent_deps(args.agent)
-            _print(message)
-            return exit_code
-        if args.agent_command == "graph":
-            exit_code, message = core.agent_graph(export_path=args.export)
-            _print(message)
-            return exit_code
-        if args.agent_command == "validate":
-            exit_code, message = core.agent_validate(
-                *args.agents, include_all=getattr(args, "include_all", False)
-            )
-            _print(message)
-            return exit_code
-    elif args.command == "rules":
-        if args.rules_command == "list":
-            _print(core.list_rules())
-            return 0
-        if args.rules_command == "status":
-            _print(core.rules_status())
-            return 0
-        if args.rules_command == "activate":
-            messages = []
-            for rule in args.rules:
-                messages.append(core.rules_activate(rule))
-            _print("\n".join(messages))
-            return 0
-        if args.rules_command == "deactivate":
-            messages = []
-            for rule in args.rules:
-                messages.append(core.rules_deactivate(rule))
-            _print("\n".join(messages))
-            return 0
-    elif args.command == "skills":
-        if args.skills_command == "list":
-            _print(core.list_skills())
-            return 0
-        if args.skills_command == "info":
-            exit_code, message = core.skill_info(args.skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "validate":
-            targets = list(getattr(args, "skills", []) or [])
-            if getattr(args, "validate_all", False):
-                targets.insert(0, "--all")
-            exit_code, message = core.skill_validate(*targets)
-            _print(message)
-            return exit_code
-        if args.skills_command == "analyze":
-            text = getattr(args, "text", "")
-            exit_code, message = core.skill_analyze(text)
-            _print(message)
-            return exit_code
-        if args.skills_command == "suggest":
-            project_dir = getattr(args, "suggest_project_dir", ".")
-            exit_code, message = core.skill_suggest(project_dir)
-            _print(message)
-            return exit_code
-        if args.skills_command == "metrics":
-            if getattr(args, "metrics_reset", False):
-                exit_code, message = core.skill_metrics_reset()
-                _print(message)
-                return exit_code
-            skill_name = getattr(args, "skill", None)
-            exit_code, message = core.skill_metrics(skill_name)
-            _print(message)
-            return exit_code
-        if args.skills_command == "deps":
-            exit_code, message = core.skill_deps(args.skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "agents":
-            exit_code, message = core.skill_agents(args.skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "compose":
-            exit_code, message = core.skill_compose(args.skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "versions":
-            exit_code, message = core.skill_versions(args.skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "analytics":
-            metric = getattr(args, "analytics_metric", None)
-            exit_code, message = core.skill_analytics(metric)
-            _print(message)
-            return exit_code
-        if args.skills_command == "report":
-            format = getattr(args, "report_format", "text")
-            exit_code, message = core.skill_report(format)
-            _print(message)
-            return exit_code
-        if args.skills_command == "trending":
-            days = getattr(args, "trending_days", 30)
-            exit_code, message = core.skill_trending(days)
-            _print(message)
-            return exit_code
-        if args.skills_command == "recommend":
-            exit_code, message = core.skill_recommend()
-            _print(message)
-            return exit_code
-        if args.skills_command == "feedback":
-            skill = cast(str, args.skill)
-            rating = cast(str, args.rating)
-            comment = getattr(args, "feedback_comment", None)
-            exit_code, message = core.skill_feedback(skill, rating, comment)
-            _print(message)
-            return exit_code
-        if args.skills_command == "rate":
-            skill = cast(str, args.skill)
-            stars = cast(int, args.stars)
-            # Handle helpful flags (not-helpful overrides default)
-            helpful = not getattr(args, "not_helpful", False)
-            # Handle succeeded flags (failed overrides default)
-            task_succeeded = not getattr(args, "task_failed", False)
-            review = getattr(args, "review", None)
-            exit_code, message = core.skill_rate(
-                skill, stars, helpful, task_succeeded, review
-            )
-            _print(message)
-            return exit_code
-        if args.skills_command == "ratings":
-            skill = cast(str, args.skill)
-            exit_code, message = core.skill_ratings(skill)
-            _print(message)
-            return exit_code
-        if args.skills_command == "top-rated":
-            category = getattr(args, "top_rated_category", None)
-            limit = getattr(args, "top_rated_limit", 10)
-            exit_code, message = core.skill_top_rated(category, limit)
-            _print(message)
-            return exit_code
-        if args.skills_command == "export-ratings":
-            skill = cast(str, args.export_skill)
-            format = getattr(args, "export_format", "json")
-            exit_code, message = core.skill_ratings_export(skill, format)
-            _print(message)
-            return exit_code
-        if args.skills_command == "community":
-            community_command = getattr(args, "community_command", None)
-            if community_command == "list":
-                tags = (
-                    [getattr(args, "community_list_tag")]
-                    if getattr(args, "community_list_tag", None)
-                    else None
-                )
-                search = getattr(args, "community_list_search", None)
-                verified = getattr(args, "community_list_verified", False)
-                sort_by = getattr(args, "community_list_sort", "name")
-                exit_code, message = core.skill_community_list(
-                    tags=tags, search=search, verified=verified, sort_by=sort_by
-                )
-                _print(message)
-                return exit_code
-            if community_command == "install":
-                skill = cast(str, args.skill)
-                exit_code, message = core.skill_community_install(skill)
-                _print(message)
-                return exit_code
-            if community_command == "validate":
-                skill = cast(str, args.skill)
-                exit_code, message = core.skill_community_validate(skill)
-                _print(message)
-                return exit_code
-            if community_command == "rate":
-                skill = cast(str, args.skill)
-                community_rating = cast(int, args.community_rating)
-                exit_code, message = core.skill_community_rate(
-                    skill, community_rating
-                )
-                _print(message)
-                return exit_code
-            if community_command == "search":
-                query = cast(str, args.query)
-                tags = getattr(args, "community_search_tags", None)
-                exit_code, message = core.skill_community_search(query, tags=tags)
-                _print(message)
-                return exit_code
-    elif args.command == "mcp":
-        if args.mcp_command == "list":
-            exit_code, message = core.mcp_list()
-            _print(message)
-            return exit_code
-        if args.mcp_command == "show":
-            exit_code, message = core.mcp_show(args.server)
-            _print(message)
-            return exit_code
-        if args.mcp_command == "docs":
-            exit_code, message = core.mcp_docs(args.server)
-            _print(message)
-            return exit_code
-        if args.mcp_command == "test":
-            exit_code, message = core.mcp_test(args.server)
-            _print(message)
-            return exit_code
-        if args.mcp_command == "diagnose":
-            exit_code, message = core.mcp_diagnose()
-            _print(message)
-            return exit_code
-        if args.mcp_command == "snippet":
-            exit_code, message = core.mcp_snippet(args.server)
-            _print(message)
-            return exit_code
-    elif args.command == "init":
-        init_command = getattr(args, "init_command", None)
-        if init_command == "detect":
-            exit_code, message = core.init_detect(
-                getattr(args, "path", None),
-                cwd=Path.cwd(),
-            )
-            if message:
-                _print(message)
-            return exit_code
-        if init_command == "minimal":
-            exit_code, message = core.init_minimal()
-            if message:
-                _print(message)
-            return exit_code
-        if init_command == "profile":
-            exit_code, message = core.init_profile(getattr(args, "name", None))
-            if message:
-                _print(message)
-            return exit_code
-        if init_command == "status":
-            exit_code, output, warnings = core.init_status(
-                getattr(args, "target", None),
-                json_output=getattr(args, "json", False),
-                cwd=Path.cwd(),
-            )
-            if warnings:
-                if not warnings.endswith("\n"):
-                    warnings = warnings + "\n"
-                sys.stderr.write(warnings)
-            if output:
-                if getattr(args, "json", False):
-                    sys.stdout.write(output)
-                    if not output.endswith("\n"):
-                        sys.stdout.write("\n")
-                else:
-                    _print(output)
-            return exit_code
-        if init_command == "reset":
-            exit_code, message = core.init_reset(
-                getattr(args, "target", None),
-                cwd=Path.cwd(),
-            )
-            if message:
-                _print(message)
-            return exit_code
-        if init_command == "resume":
-            exit_code, message = core.init_resume(
-                getattr(args, "target", None),
-                cwd=Path.cwd(),
-            )
-            if message:
-                _print(message)
-            return exit_code
-        if init_command == "wizard":
-            exit_code, message = core.init_wizard(
-                getattr(args, "target", None),
-                cwd=Path.cwd(),
-            )
-            if message:
-                _print(message)
-            return exit_code
+    handlers: Dict[str, Callable[[argparse.Namespace], int]] = {
+        "mode": _handle_mode_command,
+        "agent": _handle_agent_command,
+        "rules": _handle_rules_command,
+        "skills": _handle_skills_command,
+        "mcp": _handle_mcp_command,
+        "init": _handle_init_command,
+        "profile": _handle_profile_command,
+        "workflow": _handle_workflow_command,
+        "orchestrate": _handle_orchestrate_command,
+        "orch": _handle_orchestrate_command,
+        "ai": _handle_ai_command,
+        "export": _handle_export_command,
+        "completion": _handle_completion_command,
+        "install": _handle_install_command,
+        "doctor": _handle_doctor_command,
+    }
 
-        if getattr(args, "init_resume_flag", False):
-            exit_code, message = core.init_resume(cwd=Path.cwd())
-        else:
-            exit_code, message = core.init_wizard(cwd=Path.cwd())
-        if message:
-            _print(message)
-        return exit_code
-    elif args.command == "profile":
-        if args.profile_command == "list":
-            _print(core.profile_list())
-            return 0
-        if args.profile_command == "save":
-            exit_code, message = core.profile_save(args.name)
-            _print(message)
-            return exit_code
-
-        # Handle all built-in profile commands dynamically
-        profile_loaders = {
-            "minimal": core.profile_minimal,
-            "frontend": core.profile_frontend,
-            "web-dev": core.profile_web_dev,
-            "backend": core.profile_backend,
-            "devops": core.profile_devops,
-            "documentation": core.profile_documentation,
-            "data-ai": core.profile_data_ai,
-            "quality": core.profile_quality,
-            "meta": core.profile_meta,
-            "developer-experience": core.profile_developer_experience,
-            "product": core.profile_product,
-            "full": core.profile_full,
-        }
-        loader = profile_loaders.get(args.profile_command)
-        if loader:
-            exit_code, message = loader()
-            _print(message)
-            return exit_code
-    elif args.command == "workflow":
-        if args.workflow_command == "run":
-            exit_code, message = core.workflow_run(args.workflow)
-            _print(message)
-            return exit_code
-        if args.workflow_command == "list":
-            _print(core.workflow_list())
-            return 0
-        if args.workflow_command == "status":
-            exit_code, message = core.workflow_status()
-            _print(message)
-            return exit_code
-        if args.workflow_command == "resume":
-            exit_code, message = core.workflow_resume()
-            _print(message)
-            return exit_code
-        if args.workflow_command == "stop":
-            exit_code, message = core.workflow_stop(getattr(args, "workflow", None))
-            _print(message)
-            return exit_code
-    elif args.command in ("orchestrate", "orch"):
-        if args.orchestrate_command == "list":
-            _print(core.scenario_list())
-            return 0
-        if args.orchestrate_command == "validate":
-            targets = list(getattr(args, "scenarios", []) or [])
-            if getattr(args, "validate_all", False):
-                targets.insert(0, "--all")
-            exit_code, message = core.scenario_validate(*targets)
-            _print(message)
-            return exit_code
-        if args.orchestrate_command == "status":
-            _print(core.scenario_status())
-            return 0
-        if args.orchestrate_command == "stop":
-            exit_code, message = core.scenario_stop(args.scenario)
-            _print(message)
-            return exit_code
-        if args.orchestrate_command == "run":
-            options: List[str] = []
-            if getattr(args, "run_auto", False):
-                options.append("--auto")
-            if getattr(args, "run_interactive", False):
-                options.append("--interactive")
-            if getattr(args, "run_plan", False) or getattr(args, "run_validate", False):
-                options.append("--plan")
-            if getattr(args, "run_preview", False):
-                options.append("--preview")
-            options.extend(getattr(args, "mode_args", []) or [])
-            exit_code, message = core.scenario_run(args.scenario, *options)
-            _print(message)
-            return exit_code
-        if args.orchestrate_command == "preview":
-            exit_code, message = core.scenario_preview(args.scenario)
-            _print(message)
-            return exit_code
-    elif args.command == "status":
+    if args.command == "status":
         _print(core.show_status())
         return 0
-    elif args.command == "tui":
+    
+    if args.command == "tui":
         from . import tui_textual
-
         return tui_textual.main()
-    elif args.command == "ai":
-        from . import cmd_ai
 
-        if args.ai_command == "recommend":
-            return cmd_ai.ai_recommend()
-        elif args.ai_command == "auto-activate":
-            return cmd_ai.ai_auto_activate()
-        elif args.ai_command == "export":
-            return cmd_ai.ai_export_json(args.output)
-        elif args.ai_command == "record-success":
-            return cmd_ai.ai_record_success(args.outcome)
-        elif args.ai_command == "watch":
-            from . import watch
-
-            return watch.watch_main(
-                auto_activate=not args.no_auto_activate,
-                threshold=args.threshold,
-                interval=args.interval,
-            )
-        else:
-            _print("AI command required. Use 'claude-ctx ai --help' for options.")
-            return 1
-    elif args.command == "export":
-        if args.export_command == "list":
-            _print(core.list_context_components())
-            return 0
-        if args.export_command == "context":
-            from pathlib import Path
-
-            # Support "-" for stdout
-            output_path: Path | str
-            if args.output == "-":
-                output_path = "-"
-            else:
-                output_path = Path(args.output)
-
-            exclude_categories = set(args.exclude_categories or [])
-            exclude_files = set(args.exclude_files or [])
-            agent_generic = not args.no_agent_generic
-
-            exit_code, message = core.export_context(
-                output_path=output_path,
-                exclude_categories=exclude_categories,
-                exclude_files=exclude_files,
-                agent_generic=agent_generic,
-            )
-            if message:  # Only print if there's a message (empty for stdout)
-                _print(message)
-            return exit_code
-    elif args.command == "completion":
-        from . import completions
-
-        try:
-            if args.install:
-                # Show installation instructions
-                instructions = completions.get_installation_instructions(args.shell)
-                _print(instructions)
-            else:
-                # Generate completion script
-                script = completions.get_completion_script(args.shell)
-                _print(script)
-            return 0
-        except ValueError as e:
-            _print(f"Error: {e}")
-            return 1
-    elif args.command == "install":
-        if args.install_command == "aliases":
-            from . import shell_integration
-
-            # Show aliases without installing
-            if args.show:
-                _print(shell_integration.show_aliases())
-                return 0
-
-            # Uninstall aliases
-            if args.uninstall:
-                exit_code, message = shell_integration.uninstall_aliases(
-                    shell=args.shell, rc_file=args.rc_file, dry_run=args.dry_run
-                )
-                _print(message)
-                return exit_code
-
-            # Install aliases
-            exit_code, message = shell_integration.install_aliases(
-                shell=args.shell,
-                rc_file=args.rc_file,
-                force=args.force,
-                dry_run=args.dry_run,
-            )
-            _print(message)
-            return exit_code
-        else:
-            _print("Install subcommand required. Use 'claude-ctx install --help'")
-            return 1
+    handler = handlers.get(args.command)
+    if handler:
+        return handler(args)
 
     parser.print_help()
     return 1

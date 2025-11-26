@@ -4,7 +4,8 @@ description: "Git operations with intelligent commit messages and workflow optim
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [developer, devops-engineer]
+subagents: []
 ---
 
 # /dev:git - Git Operations
@@ -34,11 +35,32 @@ Key behaviors:
 - Provide clear status summaries and workflow recommendations
 - Do not sign off commits or name yourself as co-author
 
+## Personas (Thinking Modes)
+- **developer**: Code change understanding, commit message clarity, branch workflow
+- **devops-engineer**: Repository optimization, workflow best practices, team coordination
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Git operations are direct bash commands.
+
+**Why no delegation**:
+- ❌ Git commands are fast, atomic operations
+- ❌ Commit message generation is simple analysis
+- ❌ Status/log parsing doesn't require subagents
+- ❌ Operations complete in <5 seconds
+
+**All work done directly**:
+- Bash executes git commands
+- Direct analysis of diffs for commit messages
+- Simple pattern matching for status
+
+**Note**: While this command doesn't use Task tool, it still benefits from personas for intelligent commit message generation and workflow guidance.
+
 ## Tool Coordination
-- **Bash**: Git command execution and repository operations
-- **Read**: Repository state analysis and configuration review
-- **Grep**: Log parsing and status analysis
-- **Write**: Commit message generation and documentation
+- **Bash**: Git command execution (all operations direct)
+- **Read**: Repository state analysis (direct)
+- **Grep**: Log parsing and status analysis (direct)
+- **Write**: Commit message generation (direct)
 
 ## Key Patterns
 - **Smart Commits**: Analyze changes → generate conventional commit message

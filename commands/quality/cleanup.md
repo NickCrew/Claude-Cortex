@@ -5,9 +5,82 @@ category: workflow
 complexity: standard
 mcp-servers: [sequential, context7]
 personas: [architect, quality, security]
+subagents: [general-purpose, code-reviewer, Explore]
 ---
 
 # /quality:cleanup - Code and Project Cleanup
+
+## Personas (Thinking Modes)
+- **architect**: System-wide impact analysis, structural improvements, dependency management
+- **quality**: Code quality standards, technical debt assessment, cleanup validation
+- **security**: Security implications of changes, safe removal verification
+
+## Delegation Protocol
+
+**This command CONDITIONALLY delegates** - Based on cleanup scope and complexity.
+
+**When to delegate** (use Task tool):
+- ✅ Large codebase cleanup (>20 files affected)
+- ✅ Complex dead code analysis (requires deep import tracing)
+- ✅ Multi-domain cleanup (code + imports + files)
+- ✅ Aggressive cleanup mode (needs thorough validation)
+
+**Available subagents**:
+- **Explore**: Analyze codebase for dead code and unused imports
+- **general-purpose**: Execute systematic cleanup with validation
+- **code-reviewer**: Validate cleanup safety and quality improvement
+
+**Delegation strategy for comprehensive cleanup**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze codebase for cleanup opportunities</description>
+  <prompt>
+    Explore for dead code and cleanup:
+    - Unused imports and exports
+    - Dead code files
+    - Optimization opportunities
+    Thoroughness: medium
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Execute systematic cleanup</description>
+  <prompt>
+    Apply cleanup based on analysis:
+    - Remove dead code safely
+    - Optimize imports
+    - Improve structure
+    - Validate with tests
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Validate cleanup quality</description>
+  <prompt>
+    Review cleanup changes:
+    - Verify no functionality loss
+    - Assess quality improvement
+    - Check for issues
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple file cleanup (<5 files)
+- ❌ Single-domain cleanup (just imports OR just files)
+- ❌ Safe mode (minimal changes)
+- ❌ Interactive mode (user-guided)
+
+## Tool Coordination
+- **Task tool**: Delegates for large/complex cleanup (3 subagents)
+- **Bash**: Direct file operations for simple cleanup (direct)
+- **Read/Edit**: Code analysis and modification (direct for simple, by subagent for complex)
+- **Sequential MCP**: Structured cleanup planning (direct)
+- **Context7 MCP**: Framework-specific cleanup patterns (direct)
+- **TodoWrite**: Track cleanup steps (direct)
 
 ## Triggers
 - Code maintenance and technical debt reduction requests

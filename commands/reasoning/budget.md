@@ -4,10 +4,39 @@ description: "Control internal reasoning token budget for cost and quality optim
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [cost-optimizer, performance-engineer, architect]
+subagents: []
 ---
 
 # /reasoning:budget - Thinking Budget Control
+
+## Personas (Thinking Modes)
+- **cost-optimizer**: Budget allocation, cost-benefit analysis, resource efficiency
+- **performance-engineer**: Quality-cost trade-offs, reasoning effectiveness measurement
+- **architect**: Task complexity assessment, appropriate budget sizing
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Budget control is configuration setting.
+
+**Why no delegation**:
+- ❌ Instant configuration change
+- ❌ Simple token budget setting
+- ❌ Direct monitoring setup
+- ❌ No execution required (just configuration)
+
+**All work done directly**:
+- Assess task complexity
+- Set thinking token budget
+- Enable usage monitoring if requested
+- Track and report token consumption
+
+**Note**: Personas guide budget decisions (optimizer for efficiency, performance for quality, architect for complexity).
+
+## Tool Coordination
+- **Direct configuration**: Token budget setting (direct)
+- **Usage monitoring**: Token tracking (direct if --show-usage)
+- **No delegation needed**: Pure configuration command
 
 ## Triggers
 - Need to control reasoning depth and cost trade-offs

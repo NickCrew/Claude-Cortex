@@ -4,10 +4,40 @@ description: "Session lifecycle management with Codanna MCP integration for sess
 category: session
 complexity: standard
 mcp-servers: [codanna]
-personas: []
+personas: [project-manager, documentation-specialist, knowledge-engineer]
+subagents: []
 ---
 
 # /session:save - Session Context Persistence
+
+## Personas (Thinking Modes)
+- **project-manager**: Progress tracking, milestone documentation, session outcome assessment
+- **documentation-specialist**: Context preservation, discovery archival, checkpoint clarity
+- **knowledge-engineer**: Cross-session learning, memory management, insight extraction
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Session saving is direct MCP integration.
+
+**Why no delegation**:
+- ❌ Fast Codanna MCP operations (<5 seconds)
+- ❌ Direct memory persistence API calls
+- ❌ Simple checkpoint creation
+- ❌ Straightforward session metadata updates
+
+**All work done directly**:
+- Codanna MCP for session context persistence
+- Direct API calls for memory management
+- Read/Write for checkpoint files (if needed)
+- TodoWrite for tracking save progress
+
+**Note**: Personas guide what to save (PM for progress, docs for context, knowledge for learnings). Codanna MCP handles the actual persistence.
+
+## Tool Coordination
+- **Codanna MCP**: Session context persistence, memory management (direct API)
+- **Write**: Checkpoint files if needed (direct)
+- **Read**: Analyze current session for saving (direct)
+- **TodoWrite**: Track save operations (direct)
 
 ## Triggers
 - Session completion and project context persistence needs

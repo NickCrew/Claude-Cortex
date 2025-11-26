@@ -4,7 +4,8 @@ description: "Apply systematic improvements to code quality, performance, and ma
 category: workflow
 complexity: standard
 mcp-servers: [sequential, context7]
-personas: [architect, performance, quality, security]
+personas: [architect, performance-engineer, quality-engineer, security-specialist]
+subagents: [general-purpose, code-reviewer, Explore]
 ---
 
 # /quality:improve - Code Improvement
@@ -38,11 +39,73 @@ Key behaviors:
 - **Context7 MCP**: Framework-specific best practices and optimization patterns
 - **Persona Coordination**: Architect (structure), Performance (speed), Quality (maintainability), Security (safety)
 
+## Personas (Thinking Modes)
+- **architect**: System structure, design patterns, architectural improvements
+- **performance-engineer**: Bottleneck identification, optimization strategies, efficiency focus
+- **quality-engineer**: Code quality standards, maintainability, best practices
+- **security-specialist**: Security patterns, vulnerability prevention, secure coding
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large-scale improvements (>5 files)
+- ✅ Multi-domain improvements (quality + performance + security)
+- ✅ Complex refactoring requiring analysis
+- ✅ Performance optimization needing profiling
+- ✅ Interactive improvement mode (user decisions needed)
+
+**Available subagents**:
+- **Explore**: Codebase analysis, improvement opportunity identification
+- **general-purpose**: Apply improvements, refactoring, optimization implementation
+- **code-reviewer**: Validate improvements, ensure quality preservation
+
+**Delegation strategy for systematic improvements**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze codebase for improvement opportunities</description>
+  <prompt>
+    Identify improvements in: [target]
+    Focus: [quality|performance|maintainability|security]
+    Find: Technical debt, bottlenecks, code smells, security issues
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Apply systematic improvements</description>
+  <prompt>
+    Apply improvements with [persona] guidance:
+    - Safe refactoring
+    - Best practices
+    - Framework-specific optimizations (Context7)
+    Mode: [--safe|--interactive]
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Validate improvements</description>
+  <prompt>
+    Verify improvements:
+    - Functionality preserved
+    - Quality enhanced
+    - No regressions introduced
+    - Standards compliance
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple style fixes (1-2 files)
+- ❌ Trivial refactoring
+- ❌ Quick maintainability tweaks
+
 ## Tool Coordination
-- **Read/Grep/Glob**: Code analysis and improvement opportunity identification
-- **Edit/MultiEdit**: Safe code modification and systematic refactoring
-- **TodoWrite**: Progress tracking for complex multi-file improvement operations
-- **Task**: Delegation for large-scale improvement workflows requiring systematic coordination
+- **Task tool**: Delegates to Explore + general-purpose + code-reviewer for complex improvements
+- **Read/Grep/Glob**: Code analysis (direct for simple, by subagent for complex)
+- **Edit/MultiEdit**: Code modifications (direct for simple, by subagent for complex)
+- **TodoWrite**: Progress tracking for multi-file operations
 
 ## Key Patterns
 - **Quality Improvement**: Code analysis → technical debt identification → refactoring application

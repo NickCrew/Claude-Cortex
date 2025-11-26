@@ -4,7 +4,8 @@ description: "Meta-system task orchestration with intelligent breakdown and dele
 category: special
 complexity: high
 mcp-servers: []
-personas: []
+personas: [architect, analyzer]
+subagents: [general-purpose, Explore, code-reviewer, test-automator]
 ---
 
 # /orchestrate:spawn - Meta-System Task Orchestration
@@ -37,11 +38,68 @@ Key behaviors:
 - **Progressive Integration**: Coordination with systematic execution for progressive enhancement
 - **Framework Integration**: Advanced integration with SuperClaude orchestration layers
 
+## Personas (Thinking Modes)
+Meta-system orchestration benefits from high-level architectural thinking:
+- **architect**: System-wide design, component relationships, scalability patterns
+- **analyzer**: Dependency analysis, complexity assessment, risk evaluation
+
+*Note: Spawn is meta-level - it breaks down operations and delegates to subagents. Each spawned subagent may adopt additional personas as needed.*
+
+## Delegation Protocol
+
+**This command ALWAYS delegates** - spawn is specifically for complex multi-domain operations requiring subagent coordination.
+
+**When spawn is triggered**:
+- ✅ Operations spanning >5 technical domains
+- ✅ System-wide changes (>10 files or >3 directories)
+- ✅ Complex dependency chains requiring careful orchestration
+- ✅ Enterprise-scale operations with governance requirements
+
+**Delegation strategy**:
+1. **Analyze**: Break down operation into independent workstreams
+2. **Map dependencies**: Identify what must be sequential vs parallel
+3. **Launch subagents**: Use Task tool to spawn multiple subagents
+4. **Coordinate**: Monitor progress and integrate results
+5. **Validate**: Apply quality gates across all workstreams
+
+**Typical subagent usage**:
+```xml
+<!-- Spawn launches multiple Task tool subagents based on decomposition -->
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze existing system architecture</description>
+  <prompt>Explore codebase to understand current patterns...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Implement backend components</description>
+  <prompt>Build backend services with architect guidance...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Implement frontend components</description>
+  <prompt>Build frontend UI components...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>test-automator</subagent_type>
+  <description>Generate comprehensive test suite</description>
+  <prompt>Create tests covering all components...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Review entire implementation</description>
+  <prompt>System-wide quality and security review...</prompt>
+</invoke>
+</function_calls>
+```
+
 ## Tool Coordination
-- **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
-- **Read/Grep/Glob**: System analysis and dependency mapping for complex operations
-- **Edit/MultiEdit/Write**: Coordinated file operations with parallel and sequential execution
-- **Bash**: System-level operations coordination with intelligent resource management
+- **Task tool**: PRIMARY mechanism - spawns subagents for all workstreams
+- **TodoWrite**: Hierarchical task breakdown at Epic → Story → Task → Subtask levels
+- **Read/Grep/Glob**: Initial analysis (often delegated to Explore subagent)
+- **Direct file tools**: Only for spawn's own coordination needs (not delegated work)
+- **Bash**: System-level operations when needed for orchestration
 
 ## Key Patterns
 - **Hierarchical Breakdown**: Epic-level operations → Story coordination → Task execution → Subtask granularity

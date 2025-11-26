@@ -2,7 +2,8 @@
 name: security-scan
 description: Comprehensive security vulnerability assessment
 category: analysis
-agents: [security-auditor]
+personas: [security-specialist, compliance-auditor]
+subagents: [security-auditor]
 ---
 
 # /analyze:security-scan - Security Vulnerability Assessment
@@ -119,8 +120,66 @@ Perform comprehensive security analysis to identify and remediate vulnerabilitie
 - Recommendations
 - Implementation timeline
 
-## Agents Used
-- `security-auditor`: Comprehensive security assessment
+## Personas (Thinking Modes)
+- **security-specialist**: Security-first mindset, threat modeling, vulnerability expertise
+- **compliance-auditor**: Regulatory standards, compliance requirements, audit rigor
+
+## Delegation Protocol
+
+**This command ALWAYS delegates** - security scanning requires specialized security expertise.
+
+**When triggered**:
+- ✅ Any security scan request
+- ✅ Compliance assessment needed
+- ✅ Vulnerability analysis required
+
+**Subagent launched** (via Task tool):
+```xml
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Security vulnerability assessment for [path]</description>
+  <prompt>
+    Perform comprehensive security analysis:
+    1. Threat modeling and attack vector identification
+    2. Vulnerability scanning (dependencies, code, config)
+    3. Code security review (auth, validation, crypto)
+    4. Penetration testing scenarios
+    5. Compliance validation for: [OWASP|GDPR|SOC2|HIPAA]
+
+    Provide findings with:
+    - Severity levels (Critical, High, Medium, Low, Info)
+    - Remediation steps
+    - Compliance gap analysis
+    - Risk assessment
+  </prompt>
+</invoke>
+```
+
+**For multi-component systems**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Frontend security assessment</description>
+  <prompt>Focus on: XSS, CSRF, client-side vulnerabilities...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Backend security assessment</description>
+  <prompt>Focus on: SQL injection, authentication, authorization...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Infrastructure security assessment</description>
+  <prompt>Focus on: SSL/TLS, headers, network security...</prompt>
+</invoke>
+</function_calls>
+```
+
+**Tool Coordination**:
+- **Task tool**: Launches security-auditor subagent(s) for comprehensive assessment
+- **Read/Grep**: Vulnerability pattern scanning (done by subagent)
+- **Bash**: Dependency scanning tools (done by subagent if needed)
 
 ## Example
 ```

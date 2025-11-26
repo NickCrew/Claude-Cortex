@@ -4,7 +4,8 @@ description: "Comprehensive code analysis across quality, security, performance,
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [analyzer, architect, security-specialist, performance-engineer]
+subagents: [code-reviewer, security-auditor, Explore]
 ---
 
 # /analyze:code - Code Analysis and Quality Assessment
@@ -33,12 +34,76 @@ Key behaviors:
 - Severity-based prioritization of findings and recommendations
 - Comprehensive reporting with metrics, trends, and actionable insights
 
+## Personas (Thinking Modes)
+- **analyzer**: Deep analysis, pattern recognition, systematic evaluation
+- **architect**: System design understanding, architecture patterns, scalability thinking
+- **security-specialist**: Security-first mindset, threat awareness, vulnerability detection
+- **performance-engineer**: Performance optimization, bottleneck identification, efficiency focus
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Deep analysis (--depth deep or ultra)
+- ✅ Multi-domain analysis (multiple focus areas)
+- ✅ Large codebase (>20 files)
+- ✅ Security or performance focused analysis requiring specialized expertise
+
+**Available subagents**:
+- **code-reviewer**: Quality, maintainability, architecture analysis
+- **security-auditor**: Security vulnerabilities, threat modeling, compliance
+- **Explore**: Codebase discovery, pattern identification, dependency analysis
+
+**Delegation strategy for comprehensive analysis**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Discover and categorize project structure</description>
+  <prompt>
+    Analyze project structure:
+    - File organization and patterns
+    - Language distribution
+    - Key components and dependencies
+    - Architecture patterns
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Quality and architecture analysis</description>
+  <prompt>
+    Multi-domain analysis focusing on: [quality|performance|architecture]
+    - Code smells and anti-patterns
+    - Best practices compliance
+    - Performance considerations
+    Reasoning profile: [default|performance|architecture]
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Security vulnerability assessment</description>
+  <prompt>
+    Security-focused analysis:
+    - OWASP Top 10 patterns
+    - Authentication/authorization
+    - Data protection
+    Reasoning profile: security
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Quick quality check (--depth quick, small codebase)
+- ❌ Single file analysis
+- ❌ Simple pattern searches
+
 ## Tool Coordination
-- **Glob**: File discovery and project structure analysis
-- **Grep**: Pattern analysis and code search operations
-- **Read**: Source code inspection and configuration analysis
-- **Bash**: External analysis tool execution and validation
-- **Write**: Report generation and metrics documentation
+- **Task tool**: Delegates to subagents for deep multi-domain analysis
+- **Glob**: File discovery (direct for quick, by subagent for deep)
+- **Grep**: Pattern analysis (direct for quick, by subagent for deep)
+- **Read**: Source code inspection (direct for quick, by subagent for deep)
+- **Bash**: External analysis tools (by subagent when needed)
+- **Write**: Report generation
 
 ## Reasoning Profiles
 

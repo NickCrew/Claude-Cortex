@@ -1,10 +1,11 @@
---- 
+---
 name: test-cleanup
 description: "Clean up test directories by removing generated reports and organizing test files"
-category: utility 
-complexity: basic 
+category: utility
+complexity: basic
 mcp-servers: []
-personas: [] 
+personas: [test-engineer, quality-engineer, developer]
+subagents: []
 ---
 
 
@@ -20,6 +21,38 @@ The user wants to maintain clean test directories by:
 - Consolidating test configurations
 - Improving test discoverability
 - Archiving obsolete tests
+
+## Personas (Thinking Modes)
+- **test-engineer**: Test organization, test categorization, test quality standards, fixture management
+- **quality-engineer**: Test smell detection, coverage analysis, test health metrics
+- **developer**: Test structure, import updates, test refactoring
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Test cleanup is direct file operations and tool execution.
+
+**Why no delegation**:
+- ❌ Fast artifact removal (coverage reports, screenshots)
+- ❌ Simple file reorganization (mv test files)
+- ❌ Direct tool execution (grep for .skip, .only)
+- ❌ Template-based documentation creation
+
+**All work done directly**:
+- Bash for removing test artifacts (rm -rf)
+- Bash for reorganizing test files (mv, mkdir)
+- Grep for finding test smells (.skip, .only, missing assertions)
+- Write for creating tests/README.md
+- TodoWrite for tracking cleanup steps
+
+**Note**: Personas guide test organization thinking (test-engineer for structure, quality for smell detection, developer for safe refactoring).
+
+## Tool Coordination
+- **Bash**: Remove artifacts, reorganize files, create directories (direct)
+- **Grep**: Find test smells and quality issues (direct)
+- **Glob**: Find test files by pattern (direct)
+- **Write**: Create test documentation (direct)
+- **Edit**: Update .gitignore (direct)
+- **TodoWrite**: Track multi-step cleanup process (direct)
 
 ## Task Requirements
 

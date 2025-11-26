@@ -5,6 +5,7 @@ category: orchestration
 complexity: advanced
 mcp-servers: [sequential, context7, magic, playwright, morphllm, codanna]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+subagents: [Explore, general-purpose, code-reviewer]
 ---
 
 # /design:workflow - Implementation Workflow Generator
@@ -41,12 +42,84 @@ Key behaviors:
 - **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
 - **Codanna MCP**: Cross-session workflow persistence, memory management, and project context
 
+## Personas (Thinking Modes)
+- **architect**: System design, component organization, scalability planning
+- **analyzer**: Deep analysis, dependency mapping, complexity assessment
+- **frontend**: UI/UX workflow, user interaction patterns, accessibility
+- **backend**: API design, data flow, service orchestration
+- **security**: Security requirements, threat modeling, compliance
+- **devops**: Deployment workflow, infrastructure, CI/CD
+- **project-manager**: Task coordination, risk management, resource planning
+
+## Delegation Protocol
+
+**This command USUALLY delegates** - workflow generation is complex multi-persona work.
+
+**When to delegate** (use Task tool):
+- ✅ Any PRD or feature spec analysis
+- ✅ Multi-domain workflows (>2 technical domains)
+- ✅ Complex dependency mapping
+- ✅ Enterprise or systematic strategies
+
+**Available subagents**:
+- **Explore**: Codebase analysis, existing patterns, integration points
+- **general-purpose**: Workflow generation, task decomposition, dependency mapping
+- **code-reviewer**: Technical validation, feasibility assessment
+
+**Delegation strategy for PRD workflow**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze existing codebase and patterns</description>
+  <prompt>
+    Explore for workflow planning:
+    - Current architecture
+    - Framework patterns
+    - Existing components for reuse
+    - Integration constraints
+    Thoroughness: [shallow|normal|deep based on --depth]
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Generate implementation workflow from PRD</description>
+  <prompt>
+    Analyze PRD and generate workflow:
+    - Strategy: [systematic|agile|enterprise]
+    - Multi-persona coordination
+    - Task decomposition with DoD
+    - Dependency mapping
+    - Quality gates integration
+    MCP: Sequential for analysis, Context7 for patterns
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Validate workflow feasibility</description>
+  <prompt>
+    Review generated workflow:
+    - Technical feasibility
+    - Dependency accuracy
+    - Risk assessment
+    - Completeness check
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple task list (not a full workflow)
+- ❌ Workflow refinement (already generated)
+- ❌ Quick feature breakdown (<3 tasks)
+
 ## Tool Coordination
-- **Read/Write/Edit**: PRD analysis and workflow documentation generation
-- **TodoWrite**: Progress tracking for complex multi-phase workflow execution
-- **Task**: Advanced delegation for parallel workflow generation and multi-agent coordination
-- **WebSearch**: Technology research, framework validation, and implementation strategy analysis
-- **sequentialthinking**: Structured reasoning for complex workflow dependency analysis
+- **Task tool**: Launches subagents for PRD analysis and workflow generation
+- **Read**: PRD/spec analysis (by subagents)
+- **Write**: Workflow documentation (by subagents)
+- **TodoWrite**: Task tracking integration
+- **WebSearch**: Technology research (by subagents if needed)
+- **MCP servers**: Sequential (analysis), Context7 (patterns), Codanna (persistence)
 
 ## Key Patterns
 - **PRD Analysis**: Document parsing → requirement extraction → implementation strategy development

@@ -1,10 +1,11 @@
---- 
+---
 name: code-cleanup
 description: "Clean up source code directories by removing build artifacts, dead code, and organizing files"
-category: utility 
-complexity: basic 
+category: utility
+complexity: basic
 mcp-servers: []
-personas: [] 
+personas: [developer, quality-engineer, devops-engineer]
+subagents: []
 ---
 
 # Clean up code directories
@@ -19,6 +20,37 @@ The user wants to maintain clean code directories by:
 - Organizing example and test files
 - Improving project structure
 - Reducing repository bloat
+
+## Personas (Thinking Modes)
+- **developer**: Code organization, dead code identification, import analysis, refactoring safety
+- **quality-engineer**: Code health metrics, technical debt management, cleanup standards
+- **devops-engineer**: Build artifact management, .gitignore patterns, workspace hygiene
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Code cleanup is direct file and tooling operations.
+
+**Why no delegation**:
+- ❌ Fast file removal (rm, git rm operations)
+- ❌ Simple tool execution (ts-prune, depcheck, unimported)
+- ❌ Straightforward file reorganization (mv, git mv)
+- ❌ Direct .gitignore editing
+
+**All work done directly**:
+- Bash for build artifact removal and file reorganization
+- Bash for running analysis tools (ts-prune, depcheck)
+- Read/Write for .gitignore updates
+- Grep for import/reference searching
+- TodoWrite for tracking cleanup steps
+
+**Note**: Personas ensure thorough cleanup (developer for safety, quality for standards, devops for automation patterns).
+
+## Tool Coordination
+- **Bash**: Remove artifacts, reorganize files, run analysis tools (direct)
+- **Grep**: Search for imports and references (direct)
+- **Glob**: Find files by pattern for cleanup (direct)
+- **Edit/Write**: Update .gitignore (direct)
+- **TodoWrite**: Track multi-step cleanup process (direct)
 
 ## Task Requirements
 

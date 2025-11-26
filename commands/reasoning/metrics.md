@@ -4,10 +4,40 @@ description: "Track reasoning effectiveness and optimization metrics across comm
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [data-analyst, performance-engineer, cost-optimizer]
+subagents: []
 ---
 
 # /reasoning:metrics - Reasoning Analytics Dashboard
+
+## Personas (Thinking Modes)
+- **data-analyst**: Metrics interpretation, trend analysis, pattern recognition, statistical insights
+- **performance-engineer**: Reasoning efficiency, execution time analysis, optimization recommendations
+- **cost-optimizer**: Budget tracking, cost-benefit analysis, resource allocation guidance
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Metrics display is direct data presentation.
+
+**Why no delegation**:
+- ❌ Fast metrics retrieval and calculation
+- ❌ Simple dashboard generation
+- ❌ Direct data formatting and visualization
+- ❌ No complex analysis required (just presentation)
+
+**All work done directly**:
+- Read metrics from command history/logs
+- Calculate effectiveness scores
+- Format dashboard output
+- Generate recommendations based on patterns
+
+**Note**: Personas guide metric interpretation (analyst for insights, performance for efficiency, optimizer for cost).
+
+## Tool Coordination
+- **Read**: Command execution history and metrics data (direct)
+- **Direct calculation**: Effectiveness scores and patterns (direct)
+- **Direct output**: Dashboard generation (direct)
+- **No delegation needed**: Simple data presentation
 
 ## Triggers
 - Need to understand reasoning effectiveness and costs

@@ -4,10 +4,41 @@ description: "Task reflection and validation using Codanna MCP analysis capabili
 category: special
 complexity: standard
 mcp-servers: [codanna]
-personas: []
+personas: [quality-engineer, project-manager, knowledge-engineer]
+subagents: []
 ---
 
 # /session:reflect - Task Reflection and Validation
+
+## Personas (Thinking Modes)
+- **quality-engineer**: Validation criteria, quality assessment, adherence verification
+- **project-manager**: Progress evaluation, outcome analysis, milestone achievement
+- **knowledge-engineer**: Learning capture, insight extraction, process optimization
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Session reflection is direct MCP analysis.
+
+**Why no delegation**:
+- ❌ Fast Codanna MCP analysis (<10 seconds)
+- ❌ Direct reflection API calls
+- ❌ Simple validation checks
+- ❌ Straightforward metadata updates
+
+**All work done directly**:
+- Codanna MCP for reflection and analysis
+- Direct API calls for task validation
+- Read for current session state
+- Write for reflection reports
+- TodoWrite for tracking reflection steps
+
+**Note**: Personas guide reflection depth (quality for validation, PM for outcomes, knowledge for learnings). Codanna MCP provides the analysis capabilities.
+
+## Tool Coordination
+- **Codanna MCP**: Task reflection, analysis, validation (direct API)
+- **Read**: Current session state and task progress (direct)
+- **Write**: Reflection reports and insights (direct)
+- **TodoWrite**: Track reflection operations (direct)
 
 ## Triggers
 - Task completion requiring validation and quality assessment

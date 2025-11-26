@@ -15,7 +15,7 @@ _claude_ctx_completion() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Top-level commands
-    local commands="mode agent rules skills mcp init profile workflow tui version completion help"
+    local commands="mode agent rules skills mcp init profile workflow tui version completion help doctor"
 
     # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -115,6 +115,7 @@ _claude_ctx() {
         'profile:Profile management'
         'workflow:Workflow management'
         'tui:Launch terminal UI'
+        'doctor:Diagnose and fix context issues'
         'version:Show version information'
         'completion:Generate shell completions'
         'help:Show help information'
@@ -274,9 +275,13 @@ complete -c claude-ctx -f -n "__fish_use_subcommand" -a "init" -d "Initialize pr
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "profile" -d "Profile management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "workflow" -d "Workflow management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "tui" -d "Launch terminal UI"
+complete -c claude-ctx -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "version" -d "Show version"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "completion" -d "Generate completions"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "help" -d "Show help"
+
+# Doctor subcommands
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from doctor" -l "fix" -d "Attempt auto-fix"
 
 # Mode subcommands
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available modes"

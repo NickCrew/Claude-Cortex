@@ -1,10 +1,11 @@
---- 
-name: archive-sprint 
+---
+name: archive-sprint
 description: "Archive all artifacts from a completed sprint, including plans, summaries, reports, and temporary files."
-category: utility 
-complexity: basic 
+category: utility
+complexity: basic
 mcp-servers: []
-personas: [] 
+personas: [project-manager, documentation-specialist, devops-engineer]
+subagents: []
 ---
 
 # Archive completed sprint artifacts
@@ -19,6 +20,37 @@ The user has completed a sprint/project and wants to:
 - Preserve work for future reference
 - Reset workspace for next sprint
 - Document sprint outcomes
+
+## Personas (Thinking Modes)
+- **project-manager**: Sprint retrospectives, completion criteria, outcome documentation, metrics tracking
+- **documentation-specialist**: Archive organization, summary writing, information preservation
+- **devops-engineer**: Branch cleanup, workspace hygiene, artifact management
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Sprint archival is direct file operations.
+
+**Why no delegation**:
+- ❌ Fast file moving and copying operations (<2 minutes)
+- ❌ Straightforward git branch cleanup (atomic commands)
+- ❌ Template-based summary generation (fill-in-the-blanks)
+- ❌ Simple directory structure creation
+
+**All work done directly**:
+- Bash for file operations (mv, mkdir, rm)
+- Write for sprint summary creation
+- Read for identifying sprint artifacts
+- Git commands for branch cleanup
+- TodoWrite for tracking cleanup steps
+
+**Note**: While this doesn't delegate, the personas guide thinking to ensure comprehensive archival (PM for metrics, documentation for clarity, devops for cleanliness).
+
+## Tool Coordination
+- **Bash**: File operations, git branch cleanup (direct)
+- **Write**: Create sprint summary from template (direct)
+- **Read**: Identify sprint artifacts and documentation (direct)
+- **Glob**: Find sprint-related files by pattern (direct)
+- **TodoWrite**: Track multi-step archival process (direct)
 
 ## Task Requirements
 

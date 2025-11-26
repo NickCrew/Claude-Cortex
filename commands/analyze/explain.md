@@ -4,7 +4,8 @@ description: "Provide clear explanations of code, concepts, and system behavior 
 category: workflow
 complexity: standard
 mcp-servers: [sequential, context7]
-personas: [educator, architect, security]
+personas: [educator, architect, security-specialist]
+subagents: [Explore, general-purpose]
 ---
 
 # /analyze:explain - Code and Concept Explanation
@@ -38,10 +39,66 @@ Key behaviors:
 - **Context7 MCP**: Framework documentation and official pattern explanations
 - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
 
+## Personas (Thinking Modes)
+- **educator**: Learning optimization, progressive complexity, clear communication
+- **architect**: System design understanding, component relationships, architectural patterns
+- **security-specialist**: Security concepts, best practices, threat awareness
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Large system explanation (>10 components)
+- ✅ Multi-part educational content
+- ✅ Requires deep codebase exploration
+- ✅ Interactive format with examples
+
+**Available subagents**:
+- **Explore**: Codebase analysis for explanation context
+- **general-purpose**: Generate structured explanations, examples, documentation
+
+**Delegation strategy for comprehensive explanation**:
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>Explore</subagent_type>
+  <description>Analyze code for explanation</description>
+  <prompt>
+    Explore target for explanation:
+    - Component structure
+    - Relationships
+    - Patterns used
+    - Dependencies
+    Thoroughness: medium
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Generate explanation with examples</description>
+  <prompt>
+    Create explanation for: [target]
+    - Level: [basic|intermediate|advanced]
+    - Format: [text|examples|interactive]
+    - Context: [domain]
+    Adopt educator + [architect|security] persona.
+    Use Context7 for framework concepts.
+    Use Sequential for complex breakdowns.
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple code explanation (single function, basic level)
+- ❌ Quick concept clarification
+- ❌ Framework syntax lookup
+
 ## Tool Coordination
-- **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
-- **TodoWrite**: Progress tracking for complex multi-part explanations
-- **Task**: Delegation for comprehensive explanation workflows requiring systematic breakdown
+- **Task tool**: Delegates for large system or multi-part explanations
+- **Read/Grep/Glob**: Code analysis (direct for simple, by subagent for complex)
+- **Write**: Explanation documentation (direct for simple, by subagent for complex)
+- **TodoWrite**: Multi-part tracking (when needed)
+- **Context7 MCP**: Framework-specific documentation
+- **Sequential MCP**: Structured explanation reasoning
 
 ## Key Patterns
 - **Progressive Learning**: Basic concepts → intermediate details → advanced implementation

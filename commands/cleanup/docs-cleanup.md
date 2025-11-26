@@ -1,10 +1,11 @@
---- 
+---
 name: docs-cleanup
 description: "Clean up documentation directory by archiving completed tasks and organizing active files"
-category: utility 
-complexity: basic 
+category: utility
+complexity: basic
 mcp-servers: []
-personas: [] 
+personas: [documentation-specialist, information-architect, developer]
+subagents: []
 ---
 
 # Clean up documentation directory
@@ -17,6 +18,38 @@ The user wants to maintain a clean, organized documentation structure by:
 - Archiving completed task documentation, POC summaries, and reports
 - Keeping only actively-used documentation at the root level
 - Improving discoverability and reducing cognitive load
+
+## Personas (Thinking Modes)
+- **documentation-specialist**: Content categorization, archival decisions, documentation lifecycle management
+- **information-architect**: Organization structure, discoverability, taxonomy design
+- **developer**: Active vs historical distinction, operational documentation needs
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Documentation cleanup is direct file operations.
+
+**Why no delegation**:
+- ❌ Fast file moving operations (git mv)
+- ❌ Simple directory creation (mkdir)
+- ❌ Template-based summary creation
+- ❌ Straightforward categorization (active vs archive)
+
+**All work done directly**:
+- Bash for file operations (mv, git mv, mkdir)
+- Read for analyzing documentation content
+- Write for creating cleanup summaries
+- Glob for finding documentation files
+- TodoWrite for tracking cleanup steps
+
+**Note**: Personas guide documentation decisions (specialist for lifecycle, architect for organization, developer for operational needs).
+
+## Tool Coordination
+- **Bash**: File operations, git mv for tracked files (direct)
+- **Read**: Analyze documentation content for categorization (direct)
+- **Write**: Create cleanup summaries (direct)
+- **Glob**: Find documentation by pattern (direct)
+- **Edit**: Update .gitignore (direct)
+- **TodoWrite**: Track cleanup steps (direct)
 
 ## Task Requirements
 

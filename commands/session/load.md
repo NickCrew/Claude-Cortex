@@ -4,10 +4,40 @@ description: "Session lifecycle management with Codanna MCP integration for proj
 category: session
 complexity: standard
 mcp-servers: [codanna]
-personas: []
+personas: [project-manager, developer, knowledge-engineer]
+subagents: []
 ---
 
 # /session:load - Project Context Loading
+
+## Personas (Thinking Modes)
+- **project-manager**: Project activation, workflow preparation, session planning
+- **developer**: Development environment readiness, context validation, dependency awareness
+- **knowledge-engineer**: Memory retrieval, cross-session continuity, learning application
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Session loading is direct MCP integration.
+
+**Why no delegation**:
+- ❌ Fast Codanna MCP operations (<5 seconds)
+- ❌ Direct memory retrieval API calls
+- ❌ Simple checkpoint loading
+- ❌ Straightforward context activation
+
+**All work done directly**:
+- Codanna MCP for project context loading
+- Direct API calls for memory retrieval
+- Read for checkpoint files (if needed)
+- TodoWrite for tracking load operations
+
+**Note**: Personas guide context interpretation (PM for planning, developer for readiness, knowledge for insights). Codanna MCP handles the actual loading.
+
+## Tool Coordination
+- **Codanna MCP**: Project context loading, memory retrieval (direct API)
+- **Read**: Checkpoint files and project state (direct)
+- **TodoWrite**: Track load operations (direct)
+- **Direct context activation**: No Task tool needed
 
 ## Triggers
 - Session initialization and project context loading requests

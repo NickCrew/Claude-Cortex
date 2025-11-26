@@ -1,10 +1,11 @@
---- 
+---
 name: deps-cleanup
 description: "Clean up project dependencies and package management files"
-category: utility 
-complexity: basic 
+category: utility
+complexity: basic
 mcp-servers: []
-personas: [] 
+personas: [developer, security-specialist, devops-engineer, performance-engineer]
+subagents: []
 ---
 
 # Clean up dependencies and package management
@@ -20,6 +21,38 @@ The user wants to maintain clean dependency management by:
 - Organizing lock files
 - Reducing package bloat
 - Improving security
+
+## Personas (Thinking Modes)
+- **developer**: Dependency usage analysis, import tracing, safe removal verification
+- **security-specialist**: Vulnerability assessment, security audit, compliance checking
+- **devops-engineer**: Package management, lock file maintenance, CI/CD integration
+- **performance-engineer**: Bundle size optimization, install time reduction, dependency efficiency
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Dependency cleanup is direct tooling and file operations.
+
+**Why no delegation**:
+- ❌ Direct tool execution (depcheck, npm audit, npm outdated)
+- ❌ Simple package operations (pnpm remove, pnpm update)
+- ❌ Fast validation cycles (test after each change)
+- ❌ Atomic git operations (commit per dependency change)
+
+**All work done directly**:
+- Bash for package manager commands (pnpm remove, update, dedupe)
+- Bash for analysis tools (depcheck, npm audit)
+- Read for package.json analysis
+- Edit for package.json updates
+- TodoWrite for tracking cleanup steps
+
+**Note**: Personas ensure thorough cleanup (developer for safety, security for vulnerabilities, devops for automation, performance for efficiency).
+
+## Tool Coordination
+- **Bash**: Package manager commands, analysis tools, testing (direct)
+- **Read/Edit**: package.json analysis and updates (direct)
+- **Grep**: Find package usage in codebase (direct)
+- **Write**: Create dependency reports (direct)
+- **TodoWrite**: Track multi-step dependency cleanup (direct)
 
 ## Task Requirements
 

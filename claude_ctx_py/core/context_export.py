@@ -70,10 +70,13 @@ def _get_active_rules(claude_dir: Path) -> Dict[str, Path]:
     claude_md = claude_dir / "CLAUDE.md"
     active_rules = set()
 
+    directives_seen = False
     if claude_md.exists():
         content = claude_md.read_text(encoding="utf-8")
         for line in content.splitlines():
             line = line.strip()
+            if "@rules/" in line:
+                directives_seen = True
             if line.startswith("@rules/") and line.endswith(".md"):
                 rule_name = line[7:]  # Remove "@rules/"
                 active_rules.add(rule_name)
@@ -81,7 +84,7 @@ def _get_active_rules(claude_dir: Path) -> Dict[str, Path]:
     # Get all rule files
     rule_files = {}
     for rule_file in rules_dir.glob("*.md"):
-        if rule_file.name in active_rules or not active_rules:
+        if rule_file.name in active_rules or (not active_rules and not directives_seen):
             rule_files[f"rules/{rule_file.name}"] = rule_file
 
     return rule_files
@@ -166,10 +169,13 @@ def _get_mcp_docs(claude_dir: Path) -> Dict[str, Path]:
     claude_md = claude_dir / "CLAUDE.md"
     active_mcp_docs = set()
 
+    directives_seen = False
     if claude_md.exists():
         content = claude_md.read_text(encoding="utf-8")
         for line in content.splitlines():
             line = line.strip()
+            if "@mcp/docs/" in line:
+                directives_seen = True
             if line.startswith("@mcp/docs/") and line.endswith(".md"):
                 doc_name = line[10:]  # Remove "@mcp/docs/"
                 active_mcp_docs.add(doc_name)
@@ -177,7 +183,7 @@ def _get_mcp_docs(claude_dir: Path) -> Dict[str, Path]:
     # Get MCP doc files
     mcp_files = {}
     for mcp_file in mcp_docs_dir.glob("*.md"):
-        if mcp_file.name in active_mcp_docs or not active_mcp_docs:
+        if mcp_file.name in active_mcp_docs or (not active_mcp_docs and not directives_seen):
             mcp_files[f"mcp/docs/{mcp_file.name}"] = mcp_file
 
     return mcp_files

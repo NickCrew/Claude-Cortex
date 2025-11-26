@@ -1,3 +1,13 @@
+---
+name: kamehameha
+description: High-impact visual effects with particles, explosions, and energy animations (Super Saiyan Level 2)
+category: visual
+complexity: standard
+mcp-servers: []
+personas: [ui-designer, animation-specialist, effects-artist, performance-engineer]
+subagents: []
+---
+
 # Kamehameha Mode ⚡💥
 
 You are now in **KAMEHAMEHA MODE** - charging up maximum visual energy!
@@ -64,6 +74,37 @@ This mode takes Super Saiyan and adds:
 - Background: parallax layers with depth
 - Modals: zoom from/to center with perspective
 ```
+
+## Personas (Thinking Modes)
+- **ui-designer**: Visual impact, energy aesthetics, bold design choices, eye-catching compositions
+- **animation-specialist**: Particle systems, timing curves, explosion choreography, motion design
+- **effects-artist**: Energy fields, glow effects, lightning arcs, particle behaviors, shader techniques
+- **performance-engineer**: GPU optimization, particle limits, 60fps maintenance, resource management
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Kamehameha is an enhancement mode built on Super Saiyan.
+
+**Why no delegation**:
+- ❌ Extends Super Saiyan patterns with high-impact effects (additive guidance)
+- ❌ Provides implementation recipes for particles and explosions (code patterns)
+- ❌ Activates "maximum impact" mindset (design philosophy)
+- ❌ Direct application of advanced animation techniques (hands-on coding)
+
+**All work done directly**:
+- Edit/Write to add particle systems to components
+- Bash to install effect libraries (tsparticles, konva, etc.)
+- Direct implementation of explosion and energy patterns
+- Performance monitoring during effect addition
+
+**Note**: Kamehameha builds on Super Saiyan (Level 1) by adding particle effects, explosions, and energy animations. It's still guidance-focused, not task-focused. Use personas to ensure effects enhance (not overwhelm) the experience while maintaining 60fps performance.
+
+## Tool Coordination
+- **Edit/Write**: Add particle systems, explosions, energy effects to code (direct)
+- **Bash**: Install animation libraries (tsparticles, popmotion, etc.) (direct)
+- **Read**: Analyze components for impact enhancement opportunities (direct)
+- **Performance monitoring**: Ensure 60fps with all effects active (direct validation)
+- **Direct implementation**: No Task tool needed
 
 ## Technology Stack Additions
 

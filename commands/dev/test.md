@@ -4,7 +4,8 @@ description: "Execute tests with coverage analysis and automated quality reporti
 category: utility
 complexity: enhanced
 mcp-servers: [playwright]
-personas: [qa-specialist]
+personas: [qa-specialist, developer]
+subagents: [general-purpose, test-automator]
 ---
 
 # /dev:test - Testing and Quality Assurance
@@ -39,11 +40,65 @@ Key behaviors:
 - **QA Specialist Persona**: Activated for test analysis and quality assessment
 - **Enhanced Capabilities**: Cross-browser testing, visual validation, performance metrics
 
+## Personas (Thinking Modes)
+- **qa-specialist**: Quality standards, test strategy, comprehensive coverage mindset
+- **developer**: Code understanding, debugging, practical test scenarios
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Test failure analysis (--fix flag with complex failures)
+- ✅ Test generation (discovered gaps need new tests)
+- ✅ E2E testing with deep validation
+- ✅ Coverage gap analysis (>20% uncovered)
+
+**Available subagents**:
+- **general-purpose**: Test failure diagnosis and fixes
+- **test-automator**: Generate missing tests for coverage gaps
+
+**Delegation strategy for test issues**:
+```xml
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Analyze and fix test failures</description>
+  <prompt>
+    Tests failing. Diagnose and fix:
+    - Parse test output
+    - Identify failure patterns
+    - Apply appropriate fixes
+    - Re-run tests
+    - Verify resolution
+    QA specialist thinking for quality.
+  </prompt>
+</invoke>
+```
+
+**Delegation for coverage gaps**:
+```xml
+<invoke name="Task">
+  <subagent_type>test-automator</subagent_type>
+  <description>Generate tests for uncovered code</description>
+  <prompt>
+    Coverage below target. Generate tests for:
+    - Identified uncovered code paths
+    - Edge cases
+    - Error scenarios
+    Target: [coverage-target]%
+  </prompt>
+</invoke>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple test execution (tests passing)
+- ❌ Watch mode (continuous execution)
+- ❌ Quick coverage report generation
+
 ## Tool Coordination
-- **Bash**: Test runner execution and environment management
-- **Glob**: Test discovery and file pattern matching
-- **Grep**: Result parsing and failure analysis
-- **Write**: Coverage reports and test summaries
+- **Task tool**: Delegates for complex failure analysis or test generation
+- **Bash**: Test execution (direct)
+- **Glob**: Test discovery (direct)
+- **Grep**: Result parsing (direct for simple, by subagent for complex)
+- **Write**: Coverage reports (direct)
 
 ## Key Patterns
 - **Test Discovery**: Pattern-based categorization → appropriate runner selection

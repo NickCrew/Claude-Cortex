@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 from typing import List, Dict, Any, Optional
 
 from rich.panel import Panel
@@ -375,11 +376,20 @@ class MCPViewMixin:
                 args=server.args if server.args else None,
                 env=server.env if server.env else None,
             )
-            # TODO: Implement clipboard support
-            # For now, just show a preview in status message
-            self.state.status_message = (
-                f"Config snippet generated (clipboard not yet implemented)"
-            )
+            try:
+                subprocess.run(
+                    ["pbcopy"],
+                    input=snippet.encode("utf-8"),
+                    check=True,
+                    capture_output=True,
+                )
+                self.state.status_message = "Config snippet generated and copied to clipboard"
+            except FileNotFoundError:
+                self.state.status_message = "Error: 'pbcopy' command not found. Clipboard functionality requires macOS."
+            except subprocess.CalledProcessError as e:
+                self.state.status_message = f"Error copying to clipboard: {e.stderr.decode().strip()}"
+            except Exception as e:
+                self.state.status_message = f"An unexpected error occurred: {e}"
         except Exception as e:
             self.state.status_message = f"Error generating config: {e}"
 

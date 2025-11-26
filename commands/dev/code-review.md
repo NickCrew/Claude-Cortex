@@ -2,7 +2,8 @@
 name: code-review
 description: Comprehensive code quality review and analysis
 category: development
-agents: [code-reviewer, security-auditor]
+personas: [quality-engineer, security-specialist]
+subagents: [code-reviewer, security-auditor]
 ---
 
 # /dev:code-review - Comprehensive Code Review
@@ -59,9 +60,63 @@ Perform systematic code review focusing on quality, security, and best practices
 
 **Best Practices**: Recommendations for improvement
 
-## Agents Used
-- `code-reviewer`: Primary code quality analysis
-- `security-auditor`: Security-focused review (when --focus security or all)
+## Personas (Thinking Modes)
+- **quality-engineer**: Code quality standards, best practices, maintainability focus
+- **security-specialist**: Security-first mindset, threat awareness, vulnerability prevention
+
+## Delegation Protocol
+
+**This command ALWAYS delegates** - code review requires specialized expertise.
+
+**When triggered**:
+- ✅ Any code review request (PR review, pre-commit, manual review)
+- ✅ All focus areas (quality, security, performance, architecture)
+
+**Delegation strategy**:
+
+**For general quality review**:
+```xml
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Review code quality for [path]</description>
+  <prompt>
+    Perform comprehensive code review focusing on:
+    - Code quality and anti-patterns
+    - Best practices compliance
+    - Performance considerations
+    - Architecture evaluation
+    Provide prioritized findings with severity levels.
+  </prompt>
+</invoke>
+```
+
+**For security-focused review** (--focus security or all):
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Review code quality</description>
+  <prompt>Quality and architecture review...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>security-auditor</subagent_type>
+  <description>Security assessment</description>
+  <prompt>
+    Security-focused review:
+    - OWASP Top 10 vulnerabilities
+    - Authentication/authorization issues
+    - Input validation
+    - Secret scanning
+    Provide security risk assessment.
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**Tool Coordination**:
+- **Task tool**: Launches code-reviewer and/or security-auditor subagents
+- **Read/Grep**: Code analysis (done by subagents)
+- **TodoWrite**: Track review findings (if extensive)
 
 ## Example
 ```

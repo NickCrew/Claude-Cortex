@@ -4,7 +4,8 @@ description: "Build, compile, and package projects with intelligent error handli
 category: utility
 complexity: enhanced
 mcp-servers: [playwright]
-personas: [devops-engineer]
+personas: [devops-engineer, performance-engineer]
+subagents: [general-purpose]
 ---
 
 # /dev:build - Project Building and Packaging
@@ -38,12 +39,50 @@ Key behaviors:
 - **DevOps Engineer Persona**: Activated for build optimization and deployment preparation
 - **Enhanced Capabilities**: Build pipeline integration, performance monitoring, artifact validation
 
+## Personas (Thinking Modes)
+- **devops-engineer**: Build pipeline optimization, deployment preparation, artifact management
+- **performance-engineer**: Build performance, optimization strategies, bundle analysis
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Build failure analysis (complex error diagnosis)
+- ✅ Build optimization (--optimize flag with analysis)
+- ✅ Multi-component builds (>3 targets)
+- ✅ Validation with Playwright (--validate flag)
+
+**Available subagents**:
+- **general-purpose**: Complex error analysis, optimization implementation
+
+**Delegation strategy for build issues**:
+```xml
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Analyze build failure and optimize</description>
+  <prompt>
+    Build failed. Analyze errors and apply fixes:
+    - Parse build logs
+    - Identify root cause
+    - Apply appropriate fixes
+    - Re-run build
+    - Generate report
+    DevOps engineer thinking for deployment.
+  </prompt>
+</invoke>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple build execution (standard dev/prod builds)
+- ❌ Clean builds (no analysis needed)
+- ❌ Quick artifact generation
+
 ## Tool Coordination
-- **Bash**: Build system execution and process management
-- **Read**: Configuration analysis and manifest inspection
-- **Grep**: Error parsing and build log analysis
-- **Glob**: Artifact discovery and validation
-- **Write**: Build reports and deployment documentation
+- **Task tool**: Delegates to subagent for complex error analysis and optimization
+- **Bash**: Build execution (direct)
+- **Read**: Configuration analysis (direct)
+- **Grep**: Error parsing (direct for simple, by subagent for complex)
+- **Glob**: Artifact discovery (direct)
+- **Write**: Build reports (direct)
 
 ## Key Patterns
 - **Environment Builds**: dev/prod/test → appropriate configuration and optimization

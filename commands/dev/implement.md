@@ -5,6 +5,7 @@ category: workflow
 complexity: standard
 mcp-servers: [context7, sequential, magic, playwright]
 personas: [architect, frontend, backend, security, qa-specialist]
+subagents: [general-purpose, code-reviewer, test-automator]
 ---
 
 # /dev:implement - Feature Implementation
@@ -42,11 +43,64 @@ Key behaviors:
 - **Sequential MCP**: Complex multi-step analysis and implementation planning
 - **Playwright MCP**: Testing validation and quality assurance integration
 
+## Personas (Thinking Modes)
+Context-based activation guides Claude's domain expertise:
+- **architect**: System design, component relationships, scalability considerations
+- **frontend**: UI/UX focus, accessibility, responsive design, user experience
+- **backend**: API design, data modeling, business logic, performance optimization
+- **security**: Threat modeling, secure coding practices, vulnerability prevention
+- **qa-specialist**: Quality standards, testing strategies, edge case consideration
+
+*Note: Personas guide thinking. For actual delegation, see Delegation Protocol below.*
+
+## Delegation Protocol
+
+**When to delegate** (use Task tool):
+- ✅ Feature spans >3 files or >3 domains (UI + API + tests)
+- ✅ Complex implementation requiring >5 steps
+- ✅ Need parallel work (implementation + tests + docs)
+- ✅ Large-scale refactoring or system changes
+- ✅ User wants progress visibility
+
+**Available subagents**:
+- **general-purpose**: Primary implementation work, feature development
+- **code-reviewer**: Quality/security analysis, best practices validation
+- **test-automator**: Test generation, coverage analysis
+- **Explore**: Codebase analysis to understand existing patterns (when needed)
+
+**Delegation strategy for features**:
+```xml
+<!-- For complex features, launch parallel workstreams -->
+<function_calls>
+<invoke name="Task">
+  <subagent_type>general-purpose</subagent_type>
+  <description>Implement feature X</description>
+  <prompt>Build feature with [persona] guidance...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>test-automator</subagent_type>
+  <description>Generate tests for feature X</description>
+  <prompt>Create comprehensive test suite...</prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>code-reviewer</subagent_type>
+  <description>Review feature X</description>
+  <prompt>Quality and security review...</prompt>
+</invoke>
+</function_calls>
+```
+
+**When NOT to delegate** (use direct tools):
+- ❌ Simple component (single file, <100 lines)
+- ❌ Trivial changes (typo fixes, small refactors)
+- ❌ Quick additions (<5 minute work)
+
 ## Tool Coordination
-- **Write/Edit/MultiEdit**: Code generation and modification for implementation
+- **Task tool**: Delegation mechanism for complex features - launches subagents for parallel work
+- **Write/Edit/MultiEdit**: Direct code generation for simple implementations
 - **Read/Grep/Glob**: Project analysis and pattern detection for consistency
-- **TodoWrite**: Progress tracking for complex multi-file implementations
-- **Task**: Delegation for large-scale feature development requiring systematic coordination
+- **TodoWrite**: Progress tracking for multi-step implementations
+- **MCP servers**: Context7 (framework docs), Magic (UI generation), Playwright (testing)
 
 ## Key Patterns
 - **Context Detection**: Framework/tech stack → appropriate persona and MCP activation

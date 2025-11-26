@@ -2,7 +2,8 @@
 name: generate-tests
 description: Generate comprehensive test suite with high coverage
 category: testing
-agents: [test-automator, quality-engineer]
+personas: [qa-specialist, developer]
+subagents: [test-automator, quality-engineer]
 ---
 
 # /test:generate-tests - Test Generation
@@ -78,9 +79,52 @@ Automatically generate comprehensive test suites for code coverage and quality a
 - Test execution commands
 - Suggested improvements for uncovered areas
 
-## Agents Used
-- `test-automator`: Primary test generation
-- `quality-engineer`: Test quality validation
+## Personas (Thinking Modes)
+- **qa-specialist**: Quality standards, testing strategies, comprehensive coverage mindset
+- **developer**: Understand code structure, realistic test scenarios, practical test cases
+
+## Delegation Protocol
+
+**This command ALWAYS delegates** - test generation is complex work requiring specialized analysis.
+
+**When triggered**:
+- ✅ Test generation for any non-trivial code (>1 function)
+- ✅ Coverage analysis needed
+- ✅ Multiple test types required
+- ✅ Quality validation needed
+
+**Subagents launched** (via Task tool):
+```xml
+<function_calls>
+<invoke name="Task">
+  <subagent_type>test-automator</subagent_type>
+  <description>Generate test suite for [path]</description>
+  <prompt>
+    Analyze code structure and generate comprehensive tests:
+    - Type: [unit|integration|e2e|all]
+    - Coverage target: [percentage]
+    - Include edge cases and error scenarios
+    - Follow testing best practices
+  </prompt>
+</invoke>
+<invoke name="Task">
+  <subagent_type>quality-engineer</subagent_type>
+  <description>Validate test quality</description>
+  <prompt>
+    Review generated tests for:
+    - Test independence and isolation
+    - Proper setup/teardown
+    - Descriptive naming
+    - Coverage completeness
+  </prompt>
+</invoke>
+</function_calls>
+```
+
+**Tool Coordination**:
+- **Task tool**: Launches test-automator and quality-engineer subagents
+- **Read/Grep/Glob**: Code analysis (done by subagents)
+- **Write**: Test file creation (done by subagents)
 
 ## Example
 ```

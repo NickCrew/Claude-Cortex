@@ -4,10 +4,39 @@ description: "Dynamically adjust reasoning depth during task execution"
 category: utility
 complexity: basic
 mcp-servers: []
-personas: []
+personas: [performance-engineer, architect, cost-optimizer]
+subagents: []
 ---
 
 # /reasoning:adjust - Dynamic Reasoning Depth Control
+
+## Personas (Thinking Modes)
+- **performance-engineer**: Depth optimization, runtime efficiency, complexity assessment
+- **architect**: Task complexity analysis, appropriate reasoning level, quality requirements
+- **cost-optimizer**: Budget awareness, depth-cost trade-offs, efficiency recommendations
+
+## Delegation Protocol
+
+**This command does NOT delegate** - Reasoning adjustment is configuration change.
+
+**Why no delegation**:
+- ❌ Fast configuration update (<1 second)
+- ❌ Simple parameter adjustment
+- ❌ Direct MCP server activation/deactivation
+- ❌ No complex execution required
+
+**All work done directly**:
+- Assess current reasoning depth
+- Validate requested adjustment
+- Update configuration parameters
+- Reconfigure MCP server activation
+
+**Note**: Personas guide adjustment decisions (performance for efficiency, architect for appropriateness, optimizer for cost).
+
+## Tool Coordination
+- **Direct configuration**: Reasoning depth adjustment (direct)
+- **MCP reconfiguration**: Server activation based on depth (direct)
+- **No delegation needed**: Simple configuration change
 
 ## Triggers
 - Need to escalate or reduce reasoning depth during complex task execution

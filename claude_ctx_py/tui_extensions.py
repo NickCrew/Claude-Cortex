@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import re
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -10,7 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from .core.base import _parse_active_entries, _resolve_claude_dir
+from .core.base import _parse_active_entries, _resolve_claude_dir, _run_detect_project_type
 from .core.profiles import (
     profile_list,
     profile_save,
@@ -28,9 +30,25 @@ from .core.profiles import (
     profile_full,
     init_wizard as core_init_wizard,
     BUILT_IN_PROFILES,
+    _get_current_active_state,
+    _get_profile_state,
 )
 from .core.context_export import export_context, collect_context_components
-from .core.agents import agent_status
+from .core.agents import (
+    agent_status,
+    ESSENTIAL_AGENTS,
+    FRONTEND_AGENTS,
+    WEB_DEV_AGENTS,
+    BACKEND_AGENTS,
+    DEVOPS_AGENTS,
+    DOCUMENTATION_AGENTS,
+    DATA_AI_AGENTS,
+    QUALITY_AGENTS,
+    META_AGENTS,
+    DX_AGENTS,
+    PRODUCT_AGENTS,
+    FULL_AGENTS,
+)
 from .core.modes import mode_status
 from .core.rules import rules_status
 
@@ -41,19 +59,105 @@ class ProfileViewMixin:
     state: Any
     load_agents: Callable[[], None]
 
+    def _get_profile_state_from_name(self, profile_name: str, claude_dir: Path, is_built_in: bool) -> Tuple[Set[str], Set[str], Set[str]]:
+        """Helper to get the expected active state (agents, modes, rules) for a given profile name.
+
+        Args:
+            profile_name: The name of the profile.
+            claude_dir: The root claude directory.
+            is_built_in: True if it's a built-in profile, False for saved.
+
+        Returns:
+            A tuple of sets: (active_agents, active_modes, active_rules) for the profile.
+        """
+        if is_built_in:
+            # Temporarily apply the profile to get its active state without modifying the actual system
+            # This is a bit hacky, but avoids duplicating the profile loading logic.
+            # A better long-term solution might be to have a 'dry_run' mode for profile loaders.
+            # For now, we'll simulate the state.
+            active_agents: Set[str] = set()
+            active_modes: Set[str] = set()
+            active_rules: Set[str] = set()
+
+            # Map profile names to their expected active components (as defined in profiles.py)
+            # This requires duplicating some logic from profiles.py, but avoids actually activating them.
+            if profile_name == "minimal":
+                from .core.agents import ESSENTIAL_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS)
+            elif profile_name == "backend":
+                from .core.agents import ESSENTIAL_AGENTS, BACKEND_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + BACKEND_AGENTS)
+                active_modes = {"Task_Management"}
+                active_rules = {"quality-rules"}
+            elif profile_name == "frontend":
+                from .core.agents import ESSENTIAL_AGENTS, FRONTEND_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + FRONTEND_AGENTS)
+                active_modes = {"Task_Management"}
+                active_rules = {"quality-rules"}
+            elif profile_name == "web-dev":
+                from .core.agents import ESSENTIAL_AGENTS, WEB_DEV_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + WEB_DEV_AGENTS)
+                active_modes = {"Task_Management"}
+                active_rules = {"quality-rules"}
+            elif profile_name == "devops":
+                from .core.agents import ESSENTIAL_AGENTS, DEVOPS_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + DEVOPS_AGENTS)
+                active_modes = {"Orchestration"}
+                active_rules = {"workflow-rules"}
+            elif profile_name == "documentation":
+                from .core.agents import ESSENTIAL_AGENTS, DOCUMENTATION_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + DOCUMENTATION_AGENTS)
+            elif profile_name == "data-ai":
+                from .core.agents import ESSENTIAL_AGENTS, DATA_AI_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + DATA_AI_AGENTS)
+            elif profile_name == "quality":
+                from .core.agents import ESSENTIAL_AGENTS, QUALITY_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + QUALITY_AGENTS)
+                active_rules = {"quality-gate-rules", "quality-rules"}
+            elif profile_name == "meta":
+                from .core.agents import ESSENTIAL_AGENTS, META_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + META_AGENTS)
+            elif profile_name == "developer-experience":
+                from .core.agents import ESSENTIAL_AGENTS, DX_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + DX_AGENTS)
+            elif profile_name == "product":
+                from .core.agents import ESSENTIAL_AGENTS, PRODUCT_AGENTS
+                active_agents = set(ESSENTIAL_AGENTS + PRODUCT_AGENTS)
+            elif profile_name == "full":
+                from .core.agents import FULL_AGENTS
+                active_agents = set(FULL_AGENTS)
+                active_modes = {"Super_Saiyan", "Orchestration", "Parallel_Orchestration", "Task_Management", "Token_Efficiency"}
+                active_rules = {"quality-rules", "workflow-rules", "git-rules", "efficiency-rules", "quality-gate-rules"}
+
+            return active_agents, active_modes, active_rules
+        else:
+            # For saved profiles, parse the .profile file directly
+            profile_file = claude_dir / "profiles" / f"{profile_name}.profile"
+            if profile_file.is_file():
+                return _get_profile_state(profile_file)
+            return set(), set(), set()
+
     def load_profiles(self) -> List[Dict[str, Any]]:
         """Load available profiles."""
         claude_dir = _resolve_claude_dir()
         profiles = []
 
+        current_active_agents, current_active_modes, current_active_rules = _get_current_active_state(claude_dir)
+
         # Add built-in profiles
         for profile_name in BUILT_IN_PROFILES:
+            profile_agents, profile_modes, profile_rules = self._get_profile_state_from_name(profile_name, claude_dir, is_built_in=True)
+            is_active = (
+                current_active_agents == profile_agents and
+                current_active_modes == profile_modes and
+                current_active_rules == profile_rules
+            )
             profiles.append(
                 {
                     "name": profile_name,
                     "type": "built-in",
                     "description": f"Built-in {profile_name} profile",
-                    "active": False,  # TODO: Detect active profile
+                    "active": is_active,
                 }
             )
 
@@ -62,12 +166,18 @@ class ProfileViewMixin:
         if profiles_dir.is_dir():
             for profile_file in sorted(profiles_dir.glob("*.profile")):
                 profile_name = profile_file.stem
+                profile_agents, profile_modes, profile_rules = _get_profile_state(profile_file)
+                is_active = (
+                    current_active_agents == profile_agents and
+                    current_active_modes == profile_modes and
+                    current_active_rules == profile_rules
+                )
                 profiles.append(
                     {
                         "name": profile_name,
                         "type": "saved",
                         "description": "Custom saved profile",
-                        "active": False,
+                        "active": is_active,
                     }
                 )
 
@@ -387,8 +497,21 @@ Exported from: ~/.claude
 
     def copy_to_clipboard(self) -> None:
         """Copy export to clipboard."""
-        # TODO: Implement clipboard support
-        self.state.status_message = "Clipboard copy not yet implemented"
+        try:
+            content_to_copy = self.generate_export_preview()
+            subprocess.run(
+                ["pbcopy"],
+                input=content_to_copy.encode("utf-8"),
+                check=True,
+                capture_output=True,
+            )
+            self.state.status_message = "Export copied to clipboard"
+        except FileNotFoundError:
+            self.state.status_message = "Error: 'pbcopy' command not found. Clipboard functionality requires macOS."
+        except subprocess.CalledProcessError as e:
+            self.state.status_message = f"Error copying to clipboard: {e.stderr.decode().strip()}"
+        except Exception as e:
+            self.state.status_message = f"An unexpected error occurred: {e}"
 
 
 class WizardViewMixin:
@@ -442,7 +565,20 @@ class WizardViewMixin:
         content.append(f"Step 1/5: Project Type\n", style="bold cyan")
         content.append("─" * 60 + "\n\n", style="dim")
 
-        # TODO: Implement project type detection
+        # Detect project type
+        claude_dir = _resolve_claude_dir()
+        detected_type = ""
+        try:
+            exit_code, message = _run_detect_project_type(claude_dir)
+            if exit_code == 0:
+                # Message format: "Detected project type: <type>"
+                match = re.search(r"Detected project type: (.*)", message)
+                if match:
+                    detected_type = match.group(1).strip()
+        except Exception:
+            # Ignore errors for detection, fall back to no detection
+            pass
+
         project_types = [
             "Web Development (Frontend/Backend)",
             "Backend API",
@@ -451,6 +587,17 @@ class WizardViewMixin:
             "Documentation",
             "Other/Custom",
         ]
+
+        if detected_type and detected_type != "Unknown":
+            content.append(f"Detected: [b yellow]{detected_type}[/b yellow]\n\n")
+            # Pre-select the detected type if it's in our list
+            try:
+                self.state.selected_index = project_types.index(detected_type)
+            except ValueError:
+                # If detected type is not in our list, don't pre-select
+                pass
+        else:
+            content.append("Select your project type:\n\n")
 
         for idx, ptype in enumerate(project_types):
             is_selected = idx == self.state.selected_index

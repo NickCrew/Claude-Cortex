@@ -225,6 +225,25 @@ claude-ctx ai record-success --outcome "feature complete"
 
 ---
 
+## 🩺 System Diagnostics {#diagnostics}
+
+**New in November 2025** - Keep your context healthy and optimized.
+
+```bash
+# Run system health check
+claude-ctx doctor
+
+# Attempt to auto-fix issues
+claude-ctx doctor --fix
+```
+
+Checks performed:
+- **Consistency**: Verifies active agents/modes/rules exist.
+- **Duplicates**: Finds duplicate agent definitions.
+- **Optimization**: Identifies large files or unused resources.
+
+---
+
 ## 🤝 Collaboration Flow & Skill Auto-Suggestions {#collaboration}
 
 **New in November 2025** – Inspired by Superpowers and SuperClaude frameworks.
