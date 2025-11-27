@@ -1,0 +1,219 @@
+    /* Super Saiyan Mode Colors 🔥 */
+    $primary: #3b82f6;
+    $secondary: #8b5cf6;
+    $accent: #06b6d4;
+    $success: #10b981;
+    $warning: #f59e0b;
+    $error: #ef4444;
+    $surface: #050714;
+    $surface-lighten-1: #111633;
+    $surface-lighten-2: #1c2145;
+    $text: #f8fafc;
+    $text-muted: #94a3b8;
+
+    Screen {
+        background: $surface;
+    }
+
+    DataTable {
+        height: 1fr;
+        background: $surface-lighten-1;
+        border: solid $primary;
+        padding: 0 1;
+    }
+
+    DataTable > .datatable--header {
+        background: $surface-lighten-2;
+        color: $accent;
+        text-style: bold;
+    }
+
+    DataTable > .datatable--cursor {
+        background: $primary 40%;
+        color: white;
+        text-style: bold;
+    }
+
+    DataTable:focus > .datatable--cursor {
+        background: $primary;
+        color: white;
+        text-style: bold;
+        border: heavy $accent;
+    }
+
+    Header {
+        background: $surface-lighten-2;
+        color: $text;
+        text-style: bold;
+        border-bottom: tall $primary;
+    }
+
+    Footer {
+        background: $surface-lighten-2;
+        color: $text-muted;
+    }
+
+    #status-bar {
+        height: auto;
+    }
+
+    /* Command Palette Styles - Super Saiyan */
+    #command-palette-container {
+        align: center middle;
+        width: 70%;
+        height: auto;
+        max-height: 80%;
+        background: $surface-lighten-1;
+        border: thick $accent;
+        padding: 1 2;
+        opacity: 0;
+        offset-y: -5;
+    }
+
+    #command-palette-container.visible {
+        opacity: 1;
+        offset-y: 0;
+        transition: opacity 300ms, offset-y 300ms out_cubic;
+    }
+
+    #palette-title {
+        text-align: center;
+        text-style: bold;
+        color: $accent;
+        margin-bottom: 1;
+    }
+
+    #palette-subtitle {
+        text-align: center;
+        color: $text-muted;
+        margin-bottom: 1;
+    }
+
+    #palette-input {
+        margin-bottom: 1;
+        background: $surface-lighten-2;
+        border: solid $primary;
+    }
+
+    #palette-results {
+        height: auto;
+        max-height: 20;
+        border: solid $primary;
+        margin-bottom: 1;
+        background: $surface;
+    }
+
+    #palette-help {
+        text-align: center;
+        margin-top: 1;
+        color: $accent;
+    }
+
+    /* Dialog Styles - Super Saiyan */
+    #dialog {
+        align: center middle;
+        width: 50%;
+        height: auto;
+        background: $surface-lighten-1;
+        border: thick $accent;
+        padding: 1 2;
+        opacity: 0;
+    }
+
+    #dialog.visible {
+        opacity: 1;
+        transition: opacity 250ms;
+    }
+
+    #dialog-title {
+        text-align: center;
+        margin-bottom: 1;
+        color: $accent;
+        text-style: bold;
+    }
+
+    #dialog-message {
+        text-align: center;
+        margin-bottom: 1;
+    }
+
+    #dialog-buttons {
+        align: center middle;
+        height: auto;
+    }
+
+    /* Loading Overlay Styles - Super Saiyan */
+    #loading-overlay {
+        align: center middle;
+        width: 40%;
+        height: auto;
+        background: $surface-lighten-1;
+        border: thick $warning;
+        padding: 2 3;
+        opacity: 0;
+    }
+
+    #loading-overlay.visible {
+        opacity: 1;
+        transition: opacity 200ms;
+    }
+
+    #loading-message {
+        text-align: center;
+        text-style: bold;
+        margin-bottom: 1;
+        color: $warning;
+    }
+
+    #loading-subtitle {
+        text-align: center;
+        color: $accent;
+    }
+
+    /* Button Styles - Super Saiyan */
+    Button {
+        background: $primary;
+        color: white;
+        border: solid $primary;
+        text-style: bold;
+    }
+
+    Button:hover {
+        background: $accent;
+        border: solid $accent;
+        transition: background 150ms, border 150ms;
+    }
+
+    Button:focus {
+        border: solid $warning;
+    }
+
+    #main-container {
+        height: 1fr;
+        padding: 1;
+    }
+
+    #view-switcher {
+        height: 1fr;
+    }
+
+    #galaxy-view {
+        height: 1fr;
+        padding: 1;
+        background: $surface-lighten-1;
+        border: solid $secondary;
+    }
+
+    #galaxy-layout {
+        height: 1fr;
+    }
+
+    .galaxy-panel {
+        border: dashed $secondary;
+        padding: 1;
+        height: 1fr;
+    }
+
+    #galaxy-graph {
+        overflow: auto;
+    }

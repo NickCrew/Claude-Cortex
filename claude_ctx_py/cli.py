@@ -1306,8 +1306,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 0
     
     if args.command == "tui":
-        from . import tui_textual
-        return tui_textual.main()
+        from . import tui
+        return tui.main()
 
     handler = handlers.get(args.command)
     if handler:

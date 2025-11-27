@@ -24,7 +24,15 @@ from textual.widgets import ContentSwitcher, DataTable, Footer, Header, Static
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
-from .core import (
+from .types import (
+    RuleNode, AgentTask, WorkflowInfo, ModeInfo, ScenarioInfo, ScenarioRuntimeState
+)
+from .constants import (
+    PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
+    PRIMARY_VIEW_BINDINGS, VIEW_TITLES
+)
+
+from ..core import (
     build_agent_graph,
     agent_activate,
     agent_deactivate,
@@ -76,15 +84,15 @@ from .core import (
     _inactive_dir_candidates,
     _inactive_category_dir,
 )
-from .core.rules import rules_activate, rules_deactivate
-from .core.modes import (
+from ..core.rules import rules_activate, rules_deactivate
+from ..core.modes import (
     mode_activate,
     mode_deactivate,
     mode_activate_intelligent,
     mode_deactivate_intelligent,
 )
-from .core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes
-from .core.mcp import (
+from ..core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes
+from ..core.mcp import (
     discover_servers,
     validate_server_config,
     generate_config_snippet,
@@ -98,24 +106,24 @@ from .core.mcp import (
     MCPServerInfo,
     list_doc_only_servers,
 )
-from .core.agents import BUILT_IN_PROFILES
-from .tui_icons import Icons, StatusIcon
-from .tui_format import Format
-from .tui_progress import ProgressBar
-from .tui_command_palette import CommandPalette, CommandRegistry, DEFAULT_COMMANDS
-from .tui_commands import AgentCommandProvider
-from .tui_dashboard import MetricsCollector
-from .tui_performance import PerformanceMonitor
-from .tui_workflow_viz import WorkflowNode, DependencyVisualizer
-from .tui_overview_enhanced import EnhancedOverview
-from .intelligence import (
+from ..core.agents import BUILT_IN_PROFILES
+from ..tui_icons import Icons, StatusIcon
+from ..tui_format import Format
+from ..tui_progress import ProgressBar
+from ..tui_command_palette import CommandPalette, CommandRegistry, DEFAULT_COMMANDS
+from ..tui_commands import AgentCommandProvider
+from ..tui_dashboard import MetricsCollector
+from ..tui_performance import PerformanceMonitor
+from ..tui_workflow_viz import WorkflowNode, DependencyVisualizer
+from ..tui_overview_enhanced import EnhancedOverview
+from ..intelligence import (
     AgentRecommendation,
     IntelligentAgent,
     SessionContext,
     WorkflowPrediction,
 )
-from .tui_supersaiyan import SuperSaiyanStatusBar
-from .tui_dialogs import (
+from ..tui_supersaiyan import SuperSaiyanStatusBar
+from ..tui_dialogs import (
     MCPServerData,
     MCPServerDialog,
     TaskEditorData,
@@ -125,146 +133,13 @@ from .tui_dialogs import (
     PromptDialog,
     TextViewerDialog,
 )
-from .tui_log_viewer import LogViewerScreen
-from .skill_rating import SkillRatingCollector, SkillQualityMetrics
-from .skill_rating_prompts import SkillRatingPromptManager
-from .slash_commands import SlashCommandInfo, scan_slash_commands
+from ..tui_log_viewer import LogViewerScreen
+from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
+from ..skill_rating_prompts import SkillRatingPromptManager
+from ..slash_commands import SlashCommandInfo, scan_slash_commands
 
 
-@dataclass
-class RuleNode:
-    """Represents a rule in the system."""
 
-    name: str
-    status: str  # "active" or "inactive"
-    category: str
-    description: str
-    path: Path
-
-
-@dataclass
-class AgentTask:
-    """Represents an active agent task in the orchestration system."""
-
-    agent_id: str
-    agent_name: str
-    workstream: str
-    status: str
-    progress: int
-    category: str = "general"
-    started: Optional[float] = None
-    completed: Optional[float] = None
-    description: str = ""
-    raw_notes: str = ""
-    source_path: Optional[str] = None
-
-
-@dataclass
-class WorkflowInfo:
-    """Information about a workflow."""
-
-    name: str
-    description: str
-    status: str
-    progress: int
-    started: Optional[float]
-    steps: List[str]
-    current_step: Optional[str]
-    file_path: Path
-
-
-@dataclass
-class ModeInfo:
-    """Represents a behavioral mode in the system."""
-
-    name: str
-    status: str  # "active" or "inactive"
-    purpose: str
-    description: str
-    path: Path
-
-
-@dataclass
-class ScenarioInfo:
-    """Represents a scenario definition and its runtime metadata."""
-
-    name: str
-    description: str
-    priority: str
-    scenario_type: str
-    phase_names: List[str]
-    agents: List[str]
-    profiles: List[str]
-    status: str
-    started_at: Optional[datetime]
-    completed_at: Optional[datetime]
-    lock_holder: Optional[str]
-    file_path: Path
-    error: Optional[str] = None
-
-
-class ScenarioRuntimeState(TypedDict):
-    status: str
-    started: Optional[datetime]
-    completed: Optional[datetime]
-
-
-PROFILE_DESCRIPTIONS: Dict[str, str] = {
-    "minimal": "Load minimal profile (essential agents only)",
-    "frontend": "Load frontend profile (TypeScript + review)",
-    "web-dev": "Load web-dev profile (full-stack)",
-    "backend": "Load backend profile (Python + security)",
-    "devops": "Load devops profile (infrastructure & deploy)",
-    "documentation": "Load documentation profile (writing focus)",
-    "data-ai": "Load data/AI profile",
-    "quality": "Load quality profile (QA + security)",
-    "meta": "Load meta tooling profile",
-    "developer-experience": "Load DX profile",
-    "product": "Load product development profile",
-    "full": "Load full profile (all agents)",
-}
-
-EXPORT_CATEGORIES = [
-    ("core", "Core Framework", "FLAGS, PRINCIPLES, RULES"),
-    ("rules", "Rules", "Active rule modules"),
-    ("modes", "Modes", "Active behavioral modes"),
-    ("agents", "Agents", "All available agents"),
-    ("mcp_docs", "MCP Docs", "Model Context Protocol docs"),
-    ("skills", "Skills", "Local skill definitions"),
-]
-
-DEFAULT_EXPORT_OPTIONS = {key: True for key, _label, _desc in EXPORT_CATEGORIES}
-
-PRIMARY_VIEW_BINDINGS = [
-    ("1", "overview", "Overview"),
-    ("2", "agents", "Agents"),
-    ("3", "modes", "Modes"),
-    ("4", "rules", "Rules"),
-    ("5", "skills", "Skills"),
-    ("6", "workflows", "Workflows"),
-    ("7", "mcp", "MCP"),
-    ("8", "profiles", "Profiles"),
-    ("9", "export", "Export"),
-    ("0", "ai_assistant", "AI Assistant"),
-]
-
-VIEW_TITLES: Dict[str, str] = {
-    "overview": f"{Icons.METRICS} Overview",
-    "agents": f"{Icons.CODE} Agents",
-    "modes": f"{Icons.FILTER} Modes",
-    "rules": f"{Icons.DOC} Rules",
-    "commands": f"{Icons.DOC} Slash Commands",
-    "skills": f"{Icons.CODE} Skills",
-    "workflows": f"{Icons.PLAY} Workflows",
-    "scenarios": f"{Icons.PLAY} Scenarios",
-    "orchestrate": "⚙ Orchestrate",
-    "mcp": f"{Icons.METRICS} MCP Servers",
-    "profiles": "👤 Profiles",
-    "export": f"{Icons.FILE} Export",
-    "ai_assistant": "🤖 AI Assistant",
-    "tasks": f"{Icons.TEST} Tasks",
-    "galaxy": "✦ Agent Galaxy",
-}
 
 
 class AgentTUI(App[None]):
@@ -315,228 +190,7 @@ class AgentTUI(App[None]):
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
         self._tasks_state_signature: Optional[str] = None
 
-    CSS = """
-    /* Super Saiyan Mode Colors 🔥 */
-    $primary: #3b82f6;
-    $secondary: #8b5cf6;
-    $accent: #06b6d4;
-    $success: #10b981;
-    $warning: #f59e0b;
-    $error: #ef4444;
-    $surface: #050714;
-    $surface-lighten-1: #111633;
-    $surface-lighten-2: #1c2145;
-    $text: #f8fafc;
-    $text-muted: #94a3b8;
-
-    Screen {
-        background: $surface;
-    }
-
-    DataTable {
-        height: 1fr;
-        background: $surface-lighten-1;
-        border: solid $primary;
-        padding: 0 1;
-    }
-
-    DataTable > .datatable--header {
-        background: $surface-lighten-2;
-        color: $accent;
-        text-style: bold;
-    }
-
-    DataTable > .datatable--cursor {
-        background: $primary 40%;
-        color: white;
-        text-style: bold;
-    }
-
-    DataTable:focus > .datatable--cursor {
-        background: $primary;
-        color: white;
-        text-style: bold;
-        border: heavy $accent;
-    }
-
-    Header {
-        background: $surface-lighten-2;
-        color: $text;
-        text-style: bold;
-        border-bottom: tall $primary;
-    }
-
-    Footer {
-        background: $surface-lighten-2;
-        color: $text-muted;
-    }
-
-    #status-bar {
-        height: auto;
-    }
-
-    /* Command Palette Styles - Super Saiyan */
-    #command-palette-container {
-        align: center middle;
-        width: 70%;
-        height: auto;
-        max-height: 80%;
-        background: $surface-lighten-1;
-        border: thick $accent;
-        padding: 1 2;
-        opacity: 0;
-        offset-y: -5;
-    }
-
-    #command-palette-container.visible {
-        opacity: 1;
-        offset-y: 0;
-        transition: opacity 300ms, offset-y 300ms out_cubic;
-    }
-
-    #palette-title {
-        text-align: center;
-        text-style: bold;
-        color: $accent;
-        margin-bottom: 1;
-    }
-
-    #palette-subtitle {
-        text-align: center;
-        color: $text-muted;
-        margin-bottom: 1;
-    }
-
-    #palette-input {
-        margin-bottom: 1;
-        background: $surface-lighten-2;
-        border: solid $primary;
-    }
-
-    #palette-results {
-        height: auto;
-        max-height: 20;
-        border: solid $primary;
-        margin-bottom: 1;
-        background: $surface;
-    }
-
-    #palette-help {
-        text-align: center;
-        margin-top: 1;
-        color: $accent;
-    }
-
-    /* Dialog Styles - Super Saiyan */
-    #dialog {
-        align: center middle;
-        width: 50%;
-        height: auto;
-        background: $surface-lighten-1;
-        border: thick $accent;
-        padding: 1 2;
-        opacity: 0;
-    }
-
-    #dialog.visible {
-        opacity: 1;
-        transition: opacity 250ms;
-    }
-
-    #dialog-title {
-        text-align: center;
-        margin-bottom: 1;
-        color: $accent;
-        text-style: bold;
-    }
-
-    #dialog-message {
-        text-align: center;
-        margin-bottom: 1;
-    }
-
-    #dialog-buttons {
-        align: center middle;
-        height: auto;
-    }
-
-    /* Loading Overlay Styles - Super Saiyan */
-    #loading-overlay {
-        align: center middle;
-        width: 40%;
-        height: auto;
-        background: $surface-lighten-1;
-        border: thick $warning;
-        padding: 2 3;
-        opacity: 0;
-    }
-
-    #loading-overlay.visible {
-        opacity: 1;
-        transition: opacity 200ms;
-    }
-
-    #loading-message {
-        text-align: center;
-        text-style: bold;
-        margin-bottom: 1;
-        color: $warning;
-    }
-
-    #loading-subtitle {
-        text-align: center;
-        color: $accent;
-    }
-
-    /* Button Styles - Super Saiyan */
-    Button {
-        background: $primary;
-        color: white;
-        border: solid $primary;
-        text-style: bold;
-    }
-
-    Button:hover {
-        background: $accent;
-        border: solid $accent;
-        transition: background 150ms, border 150ms;
-    }
-
-    Button:focus {
-        border: solid $warning;
-    }
-
-    #main-container {
-        height: 1fr;
-        padding: 1;
-    }
-
-    #view-switcher {
-        height: 1fr;
-    }
-
-    #galaxy-view {
-        height: 1fr;
-        padding: 1;
-        background: $surface-lighten-1;
-        border: solid $secondary;
-    }
-
-    #galaxy-layout {
-        height: 1fr;
-    }
-
-    .galaxy-panel {
-        border: dashed $secondary;
-        padding: 1;
-        height: 1fr;
-    }
-
-    #galaxy-graph {
-        overflow: auto;
-    }
-    """
-
+    CSS_PATH = "styles.tcss"
     BINDINGS = [
         *[
             Binding(key, f"view_{name}", label, show=True)
