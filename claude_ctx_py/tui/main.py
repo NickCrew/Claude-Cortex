@@ -25,7 +25,8 @@ AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
 from .types import (
-    RuleNode, AgentTask, WorkflowInfo, ModeInfo, ScenarioInfo, ScenarioRuntimeState
+    RuleNode, AgentTask, WorkflowInfo, ModeInfo, ScenarioInfo, ScenarioRuntimeState,
+    AssetInfo, MemoryNote,
 )
 from .constants import (
     PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
@@ -107,6 +108,17 @@ from ..core.mcp import (
     list_doc_only_servers,
 )
 from ..core.agents import BUILT_IN_PROFILES
+from ..core.asset_discovery import (
+    Asset, ClaudeDir, AssetCategory, InstallStatus,
+    discover_plugin_assets, find_claude_directories, check_installation_status,
+)
+from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
+from .dialogs import (
+    TargetSelectorDialog,
+    AssetDetailDialog,
+    DiffViewerDialog,
+    BulkInstallDialog,
+)
 from ..tui_icons import Icons, StatusIcon
 from ..tui_format import Format
 from ..tui_progress import ProgressBar
@@ -189,6 +201,12 @@ class AgentTUI(App[None]):
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
         self._tasks_state_signature: Optional[str] = None
+        # Asset manager state
+        self.available_assets: Dict[str, List[Asset]] = {}
+        self.claude_directories: List[ClaudeDir] = []
+        self.selected_target_dir: Optional[Path] = None
+        # Memory vault state
+        self.memory_notes: List[MemoryNote] = []
 
     CSS_PATH = "styles.tcss"
     BINDINGS = [
@@ -231,6 +249,12 @@ class AgentTUI(App[None]):
         Binding("H", "scenario_status_history", "Scenario Status", show=False),
         Binding("L", "task_open_source", "Open Log", show=False),
         Binding("O", "task_open_external", "Open File", show=False),
+        # Asset Manager bindings
+        Binding("i", "asset_install", "Install", show=False),
+        Binding("u", "asset_uninstall", "Uninstall", show=False),
+        Binding("T", "asset_change_target", "Target", show=False),
+        Binding("I", "asset_bulk_install", "Bulk Install", show=False),
+        Binding("enter", "asset_details", "Details", show=False),
         # Vi-style navigation
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
@@ -1905,6 +1929,58 @@ class AgentTUI(App[None]):
             self.mcp_error = str(exc)
             self.status_message = f"Failed to load MCP servers: {exc}"
 
+    def load_assets(self) -> None:
+        """Load available assets from the plugin."""
+        try:
+            self.available_assets = discover_plugin_assets()
+            self.claude_directories = find_claude_directories(Path.cwd())
+
+            # Set default target dir to global ~/.claude if not set
+            if self.selected_target_dir is None:
+                for cd in self.claude_directories:
+                    if cd.scope == "global":
+                        self.selected_target_dir = cd.path
+                        break
+                if self.selected_target_dir is None and self.claude_directories:
+                    self.selected_target_dir = self.claude_directories[0].path
+
+            total = sum(len(assets) for assets in self.available_assets.values())
+            self.status_message = f"Loaded {total} assets from plugin"
+        except Exception as e:
+            self.available_assets = {}
+            self.claude_directories = []
+            self.status_message = f"Failed to load assets: {e}"
+
+    def load_memory_notes(self) -> None:
+        """Load notes from the memory vault."""
+        try:
+            from ..memory import list_notes, get_vault_stats, NoteType
+
+            notes: List[MemoryNote] = []
+            for note_type_enum in NoteType:
+                note_list = list_notes(note_type_enum, recent=50)
+                note_type = note_type_enum.value
+                for n in note_list:
+                    notes.append(MemoryNote(
+                        title=n.get("name", "Untitled"),
+                        note_type=note_type,
+                        path=str(n.get("path", "")),
+                        modified=n.get("modified", datetime.now()),
+                        tags=n.get("tags", []),
+                        snippet=n.get("snippet", "")[:100],
+                    ))
+
+            # Sort by modified date, newest first
+            notes.sort(key=lambda n: n.modified, reverse=True)
+            self.memory_notes = notes
+
+            stats = get_vault_stats()
+            total = stats.get("total_notes", len(notes))
+            self.status_message = f"Loaded {total} memory notes"
+        except Exception as e:
+            self.memory_notes = []
+            self.status_message = f"Failed to load memory: {e}"
+
     def update_view(self) -> None:
         """Update the table based on current view."""
         switcher = self.query_one("#view-switcher", ContentSwitcher)
@@ -1949,6 +2025,10 @@ class AgentTUI(App[None]):
             self.show_ai_assistant_view(table)
         elif self.current_view == "tasks":
             self.show_tasks_view(table)
+        elif self.current_view == "assets":
+            self.show_assets_view(table)
+        elif self.current_view == "memory":
+            self.show_memory_view(table)
         else:
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
@@ -3398,6 +3478,126 @@ class AgentTUI(App[None]):
             "",
         )
 
+    def show_assets_view(self, table: AnyDataTable) -> None:
+        """Show available assets for installation."""
+        table.add_column("Category", key="category", width=12)
+        table.add_column("Name", key="name", width=30)
+        table.add_column("Status", key="status", width=15)
+        table.add_column("Description", key="description")
+
+        if not self.available_assets:
+            table.add_row("[dim]No assets found[/dim]", "", "", "")
+            table.add_row(
+                "", "[dim]Press r to refresh[/dim]", "", ""
+            )
+            return
+
+        # Show target directory info
+        target_text = str(self.selected_target_dir) if self.selected_target_dir else "Not set"
+        table.add_row(
+            "[bold cyan]Target[/bold cyan]",
+            f"[dim]{target_text}[/dim]",
+            "",
+            "[dim]Press [white]t[/white] to change target[/dim]",
+        )
+        table.add_row("", "", "", "")
+
+        # Category colors and icons
+        category_config = {
+            "hooks": ("📎", "cyan"),
+            "commands": ("📝", "green"),
+            "agents": ("🤖", "blue"),
+            "skills": ("🎯", "yellow"),
+            "modes": ("🎨", "magenta"),
+            "workflows": ("🔄", "white"),
+        }
+
+        # Render assets by category
+        for category_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+            assets = self.available_assets.get(category_name, [])
+            if not assets:
+                continue
+
+            icon, color = category_config.get(category_name, ("📦", "white"))
+
+            for asset in assets:
+                # Check installation status
+                if self.selected_target_dir:
+                    status = check_installation_status(asset, self.selected_target_dir)
+                    if status == InstallStatus.INSTALLED_SAME:
+                        status_text = "[green]● Installed[/green]"
+                    elif status == InstallStatus.INSTALLED_DIFFERENT:
+                        status_text = "[yellow]⚠ Differs[/yellow]"
+                    else:
+                        status_text = "[dim]○ Available[/dim]"
+                else:
+                    status_text = "[dim]? Unknown[/dim]"
+
+                # Format name with namespace for commands
+                if asset.namespace:
+                    name_text = f"{icon} {asset.namespace}:{asset.name}"
+                else:
+                    name_text = f"{icon} {asset.name}"
+
+                # Truncate description
+                desc = Format.truncate(asset.description, 60).replace("[", "\\[")
+
+                table.add_row(
+                    f"[{color}]{category_name}[/{color}]",
+                    name_text,
+                    status_text,
+                    f"[dim]{desc}[/dim]",
+                )
+
+    def show_memory_view(self, table: AnyDataTable) -> None:
+        """Show memory vault notes."""
+        table.add_column("Type", key="type", width=12)
+        table.add_column("Title", key="title", width=35)
+        table.add_column("Modified", key="modified", width=12)
+        table.add_column("Tags", key="tags")
+
+        if not self.memory_notes:
+            table.add_row("[dim]No notes found[/dim]", "", "", "")
+            table.add_row(
+                "", "[dim]Use /memory:remember to create notes[/dim]", "", ""
+            )
+            return
+
+        # Type icons and colors
+        type_config = {
+            "knowledge": ("📚", "cyan"),
+            "projects": ("📁", "green"),
+            "sessions": ("📅", "yellow"),
+            "fixes": ("🔧", "magenta"),
+        }
+
+        for note in self.memory_notes:
+            icon, color = type_config.get(note.note_type, ("📄", "white"))
+
+            # Format modified time
+            now = datetime.now()
+            diff = now - note.modified
+            if diff.days > 0:
+                modified_text = f"{diff.days}d ago"
+            elif diff.seconds >= 3600:
+                modified_text = f"{diff.seconds // 3600}h ago"
+            elif diff.seconds >= 60:
+                modified_text = f"{diff.seconds // 60}m ago"
+            else:
+                modified_text = "just now"
+
+            # Format tags
+            tags_text = " ".join(f"[dim]#{t}[/dim]" for t in note.tags[:3])
+            if len(note.tags) > 3:
+                tags_text += f" [dim]+{len(note.tags) - 3}[/dim]"
+
+            table.add_row(
+                f"[{color}]{icon} {note.note_type}[/{color}]",
+                f"{note.title}",
+                f"[dim]{modified_text}[/dim]",
+                tags_text,
+            )
+
     def action_view_overview(self) -> None:
         """Switch to overview."""
         self.current_view = "overview"
@@ -3482,6 +3682,275 @@ class AgentTUI(App[None]):
         # Refresh recommendations when entering view
         if hasattr(self, "intelligent_agent"):
             self.intelligent_agent.analyze_context()
+
+    def action_view_assets(self) -> None:
+        """Switch to assets view."""
+        self.load_assets()
+        self.current_view = "assets"
+        self.status_message = "Switched to Asset Manager"
+        self.notify("📦 Asset Manager", severity="information", timeout=1)
+
+    def action_view_memory(self) -> None:
+        """Switch to memory view."""
+        self.load_memory_notes()
+        self.current_view = "memory"
+        self.status_message = "Switched to Memory Vault"
+        self.notify("🧠 Memory Vault", severity="information", timeout=1)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Asset Manager Actions
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _get_selected_asset(self) -> Optional[Asset]:
+        """Get the currently selected asset from the table."""
+        if self.current_view != "assets":
+            return None
+
+        table = self.query_one("#main-table", DataTable)
+        if table.cursor_row is None:
+            return None
+
+        # Skip header rows (target info row and blank row)
+        row_idx = table.cursor_row
+        if row_idx < 2:  # Header rows
+            return None
+
+        # Flatten assets list
+        all_assets: List[Asset] = []
+        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+            all_assets.extend(self.available_assets.get(category, []))
+
+        asset_idx = row_idx - 2  # Adjust for header rows
+        if 0 <= asset_idx < len(all_assets):
+            return all_assets[asset_idx]
+        return None
+
+    def action_asset_change_target(self) -> None:
+        """Change the installation target directory."""
+        if self.current_view != "assets":
+            return
+
+        if not self.claude_directories:
+            self.notify("No .claude directories found", severity="warning", timeout=2)
+            return
+
+        dialog = TargetSelectorDialog(self.claude_directories, self.selected_target_dir)
+        self.push_screen(dialog, callback=self._handle_target_change)
+
+    def _handle_target_change(self, result: Optional[Path]) -> None:
+        """Handle target directory change callback."""
+        try:
+            if result:
+                self.selected_target_dir = result
+                self.status_message = f"Target: {result}"
+                self.notify(f"Target set to {result}", severity="information", timeout=2)
+                self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def action_asset_details(self) -> None:
+        """Show details for the selected asset (Enter key)."""
+        if self.current_view != "assets":
+            return
+        self._show_asset_details()
+
+    def action_asset_install(self) -> None:
+        """Install the selected asset."""
+        if self.current_view != "assets":
+            return
+        self._show_asset_details()
+
+    def _show_asset_details(self) -> None:
+        """Show asset detail dialog with install/uninstall/diff options."""
+        asset = self._get_selected_asset()
+        if not asset:
+            self.notify("No asset selected", severity="warning", timeout=2)
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
+            return
+
+        # Check status
+        status = check_installation_status(asset, self.selected_target_dir)
+
+        # Store current asset for callback
+        self._current_asset = asset
+
+        # Show detail dialog with callback
+        dialog = AssetDetailDialog(asset, status, self.selected_target_dir)
+        self.push_screen(dialog, callback=self._handle_asset_detail_action)
+
+    def _handle_asset_detail_action(self, action: Optional[str]) -> None:
+        """Handle action from asset detail dialog."""
+        try:
+            if not action or not hasattr(self, "_current_asset"):
+                return
+
+            asset = self._current_asset
+
+            if action == "install":
+                exit_code, message = install_asset(asset, self.selected_target_dir)
+                if exit_code == 0:
+                    self.notify(f"✓ Installed {asset.display_name}", severity="information", timeout=2)
+                else:
+                    self.notify(f"Failed: {message}", severity="error", timeout=3)
+                self.update_view()
+            elif action == "uninstall":
+                self._uninstall_asset_sync(asset)
+            elif action == "diff":
+                self._show_asset_diff_sync(asset)
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def _uninstall_asset_sync(self, asset: Asset) -> None:
+        """Uninstall an asset with confirmation (sync version)."""
+        if not self.selected_target_dir:
+            self.notify("Select a target directory first", severity="warning", timeout=2)
+            return
+
+        # Store asset for callback
+        self._uninstall_asset_pending = asset
+
+        # Show confirm dialog with callback
+        dialog = ConfirmDialog(
+            "Uninstall Asset",
+            f"Uninstall {asset.display_name} from {self.selected_target_dir}?",
+        )
+        self.push_screen(dialog, callback=self._handle_uninstall_confirm)
+
+    def _handle_uninstall_confirm(self, confirmed: bool) -> None:
+        """Handle uninstall confirmation callback."""
+        try:
+            if not confirmed or not hasattr(self, "_uninstall_asset_pending"):
+                return
+
+            asset = self._uninstall_asset_pending
+            exit_code, message = uninstall_asset(
+                asset.category.value, asset.name, self.selected_target_dir
+            )
+            if exit_code == 0:
+                self.notify(f"✓ Uninstalled {asset.display_name}", severity="information", timeout=2)
+            else:
+                self.notify(f"Failed: {message}", severity="error", timeout=3)
+            self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def _show_asset_diff_sync(self, asset: Asset) -> None:
+        """Show diff between source and installed asset (sync version)."""
+        if not self.selected_target_dir:
+            self.notify("Select a target directory first", severity="warning", timeout=2)
+            return
+
+        diff_text = get_asset_diff(asset, self.selected_target_dir)
+        if not diff_text:
+            self.notify("No differences found (or not installed)", severity="information", timeout=2)
+            return
+
+        # Store asset for callback
+        self._diff_asset_pending = asset
+
+        dialog = DiffViewerDialog(asset.display_name, diff_text)
+        self.push_screen(dialog, callback=self._handle_diff_action)
+
+    def _handle_diff_action(self, action: Optional[str]) -> None:
+        """Handle diff viewer action callback."""
+        try:
+            if action != "apply" or not hasattr(self, "_diff_asset_pending"):
+                return
+
+            asset = self._diff_asset_pending
+            exit_code, message = install_asset(asset, self.selected_target_dir)
+            if exit_code == 0:
+                self.notify(f"✓ Updated {asset.display_name}", severity="information", timeout=2)
+            else:
+                self.notify(f"Failed: {message}", severity="error", timeout=3)
+            self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def action_asset_uninstall(self) -> None:
+        """Uninstall the selected asset."""
+        if self.current_view != "assets":
+            return
+
+        asset = self._get_selected_asset()
+        if not asset:
+            self.notify("No asset selected", severity="warning", timeout=2)
+            return
+
+        self._uninstall_asset_sync(asset)
+
+    def action_asset_diff(self) -> None:
+        """Show diff for the selected asset."""
+        if self.current_view != "assets":
+            return
+
+        asset = self._get_selected_asset()
+        if not asset:
+            self.notify("No asset selected", severity="warning", timeout=2)
+            return
+
+        self._show_asset_diff_sync(asset)
+
+    def action_asset_bulk_install(self) -> None:
+        """Bulk install assets by category."""
+        if self.current_view != "assets":
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Select a target directory first (press t)", severity="warning", timeout=2)
+            return
+
+        # Gather category counts (only not-installed assets)
+        categories: List[Tuple[str, int]] = []
+        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+            assets = self.available_assets.get(cat_name, [])
+            not_installed = [
+                a for a in assets
+                if check_installation_status(a, self.selected_target_dir) == InstallStatus.NOT_INSTALLED
+            ]
+            if not_installed:
+                categories.append((cat_name, len(not_installed)))
+
+        if not categories:
+            self.notify("All assets are already installed", severity="information", timeout=2)
+            return
+
+        dialog = BulkInstallDialog(categories)
+        self.push_screen(dialog, callback=self._handle_bulk_install)
+
+    def _handle_bulk_install(self, selected: Optional[List[str]]) -> None:
+        """Handle bulk install dialog callback."""
+        try:
+            if not selected:
+                return
+
+            installed_count = 0
+            failed_count = 0
+
+            for cat_name in selected:
+                assets = self.available_assets.get(cat_name, [])
+                for asset in assets:
+                    if check_installation_status(asset, self.selected_target_dir) == InstallStatus.NOT_INSTALLED:
+                        exit_code, _ = install_asset(asset, self.selected_target_dir)
+                        if exit_code == 0:
+                            installed_count += 1
+                        else:
+                            failed_count += 1
+
+            if failed_count == 0:
+                self.notify(f"✓ Installed {installed_count} assets", severity="information", timeout=2)
+            else:
+                self.notify(
+                    f"Installed {installed_count}, failed {failed_count}",
+                    severity="warning",
+                    timeout=3,
+                )
+            self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
 
     async def action_run_selected(self) -> None:
         """Run the highlighted item in workflows or scenarios view."""
