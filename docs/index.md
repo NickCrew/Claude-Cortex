@@ -734,6 +734,16 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
       <span>95/100 score</span>
     </div>
   </a>
+
+  <a href="guides/memory.html" class="doc-card">
+    <h3>Memory Vault 🧠</h3>
+    <p>Persistent knowledge storage for Claude Code sessions. Capture domain knowledge, project context, session summaries, and bug fixes in Markdown format with TUI integration.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>4 note types</span>
+      <span>Auto-capture</span>
+    </div>
+  </a>
 </div>
 
 ---
