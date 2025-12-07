@@ -5,13 +5,13 @@ nav_order: 1
 permalink: /
 ---
 
-# Claude CTX Plugin - Documentation Index
+# Claude Cortex - Documentation Index
 
 > Version 1.1.0 · Last updated November 15, 2025
 
 <div class="hero">
   <div class="hero__copy">
-    <h2>Claude CTX keeps your agents, commands &amp; workflows in perfect sync.</h2>
+    <h2>Claude Cortex keeps your agents, commands &amp; workflows in perfect sync.</h2>
     <p>
       Activate a fully curated context stack for Claude Code: purpose-built slash commands,
       dependency-aware agents, behavioural modes, and a Python CLI that all speak the same
@@ -33,13 +33,13 @@ permalink: /
     </div>
   </div>
   <div class="hero__visual">
-    <img src="{{ '/assets/images/hero.png' | relative_url }}" alt="Claude CTX blueprint" />
+    <img src="{{ '/assets/images/hero.png' | relative_url }}" alt="Claude Cortex blueprint" />
   </div>
 </div>
 
 ## Overview
 
-The Claude CTX Plugin is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, rules, and workflow orchestration for systematic software development.
+The Claude Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, rules, and workflow orchestration for systematic software development.
 
 <div class="metrics-row">
   <div class="metric-box">
@@ -85,7 +85,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="doc-grid">
   <a href="presentations/claude-ctx-overview.html" class="doc-card" target="_blank">
-    <h3>🤖 Claude CTX Overview</h3>
+    <h3>🤖 Claude Cortex Overview</h3>
     <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
     <p class="muted"><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics & Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
     <span class="doc-card__arrow">Launch →</span>
@@ -119,7 +119,7 @@ Hands-on tutorials to master claude-ctx from beginner to advanced.
 
 <div class="doc-grid">
   <a href="tutorials/getting-started-tui/" class="doc-card">
-    <h3>📚 Getting Started with Claude CTX TUI</h3>
+    <h3>📚 Getting Started with Claude Cortex TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
     <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
     <span class="doc-card__arrow">Start Tutorial →</span>
@@ -176,6 +176,7 @@ claude-ctx ai watch
 ```
 
 **Example output:**
+
 ```
 [10:33:12] 🔍 Context detected: Backend, Auth
   3 files changed
@@ -197,6 +198,7 @@ claude-ctx tui
 ```
 
 Interactive AI view shows:
+
 - 🤖 Intelligent recommendations with confidence scores
 - 🎯 Workflow predictions from learned patterns
 - 📊 Context analysis (files, detected contexts)
@@ -220,7 +222,8 @@ claude-ctx ai record-success --outcome "feature complete"
 
 ### Documentation
 
-- [AI Intelligence Guide](guides/development/AI_INTELLIGENCE_GUIDE.html) - Complete system documentation
+- [AI Intelligence Guide](AI_INTELLIGENCE.html) - Complete AI system overview
+- [LLM Intelligence Guide](guides/ai/LLM_INTELLIGENCE_GUIDE.html) - Advanced Claude API configuration and usage
 - [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring deep dive
 
 ---
@@ -238,6 +241,7 @@ claude-ctx doctor --fix
 ```
 
 Checks performed:
+
 - **Consistency**: Verifies active agents/modes/rules exist.
 - **Duplicates**: Finds duplicate agent definitions.
 - **Optimization**: Identifies large files or unused resources.
@@ -337,6 +341,7 @@ claude-ctx skills top-rated
 ```
 
 **Example recommendation output:**
+
 ```
 === AI-Recommended Skills ===
 
@@ -423,7 +428,6 @@ claude-ctx-plugin/
 └── pyproject.toml     # Python package configuration
 ```
 
-
 ### Key Capabilities
 
 <div class="feature-grid">
@@ -452,11 +456,13 @@ claude-ctx-plugin/
 ### Via Claude Code Plugin System
 
 1. Add the marketplace that references this repository:
+
    ```bash
    # See companion project: NickCrew/claude-marketplace
    ```
 
 2. Install the plugin:
+
    ```bash
    /plugin install claude-ctx@<marketplace-name>
    ```
@@ -466,6 +472,7 @@ claude-ctx-plugin/
 ### Via Python CLI
 
 **Quick Install (Recommended):**
+
 ```bash
 # Install everything (package, completions, manpage)
 ./scripts/install.sh
@@ -475,6 +482,7 @@ make install
 ```
 
 **Manual Installation:**
+
 ```bash
 # Install package (editable installs supported)
 python3 -m pip install -e ".[dev]"
@@ -493,6 +501,7 @@ claude-ctx agent graph --export dependency-map.md
 ```
 
 **What Gets Installed:**
+
 - Python package (`claude-ctx` command)
 - Shell completions (bash/zsh/fish)
 - Manpage (`man claude-ctx`)
@@ -529,10 +538,12 @@ Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a 
 ## Core Systems
 
 ### 1. Command System
+
 **Location**: `commands/`
 **Count**: 34 slash commands across 10 categories
 
 Commands provide curated behavioral prompts for specific development tasks. Each command includes:
+
 - Trigger conditions for automatic activation
 - Usage patterns and examples
 - MCP integration specifications
@@ -540,6 +551,7 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 - Success criteria and boundaries
 
 **Categories**:
+
 - `/analyze` - Code analysis, security, troubleshooting (6 commands)
 - `/deploy` - Release preparation (1 command)
 - `/design` - System design, workflow planning (2 commands)
@@ -556,15 +568,18 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 ---
 
 ### 2. Agent System
+
 **Location**: `agents/` and `inactive/agents/`
 **Active Agents**: 11 | **Available**: 65
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
+
 - **Dependency Management**: `dependencies.map` tracks agent relationships
 - **Trigger System**: `triggers.yaml` defines automatic activation patterns
 - **Activation Control**: Move between `agents/` and `inactive/agents/` to control availability
 
 **Active Agents**:
+
 - `cloud-architect` - Cloud infrastructure design
 - `code-reviewer` - Code quality analysis
 - `debugger` - Issue diagnosis and resolution
@@ -580,15 +595,18 @@ Agents are specialized personas with domain expertise and specific capabilities.
 ---
 
 ### 3. Mode System
+
 **Location**: `modes/` and `inactive/modes/`
 **Active Modes**: 1 | **Available**: 4
 
 Modes are opinionated context modules that toggle workflow defaults and behavioral patterns.
 
 **Active**:
+
 - `Task_Management` - Multi-step task orchestration
 
 **Available**:
+
 - `Brainstorming` - Collaborative discovery
 - `Introspection` - Meta-cognitive analysis
 - `Orchestration` - Multi-tool optimization
@@ -599,11 +617,13 @@ Modes are opinionated context modules that toggle workflow defaults and behavior
 ---
 
 ### 4. Flag System
+
 **Location**: `FLAGS.md`
 
 Behavioral flags enable specific execution modes and tool selection patterns.
 
 **Categories**:
+
 - **Mode Activation**: `--brainstorm`, `--introspect`, `--task-manage`, `--orchestrate`
 - **MCP Servers**: `--c7`, `--seq`, `--serena`, `--magic`, `--morph`, `--play`
 - **Analysis Depth**: `--think`, `--think-hard`, `--ultrathink`
@@ -613,16 +633,19 @@ Behavioral flags enable specific execution modes and tool selection patterns.
 ---
 
 ### 5. Rule System
+
 **Location**: `rules/`
 
 Reusable rule sets that define behavioral constraints and best practices.
 
 **Rule Sets**:
+
 - `workflow-rules.md` - Task patterns, git workflow, implementation completeness
 - `quality-rules.md` - Code organization, naming conventions, failure investigation
 - `efficiency-rules.md` - Tool optimization, parallel operations, workspace hygiene
 
 **Priority System**:
+
 - 🔴 CRITICAL - Security, data safety (never compromise)
 - 🟡 IMPORTANT - Quality, maintainability (strong preference)
 - 🟢 RECOMMENDED - Optimization, style (apply when practical)
@@ -630,11 +653,13 @@ Reusable rule sets that define behavioral constraints and best practices.
 ---
 
 ### 6. Workflow System
+
 **Location**: `workflows/`
 
 Pre-defined multi-agent sequences for common development tasks.
 
 **Available Workflows**:
+
 - `feature-development.yaml` - Complete feature implementation workflow
 - `bug-fix.yaml` - Systematic bug resolution
 - `security-audit.yaml` - Comprehensive security assessment
@@ -645,12 +670,14 @@ Pre-defined multi-agent sequences for common development tasks.
 ---
 
 ### 7. Python CLI
+
 **Location**: `claude_ctx_py/`
 **Entry Point**: `claude-ctx`
 
 Python CLI for managing context components outside of Claude Code.
 
 **Capabilities**:
+
 - Mode management (list, activate, deactivate)
 - Agent dependency visualization
 - Command execution
@@ -748,10 +775,105 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
 
 ---
 
+## 📐 Technical Architecture Documentation
+
+Comprehensive technical documentation for developers, maintainers, and contributors.
+
+<div class="doc-grid">
+  <a href="architecture/MASTER_ARCHITECTURE.html" class="doc-card">
+    <h3>🏗️ Master Architecture</h3>
+    <p>Complete system architecture covering all 8 core subsystems: CLI, TUI, AI Intelligence, Memory Vault, Skills, MCP, Component Toggle, and Doctor Diagnostics. The definitive technical reference.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>3,700+ lines</span>
+      <span>8 subsystems</span>
+      <span>v1.1</span>
+    </div>
+  </a>
+
+  <a href="guides/development/TUI_ARCHITECTURE.html" class="doc-card">
+    <h3>🎨 TUI Architecture</h3>
+    <p>Textual framework integration, reactive state management, SPA patterns, command palette, styling system (TCSS), and performance optimization strategies.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>963 lines</span>
+      <span>Package refactoring</span>
+    </div>
+  </a>
+
+  <a href="guides/development/MEMORY_VAULT_ARCHITECTURE.html" class="doc-card">
+    <h3>🧠 Memory Vault System</h3>
+    <p>3-layer architecture (Interfaces, Memory Module, Storage), 4 note types, auto-capture system, full-text search with relevance scoring, CLI/TUI integration.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>1,085 lines</span>
+      <span>5 Python modules</span>
+    </div>
+  </a>
+
+  <a href="guides/development/AI_INTELLIGENCE_ARCHITECTURE.html" class="doc-card">
+    <h3>🤖 AI Intelligence System</h3>
+    <p>4-layer architecture, pattern learning with collaborative filtering, skill recommendation engine (3 strategies), context detection (6 signals), auto-activation at ≥80% confidence.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>1,330 lines</span>
+      <span>Machine learning</span>
+    </div>
+  </a>
+
+  <a href="guides/development/WATCH_MODE_ARCHITECTURE.html" class="doc-card">
+    <h3>⚡ Watch Mode Implementation</h3>
+    <p>Real-time monitoring with 2s polling (~1% CPU), git integration, notification system with threshold filtering, auto-activation tracking, resource management.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>1,027 lines</span>
+      <span>~20MB memory</span>
+    </div>
+  </a>
+
+  <a href="guides/development/SKILL_RATING_ARCHITECTURE.html" class="doc-card">
+    <h3>⭐ Skill Rating & Feedback</h3>
+    <p>SQLite storage (3 tables), auto-prompt system (12hr lookback, 24hr cooldown), quality metrics (6 dimensions), TUI integration (Ctrl+R), anonymous hashing.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>933 lines</span>
+      <span>Privacy-first</span>
+    </div>
+  </a>
+
+  <a href="guides/development/MCP_SERVER_MANAGEMENT_ARCHITECTURE.html" class="doc-card">
+    <h3>🛰️ MCP Server Management</h3>
+    <p>Cross-platform server discovery, curated registry (25+ servers, 10 categories), automated installation, configuration validation, TUI browser (Key 7), documentation integration.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>1,850 lines</span>
+      <span>4 core modules</span>
+    </div>
+  </a>
+
+  <a href="guides/development/SUPER_SAIYAN_MODE_ARCHITECTURE.html" class="doc-card">
+    <h3>✨ Super Saiyan Mode</h3>
+    <p>Enhanced TUI components with smooth animations (CSS transitions), rich styling (semantic color palette), 5 core components, accessibility-first design, performance optimization.</p>
+    <span class="doc-card__arrow">→</span>
+    <div class="doc-card__meta">
+      <span>1,254 lines</span>
+      <span>< 2% CPU overhead</span>
+    </div>
+  </a>
+</div>
+
+<div class="callout" style="margin-top: 1rem;">
+  <strong>🎯 For Developers:</strong> These documents provide deep-dive technical details including data models, workflows, performance benchmarks, and development guides. Perfect for onboarding, technical reviews, and system maintenance.
+</div>
+
+---
+
 ## Framework Entry Points
 
 ### CLAUDE.md
+
 Primary framework entry point that loads:
+
 - Core framework (FLAGS.md, PRINCIPLES.md, RULES.md)
 - Workflow rules (automatic for all development tasks)
 - Conditional rules (loaded as needed)
@@ -759,7 +881,9 @@ Primary framework entry point that loads:
 - MCP documentation
 
 ### PRINCIPLES.md
+
 Software engineering principles and philosophy:
+
 - Task-First Approach: Understand → Plan → Execute → Validate
 - Evidence-Based Reasoning
 - Parallel Thinking
@@ -768,7 +892,9 @@ Software engineering principles and philosophy:
 - Decision Framework
 
 ### RULES.md
+
 Core behavioral rules with priority system:
+
 - Scope Discipline
 - Professional Honesty
 - Safety Rules
@@ -779,6 +905,7 @@ Core behavioral rules with priority system:
 ## Configuration Files
 
 ### Plugin Manifest
+
 **File**: `.claude-plugin/plugin.json`
 
 ```json
@@ -791,6 +918,7 @@ Core behavioral rules with priority system:
 ```
 
 ### Python Package
+
 **File**: `pyproject.toml`
 
 ```toml
@@ -808,6 +936,7 @@ claude-ctx = "claude_ctx_py.cli:main"
 ## Development Workflows
 
 ### Feature Development
+
 1. Create feature branch (`git checkout -b feature/name`)
 2. Use `/design:workflow` to plan implementation
 3. Use `/dev:implement` with appropriate persona flags
@@ -817,6 +946,7 @@ claude-ctx = "claude_ctx_py.cli:main"
 7. Use `/deploy:prepare-release` for deployment preparation
 
 ### Bug Fixing
+
 1. Use `/analyze:troubleshoot` for diagnosis
 2. Use `/dev:implement` to fix issue
 3. Use `/test:generate-tests` for regression coverage
@@ -824,6 +954,7 @@ claude-ctx = "claude_ctx_py.cli:main"
 5. Use `/dev:git` to commit fix
 
 ### Code Quality
+
 1. Use `/analyze:code` for quality assessment
 2. Use `/quality:improve` for systematic improvements
 3. Use `/quality:cleanup` for dead code removal
@@ -836,16 +967,19 @@ claude-ctx = "claude_ctx_py.cli:main"
 The plugin integrates with Model Context Protocol servers for enhanced capabilities:
 
 ### Context7
+
 - **Purpose**: Official library documentation lookup
 - **Flag**: `--c7` or `--context7`
 - **Use For**: Framework patterns, API documentation, version-specific implementations
 
 ### Sequential
+
 - **Purpose**: Multi-step reasoning and analysis
 - **Flag**: `--seq` or `--sequential`
 - **Use For**: Complex debugging, system design, hypothesis testing
 
 ### Serena
+
 - **Purpose**: Symbol operations and session persistence
 - **Flag**: `--serena`
 - **Use For**: Large codebase navigation, project memory, semantic understanding
@@ -855,24 +989,28 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ## Best Practices
 
 ### Command Usage
+
 1. Use namespace prefixes (`/dev:`, `/test:`, etc.)
 2. Specify scope with flags (`--scope file|module|project`)
 3. Focus analysis with `--focus` flags
 4. Enable validation for critical operations (`--validate`)
 
 ### Agent Coordination
+
 1. Let dependency system manage agent activation
 2. Use `triggers.yaml` for automatic agent selection
 3. Compose multiple agents for complex tasks
 4. Review `dependencies.map` for orchestration patterns
 
 ### Mode Management
+
 1. Activate modes based on task complexity
 2. Use `Task_Management` for multi-step operations
 3. Enable `Token_Efficiency` for large operations
 4. Combine modes for optimal behavior
 
 ### Flag Optimization
+
 1. Use `--safe-mode` for production operations
 2. Apply `--think-hard` for architectural decisions
 3. Enable `--delegate` for large-scale changes
@@ -883,18 +1021,21 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ## Troubleshooting
 
 ### Commands Not Loading
+
 1. Verify plugin installation: `/plugin list`
 2. Check plugin manifest: `.claude-plugin/plugin.json`
 3. Restart Claude Code
 4. Validate command syntax in markdown files
 
 ### Agent Not Activating
+
 1. Check agent location (`agents/` vs `inactive/agents/`)
 2. Review `triggers.yaml` for activation conditions
 3. Verify dependencies in `dependencies.map`
 4. Manually invoke with `/agent activate <name>`
 
 ### CLI Issues
+
 1. Verify installation: `python3 -m pip show claude-ctx-py`
 2. Check Python version: `python3 --version` (>=3.9 required)
 3. Reinstall: `python3 -m pip install --force-reinstall .`
@@ -904,18 +1045,21 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ## Contributing
 
 ### Adding Commands
+
 1. Choose appropriate namespace under `commands/`
 2. Create markdown file following template structure
 3. Add to namespace README.md
 4. Update command count in this index
 
 ### Creating Agents
+
 1. Create markdown file in `inactive/agents/`
 2. Define triggers in `triggers.yaml`
 3. Add dependencies to `dependencies.map`
 4. Move to `agents/` when ready for activation
 
 ### Defining Workflows
+
 1. Create YAML file in `workflows/`
 2. Define trigger conditions and steps
 3. Specify agent sequence and success criteria
@@ -928,18 +1072,22 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ### Internal Documentation
 
 **Core Documentation**
+
 - [Getting Started](guides/getting-started.html) - Installation and setup
 - [Installation Guide](guides/INSTALL.html) - Detailed installation instructions
 - [Architecture Guide](guides/development/architecture.html) - System design and patterns
 - [Command Reference](guides/commands.html) - Complete command catalog
 
 **Agent System**
+
 - [Agent Catalog](guides/agents.html) - Complete agent reference with 78 agents
 - [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
 - [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 
 **Feature Guides**
-- [AI Intelligence Guide](guides/development/AI_INTELLIGENCE_GUIDE.html) - AI intelligence & automation system
+
+- [AI Intelligence Guide](AI_INTELLIGENCE.html) - AI intelligence & automation system overview
+- [LLM Intelligence Guide](guides/ai/LLM_INTELLIGENCE_GUIDE.html) - Claude API configuration, pricing, and advanced usage
 - [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
 - [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) - Interactive command palette
 - [TUI Guide](guides/tui.html) - Terminal user interface
@@ -950,10 +1098,12 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [TUI Navigation](guides/tui/tui-navigation-summary.html) - Navigation patterns
 
 **CLI & Integration**
+
 - [Shell Completions](guides/COMPLETIONS.html) - Bash, Zsh, and Fish completion scripts
 - [Warp AI Integration](guides/features/WARP_AI_INTEGRATION.html) - Terminal AI tools integration with context export aliases
 
 **Advanced Features**
+
 - [Super Saiyan Mode](features/SUPER_SAIYAN_MODE.html) - Visual excellence framework
 - [Kamehameha Overview](features/KAMEHAMEHA_OVERVIEW.html) - Power levels and activation
 - [Super Saiyan Integration](guides/features/SUPER_SAIYAN_INTEGRATION.html) - Integration guide
@@ -961,6 +1111,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Quality Improvements](guides/development/quality-improvements.html) - Code quality enhancements
 
 ### External Resources
+
 - [Claude Code Documentation](https://docs.claude.com/claude-code)
 - [Plugin Development Guide](https://docs.claude.com/claude-code/plugins)
 - [MCP Specification](https://modelcontextprotocol.io)
@@ -970,6 +1121,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ## Version History
 
 ### 0.1.0 (2025-10-17)
+
 - Initial plugin release
 - 34 slash commands across 10 categories
 - 11 active agents, 65 total available
