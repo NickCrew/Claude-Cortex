@@ -67,10 +67,10 @@ The Claude Cortex is a comprehensive context management toolkit packaged as a Cl
 ### Quick Links
 
 <div class="quick-links">
-  <a href="tutorials/getting-started-tui/">🎓 TUI Tutorial</a>
+  <a href="tutorials/getting-started-tui/">→ TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>
-  <a href="#presentations">🎬 Presentations</a>
+  <a href="#presentations">▶ Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
   <a href="#collaboration">Collaboration Flow</a>
@@ -79,13 +79,13 @@ The Claude Cortex is a comprehensive context management toolkit packaged as a Cl
 
 ---
 
-## 🎬 Presentation Decks {#presentations}
+## ▶ Presentation Decks {#presentations}
 
 Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="doc-grid">
   <a href="presentations/claude-ctx-overview.html" class="doc-card" target="_blank">
-    <h3>🤖 Claude Cortex Overview</h3>
+    <h3>→ Claude Cortex Overview</h3>
     <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
     <p class="muted"><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics & Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
     <span class="doc-card__arrow">Launch →</span>
@@ -96,7 +96,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
   </a>
 
   <a href="presentations/tui-showcase.html" class="doc-card" target="_blank">
-    <h3>🎨 TUI Dashboard Showcase</h3>
+    <h3>▶ TUI Dashboard Showcase</h3>
     <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
     <p class="muted"><strong>Views:</strong> Dashboard Overview (2 parts) • AI Assistant • Agents • Commands • Modes • Profiles • Rules • Orchestration • Workflows • MCP • Scenarios • Export • Keybindings</p>
     <span class="doc-card__arrow">Launch →</span>
@@ -108,54 +108,54 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>💡 How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+  <strong>ℹ How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
 </div>
 
 ---
 
-## 🎓 Tutorials {#tutorials}
+## → Tutorials {#tutorials}
 
 Hands-on tutorials to master claude-ctx from beginner to advanced.
 
 <div class="doc-grid">
   <a href="tutorials/getting-started-tui/" class="doc-card">
-    <h3>📚 Getting Started with Claude Cortex TUI</h3>
+    <h3>→ Getting Started with Claude Cortex TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
     <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
     <span class="doc-card__arrow">Start Tutorial →</span>
     <div class="doc-card__meta">
-      <span>⏱️ 20-30 minutes</span>
-      <span>✅ 15+ checkpoints</span>
-      <span>🎯 60+ examples</span>
+      <span>⏳ 20-30 minutes</span>
+      <span>✓ 15+ checkpoints</span>
+      <span>→ 60+ examples</span>
     </div>
   </a>
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>👉 New to claude-ctx?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
+  <strong>→ New to claude-ctx?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
 </div>
 
 ---
 
-## 🤖 AI Intelligence & Automation {#ai-intelligence}
+## → AI Intelligence & Automation {#ai-intelligence}
 
 **New in 0.2.0** - Stay in Claude Code flow with intelligent, self-managing context:
 
 <div class="feature-grid">
   <div class="feature-card">
-    <h3>🧠 Context-Aware Intelligence</h3>
+    <h3>ℹ Context-Aware Intelligence</h3>
     <p>Automatically detects auth, API, tests, frontend, backend code. No configuration needed.</p>
   </div>
   <div class="feature-card">
-    <h3>📊 Pattern Learning</h3>
+    <h3>→ Pattern Learning</h3>
     <p>Learns from successful sessions. Recommends optimal agent combinations for similar work.</p>
   </div>
   <div class="feature-card">
-    <h3>🎯 Workflow Prediction</h3>
+    <h3>→ Workflow Prediction</h3>
     <p>Predicts agent sequences based on historical patterns. Estimates duration and success rate.</p>
   </div>
   <div class="feature-card">
-    <h3>⚡ Auto-Activation</h3>
+    <h3>→ Auto-Activation</h3>
     <p>High-confidence agents (≥80%) activate automatically. Security-auditor on auth changes, test-automator on failures.</p>
   </div>
 </div>
@@ -181,11 +181,11 @@ claude-ctx ai watch
 [10:33:12] 🔍 Context detected: Backend, Auth
   3 files changed
 
-  💡 Recommendations:
+  ℹ Recommendations:
      🔴 security-auditor [AUTO]
         95% - Auth code detected
 
-[10:33:12] ⚡ Auto-activating 1 agents...
+[10:33:12] → Auto-activating 1 agents...
      ✓ security-auditor
 ```
 
@@ -199,10 +199,10 @@ claude-ctx tui
 
 Interactive AI view shows:
 
-- 🤖 Intelligent recommendations with confidence scores
-- 🎯 Workflow predictions from learned patterns
-- 📊 Context analysis (files, detected contexts)
-- ⚡ Quick actions (keyboard shortcuts)
+- → Intelligent recommendations with confidence scores
+- → Workflow predictions from learned patterns
+- → Context analysis (files, detected contexts)
+- → Quick actions (keyboard shortcuts)
 
 ### CLI Commands
 
@@ -301,25 +301,25 @@ See [guides/skills.md](guides/skills.md) for the full catalog and resource snipp
 
 ---
 
-## 🧠 AI-Powered Skills & Rating System {#skills-intelligence}
+## ℹ AI-Powered Skills & Rating System {#skills-intelligence}
 
 **New in Phase 5 (November 2025)** – Intelligent skill discovery and community feedback.
 
 <div class="feature-grid">
   <div class="feature-card">
-    <h3>🎯 AI Recommendations</h3>
+    <h3>→ AI Recommendations</h3>
     <p>Get personalized skill suggestions based on your project type, tech stack, and current task. Confidence scoring and reasoning included.</p>
   </div>
   <div class="feature-card">
-    <h3>⭐ Rating & Reviews</h3>
+    <h3>✓ Rating & Reviews</h3>
     <p>Rate skills 1-5 stars with optional reviews. Track quality metrics, success rates, and community feedback. Anonymous and private.</p>
   </div>
   <div class="feature-card">
-    <h3>📊 Quality Metrics</h3>
+    <h3>→ Quality Metrics</h3>
     <p>View aggregated ratings, helpful percentages, task success correlation, usage counts, and token efficiency for every skill.</p>
   </div>
   <div class="feature-card">
-    <h3>📈 Top Rated Skills</h3>
+    <h3>→ Top Rated Skills</h3>
     <p>Discover highest-rated skills by category. Export ratings data in JSON or CSV for analysis and reporting.</p>
   </div>
 </div>
@@ -723,7 +723,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/development/model-optimization.html" class="doc-card">
-    <h3>Model Optimization ✅</h3>
+    <h3>Model Optimization ✓</h3>
     <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks. COMPLETE: All 9 agents optimized.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -733,8 +733,8 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/development/PHASE5_ROADMAP.html" class="doc-card">
-    <h3>Phase 5 Roadmap ⚡</h3>
-    <p>Skill System Intelligence: AI recommendations ✅, ratings & feedback ✅, advanced discovery, analytics, smart bundling, and personalization. Features 1-2 complete.</p>
+    <h3>Phase 5 Roadmap →</h3>
+    <p>Skill System Intelligence: AI recommendations ✓, ratings & feedback ✓, advanced discovery, analytics, smart bundling, and personalization. Features 1-2 complete.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>32KB roadmap</span>
@@ -743,7 +743,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="archive/reports/phase4-summary.html" class="doc-card">
-    <h3>Phase 4 Features ✅</h3>
+    <h3>Phase 4 Features ✓</h3>
     <p>Complete implementation of skill composition, semantic versioning, community integration, and effectiveness analytics. Production-ready enterprise features.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -763,7 +763,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/memory.html" class="doc-card">
-    <h3>Memory Vault 🧠</h3>
+    <h3>Memory Vault ℹ</h3>
     <p>Persistent knowledge storage for Claude Code sessions. Capture domain knowledge, project context, session summaries, and bug fixes in Markdown format with TUI integration.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -775,13 +775,13 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
 
 ---
 
-## 📐 Technical Architecture Documentation
+## → Technical Architecture Documentation
 
 Comprehensive technical documentation for developers, maintainers, and contributors.
 
 <div class="doc-grid">
   <a href="architecture/MASTER_ARCHITECTURE.html" class="doc-card">
-    <h3>🏗️ Master Architecture</h3>
+    <h3>→ Master Architecture</h3>
     <p>Complete system architecture covering all 8 core subsystems: CLI, TUI, AI Intelligence, Memory Vault, Skills, MCP, Component Toggle, and Doctor Diagnostics. The definitive technical reference.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -792,7 +792,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/TUI_ARCHITECTURE.html" class="doc-card">
-    <h3>🎨 TUI Architecture</h3>
+    <h3>▶ TUI Architecture</h3>
     <p>Textual framework integration, reactive state management, SPA patterns, command palette, styling system (TCSS), and performance optimization strategies.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -802,7 +802,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/MEMORY_VAULT_ARCHITECTURE.html" class="doc-card">
-    <h3>🧠 Memory Vault System</h3>
+    <h3>ℹ Memory Vault System</h3>
     <p>3-layer architecture (Interfaces, Memory Module, Storage), 4 note types, auto-capture system, full-text search with relevance scoring, CLI/TUI integration.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -812,7 +812,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/AI_INTELLIGENCE_ARCHITECTURE.html" class="doc-card">
-    <h3>🤖 AI Intelligence System</h3>
+    <h3>→ AI Intelligence System</h3>
     <p>4-layer architecture, pattern learning with collaborative filtering, skill recommendation engine (3 strategies), context detection (6 signals), auto-activation at ≥80% confidence.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -822,7 +822,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/WATCH_MODE_ARCHITECTURE.html" class="doc-card">
-    <h3>⚡ Watch Mode Implementation</h3>
+    <h3>→ Watch Mode Implementation</h3>
     <p>Real-time monitoring with 2s polling (~1% CPU), git integration, notification system with threshold filtering, auto-activation tracking, resource management.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -832,7 +832,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/SKILL_RATING_ARCHITECTURE.html" class="doc-card">
-    <h3>⭐ Skill Rating & Feedback</h3>
+    <h3>✓ Skill Rating & Feedback</h3>
     <p>SQLite storage (3 tables), auto-prompt system (12hr lookback, 24hr cooldown), quality metrics (6 dimensions), TUI integration (Ctrl+R), anonymous hashing.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -842,7 +842,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/MCP_SERVER_MANAGEMENT_ARCHITECTURE.html" class="doc-card">
-    <h3>🛰️ MCP Server Management</h3>
+    <h3>→ MCP Server Management</h3>
     <p>Cross-platform server discovery, curated registry (25+ servers, 10 categories), automated installation, configuration validation, TUI browser (Key 7), documentation integration.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -852,7 +852,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
   </a>
 
   <a href="guides/development/SUPER_SAIYAN_MODE_ARCHITECTURE.html" class="doc-card">
-    <h3>✨ Super Saiyan Mode</h3>
+    <h3>→ Super Saiyan Mode</h3>
     <p>Enhanced TUI components with smooth animations (CSS transitions), rich styling (semantic color palette), 5 core components, accessibility-first design, performance optimization.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -863,7 +863,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>🎯 For Developers:</strong> These documents provide deep-dive technical details including data models, workflows, performance benchmarks, and development guides. Perfect for onboarding, technical reviews, and system maintenance.
+  <strong>→ For Developers:</strong> These documents provide deep-dive technical details including data models, workflows, performance benchmarks, and development guides. Perfect for onboarding, technical reviews, and system maintenance.
 </div>
 
 ---
