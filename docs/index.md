@@ -303,7 +303,7 @@ See [guides/skills.md](guides/skills.md) for the full catalog and resource snipp
 
 ## ℹ AI-Powered Skills & Rating System {#skills-intelligence}
 
-**New in Phase 5 (November 2025)** – Intelligent skill discovery and community feedback.
+**New in November 2025** – Intelligent skill discovery and community feedback.
 
 <div class="feature-grid">
   <div class="feature-card">
@@ -733,7 +733,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="guides/development/PHASE5_ROADMAP.html" class="doc-card">
-    <h3>Phase 5 Roadmap →</h3>
+    <h3>Skills Roadmap →</h3>
     <p>Skill System Intelligence: AI recommendations ✓, ratings & feedback ✓, advanced discovery, analytics, smart bundling, and personalization. Features 1-2 complete.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
@@ -743,7 +743,7 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
   </a>
 
   <a href="archive/reports/phase4-summary.html" class="doc-card">
-    <h3>Phase 4 Features ✓</h3>
+    <h3>Recent Features ✓</h3>
     <p>Complete implementation of skill composition, semantic versioning, community integration, and effectiveness analytics. Production-ready enterprise features.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
