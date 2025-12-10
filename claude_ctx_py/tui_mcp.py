@@ -337,14 +337,33 @@ class MCPViewMixin:
 
         Args:
             server: Server to test
+
+        Note:
+            Full MCP protocol testing requires:
+            1. Starting the server process
+            2. Connecting via stdio
+            3. Sending JSON-RPC initialization request
+            4. Validating response and capabilities
+
+            This is currently stubbed for future implementation.
         """
-        # TODO: Implement actual server testing
-        # This would require:
-        # 1. Starting the server process
-        # 2. Attempting to connect
-        # 3. Sending initialization request
-        # 4. Reporting success/failure
-        self.state.status_message = f"Testing {server.name}... (not yet implemented)"
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.info(f"MCP Server Test requested: {server.name}")
+        logger.debug(f"  Command: {server.command}")
+        logger.debug(f"  Args: {server.args}")
+
+        # Validate basic configuration first
+        is_valid, errors = server.is_valid()
+        if not is_valid:
+            error_msg = errors[0] if errors else "Invalid configuration"
+            self.state.status_message = f"✗ {server.name}: {error_msg}"
+            return
+
+        self.state.status_message = (
+            f"✓ {server.name} config valid (MCP connection test not yet implemented)"
+        )
 
     def view_mcp_docs(self, server: MCPServerInfo) -> None:
         """View documentation for MCP server.

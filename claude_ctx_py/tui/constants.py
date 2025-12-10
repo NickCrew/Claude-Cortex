@@ -38,6 +38,9 @@ PRIMARY_VIEW_BINDINGS = [
     ("8", "profiles", "Profiles"),
     ("9", "export", "Export"),
     ("0", "ai_assistant", "AI Assistant"),
+    ("w", "watch_mode", "Watch Mode"),
+    ("A", "assets", "Assets"),
+    ("M", "memory", "Memory"),
 ]
 
 VIEW_TITLES: Dict[str, str] = {
@@ -54,6 +57,9 @@ VIEW_TITLES: Dict[str, str] = {
     "profiles": "👤 Profiles",
     "export": f"{Icons.FILE} Export",
     "ai_assistant": "🤖 AI Assistant",
+    "watch_mode": "🔍 Watch Mode",
     "tasks": f"{Icons.TEST} Tasks",
     "galaxy": "✦ Agent Galaxy",
+    "assets": "📦 Asset Manager",
+    "memory": "🧠 Memory Vault",
 }

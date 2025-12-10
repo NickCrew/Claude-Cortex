@@ -82,3 +82,44 @@ class ScenarioRuntimeState(TypedDict):
     status: str
     started: Optional[datetime]
     completed: Optional[datetime]
+
+
+@dataclass
+class AssetInfo:
+    """Represents an asset available for installation."""
+
+    name: str
+    category: str  # hooks, commands, agents, skills, modes, workflows
+    source_path: str
+    description: str
+    status: str  # "installed", "available", "differs"
+    version: Optional[str] = None
+    namespace: Optional[str] = None  # For namespaced commands
+
+
+@dataclass
+class MemoryNote:
+    """Represents a note in the memory vault."""
+
+    title: str
+    note_type: str  # knowledge, projects, sessions, fixes
+    path: str
+    modified: datetime
+    tags: List[str]
+    snippet: str
+
+
+@dataclass
+class WatchModeState:
+    """Represents watch mode runtime state."""
+
+    running: bool
+    directory: Path
+    auto_activate: bool
+    threshold: float
+    interval: float
+    checks_performed: int
+    recommendations_made: int
+    auto_activations: int
+    started_at: Optional[datetime]
+    last_notification: Optional[str]

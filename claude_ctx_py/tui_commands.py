@@ -157,10 +157,16 @@ class AgentCommandProvider(Provider):
                     current_category = category
                     # Don't yield category headers in search results
 
+                # Create proper closure for action
+                def make_callback(act: str):
+                    def callback() -> None:
+                        self._run_command(act)
+                    return callback
+
                 yield Hit(
                     match,
                     matcher.highlight(name),
-                    lambda action=action: self._run_command(action),
+                    make_callback(action),
                     help=help_text,
                 )
 

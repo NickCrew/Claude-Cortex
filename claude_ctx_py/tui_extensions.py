@@ -442,7 +442,7 @@ class ExportViewMixin:
 
     def _generate_markdown_preview(self) -> str:
         """Generate Markdown preview."""
-        return """# Claude CTX Context Export
+        return """# Claude Cortex Context Export
 
 Exported from: ~/.claude
 

@@ -19,14 +19,16 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Ty
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
-from textual.widgets import ContentSwitcher, DataTable, Footer, Header, Static
+from textual.widgets import ContentSwitcher, DataTable, Header, Static
+
+from .widgets import AdaptiveFooter
 
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
 from .types import (
     RuleNode, AgentTask, WorkflowInfo, ModeInfo, ScenarioInfo, ScenarioRuntimeState,
-    AssetInfo, MemoryNote,
+    AssetInfo, MemoryNote, WatchModeState,
 )
 from .constants import (
     PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
@@ -118,7 +120,18 @@ from .dialogs import (
     AssetDetailDialog,
     DiffViewerDialog,
     BulkInstallDialog,
+    MCPBrowseDialog,
+    MCPInstallDialog,
+    ClaudeMdWizard,
+    generate_claude_md,
+    ProfileEditorDialog,
+    ProfileConfig,
+    HooksManagerDialog,
+    BackupManagerDialog,
 )
+from ..core.mcp_installer import install_and_configure
+from ..core.mcp_registry import get_server
+from ..core import _resolve_claude_dir
 from ..tui_icons import Icons, StatusIcon
 from ..tui_format import Format
 from ..tui_progress import ProgressBar
@@ -149,6 +162,8 @@ from ..tui_log_viewer import LogViewerScreen
 from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
+from ..watch import WatchMode
+import threading
 
 
 
@@ -207,23 +222,27 @@ class AgentTUI(App[None]):
         self.selected_target_dir: Optional[Path] = None
         # Memory vault state
         self.memory_notes: List[MemoryNote] = []
+        # Watch mode state
+        self.watch_mode_instance: Optional[WatchMode] = None
+        self.watch_mode_thread: Optional[threading.Thread] = None
 
     CSS_PATH = "styles.tcss"
+    # Bindings registered for key handling; display handled by AdaptiveFooter
     BINDINGS = [
         *[
-            Binding(key, f"view_{name}", label, show=True)
+            Binding(key, f"view_{name}", label, show=False)
             for key, name, label in PRIMARY_VIEW_BINDINGS
         ],
-        Binding("S", "view_scenarios", "Scenarios", show=True),
-        Binding("o", "view_orchestrate", "Orchestrate", show=True),
-        Binding("g", "view_galaxy", "Galaxy", show=True),
-        Binding("t", "view_tasks", "Tasks", show=True),
-        Binding("/", "view_commands", "Slash Cmds", show=True),
-        Binding("ctrl+p", "command_palette", "Commands", show=True),
-        Binding("q", "quit", "Quit"),
-        Binding("?", "help", "Help"),
-        Binding("space", "toggle", "Toggle"),
-        Binding("r", "refresh", "Refresh"),
+        Binding("S", "view_scenarios", "Scenarios", show=False),
+        Binding("o", "view_orchestrate", "Orchestrate", show=False),
+        Binding("g", "view_galaxy", "Galaxy", show=False),
+        Binding("t", "view_tasks", "Tasks", show=False),
+        Binding("/", "view_commands", "Slash Cmds", show=False),
+        Binding("ctrl+p", "command_palette", "Commands", show=False),
+        Binding("q", "quit", "Quit", show=False),
+        Binding("?", "help", "Help", show=False),
+        Binding("space", "toggle", "Toggle", show=False),
+        Binding("r", "refresh", "Refresh", show=False),
         Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
         Binding("a", "auto_activate", "Auto-Activate", show=False),
         Binding("s", "details_context", "Details", show=False),
@@ -235,11 +254,13 @@ class AgentTUI(App[None]):
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
         Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
         Binding("ctrl+a", "mcp_add", "Add MCP", show=False),
+        Binding("B", "mcp_browse_install", "Browse & Install", show=False),
         Binding("E", "mcp_edit", "Edit MCP", show=False),
         Binding("X", "mcp_remove", "Remove MCP", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
         Binding("e", "export_run", "Export", show=False),
         Binding("x", "export_clipboard", "Copy", show=False),
+        Binding("y", "copy_definition", "Copy Definition", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
         Binding("D", "profile_delete", "Delete Profile", show=False),
         Binding("P", "scenario_preview", "Preview", show=False),
@@ -254,10 +275,29 @@ class AgentTUI(App[None]):
         Binding("u", "asset_uninstall", "Uninstall", show=False),
         Binding("T", "asset_change_target", "Target", show=False),
         Binding("I", "asset_bulk_install", "Bulk Install", show=False),
+        Binding("U", "asset_update_all", "Update All", show=False),
         Binding("enter", "asset_details", "Details", show=False),
+        # Memory Vault bindings
+        Binding("enter", "memory_view_note", "View", show=False),
+        Binding("O", "memory_open_note", "Open", show=False),
+        Binding("D", "memory_delete_note", "Delete", show=False),
+        # Agent bindings
+        Binding("enter", "agent_view", "View Agent", show=False),
+        # Profile bindings
+        Binding("enter", "profile_edit", "View/Edit Profile", show=False),
+        # CLAUDE.md Wizard
+        Binding("W", "claude_md_wizard", "Configure CLAUDE.md", show=False),
+        # Hooks Manager
+        Binding("h", "hooks_manager", "Manage Hooks", show=False),
+        # Backup Manager
+        Binding("b", "backup_manager", "Backup Manager", show=False),
         # Vi-style navigation
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
+        # Watch Mode bindings
+        Binding("d", "watch_change_directory", "Change Dir", show=False),
+        Binding("t", "watch_adjust_threshold", "Adjust Threshold", show=False),
+        Binding("i", "watch_adjust_interval", "Adjust Interval", show=False),
     ]
 
     # Register command provider for Textual's command palette
@@ -279,7 +319,7 @@ class AgentTUI(App[None]):
                         yield Static("", id="galaxy-stats", classes="galaxy-panel")
                         yield Static("", id="galaxy-graph", classes="galaxy-panel")
         yield SuperSaiyanStatusBar(id="status-bar")
-        yield Footer()
+        yield AdaptiveFooter(id="adaptive-footer")
 
     def _selected_agent(self) -> Optional[AgentGraphNode]:
         index = self._table_cursor_index()
@@ -341,6 +381,14 @@ class AgentTUI(App[None]):
                 self.status_message = f"Error opening file: {e}"
         else:
             self.status_message = "No editable item selected."
+
+    def on_unmount(self) -> None:
+        """Clean up resources when app exits."""
+        # Stop watch mode gracefully
+        if self.watch_mode_instance and self.watch_mode_instance.running:
+            self.watch_mode_instance.stop()
+            if self.watch_mode_thread:
+                self.watch_mode_thread.join(timeout=5.0)
 
     def on_mount(self) -> None:
         """Load initial data when app starts."""
@@ -424,9 +472,9 @@ class AgentTUI(App[None]):
 
         # Dynamically update footer bindings based on context
         view_bindings = {
-            "agents": {"toggle", "details_context", "validate_context", "edit_item"},
-            "rules": {"toggle", "edit_item"},
-            "modes": {"toggle", "edit_item"},
+            "agents": {"toggle", "details_context", "validate_context", "edit_item", "copy_definition"},
+            "rules": {"toggle", "edit_item", "copy_definition"},
+            "modes": {"toggle", "edit_item", "copy_definition"},
             "skills": {
                 "details_context",
                 "validate_context",
@@ -434,8 +482,9 @@ class AgentTUI(App[None]):
                 "docs_context",
                 "context_action",
                 "edit_item",
+                "copy_definition",
             },
-            "commands": {"details_context", "edit_item"},
+            "commands": {"details_context", "edit_item", "copy_definition"},
             "mcp": {
                 "details_context",
                 "docs_context",
@@ -450,18 +499,19 @@ class AgentTUI(App[None]):
             "workflows": {"run_selected", "stop_selected"},
             "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
             "ai_assistant": {"auto_activate"},
+            "watch_mode": {"toggle", "watch_change_directory", "watch_toggle_auto", "watch_adjust_threshold", "watch_adjust_interval"},
             "tasks": {"details_context", "edit_item", "task_open_source", "task_open_external"},
         }
 
         # Get the set of keys to show for the current view, default to empty set
         keys_to_show = view_bindings.get(self.current_view, set())
 
-        # Update visibility for all bindings
-        # Note: This dynamic binding visibility is disabled for now
-        # as it's not compatible with the current Textual API
-        # TODO: Re-implement using check_action_state or similar approach
-        # Note: binding visibility updates are disabled until Textual exposes
-        # a public API for manipulating bindings at runtime.
+        # Update the adaptive footer with current view context
+        try:
+            footer = self.query_one("#adaptive-footer", AdaptiveFooter)
+            footer.update_view(view)
+        except Exception:
+            pass  # Footer not yet mounted
 
         self.refresh(layout=True)
 
@@ -2029,6 +2079,8 @@ class AgentTUI(App[None]):
             self.show_assets_view(table)
         elif self.current_view == "memory":
             self.show_memory_view(table)
+        elif self.current_view == "watch_mode":
+            self._render_watch_mode_view()
         else:
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
@@ -3192,10 +3244,10 @@ class AgentTUI(App[None]):
 
     def show_ai_assistant_view(self, table: AnyDataTable) -> None:
         """Show AI assistant recommendations and predictions."""
-        table.add_column("Type", key="type", width=20)
-        table.add_column("Recommendation", key="recommendation", width=30)
-        table.add_column("Confidence", key="confidence", width=12)
-        table.add_column("Reason")
+        table.add_column("Type", key="type", width=18)
+        table.add_column("Recommendation", key="recommendation", width=25)
+        table.add_column("Confidence", key="confidence", width=10)
+        table.add_column("Reason", width=50)
 
         if not hasattr(self, "intelligent_agent"):
             table.add_row(
@@ -3211,10 +3263,10 @@ class AgentTUI(App[None]):
 
         # Show header
         table.add_row(
-            "[bold cyan]🤖 INTELLIGENT RECOMMENDATIONS[/bold cyan]", "", "", ""
+            "[bold cyan]🤖 AI Recommendations[/bold cyan]", "", "", ""
         )
         table.add_row(
-            "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
+            "[dim]━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
             "",
             "",
@@ -3266,9 +3318,9 @@ class AgentTUI(App[None]):
 
         # Show skill recommendations
         table.add_row("", "", "", "")
-        table.add_row("[bold green]✨ SKILL RECOMMENDATIONS[/bold green]", "", "", "")
+        table.add_row("[bold green]✨ Skills[/bold green]", "", "", "")
         table.add_row(
-            "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
+            "[dim]━━━━━━━━━━[/dim]",
             "",
             "",
             "",
@@ -3277,13 +3329,13 @@ class AgentTUI(App[None]):
 
         # Get skill recommendations using the recommender directly
         try:
-            from . import skill_recommender, intelligence
+            from .. import skill_recommender
 
             # Create context from current project
             cwd = Path.cwd()
             python_files = list(cwd.glob("**/*.py"))[:20]
 
-            context = intelligence.SessionContext(
+            context = SessionContext(
                 files_changed=[str(f.relative_to(cwd)) for f in python_files] if python_files else [],
                 file_types={f.suffix for f in python_files} if python_files else set(),
                 directories={str(f.parent.relative_to(cwd)) for f in python_files} if python_files else set(),
@@ -3697,9 +3749,224 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Memory Vault"
         self.notify("🧠 Memory Vault", severity="information", timeout=1)
 
-    # ─────────────────────────────────────────────────────────────────────────
+    def action_view_watch_mode(self) -> None:
+        """Switch to watch mode view."""
+        self.current_view = "watch_mode"
+        self.status_message = "Switched to Watch Mode"
+        self.notify("🔍 Watch Mode", severity="information", timeout=1)
+
+    # ─────────────────────────────────────────────────────────────────────
+    # Watch Mode Actions
+    # ─────────────────────────────────────────────────────────────────────
+
+    def _get_watch_directory(self) -> Path:
+        """Get the current watch directory."""
+        if self.watch_mode_instance:
+            return self.watch_mode_instance.directory
+        return Path.cwd()
+
+    def _get_watch_mode_state(self) -> WatchModeState:
+        """Get current watch mode state for display."""
+        if self.watch_mode_instance:
+            state = self.watch_mode_instance.get_state()
+            last_notif = state.get("last_notification")
+            last_notif_str = None
+            if last_notif:
+                last_notif_str = f"{last_notif.get('icon', '')} {last_notif.get('title', '')} - {last_notif.get('message', '')}"
+            return WatchModeState(
+                running=state.get("running", False),
+                directory=state.get("directory", Path.cwd()),
+                auto_activate=state.get("auto_activate", True),
+                threshold=state.get("threshold", 0.7),
+                interval=state.get("interval", 2.0),
+                checks_performed=state.get("checks_performed", 0),
+                recommendations_made=state.get("recommendations_made", 0),
+                auto_activations=state.get("auto_activations", 0),
+                started_at=state.get("started_at"),
+                last_notification=last_notif_str,
+            )
+        return WatchModeState(
+            running=False,
+            directory=Path.cwd(),
+            auto_activate=True,
+            threshold=0.7,
+            interval=2.0,
+            checks_performed=0,
+            recommendations_made=0,
+            auto_activations=0,
+            started_at=None,
+            last_notification=None,
+        )
+
+    def _handle_watch_notification(self, notification: Dict[str, str]) -> None:
+        """Handle watch mode notifications in TUI."""
+        icon = notification.get("icon", "🔔")
+        title = notification.get("title", "Watch Mode")
+        message = notification.get("message", "")
+        # Show as TUI notification
+        self.notify(f"{icon} {title}: {message}", timeout=5)
+        # Update status message
+        self.status_message = f"Watch: {title}"
+        # Refresh view if on watch_mode
+        if self.current_view == "watch_mode":
+            self.update_view()
+
+    def action_watch_start(self) -> None:
+        """Start watch mode in background thread."""
+        if self.watch_mode_instance and self.watch_mode_instance.running:
+            self.notify("Watch mode already running", severity="warning", timeout=2)
+            return
+        # Initialize WatchMode with current or selected directory
+        directory = self._get_watch_directory()
+        self.watch_mode_instance = WatchMode(
+            auto_activate=True,
+            notification_threshold=0.7,
+            check_interval=2.0,
+            notification_callback=self._handle_watch_notification
+        )
+        self.watch_mode_instance.set_directory(directory)
+        # Run in background thread
+        self.watch_mode_thread = threading.Thread(
+            target=self.watch_mode_instance.run,
+            daemon=True
+        )
+        self.watch_mode_thread.start()
+        self.notify("✅ Watch mode started", severity="information", timeout=2)
+        self.update_view()
+
+    def action_watch_stop(self) -> None:
+        """Stop watch mode gracefully."""
+        if not self.watch_mode_instance or not self.watch_mode_instance.running:
+            self.notify("Watch mode not running", severity="warning", timeout=2)
+            return
+        self.watch_mode_instance.stop()
+        if self.watch_mode_thread:
+            self.watch_mode_thread.join(timeout=5.0)
+        self.notify("⏹ Watch mode stopped", severity="information", timeout=2)
+        self.update_view()
+
+    async def action_watch_change_directory(self) -> None:
+        """Prompt for new directory to watch."""
+        current_dir = str(self._get_watch_directory())
+        dialog = PromptDialog(
+            "Change Watch Directory",
+            "Enter directory path to watch",
+            default=current_dir
+        )
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not result:
+            return
+        new_dir = Path(os.path.expanduser(result.strip()))
+        if not new_dir.exists() or not new_dir.is_dir():
+            self.notify("Invalid directory", severity="error", timeout=2)
+            return
+        if self.watch_mode_instance:
+            try:
+                self.watch_mode_instance.change_directory(new_dir)
+                self.notify(f"📁 Directory changed to {new_dir.name}", severity="information", timeout=2)
+            except Exception as e:
+                self.notify(f"Failed to change directory: {e}", severity="error", timeout=3)
+        self.update_view()
+
+    def action_watch_toggle_auto(self) -> None:
+        """Toggle auto-activation on/off."""
+        if not self.watch_mode_instance:
+            self.notify("Watch mode not initialized", severity="warning", timeout=2)
+            return
+        self.watch_mode_instance.auto_activate = not self.watch_mode_instance.auto_activate
+        status = "enabled" if self.watch_mode_instance.auto_activate else "disabled"
+        self.notify(f"Auto-activation {status}", severity="information", timeout=2)
+        self.update_view()
+
+    async def action_watch_adjust_threshold(self) -> None:
+        """Adjust confidence threshold."""
+        current = "0.7"
+        if self.watch_mode_instance:
+            current = str(self.watch_mode_instance.notification_threshold)
+        dialog = PromptDialog(
+            "Adjust Threshold",
+            "Enter confidence threshold (0.0-1.0)",
+            default=current
+        )
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not result:
+            return
+        try:
+            threshold = float(result)
+            if not 0.0 <= threshold <= 1.0:
+                raise ValueError()
+            if self.watch_mode_instance:
+                self.watch_mode_instance.notification_threshold = threshold
+            self.notify(f"🎯 Threshold set to {threshold:.0%}", severity="information", timeout=2)
+            self.update_view()
+        except ValueError:
+            self.notify("Invalid threshold (must be 0.0-1.0)", severity="error", timeout=2)
+
+    async def action_watch_adjust_interval(self) -> None:
+        """Adjust check interval."""
+        current = "2.0"
+        if self.watch_mode_instance:
+            current = str(self.watch_mode_instance.check_interval)
+        dialog = PromptDialog(
+            "Adjust Interval",
+            "Enter check interval in seconds",
+            default=current
+        )
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not result:
+            return
+        try:
+            interval = float(result)
+            if interval < 0.5:
+                raise ValueError("Interval must be at least 0.5s")
+            if self.watch_mode_instance:
+                self.watch_mode_instance.check_interval = interval
+            self.notify(f"⏱ Interval set to {interval}s", severity="information", timeout=2)
+            self.update_view()
+        except ValueError as e:
+            self.notify(f"Invalid interval: {e}", severity="error", timeout=2)
+
+    def _render_watch_mode_view(self) -> None:
+        """Render watch mode control panel."""
+        table = self.query_one(DataTable)
+        table.clear(columns=True)
+        table.add_column("Setting", width=22)
+        table.add_column("Value", width=48)
+        table.add_column("Action", width=20)
+        # Get current state
+        state = self._get_watch_mode_state()
+        # Status row
+        status_icon = "🟢 Running" if state.running else "🔴 Stopped"
+        status_action = "[space] Stop" if state.running else "[space] Start"
+        table.add_row("▶ Status", status_icon, status_action)
+        # Directory row
+        table.add_row("📁 Directory", str(state.directory), "[d] Change")
+        # Settings rows
+        auto_icon = "✅ ON" if state.auto_activate else "❌ OFF"
+        table.add_row("🤖 Auto-activate", auto_icon, "[a] Toggle")
+        table.add_row("🎯 Threshold", f"{state.threshold:.0%}", "[t] Adjust")
+        table.add_row("⏱ Interval", f"{state.interval}s", "[i] Adjust")
+        # Statistics rows
+        table.add_row("", "", "")
+        table.add_row("[bold]📊 Statistics[/bold]", "", "")
+        table.add_row("🔍 Checks", str(state.checks_performed), "")
+        table.add_row("💡 Recommendations", str(state.recommendations_made), "")
+        table.add_row("⚡ Auto-activations", str(state.auto_activations), "")
+        # Runtime info
+        if state.started_at:
+            duration = datetime.now() - state.started_at
+            hours = int(duration.total_seconds() // 3600)
+            minutes = int((duration.total_seconds() % 3600) // 60)
+            table.add_row("⏰ Duration", f"{hours}h {minutes}m", "")
+        # Last notification
+        if state.last_notification:
+            notif_text = Format.truncate(state.last_notification, 60)
+            table.add_row("🔔 Last Event", f"[dim]{notif_text}[/dim]", "")
+        self.status_message = f"Watch Mode - {status_icon}"
+
+    # ─────────────────────────────────────────────────────────────────────
     # Asset Manager Actions
-    # ─────────────────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────────────
 
     def _get_selected_asset(self) -> Optional[Asset]:
         """Get the currently selected asset from the table."""
@@ -3952,6 +4219,196 @@ class AgentTUI(App[None]):
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
+    def action_asset_update_all(self) -> None:
+        """Update all assets that differ from source."""
+        if self.current_view != "assets":
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
+            return
+
+        # Find all assets that need updating (differ from source)
+        assets_to_update: List[Asset] = []
+        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+            assets = self.available_assets.get(cat_name, [])
+            for asset in assets:
+                status = check_installation_status(asset, self.selected_target_dir)
+                if status in (InstallStatus.INSTALLED_DIFFERENT, InstallStatus.INSTALLED_OLDER):
+                    assets_to_update.append(asset)
+
+        if not assets_to_update:
+            self.notify("All installed assets are up to date", severity="information", timeout=2)
+            return
+
+        # Show confirmation dialog
+        self._assets_to_update = assets_to_update
+        dialog = ConfirmDialog(
+            "Update All Assets",
+            f"Update {len(assets_to_update)} asset(s) to latest version?",
+        )
+        self.push_screen(dialog, callback=self._handle_update_all_confirm)
+
+    def _handle_update_all_confirm(self, confirmed: bool) -> None:
+        """Handle update all confirmation callback."""
+        try:
+            if not confirmed or not hasattr(self, "_assets_to_update"):
+                return
+
+            assets = self._assets_to_update
+            updated_count = 0
+            failed_count = 0
+
+            for asset in assets:
+                exit_code, _ = install_asset(asset, self.selected_target_dir)
+                if exit_code == 0:
+                    updated_count += 1
+                else:
+                    failed_count += 1
+
+            if failed_count == 0:
+                self.notify(f"✓ Updated {updated_count} assets", severity="information", timeout=2)
+            else:
+                self.notify(
+                    f"Updated {updated_count}, failed {failed_count}",
+                    severity="warning",
+                    timeout=3,
+                )
+            self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Memory Vault Actions
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _get_selected_memory_note(self) -> Optional[MemoryNote]:
+        """Get the currently selected memory note from the table."""
+        if self.current_view != "memory":
+            return None
+
+        table = self.query_one("#main-table", DataTable)
+        if table.cursor_row is None:
+            return None
+
+        row_idx = table.cursor_row
+        if row_idx < 0 or row_idx >= len(self.memory_notes):
+            return None
+
+        return self.memory_notes[row_idx]
+
+    def action_memory_view_note(self) -> None:
+        """View the selected memory note."""
+        if self.current_view != "memory":
+            return
+
+        note = self._get_selected_memory_note()
+        if not note:
+            self.notify("No note selected", severity="warning", timeout=2)
+            return
+
+        # Read the note content
+        try:
+            from ..memory import read_note, NoteType
+            note_type = NoteType(note.note_type)
+            content = read_note(note_type, note.title)
+            if content:
+                # Show in a detail dialog
+                self._show_memory_note_dialog(note, content)
+            else:
+                self.notify("Could not read note", severity="error", timeout=2)
+        except Exception as e:
+            self.notify(f"Error reading note: {e}", severity="error", timeout=3)
+
+    def _show_memory_note_dialog(self, note: MemoryNote, content: str) -> None:
+        """Show a dialog with memory note content."""
+        from .dialogs import MemoryNoteDialog
+        self._current_memory_note = note
+        dialog = MemoryNoteDialog(note, content)
+        self.push_screen(dialog, callback=self._handle_memory_note_action)
+
+    def _handle_memory_note_action(self, action: Optional[str]) -> None:
+        """Handle action from memory note dialog."""
+        if not action or not hasattr(self, "_current_memory_note"):
+            return
+
+        note = self._current_memory_note
+
+        if action == "open":
+            try:
+                import subprocess
+                import os
+                editor = os.environ.get("EDITOR", "open" if os.name == "darwin" else "xdg-open")
+                subprocess.Popen([editor, note.path])
+                self.notify(f"Opened {note.title}", severity="information", timeout=2)
+            except Exception as e:
+                self.notify(f"Error opening note: {e}", severity="error", timeout=3)
+        elif action == "delete":
+            self._memory_note_to_delete = note
+            dialog = ConfirmDialog(
+                "Delete Note",
+                f"Delete '{note.title}'? This cannot be undone.",
+            )
+            self.push_screen(dialog, callback=self._handle_memory_delete_confirm)
+
+    def action_memory_open_note(self) -> None:
+        """Open the selected memory note in external editor."""
+        if self.current_view != "memory":
+            return
+
+        note = self._get_selected_memory_note()
+        if not note:
+            self.notify("No note selected", severity="warning", timeout=2)
+            return
+
+        try:
+            import subprocess
+            import os
+
+            editor = os.environ.get("EDITOR", "open" if os.name == "darwin" else "xdg-open")
+            subprocess.Popen([editor, note.path])
+            self.notify(f"Opened {note.title}", severity="information", timeout=2)
+        except Exception as e:
+            self.notify(f"Error opening note: {e}", severity="error", timeout=3)
+
+    def action_memory_delete_note(self) -> None:
+        """Delete the selected memory note."""
+        if self.current_view != "memory":
+            return
+
+        note = self._get_selected_memory_note()
+        if not note:
+            self.notify("No note selected", severity="warning", timeout=2)
+            return
+
+        # Store note for callback
+        self._memory_note_to_delete = note
+
+        dialog = ConfirmDialog(
+            "Delete Note",
+            f"Delete '{note.title}'? This cannot be undone.",
+        )
+        self.push_screen(dialog, callback=self._handle_memory_delete_confirm)
+
+    def _handle_memory_delete_confirm(self, confirmed: bool) -> None:
+        """Handle memory note deletion confirmation."""
+        try:
+            if not confirmed or not hasattr(self, "_memory_note_to_delete"):
+                return
+
+            note = self._memory_note_to_delete
+            path = Path(note.path)
+
+            if path.exists():
+                path.unlink()
+                self.notify(f"✓ Deleted {note.title}", severity="information", timeout=2)
+                self.load_memory_notes()
+                self.update_view()
+            else:
+                self.notify("Note file not found", severity="warning", timeout=2)
+        except Exception as e:
+            self.notify(f"Error deleting note: {e}", severity="error", timeout=5)
+
     async def action_run_selected(self) -> None:
         """Run the highlighted item in workflows or scenarios view."""
         if self.current_view == "workflows":
@@ -4178,6 +4635,13 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Tasks"
         self.notify("🗂 Tasks", severity="information", timeout=1)
 
+    def action_agent_view(self) -> None:
+        """View the selected agent's definition (Enter key in agents view)."""
+        if self.current_view != "agents":
+            return
+        # Delegate to the existing details context action
+        self.run_worker(self._show_selected_agent_definition(), exclusive=True)
+
     def action_profile_apply(self) -> None:
         """Apply the selected profile."""
         if self.current_view != "profiles":
@@ -4266,6 +4730,65 @@ class AgentTUI(App[None]):
         self.load_profiles()
         self.update_view()
         self.notify("Deleted profile", severity="information", timeout=2)
+
+    def action_profile_edit(self) -> None:
+        """Open the profile editor dialog."""
+        if self.current_view != "profiles":
+            return
+
+        profile = self._selected_profile()
+        if not profile:
+            self.notify("Select a profile first", severity="warning", timeout=2)
+            return
+
+        name = profile.get("name", "")
+        ptype = profile.get("type", "built-in")
+        path_str = profile.get("path")
+
+        dialog = ProfileEditorDialog(name, ptype, path_str)
+        self.push_screen(dialog, callback=self._handle_profile_edit_result)
+
+    def _handle_profile_edit_result(self, config: Optional[ProfileConfig]) -> None:
+        """Handle the result from the profile editor dialog."""
+        if not config:
+            return
+
+        # Apply the edited profile configuration
+        try:
+            # First reset to minimal
+            exit_code, message = _profile_reset()
+            if exit_code != 0:
+                self.notify(f"Reset failed: {self._clean_ansi(message)}", severity="error", timeout=3)
+                return
+
+            # Activate selected agents
+            for agent_name in config.agents:
+                exit_code, msg = agent_activate(agent_name)
+                if exit_code != 0 and "already active" not in (msg or "").lower():
+                    self.notify(f"Agent {agent_name}: {self._clean_ansi(msg)}", severity="warning", timeout=2)
+
+            # Activate selected modes
+            for mode_name in config.modes:
+                exit_code, msg = mode_activate(mode_name)
+                if exit_code != 0 and "already active" not in (msg or "").lower():
+                    self.notify(f"Mode {mode_name}: {self._clean_ansi(msg)}", severity="warning", timeout=2)
+
+            # Activate selected rules
+            for rule_name in config.rules:
+                rules_activate(rule_name)
+
+            # Reload all views
+            self.load_agents()
+            self.load_modes()
+            self.load_rules()
+            self.load_profiles()
+            self.update_view()
+
+            self.status_message = f"Applied profile: {config.name}"
+            self.notify(f"Applied profile: {config.name}", severity="information", timeout=2)
+
+        except Exception as exc:
+            self.notify(f"Failed to apply: {exc}", severity="error", timeout=3)
 
     async def action_skill_info(self) -> None:
         slug = await self._get_skill_slug("Skill Info")
@@ -4752,6 +5275,253 @@ class AgentTUI(App[None]):
         self.status_message = f"Viewing slash command {command.command}"
         self.refresh_status_bar()
 
+    async def action_copy_definition(self) -> None:
+        """Copy the definition of the selected item to clipboard."""
+        try:
+            if self.current_view == "agents":
+                await self._copy_agent_definition()
+            elif self.current_view == "modes":
+                await self._copy_mode_definition()
+            elif self.current_view == "rules":
+                await self._copy_rule_definition()
+            elif self.current_view == "skills":
+                await self._copy_skill_definition()
+            elif self.current_view == "commands":
+                await self._copy_command_definition()
+            else:
+                self.notify(
+                    "Copy not available in this view",
+                    severity="warning",
+                    timeout=2,
+                )
+        except Exception as exc:
+            self.notify(
+                f"Copy failed: {exc}",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_agent_definition(self) -> None:
+        """Copy the selected agent's definition to clipboard."""
+        agent = self._selected_agent()
+        if not agent:
+            self.notify(
+                "Select an agent to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        try:
+            claude_dir = _resolve_claude_dir()
+            agent_path = self._validate_path(claude_dir, agent.path)
+        except ValueError:
+            agent_path = agent.path
+
+        try:
+            definition = agent_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {agent.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        if self._copy_to_clipboard(definition):
+            self.notify(
+                f"✓ Copied {agent.name} definition to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {agent.name} definition"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_mode_definition(self) -> None:
+        """Copy the selected mode's definition to clipboard."""
+        index = self._table_cursor_index()
+        if index is None or not self.modes:
+            self.notify(
+                "Select a mode to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        if index < 0 or index >= len(self.modes):
+            return
+
+        mode = self.modes[index]
+        try:
+            claude_dir = _resolve_claude_dir()
+            mode_path = self._validate_path(claude_dir, mode.path)
+        except ValueError:
+            mode_path = mode.path
+
+        try:
+            definition = mode_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {mode.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        if self._copy_to_clipboard(definition):
+            self.notify(
+                f"✓ Copied {mode.name} mode to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {mode.name} mode"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_rule_definition(self) -> None:
+        """Copy the selected rule's definition to clipboard."""
+        index = self._table_cursor_index()
+        if index is None or not self.rules:
+            self.notify(
+                "Select a rule to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        if index < 0 or index >= len(self.rules):
+            return
+
+        rule = self.rules[index]
+        try:
+            claude_dir = _resolve_claude_dir()
+            rule_path = self._validate_path(claude_dir, rule.path)
+        except ValueError:
+            rule_path = rule.path
+
+        try:
+            definition = rule_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {rule.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        if self._copy_to_clipboard(definition):
+            self.notify(
+                f"✓ Copied {rule.name} rule to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {rule.name} rule"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_skill_definition(self) -> None:
+        """Copy the selected skill's definition to clipboard."""
+        skill = self._selected_skill()
+        if not skill:
+            self.notify(
+                "Select a skill to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        skill_path = Path(skill["path"])
+        try:
+            definition = skill_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {skill['name']}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        if self._copy_to_clipboard(definition):
+            self.notify(
+                f"✓ Copied {skill['name']} skill to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {skill['name']} skill"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_command_definition(self) -> None:
+        """Copy the selected command's definition to clipboard."""
+        command = self._selected_command()
+        if not command:
+            self.notify(
+                "Select a command to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        try:
+            claude_dir = _resolve_claude_dir()
+            command_path = self._validate_path(claude_dir, command.path)
+        except ValueError:
+            command_path = command.path
+
+        try:
+            body = command_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {command.command}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        # Build a formatted version with metadata
+        meta_lines = [
+            f"Command: {command.command}",
+            f"Category: {command.category}",
+            f"Complexity: {command.complexity}",
+            f"Agents: {', '.join(command.agents) if command.agents else '—'}",
+            f"Personas: {', '.join(command.personas) if command.personas else '—'}",
+            f"MCP Servers: {', '.join(command.mcp_servers) if command.mcp_servers else '—'}",
+            "",
+            body,
+        ]
+        full_definition = "\n".join(meta_lines)
+
+        if self._copy_to_clipboard(full_definition):
+            self.notify(
+                f"✓ Copied {command.command} to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {command.command}"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
     async def _show_task_details(self) -> None:
         index = self._selected_task_index()
         if index is None:
@@ -5106,6 +5876,52 @@ class AgentTUI(App[None]):
             else:
                 self.notify(message, severity="error", timeout=3)
 
+    def action_mcp_browse_install(self) -> None:
+        """Browse and install MCP servers from registry."""
+        if self.current_view != "mcp":
+            self.action_view_mcp()
+
+        # Step 1: Browse and select a server
+        browse_dialog = MCPBrowseDialog()
+        self.push_screen(browse_dialog, callback=self._handle_mcp_browse_result)
+
+    def _handle_mcp_browse_result(self, server_name: Optional[str]) -> None:
+        """Handle result from MCP browse dialog."""
+        if not server_name:
+            return
+
+        # Step 2: Configure and install
+        install_dialog = MCPInstallDialog(server_name)
+        self.push_screen(install_dialog, callback=self._handle_mcp_install_result)
+
+    def _handle_mcp_install_result(self, config: Optional[Dict]) -> None:
+        """Handle result from MCP install dialog."""
+        if not config:
+            return
+
+        # Step 3: Perform installation
+        server = get_server(config["server_name"])
+        if not server:
+            self.notify(f"Server not found", severity="error", timeout=3)
+            return
+
+        self.notify(f"Installing {server.name}...", severity="information", timeout=2)
+
+        result = install_and_configure(
+            server=server,
+            env_values=config.get("env_values", {}),
+        )
+
+        if result.success:
+            message = f"✓ {server.name} installed and configured"
+            if result.warnings:
+                message += f" ({len(result.warnings)} warnings)"
+            self.notify(message, severity="information", timeout=3)
+            self.load_mcp_servers()
+            self.update_view()
+        else:
+            self.notify(f"Failed: {result.message}", severity="error", timeout=4)
+
     async def action_mcp_edit(self) -> None:
         """Edit the selected MCP server."""
         if self.current_view != "mcp":
@@ -5306,6 +6122,14 @@ class AgentTUI(App[None]):
         """Toggle selected item."""
         if self.current_view == "profiles":
             self.action_profile_apply()
+            return
+
+        if self.current_view == "watch_mode":
+            # Toggle watch mode start/stop
+            if self.watch_mode_instance and self.watch_mode_instance.running:
+                self.action_watch_stop()
+            else:
+                self.action_watch_start()
             return
 
         if self.current_view == "export":
@@ -5579,6 +6403,66 @@ class AgentTUI(App[None]):
     def action_help(self) -> None:
         """Show comprehensive keyboard shortcuts help."""
         self.push_screen(HelpDialog(current_view=self.current_view))
+
+    def action_claude_md_wizard(self) -> None:
+        """Open the CLAUDE.md configuration wizard."""
+        wizard = ClaudeMdWizard()
+        self.push_screen(wizard, callback=self._handle_claude_md_wizard_result)
+
+    def _handle_claude_md_wizard_result(self, config) -> None:
+        """Handle result from CLAUDE.md wizard."""
+        if config is None:
+            return
+
+        # Generate CLAUDE.md content
+        content = generate_claude_md(config)
+
+        # Write to file
+        claude_dir = _resolve_claude_dir()
+        claude_md_path = claude_dir / "CLAUDE.md"
+
+        try:
+            # Backup existing file
+            if claude_md_path.exists():
+                backup_path = claude_dir / "CLAUDE.md.backup"
+                backup_path.write_text(claude_md_path.read_text())
+
+            # Write new content
+            claude_md_path.write_text(content)
+
+            self.notify(
+                f"✓ CLAUDE.md updated ({len(config.core_files)} core, "
+                f"{len(config.rules)} rules, {len(config.modes)} modes, "
+                f"{len(config.mcp_docs)} MCP docs)",
+                severity="information",
+                timeout=4,
+            )
+        except Exception as e:
+            self.notify(f"Failed to write CLAUDE.md: {e}", severity="error", timeout=5)
+
+    def action_hooks_manager(self) -> None:
+        """Open the hooks manager dialog."""
+        # Find plugin directory for available hooks
+        import claude_ctx_py
+        plugin_dir = Path(claude_ctx_py.__file__).parent.parent
+
+        dialog = HooksManagerDialog(plugin_dir)
+        self.push_screen(dialog, callback=self._handle_hooks_manager_result)
+
+    def _handle_hooks_manager_result(self, result: Optional[str]) -> None:
+        """Handle result from hooks manager."""
+        if result:
+            self.notify(result, severity="information", timeout=2)
+
+    def action_backup_manager(self) -> None:
+        """Open the backup manager dialog."""
+        dialog = BackupManagerDialog()
+        self.push_screen(dialog, callback=self._handle_backup_manager_result)
+
+    def _handle_backup_manager_result(self, result: Optional[str]) -> None:
+        """Handle result from backup manager."""
+        if result:
+            self.notify(result, severity="information", timeout=2)
 
     def action_command_palette(self) -> None:
         """Show the command palette."""

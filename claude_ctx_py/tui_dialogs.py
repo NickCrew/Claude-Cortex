@@ -567,6 +567,7 @@ class HelpDialog(ModalScreen[None]):
     }
 
     HelpDialog #dialog-message {
+        text-align: left;
         text-style: none;
         background: transparent;
     }
@@ -602,10 +603,20 @@ class HelpDialog(ModalScreen[None]):
   [cyan]q[/cyan]      → Quit application
   [cyan]Ctrl+P[/cyan] → Command palette
   [cyan]Space[/cyan]  → Toggle selected item
+  [cyan]W[/cyan]      → Configure CLAUDE.md wizard
+  [cyan]h[/cyan]      → Manage hooks
+  [cyan]b[/cyan]      → Backup manager
 
 [bold]Navigation (Vi-style):[/bold]
   [cyan]j/k[/cyan]    → Cursor down/up
   [cyan]↑/↓[/cyan]    → Cursor up/down
+
+[bold]View Navigation:[/bold]
+  [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents    [cyan]3[/cyan] Modes     [cyan]4[/cyan] Rules
+  [cyan]5[/cyan] Skills      [cyan]6[/cyan] Workflows [cyan]7[/cyan] MCP       [cyan]8[/cyan] Profiles
+  [cyan]9[/cyan] Export      [cyan]0[/cyan] AI Asst   [cyan]A[/cyan] Assets    [cyan]M[/cyan] Memory
+  [cyan]S[/cyan] Scenarios   [cyan]o[/cyan] Orchestrate [cyan]g[/cyan] Galaxy  [cyan]t[/cyan] Tasks
+  [cyan]/[/cyan] Slash Cmds
 """
 
         view_shortcuts = {
@@ -614,9 +625,10 @@ class HelpDialog(ModalScreen[None]):
 """,
             "agents": """
 [bold]Agent Management:[/bold]
-  [cyan]Space[/cyan]  → Toggle agent active/inactive
-  [cyan]s[/cyan]      → Show agent details
-  [cyan]v[/cyan]      → Validate agent
+  [cyan]Enter[/cyan] → View agent definition
+  [cyan]Space[/cyan] → Toggle agent active/inactive
+  [cyan]s[/cyan]     → Show agent details
+  [cyan]v[/cyan]     → Validate agent
   [cyan]Ctrl+E[/cyan] → Edit agent file
 """,
             "modes": """
@@ -652,7 +664,8 @@ class HelpDialog(ModalScreen[None]):
 """,
             "mcp": """
 [bold]MCP Server Management:[/bold]
-  [cyan]Ctrl+A[/cyan] → Add new MCP server
+  [cyan]B[/cyan]      → Browse & install from registry
+  [cyan]Ctrl+A[/cyan] → Add new MCP server manually
   [cyan]E[/cyan]      → Edit selected server
   [cyan]X[/cyan]      → Remove selected server
   [cyan]s[/cyan]      → Show server details
@@ -663,7 +676,8 @@ class HelpDialog(ModalScreen[None]):
 """,
             "profiles": """
 [bold]Profile Management:[/bold]
-  [cyan]Space[/cyan] → Load selected profile
+  [cyan]Enter[/cyan] → View/Edit profile
+  [cyan]Space[/cyan] → Apply profile directly
   [cyan]n[/cyan]     → Save new profile
   [cyan]D[/cyan]     → Delete profile
 """,
@@ -684,6 +698,22 @@ class HelpDialog(ModalScreen[None]):
   [cyan]Space[/cyan]  → Toggle task status
   [cyan]Ctrl+E[/cyan] → Edit task
 """,
+            "assets": """
+[bold]Asset Manager:[/bold]
+  [cyan]i[/cyan]     → Install selected asset
+  [cyan]u[/cyan]     → Uninstall selected asset
+  [cyan]d[/cyan]     → View diff (installed vs source)
+  [cyan]U[/cyan]     → Update all outdated assets
+  [cyan]I[/cyan]     → Bulk install (by category)
+  [cyan]T[/cyan]     → Change target directory
+  [cyan]Enter[/cyan] → Show asset details
+""",
+            "memory": """
+[bold]Memory Vault:[/bold]
+  [cyan]Enter[/cyan] → View note content
+  [cyan]O[/cyan]     → Open note in editor ($EDITOR)
+  [cyan]D[/cyan]     → Delete note
+""",
             "galaxy": """
 [bold]Agent Galaxy View:[/bold]
   Visual dependency graph
@@ -691,6 +721,11 @@ class HelpDialog(ModalScreen[None]):
             "orchestrate": """
 [bold]Orchestrate View:[/bold]
   Workstream management
+""",
+            "commands": """
+[bold]Slash Commands:[/bold]
+  [cyan]Enter[/cyan] → View command details
+  [cyan]Ctrl+E[/cyan] → Edit command file
 """,
         }
 

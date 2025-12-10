@@ -18,6 +18,44 @@ class CommandPalette(ModalScreen[Optional[str]]):
     Press Ctrl+P to open, type to search, Enter to execute.
     """
 
+    CSS = """
+    CommandPalette {
+        align: center middle;
+    }
+
+    CommandPalette #command-palette-container {
+        width: 70%;
+        height: auto;
+        max-height: 80%;
+        background: $surface-lighten-1;
+        border: thick $accent;
+        padding: 1 2;
+        opacity: 1;
+    }
+
+    CommandPalette #palette-title {
+        text-align: center;
+        text-style: bold;
+        color: $accent;
+        margin-bottom: 1;
+    }
+
+    CommandPalette #palette-input {
+        margin-bottom: 1;
+    }
+
+    CommandPalette #palette-results {
+        height: auto;
+        max-height: 50vh;
+        margin-bottom: 1;
+    }
+
+    CommandPalette #palette-help {
+        text-align: center;
+        color: $text-muted;
+    }
+    """
+
     BINDINGS = [
         Binding("escape", "close", "Close"),
         Binding("ctrl+p", "close", "Close"),
@@ -242,69 +280,63 @@ class CommandRegistry:
 
 
 # Default command registry for TUI
+# NOTE: Action names must match actual action_* methods in main.py
 DEFAULT_COMMANDS: List[CommandTuple] = [
-    ("Show Agents", "View and manage agents", "show_agents", "core"),
-    ("Show Skills", "Browse available skills", "show_skills", "catalog"),
+    # View navigation (action_view_*)
+    ("Show Overview", "Dashboard and metrics", "view_overview", "core"),
+    ("Show Agents", "View and manage agents", "view_agents", "core"),
+    ("Show Skills", "Browse available skills", "view_skills", "catalog"),
     ("Show Slash Commands", "Browse slash command library", "view_commands", "commands"),
-    ("Show Modes", "View active modes", "show_modes", "context"),
-    ("Show Rules", "View active rules", "show_rules", "policy"),
-    ("Show Workflows", "View workflow execution", "show_workflows", "ops"),
-    ("Show Orchestrate", "View orchestration tasks", "show_orchestrate", "ops"),
-    ("Show MCP", "Manage MCP servers", "show_mcp", "infra"),
-    ("Show Profiles", "Manage saved profiles", "show_profiles", "context"),
-    ("Show Export", "Configure context export", "show_export", "utilities"),
-    ("Show Tasks", "Manage task queue", "show_tasks", "tasks"),
-    ("Galaxy View", "Visualize agent constellations", "show_galaxy", "viz"),
-    ("Activate Agent", "Activate a new agent", "activate_agent", "action"),
-    ("Deactivate Agent", "Deactivate an agent", "deactivate_agent", "action"),
+    ("Show Modes", "View active modes", "view_modes", "context"),
+    ("Show Rules", "View active rules", "view_rules", "policy"),
+    ("Show Workflows", "View workflow execution", "view_workflows", "ops"),
+    ("Show Scenarios", "View scenarios", "view_scenarios", "ops"),
+    ("Show Orchestrate", "View orchestration tasks", "view_orchestrate", "ops"),
+    ("Show MCP", "Manage MCP servers", "view_mcp", "infra"),
+    ("Show Profiles", "Manage saved profiles", "view_profiles", "context"),
+    ("Show Export", "Configure context export", "view_export", "utilities"),
+    ("Show Tasks", "Manage task queue", "view_tasks", "tasks"),
+    ("Show Assets", "Asset manager", "view_assets", "utilities"),
+    ("Show Memory", "Memory vault", "view_memory", "context"),
+    ("Galaxy View", "Visualize agent constellations", "view_galaxy", "viz"),
+    # Actions
+    ("Toggle Selected", "Toggle current item", "toggle", "action"),
+    ("Refresh", "Refresh current view", "refresh", "action"),
     ("Auto-Activate Recommended", "Trigger AI suggestions", "auto_activate", "ai"),
-    ("Add Task", "Create a manual task entry", "add_task", "tasks"),
-    ("Edit Task", "Edit selected task", "edit_task", "tasks"),
-    ("Delete Task", "Delete selected task", "delete_task", "danger"),
-    ("Create Skill", "Create a new skill", "create_skill", "beta"),
-    ("Toggle Mode", "Toggle a mode on/off", "toggle_mode", "context"),
-    ("Toggle Rule", "Toggle a rule on/off", "toggle_rule", "policy"),
-    ("Export Context", "Export current context", "export_context", "utilities"),
-    ("Help", "Show help and documentation", "show_help", "docs"),
+    # MCP actions
+    ("MCP Browse & Install", "Install MCP server from registry", "mcp_browse_install", "infra"),
+    ("MCP Add Server", "Add MCP server manually", "mcp_add", "infra"),
+    ("MCP Test Server", "Test selected MCP server", "mcp_test_selected", "infra"),
+    ("MCP Diagnose", "Diagnose all MCP servers", "mcp_diagnose", "infra"),
+    # Profile actions
+    ("Edit Profile", "View and edit selected profile", "profile_edit", "context"),
+    ("Save Profile", "Save current config as profile", "profile_save_prompt", "context"),
+    ("Delete Profile", "Delete selected profile", "profile_delete", "danger"),
+    # Export actions
+    ("Export Context", "Run export with current settings", "export_run", "utilities"),
+    ("Copy to Clipboard", "Copy export to clipboard", "export_clipboard", "utilities"),
+    # Configuration
+    ("Configure CLAUDE.md", "Wizard to configure CLAUDE.md", "claude_md_wizard", "config"),
+    ("Manage Hooks", "Install and configure hooks", "hooks_manager", "config"),
+    ("Backup Manager", "Create and restore backups", "backup_manager", "utilities"),
+    # Help
+    ("Help", "Show help and documentation", "help", "docs"),
     ("Quit", "Exit the application", "quit", "danger"),
+    # Skill actions
     ("Skill Info", "Show metadata for selected skill", "skill_info", "skills"),
     ("Skill Versions", "Show available versions", "skill_versions", "skills"),
     ("Skill Dependencies", "Show dependency tree", "skill_deps", "skills"),
     ("Skill Agents", "Show agents using the skill", "skill_agents", "skills"),
     ("Skill Compose", "Show compose graph", "skill_compose", "skills"),
     ("Skill Analyze Text", "Analyze text to suggest skills", "skill_analyze", "ai"),
-    (
-        "Skill Suggest Project",
-        "Suggest skills for current project",
-        "skill_suggest",
-        "ai",
-    ),
+    ("Skill Suggest Project", "Suggest skills for current project", "skill_suggest", "ai"),
     ("Skill Analytics", "Show analytics dashboard", "skill_analytics", "metrics"),
     ("Skill Report", "Generate analytics report", "skill_report", "metrics"),
     ("Skill Trending", "Show trending skills", "skill_trending", "metrics"),
     ("Skill Metrics Reset", "Reset skill metrics", "skill_metrics_reset", "danger"),
-    (
-        "Community Install Skill",
-        "Install a community skill",
-        "skill_community_install",
-        "catalog",
-    ),
-    (
-        "Community Validate Skill",
-        "Validate a community skill",
-        "skill_community_validate",
-        "catalog",
-    ),
-    (
-        "Community Rate Skill",
-        "Rate a community skill",
-        "skill_community_rate",
-        "catalog",
-    ),
-    (
-        "Community Search",
-        "Search community skills",
-        "skill_community_search",
-        "catalog",
-    ),
+    # Community skills
+    ("Community Install Skill", "Install a community skill", "skill_community_install", "catalog"),
+    ("Community Validate Skill", "Validate a community skill", "skill_community_validate", "catalog"),
+    ("Community Rate Skill", "Rate a community skill", "skill_community_rate", "catalog"),
+    ("Community Search", "Search community skills", "skill_community_search", "catalog"),
 ]

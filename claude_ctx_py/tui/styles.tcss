@@ -53,6 +53,18 @@
         color: $text-muted;
     }
 
+    AdaptiveFooter {
+        background: $surface-lighten-2;
+        color: $text-muted;
+        height: 1;
+        dock: bottom;
+    }
+
+    #adaptive-footer {
+        background: $surface-lighten-2;
+        color: $text-muted;
+    }
+
     #status-bar {
         height: auto;
     }
