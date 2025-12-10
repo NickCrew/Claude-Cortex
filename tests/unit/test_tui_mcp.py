@@ -1,6 +1,10 @@
 """Tests for TUI MCP server management view."""
 
 import pytest
+
+# Skip entire module if rich (tui dependency) is not available in the test env
+pytest.importorskip("rich")
+
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 

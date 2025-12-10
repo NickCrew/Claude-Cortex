@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict
 
@@ -44,7 +44,7 @@ class TestGetEffectivenessScore:
                 "total_tokens_saved": 50000,
                 "avg_tokens": 500,
                 "success_rate": 0.95,
-                "last_activated": datetime.utcnow().isoformat() + "Z"
+                "last_activated": datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
             }
         }
         score = analytics.get_effectiveness_score("skill-1", high_success_metrics)

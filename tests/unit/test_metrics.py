@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
@@ -98,7 +98,7 @@ class TestRecordActivation:
 
     def test_record_activation_updates_timestamp(self, mock_claude_home: Path) -> None:
         """Test that activation updates last_activated timestamp."""
-        before = datetime.utcnow()
+        before = datetime.now(timezone.utc)
         metrics.record_activation("time-skill", 100, True)
         
         loaded = metrics.load_metrics()
