@@ -6,7 +6,7 @@ import csv
 import json
 import math
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
@@ -16,8 +16,77 @@ from .error_utils import safe_load_json, safe_save_json, safe_write_file
 MetricRow = Dict[str, Any]
 MetricsMap = Mapping[str, MetricRow]
 
-# Token cost per 1K tokens
-TOKEN_COST_PER_1K = 0.003
+# Claude model pricing (per million tokens) - Updated for accuracy
+CLAUDE_PRICING = {
+    "claude-opus-4-20250514": {
+        "input": 15.0,  # $15/MTok
+        "output": 75.0,  # $75/MTok
+        "name": "Opus 4",
+    },
+    "claude-sonnet-4-20250514": {
+        "input": 3.0,  # $3/MTok
+        "output": 15.0,  # $15/MTok
+        "name": "Sonnet 4",
+    },
+    "claude-haiku-4-20250514": {
+        "input": 0.25,  # $0.25/MTok
+        "output": 1.25,  # $1.25/MTok
+        "name": "Haiku 4",
+    },
+}
+
+# Deprecated: Legacy token cost (kept for backward compatibility)
+# Use calculate_llm_cost() for accurate model-specific pricing
+TOKEN_COST_PER_1K = 0.003  # ~$3/MTok for Sonnet
+
+
+def calculate_llm_cost(
+    model: str, input_tokens: int, output_tokens: int
+) -> Dict[str, Any]:
+    """Calculate actual LLM API cost for a request.
+
+    Args:
+        model: Model name (e.g., 'claude-sonnet-4-20250514')
+        input_tokens: Number of input tokens
+        output_tokens: Number of output tokens
+
+    Returns:
+        Dictionary with cost breakdown:
+        - input_cost: Cost for input tokens
+        - output_cost: Cost for output tokens
+        - total_cost: Total cost in USD
+        - model_name: Human-readable model name
+        - savings_vs_sonnet: Cost savings compared to Sonnet (if using Haiku)
+    """
+    pricing = CLAUDE_PRICING.get(model, CLAUDE_PRICING["claude-sonnet-4-20250514"])
+
+    input_cost = (input_tokens / 1_000_000) * pricing["input"]
+    output_cost = (output_tokens / 1_000_000) * pricing["output"]
+    total_cost = input_cost + output_cost
+
+    result = {
+        "input_cost": round(input_cost, 6),
+        "output_cost": round(output_cost, 6),
+        "total_cost": round(total_cost, 6),
+        "model_name": pricing["name"],
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+    }
+
+    # Calculate savings if using a cheaper model
+    if model != "claude-sonnet-4-20250514":
+        sonnet_pricing = CLAUDE_PRICING["claude-sonnet-4-20250514"]
+        sonnet_cost = (
+            (input_tokens / 1_000_000) * sonnet_pricing["input"]
+            + (output_tokens / 1_000_000) * sonnet_pricing["output"]
+        )
+        savings = sonnet_cost - total_cost
+        result["savings_vs_sonnet"] = round(savings, 6)
+        result["savings_percentage"] = (
+            round((savings / sonnet_cost) * 100, 1) if sonnet_cost > 0 else 0.0
+        )
+
+    return result
 
 
 def get_effectiveness_score(skill_name: str, all_metrics: MetricsMap) -> float:
@@ -190,7 +259,7 @@ def get_trending_skills(days: int, claude_dir: Path) -> List[MetricRow]:
     try:
         activations_data = safe_load_json(activations_file)
 
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)
         skill_counts: Dict[str, int] = defaultdict(int)
         skill_tokens: Dict[str, int] = defaultdict(int)
 
@@ -280,7 +349,7 @@ def get_recommendations(
             )
 
     # Find stale skills
-    cutoff = datetime.utcnow() - timedelta(days=30)
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=30)
     for skill_name, metrics in all_metrics.items():
         last_activated = metrics.get("last_activated")
         if last_activated:
@@ -343,7 +412,7 @@ def export_analytics(format: str, claude_dir: Path) -> str:
             format, reason=f"Failed to create exports directory: {exc}"
         ) from exc
 
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     filename = f"analytics_{timestamp}.{format}"
     filepath = exports_dir / filename
 
@@ -364,7 +433,7 @@ def _export_json(all_metrics: MetricsMap, filepath: Path, claude_dir: Path) -> N
     """Export metrics as JSON."""
     skills_data: Dict[str, Dict[str, Any]] = {}
     export_data: Dict[str, Any] = {
-        "exported_at": datetime.utcnow().isoformat() + "Z",
+        "exported_at": datetime.now(timezone.utc).isoformat() + "Z",
         "skills": skills_data,
     }
 
@@ -427,7 +496,7 @@ def _export_text(all_metrics: MetricsMap, filepath: Path, claude_dir: Path) -> N
     with open(filepath, "w", encoding="utf-8") as f:
         f.write("=" * 80 + "\n")
         f.write("SKILL ANALYTICS REPORT\n")
-        f.write(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
+        f.write(f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
         f.write("=" * 80 + "\n\n")
 
         # Summary statistics
@@ -708,7 +777,7 @@ def _count_activations_in_period(skill_name: str, days: int, claude_dir: Path) -
     try:
         activations_data = safe_load_json(activations_file)
 
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)
         count = 0
 
         for activation in activations_data.get("activations", []):
@@ -761,7 +830,7 @@ def _generate_json_report(all_metrics: MetricsMap, claude_dir: Path) -> str:
     """Generate JSON format analytics report."""
     skills_section: Dict[str, Any] = {}
     report: Dict[str, Any] = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).isoformat() + "Z",
         "summary": {
             "total_skills": len(all_metrics),
             "total_activations": sum(
@@ -795,7 +864,7 @@ def _generate_text_report(all_metrics: MetricsMap, claude_dir: Path) -> str:
     # Header
     lines.append("\n" + "=" * 80)
     lines.append("COMPREHENSIVE ANALYTICS REPORT")
-    lines.append(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}")
+    lines.append(f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}")
     lines.append("=" * 80 + "\n")
 
     # Summary statistics

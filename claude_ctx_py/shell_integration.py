@@ -17,13 +17,13 @@ BASH_ZSH_ALIASES = """
 alias ctx='claude-ctx export context -'
 
 # Lightweight exports (exclude large components)
-alias ctx-light='claude-ctx export context - --exclude-category skills --exclude-category mcp_docs'
-alias ctx-rules='claude-ctx export context - --exclude-category agents --exclude-category modes --exclude-category skills --exclude-category mcp_docs'
-alias ctx-agents='claude-ctx export context - --exclude-category core --exclude-category rules --exclude-category modes --exclude-category skills'
-alias ctx-modes='claude-ctx export context - --exclude-category agents --exclude-category skills --exclude-category mcp_docs'
+alias ctx-light='claude-ctx export context - --exclude skills --exclude mcp_docs'
+alias ctx-rules='claude-ctx export context - --include rules --include core'
+alias ctx-agents='claude-ctx export context - --include agents --include mcp_docs'
+alias ctx-modes='claude-ctx export context - --include modes --include core --include rules'
 
 # Core framework only (FLAGS, PRINCIPLES, RULES)
-alias ctx-core='claude-ctx export context - --exclude-category agents --exclude-category modes --exclude-category rules --exclude-category skills --exclude-category mcp_docs'
+alias ctx-core='claude-ctx export context - --include core'
 
 # Helper to list what's available
 alias ctx-list='claude-ctx export list'
@@ -49,24 +49,24 @@ end
 
 # Lightweight exports (exclude large components)
 function ctx-light
-    claude-ctx export context - --exclude-category skills --exclude-category mcp_docs
+    claude-ctx export context - --exclude skills --exclude mcp_docs
 end
 
 function ctx-rules
-    claude-ctx export context - --exclude-category agents --exclude-category modes --exclude-category skills --exclude-category mcp_docs
+    claude-ctx export context - --include rules --include core
 end
 
 function ctx-agents
-    claude-ctx export context - --exclude-category core --exclude-category rules --exclude-category modes --exclude-category skills
+    claude-ctx export context - --include agents --include mcp_docs
 end
 
 function ctx-modes
-    claude-ctx export context - --exclude-category agents --exclude-category skills --exclude-category mcp_docs
+    claude-ctx export context - --include modes --include core --include rules
 end
 
 # Core framework only (FLAGS, PRINCIPLES, RULES)
 function ctx-core
-    claude-ctx export context - --exclude-category agents --exclude-category modes --exclude-category rules --exclude-category skills --exclude-category mcp_docs
+    claude-ctx export context - --include core
 end
 
 # Helper to list what's available

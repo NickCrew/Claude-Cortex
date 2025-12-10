@@ -10,9 +10,10 @@ import time
 import subprocess
 import signal
 import sys
+import threading
 from pathlib import Path
 from types import FrameType
-from typing import Any, Deque, Dict, List, Optional, Set
+from typing import Any, Callable, Deque, Dict, List, Optional, Set
 from datetime import datetime
 from collections import deque
 
@@ -28,6 +29,7 @@ class WatchMode:
         auto_activate: bool = True,
         notification_threshold: float = 0.7,
         check_interval: float = 2.0,
+        notification_callback: Optional[Callable[[Dict[str, str]], None]] = None,
     ):
         """Initialize watch mode.
 
@@ -35,10 +37,12 @@ class WatchMode:
             auto_activate: Auto-activate high-confidence recommendations
             notification_threshold: Confidence threshold for notifications
             check_interval: Seconds between checks
+            notification_callback: Optional callback for notifications
         """
         self.auto_activate = auto_activate
         self.notification_threshold = notification_threshold
         self.check_interval = check_interval
+        self.notification_callback = notification_callback
 
         # Initialize intelligent agent
         claude_dir = _resolve_claude_dir()
@@ -46,6 +50,7 @@ class WatchMode:
 
         # Track state
         self.running = False
+        self.directory = Path.cwd()
         self.last_check_time = time.time()
         self.last_git_head = self._get_git_head()
         self.last_recommendations: List[AgentRecommendation] = []
@@ -57,6 +62,60 @@ class WatchMode:
         self.recommendations_made = 0
         self.auto_activations = 0
         self.start_time = datetime.now()
+
+        # Thread safety
+        self._state_lock = threading.Lock()
+
+    def stop(self) -> None:
+        """Stop watch mode gracefully."""
+        with self._state_lock:
+            self.running = False
+
+    def set_directory(self, directory: Path) -> None:
+        """Set the directory to watch.
+
+        Args:
+            directory: Directory path to watch
+        """
+        with self._state_lock:
+            self.directory = directory
+            self.last_git_head = self._get_git_head()
+
+    def change_directory(self, directory: Path) -> None:
+        """Change the watched directory.
+
+        Args:
+            directory: New directory path to watch
+        """
+        with self._state_lock:
+            old_dir = os.getcwd()
+            try:
+                os.chdir(directory)
+                self.directory = directory
+                self.last_git_head = self._get_git_head()
+            except Exception:
+                os.chdir(old_dir)
+                raise
+
+    def get_state(self) -> Dict[str, Any]:
+        """Get current watch mode state.
+
+        Returns:
+            Dictionary with current state
+        """
+        with self._state_lock:
+            return {
+                "running": self.running,
+                "directory": self.directory,
+                "auto_activate": self.auto_activate,
+                "threshold": self.notification_threshold,
+                "interval": self.check_interval,
+                "checks_performed": self.checks_performed,
+                "recommendations_made": self.recommendations_made,
+                "auto_activations": self.auto_activations,
+                "started_at": self.start_time,
+                "last_notification": self.notification_history[-1] if self.notification_history else None,
+            }
 
     def _get_git_head(self) -> Optional[str]:
         """Get current git HEAD hash.
@@ -142,14 +201,20 @@ class WatchMode:
         timestamp = self._timestamp()
 
         # Store in history
-        self.notification_history.append(
-            {
-                "timestamp": timestamp,
-                "icon": icon,
-                "title": title,
-                "message": message,
-            }
-        )
+        notification = {
+            "timestamp": timestamp,
+            "icon": icon,
+            "title": title,
+            "message": message,
+        }
+        self.notification_history.append(notification)
+
+        # Call notification callback if provided
+        if self.notification_callback:
+            try:
+                self.notification_callback(notification)
+            except Exception:
+                pass  # Don't let callback errors stop watch mode
 
         # Print with color
         color_codes = {
@@ -327,7 +392,8 @@ class WatchMode:
 
     def _check_for_changes(self) -> None:
         """Check for changes and analyze context."""
-        self.checks_performed += 1
+        with self._state_lock:
+            self.checks_performed += 1
 
         # Check git HEAD changes (commits)
         current_head = self._get_git_head()
@@ -383,10 +449,14 @@ class WatchMode:
         self._analyze_context()
 
         # Main loop
-        self.running = True
+        with self._state_lock:
+            self.running = True
 
         try:
-            while self.running:
+            while True:
+                with self._state_lock:
+                    if not self.running:
+                        break
                 time.sleep(self.check_interval)
                 self._check_for_changes()
 

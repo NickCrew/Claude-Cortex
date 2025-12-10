@@ -627,11 +627,18 @@ def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Output file path (e.g., my-context.md) or '-' for stdout",
     )
     export_context.add_argument(
-        "--exclude-category",
+        "--exclude",
         dest="exclude_categories",
         action="append",
         choices=["core", "rules", "modes", "agents", "mcp_docs", "skills"],
         help="Exclude a category from export (can be used multiple times)",
+    )
+    export_context.add_argument(
+        "--include",
+        dest="include_categories",
+        action="append",
+        choices=["core", "rules", "modes", "agents", "mcp_docs", "skills"],
+        help="Include only specified categories (can be used multiple times)",
     )
     export_context.add_argument(
         "--exclude-file",
@@ -719,6 +726,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_completion_parser(subparsers)
     _build_install_parser(subparsers)
     _build_doctor_parser(subparsers)
+    _build_memory_parser(subparsers)
 
     return parser
 
@@ -1199,12 +1207,14 @@ def _handle_export_command(args: argparse.Namespace) -> int:
             output_path = Path(args.output)
 
         exclude_categories = set(args.exclude_categories or [])
+        include_categories = set(args.include_categories or [])
         exclude_files = set(args.exclude_files or [])
         agent_generic = not args.no_agent_generic
 
         exit_code, message = core.export_context(
             output_path=output_path,
             exclude_categories=exclude_categories,
+            include_categories=include_categories,
             exclude_files=exclude_files,
             agent_generic=agent_generic,
         )
@@ -1263,6 +1273,158 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         return 1
 
 
+def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the memory command parser for persistent knowledge capture."""
+    memory_parser = subparsers.add_parser(
+        "memory", help="Memory capture commands for persistent knowledge storage"
+    )
+    memory_sub = memory_parser.add_subparsers(dest="memory_command")
+
+    # remember - Quick knowledge capture
+    remember_parser = memory_sub.add_parser(
+        "remember", help="Quick capture of domain knowledge"
+    )
+    remember_parser.add_argument("text", help="Knowledge text to capture")
+    remember_parser.add_argument(
+        "--topic", dest="remember_topic", help="Explicit topic name"
+    )
+    remember_parser.add_argument(
+        "--tags",
+        dest="remember_tags",
+        help="Comma-separated additional tags",
+    )
+
+    # project - Project context capture
+    project_parser = memory_sub.add_parser(
+        "project", help="Capture or update project context"
+    )
+    project_parser.add_argument("name", help="Project name")
+    project_parser.add_argument(
+        "--path", dest="project_path", help="Repository path"
+    )
+    project_parser.add_argument(
+        "--purpose", dest="project_purpose", help="One-line description"
+    )
+    project_parser.add_argument(
+        "--related",
+        dest="project_related",
+        help="Comma-separated related project names",
+    )
+    project_parser.add_argument(
+        "--update",
+        dest="project_update",
+        action="store_true",
+        help="Update mode (prompts for which sections)",
+    )
+
+    # capture - Session summary
+    capture_parser = memory_sub.add_parser(
+        "capture", help="Capture session summary"
+    )
+    capture_parser.add_argument(
+        "title", nargs="?", help="Session title (optional)"
+    )
+    capture_parser.add_argument(
+        "--summary", dest="capture_summary", help="What we worked on"
+    )
+    capture_parser.add_argument(
+        "--decisions",
+        dest="capture_decisions",
+        help="Pipe-separated decisions made",
+    )
+    capture_parser.add_argument(
+        "--implementations",
+        dest="capture_implementations",
+        help="Pipe-separated implementations",
+    )
+    capture_parser.add_argument(
+        "--open",
+        dest="capture_open",
+        help="Pipe-separated open items",
+    )
+    capture_parser.add_argument(
+        "--project", dest="capture_project", help="Related project name"
+    )
+    capture_parser.add_argument(
+        "--quick",
+        dest="capture_quick",
+        action="store_true",
+        help="Minimal prompts (summary only)",
+    )
+
+    # fix - Bug fix documentation
+    fix_parser = memory_sub.add_parser("fix", help="Record a bug fix")
+    fix_parser.add_argument("title", help="Issue title")
+    fix_parser.add_argument(
+        "--problem", dest="fix_problem", help="What was broken/wrong"
+    )
+    fix_parser.add_argument(
+        "--cause", dest="fix_cause", help="Root cause"
+    )
+    fix_parser.add_argument(
+        "--solution", dest="fix_solution", help="How we fixed it"
+    )
+    fix_parser.add_argument(
+        "--files",
+        dest="fix_files",
+        help="Comma-separated changed file paths",
+    )
+    fix_parser.add_argument(
+        "--project", dest="fix_project", help="Related project name"
+    )
+
+    # auto - Toggle auto-capture
+    auto_parser = memory_sub.add_parser(
+        "auto", help="Toggle or check auto-capture state"
+    )
+    auto_parser.add_argument(
+        "action",
+        nargs="?",
+        choices=["on", "off", "status"],
+        default="status",
+        help="Action: on, off, or status (default: status)",
+    )
+
+    # list - List notes
+    list_parser = memory_sub.add_parser("list", help="List notes in the vault")
+    list_parser.add_argument(
+        "note_type",
+        nargs="?",
+        choices=["knowledge", "projects", "sessions", "fixes"],
+        help="Filter by note type",
+    )
+    list_parser.add_argument(
+        "--recent",
+        dest="list_recent",
+        type=int,
+        help="Limit to N most recent notes",
+    )
+    list_parser.add_argument(
+        "--tags",
+        dest="list_tags",
+        help="Comma-separated tags to filter by",
+    )
+
+    # search - Search notes
+    search_parser = memory_sub.add_parser("search", help="Search notes by content")
+    search_parser.add_argument("query", help="Search query")
+    search_parser.add_argument(
+        "--type",
+        dest="search_type",
+        choices=["knowledge", "projects", "sessions", "fixes"],
+        help="Filter by note type",
+    )
+    search_parser.add_argument(
+        "--limit",
+        dest="search_limit",
+        type=int,
+        help="Maximum number of results",
+    )
+
+    # stats - Show vault statistics
+    memory_sub.add_parser("stats", help="Show vault statistics")
+
+
 def _build_doctor_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     doctor_parser = subparsers.add_parser(
         "doctor", help="Diagnose and fix context issues"
@@ -1276,6 +1438,119 @@ def _handle_doctor_command(args: argparse.Namespace) -> int:
     exit_code, message = core.doctor_run(fix=args.fix)
     _print(message)
     return exit_code
+
+
+def _handle_memory_command(args: argparse.Namespace) -> int:
+    """Handle memory subcommands for persistent knowledge capture."""
+    from . import memory
+
+    if args.memory_command == "remember":
+        tags = None
+        if getattr(args, "remember_tags", None):
+            tags = [t.strip() for t in args.remember_tags.split(",")]
+        exit_code, message = memory.memory_remember(
+            text=args.text,
+            topic=getattr(args, "remember_topic", None),
+            tags=tags,
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "project":
+        related = None
+        if getattr(args, "project_related", None):
+            related = [r.strip() for r in args.project_related.split(",")]
+        exit_code, message = memory.memory_project(
+            name=args.name,
+            path=getattr(args, "project_path", None),
+            purpose=getattr(args, "project_purpose", None),
+            related=related,
+            update=getattr(args, "project_update", False),
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "capture":
+        decisions = None
+        if getattr(args, "capture_decisions", None):
+            decisions = [d.strip() for d in args.capture_decisions.split("|")]
+        implementations = None
+        if getattr(args, "capture_implementations", None):
+            implementations = [i.strip() for i in args.capture_implementations.split("|")]
+        open_items = None
+        if getattr(args, "capture_open", None):
+            open_items = [o.strip() for o in args.capture_open.split("|")]
+        exit_code, message = memory.memory_capture(
+            title=getattr(args, "title", None),
+            summary=getattr(args, "capture_summary", None),
+            decisions=decisions,
+            implementations=implementations,
+            open_items=open_items,
+            project=getattr(args, "capture_project", None),
+            quick=getattr(args, "capture_quick", False),
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "fix":
+        files = None
+        if getattr(args, "fix_files", None):
+            files = [f.strip() for f in args.fix_files.split(",")]
+        exit_code, message = memory.memory_fix(
+            title=args.title,
+            problem=getattr(args, "fix_problem", None),
+            cause=getattr(args, "fix_cause", None),
+            solution=getattr(args, "fix_solution", None),
+            files=files,
+            project=getattr(args, "fix_project", None),
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "auto":
+        exit_code, message = memory.memory_auto(
+            action=getattr(args, "action", "status"),
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "list":
+        tags = None
+        if getattr(args, "list_tags", None):
+            tags = [t.strip() for t in args.list_tags.split(",")]
+        exit_code, message = memory.memory_list(
+            note_type=getattr(args, "note_type", None),
+            recent=getattr(args, "list_recent", None),
+            tags=tags,
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "search":
+        exit_code, message = memory.memory_search(
+            query=args.query,
+            note_type=getattr(args, "search_type", None),
+            limit=getattr(args, "search_limit", None),
+        )
+        _print(message)
+        return exit_code
+
+    if args.memory_command == "stats":
+        stats = memory.get_vault_stats()
+        lines = [
+            f"Vault: {stats['vault_path']}",
+            f"Exists: {'yes' if stats['exists'] else 'no'}",
+            "",
+            "Note counts:",
+        ]
+        for note_type, count in stats["types"].items():
+            lines.append(f"  {note_type}: {count}")
+        lines.append(f"  total: {stats['total']}")
+        _print("\n".join(lines))
+        return 0
+
+    _print("Memory command required. Use 'claude-ctx memory --help' for options.")
+    return 1
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -1299,6 +1574,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "completion": _handle_completion_command,
         "install": _handle_install_command,
         "doctor": _handle_doctor_command,
+        "memory": _handle_memory_command,
     }
 
     if args.command == "status":

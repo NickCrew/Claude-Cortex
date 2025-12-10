@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import builtins
 import datetime
+from datetime import timezone
 import hashlib
 import json
 import os
@@ -507,7 +508,7 @@ def init_detect(
     session_log_cache = cache_project_dir / "session-log.md"
     session_log_state = project_state_dir / "session-log.md"
 
-    iso_now = datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    iso_now = datetime.datetime.now(timezone.utc).replace(microsecond=0).isoformat() + "Z"
 
     detection_raw = _run_detect_project_type(resolved_path)
     detection_language = detection_framework = detection_infra = ""
@@ -1261,7 +1262,7 @@ def init_wizard(
 
     session_lines = [
         "# Init Wizard Session",
-        f"- Timestamp: {datetime.datetime.utcnow().isoformat()}Z",
+        f"- Timestamp: {datetime.datetime.now(timezone.utc).isoformat()}Z",
         f"- Path: {resolved_path}",
         f"- Slug: {slug}",
         f"- Profile: {profile_choice}",

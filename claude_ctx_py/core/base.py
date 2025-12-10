@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import builtins
 import datetime
+from datetime import timezone
 import hashlib
 import json
 import os
@@ -638,7 +639,7 @@ def _ensure_list(value: Any, label: str, messages: List[str]) -> List[Any]:
 
 
 def _now_iso() -> str:
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return datetime.datetime.now(timezone.utc).replace(microsecond=0).isoformat() + "Z"
 
 
 def _load_detection_file(

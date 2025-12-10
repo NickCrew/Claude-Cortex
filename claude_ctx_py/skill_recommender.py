@@ -98,55 +98,54 @@ class SkillRecommender:
         """Initialize SQLite database for recommendations and feedback."""
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
-        conn = sqlite3.connect(self.db_path)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS recommendations_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL,
-                skill_name TEXT NOT NULL,
-                confidence REAL NOT NULL,
-                context_hash TEXT NOT NULL,
-                was_activated BOOLEAN DEFAULT 0,
-                was_helpful BOOLEAN NULL,
-                reason TEXT
-            )
-        """)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS recommendations_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TEXT NOT NULL,
+                    skill_name TEXT NOT NULL,
+                    confidence REAL NOT NULL,
+                    context_hash TEXT NOT NULL,
+                    was_activated BOOLEAN DEFAULT 0,
+                    was_helpful BOOLEAN NULL,
+                    reason TEXT
+                )
+            """)
 
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS recommendation_feedback (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                recommendation_id INTEGER,
-                timestamp TEXT NOT NULL,
-                helpful BOOLEAN NOT NULL,
-                comment TEXT,
-                FOREIGN KEY (recommendation_id) REFERENCES recommendations_history(id)
-            )
-        """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS recommendation_feedback (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    recommendation_id INTEGER,
+                    timestamp TEXT NOT NULL,
+                    helpful BOOLEAN NOT NULL,
+                    comment TEXT,
+                    FOREIGN KEY (recommendation_id) REFERENCES recommendations_history(id)
+                )
+            """)
 
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS context_patterns (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                context_hash TEXT UNIQUE NOT NULL,
-                file_patterns TEXT,  -- JSON array
-                active_agents TEXT,  -- JSON array
-                successful_skills TEXT,  -- JSON array
-                success_rate REAL,
-                last_updated TEXT
-            )
-        """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS context_patterns (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    context_hash TEXT UNIQUE NOT NULL,
+                    file_patterns TEXT,  -- JSON array
+                    active_agents TEXT,  -- JSON array
+                    successful_skills TEXT,  -- JSON array
+                    success_rate REAL,
+                    last_updated TEXT
+                )
+            """)
 
-        conn.execute("""
-            CREATE INDEX IF NOT EXISTS idx_recommendations_skill
-            ON recommendations_history(skill_name)
-        """)
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_recommendations_skill
+                ON recommendations_history(skill_name)
+            """)
 
-        conn.execute("""
-            CREATE INDEX IF NOT EXISTS idx_recommendations_context
-            ON recommendations_history(context_hash)
-        """)
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_recommendations_context
+                ON recommendations_history(context_hash)
+            """)
 
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     def _load_rules(self) -> None:
         """Load recommendation rules from configuration file."""
@@ -366,26 +365,24 @@ class SkillRecommender:
         context_hash = self._compute_context_hash(context)
 
         # Find similar contexts from history
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.execute("""
-            SELECT successful_skills, success_rate
-            FROM context_patterns
-            WHERE success_rate > 0.7
-            ORDER BY last_updated DESC
-            LIMIT 10
-        """)
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("""
+                SELECT successful_skills, success_rate
+                FROM context_patterns
+                WHERE success_rate > 0.7
+                ORDER BY last_updated DESC
+                LIMIT 10
+            """)
 
-        skill_scores: Counter[str] = Counter()
-        for row in cursor.fetchall():
-            try:
-                skills = json.loads(row[0])
-                success_rate = row[1]
-                for skill in skills:
-                    skill_scores[skill] += success_rate
-            except (json.JSONDecodeError, Exception):
-                continue
-
-        conn.close()
+            skill_scores: Counter[str] = Counter()
+            for row in cursor.fetchall():
+                try:
+                    skills = json.loads(row[0])
+                    success_rate = row[1]
+                    for skill in skills:
+                        skill_scores[skill] += success_rate
+                except (json.JSONDecodeError, Exception):
+                    continue
 
         # Create recommendations from top scoring skills
         for skill_name, score in skill_scores.most_common(5):
@@ -441,32 +438,28 @@ class SkillRecommender:
         context_hash = self._compute_context_hash(context)
         timestamp = datetime.now().isoformat()
 
-        conn = sqlite3.connect(self.db_path)
+        with sqlite3.connect(self.db_path) as conn:
+            for rec in recommendations:
+                conn.execute("""
+                    INSERT INTO recommendations_history
+                    (timestamp, skill_name, confidence, context_hash, reason)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (timestamp, rec.skill_name, rec.confidence, context_hash, rec.reason))
 
-        for rec in recommendations:
-            conn.execute("""
-                INSERT INTO recommendations_history
-                (timestamp, skill_name, confidence, context_hash, reason)
-                VALUES (?, ?, ?, ?, ?)
-            """, (timestamp, rec.skill_name, rec.confidence, context_hash, rec.reason))
-
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     def record_activation(self, skill_name: str, context_hash: str) -> None:
         """Record that a recommended skill was activated."""
-        conn = sqlite3.connect(self.db_path)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+                UPDATE recommendations_history
+                SET was_activated = 1
+                WHERE skill_name = ? AND context_hash = ?
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """, (skill_name, context_hash))
 
-        conn.execute("""
-            UPDATE recommendations_history
-            SET was_activated = 1
-            WHERE skill_name = ? AND context_hash = ?
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """, (skill_name, context_hash))
-
-        conn.commit()
-        conn.close()
+            conn.commit()
 
     def learn_from_feedback(
         self,
@@ -476,88 +469,84 @@ class SkillRecommender:
         comment: Optional[str] = None
     ) -> None:
         """Update recommendation model based on user feedback."""
-        conn = sqlite3.connect(self.db_path)
         timestamp = datetime.now().isoformat()
 
-        # Find the recommendation to update
-        cursor = conn.execute("""
-            SELECT id FROM recommendations_history
-            WHERE skill_name = ? AND context_hash = ?
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """, (skill, context_hash))
+        with sqlite3.connect(self.db_path) as conn:
+            # Find the recommendation to update
+            cursor = conn.execute("""
+                SELECT id FROM recommendations_history
+                WHERE skill_name = ? AND context_hash = ?
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """, (skill, context_hash))
 
-        row = cursor.fetchone()
-        if row:
-            rec_id = row[0]
+            row = cursor.fetchone()
+            if row:
+                rec_id = row[0]
 
-            # Update recommendation
-            conn.execute("""
-                UPDATE recommendations_history
-                SET was_helpful = ?
-                WHERE id = ?
-            """, (was_helpful, rec_id))
+                # Update recommendation
+                conn.execute("""
+                    UPDATE recommendations_history
+                    SET was_helpful = ?
+                    WHERE id = ?
+                """, (was_helpful, rec_id))
 
-            # Insert feedback
-            conn.execute("""
-                INSERT INTO recommendation_feedback
-                (recommendation_id, timestamp, helpful, comment)
-                VALUES (?, ?, ?, ?)
-            """, (rec_id, timestamp, was_helpful, comment))
+                # Insert feedback
+                conn.execute("""
+                    INSERT INTO recommendation_feedback
+                    (recommendation_id, timestamp, helpful, comment)
+                    VALUES (?, ?, ?, ?)
+                """, (rec_id, timestamp, was_helpful, comment))
 
-            conn.commit()
-
-        conn.close()
+                conn.commit()
 
     def get_recommendation_stats(
         self,
         skill_name: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get statistics about recommendations and their effectiveness."""
-        conn = sqlite3.connect(self.db_path)
+        with sqlite3.connect(self.db_path) as conn:
+            if skill_name:
+                # Stats for specific skill
+                cursor = conn.execute("""
+                    SELECT
+                        COUNT(*) as total_recommendations,
+                        SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activations,
+                        SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful,
+                        AVG(confidence) as avg_confidence
+                    FROM recommendations_history
+                    WHERE skill_name = ?
+                """, (skill_name,))
 
-        if skill_name:
-            # Stats for specific skill
-            cursor = conn.execute("""
-                SELECT
-                    COUNT(*) as total_recommendations,
-                    SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activations,
-                    SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful,
-                    AVG(confidence) as avg_confidence
-                FROM recommendations_history
-                WHERE skill_name = ?
-            """, (skill_name,))
+                row = cursor.fetchone()
+                stats = {
+                    "skill_name": skill_name,
+                    "total_recommendations": row[0],
+                    "activations": row[1],
+                    "helpful_count": row[2],
+                    "avg_confidence": round(row[3], 2) if row[3] else 0,
+                    "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
+                    "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
+                }
+            else:
+                # Overall stats
+                cursor = conn.execute("""
+                    SELECT
+                        COUNT(*) as total,
+                        SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activated,
+                        SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful
+                    FROM recommendations_history
+                """)
 
-            row = cursor.fetchone()
-            stats = {
-                "skill_name": skill_name,
-                "total_recommendations": row[0],
-                "activations": row[1],
-                "helpful_count": row[2],
-                "avg_confidence": round(row[3], 2) if row[3] else 0,
-                "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
-                "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
-            }
-        else:
-            # Overall stats
-            cursor = conn.execute("""
-                SELECT
-                    COUNT(*) as total,
-                    SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activated,
-                    SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful
-                FROM recommendations_history
-            """)
+                row = cursor.fetchone()
+                stats = {
+                    "total_recommendations": row[0],
+                    "total_activations": row[1],
+                    "total_helpful": row[2],
+                    "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
+                    "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
+                }
 
-            row = cursor.fetchone()
-            stats = {
-                "total_recommendations": row[0],
-                "total_activations": row[1],
-                "total_helpful": row[2],
-                "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
-                "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
-            }
-
-        conn.close()
         return stats
 
     def record_feedback(
@@ -575,45 +564,44 @@ class SkillRecommender:
             helpful: Whether the skill was helpful
             comment: Optional user comment
         """
-        conn = sqlite3.connect(self.db_path)
         timestamp = datetime.now().isoformat()
 
-        # Record feedback directly in feedback table
-        conn.execute("""
-            INSERT INTO recommendation_feedback (recommendation_id, timestamp, helpful, comment)
-            VALUES (NULL, ?, ?, ?)
-        """, (timestamp, helpful, comment))
-
-        # Update pattern learning for this skill
-        # Use a generic context hash for CLI feedback
-        context_hash = hashlib.md5(f"cli-feedback-{skill_name}".encode()).hexdigest()
-
-        # Check if we have a recent recommendation for this skill
-        cursor = conn.execute("""
-            SELECT id FROM recommendations_history
-            WHERE skill_name = ?
-            ORDER BY timestamp DESC
-            LIMIT 1
-        """, (skill_name,))
-
-        row = cursor.fetchone()
-        if row:
-            # Update existing recommendation
+        with sqlite3.connect(self.db_path) as conn:
+            # Record feedback directly in feedback table
             conn.execute("""
-                UPDATE recommendations_history
-                SET was_helpful = ?
-                WHERE id = ?
-            """, (helpful, row[0]))
-        else:
-            # Create a new entry for this feedback
-            conn.execute("""
-                INSERT INTO recommendations_history
-                (timestamp, skill_name, confidence, context_hash, was_activated, was_helpful, reason)
-                VALUES (?, ?, 0.0, ?, 0, ?, ?)
-            """, (timestamp, skill_name, context_hash, helpful, comment))
+                INSERT INTO recommendation_feedback (recommendation_id, timestamp, helpful, comment)
+                VALUES (NULL, ?, ?, ?)
+            """, (timestamp, helpful, comment))
 
-        conn.commit()
-        conn.close()
+            # Update pattern learning for this skill
+            # Use a generic context hash for CLI feedback
+            context_hash = hashlib.md5(f"cli-feedback-{skill_name}".encode()).hexdigest()
+
+            # Check if we have a recent recommendation for this skill
+            cursor = conn.execute("""
+                SELECT id FROM recommendations_history
+                WHERE skill_name = ?
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """, (skill_name,))
+
+            row = cursor.fetchone()
+            if row:
+                # Update existing recommendation
+                conn.execute("""
+                    UPDATE recommendations_history
+                    SET was_helpful = ?
+                    WHERE id = ?
+                """, (helpful, row[0]))
+            else:
+                # Create a new entry for this feedback
+                conn.execute("""
+                    INSERT INTO recommendations_history
+                    (timestamp, skill_name, confidence, context_hash, was_activated, was_helpful, reason)
+                    VALUES (?, ?, 0.0, ?, 0, ?, ?)
+                """, (timestamp, skill_name, context_hash, helpful, comment))
+
+            conn.commit()
 
 
 # Helper functions for CLI integration

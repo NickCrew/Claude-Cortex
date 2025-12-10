@@ -1,272 +1,99 @@
-.TH CLAUDE-CTX 1 "2025-11-12" "claude-ctx 1.0" "User Commands"
+.TH CLAUDE-CTX 1 "2025-12-10" "claude-ctx 1.1.0" "User Commands"
 .SH NAME
-claude-ctx \- Manage Claude CTX agents, skills, workflows, and the interactive TUI
+claude-ctx \- Python implementation of claude-ctx list and status commands
 .SH SYNOPSIS
 .B claude-ctx
-[B-hR | B--helpR]
+[
+B-h
+    R | 
+        B--help
+               R]
 .br
 .B claude-ctx
-ICOMMANDR [ISUBCOMMANDR] [IARGSR...]
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
 .SH DESCRIPTION
 .B claude-ctx
-is the command-line entry point for the Claude CTX plugin. It lets you inspect and
-activate agents, modes, and rules, launch curated workflows, orchestrate scenarios,
-export context bundles, and open the Rich/Textual-based TUI for day-to-day
-operations. The CLI reads the Claude context tree from
-.BR CLAUDE_CTX_HOME ,
-.BR CLAUDE_PLUGIN_ROOT ,
-then B~/.claudeR (first match wins).
-
-Many commands expose additional help with
-.B --help
-on the command or subcommand.
-.SH OPTIONS
-.TP
-.BR -h \, --help
-Show help for the current command and exit.
-.SH COMMAND SUMMARY
-.TP
-.B status
-Display overall health: active agents, modes, rules, workflows, and metrics.
+is Python implementation of claude-ctx list and status commands
+.SH COMMANDS
+Available commands:
 .TP
 .B mode
-List, activate, or deactivate behavioral modes.
+Mode commands
 .TP
 .B agent
-Inspect, activate, deactivate, or validate agents plus dependency graphs.
+Agent commands
 .TP
 .B rules
-Manage rule modules that enforce workflow, quality, or efficiency policies.
+Rule commands
 .TP
 .B skills
-List, inspect, validate, and analyze skills plus community registry operations.
-.TP
-.B profile
-Save, list, or load multi-agent profiles (built-in or custom snapshots).
-.TP
-.B init
-Bootstrap a repository with wizard-driven defaults or cached state.
-.TP
-.B workflow
-Run, list, resume, stop, or monitor predefined multi-step workflows.
-.TP
-.B orchestrate
-Preview, validate, run, or stop YAML scenarios (alias: BorchR).
-See Bclaude-ctx-workflowR(1) for workflow + scenario details.
+Skill commands
 .TP
 .B mcp
-Inspect or validate Model Context Protocol servers.
+MCP server commands
 .TP
-.B ai
-Show recommendations, auto-activate confident agents, export metrics, or record
-feedback for the intelligent assistant.
+.B init
+Initialization commands
 .TP
-.B export
-List exportable components and emit Markdown bundles or stdout streams.
+.B profile
+Profile commands
 .TP
-.B tui
-Launch the interactive dashboard. See Bclaude-ctx-tuiR(1).
-.SH SUBCOMMANDS
-.SS status
+.B workflow
+Workflow commands
 .TP
-.B claude-ctx status
-Summarize active agents, rules, and diagnostics.
-.SS doctor
+.B orchestrate
+Scenario orchestration commands
 .TP
-.B claude-ctx doctor [B--fixR]
-Run system diagnostics to find duplicates, inconsistencies, and optimization opportunities.
-Use B--fixR to attempt automatic repairs.
-.SS mode
-.TP
-.B list
-List mode files under I~/.claude/modesR.
+.B orch
+Mode commands
 .TP
 .B status
-Show currently active modes.
+Show overall status
 .TP
-.B activate IMODES...R
-Enable one or more modes (omit .md extension).
+.B tui
+Launch interactive TUI for agent management
 .TP
-.B deactivate IMODES...R
-Disable one or more modes.
-.SS agent
+.B ai
+AI assistant commands
 .TP
-.B list | status
-Display available or active agents.
+.B export
+Export context commands
 .TP
-.B activate | deactivate IAGENTS...R [B--forceR]
-Toggle agents, optionally overriding dependency checks with B--forceR.
+.B completion
+Generate shell completion scripts
 .TP
-.B deps IAGENTR
-Display dependency metadata.
+.B install
+Install shell integrations (aliases, completions)
 .TP
-.B graph [B--exportR IPATHR]
-Render aggregated dependency graph, optionally exporting to a file.
+.B doctor
+Diagnose and fix context issues
 .TP
-.B validate [B--allR] [IAGENTS...R]
-Validate agent front matter and schema.
-.SS rules
+.B memory
+Memory capture commands for persistent knowledge storage
 .TP
-.B list | status
-Show available or active rule modules.
+.SH OPTIONS
 .TP
-.B activate | deactivate IRULES...R
-Toggle rules (omit .md extension).
-.SS skills
-.TP
-.B list | info ISKILLR
-List skills or inspect metadata for a specific skill.
-.TP
-.B validate [B--allR] [ISKILLS...R]
-Validate skill definitions.
-.TP
-.B analyze ITEXTR | suggest [B--project-dirR IPATHR]
-Generate recommendations from free text or a project directory.
-.TP
-.B metrics [ISKILLR] [B--resetR]
-Show or reset usage metrics.
-.TP
-.B deps | agents ISKILLR
-List dependent agents.
-.TP
-.B compose ISKILLR | versions ISKILLR
-Inspect dependency trees or version availability.
-.TP
-.B analytics [B--metricR INAMER] | report [B--formatR IFORMATR] | trending [B--daysR INR]
-Advanced analytics, reporting, and trend analysis.
-.TP
-.B community ISUBCOMMANDR
-List, search, validate, install, rate, or filter community skills.
-.SS profile
-.TP
-.B list | save INAMER | minimal | backend | ...
-Manage built-in and custom profiles. Additional generated subcommands appear for
-each profile template (see Bprofiles/R).
-.SS init
-.TP
-.B claude-ctx init [B--interactiveR] [B--resumeR]
-Run the init wizard or resume the last session. Subcommands:
-.TP
-.B detect [IPATHR]
-Refresh cached project context.
-.TP
-.B minimal | profile INAMER | status [B--jsonR] | reset | resume | wizard
-Additional helpers for storing, inspecting, or clearing init state.
-.SS workflow (see also Bclaude-ctx-workflowR(1))
-.TP
-.B list | run IWORKFLOWR | status | resume | stop [IWORKFLOWR]
-Work with YAML workflows stored under I~/.claude/workflowsR. The optional name in
-BstopR confirms you are stopping the correct workflow.
-.SS orchestrate (alias: BorchR, see Bclaude-ctx-workflowR(1))
-.TP
-.B list | preview ISCENARIOR | validate [B--allR] [ISCENARIOS...R] | status
-Inspect scenario metadata.
-.TP
-.B run ISCENARIOR [B--autoR|B--interactiveR|B--planR|B--previewR|B--validateR]
-Execute a scenario phase plan.
-.TP
-.B stop ISCENARIOR
-Stop a running scenario.
-.SS mcp
-.TP
-.B list | show ISERVERR | docs ISERVERR | test ISERVERR | snippet ISERVERR | diagnose
-Manage Model Context Protocol servers declared in I~/.claude/mcpR.
-.SS ai
-.TP
-.B recommend | auto-activate | record-success [B--outcomeR]
-Interact with the AI assistant.
-.TP
-.B export [B--outputR PATH]
-Write recommendations to JSON.
-.TP
-.B watch [B--no-auto-activateR] [B--thresholdR N] [B--intervalR SECONDS]
-Stream live recommendations.
-.SS export
-.TP
-.B list
-Show each export category and the number of files detected.
-.TP
-.B context IOUTPUTR [B--exclude-categoryR INAMER] [B--exclude-fileR IPATHR] [B--no-agent-genericR]
-Emit a Markdown bundle to a file or stdout.
-.SS tui (see Bclaude-ctx-tuiR(1))
-.TP
-.B claude-ctx tui
-Launch the interactive dashboard with keyboard-driven views for agents, modes,
-rules, workflows, orchestration, profiles, export, MCP servers, AI insights, and
-more.
-.SH FILES
-The CLI reads and writes inside the Claude home directory (default: B~/.claudeR).
-Key paths include:
-.TP
-.B ~/.claude/agents/
-Agent definitions and metadata.
-.TP
-.B ~/.claude/modes/
-Active mode definitions. Inactive modes live under inactive/modes/R.
-.TP
-.B ~/.claude/rules/
-Reusable rule modules.
-.TP
-.B ~/.claude/skills/
-Skill definitions, dependency maps, metric ledgers, and community registries.
-.TP
-.B ~/.claude/workflows/
-Workflow YAML definitions.
-.TP
-.B ~/.claude/scenarios/
-Scenario orchestration definitions.
-.TP
-.B ~/.claude/profiles/
-Saved profile snapshots.
-.TP
-.B ~/.claude/CLAUDE.md
-Primary include file loaded by Claude Code.
+.B \-h, \-\-help
+Show help message and exit
 .SH ENVIRONMENT
 .TP
 .B CLAUDE_CTX_HOME
-Override the location of the Claude context tree.
+Override the default context directory location
 .TP
 .B CLAUDE_PLUGIN_ROOT
-Alternative override (set automatically inside Claude Code).
-.SH EXAMPLES
+Alternative override for context directory
+.SH FILES
 .TP
-Activate a debugging mode:
-.nf
-claude-ctx mode activate debug
-.fi
-.TP
-Toggle an agent stack and inspect dependencies:
-.nf
-claude-ctx agent activate python-expert reviewer
-claude-ctx agent deps python-expert
-.fi
-.TP
-Validate everything before a release:
-.nf
-claude-ctx agent validate --all
-claude-ctx skills validate --all
-claude-ctx orchestrate validate --all
-.fi
-.TP
-Generate workflow and scenario output:
-.nf
-claude-ctx workflow run feature-development
-claude-ctx orchestrate run launch-day --plan
-.fi
-.TP
-Stop the active workflow before switching tasks:
-.nf
-claude-ctx workflow stop feature-development
-.fi
-.TP
-Export a trimmed context bundle:
-.nf
-claude-ctx export context release-notes.md \
-    --exclude-category agents \
-    --exclude-file "rules/experimental-rules.md"
-.fi
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
 .SH SEE ALSO
 .BR claude-ctx-tui (1),
-.BR claude-ctx-workflow (1),
-Ihttps://github.com/nferguson/claude-ctx-pluginR,
-Idocs/guides/tui.mdR
+.BR claude-ctx-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

@@ -238,6 +238,7 @@ def collect_context_components(
 def export_context(
     output_path: Path | str,
     exclude_categories: Set[str] | None = None,
+    include_categories: Set[str] | None = None,
     exclude_files: Set[str] | None = None,
     claude_dir: Path | None = None,
     agent_generic: bool = True,
@@ -247,6 +248,7 @@ def export_context(
     Args:
         output_path: Path where to write the exported context, or "-" for stdout
         exclude_categories: Set of category names to exclude (core, rules, modes, agents, mcp_docs, skills)
+        include_categories: Set of category names to include (if empty, include all)
         exclude_files: Set of specific file paths to exclude (e.g., "rules/quality-rules.md")
         claude_dir: Path to .claude directory (auto-detected if None)
         agent_generic: If True, use agent-generic format (default: True)
@@ -256,6 +258,8 @@ def export_context(
     """
     if exclude_categories is None:
         exclude_categories = set()
+    if include_categories is None:
+        include_categories = set()
     if exclude_files is None:
         exclude_files = set()
 
@@ -280,7 +284,7 @@ def export_context(
         lines.append("---")
         lines.append("")
     else:
-        lines.append("# Claude CTX Context Export")
+        lines.append("# Claude Cortex Context Export")
         lines.append("")
         lines.append(f"Exported from: {claude_dir}")
         lines.append("")
@@ -305,6 +309,12 @@ def export_context(
     }
 
     for category, (title, description) in category_info.items():
+        # If include_categories is specified, only include those categories
+        if include_categories and category not in include_categories:
+            skipped_count += len(components.get(category, {}))
+            continue
+        
+        # If category is in exclude list, skip it
         if category in exclude_categories:
             skipped_count += len(components.get(category, {}))
             continue

@@ -1,105 +1,59 @@
-.TH CLAUDE-CTX-WORKFLOW 1 "2025-11-12" "claude-ctx 1.0" "User Commands"
+.TH CLAUDE-CTX-WORKFLOW 1 "2025-12-10" "claude-ctx-workflow 1.1.0" "User Commands"
 .SH NAME
-claude-ctx-workflow \- Run workflows and orchestrate scenario playbooks
+claude-ctx-workflow \- Command-line tool
 .SH SYNOPSIS
-.B claude-ctx workflow
-IcommandR [IARGSR...]
+.B claude-ctx-workflow
+[
+B-h
+    R | 
+        B--help
+               R]
 .br
-.B claude-ctx orchestrate
-IcommandR [IARGSR...]   (alias: Bclaude-ctx orchR)
+.B claude-ctx-workflow
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
 .SH DESCRIPTION
-Workflows are curated, restartable YAML playbooks stored under
-I~/.claude/workflowsR. Scenarios (managed by Bclaude-ctx orchestrateR)
-extend workflows with multi-phase triggers, monitoring rules, and rollback
-metadata stored under I~/.claude/scenariosR. This manual highlights the CLI
-subcommands for running, inspecting, validating, and previewing both systems.
-.SH WORKFLOW COMMANDS
+.B claude-ctx-workflow
+.SH COMMANDS
+Available commands:
+.TP
+.B run
+Run a predefined workflow
 .TP
 .B list
-Show available workflows with name, description, and trigger summary.
-.TP
-.B run IWORKFLOWR
-Start the named workflow. Output includes each step, assigned agent, and result.
+List available workflows
 .TP
 .B status
-Display progress for the currently running workflow, including step index,
-percentage, and timestamps.
+Show current workflow progress
 .TP
 .B resume
-Resume the workflow tracked in I~/.claude/tasks/currentR after interruptions.
+Resume interrupted workflow
 .TP
-.B stop [IWORKFLOWR]
-Stop the active workflow by clearing the task state. Providing the optional name
-confirms you are stopping the correct workflow when multiple shells are open.
-.SH ORCHESTRATE COMMANDS
+.B stop
+Stop the currently running workflow
 .TP
-.B list
-List YAML scenarios located under I~/.claude/scenariosR.
+.SH OPTIONS
 .TP
-.B validate [B--allR] [ISCENARIOS...R]
-Validate scenario schemas. Without arguments it validates all scenarios unless
-B--allR is omitted.
-.TP
-.B preview ISCENARIOR
-Render the scenario file with phases, agents, profiles, metrics, and rollback
-metadata without running any agents.
-.TP
-.B run ISCENARIOR [B--autoR] [B--interactiveR] [B--planR] [B--previewR] [B--validateR]
-Execute a scenario. Use B--autoR for unattended mode, B--interactiveR to step
-through phases, B--planR/B--previewR to dry-run, and B--validateR as a
-plan-mode alias.
-.TP
-.B stop ISCENARIOR
-Stop active runs and release locks.
-.TP
-.B status
-Show lock holders, current phases, and completion timestamps.
-.SH FILES
-.TP
-.B ~/.claude/workflows/
-Workflow definitions shipped with the plugin or saved locally.
-.TP
-.B ~/.claude/scenarios/
-Scenario definitions with triggers, phases, monitoring, and rollback sections.
-.TP
-.B ~/.claude/tasks/current/
-Runtime bookkeeping: Iactive_workflowR, Iworkflow_statusR,
-Icurrent_stepR, and scenario lock files.
+.B \-h, \-\-help
+Show help message and exit
 .SH ENVIRONMENT
 .TP
-.B CLAUDE_CTX_HOME, CLAUDE_PLUGIN_ROOT
-Override the base Claude directory used to discover workflows and scenarios.
-.SH EXAMPLES
+.B CLAUDE_CTX_HOME
+Override the default context directory location
 .TP
-Run a workflow end-to-end:
-.nf
-claude-ctx workflow run feature-development
-.fi
+.B CLAUDE_PLUGIN_ROOT
+Alternative override for context directory
+.SH FILES
 .TP
-Resume a workflow and check progress:
-.nf
-claude-ctx workflow resume
-claude-ctx workflow status
-.fi
-.TP
-Stop the current workflow before switching contexts:
-.nf
-claude-ctx workflow stop feature-development
-.fi
-.TP
-Preview and validate a launch scenario:
-.nf
-claude-ctx orchestrate preview product-launch
-claude-ctx orchestrate validate product-launch
-.fi
-.TP
-Execute a scenario with dry-run safeguards:
-.nf
-claude-ctx orchestrate run launch-day --plan
-claude-ctx orchestrate run launch-day --auto
-.fi
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
 .SH SEE ALSO
-.BR claude-ctx (1),
-.BR claude-ctx-tui (1),
-Idocs/workflows/README.mdR,
-Idocs/scenarios/README.mdR
+.BR claude-ctx-workflow-tui (1),
+.BR claude-ctx-workflow-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>
