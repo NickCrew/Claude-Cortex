@@ -6,13 +6,14 @@ nav_order: 1
 permalink: /tutorials/getting-started-tui/
 ---
 
-# Getting Started with Claude CTX
+# Getting Started with Claude Cortex
 
 Welcome! This tutorial will help you master the **claude-ctx TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, workflows, and more.
 
 ## 📋 What You'll Learn
 
 By the end of this tutorial, you'll be able to:
+
 - Launch and navigate the TUI
 - Activate/deactivate agents and modes
 - Browse and validate skills
@@ -25,7 +26,8 @@ By the end of this tutorial, you'll be able to:
 
 ## 🎯 What You'll Build
 
-You'll set up a working Claude CTX environment and learn to:
+You'll set up a working Claude Cortex environment and learn to:
+
 1. Navigate between views using keyboard shortcuts
 2. Activate an agent configuration that matches your project type
 3. Run your first workflow
@@ -40,23 +42,27 @@ You'll set up a working Claude CTX environment and learn to:
 Choose your installation method:
 
 **Quick Install (Recommended):**
+
 ```bash
 cd /path/to/claude-ctx-plugin
 ./scripts/install.sh
 ```
 
 This installs:
+
 - ✅ The `claude-ctx` CLI tool
 - ✅ Shell completions (bash/zsh/fish)
 - ✅ Man pages for documentation
 
 **Manual Installation:**
+
 ```bash
 cd /path/to/claude-ctx-plugin
 python3 -m pip install -e .
 ```
 
 **Verify Installation:**
+
 ```bash
 claude-ctx --help
 ```
@@ -93,6 +99,7 @@ claude-ctx tui
 ```
 
 **✅ Checkpoint:** You should see:
+
 - System overview cards in the center
 - Status bar showing memory/CPU at bottom (above footer)
 - Footer with keyboard shortcuts at very bottom
@@ -112,15 +119,18 @@ claude-ctx tui
 The TUI has three main sections:
 
 ### 1. Header
+
 - Shows current view name
 - Updates as you navigate
 
 ### 2. Body
+
 - Main content area
 - Changes based on current view
 - Supports scrolling and selection
 
 ### 3. Footer
+
 - **Status Bar** (just above footer): Shows `[View: Name] Message │ Memory% CPU%`
 - **Keyboard Reference**: Quick access shortcuts
 
@@ -172,6 +182,7 @@ Agents are specialized AI behaviors (like "security-auditor" or "test-engineer")
 ```
 
 **Status Icons:**
+
 - `○` Ready — Available but not active
 - `✓` Active — Currently enabled
 - `⏳` Running — Executing task
@@ -193,6 +204,7 @@ Agents are specialized AI behaviors (like "security-auditor" or "test-engineer")
    - Details panel appears on the right
 
 **What Details Show:**
+
 - Dependencies (what other agents it needs)
 - Description and purpose
 - Activation date
@@ -201,7 +213,8 @@ Agents are specialized AI behaviors (like "security-auditor" or "test-engineer")
 4. **Close details:**
    - Press `Esc` or `Enter` again
 
-**✅ Checkpoint:** 
+**✅ Checkpoint:**
+
 - Status bar shows "Agent activated: test-engineer"
 - Agent row shows `✓ Active` status
 
@@ -236,6 +249,7 @@ claude-ctx agent graph --export agent-deps.md
 ```
 
 **When to use CLI:**
+
 - Batch operations (activating 5+ agents)
 - Scripting and automation
 - Exporting dependency graphs
@@ -266,6 +280,7 @@ Skills are reusable knowledge modules (like "owasp-top-10" or "git-workflow") th
 ```
 
 **Columns Explained:**
+
 - **Rating:** Community star rating (1-5 stars)
 - **Activations:** Times this skill was used
 - **Tokens:** Token savings (negative = efficiency gain)
@@ -276,6 +291,7 @@ Skills are reusable knowledge modules (like "owasp-top-10" or "git-workflow") th
 2. Press `Enter` to see details
 
 **Details Include:**
+
 - Full description
 - Which agents use it
 - Version information
@@ -308,6 +324,7 @@ Skills are reusable knowledge modules (like "owasp-top-10" or "git-workflow") th
 2. Press `m` (metrics shortcut)
 
 **Metrics Include:**
+
 - Usage count over time
 - Token efficiency
 - Success rate
@@ -356,6 +373,7 @@ claude-ctx skills report --format csv > skills-report.csv
 ```
 
 **Community Features (CLI-only):**
+
 ```bash
 # Search community skill registry
 claude-ctx skills community search "kubernetes"
@@ -399,6 +417,7 @@ Workflows are multi-step automation sequences (like "test-and-deploy" or "code-r
 2. Press `Shift+R` (capital R = run)
 
 **What Happens:**
+
 - Workflow starts immediately
 - Status changes to `⏳ Running`
 - Progress bar shows completion percentage
@@ -406,6 +425,7 @@ Workflows are multi-step automation sequences (like "test-and-deploy" or "code-r
 ### Step 3: Monitor Progress
 
 With workflow selected:
+
 - Progress bar updates in real-time
 - Press `Enter` to see step details
 
@@ -426,6 +446,7 @@ With workflow selected:
 ```
 
 **Symbols:**
+
 - `✓` Step complete
 - `→` Current step
 - `○` Pending step
@@ -497,6 +518,7 @@ Press `Ctrl+P`
 | `exp` | "**Exp**ort Context" | Export dialog |
 
 **The Magic:** You don't need to type full words!
+
 - Type first letters
 - Consecutive characters prioritized
 - Smart matching
@@ -548,6 +570,7 @@ Format: Agent Generic (press 'f' to change)
 ### Step 3: Select Format
 
 Press `f` to cycle through formats:
+
 - **Agent Generic** — Works with any AI assistant
 - **Claude Format** — Optimized for Claude Code
 
@@ -589,8 +612,13 @@ claude-ctx export list
 
 # Export to file (CLI-only: advanced filtering)
 claude-ctx export context ~/my-export.md \
-  --exclude-category workflows \
+  --exclude workflows \
   --exclude-file some-agent.md
+
+# Include only specific categories
+claude-ctx export context ~/my-export.md \
+  --include rules \
+  --include core
 
 # Export to stdout (CLI-only: pipe to other tools)
 claude-ctx export context - | less
@@ -632,6 +660,7 @@ The AI Assistant analyzes your project and recommends optimal agent configuratio
 ```
 
 **Confidence Colors:**
+
 - 🔴 Red (≥80%) — Auto-activate recommended
 - 🟡 Yellow (60-80%) — Review suggested
 - 🟢 Green (<60%) — Optional
@@ -705,6 +734,7 @@ Watch mode monitors file changes and recommends agents in real-time!
 ```
 
 **Available Actions:**
+
 - `v` — Validate server configuration
 - `d` — View server documentation
 - `t` — Test server connection
@@ -732,6 +762,7 @@ Watch mode monitors file changes and recommends agents in real-time!
 ```
 
 **Built-in Profiles:**
+
 - `frontend` — React, Vue, Angular development
 - `backend` — API, database, server-side
 - `devops` — Infrastructure, CI/CD
@@ -739,11 +770,13 @@ Watch mode monitors file changes and recommends agents in real-time!
 - `full` — Everything enabled
 
 **Apply Profile:**
+
 1. Select profile (e.g., "frontend")
 2. Press `Space`
 3. All associated agents/modes activate
 
 **Save Custom Profile:**
+
 1. Activate your desired agents/modes
 2. Press `n` (new)
 3. Enter profile name
@@ -758,29 +791,37 @@ Your custom profile is saved for reuse!
 ### Common Issues
 
 #### TUI Not Responding
+
 **Symptom:** Keys don't work  
 **Fix:**
+
 1. Press `Esc` to clear any active mode
 2. Press `?` to verify responsiveness
 3. Press `q` to quit and restart
 
 #### Filters Not Clearing
+
 **Symptom:** View shows limited items  
 **Fix:**
+
 1. Press `Esc` to clear filter
 2. Press `r` to refresh view
 3. Look for "Filter: ..." in status bar
 
 #### Details Panel Stuck Open
+
 **Symptom:** Can't close details panel  
 **Fix:**
+
 1. Press `Esc`
 2. If stuck, press `Enter` to toggle
 3. Switch views (`1-9`) and return
 
 #### Status Bar Missing Metrics
+
 **Symptom:** No memory/CPU shown  
 **Fix:** Install psutil:
+
 ```bash
 pip install psutil
 ```
@@ -788,15 +829,18 @@ pip install psutil
 ### Performance Tips
 
 **Speed Up Navigation:**
+
 - Use `Ctrl+P` instead of number keys
 - Type abbreviations (e.g., "agt" finds "Agents")
 - Keep filters active while working
 
 **Reduce File I/O:**
+
 - Use `r` to manually refresh instead of switching views
 - Filter large lists before scrolling
 
 **Terminal Configuration:**
+
 - Use hardware acceleration
 - Enable truecolor support
 - 120x30 minimum terminal size recommended
@@ -829,16 +873,19 @@ pip install psutil
 ### 🎓 Continue Learning
 
 **Beginner Level:** ✅ You are here!
+
 - Explore each view (`1-9, 0`)
 - Practice activating agents
 - Run a simple workflow
 
 **Intermediate Level:**
+
 - Create custom profiles for your projects
 - Set up AI watch mode for your workflow
 - Export and use context bundles with Claude
 
 **Advanced Level:**
+
 - Write custom workflows (YAML)
 - Create custom skills
 - Integrate with CI/CD pipelines
@@ -846,17 +893,20 @@ pip install psutil
 ### 📚 Documentation Resources
 
 **TUI Specific:**
+
 - `docs/guides/tui/tui-keyboard-reference.md` — Complete shortcut list
 - `docs/guides/tui-quick-start.md` — New features guide
 - `docs/guides/tui.md` — Architecture and implementation
 - `man claude-ctx-tui` — Man page (if installed)
 
 **CLI Reference:**
+
 - `man claude-ctx` — Complete command reference
 - `claude-ctx --help` — Built-in help
 - `claude-ctx <command> --help` — Command-specific help
 
 **Advanced Topics:**
+
 - `docs/guides/features/SUPER_SAIYAN_INTEGRATION.md` — Visual enhancements
 - `docs/guides/development/AI_INTELLIGENCE_GUIDE.md` — AI assistant deep-dive
 - `docs/guides/development/WATCH_MODE_GUIDE.md` — Watch mode details
@@ -865,6 +915,7 @@ pip install psutil
 ### 🛠️ Extend Your Setup
 
 **Shell Integration (CLI-only):**
+
 ```bash
 # Install shell aliases
 claude-ctx install aliases
@@ -874,6 +925,7 @@ claude-ctx install aliases --show
 ```
 
 **Completions:**
+
 ```bash
 # Generate completions
 claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
@@ -882,6 +934,7 @@ claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
 ```
 
 **Man Pages:**
+
 ```bash
 # View documentation
 man claude-ctx        # Main reference
@@ -894,13 +947,16 @@ man claude-ctx-workflow  # Workflow orchestration
 **Daily Development Workflow:**
 
 1. **Morning Setup:**
+
    ```bash
    claude-ctx tui
    ```
+
    - Press `8` → Apply project profile
    - Press `0` → Check AI recommendations
 
 2. **During Development:**
+
    ```bash
    # Terminal 1: AI Watch Mode (CLI-only)
    claude-ctx ai watch
@@ -910,13 +966,16 @@ man claude-ctx-workflow  # Workflow orchestration
    ```
 
 3. **Before Commits:**
+
    ```bash
    claude-ctx tui
    ```
+
    - Press `6` → Run "pre-commit" workflow
    - Press `9` → Export context for review
 
 4. **Context for Claude:**
+
    ```bash
    # Quick clipboard export (TUI)
    claude-ctx tui
@@ -929,7 +988,7 @@ man claude-ctx-workflow  # Workflow orchestration
 
 ---
 
-## 🎉 Congratulations!
+## 🎉 Congratulations
 
 You've completed the getting started tutorial! You now know how to:
 
@@ -958,19 +1017,21 @@ You've completed the getting started tutorial! You now know how to:
 ### When to Use TUI vs CLI
 
 **Use TUI when:**
+
 - 👀 Exploring and discovering features
 - 🎯 Quick interactive changes
 - 📊 Monitoring status and progress
 - 🧪 Learning and experimentation
 
 **Use CLI when:**
+
 - 🤖 Scripting and automation
 - ⚡ Batch operations (multiple agents)
 - 📈 Detailed reports and exports
 - 🔗 Integration with other tools
 - 📦 CI/CD pipelines
 
-### Keep Practicing!
+### Keep Practicing
 
 **Challenge Yourself:**
 

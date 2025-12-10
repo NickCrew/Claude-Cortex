@@ -1,14 +1,16 @@
-# Claude CTX Presentations
+# Claude Cortex Presentations
 
 Reveal.js presentation decks for claude-ctx project overview, demos, and enablement sessions.
 
 ## 📊 Available Presentations
 
-### 🤖 Claude CTX Overview
+### 🤖 Claude Cortex Overview
+
 **File:** `claude-ctx-overview.html`
 **Topics:** Platform overview, AI intelligence, watch mode, metrics, architecture, testing
 
 **What's Covered:**
+
 - AI Intelligence System (context detection, pattern learning)
 - Watch Mode (real-time monitoring, auto-activation)
 - Metrics & Analytics (ROI, effectiveness scoring)
@@ -20,10 +22,12 @@ Reveal.js presentation decks for claude-ctx project overview, demos, and enablem
 **Screenshots:** Includes TUI screenshots for overview, AI intelligence, and agent management
 
 ### 🎨 TUI Dashboard Showcase
+
 **File:** `tui-showcase.html`
 **Topics:** Interactive TUI walkthrough with screenshots of all views
 
 **What's Covered:**
+
 - Dashboard Overview (unified stats and quick actions)
 - AI Assistant (press 8 - real-time recommendations)
 - Agent Management (press 1 - dependency tracking)
@@ -41,6 +45,7 @@ Reveal.js presentation decks for claude-ctx project overview, demos, and enablem
 ### Local Development Server
 
 **Option 1: Python HTTP Server**
+
 ```bash
 cd presentations
 python3 -m http.server 8080
@@ -51,6 +56,7 @@ open http://localhost:8080/tui-showcase.html
 ```
 
 **Option 2: Node.js HTTP Server**
+
 ```bash
 cd presentations
 npx http-server -p 8080
@@ -61,6 +67,7 @@ open http://localhost:8080/tui-showcase.html
 ```
 
 ### Direct File Opening
+
 ```bash
 open presentations/claude-ctx-overview.html
 open presentations/tui-showcase.html
@@ -74,6 +81,7 @@ Note: Some features may require a local server due to CORS restrictions.
 **Font:** Rubik (Google Fonts)
 **Framework:** Reveal.js 5
 **Features:**
+
 - Smooth fade transitions
 - Animated gradients and glows
 - Hover effects on cards and badges
@@ -83,6 +91,7 @@ Note: Some features may require a local server due to CORS restrictions.
 ## ⌨️ Keyboard Controls
 
 **Navigation:**
+
 - `→` / `Space` - Next slide
 - `←` - Previous slide
 - `Home` - First slide
@@ -90,6 +99,7 @@ Note: Some features may require a local server due to CORS restrictions.
 - `Esc` - Slide overview
 
 **Presentation:**
+
 - `F` - Fullscreen
 - `S` - Speaker notes (if available)
 - `B` / `.` - Pause/blackout
@@ -133,6 +143,7 @@ To create a new presentation following the same style:
 ## 📦 Dependencies
 
 **CDN Resources:**
+
 - **Reveal.js 5:** Core presentation framework
 - **Google Fonts:** Rubik font family
 - **Fira Code:** Monospace code font (system fallback)
@@ -183,8 +194,8 @@ No build step required - presentations work standalone.
 
 ## 📚 Resources
 
-- **Reveal.js Docs:** https://revealjs.com/
-- **Google Fonts:** https://fonts.google.com/specimen/Rubik
+- **Reveal.js Docs:** <https://revealjs.com/>
+- **Google Fonts:** <https://fonts.google.com/specimen/Rubik>
 - **Project README:** ../README.md
 - **AI Intelligence Guide:** ../guides/development/AI_INTELLIGENCE_GUIDE.md
 - **Watch Mode Guide:** ../guides/development/WATCH_MODE_GUIDE.md
@@ -200,6 +211,7 @@ No build step required - presentations work standalone.
 ## 🔄 Updates
 
 When updating presentations:
+
 1. Update slide content in HTML
 2. Test in browser (both Chrome and Firefox)
 3. Verify all links and images work
@@ -209,12 +221,14 @@ When updating presentations:
 ## 📤 Exporting
 
 **To PDF:**
+
 1. Open presentation in Chrome
 2. Add `?print-pdf` to URL
 3. Use Print → Save as PDF
 4. Ensure "Background graphics" is enabled
 
 **Example:**
+
 ```
 http://localhost:8080/claude-ctx-overview.html?print-pdf
 ```

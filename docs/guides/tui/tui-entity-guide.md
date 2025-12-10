@@ -1,6 +1,6 @@
-# Claude CTX TUI Entity Relationship Guide
+# Claude Cortex TUI Entity Relationship Guide
 
-Understand how the TUI slices the Claude CTX plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`claude-ctx tui`) but the concepts match the CLI and context bundle.
+Understand how the TUI slices the Claude Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`claude-ctx tui`) but the concepts match the CLI and context bundle.
 
 ## Quick Reference Map
 
@@ -49,10 +49,10 @@ Workflows are ideal for predictable, repeatable sequences (feature work, bug fix
 
 ## Relationship Cheat Codes
 
-- **Profiles call Modes/Rules** – Every `.profile` file lists `MODES=` and `RULES=`, so applying a profile is equivalent to toggling multiple modes/rules in one action.
-- **Workflows call Agents** – `workflows/*.yaml` enumerates `steps[].agent`. When a workflow is running, the Orchestrate view will show those agents as tasks; canceling a task from Orchestrate pauses the workflow.
-- **Scenarios call Profiles + Agents** – `phases[].profiles` tell the orchestrator which profile to apply before scheduling the `phases[].agents`. That means a single scenario may switch contexts several times as it advances.
-- **AI Assistant predicts Workflows/Scenarios** – Recommendations are based on the currently active agents/modes/workflows; it often suggests the matching workflow or scenario when it detects keywords or repo signals.
+* **Profiles call Modes/Rules** – Every `.profile` file lists `MODES=` and `RULES=`, so applying a profile is equivalent to toggling multiple modes/rules in one action.
+* **Workflows call Agents** – `workflows/*.yaml` enumerates `steps[].agent`. When a workflow is running, the Orchestrate view will show those agents as tasks; canceling a task from Orchestrate pauses the workflow.
+* **Scenarios call Profiles + Agents** – `phases[].profiles` tell the orchestrator which profile to apply before scheduling the `phases[].agents`. That means a single scenario may switch contexts several times as it advances.
+* **AI Assistant predicts Workflows/Scenarios** – Recommendations are based on the currently active agents/modes/workflows; it often suggests the matching workflow or scenario when it detects keywords or repo signals.
 
 ## Typical End-to-End Flow
 

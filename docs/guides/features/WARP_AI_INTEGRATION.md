@@ -126,9 +126,14 @@ Use the full `claude-ctx export` command for fine-grained control:
 ```bash
 # Exclude multiple categories
 claude-ctx export context - \
-  --exclude-category skills \
-  --exclude-category mcp_docs \
-  --exclude-category agents
+  --exclude skills \
+  --exclude mcp_docs \
+  --exclude agents
+
+# Include only specific categories
+claude-ctx export context - \
+  --include rules \
+  --include core
 
 # Exclude specific files
 claude-ctx export context - \

@@ -1,14 +1,16 @@
-# Claude CTX TUI - Documentation Index
+# Claude Cortex TUI - Documentation Index
 
 ## Quick Links to Documentation
 
 ### 1. **TUI_EXPLORATION_SUMMARY.md** - Executive Overview
+
 - 5-minute read of the entire TUI implementation
 - Architecture overview and key findings
 - Current state assessment and recommendations
 - Performance characteristics and enhancement opportunities
 
 ### 2. **TUI_VISUAL_ANALYSIS.md** - Comprehensive Reference
+
 - Detailed breakdown of all 10 views (Overview, Agents, Modes, Rules, Skills, Workflows, Orchestrate, Profile, Export, Help)
 - Component documentation (tables, panels, layouts)
 - Color schemes and styling system
@@ -17,6 +19,7 @@
 - Rendering strategy and performance analysis
 
 ### 3. **TUI_ENHANCEMENT_ROADMAP.md** - Implementation Guide
+
 - Prioritized enhancement opportunities (5 phases)
 - Quick wins for immediate impact
 - Phase-by-phase implementation strategy
@@ -24,6 +27,7 @@
 - Testing strategy and success metrics
 
 ### 4. **tui/tui-entity-guide.md** - Entity Relationships in the TUI
+
 - Explains how profiles, modes, workflows, scenarios, and agents differ
 - Shows which TUI view or hotkey manages each entity
 - Maps how scenarios trigger profiles/modes and feed workflows
@@ -34,6 +38,7 @@
 ## Current State Summary
 
 ### What Works Well
+
 - Clean 3-part layout (header/body/footer)
 - Consistent color scheme (6 main colors + modifiers)
 - 9 different views with specialized functionality
@@ -42,6 +47,7 @@
 - Rich library provides excellent rendering
 
 ### What Could Be Better
+
 - Hard-coded colors (no theming system)
 - No animations or visual feedback
 - Limited accessibility options
@@ -81,52 +87,62 @@ REVERSE     - Selected rows
 ## View Architecture
 
 ### Overview (1)
+
 - Dashboard with system status
 - Agent/Mode/Rule/Skill counts
 - Quick action hints
 
 ### Agents (2)
+
 - Table with toggle capability
 - Details panel on Enter
 - Filter on /
 
 ### Modes (3)
+
 - Behavioral mode list
 - Toggle activation
 - Details panel
 
 ### Rules (4)
+
 - Execution rules with categories
 - Toggle activation
 - Details panel
 
 ### Skills (5)
+
 - Installed skills with metrics
 - Validation (v), Metrics (m), Community (c)
 - Token savings and usage stats
 
 ### Workflows (6)
+
 - Workflow list with progress bars
 - Status indicators and elapsed time
 - Step-by-step tracking
 
 ### Orchestrate (7)
+
 - Parallel execution dashboard
 - Workstream layout diagram
 - Agent task table with progress
 - Parallel efficiency metrics
 
 ### Profile (8)
+
 - Available profiles (built-in + saved)
 - Apply, save, delete operations
 - Type indicators (built-in vs saved)
 
 ### Export (9)
+
 - Export options with checkboxes
 - Format selector (JSON/XML/Markdown)
 - Preview of export content
 
 ### Help (?)
+
 - Comprehensive keyboard reference
 - View-specific key hints
 - Context-aware shortcuts
@@ -157,6 +173,7 @@ CONTEXT:    Agents: v=validate
 ## Code Structure
 
 ### Main Files
+
 ```
 claude_ctx_py/
 ├── tui.py                    # Primary Rich-based TUI (1951 lines)
@@ -166,7 +183,9 @@ claude_ctx_py/
 ```
 
 ### View Methods Pattern
+
 All views follow similar structure:
+
 ```
 create_[view]_table()          # Main data table
 create_[view]_details_panel()  # Details panel (if applicable)
@@ -174,6 +193,7 @@ render_[view]_view()           # Complete view (for custom layouts)
 ```
 
 ### State Management
+
 ```
 ViewState           # Per-view state (selected, filter, show_details)
 TUIState            # Global state (current_view, agents, status)
@@ -185,6 +205,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 ## Priority Enhancement Recommendations
 
 ### Phase 1: Theme System (Highest Priority)
+
 - Decouple styling from code
 - Enable user customization
 - Support dark/light modes
@@ -192,6 +213,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 - **Effort**: Medium | **Impact**: High
 
 ### Phase 2: Visual Polish (High Priority)
+
 - Status icons (✓, ✗, ▶, ⏳)
 - Colored progress bars
 - Better date formatting
@@ -199,6 +221,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 - **Effort**: Low | **Impact**: Medium
 
 ### Phase 3: Interactive Features (Medium Priority)
+
 - Modal dialogs
 - Loading spinners
 - Tree views for hierarchies
@@ -206,6 +229,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 - **Effort**: Medium | **Impact**: Medium
 
 ### Phase 4-5: Information Architecture & Visualizations (Lower Priority)
+
 - Sidebar navigation
 - Breadcrumbs
 - Tabs
@@ -219,18 +243,21 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 ## Testing Recommendations
 
 ### Visual Testing
+
 - [ ] Screenshot comparisons across themes
 - [ ] Terminal sizes: 80x24, 120x30, 200x50
 - [ ] Color modes: 256-color, truecolor
 - [ ] Unicode character support
 
 ### Accessibility Testing
+
 - [ ] High contrast theme
 - [ ] Keyboard-only navigation
 - [ ] Screen reader compatibility
 - [ ] Reduce motion mode
 
 ### Performance Testing
+
 - [ ] Rendering speed: goal <100ms
 - [ ] Memory usage stability
 - [ ] File I/O optimization
@@ -241,11 +268,13 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 ## File Locations
 
 ### Documentation
+
 - `/TUI_EXPLORATION_SUMMARY.md` - This overview
 - `/TUI_VISUAL_ANALYSIS.md` - Detailed component analysis
 - `/TUI_ENHANCEMENT_ROADMAP.md` - Implementation guide
 
 ### Code
+
 - `/claude_ctx_py/tui.py` - Main implementation
 - `/claude_ctx_py/tui_extensions.py` - View mixins
 - `/claude_ctx_py/tui_textual.py` - Alternative framework
@@ -255,6 +284,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 ## Getting Started with Enhancement
 
 ### For Quick Wins (2-4 hours)
+
 1. Read TUI_ENHANCEMENT_ROADMAP.md - "Quick Wins" section
 2. Add status icons to status indicators
 3. Implement colored progress bars
@@ -262,6 +292,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 5. Test with different terminal themes
 
 ### For Theme System (1 week)
+
 1. Read TUI_ENHANCEMENT_ROADMAP.md - "Phase 1" section
 2. Design theme JSON format
 3. Create theme loader module
@@ -271,6 +302,7 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 7. Test across different terminal configurations
 
 ### For Complete Enhancement (3-4 months)
+
 1. Follow all phases in TUI_ENHANCEMENT_ROADMAP.md
 2. Implement parallel workstreams for testing
 3. Create comprehensive test suite
@@ -282,7 +314,9 @@ Mixins              # ProfileViewMixin, ExportViewMixin, WizardViewMixin
 ## Notes for Developers
 
 ### Color Usage Pattern
+
 Most views follow this pattern:
+
 ```python
 # Data column
 style="cyan"
@@ -298,7 +332,9 @@ row_style = "reverse" if is_selected else None
 ```
 
 ### Table Pattern
+
 All data tables follow similar structure:
+
 ```python
 table = Table(
     title="View Name",
@@ -316,7 +352,8 @@ table.add_column("Desc", overflow="fold")  # Last column wraps
 ```
 
 ### Special Characters Reference
-- Selection: `>` 
+
+- Selection: `>`
 - Steps: `→` (current), `✓` (done), `○` (pending)
 - Progress: `█` (filled), `░` (empty)
 - Dividers: `━`, `─`, `═`
@@ -327,12 +364,14 @@ table.add_column("Desc", overflow="fold")  # Last column wraps
 ## Performance Notes
 
 ### Current Bottlenecks
+
 - Full-screen refresh on state change
 - File I/O on view load (agents, modes, rules, skills)
 - Repeated metadata parsing
 - No caching
 
 ### Optimization Opportunities
+
 - Cache agents/modes/rules between renders
 - Use Rich Live for incremental updates
 - Lazy load large lists
@@ -356,6 +395,7 @@ table.add_column("Desc", overflow="fold")  # Last column wraps
 ## Questions & Support
 
 For questions about:
+
 - **Current implementation**: See TUI_VISUAL_ANALYSIS.md
 - **Enhancement ideas**: See TUI_ENHANCEMENT_ROADMAP.md
 - **Code structure**: See claude_ctx_py/tui.py
