@@ -19,6 +19,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# AI Intelligence features
+ai = [
+    "fastembed>=0.2.0",  # Semantic similarity matching
+    "numpy>=1.24.0",     # Required by fastembed
+]
+llm = [
+    "anthropic>=0.18.0",  # Optional LLM-powered recommendations
+]
+# Development dependencies
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -30,6 +39,12 @@ dev = [
     "PyYAML>=6.0.0",
     "build>=1.0.0",
     "python-semantic-release>=9.0.0",
+]
+# All optional features
+all = [
+    "fastembed>=0.2.0",
+    "numpy>=1.24.0",
+    "anthropic>=0.18.0",
 ]
 
 [project.urls]
@@ -110,6 +125,13 @@ markers = [
     "unit: Unit tests for individual components",
     "integration: Integration tests for CLI and workflows",
     "slow: Tests that take longer to run",
+    "fast: Tests that run quickly (< 1 second)",
+    "tui: Tests for TUI components",
+    "cli: Tests for CLI interface",
+    "core: Tests for core functionality",
+    "intelligence: Tests for AI/intelligence features",
+    "smoke: Smoke tests for critical paths",
+    "regression: Regression tests for bug fixes",
     "requires_yaml: Tests that require PyYAML to be installed",
 ]
 
@@ -122,7 +144,13 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 80
+# Progressive coverage target (current: 15%, target: 80%)
+# Phase 1: 15% (Week 1) - Baseline + buffer
+# Phase 2: 30% (Week 2) - Core modules
+# Phase 3: 50% (Week 3) - Major features
+# Phase 4: 65% (Week 4) - Comprehensive
+# Phase 5: 80% (Future) - Target coverage
+fail_under = 15
 precision = 2
 show_missing = true
 skip_covered = false

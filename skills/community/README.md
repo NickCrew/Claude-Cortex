@@ -1,6 +1,6 @@
 # Community Contributed Skills
 
-Welcome to the community skills directory! This is where developers can contribute specialized knowledge and patterns to the Claude CTX Plugin ecosystem.
+Welcome to the community skills directory! This is where developers can contribute specialized knowledge and patterns to the Claude Cortex ecosystem.
 
 ## What are Community Skills?
 

@@ -31,7 +31,10 @@ install:
 install-dev:
     @./scripts/install.sh
 
-install-manpage:
+generate-manpages:
+    @python3 ./scripts/generate-manpages.py
+
+install-manpage: generate-manpages
     @./scripts/install-manpage.sh
 
 install-completions:

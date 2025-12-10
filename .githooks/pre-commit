@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Pre-commit hook to auto-generate manpages
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
+
+# Check if CLI files have been modified
+if git diff --cached --name-only | grep -q "claude_ctx_py/cli.py"; then
+    echo "🔄 CLI changed, regenerating manpages..."
+    
+    python3 "${PROJECT_ROOT}/scripts/generate-manpages.py" || {
+        echo "❌ Failed to generate manpages"
+        exit 1
+    }
+    
+    # Stage the updated manpages
+    git add docs/reference/*.1
+    
+    echo "✓ Manpages regenerated and staged"
+fi
+
+exit 0

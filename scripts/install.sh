@@ -204,6 +204,13 @@ install_fish_completions() {
 }
 
 install_manpage() {
+    log_info "Generating manpages..."
+    
+    # Generate fresh manpages from CLI definitions
+    python3 "${SCRIPT_DIR}/generate-manpages.py" || {
+        log_warn "Manpage generation failed, using existing manpages"
+    }
+    
     log_info "Installing manpage(s)..."
 
     local manpage_dir="${PROJECT_ROOT}/docs/reference"

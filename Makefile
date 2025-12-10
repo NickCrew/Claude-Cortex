@@ -1,4 +1,4 @@
-.PHONY: help install install-dev install-manpage install-completions uninstall test test-cov lint type-check clean docs
+.PHONY: help install install-dev install-manpage install-completions uninstall test test-cov lint type-check clean docs generate-manpages
 
 # Default target
 help:
@@ -9,6 +9,7 @@ help:
 	@echo "  install-dev          - Install in development mode with all dependencies"
 	@echo "  install-manpage      - Install manpage only"
 	@echo "  install-completions  - Install shell completions only"
+	@echo "  generate-manpages    - Generate manpages from CLI definitions"
 	@echo "  uninstall            - Uninstall claude-ctx"
 	@echo "  test                 - Run test suite"
 	@echo "  test-cov             - Run tests with coverage report"
@@ -28,7 +29,10 @@ install:
 install-dev:
 	@./scripts/install.sh
 
-install-manpage:
+generate-manpages:
+	@python3 ./scripts/generate-manpages.py
+
+install-manpage: generate-manpages
 	@./scripts/install-manpage.sh
 
 install-completions:

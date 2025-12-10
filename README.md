@@ -1,9 +1,10 @@
-# Claude CTX Plugin
+# Claude Cortex
 
-This repository packages the `claude-ctx` context management toolkit as a Claude Code plugin. It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
+This repository packages the Claude Cortex (`claude-ctx`) context management toolkit as a Claude Code plugin.
+It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
 
 > 📚 **Docs:** <https://nickcrew.github.io/claude-ctx-plugin/>
-> 🎬 **Presentations:** [Claude CTX Overview](docs/presentations/claude-ctx-overview.html) • [TUI Showcase](docs/presentations/tui-showcase.html)
+> 🎬 **Presentations:** [Claude Cortex Overview](docs/presentations/claude-ctx-overview.html) • [TUI Showcase](docs/presentations/tui-showcase.html)
 
 ## What's inside
 
@@ -18,6 +19,7 @@ This repository packages the `claude-ctx` context management toolkit as a Claude
 ### 🔥 New: Super Saiyan Mode
 
 Universal visual excellence framework with platform detection:
+
 - **`modes/Super_Saiyan.md`** – Core generic mode with auto-detection
 - **`modes/supersaiyan/`** – Platform-specific implementations (Web, TUI, CLI, Docs)
 - **`claude_ctx_py/tui_supersaiyan.py`** – Enhanced Textual components
@@ -25,6 +27,7 @@ Universal visual excellence framework with platform detection:
 - **Three power levels**: ⭐ Super Saiyan → ⚡ Kamehameha → 💥 Over 9000
 
 **Quick start:**
+
 ```bash
 python examples/supersaiyan_demo.py  # See it in action!
 ```
@@ -44,6 +47,7 @@ See [Super Saiyan Integration Guide](docs/guides/features/SUPER_SAIYAN_INTEGRATI
 - **Skill Palette Shortcuts** – `Ctrl+P` → type “Skill…” to run info, versions, deps, analytics, trending, or community install/validate/rate/search commands without leaving the TUI
 
 **Quick start:**
+
 ```bash
 # Get AI recommendations for current context
 claude-ctx ai recommend
@@ -64,6 +68,7 @@ claude-ctx ai record-success --outcome "feature complete"
 ```
 
 **Watch Mode Example:**
+
 ```
 ══════════════════════════════════════════════════════════════════════
 🤖 AI WATCH MODE - Real-time Intelligence
@@ -125,6 +130,7 @@ See [Phase 5 Roadmap](docs/guides/development/PHASE5_ROADMAP.md) for the broader
 - **Smart Recommendations** – Integration with `/tools:select` for optimal MCP routing
 
 **Quick start:**
+
 ```bash
 # List all configured MCP servers
 claude-ctx mcp list
@@ -143,6 +149,7 @@ claude-ctx mcp snippet playwright
 ```
 
 **TUI Interface:**
+
 ```
 claude-ctx tui
 # Press '7' for MCP Servers view
@@ -172,11 +179,13 @@ Install the package, shell completions, and manpage with one command:
 ```
 
 This will:
+
 - Install `claude-ctx-py` in editable mode with dev dependencies
 - Set up shell completions for your shell (bash/zsh/fish)
 - Install the manpage system-wide
 
 **Options:**
+
 ```bash
 ./scripts/install.sh --help              # Show all options
 ./scripts/install.sh --no-completions    # Skip completions
@@ -221,6 +230,7 @@ Running the CLI directly will operate on the directories in this repository, whi
 Shell completions are automatically installed when using `./scripts/install.sh`. For manual setup:
 
 **Automatic (recommended):**
+
 ```bash
 # Generate and install completions for your shell
 claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
@@ -232,6 +242,7 @@ claude-ctx completion bash --install
 ```
 
 **Using argcomplete (legacy method):**
+
 ```bash
 # Bash
 register-python-argcomplete claude-ctx > ~/.local/share/bash-completion/completions/claude-ctx
@@ -250,6 +261,7 @@ See [Shell Completions Guide](docs/guides/COMPLETIONS.md) for detailed instructi
 A comprehensive manual page is available in `docs/reference/claude-ctx.1` and is automatically installed when using `./scripts/install.sh`.
 
 **View locally:**
+
 ```bash
 man docs/reference/claude-ctx.1
 ```
@@ -258,11 +270,13 @@ Dedicated entries are also available for the TUI (`man claude-ctx-tui`) and the
 workflow/scenario orchestration commands (`man claude-ctx-workflow`).
 
 **Manual installation:**
+
 ```bash
 ./scripts/install-manpage.sh
 ```
 
 **After installation:**
+
 ```bash
 man claude-ctx
 ```
@@ -272,6 +286,7 @@ The manpage documents all commands, subcommands, options, file locations, enviro
 ### Advanced Features
 
 For more advanced features, see the following guides:
+
 - [Warp AI & Terminal AI Integration](docs/guides/integrations.md)
 - [Hooks and Auto-Suggestions](docs/guides/hooks.md)
 
@@ -281,7 +296,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### Credits
 
-Claude CTX builds upon ideas and patterns from several excellent projects in the Claude Code ecosystem:
+Claude Cortex builds upon ideas and patterns from several excellent projects in the Claude Code ecosystem:
 
 - **[obra/superpowers](https://github.com/obra/superpowers)** - Systematic debugging and quality gate patterns (MIT License)
 - **[VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents)** - Specialized agent architecture and modular design (MIT License)

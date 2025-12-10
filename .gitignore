@@ -48,3 +48,7 @@ coverage.xml
 __pycache__
 docs/_site/ 
 docs/vendor/
+
+
+#Ignore insiders AI rules
+.github/instructions/codacy.instructions.md

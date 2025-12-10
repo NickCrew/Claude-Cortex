@@ -1,6 +1,6 @@
-# Contributing to Claude CTX Plugin
+# Contributing to Claude Cortex
 
-Thank you for your interest in contributing to the Claude CTX Plugin! This document provides guidelines for different types of contributions.
+Thank you for your interest in contributing to the Claude Cortex! This document provides guidelines for different types of contributions.
 
 ## Table of Contents
 
@@ -530,7 +530,7 @@ Contributors are recognized in several ways:
 - **Contributors list**: GitHub contributors page
 - **Release notes**: Significant contributions mentioned
 
-Thank you for contributing to Claude CTX Plugin!
+Thank you for contributing to Claude Cortex!
 
 ## License
 
