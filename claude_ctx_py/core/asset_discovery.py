@@ -1,0 +1,660 @@
+"""Asset discovery for plugin resources.
+
+Discovers available assets from the plugin and installed assets
+in .claude directories. Supports:
+- Hooks
+- Commands (slash commands)
+- Agents
+- Skills
+- Modes
+- Workflows
+"""
+
+from __future__ import annotations
+
+import os
+import re
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
+from .base import _extract_front_matter
+
+
+class AssetCategory(Enum):
+    """Categories of installable assets."""
+
+    HOOKS = "hooks"
+    COMMANDS = "commands"
+    AGENTS = "agents"
+    SKILLS = "skills"
+    MODES = "modes"
+    WORKFLOWS = "workflows"
+
+
+class InstallStatus(Enum):
+    """Installation status of an asset."""
+
+    NOT_INSTALLED = "not_installed"
+    INSTALLED_SAME = "installed_same"
+    INSTALLED_DIFFERENT = "installed_different"
+    INSTALLED_NEWER = "installed_newer"
+    INSTALLED_OLDER = "installed_older"
+
+
+@dataclass
+class Asset:
+    """Represents a discoverable/installable asset."""
+
+    name: str
+    category: AssetCategory
+    source_path: Path
+    description: str
+    version: Optional[str] = None
+    dependencies: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    # For commands, this is the namespace (e.g., "analyze", "dev")
+    namespace: Optional[str] = None
+
+    @property
+    def display_name(self) -> str:
+        """Get display name including namespace if applicable."""
+        if self.namespace:
+            return f"{self.namespace}:{self.name}"
+        return self.name
+
+    @property
+    def install_target(self) -> str:
+        """Get the relative install path within .claude directory."""
+        if self.category == AssetCategory.HOOKS:
+            return f"hooks/{self.source_path.name}"
+        elif self.category == AssetCategory.COMMANDS:
+            if self.namespace:
+                return f"commands/{self.namespace}/{self.source_path.name}"
+            return f"commands/{self.source_path.name}"
+        elif self.category == AssetCategory.AGENTS:
+            return f"agents/{self.source_path.name}"
+        elif self.category == AssetCategory.SKILLS:
+            # Skills are directories
+            return f"skills/{self.name}"
+        elif self.category == AssetCategory.MODES:
+            return f"modes/{self.source_path.name}"
+        elif self.category == AssetCategory.WORKFLOWS:
+            return f"workflows/{self.source_path.name}"
+        return self.source_path.name
+
+
+@dataclass
+class ClaudeDir:
+    """Represents a discovered .claude directory."""
+
+    path: Path
+    scope: str  # "project", "parent", "global"
+    installed_assets: Dict[str, List[str]] = field(default_factory=dict)
+
+    @property
+    def display_name(self) -> str:
+        """Get display name for the directory."""
+        if self.scope == "global":
+            return f"~/.claude (global)"
+        elif self.scope == "project":
+            return f"./.claude (project)"
+        else:
+            # Show relative path for parent dirs
+            try:
+                rel = self.path.relative_to(Path.cwd())
+                return f"{rel} ({self.scope})"
+            except ValueError:
+                return f"{self.path} ({self.scope})"
+
+
+def get_plugin_root() -> Path:
+    """Get the root directory of the plugin installation.
+
+    Returns:
+        Path to the plugin root directory
+    """
+    # Try environment variable first
+    if "CLAUDE_PLUGIN_ROOT" in os.environ:
+        return Path(os.environ["CLAUDE_PLUGIN_ROOT"])
+
+    # Otherwise, find relative to this file
+    # This file is at: plugin/claude_ctx_py/core/asset_discovery.py
+    # Plugin root is: plugin/
+    this_file = Path(__file__)
+    return this_file.parent.parent.parent
+
+
+def discover_plugin_assets() -> Dict[str, List[Asset]]:
+    """Discover all available assets from the plugin.
+
+    Returns:
+        Dict mapping category names to lists of Asset objects
+    """
+    plugin_root = get_plugin_root()
+
+    assets: Dict[str, List[Asset]] = {
+        "hooks": [],
+        "commands": [],
+        "agents": [],
+        "skills": [],
+        "modes": [],
+        "workflows": [],
+    }
+
+    # Discover each category
+    assets["hooks"] = _discover_hooks(plugin_root)
+    assets["commands"] = _discover_commands(plugin_root)
+    assets["agents"] = _discover_agents(plugin_root)
+    assets["skills"] = _discover_skills(plugin_root)
+    assets["modes"] = _discover_modes(plugin_root)
+    assets["workflows"] = _discover_workflows(plugin_root)
+
+    return assets
+
+
+def _discover_hooks(plugin_root: Path) -> List[Asset]:
+    """Discover available hooks."""
+    hooks = []
+    hooks_dir = plugin_root / "hooks" / "examples"
+
+    if not hooks_dir.exists():
+        return hooks
+
+    for path in hooks_dir.iterdir():
+        if path.is_file() and path.suffix in (".py", ".sh"):
+            # Extract description from file
+            description = _extract_hook_description(path)
+
+            hooks.append(Asset(
+                name=path.stem,
+                category=AssetCategory.HOOKS,
+                source_path=path,
+                description=description,
+                metadata={"type": path.suffix},
+            ))
+
+    return sorted(hooks, key=lambda a: a.name)
+
+
+def _extract_hook_description(path: Path) -> str:
+    """Extract description from hook file."""
+    try:
+        content = path.read_text(encoding="utf-8")
+
+        # Look for docstring (Python) or comment block (shell)
+        if path.suffix == ".py":
+            # Python docstring
+            match = re.search(r'"""(.+?)"""', content, re.DOTALL)
+            if match:
+                # Get first line of docstring
+                return match.group(1).strip().split("\n")[0]
+        elif path.suffix == ".sh":
+            # Shell comment block
+            lines = content.split("\n")
+            for line in lines:
+                if line.startswith("# ") and not line.startswith("#!"):
+                    return line[2:].strip()
+
+        return "No description available"
+    except OSError:
+        return "Could not read file"
+
+
+def _discover_commands(plugin_root: Path) -> List[Asset]:
+    """Discover available slash commands."""
+    commands = []
+    commands_dir = plugin_root / "commands"
+
+    if not commands_dir.exists():
+        return commands
+
+    for item in commands_dir.iterdir():
+        if item.is_dir() and not item.name.startswith("."):
+            # Namespace directory (e.g., analyze/, dev/)
+            namespace = item.name
+            for cmd_file in item.glob("*.md"):
+                if cmd_file.name == "README.md":
+                    continue
+                asset = _parse_command_file(cmd_file, namespace)
+                if asset:
+                    commands.append(asset)
+        elif item.is_file() and item.suffix == ".md":
+            # Root-level command
+            if item.name == "README.md":
+                continue
+            asset = _parse_command_file(item, None)
+            if asset:
+                commands.append(asset)
+
+    return sorted(commands, key=lambda a: a.display_name)
+
+
+def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]:
+    """Parse a command markdown file."""
+    try:
+        content = path.read_text(encoding="utf-8")
+        front_matter_str = _extract_front_matter(content)
+
+        # Parse YAML front matter
+        front_matter: Dict[str, Any] = {}
+        if front_matter_str:
+            try:
+                import yaml
+                front_matter = yaml.safe_load(front_matter_str) or {}
+            except Exception:
+                pass
+
+        description = front_matter.get("description", "")
+        if not description:
+            # Try to extract from content
+            lines = content.split("\n")
+            for line in lines:
+                if line.startswith("# "):
+                    continue
+                if line.strip():
+                    description = line.strip()
+                    break
+
+        return Asset(
+            name=path.stem,
+            category=AssetCategory.COMMANDS,
+            source_path=path,
+            description=description[:100] + "..." if len(description) > 100 else description,
+            namespace=namespace,
+            metadata=front_matter,
+        )
+    except OSError:
+        return None
+
+
+def _discover_agents(plugin_root: Path) -> List[Asset]:
+    """Discover available agents."""
+    agents = []
+    agents_dir = plugin_root / "agents"
+
+    if not agents_dir.exists():
+        return agents
+
+    for path in agents_dir.glob("*.md"):
+        if path.name in ("README.md", "dependencies.map"):
+            continue
+
+        try:
+            content = path.read_text(encoding="utf-8")
+            front_matter_str = _extract_front_matter(content)
+
+            # Parse YAML front matter
+            front_matter: Dict[str, Any] = {}
+            if front_matter_str:
+                try:
+                    import yaml
+                    front_matter = yaml.safe_load(front_matter_str) or {}
+                except Exception:
+                    pass
+
+            description = front_matter.get("summary", front_matter.get("description", ""))
+            if not description:
+                description = f"Agent: {path.stem}"
+
+            agents.append(Asset(
+                name=path.stem,
+                category=AssetCategory.AGENTS,
+                source_path=path,
+                description=description[:100] + "..." if len(description) > 100 else description,
+                version=front_matter.get("version"),
+                metadata=front_matter,
+            ))
+        except OSError:
+            continue
+
+    return sorted(agents, key=lambda a: a.name)
+
+
+def _discover_skills(plugin_root: Path) -> List[Asset]:
+    """Discover available skills."""
+    skills = []
+    skills_dir = plugin_root / "skills"
+
+    if not skills_dir.exists():
+        return skills
+
+    for item in skills_dir.iterdir():
+        if not item.is_dir():
+            continue
+        if item.name.startswith(".") or item.name in ("community", "__pycache__"):
+            continue
+
+        # Look for SKILL.md
+        skill_file = item / "SKILL.md"
+        if not skill_file.exists():
+            continue
+
+        try:
+            content = skill_file.read_text(encoding="utf-8")
+            front_matter_str = _extract_front_matter(content)
+
+            # Parse YAML front matter
+            front_matter: Dict[str, Any] = {}
+            if front_matter_str:
+                try:
+                    import yaml
+                    front_matter = yaml.safe_load(front_matter_str) or {}
+                except Exception:
+                    pass
+
+            description = front_matter.get("description", "")
+            if not description:
+                # Try to get from first paragraph
+                lines = content.split("\n")
+                for line in lines:
+                    if line.startswith("#"):
+                        continue
+                    if line.strip() and not line.startswith("---"):
+                        description = line.strip()
+                        break
+
+            skills.append(Asset(
+                name=item.name,
+                category=AssetCategory.SKILLS,
+                source_path=item,
+                description=description[:100] + "..." if len(description) > 100 else description,
+                version=front_matter.get("version"),
+                metadata=front_matter,
+            ))
+        except OSError:
+            continue
+
+    return sorted(skills, key=lambda a: a.name)
+
+
+def _discover_modes(plugin_root: Path) -> List[Asset]:
+    """Discover available modes."""
+    modes = []
+    modes_dir = plugin_root / "modes"
+
+    if not modes_dir.exists():
+        return modes
+
+    for path in modes_dir.glob("*.md"):
+        if path.name == "README.md":
+            continue
+
+        try:
+            content = path.read_text(encoding="utf-8")
+
+            # Extract description from Purpose section
+            description = ""
+            lines = content.split("\n")
+            in_purpose = False
+            for line in lines:
+                if "**Purpose**:" in line:
+                    description = line.split("**Purpose**:")[-1].strip()
+                    break
+                if line.strip().lower() == "## purpose":
+                    in_purpose = True
+                    continue
+                if in_purpose and line.strip():
+                    description = line.strip()
+                    break
+
+            if not description:
+                description = f"Mode: {path.stem}"
+
+            modes.append(Asset(
+                name=path.stem,
+                category=AssetCategory.MODES,
+                source_path=path,
+                description=description[:100] + "..." if len(description) > 100 else description,
+            ))
+        except OSError:
+            continue
+
+    return sorted(modes, key=lambda a: a.name)
+
+
+def _discover_workflows(plugin_root: Path) -> List[Asset]:
+    """Discover available workflows."""
+    workflows = []
+    workflows_dir = plugin_root / "workflows"
+
+    if not workflows_dir.exists():
+        return workflows
+
+    for path in workflows_dir.glob("*.yaml"):
+        try:
+            import yaml
+            content = path.read_text(encoding="utf-8")
+            data = yaml.safe_load(content)
+
+            if not isinstance(data, dict):
+                continue
+
+            workflows.append(Asset(
+                name=path.stem,
+                category=AssetCategory.WORKFLOWS,
+                source_path=path,
+                description=data.get("description", f"Workflow: {path.stem}"),
+                version=data.get("version"),
+                metadata=data,
+            ))
+        except (OSError, Exception):
+            continue
+
+    return sorted(workflows, key=lambda a: a.name)
+
+
+def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir]:
+    """Find all .claude directories from start_path up to root and home.
+
+    Args:
+        start_path: Starting directory (defaults to cwd)
+
+    Returns:
+        List of ClaudeDir objects, ordered by specificity (project first)
+    """
+    if start_path is None:
+        start_path = Path.cwd()
+
+    claude_dirs: List[ClaudeDir] = []
+    seen_paths: set = set()
+
+    # Walk up from start_path
+    current = start_path.resolve()
+    home = Path.home().resolve()
+    depth = 0
+
+    while current != current.parent:  # Stop at root
+        claude_path = current / ".claude"
+        if claude_path.exists() and claude_path.is_dir():
+            if str(claude_path) not in seen_paths:
+                seen_paths.add(str(claude_path))
+
+                if depth == 0:
+                    scope = "project"
+                elif claude_path.parent == home:
+                    scope = "global"
+                else:
+                    scope = "parent"
+
+                installed = get_installed_assets(claude_path)
+                claude_dirs.append(ClaudeDir(
+                    path=claude_path,
+                    scope=scope,
+                    installed_assets=installed,
+                ))
+
+        current = current.parent
+        depth += 1
+
+    # Always include ~/.claude if it exists and not already found
+    global_claude = home / ".claude"
+    if global_claude.exists() and str(global_claude) not in seen_paths:
+        installed = get_installed_assets(global_claude)
+        claude_dirs.append(ClaudeDir(
+            path=global_claude,
+            scope="global",
+            installed_assets=installed,
+        ))
+
+    return claude_dirs
+
+
+def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
+    """Get list of installed assets in a .claude directory.
+
+    Args:
+        claude_dir: Path to .claude directory
+
+    Returns:
+        Dict mapping category names to lists of asset names
+    """
+    installed: Dict[str, List[str]] = {
+        "hooks": [],
+        "commands": [],
+        "agents": [],
+        "skills": [],
+        "modes": [],
+        "workflows": [],
+    }
+
+    # Hooks
+    hooks_dir = claude_dir / "hooks"
+    if hooks_dir.exists():
+        for f in hooks_dir.iterdir():
+            if f.is_file() and f.suffix in (".py", ".sh"):
+                installed["hooks"].append(f.stem)
+
+    # Commands
+    commands_dir = claude_dir / "commands"
+    if commands_dir.exists():
+        for item in commands_dir.iterdir():
+            if item.is_dir():
+                # Namespaced commands
+                ns = item.name
+                for cmd in item.glob("*.md"):
+                    if cmd.name != "README.md":
+                        installed["commands"].append(f"{ns}:{cmd.stem}")
+            elif item.is_file() and item.suffix == ".md":
+                if item.name != "README.md":
+                    installed["commands"].append(item.stem)
+
+    # Agents (both active and inactive)
+    for agent_dir in [claude_dir / "agents", claude_dir / "inactive" / "agents"]:
+        if agent_dir.exists():
+            for f in agent_dir.glob("*.md"):
+                if f.name not in ("README.md", "dependencies.map"):
+                    if f.stem not in installed["agents"]:
+                        installed["agents"].append(f.stem)
+
+    # Skills
+    skills_dir = claude_dir / "skills"
+    if skills_dir.exists():
+        for item in skills_dir.iterdir():
+            if item.is_dir() and (item / "SKILL.md").exists():
+                installed["skills"].append(item.name)
+
+    # Modes (both active and inactive)
+    for modes_dir in [claude_dir / "modes", claude_dir / "inactive" / "modes"]:
+        if modes_dir.exists():
+            for f in modes_dir.glob("*.md"):
+                if f.name != "README.md":
+                    if f.stem not in installed["modes"]:
+                        installed["modes"].append(f.stem)
+
+    # Workflows
+    workflows_dir = claude_dir / "workflows"
+    if workflows_dir.exists():
+        for f in workflows_dir.glob("*.yaml"):
+            installed["workflows"].append(f.stem)
+
+    return installed
+
+
+def check_installation_status(
+    asset: Asset,
+    claude_dir: Path,
+) -> InstallStatus:
+    """Check the installation status of an asset.
+
+    Args:
+        asset: Asset to check
+        claude_dir: Target .claude directory
+
+    Returns:
+        InstallStatus enum value
+    """
+    target_path = claude_dir / asset.install_target
+
+    # For skills, check the directory
+    if asset.category == AssetCategory.SKILLS:
+        skill_dir = claude_dir / "skills" / asset.name
+        if not skill_dir.exists():
+            return InstallStatus.NOT_INSTALLED
+
+        # Check SKILL.md for changes
+        installed_skill = skill_dir / "SKILL.md"
+        source_skill = asset.source_path / "SKILL.md"
+
+        if installed_skill.exists() and source_skill.exists():
+            try:
+                installed_content = installed_skill.read_text(encoding="utf-8")
+                source_content = source_skill.read_text(encoding="utf-8")
+                if installed_content == source_content:
+                    return InstallStatus.INSTALLED_SAME
+                return InstallStatus.INSTALLED_DIFFERENT
+            except OSError:
+                return InstallStatus.INSTALLED_DIFFERENT
+
+        return InstallStatus.INSTALLED_SAME
+
+    # For other assets, check the file
+    if not target_path.exists():
+        # Check inactive locations for agents and modes
+        if asset.category == AssetCategory.AGENTS:
+            inactive_path = claude_dir / "inactive" / "agents" / asset.source_path.name
+            if inactive_path.exists():
+                target_path = inactive_path
+            else:
+                return InstallStatus.NOT_INSTALLED
+        elif asset.category == AssetCategory.MODES:
+            inactive_path = claude_dir / "inactive" / "modes" / asset.source_path.name
+            if inactive_path.exists():
+                target_path = inactive_path
+            else:
+                return InstallStatus.NOT_INSTALLED
+        else:
+            return InstallStatus.NOT_INSTALLED
+
+    # Compare contents
+    try:
+        installed_content = target_path.read_text(encoding="utf-8")
+        source_content = asset.source_path.read_text(encoding="utf-8")
+
+        if installed_content == source_content:
+            return InstallStatus.INSTALLED_SAME
+        return InstallStatus.INSTALLED_DIFFERENT
+    except OSError:
+        return InstallStatus.INSTALLED_DIFFERENT
+
+
+def get_all_assets_flat(
+    assets: Optional[Dict[str, List[Asset]]] = None
+) -> List[Asset]:
+    """Get all assets as a flat list.
+
+    Args:
+        assets: Asset dict (will discover if not provided)
+
+    Returns:
+        Flat list of all assets sorted by category then name
+    """
+    if assets is None:
+        assets = discover_plugin_assets()
+
+    result = []
+    for category in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        result.extend(assets.get(category, []))
+
+    return result

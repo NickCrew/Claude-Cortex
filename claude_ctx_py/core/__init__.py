@@ -260,6 +260,35 @@ from .mcp import (
 # Export doctor function
 from .doctor import doctor_run
 
+# Export hooks functions
+from .hooks import (
+    HookDefinition,
+    InstalledHook,
+    HOOK_EVENTS,
+    get_settings_path,
+    load_settings,
+    save_settings,
+    get_installed_hooks,
+    get_available_hooks,
+    parse_hook_file,
+    install_hook,
+    uninstall_hook,
+    get_hook_events,
+    create_hook_template,
+)
+
+# Export backup functions
+from .backup import (
+    BackupInfo,
+    get_backup_dir,
+    create_backup,
+    list_backups,
+    restore_backup,
+    delete_backup,
+    get_backup_summary,
+    auto_cleanup_backups,
+)
+
 __all__ = [
     # Constants
     "BLUE",

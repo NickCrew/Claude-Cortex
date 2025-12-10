@@ -98,18 +98,36 @@ class WorkflowPrediction:
 
 
 class PatternLearner:
-    """Learns patterns from successful sessions to make predictions."""
+    """Learns patterns from successful sessions to make predictions.
 
-    def __init__(self, history_file: Path):
+    Combines:
+    - Frequency-based pattern matching (fast, always available)
+    - Semantic similarity matching (optional, requires fastembed)
+    - Rule-based heuristics (reliable fallback)
+    """
+
+    def __init__(self, history_file: Path, enable_semantic: bool = True):
         """Initialize pattern learner.
 
         Args:
             history_file: Path to session history JSON file
+            enable_semantic: Enable semantic matching (requires fastembed)
         """
         self.history_file = history_file
         self.patterns: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
         self.agent_sequences: List[List[str]] = []
         self.success_contexts: List[Dict[str, Any]] = []
+
+        # Optional semantic matcher
+        self.semantic_matcher = None
+        if enable_semantic:
+            try:
+                from claude_ctx_py.intelligence.semantic import SemanticMatcher
+                cache_dir = history_file.parent / "semantic_cache"
+                self.semantic_matcher = SemanticMatcher(cache_dir)
+            except ImportError:
+                pass  # Semantic matching will be disabled
+
         self._load_history()
 
     def _load_history(self) -> None:
@@ -147,6 +165,7 @@ class PatternLearner:
             "agents": agents_used,
             "duration": duration,
             "outcome": outcome,
+            "files": context.files_changed,
         }
 
         # Store by primary context
@@ -158,6 +177,10 @@ class PatternLearner:
 
         # Store full context for similarity matching
         self.success_contexts.append(session_data)
+
+        # Add to semantic matcher if available
+        if self.semantic_matcher:
+            self.semantic_matcher.add_session(session_data)
 
         # Persist to disk
         self._save_history()
@@ -191,16 +214,114 @@ class PatternLearner:
     def predict_agents(self, context: SessionContext) -> List[AgentRecommendation]:
         """Predict which agents should be activated based on context.
 
+        Uses a hybrid approach:
+        1. Semantic similarity matching (if available) - finds similar sessions
+        2. Frequency-based pattern matching - looks for exact context matches
+        3. Rule-based heuristics - applies domain knowledge
+
         Args:
             context: Current session context
 
         Returns:
-            List of agent recommendations
+            List of agent recommendations sorted by confidence
         """
         recommendations = []
         context_key = self._generate_context_key(context)
 
-        # Get historical patterns for similar contexts
+        # Try semantic matching first (highest quality)
+        semantic_recs = self._semantic_recommendations(context)
+        if semantic_recs:
+            recommendations.extend(semantic_recs)
+
+        # Add frequency-based pattern matching
+        pattern_recs = self._pattern_recommendations(context, context_key)
+        recommendations.extend(pattern_recs)
+
+        # Add rule-based recommendations (always run - good fallback)
+        recommendations.extend(self._rule_based_recommendations(context))
+
+        # Deduplicate by agent name, keeping highest confidence
+        seen = {}
+        for rec in recommendations:
+            if rec.agent_name not in seen or rec.confidence > seen[rec.agent_name].confidence:
+                seen[rec.agent_name] = rec
+
+        # Sort by confidence
+        final_recs = sorted(seen.values(), key=lambda r: r.confidence, reverse=True)
+
+        return final_recs
+
+    def _semantic_recommendations(
+        self, context: SessionContext
+    ) -> List[AgentRecommendation]:
+        """Generate recommendations using semantic similarity.
+
+        Args:
+            context: Current session context
+
+        Returns:
+            List of recommendations from semantically similar sessions
+        """
+        if not self.semantic_matcher:
+            return []
+
+        # Prepare context for semantic matching
+        context_dict = {
+            "files": context.files_changed,
+            "context": context.to_dict(),
+        }
+
+        # Find similar sessions
+        similar = self.semantic_matcher.find_similar(
+            context_dict, top_k=10, min_similarity=0.6
+        )
+
+        if not similar:
+            return []
+
+        # Aggregate agent recommendations from similar sessions
+        agent_scores: Dict[str, float] = {}
+        for session_data, similarity in similar:
+            agents = session_data.get("agents", [])
+            for agent in agents:
+                # Weight by similarity score
+                agent_scores[agent] = agent_scores.get(agent, 0) + similarity
+
+        # Convert to recommendations
+        recommendations = []
+        for agent, score in sorted(
+            agent_scores.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
+            # Normalize score to 0-1 range (max 5 similar sessions at 1.0 similarity)
+            confidence = min(score / 5.0, 1.0)
+
+            if confidence >= 0.3:  # Only recommend if reasonably confident
+                recommendations.append(
+                    AgentRecommendation(
+                        agent_name=agent,
+                        confidence=confidence,
+                        reason=f"Used in semantically similar sessions (match: {confidence:.0%})",
+                        urgency="medium" if confidence > 0.7 else "low",
+                        auto_activate=confidence > 0.85,
+                        context_triggers=["semantic_match"],
+                    )
+                )
+
+        return recommendations
+
+    def _pattern_recommendations(
+        self, context: SessionContext, context_key: str
+    ) -> List[AgentRecommendation]:
+        """Generate recommendations using frequency-based pattern matching.
+
+        Args:
+            context: Session context
+            context_key: Generated context key
+
+        Returns:
+            List of recommendations from exact pattern matches
+        """
+        recommendations = []
         similar_sessions = self.patterns.get(context_key, [])
 
         if similar_sessions:
@@ -220,18 +341,12 @@ class PatternLearner:
                     recommendation = AgentRecommendation(
                         agent_name=agent,
                         confidence=confidence,
-                        reason=f"Used in {count}/{total_sessions} similar sessions",
+                        reason=f"Used in {count}/{total_sessions} {context_key} sessions",
                         urgency="medium" if confidence >= 0.7 else "low",
                         auto_activate=confidence >= 0.8,
                         context_triggers=[context_key],
                     )
                     recommendations.append(recommendation)
-
-        # Add rule-based recommendations
-        recommendations.extend(self._rule_based_recommendations(context))
-
-        # Sort by confidence
-        recommendations.sort(key=lambda r: r.confidence, reverse=True)
 
         return recommendations
 
