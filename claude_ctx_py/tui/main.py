@@ -141,6 +141,7 @@ from ..tui_dashboard import MetricsCollector
 from ..tui_performance import PerformanceMonitor
 from ..tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from ..tui_overview_enhanced import EnhancedOverview
+from ..token_counter import get_active_context_tokens, count_category_tokens
 from ..intelligence import (
     AgentRecommendation,
     IntelligentAgent,
@@ -456,6 +457,17 @@ class AgentTUI(App[None]):
         if hasattr(self, "performance_monitor"):
             perf_text = self.performance_monitor.get_status_bar(compact=True)
 
+        # Get token count (cached to avoid repeated file reads)
+        token_text = ""
+        try:
+            if not hasattr(self, "_token_cache") or (time.time() - getattr(self, "_token_cache_time", 0)) > 30:
+                _, total_stats = get_active_context_tokens()
+                self._token_cache = total_stats.tokens_formatted
+                self._token_cache_time = time.time()
+            token_text = self._token_cache
+        except Exception:
+            pass
+
         status_bar.update_payload(
             view=self.current_view.title(),
             message=self.status_message,
@@ -463,6 +475,7 @@ class AgentTUI(App[None]):
             agent_active=agent_active,
             agent_total=agent_total,
             task_active=task_active,
+            token_count=token_text,
         )
 
     def watch_current_view(self, view: str) -> None:
@@ -1371,10 +1384,18 @@ class AgentTUI(App[None]):
 
         for key, label, description in EXPORT_CATEGORIES:
             enabled = self.export_options.get(key, True)
-            count = len(components.get(key, {}))
+            files = components.get(key, {})
+            count = len(files)
+            # Calculate token count for this category
+            try:
+                stats = count_category_tokens(files)
+                token_str = f", {stats.tokens_formatted} tokens"
+            except Exception:
+                token_str = ""
+
             icon = Icons.SUCCESS if enabled else Icons.WARNING
             state = "[green]Included[/green]" if enabled else "[dim]Excluded[/dim]"
-            state = f"{state} ({count} files)"
+            state = f"{state} ({count} files{token_str})"
 
             table.add_row(
                 f"{icon} {label}",
@@ -1404,18 +1425,36 @@ class AgentTUI(App[None]):
 
     def _build_export_summary(self, components: Dict[str, Dict[str, Path]]) -> str:
         """Create a short summary string for enabled export categories."""
+        from ..token_counter import TokenStats
+
         enabled = []
+        total_stats = TokenStats(files=0, chars=0, words=0, tokens=0)
+
         for key, label, _description in EXPORT_CATEGORIES:
             if not self.export_options.get(key, True):
                 continue
-            count = len(components.get(key, {}))
+            files = components.get(key, {})
+            count = len(files)
             enabled.append(f"{label} ({count})")
+            try:
+                stats = count_category_tokens(files)
+                total_stats = total_stats + stats
+            except Exception:
+                pass
 
         if not enabled:
             return "No components selected"
-        if len(enabled) <= 3:
-            return ", ".join(enabled)
-        return ", ".join(enabled[:3]) + ", …"
+
+        summary_parts = enabled[:3] if len(enabled) > 3 else enabled
+        summary = ", ".join(summary_parts)
+        if len(enabled) > 3:
+            summary += ", …"
+
+        # Add total token count
+        if total_stats.tokens > 0:
+            summary += f" | {total_stats.tokens_formatted} total"
+
+        return summary
 
     def _export_exclude_categories(self) -> set[str]:
         """Return the set of categories to exclude when exporting."""
@@ -2341,6 +2380,15 @@ class AgentTUI(App[None]):
             table.add_row("")
             table.add_row("[bold cyan]⚡ Performance Monitor[/bold cyan]")
             table.add_row(self.performance_monitor.get_status_bar(compact=False))
+
+        # Token usage section
+        try:
+            category_stats, total_stats = get_active_context_tokens()
+            table.add_row("")
+            token_display = EnhancedOverview.create_token_usage(category_stats, total_stats)
+            add_multiline(token_display)
+        except Exception:
+            pass  # Silently skip if token counting fails
 
     def _normalize_agent_dependency(self, value: str) -> Optional[str]:
         if not value:

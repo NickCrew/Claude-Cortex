@@ -235,6 +235,7 @@ class SuperSaiyanStatusBar(Static):
     agent_active = reactive(0)
     agent_total = reactive(0)
     task_active = reactive(0)
+    token_count = reactive("")
     wave_phase = reactive(0)
 
     _WAVE_FRAMES = (
@@ -265,6 +266,7 @@ class SuperSaiyanStatusBar(Static):
         agent_active: int,
         agent_total: int,
         task_active: int,
+        token_count: str = "",
     ) -> None:
         """Push new info into the status bar."""
         self.view = view
@@ -273,6 +275,7 @@ class SuperSaiyanStatusBar(Static):
         self.agent_active = agent_active
         self.agent_total = agent_total
         self.task_active = task_active
+        self.token_count = token_count
         self.wave_phase = (self.wave_phase + 1) % len(self._WAVE_FRAMES)
 
     def render(self) -> str:
@@ -283,11 +286,19 @@ class SuperSaiyanStatusBar(Static):
             else "[cyan]0 agents"
         )
         task_text = f"[green]{self.task_active} active tasks"
+        token_text = f"[yellow]{self.token_count}[/yellow]" if self.token_count else ""
         wave = self._WAVE_FRAMES[self.wave_phase]
-        return (
-            f"[bold]{self.view}[/bold] {self.message} [dim]│[/dim] {agent_text} [dim]│[/dim] {task_text} "
-            f"[dim]│[/dim] {self.perf} [dim]│[/dim] [magenta]{wave}[/magenta]"
-        )
+
+        parts = [f"[bold]{self.view}[/bold] {self.message}"]
+        parts.append(agent_text)
+        parts.append(task_text)
+        if token_text:
+            parts.append(token_text)
+        if self.perf:
+            parts.append(self.perf)
+        parts.append(f"[magenta]{wave}[/magenta]")
+
+        return " [dim]│[/dim] ".join(parts)
 
     def watch_view(self, _value: str) -> None:  # pragma: no cover - trivial
         self.refresh()
@@ -297,6 +308,7 @@ class SuperSaiyanStatusBar(Static):
     watch_agent_active = watch_view
     watch_agent_total = watch_view
     watch_task_active = watch_view
+    watch_token_count = watch_view
     watch_wave_phase = watch_view
 
 

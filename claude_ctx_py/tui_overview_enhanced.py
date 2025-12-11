@@ -1,8 +1,9 @@
-"""Enhanced Overview Dashboard - KAMEHAMEHA EDITION! 🔥"""
+"""Enhanced Overview Dashboard - KAMEHAMEHA EDITION!"""
 
 from __future__ import annotations
-from typing import List, Optional
+from typing import Dict, List, Optional
 from .tui_icons import Icons
+from .token_counter import TokenStats
 
 
 class EnhancedOverview:
@@ -165,3 +166,79 @@ class EnhancedOverview:
   [dim]Last checked: just now[/dim]
 """
         return health.strip()
+
+    @staticmethod
+    def create_token_usage(
+        category_stats: Dict[str, TokenStats],
+        total_stats: TokenStats,
+    ) -> str:
+        """Create a token usage visualization.
+
+        Args:
+            category_stats: Token stats by category
+            total_stats: Total token stats
+
+        Returns:
+            Formatted token usage display
+        """
+        category_names = {
+            "core": ("Core", "cyan"),
+            "rules": ("Rules", "blue"),
+            "modes": ("Modes", "magenta"),
+            "agents": ("Agents", "green"),
+            "mcp_docs": ("MCP", "yellow"),
+            "skills": ("Skills", "red"),
+        }
+
+        # Calculate bar widths proportional to token count
+        max_tokens = max(
+            (s.tokens for s in category_stats.values() if s.tokens > 0),
+            default=1,
+        )
+
+        lines = []
+        for category, (name, color) in category_names.items():
+            stats = category_stats.get(category)
+            if stats and stats.files > 0:
+                # Calculate bar width (max 20 chars)
+                bar_width = int((stats.tokens / max_tokens) * 20) if max_tokens > 0 else 0
+                bar_width = max(1, bar_width)  # At least 1 char
+                bar = f"[{color}]{'█' * bar_width}[/{color}][dim]{'░' * (20 - bar_width)}[/dim]"
+                lines.append(
+                    f"  [{color}]{name:8}[/{color}] {bar} [white]{stats.tokens_formatted:>6}[/white] [dim]({stats.files} files)[/dim]"
+                )
+
+        # Context window usage estimate (200K default for Claude)
+        context_limit = 200000
+        usage_pct = (total_stats.tokens / context_limit) * 100
+        if usage_pct < 25:
+            usage_color = "green"
+            usage_status = "Excellent"
+        elif usage_pct < 50:
+            usage_color = "cyan"
+            usage_status = "Good"
+        elif usage_pct < 75:
+            usage_color = "yellow"
+            usage_status = "Moderate"
+        else:
+            usage_color = "red"
+            usage_status = "High"
+
+        usage_bar_width = int(usage_pct / 5)  # 20 chars = 100%
+        usage_bar = f"[{usage_color}]{'█' * usage_bar_width}[/{usage_color}][dim]{'░' * (20 - usage_bar_width)}[/dim]"
+
+        category_breakdown = "\n".join(lines) if lines else "  [dim]No active context files[/dim]"
+
+        token_display = f"""
+[bold cyan]📊 CONTEXT TOKEN USAGE[/bold cyan]
+[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
+
+  [bold white]Total: {total_stats.tokens_formatted} tokens[/bold white] [dim]({total_stats.files} files, {total_stats.words:,} words)[/dim]
+
+{category_breakdown}
+
+[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
+  [bold]Context Window Usage[/bold] [{usage_color}]{usage_status}[/{usage_color}]
+  {usage_bar} [white]{usage_pct:.1f}%[/white] [dim]of 200K[/dim]
+"""
+        return token_display.strip()
