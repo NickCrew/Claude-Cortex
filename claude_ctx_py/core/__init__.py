@@ -179,6 +179,20 @@ from .workflows import (
     workflow_stop,
 )
 
+# Export all functions from worktrees
+from .worktrees import (
+    WorktreeInfo,
+    worktree_discover,
+    worktree_list,
+    worktree_default_path,
+    worktree_get_base_dir,
+    worktree_set_base_dir,
+    worktree_clear_base_dir,
+    worktree_add,
+    worktree_remove,
+    worktree_prune,
+)
+
 # Export all functions from scenarios
 from .scenarios import (
     ScenarioPhase,
@@ -434,6 +448,17 @@ __all__ = [
     "workflow_status",
     "workflow_resume",
     "workflow_stop",
+    # Worktree functions
+    "WorktreeInfo",
+    "worktree_discover",
+    "worktree_list",
+    "worktree_default_path",
+    "worktree_get_base_dir",
+    "worktree_set_base_dir",
+    "worktree_clear_base_dir",
+    "worktree_add",
+    "worktree_remove",
+    "worktree_prune",
     # Scenario functions
     "_scenario_dirs",
     "_ensure_scenarios_dir",

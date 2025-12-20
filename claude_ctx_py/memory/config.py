@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+from ..core.base import _resolve_claude_dir
+
 
 DEFAULT_VAULT_PATH = "~/basic-memory"
 CONFIG_FILE_NAME = "memory-config.json"
@@ -79,12 +81,7 @@ class MemoryConfig:
 
 def _get_claude_dir() -> Path:
     """Get the Claude configuration directory."""
-    # Check environment overrides
-    if "CLAUDE_PLUGIN_ROOT" in os.environ:
-        return Path(os.environ["CLAUDE_PLUGIN_ROOT"])
-
-    # Default to ~/.claude
-    return Path.home() / ".claude"
+    return _resolve_claude_dir()
 
 
 def _get_config_path() -> Path:

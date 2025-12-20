@@ -43,6 +43,36 @@ def test_resolve_claude_dir_falls_back_to_home(tmp_path: Path, monkeypatch: pyte
     assert result == home_override / ".claude"
 
 
+def test_resolve_claude_dir_respects_ctx_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    custom = tmp_path / "custom-claude"
+    custom.mkdir()
+    monkeypatch.setenv("CLAUDE_CTX_HOME", str(custom))
+    result = base._resolve_claude_dir()
+    assert result == custom
+
+
+def test_resolve_claude_dir_scope_global_ignores_plugin_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    home_override = tmp_path / "home"
+    monkeypatch.setenv("CLAUDE_CTX_SCOPE", "global")
+    result = base._resolve_claude_dir(home_override)
+    assert result == home_override / ".claude"
+
+
+def test_resolve_claude_dir_scope_project_uses_nearest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / ".claude").mkdir()
+    child = project / "child"
+    child.mkdir()
+    monkeypatch.setenv("CLAUDE_CTX_SCOPE", "project")
+    result = base._resolve_claude_dir(cwd=child)
+    assert result == project / ".claude"
+
+
 # --------------------------------------------------------------------------- path + inactive helpers
 
 def test_init_slug_for_path_generates_stable_slug(tmp_path: Path):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import re
 from pathlib import Path
@@ -529,6 +530,80 @@ def _build_workflow_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
+def _build_worktree_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    worktree_parser = subparsers.add_parser(
+        "worktree", help="Git worktree management commands"
+    )
+    worktree_sub = worktree_parser.add_subparsers(dest="worktree_command")
+    worktree_sub.add_parser("list", help="List git worktrees")
+
+    worktree_add_parser = worktree_sub.add_parser("add", help="Add a new worktree")
+    worktree_add_parser.add_argument("branch", help="Branch name for the worktree")
+    worktree_add_parser.add_argument(
+        "--path",
+        dest="worktree_path",
+        help="Target path for the worktree (defaults to .worktrees/<branch>)",
+    )
+    worktree_add_parser.add_argument(
+        "--base",
+        dest="worktree_base",
+        help="Base reference for a new branch (default: HEAD)",
+    )
+    worktree_add_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force add even if branch is checked out elsewhere",
+    )
+    worktree_add_parser.add_argument(
+        "--no-gitignore",
+        dest="worktree_gitignore",
+        action="store_false",
+        help="Skip updating .gitignore for local worktree directories",
+    )
+
+    worktree_remove_parser = worktree_sub.add_parser(
+        "remove", help="Remove a worktree"
+    )
+    worktree_remove_parser.add_argument(
+        "target", help="Worktree path or branch name"
+    )
+    worktree_remove_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force removal even if worktree is dirty",
+    )
+
+    worktree_prune_parser = worktree_sub.add_parser(
+        "prune", help="Prune stale worktrees"
+    )
+    worktree_prune_parser.add_argument(
+        "--dry-run",
+        dest="worktree_dry_run",
+        action="store_true",
+        help="Show what would be pruned without deleting",
+    )
+    worktree_prune_parser.add_argument(
+        "--verbose",
+        dest="worktree_verbose",
+        action="store_true",
+        help="Verbose prune output",
+    )
+
+    worktree_dir_parser = worktree_sub.add_parser(
+        "dir", help="Show or set the worktree base directory"
+    )
+    worktree_dir_parser.add_argument(
+        "path",
+        nargs="?",
+        help="Base directory path to store in git config",
+    )
+    worktree_dir_parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear the configured base directory",
+    )
+
+
 def _build_orchestrate_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Scenario orchestration commands", aliases=["orch"]
@@ -724,6 +799,17 @@ def build_parser() -> argparse.ArgumentParser:
         prog="claude-ctx",
         description="Python implementation of claude-ctx list and status commands",
     )
+    parser.add_argument(
+        "--scope",
+        choices=["auto", "project", "global", "plugin"],
+        help="Select which .claude scope to use (default: auto)",
+    )
+    parser.add_argument(
+        "--claude-dir",
+        dest="claude_dir",
+        type=Path,
+        help="Explicit path to a .claude directory (overrides --scope)",
+    )
     subparsers = parser.add_subparsers(dest="command")
 
     _build_mode_parser(subparsers)
@@ -734,6 +820,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_init_parser(subparsers)
     _build_profile_parser(subparsers)
     _build_workflow_parser(subparsers)
+    _build_worktree_parser(subparsers)
     _build_orchestrate_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
@@ -1169,6 +1256,58 @@ def _handle_workflow_command(args: argparse.Namespace) -> int:
         exit_code, message = core.workflow_stop(getattr(args, "workflow", None))
         _print(message)
         return exit_code
+    return 1
+
+
+def _handle_worktree_command(args: argparse.Namespace) -> int:
+    if args.worktree_command == "list":
+        exit_code, message = core.worktree_list()
+        _print(message)
+        return exit_code
+    if args.worktree_command == "add":
+        exit_code, message = core.worktree_add(
+            args.branch,
+            path=getattr(args, "worktree_path", None),
+            base=getattr(args, "worktree_base", None),
+            force=getattr(args, "force", False),
+            ensure_gitignore=getattr(args, "worktree_gitignore", True),
+        )
+        _print(message)
+        return exit_code
+    if args.worktree_command == "remove":
+        exit_code, message = core.worktree_remove(
+            args.target,
+            force=getattr(args, "force", False),
+        )
+        _print(message)
+        return exit_code
+    if args.worktree_command == "prune":
+        exit_code, message = core.worktree_prune(
+            dry_run=getattr(args, "worktree_dry_run", False),
+            verbose=getattr(args, "worktree_verbose", False),
+        )
+        _print(message)
+        return exit_code
+    if args.worktree_command == "dir":
+        if getattr(args, "clear", False):
+            exit_code, message = core.worktree_clear_base_dir()
+            _print(message)
+            return exit_code
+        path = getattr(args, "path", None)
+        if path:
+            exit_code, message = core.worktree_set_base_dir(path)
+            _print(message)
+            return exit_code
+
+        base_dir, source, error = core.worktree_get_base_dir()
+        if error:
+            _print(error)
+            return 1
+        if base_dir:
+            _print(f"{base_dir} ({source})")
+            return 0
+        _print("No worktree base directory configured")
+        return 0
     return 1
 
 
@@ -1610,6 +1749,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     _enable_argcomplete(parser)
     args = parser.parse_args(list(argv) if argv is not None else None)
 
+    if getattr(args, "claude_dir", None):
+        os.environ["CLAUDE_CTX_HOME"] = str(args.claude_dir)
+    if getattr(args, "scope", None):
+        os.environ["CLAUDE_CTX_SCOPE"] = str(args.scope)
+
     handlers: Dict[str, Callable[[argparse.Namespace], int]] = {
         "mode": _handle_mode_command,
         "agent": _handle_agent_command,
@@ -1619,6 +1763,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "init": _handle_init_command,
         "profile": _handle_profile_command,
         "workflow": _handle_workflow_command,
+        "worktree": _handle_worktree_command,
         "orchestrate": _handle_orchestrate_command,
         "orch": _handle_orchestrate_command,
         "ai": _handle_ai_command,

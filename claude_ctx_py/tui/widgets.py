@@ -326,6 +326,13 @@ class AdaptiveFooter(Widget):
             "profiles": [("Spc", "Apply"), ("n", "Save"), ("D", "Delete")],
             "export": [("f", "Format"), ("e", "Export"), ("x", "Copy")],
             "workflows": [("R", "Run"), ("s", "Details")],
+            "worktrees": [
+                ("^n", "New"),
+                ("^o", "Open"),
+                ("^w", "Remove"),
+                ("^k", "Prune"),
+                ("^b", "Base Dir"),
+            ],
             "scenarios": [("R", "Run"), ("P", "Preview"), ("V", "Validate")],
             "tasks": [("a", "Add"), ("L", "Log"), ("O", "Open")],
             "assets": [("i", "Install"), ("u", "Uninstall"), ("U", "Update All"), ("I", "Install All")],

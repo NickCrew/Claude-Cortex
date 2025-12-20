@@ -613,9 +613,10 @@ class HelpDialog(ModalScreen[None]):
 
 [bold]View Navigation:[/bold]
   [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents    [cyan]3[/cyan] Modes     [cyan]4[/cyan] Rules
-  [cyan]5[/cyan] Skills      [cyan]6[/cyan] Workflows [cyan]7[/cyan] MCP       [cyan]8[/cyan] Profiles
-  [cyan]9[/cyan] Export      [cyan]0[/cyan] AI Asst   [cyan]A[/cyan] Assets    [cyan]M[/cyan] Memory
-  [cyan]S[/cyan] Scenarios   [cyan]o[/cyan] Orchestrate [cyan]g[/cyan] Galaxy  [cyan]t[/cyan] Tasks
+  [cyan]5[/cyan] Skills      [cyan]6[/cyan] Workflows [cyan]C[/cyan] Worktrees [cyan]7[/cyan] MCP
+  [cyan]8[/cyan] Profiles    [cyan]9[/cyan] Export   [cyan]0[/cyan] AI Asst   [cyan]A[/cyan] Assets
+  [cyan]M[/cyan] Memory      [cyan]S[/cyan] Scenarios [cyan]o[/cyan] Orchestrate [cyan]g[/cyan] Galaxy
+  [cyan]t[/cyan] Tasks
   [cyan]/[/cyan] Slash Cmds
 """
 
@@ -654,6 +655,14 @@ class HelpDialog(ModalScreen[None]):
 [bold]Workflow Management:[/bold]
   [cyan]R[/cyan] → Run selected workflow
   [cyan]s[/cyan] → Show workflow details
+""",
+            "worktrees": """
+[bold]Worktree Management:[/bold]
+  [cyan]Ctrl+N[/cyan] → Add new worktree
+  [cyan]Ctrl+O[/cyan] → Open selected worktree
+  [cyan]Ctrl+W[/cyan] → Remove selected worktree
+  [cyan]Ctrl+K[/cyan] → Prune stale worktrees
+  [cyan]Ctrl+B[/cyan] → Set base directory (use '-' to clear)
 """,
             "scenarios": """
 [bold]Scenario Management:[/bold]
@@ -732,7 +741,10 @@ class HelpDialog(ModalScreen[None]):
         current_view_help = view_shortcuts.get(self.current_view, "")
 
         if current_view_help:
-            current_section = f"\n[bold cyan]━━━ {self.current_view.upper()} VIEW ━━━[/bold cyan]\n{current_view_help}"
+            current_section = (
+                f"[bold cyan]━━━ {self.current_view.upper()} VIEW ━━━[/bold cyan]\n"
+                f"{current_view_help.strip()}\n"
+            )
         else:
             current_section = ""
 
@@ -742,7 +754,9 @@ class HelpDialog(ModalScreen[None]):
 [dim]↑/↓ or j/k to scroll • ESC, Q, or Enter to close[/dim]
 """
 
-        return global_shortcuts + current_section + footer
+        if current_section:
+            return current_section + "\n" + global_shortcuts + footer
+        return global_shortcuts + footer
 
     def action_close(self) -> None:
         self.dismiss()

@@ -515,8 +515,10 @@ For more detailed setup guidance (including shell completion and CLI overrides) 
 
 The CLI resolves its workspace using the following precedence:
 
-1. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
-2. `~/.claude`
+1. `CLAUDE_CTX_HOME` (explicit path to a .claude directory)
+2. `CLAUDE_CTX_SCOPE` (project/global/plugin)
+3. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
+4. `~/.claude`
 
 Examples:
 
@@ -528,6 +530,13 @@ export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
 export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
 
 claude-ctx mode status
+```
+
+Project-local and explicit directory examples:
+
+```bash
+claude-ctx --scope project status
+claude-ctx --claude-dir /path/to/.claude status
 ```
 
 Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a single source of truth for agents, commands, and workflows.

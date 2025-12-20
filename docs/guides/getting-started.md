@@ -38,7 +38,7 @@ claude-ctx agent graph --export dependency-map.md
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
 
-> **Tip:** The CLI looks in this order for its data folder: `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
+> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_HOME` (explicit path), `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
@@ -48,6 +48,13 @@ Running the CLI directly will operate on the directories in this repository, whi
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
+>
+> To target a project-local scope or an explicit directory:
+>
+> ```bash
+> claude-ctx --scope project status
+> claude-ctx --claude-dir /path/to/.claude status
+> ```
 > ```
 >
 > Set that once (for example in `~/.zshrc`) and the standalone CLI will use the same cached plugin copy without reinstalling.

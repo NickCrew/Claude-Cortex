@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import json
-import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .core.base import _resolve_claude_dir
 from .exceptions import (
     InvalidMetricsDataError,
     MetricsFileError,
@@ -22,13 +22,8 @@ def get_metrics_path() -> Path:
     Raises:
         MetricsFileError: If metrics directory cannot be created
     """
-    claude_home = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    if claude_home:
-        base = Path(claude_home)
-    else:
-        base = Path.home() / ".claude"
-
-    metrics_dir = base / ".metrics" / "skills"
+    claude_dir = _resolve_claude_dir()
+    metrics_dir = claude_dir / ".metrics" / "skills"
     try:
         ensure_directory(metrics_dir, purpose="metrics storage")
     except Exception as exc:

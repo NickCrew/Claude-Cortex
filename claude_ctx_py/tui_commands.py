@@ -126,6 +126,12 @@ class AgentCommandProvider(Provider):
                 CATEGORY_VIEW,
             ),
             (
+                f"[green]🌿[/] [bold]Show Worktrees[/bold] [dim green]⎇[/dim green]",
+                f"[dim]Manage git worktrees [dim white]│[/dim white] Hotkey: [yellow]C[/yellow] [dim white]│[/dim white] Status: [cyan]Repo[/cyan][/dim]",
+                "show_worktrees",
+                CATEGORY_VIEW,
+            ),
+            (
                 f"[magenta]🎯[/] [bold]Orchestrate[/bold] [dim magenta]◈[/dim magenta]",
                 f"[dim]Task orchestration [dim white]│[/dim white] Hotkey: [yellow]7[/yellow] [dim white]│[/dim white] Mode: [dim yellow]Auto[/dim yellow][/dim]",
                 "show_orchestrate",
@@ -215,6 +221,11 @@ class AgentCommandProvider(Provider):
             app.update_view()
         elif action == "show_workflows":
             app.current_view = "workflows"
+            app.update_view()
+        elif action == "show_worktrees":
+            app.current_view = "worktrees"
+            if hasattr(app, "load_worktrees"):
+                app.load_worktrees()
             app.update_view()
         elif action == "show_orchestrate":
             app.current_view = "orchestrate"

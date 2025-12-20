@@ -36,16 +36,68 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
 
 
-def _resolve_claude_dir(home: Path | None = None) -> Path:
+_CLAUDE_CTX_HOME_ENV = "CLAUDE_CTX_HOME"
+_CLAUDE_CTX_SCOPE_ENV = "CLAUDE_CTX_SCOPE"
+
+
+def _find_project_claude_dir(start: Path) -> Path | None:
+    """Find the nearest .claude directory by walking up from start."""
+    current = start.resolve()
+    while True:
+        candidate = current / ".claude"
+        if candidate.is_dir():
+            return candidate
+        if current == current.parent:
+            break
+        current = current.parent
+    return None
+
+
+def _resolve_claude_dir(
+    home: Path | None = None,
+    scope: str | None = None,
+    cwd: Path | None = None,
+) -> Path:
     """Resolve the working Claude directory.
 
     Preference order:
 
-    1. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
+    1. Explicit override via ``CLAUDE_CTX_HOME``
+    2. Explicit scope selection via ``CLAUDE_CTX_SCOPE`` / ``scope`` argument
+    3. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
        commands execute inside a plugin sandbox)
-    2. Caller-provided ``home`` argument
-    3. ``$HOME/.claude`` fallback
+    4. Caller-provided ``home`` argument
+    5. ``$HOME/.claude`` fallback
     """
+
+    override_home = os.environ.get(_CLAUDE_CTX_HOME_ENV)
+    if override_home:
+        return Path(override_home).expanduser().resolve()
+
+    scope_value = (scope or os.environ.get(_CLAUDE_CTX_SCOPE_ENV) or "").strip().lower()
+    if scope_value:
+        if scope_value in ("project", "local"):
+            base = cwd or Path.cwd()
+            found = _find_project_claude_dir(base)
+            return found if found is not None else base / ".claude"
+        if scope_value in ("global", "home"):
+            if home is not None:
+                base = Path(home)
+            else:
+                base = Path(os.environ.get("HOME", str(Path.home())))
+            return base / ".claude"
+        if scope_value in ("plugin", "plugin_root"):
+            override = os.environ.get("CLAUDE_PLUGIN_ROOT")
+            if override:
+                path = Path(override).expanduser().resolve()
+                if path.exists():
+                    return path
+            if home is not None:
+                base = Path(home)
+            else:
+                base = Path(os.environ.get("HOME", str(Path.home())))
+            return base / ".claude"
+        # Treat unknown scope as auto.
 
     override = os.environ.get("CLAUDE_PLUGIN_ROOT")
     if override:

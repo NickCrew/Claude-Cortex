@@ -85,6 +85,15 @@ from ..core import (
     skill_community_search,
     skill_recommend,
     workflow_stop,
+    WorktreeInfo,
+    worktree_discover,
+    worktree_default_path,
+    worktree_get_base_dir,
+    worktree_set_base_dir,
+    worktree_clear_base_dir,
+    worktree_add,
+    worktree_remove,
+    worktree_prune,
     _parse_claude_md_refs,
     _inactive_dir_candidates,
     _inactive_category_dir,
@@ -213,6 +222,11 @@ class AgentTUI(App[None]):
         self.rules: List[RuleNode] = []
         self.modes: List[ModeInfo] = []
         self.workflows: List[WorkflowInfo] = []
+        self.worktrees: List[WorktreeInfo] = []
+        self.worktree_repo_root: Optional[Path] = None
+        self.worktree_error: Optional[str] = None
+        self.worktree_base_dir: Optional[Path] = None
+        self.worktree_base_source: Optional[str] = None
         self.profiles: List[Dict[str, Optional[str]]] = []
         self.mcp_servers: List[MCPServerInfo] = []
         self.mcp_docs: List[MCPDocInfo] = []
@@ -290,6 +304,12 @@ class AgentTUI(App[None]):
         Binding("f", "export_cycle_format", "Format", show=False),
         Binding("e", "export_run", "Export", show=False),
         Binding("x", "export_clipboard", "Copy", show=False),
+        # Worktree bindings
+        Binding("ctrl+n", "worktree_add", "New Worktree", show=False),
+        Binding("ctrl+o", "worktree_open", "Open Worktree", show=False),
+        Binding("ctrl+w", "worktree_remove", "Remove Worktree", show=False),
+        Binding("ctrl+k", "worktree_prune", "Prune Worktrees", show=False),
+        Binding("ctrl+b", "worktree_set_base_dir", "Worktree Dir", show=False),
         Binding("y", "copy_definition", "Copy Definition", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
         Binding("D", "profile_delete", "Delete Profile", show=False),
@@ -449,6 +469,7 @@ class AgentTUI(App[None]):
         self.load_slash_commands()
         self.load_agent_tasks()
         self.load_workflows()
+        self.load_worktrees()
         self.load_scenarios()
         self.load_profiles()
         self.load_mcp_servers()
@@ -544,6 +565,14 @@ class AgentTUI(App[None]):
             "profiles": {"toggle", "profile_save_prompt", "profile_delete", "setup_init_wizard", "setup_init_minimal", "setup_migration", "setup_health_check"},
             "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
             "workflows": {"run_selected", "stop_selected"},
+            "worktrees": {
+                "worktree_add",
+                "worktree_open",
+                "worktree_remove",
+                "worktree_prune",
+                "worktree_set_base_dir",
+                "details_context",
+            },
             "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
             "ai_assistant": {"auto_activate"},
             "watch_mode": {"toggle", "watch_change_directory", "watch_toggle_auto", "watch_adjust_threshold", "watch_adjust_interval"},
@@ -683,6 +712,14 @@ class AgentTUI(App[None]):
         if index < 0 or index >= len(servers):
             return None
         return servers[index]
+
+    def _selected_worktree(self) -> Optional[WorktreeInfo]:
+        index = self._table_cursor_index()
+        if index is None or not self.worktrees:
+            return None
+        if index < 0 or index >= len(self.worktrees):
+            return None
+        return self.worktrees[index]
 
     def _selected_skill(self) -> Optional[Dict[str, Any]]:
         index = self._table_cursor_index()
@@ -1910,6 +1947,36 @@ class AgentTUI(App[None]):
             running = sum(1 for w in workflows if w.status == "running")
             self.metrics_collector.record("workflows_running", float(running))
 
+    def load_worktrees(self) -> None:
+        """Load git worktrees for the current repository."""
+        try:
+            repo_root, worktrees, error = worktree_discover()
+            self.worktrees = worktrees
+            self.worktree_repo_root = repo_root
+            self.worktree_error = error
+            base_dir, base_source, base_error = worktree_get_base_dir()
+            self.worktree_base_dir = base_dir
+            self.worktree_base_source = base_source
+            if error:
+                self.status_message = f"Worktrees: {error}"
+            elif base_error:
+                self.status_message = f"Worktrees: {base_error}"
+            else:
+                base_hint = ""
+                if base_dir:
+                    base_hint = f" (base: {base_dir}"
+                    if base_source:
+                        base_hint += f" · {base_source}"
+                    base_hint += ")"
+                self.status_message = f"Loaded {len(worktrees)} worktrees{base_hint}"
+        except Exception as e:
+            self.worktrees = []
+            self.worktree_repo_root = None
+            self.worktree_error = f"Failed to load worktrees: {e}"
+            self.worktree_base_dir = None
+            self.worktree_base_source = None
+            self.status_message = self.worktree_error
+
     def load_scenarios(self) -> None:
         """Load scenario metadata and runtime state."""
         scenarios: List[ScenarioInfo] = []
@@ -2154,14 +2221,26 @@ class AgentTUI(App[None]):
             self.available_assets = discover_plugin_assets()
             self.claude_directories = find_claude_directories(Path.cwd())
 
-            # Set default target dir to global ~/.claude if not set
+            # Set default target dir (respect explicit scope overrides)
             if self.selected_target_dir is None:
-                for cd in self.claude_directories:
-                    if cd.scope == "global":
-                        self.selected_target_dir = cd.path
-                        break
-                if self.selected_target_dir is None and self.claude_directories:
-                    self.selected_target_dir = self.claude_directories[0].path
+                explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
+                explicit_home = os.environ.get("CLAUDE_CTX_HOME")
+                preferred = _resolve_claude_dir() if (explicit_scope or explicit_home) else None
+                if preferred is not None:
+                    for cd in self.claude_directories:
+                        if cd.path.resolve() == preferred.resolve():
+                            self.selected_target_dir = cd.path
+                            break
+                    if self.selected_target_dir is None:
+                        self.selected_target_dir = preferred
+
+                if self.selected_target_dir is None:
+                    for cd in self.claude_directories:
+                        if cd.scope == "global":
+                            self.selected_target_dir = cd.path
+                            break
+                    if self.selected_target_dir is None and self.claude_directories:
+                        self.selected_target_dir = self.claude_directories[0].path
 
             total = sum(len(assets) for assets in self.available_assets.values())
             active_settings = get_settings_path()
@@ -2235,6 +2314,8 @@ class AgentTUI(App[None]):
             self.show_commands_view(table)
         elif self.current_view == "workflows":
             self.show_workflows_view(table)
+        elif self.current_view == "worktrees":
+            self.show_worktrees_view(table)
         elif self.current_view == "scenarios":
             self.show_scenarios_view(table)
         elif self.current_view == "orchestrate":
@@ -3348,6 +3429,56 @@ class AgentTUI(App[None]):
                 description,
             )
 
+    def show_worktrees_view(self, table: AnyDataTable) -> None:
+        """Show git worktrees table."""
+        table.add_column("Branch", key="branch", width=24)
+        table.add_column("Status", key="status", width=14)
+        table.add_column("Path", key="path", width=48)
+        table.add_column("HEAD", key="head", width=10)
+
+        if self.worktree_error:
+            table.add_row(f"[dim]{self.worktree_error}[/dim]", "", "", "")
+            return
+
+        if not hasattr(self, "worktrees") or not self.worktrees:
+            table.add_row("[dim]No worktrees found[/dim]", "", "", "")
+            return
+
+        repo_root = self.worktree_repo_root
+
+        for worktree in self.worktrees:
+            branch = worktree.branch or "detached"
+            if worktree.is_main:
+                branch = f"[bold]{branch}[/bold] [dim](main)[/dim]"
+            elif worktree.branch:
+                branch = f"{branch}"
+            else:
+                branch = f"[dim]{branch}[/dim]"
+
+            status_parts: List[str] = []
+            if worktree.detached:
+                status_parts.append("detached")
+            if worktree.locked:
+                status_parts.append("locked")
+            if worktree.prunable:
+                status_parts.append("prunable")
+            status_label = ", ".join(status_parts) if status_parts else "clean"
+            status_color = "yellow" if status_parts else "green"
+            status = f"[{status_color}]{status_label}[/{status_color}]"
+
+            path_display: str = str(worktree.path)
+            if repo_root:
+                try:
+                    path_display = str(
+                        worktree.path.resolve().relative_to(repo_root.resolve())
+                    )
+                except Exception:
+                    path_display = str(worktree.path)
+
+            head = worktree.head[:8] if worktree.head else "-"
+
+            table.add_row(branch, status, path_display, head)
+
     def show_scenarios_view(self, table: AnyDataTable) -> None:
         """Show scenario catalog."""
         table.add_column("Scenario", key="scenario", width=32)
@@ -4177,6 +4308,13 @@ class AgentTUI(App[None]):
         self.current_view = "workflows"
         self.status_message = "Switched to Workflows"
         self.notify("🔄 Workflows", severity="information", timeout=1)
+
+    def action_view_worktrees(self) -> None:
+        """Switch to worktrees view."""
+        self.current_view = "worktrees"
+        self.load_worktrees()
+        self.status_message = "Switched to Worktrees"
+        self.notify("🌿 Worktrees", severity="information", timeout=1)
 
     def action_view_scenarios(self) -> None:
         """Switch to scenarios view."""
@@ -6147,6 +6285,28 @@ class AgentTUI(App[None]):
         elif self.current_view == "commands":
             self.run_worker(self._show_selected_command_definition(), exclusive=True)
             return
+        elif self.current_view == "worktrees":
+            worktree = self._selected_worktree()
+            if not worktree:
+                self.notify("Select a worktree to view details", severity="warning", timeout=2)
+                return
+            lines = [
+                f"Path: {worktree.path}",
+                f"Branch: {worktree.branch or 'detached'}",
+                f"HEAD: {worktree.head or 'unknown'}",
+                f"Main: {'yes' if worktree.is_main else 'no'}",
+                f"Locked: {'yes' if worktree.locked else 'no'}",
+                f"Prunable: {'yes' if worktree.prunable else 'no'}",
+            ]
+            if worktree.lock_reason:
+                lines.append(f"Lock reason: {worktree.lock_reason}")
+            if worktree.prune_reason:
+                lines.append(f"Prune reason: {worktree.prune_reason}")
+            self.run_worker(
+                self._show_text_dialog("Worktree Details", "\n".join(lines)),
+                exclusive=True,
+            )
+            return
         else:
             self.notify("Details not available", severity="warning", timeout=2)
 
@@ -6600,6 +6760,149 @@ class AgentTUI(App[None]):
             return True
         except Exception:
             return False
+
+    async def action_worktree_add(self) -> None:
+        """Create a new git worktree."""
+        if self.current_view != "worktrees":
+            self.action_view_worktrees()
+
+        branch = await self._prompt_text("New Worktree", "Branch name")
+        if not branch:
+            return
+
+        default_path, _error = worktree_default_path(branch)
+        path_value: Optional[str] = None
+        if default_path:
+            prompt = "Target path (optional)"
+            path_input = await self._prompt_text(
+                "Worktree Path",
+                prompt,
+                default=str(default_path),
+            )
+            if path_input is None:
+                return
+            try:
+                if Path(path_input).expanduser().resolve() != default_path.resolve():
+                    path_value = path_input
+            except Exception:
+                path_value = path_input
+        else:
+            path_input = await self._prompt_text(
+                "Worktree Path", "Target path (optional)"
+            )
+            if path_input is None:
+                return
+            path_value = path_input or None
+
+        exit_code, message = worktree_add(branch, path=path_value)
+        clean = self._clean_ansi(message)
+        if exit_code != 0:
+            self.notify(clean or "Failed to add worktree", severity="error", timeout=3)
+            return
+
+        self.notify(clean or "Worktree created", severity="information", timeout=3)
+        self.load_worktrees()
+        self.update_view()
+
+    async def action_worktree_open(self) -> None:
+        """Open the selected worktree in the system file manager."""
+        if self.current_view != "worktrees":
+            self.action_view_worktrees()
+
+        worktree = self._selected_worktree()
+        if not worktree:
+            self.notify("Select a worktree first", severity="warning", timeout=2)
+            return
+
+        opened = self._open_path_external(worktree.path)
+        if opened:
+            self.status_message = f"Opened {worktree.path}"
+            self.notify("Opened worktree", severity="information", timeout=2)
+        else:
+            self.notify("Failed to open worktree", severity="error", timeout=2)
+
+    async def action_worktree_remove(self) -> None:
+        """Remove the selected worktree."""
+        if self.current_view != "worktrees":
+            self.action_view_worktrees()
+
+        worktree = self._selected_worktree()
+        if not worktree:
+            self.notify("Select a worktree first", severity="warning", timeout=2)
+            return
+        if worktree.is_main:
+            self.notify("Cannot remove the main worktree", severity="warning", timeout=2)
+            return
+
+        confirm = await self.push_screen(
+            ConfirmDialog("Remove Worktree", f"Remove {worktree.path}?"),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+
+        exit_code, message = worktree_remove(str(worktree.path))
+        clean = self._clean_ansi(message)
+        if exit_code != 0:
+            self.notify(clean or "Failed to remove worktree", severity="error", timeout=3)
+            return
+
+        self.notify(clean or "Worktree removed", severity="information", timeout=2)
+        self.load_worktrees()
+        self.update_view()
+
+    async def action_worktree_prune(self) -> None:
+        """Prune stale worktrees."""
+        if self.current_view != "worktrees":
+            self.action_view_worktrees()
+
+        confirm = await self.push_screen(
+            ConfirmDialog("Prune Worktrees", "Prune stale worktrees?"),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+
+        exit_code, message = worktree_prune()
+        clean = self._clean_ansi(message)
+        if exit_code != 0:
+            self.notify(clean or "Failed to prune worktrees", severity="error", timeout=3)
+            return
+
+        if clean:
+            await self._show_text_dialog("Worktree Prune", clean)
+        self.load_worktrees()
+        self.update_view()
+
+    async def action_worktree_set_base_dir(self) -> None:
+        """Set or clear the worktree base directory."""
+        if self.current_view != "worktrees":
+            self.action_view_worktrees()
+
+        current_dir = self.worktree_base_dir
+        prompt = "Base directory (enter '-' to clear)"
+        default_value = str(current_dir) if current_dir else ""
+        value = await self._prompt_text(
+            "Worktree Base Directory",
+            prompt,
+            default=default_value,
+        )
+        if value is None:
+            return
+
+        if value.strip() == "-":
+            exit_code, message = worktree_clear_base_dir()
+        else:
+            exit_code, message = worktree_set_base_dir(value)
+
+        clean = self._clean_ansi(message)
+        if exit_code != 0:
+            self.notify(clean or "Failed to update base directory", severity="error", timeout=3)
+            return
+
+        self.notify(clean or "Base directory updated", severity="information", timeout=2)
+        self.load_worktrees()
+        self.update_view()
 
     def action_export_cycle_format(self) -> None:
         """Toggle between agent-generic and Claude-specific export formats."""
@@ -7398,6 +7701,8 @@ class AgentTUI(App[None]):
             self.load_slash_commands()
         elif self.current_view == "workflows":
             self.load_workflows()
+        elif self.current_view == "worktrees":
+            self.load_worktrees()
         elif self.current_view == "scenarios":
             self.load_scenarios()
         elif self.current_view == "orchestrate":
