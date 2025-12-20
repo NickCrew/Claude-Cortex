@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from .asset_discovery import Asset, AssetCategory
+from .base import _update_with_backup
 
 
 # Color codes for output
@@ -27,6 +28,49 @@ NC = "\033[0m"
 def _color(text: str, color: str) -> str:
     """Wrap text in ANSI color codes."""
     return f"{color}{text}{NC}"
+
+
+def _add_commented_reference(target_dir: Path, installed_path: Path) -> None:
+    """Add a commented CLAUDE.md reference to an installed asset file.
+
+    This helps users quickly enable the asset later by uncommenting the line.
+    The update is best-effort and never raises.
+    """
+
+    claude_md = target_dir / "CLAUDE.md"
+
+    # Only proceed when CLAUDE.md and the installed file exist
+    if not claude_md.is_file() or not installed_path.exists():
+        return
+
+    try:
+        rel_path = installed_path.relative_to(target_dir)
+    except ValueError:
+        rel_path = installed_path
+
+    reference = rel_path.as_posix()
+    comment_line = f"<!-- @{reference} -->"
+
+    try:
+        content = claude_md.read_text(encoding="utf-8")
+    except OSError:
+        return
+
+    # Skip if already present (commented or active)
+    if f"@{reference}" in content:
+        return
+
+    # Ensure trailing newline before appending
+    if content and not content.endswith("\n"):
+        content += "\n"
+
+    content += f"{comment_line}\n"
+
+    try:
+        _update_with_backup(claude_md, lambda _: content)
+    except Exception:
+        # Reference addition is best-effort; ignore failures
+        return
 
 
 def install_asset(
@@ -57,6 +101,14 @@ def install_asset(
             return _install_mode(asset, target_dir, activate)
         elif asset.category == AssetCategory.WORKFLOWS:
             return _install_workflow(asset, target_dir)
+        elif asset.category == AssetCategory.RULES:
+            return _install_rule(asset, target_dir)
+        elif asset.category == AssetCategory.PROFILES:
+            return _install_profile(asset, target_dir)
+        elif asset.category == AssetCategory.SCENARIOS:
+            return _install_scenario(asset, target_dir)
+        elif asset.category == AssetCategory.TASKS:
+            return _install_task(asset, target_dir)
         else:
             return 1, _color(f"Unknown asset category: {asset.category}", RED)
     except Exception as e:
@@ -84,6 +136,9 @@ def _install_skill(asset: Asset, target_dir: Path) -> Tuple[int, str]:
         # Move into place
         shutil.move(str(temp_path), str(target_skill_dir))
 
+    # Add commented reference to SKILL.md for easy activation
+    _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
+
     return 0, _color(f"Installed skill: {asset.name}", GREEN)
 
 
@@ -99,6 +154,8 @@ def _install_hook(asset: Asset, target_dir: Path) -> Tuple[int, str]:
 
     # Make executable
     target_path.chmod(target_path.stat().st_mode | 0o111)
+
+    _add_commented_reference(target_dir, target_path)
 
     return 0, _color(f"Installed hook: {asset.name}", GREEN)
 
@@ -117,6 +174,8 @@ def _install_command(asset: Asset, target_dir: Path) -> Tuple[int, str]:
 
     shutil.copy2(asset.source_path, target_path)
 
+    _add_commented_reference(target_dir, target_path)
+
     return 0, _color(f"Installed command: {asset.display_name}", GREEN)
 
 
@@ -131,6 +190,8 @@ def _install_agent(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int,
     target_path = agents_dir / asset.source_path.name
 
     shutil.copy2(asset.source_path, target_path)
+
+    _add_commented_reference(target_dir, target_path)
 
     status = "active" if activate else "inactive"
     return 0, _color(f"Installed agent ({status}): {asset.name}", GREEN)
@@ -148,6 +209,8 @@ def _install_mode(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int, 
 
     shutil.copy2(asset.source_path, target_path)
 
+    _add_commented_reference(target_dir, target_path)
+
     status = "active" if activate else "inactive"
     return 0, _color(f"Installed mode ({status}): {asset.name}", GREEN)
 
@@ -160,7 +223,61 @@ def _install_workflow(asset: Asset, target_dir: Path) -> Tuple[int, str]:
     target_path = workflows_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
+    _add_commented_reference(target_dir, target_path)
+
     return 0, _color(f"Installed workflow: {asset.name}", GREEN)
+
+
+def _install_rule(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a recommendation/config rules file under skills/."""
+    skills_dir = target_dir / "skills"
+    skills_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = skills_dir / asset.source_path.name
+    shutil.copy2(asset.source_path, target_path)
+
+    _add_commented_reference(target_dir, target_path)
+
+    return 0, _color(f"Installed rules: {asset.name}", GREEN)
+
+
+def _install_profile(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a profile markdown file."""
+    profiles_dir = target_dir / "profiles"
+    profiles_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = profiles_dir / asset.source_path.name
+    shutil.copy2(asset.source_path, target_path)
+
+    _add_commented_reference(target_dir, target_path)
+
+    return 0, _color(f"Installed profile: {asset.name}", GREEN)
+
+
+def _install_scenario(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a scenario markdown file."""
+    scenarios_dir = target_dir / "scenarios"
+    scenarios_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = scenarios_dir / asset.source_path.name
+    shutil.copy2(asset.source_path, target_path)
+
+    _add_commented_reference(target_dir, target_path)
+
+    return 0, _color(f"Installed scenario: {asset.name}", GREEN)
+
+
+def _install_task(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a task template markdown file."""
+    tasks_dir = target_dir / "tasks"
+    tasks_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = tasks_dir / asset.source_path.name
+    shutil.copy2(asset.source_path, target_path)
+
+    _add_commented_reference(target_dir, target_path)
+
+    return 0, _color(f"Installed task: {asset.name}", GREEN)
 
 
 def uninstall_asset(
@@ -191,6 +308,14 @@ def uninstall_asset(
             return _uninstall_mode(name, target_dir)
         elif category == "workflows":
             return _uninstall_workflow(name, target_dir)
+        elif category == "rules":
+            return _uninstall_rule(name, target_dir)
+        elif category == "profiles":
+            return _uninstall_profile(name, target_dir)
+        elif category == "scenarios":
+            return _uninstall_scenario(name, target_dir)
+        elif category == "tasks":
+            return _uninstall_task(name, target_dir)
         else:
             return 1, _color(f"Unknown category: {category}", RED)
     except Exception as e:
@@ -269,6 +394,47 @@ def _uninstall_workflow(name: str, target_dir: Path) -> Tuple[int, str]:
 
     workflow_path.unlink()
     return 0, _color(f"Uninstalled workflow: {name}", GREEN)
+
+
+def _uninstall_rule(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a rules file (skill/recommendation rules)."""
+    rules_dir = target_dir / "skills"
+    rule_path = rules_dir / f"{name}.json"
+    if not rule_path.exists():
+        return 1, _color(f"Rules not installed: {name}", YELLOW)
+
+    rule_path.unlink()
+    return 0, _color(f"Uninstalled rules: {name}", GREEN)
+
+
+def _uninstall_profile(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a profile."""
+    profile_path = target_dir / "profiles" / f"{name}.md"
+    if not profile_path.exists():
+        return 1, _color(f"Profile not installed: {name}", YELLOW)
+
+    profile_path.unlink()
+    return 0, _color(f"Uninstalled profile: {name}", GREEN)
+
+
+def _uninstall_scenario(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a scenario."""
+    scenario_path = target_dir / "scenarios" / f"{name}.md"
+    if not scenario_path.exists():
+        return 1, _color(f"Scenario not installed: {name}", YELLOW)
+
+    scenario_path.unlink()
+    return 0, _color(f"Uninstalled scenario: {name}", GREEN)
+
+
+def _uninstall_task(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a task template."""
+    task_path = target_dir / "tasks" / f"{name}.md"
+    if not task_path.exists():
+        return 1, _color(f"Task not installed: {name}", YELLOW)
+
+    task_path.unlink()
+    return 0, _color(f"Uninstalled task: {name}", GREEN)
 
 
 def get_asset_diff(

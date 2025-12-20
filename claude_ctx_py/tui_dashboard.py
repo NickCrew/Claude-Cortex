@@ -177,6 +177,98 @@ class DashboardCard:
         return lines
 
     @staticmethod
+    def create_health_card(
+        score: int,
+        issues: List[str],
+        recommendations: Optional[List[Dict[str, str]]] = None,
+        width: int = 40
+    ) -> List[str]:
+        """Create a specialized card for Context Health.
+
+        Args:
+            score: Health score (0-100)
+            issues: List of detected issues
+            recommendations: List of action recommendations
+            width: Card width
+
+        Returns:
+            Formatted card lines
+        """
+        lines = []
+        
+        # Determine color/icon based on score
+        if score >= 80:
+            color = "green"
+            icon = Icons.CHECK
+            status = "HEALTHY"
+        elif score >= 50:
+            color = "yellow"
+            icon = Icons.WARNING
+            status = "WARNING"
+        else:
+            color = "red"
+            icon = Icons.ERROR
+            status = "CRITICAL"
+
+        # Header
+        lines.append(f"╭{'─' * (width - 2)}╮")
+        title = f"{Icons.HEART} Context Health"
+        lines.append(f"│ [bold]{title}[/bold]{' ' * (width - len(title) - 3)}│")
+        lines.append(f"├{'─' * (width - 2)}┤")
+
+        # Score Row
+        score_text = f"[{color} bold]{score}/100 {status}[/{color}]"
+        lines.append(f"│ Score: {score_text}{' ' * (width - len(str(score)) - len(status) - 13)}│") # Approx padding calc
+        
+        # Progress Bar
+        bar_width = width - 4
+        filled = int((score / 100) * bar_width)
+        bar = f"[{color}]{'█' * filled}[dim]{'░' * (bar_width - filled)}[/dim][/{color}]"
+        lines.append(f"│ {bar} │")
+
+        # Issues (Max 2)
+        if issues:
+            lines.append(f"│ [dim]{'─' * (width - 4)}[/dim] │")
+            for i, issue in enumerate(issues[:2]):
+                # Truncate issue text
+                max_len = width - 6
+                issue_text = (issue[:max_len-3] + "...") if len(issue) > max_len else issue
+                lines.append(f"│ [{color}]•[/] {issue_text}{' ' * (width - len(issue_text) - 5)}│")
+            
+            if len(issues) > 2:
+                more = f"...and {len(issues) - 2} more"
+                lines.append(f"│ [dim italic]{more}[/dim italic]{' ' * (width - len(more) - 4)}│")
+
+        # Recommendations (New Section)
+        if recommendations:
+            lines.append(f"│ [dim]{'─' * (width - 4)}[/dim] │")
+            lines.append(f"│ [bold]Recommendations:[/bold]{' ' * (width - 19)}│")
+            
+            for rec in recommendations[:2]:
+                target = rec.get("target", "Unknown")
+                rec_type = rec.get("type", "info")
+                
+                if rec_type == "disable":
+                    # Red highlight for disable actions
+                    rec_text = f"[red bold]DISABLE[/] {target}"
+                else:
+                    rec_text = f"[green]ENABLE[/] {target}"
+                
+                padding = width - len(rec_text) + 9 # adjustment for markup hidden chars roughly
+                # Simple crude padding calculation (ideal would be to strip markup)
+                # Using a safer approach for TUI alignment usually requires Text.cell_len
+                # For this snippet, we'll just format it simply to avoid complex length math bugs
+                
+                lines.append(f"│ {rec_text}{' ' * (width - len(target) - 10)}│")
+
+
+        if not issues and not recommendations:
+             lines.append(f"│ [dim italic]No issues detected[/dim italic]{' ' * (width - 22)}│")
+
+        lines.append(f"╰{'─' * (width - 2)}╯")
+        return lines
+
+    @staticmethod
     def create_compact(
         title: str, value: str, icon: str = Icons.INFO, color: str = "cyan"
     ) -> str:

@@ -433,6 +433,9 @@ class WatchMode:
         Returns:
             Exit code
         """
+        # Set running state FIRST so TUI can see it immediately
+        with self._state_lock:
+            self.running = True
 
         # Setup signal handlers
         def signal_handler(signum: int, frame: Optional[FrameType]) -> None:
@@ -448,9 +451,7 @@ class WatchMode:
         self._print_notification("🚀", "Performing initial analysis...", "", "cyan")
         self._analyze_context()
 
-        # Main loop
-        with self._state_lock:
-            self.running = True
+        # Main loop (running is already True)
 
         try:
             while True:

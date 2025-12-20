@@ -63,7 +63,7 @@ def test_project(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     (claude_dir / "schema" / "agent-schema-v2.yaml").write_text(schema, encoding="utf-8")
 
     # Ensure CLI resolves to this .claude
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(claude_dir))
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
     monkeypatch.chdir(project_dir)
     return project_dir
 

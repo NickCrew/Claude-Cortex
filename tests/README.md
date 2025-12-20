@@ -68,7 +68,7 @@ pytest -m "not slow"     # Skip slow tests
 Common fixtures are defined in `conftest.py`:
 
 - `tmp_claude_dir` - Temporary .claude directory with standard structure
-- `mock_claude_home` - Sets CLAUDE_CTX_HOME to temporary directory
+- `mock_claude_home` - Sets CLAUDE_PLUGIN_ROOT to temporary directory
 - `sample_skill_metadata` - Sample skill metadata for testing
 - `sample_metrics` - Sample metrics data
 - `metrics_file` - Creates metrics file with sample data

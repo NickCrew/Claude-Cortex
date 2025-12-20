@@ -36,6 +36,7 @@ from .base import (
     _color,
     _resolve_claude_dir,
     _resolve_init_dirs,
+    _ensure_claude_structure,
     _init_slug_for_path,
     _strip_ansi_codes,
     _run_detection_command,
@@ -45,6 +46,7 @@ from .base import (
     _iter_md_files,
     _iter_all_files,
     _parse_active_entries,
+    _write_active_entries,
     _update_with_backup,
     _uncomment_rule_line,
     _comment_rule_line,
@@ -255,6 +257,11 @@ from .mcp import (
     mcp_diagnose,
     mcp_snippet,
     list_doc_only_servers,
+    # MCP docs activation
+    mcp_activate,
+    mcp_deactivate,
+    mcp_list_docs,
+    mcp_docs_status,
 )
 
 # Export doctor function
@@ -305,6 +312,7 @@ __all__ = [
     "_color",
     "_resolve_claude_dir",
     "_resolve_init_dirs",
+    "_ensure_claude_structure",
     "_init_slug_for_path",
     "_strip_ansi_codes",
     "_run_detection_command",
@@ -314,6 +322,7 @@ __all__ = [
     "_iter_md_files",
     "_iter_all_files",
     "_parse_active_entries",
+    "_write_active_entries",
     "_update_with_backup",
     "_uncomment_rule_line",
     "_comment_rule_line",
@@ -490,6 +499,11 @@ __all__ = [
     "mcp_diagnose",
     "mcp_snippet",
     "list_doc_only_servers",
+    # MCP docs activation
+    "mcp_activate",
+    "mcp_deactivate",
+    "mcp_list_docs",
+    "mcp_docs_status",
     # Doctor functions
     "doctor_run",
 ]

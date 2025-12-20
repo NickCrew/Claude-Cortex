@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .asset_discovery import find_claude_directories
 from .base import _resolve_claude_dir
 
 
@@ -49,6 +50,29 @@ def get_settings_path() -> Path:
     """Get path to Claude Code settings.json."""
     claude_dir = _resolve_claude_dir()
     return claude_dir / "settings.json"
+
+
+def get_settings_scope(settings_path: Path) -> str:
+    """Infer scope (project/parent/global/custom) for a settings.json path."""
+    for claude_dir in find_claude_directories(Path.cwd()):
+        if settings_path.parent.resolve() == claude_dir.path.resolve():
+            return claude_dir.scope
+    # If not in discovered dirs, mark as custom/override
+    return "custom"
+
+
+def detect_settings_files() -> List[Tuple[Path, str]]:
+    """List discovered settings.json files with their scope.
+
+    Returns:
+        List of (path, scope) tuples ordered by specificity (project → parent → global).
+    """
+    results: List[Tuple[Path, str]] = []
+    for claude_dir in find_claude_directories(Path.cwd()):
+        settings_path = claude_dir.path / "settings.json"
+        if settings_path.exists():
+            results.append((settings_path, claude_dir.scope))
+    return results
 
 
 def load_settings() -> Dict[str, Any]:

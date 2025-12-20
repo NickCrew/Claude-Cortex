@@ -1,9 +1,4 @@
-"""Mode management functions.
-
-Modes are toggled via HTML comments in CLAUDE.md:
-- Active:   @modes/ModeName.md
-- Inactive: <!-- @modes/ModeName.md -->
-"""
+"""Mode management functions (reference-based activation)."""
 
 from __future__ import annotations
 
@@ -11,24 +6,22 @@ from pathlib import Path
 from typing import List, Tuple
 
 from .components import (
-    parse_claude_md_components,
     get_all_available_components,
-    toggle_component_in_claude_md,
-    component_activate,
-    component_deactivate,
-    list_components,
-    component_status,
     add_component_to_claude_md,
+    ref_activate,
+    ref_deactivate,
+    ref_list,
+    ref_status,
 )
-from .base import _resolve_claude_dir
 
 COMPONENT_TYPE = "modes"
+BASE_PATH = "modes"
 SECTION_PATTERN = r'(#\s*Inactive\s+Modes.*?\n)'
 
 
 def _parse_claude_md_modes(claude_dir: Path) -> Tuple[List[str], List[str]]:
-    """Parse CLAUDE.md to find active and inactive modes."""
-    return parse_claude_md_components(claude_dir, COMPONENT_TYPE)
+    """Legacy placeholder; returns no CLAUDE.md-derived state."""
+    return ([], [])
 
 
 def _get_all_available_modes(claude_dir: Path) -> List[str]:
@@ -41,28 +34,28 @@ def _toggle_mode_in_claude_md(
     mode: str,
     activate: bool
 ) -> Tuple[bool, str]:
-    """Toggle a mode in CLAUDE.md by adding/removing HTML comments."""
-    return toggle_component_in_claude_md(claude_dir, COMPONENT_TYPE, mode, activate)
+    """Deprecated: comment toggling no longer used."""
+    return False, "Comment-based toggling is deprecated"
 
 
 def mode_activate(mode: str, home: Path | None = None) -> Tuple[int, str]:
-    """Activate a mode by removing HTML comment in CLAUDE.md."""
-    return component_activate(COMPONENT_TYPE, mode, home)
+    """Activate a mode by adding it to .active-modes."""
+    return ref_activate(COMPONENT_TYPE, mode, BASE_PATH, home)
 
 
 def mode_deactivate(mode: str, home: Path | None = None) -> Tuple[int, str]:
-    """Deactivate a mode by adding HTML comment in CLAUDE.md."""
-    return component_deactivate(COMPONENT_TYPE, mode, home)
+    """Deactivate a mode by removing it from .active-modes."""
+    return ref_deactivate(COMPONENT_TYPE, mode, home)
 
 
 def list_modes(home: Path | None = None) -> str:
-    """List all modes with their status from CLAUDE.md and modes directory."""
-    return list_components(COMPONENT_TYPE, home)
+    """List all modes with their status."""
+    return ref_list(COMPONENT_TYPE, BASE_PATH, home)
 
 
 def mode_status(home: Path | None = None) -> str:
-    """Show currently active modes from CLAUDE.md."""
-    return component_status(COMPONENT_TYPE, home)
+    """Show currently active modes."""
+    return ref_status(COMPONENT_TYPE, home)
 
 
 def mode_add_to_claude_md(

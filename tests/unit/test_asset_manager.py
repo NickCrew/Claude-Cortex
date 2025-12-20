@@ -121,7 +121,7 @@ class TestAssetDiscovery:
         assets = discover_plugin_assets()
         assert isinstance(assets, dict)
         # Should have at least some categories
-        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
             assert category in assets
 
     def test_discover_hooks(self):
@@ -177,6 +177,15 @@ class TestAssetDiscovery:
         for wf in workflows:
             assert isinstance(wf, Asset)
             assert wf.category == AssetCategory.WORKFLOWS
+
+    def test_discover_flags(self):
+        """Test flag discovery via discover_plugin_assets."""
+        assets = discover_plugin_assets()
+        flags = assets.get("flags", [])
+        assert isinstance(flags, list)
+        for flag in flags:
+            assert isinstance(flag, Asset)
+            assert flag.category == AssetCategory.FLAGS
 
 
 class TestClaudeDirectoryDiscovery:
@@ -306,6 +315,8 @@ class TestAssetInstaller:
 
             target_dir = tmp_path / "target"
             target_dir.mkdir()
+            # Provide CLAUDE.md so commented reference can be added
+            (target_dir / "CLAUDE.md").write_text("# CLAUDE assets\n")
 
             asset = Asset(
                 name="test-agent",
@@ -326,6 +337,10 @@ class TestAssetInstaller:
             installed = target_dir / "agents" / "test-agent.md"
             assert installed.exists()
             assert installed.read_text() == "# Test Agent\n\nContent here"
+
+            # Ensure a commented CLAUDE.md reference was appended
+            claude_md = (target_dir / "CLAUDE.md").read_text()
+            assert "<!-- @agents/test-agent.md -->" in claude_md
 
     def test_install_command(self):
         """Test installing a command."""

@@ -205,6 +205,10 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
             AssetCategory.SKILLS: "🎯",
             AssetCategory.MODES: "🎨",
             AssetCategory.WORKFLOWS: "🔄",
+            AssetCategory.RULES: "🧭",
+            AssetCategory.PROFILES: "👤",
+            AssetCategory.SCENARIOS: "🎬",
+            AssetCategory.TASKS: "✅",
         }
         icon = category_icons.get(self.asset.category, "📦")
 
@@ -524,6 +528,10 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
             "skills": "🎯",
             "modes": "🎨",
             "workflows": "🔄",
+            "rules": "🧭",
+            "profiles": "👤",
+            "scenarios": "🎬",
+            "tasks": "✅",
         }
 
         with Container(id="dialog", classes="visible"):

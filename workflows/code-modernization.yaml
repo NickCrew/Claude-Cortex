@@ -1,0 +1,64 @@
+name: Legacy Code Modernization
+description: Workflow for updating, typing, and documenting legacy codebases
+version: 1.0
+
+trigger:
+  keywords: ["modernize", "add types", "upgrade", "cleanup legacy"]
+  manual: true
+
+steps:
+  - name: Codebase Scan
+    agent: code-reviewer
+    description: Identify areas needing modernization
+    outputs:
+      - untyped_files_list
+      - deprecated_patterns_report
+      - documentation_gaps
+
+  - name: Dependency Update
+    agent: dependencies-specialist
+    description: Upgrade libraries and frameworks to recent stable versions
+    risk_level: medium
+    outputs:
+      - updated_requirements
+      - breaking_changes_log
+
+  - name: Type Addition
+    agent: typescript-pro  # or python-pro based on context
+    description: Add static types to untyped code
+    inputs: ["untyped_files_list"]
+    strategy: gradual
+
+  - name: Refactoring
+    mode: Architect
+    description: Refactor complex functions and monolithic classes
+    inputs: ["deprecated_patterns_report"]
+    pattern_targets:
+      - extract_method
+      - decompose_conditional
+      - replace_temp_with_query
+
+  - name: Documentation Backfill
+    mode: Teacher
+    description: Add docstrings and comments to explain legacy logic
+    inputs: ["documentation_gaps"]
+    style: explanatory
+
+  - name: Test Coverage Boost
+    agent: test-automator
+    description: Add tests to ensure behavior is preserved during changes
+    target: "legacy_critical_paths"
+
+  - name: Final Review
+    agent: code-reviewer
+    description: Verify modernization standards
+    checks:
+      - type_strictness
+      - linter_compliance
+      - documentation_completeness
+
+success_criteria:
+  - type_coverage_increased
+  - dependencies_up_to_date
+  - tests_passing
+  - lint_score_improved

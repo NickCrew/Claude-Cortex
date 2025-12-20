@@ -28,6 +28,7 @@ from .base import (
     _append_session_log,
     _color,
     _confirm,
+    _ensure_claude_structure,
     _format_detection_summary,
     _format_header,
     _init_slug_for_path,
@@ -73,10 +74,171 @@ from .modes import mode_activate, mode_deactivate, mode_status
 from .rules import rules_activate
 
 
+# Flag category mappings for profiles
+PROFILE_FLAGS = {
+    "minimal": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "execution-control.md",
+    ],
+    "frontend": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "execution-control.md",
+        "visual-excellence.md",
+        "testing-quality.md",
+        "domain-presets.md",
+        "debugging-trace.md",
+    ],
+    "web-dev": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "visual-excellence.md",
+        "output-optimization.md",
+        "testing-quality.md",
+        "domain-presets.md",
+        "debugging-trace.md",
+    ],
+    "backend": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "testing-quality.md",
+        "debugging-trace.md",
+        "refactoring-safety.md",
+    ],
+    "devops": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "execution-control.md",
+        "debugging-trace.md",
+        "ci-cd.md",
+    ],
+    "documentation": [
+        "mode-activation.md",
+        "execution-control.md",
+        "learning-education.md",
+    ],
+    "data-ai": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "testing-quality.md",
+    ],
+    "quality": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "testing-quality.md",
+        "refactoring-safety.md",
+        "debugging-trace.md",
+    ],
+    "meta": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "refactoring-safety.md",
+    ],
+    "developer-experience": [
+        "mode-activation.md",
+        "mcp-servers.md",
+        "execution-control.md",
+        "interactive-control.md",
+    ],
+    "product": [
+        "mode-activation.md",
+        "execution-control.md",
+        "learning-education.md",
+    ],
+    "full": [
+        # All flags enabled for full profile
+        "mode-activation.md",
+        "mcp-servers.md",
+        "analysis-depth.md",
+        "execution-control.md",
+        "visual-excellence.md",
+        "output-optimization.md",
+        "testing-quality.md",
+        "learning-education.md",
+        "cost-budget.md",
+        "refactoring-safety.md",
+        "domain-presets.md",
+        "debugging-trace.md",
+        "interactive-control.md",
+        "ci-cd.md",
+        "auto-escalation.md",
+    ],
+}
+
+
+def _apply_profile_flags(profile_name: str, claude_dir: Path) -> None:
+    """Apply flag configuration for a given profile by modifying CLAUDE.md."""
+    claude_md_path = claude_dir / "CLAUDE.md"
+
+    if not claude_md_path.exists():
+        return
+
+    # Get the flags for this profile
+    profile_flags = set(PROFILE_FLAGS.get(profile_name, []))
+
+    # Read CLAUDE.md
+    with open(claude_md_path, "r") as f:
+        lines = f.readlines()
+
+    # Modify flag lines based on profile
+    modified_lines = []
+    for line in lines:
+        stripped = line.strip()
+
+        # Check if this is a flag line (active or commented)
+        if "@flags/" in stripped:
+            # Extract the filename from the line
+            # Could be: "@flags/filename.md" or "<!-- @flags/filename.md -->"
+            if stripped.startswith("@flags/"):
+                # Currently active
+                filename = stripped.replace("@flags/", "").strip()
+                if filename in profile_flags:
+                    # Should be active - keep it active
+                    modified_lines.append(line)
+                else:
+                    # Should be inactive - comment it out
+                    modified_lines.append(f"<!-- @flags/{filename} -->\n")
+            elif stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
+                # Currently commented
+                # Extract filename: "<!-- @flags/filename.md -->" -> "filename.md"
+                filename = stripped.replace("<!-- @flags/", "").replace(" -->", "").strip()
+                if filename in profile_flags:
+                    # Should be active - uncomment it
+                    modified_lines.append(f"@flags/{filename}\n")
+                else:
+                    # Should be inactive - keep it commented
+                    modified_lines.append(line)
+            else:
+                # Unknown format, keep as is
+                modified_lines.append(line)
+        else:
+            # Not a flag line, keep as is
+            modified_lines.append(line)
+
+    # Write back to CLAUDE.md
+    with open(claude_md_path, "w") as f:
+        f.writelines(modified_lines)
+
+
 def _profile_reset(home: Path | None = None) -> Tuple[int, str]:
     """Reset to minimal configuration while surfacing any operation failures."""
 
     claude_dir = _resolve_claude_dir(home)
+
+    # Ensure directory structure exists
+    _ensure_claude_structure(claude_dir)
+
     agents_dir = claude_dir / "agents"
 
     # Deactivate non-essential agents currently active
@@ -125,6 +287,9 @@ def _profile_reset(home: Path | None = None) -> Tuple[int, str]:
             active_rules.unlink()
     except OSError as exc:  # pragma: no cover - extremely unlikely
         return 1, _color(f"Failed to clear active rules: {exc}", RED)
+
+    # Apply minimal profile flags
+    _apply_profile_flags("minimal", claude_dir)
 
     _refresh_claude_md(claude_dir)
 
@@ -297,6 +462,9 @@ def profile_backend(home: Path | None = None) -> Tuple[int, str]:
     if rule_message:
         messages.append(rule_message)
 
+    # Apply backend profile flags
+    _apply_profile_flags("backend", claude_dir)
+
     _refresh_claude_md(claude_dir)
 
     messages.append(_color("Loaded profile: backend", GREEN))
@@ -348,6 +516,9 @@ def _load_profile_with_agents(
         rule_message = rules_activate("quality-rules", home=home)
         if rule_message:
             messages.append(rule_message)
+
+    # Apply profile-specific flags
+    _apply_profile_flags(profile_name, claude_dir)
 
     _refresh_claude_md(claude_dir)
 
@@ -590,11 +761,16 @@ def init_minimal(home: Path | None = None) -> Tuple[int, str]:
     claude_dir = _resolve_claude_dir(home)
     _resolve_init_dirs(claude_dir)
 
+    # Ensure all required directories and files exist
+    created = _ensure_claude_structure(claude_dir)
+
     exit_code, message = _profile_reset(home=home)
     if exit_code != 0:
         return exit_code, message
 
     lines = []
+    if created:
+        lines.append(_color(f"Created {len(created)} directories/files", GREEN))
     if message:
         lines.append(message)
     lines.append(_color("Initialized minimal claude-ctx configuration", GREEN))
@@ -1028,6 +1204,9 @@ def init_wizard(
 
     claude_dir = _resolve_claude_dir(home)
     _, projects_dir, cache_dir = _resolve_init_dirs(claude_dir)
+
+    # Ensure all required directories and files exist
+    _ensure_claude_structure(claude_dir)
 
     base_dir = Path(cwd or Path.cwd())
 

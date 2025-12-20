@@ -515,18 +515,17 @@ For more detailed setup guidance (including shell completion and CLI overrides) 
 
 The CLI resolves its workspace using the following precedence:
 
-1. `CLAUDE_CTX_HOME`
-2. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
-3. `~/.claude`
+1. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
+2. `~/.claude`
 
 Examples:
 
 ```bash
 # Use the plugin cache that Claude Code maintains
-export CLAUDE_CTX_HOME="$HOME/.claude/plugins/cache/claude-ctx"
+export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
 
 # Or target a local checkout of this repository
-export CLAUDE_CTX_HOME="$HOME/Developer/personal/claude-ctx-plugin"
+export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
 
 claude-ctx mode status
 ```

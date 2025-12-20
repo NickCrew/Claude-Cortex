@@ -27,7 +27,7 @@ class TestGetMetricsPath:
     def test_get_metrics_path_creates_directory(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that get_metrics_path creates directory if it doesn't exist."""
         claude_dir = tmp_path / ".claude"
-        monkeypatch.setenv("CLAUDE_CTX_HOME", str(claude_dir))
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
 
         metrics_path = metrics.get_metrics_path()
 

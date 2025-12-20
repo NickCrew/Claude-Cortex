@@ -355,7 +355,7 @@ class TestCapture:
         assert (tmp_path / "fixes" / "fixed-null-pointer.md").exists()
 
     def test_memory_auto(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_HOME", str(tmp_path))
+        monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_path))
 
         # Check status
         exit_code, message = capture.memory_auto("status")

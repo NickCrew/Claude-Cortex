@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Generate manpages from argparse definitions."""
 
+from __future__ import annotations
+
 import argparse
 import sys
 from datetime import datetime
@@ -100,11 +102,8 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
     lines.extend([
         ".SH ENVIRONMENT",
         ".TP",
-        ".B CLAUDE_CTX_HOME",
-        "Override the default context directory location",
-        ".TP",
         ".B CLAUDE_PLUGIN_ROOT",
-        "Alternative override for context directory",
+        "Override for context directory (set automatically by Claude Code when running plugin commands)",
     ])
     
     # Files

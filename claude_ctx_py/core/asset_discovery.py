@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import re
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -31,6 +32,11 @@ class AssetCategory(Enum):
     SKILLS = "skills"
     MODES = "modes"
     WORKFLOWS = "workflows"
+    FLAGS = "flags"
+    RULES = "rules"
+    PROFILES = "profiles"
+    SCENARIOS = "scenarios"
+    TASKS = "tasks"
 
 
 class InstallStatus(Enum):
@@ -82,6 +88,16 @@ class Asset:
             return f"modes/{self.source_path.name}"
         elif self.category == AssetCategory.WORKFLOWS:
             return f"workflows/{self.source_path.name}"
+        elif self.category == AssetCategory.FLAGS:
+            return f"flags/{self.source_path.name}"
+        elif self.category == AssetCategory.RULES:
+            return f"skills/{self.source_path.name}"
+        elif self.category == AssetCategory.PROFILES:
+            return f"profiles/{self.source_path.name}"
+        elif self.category == AssetCategory.SCENARIOS:
+            return f"scenarios/{self.source_path.name}"
+        elif self.category == AssetCategory.TASKS:
+            return f"tasks/{self.source_path.name}"
         return self.source_path.name
 
 
@@ -141,6 +157,11 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
         "skills": [],
         "modes": [],
         "workflows": [],
+        "flags": [],
+        "rules": [],
+        "profiles": [],
+        "scenarios": [],
+        "tasks": [],
     }
 
     # Discover each category
@@ -150,6 +171,11 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
     assets["skills"] = _discover_skills(plugin_root)
     assets["modes"] = _discover_modes(plugin_root)
     assets["workflows"] = _discover_workflows(plugin_root)
+    assets["flags"] = _discover_flags(plugin_root)
+    assets["rules"] = _discover_rules(plugin_root)
+    assets["profiles"] = _discover_profiles(plugin_root)
+    assets["scenarios"] = _discover_scenarios(plugin_root)
+    assets["tasks"] = _discover_tasks(plugin_root)
 
     return assets
 
@@ -445,6 +471,179 @@ def _discover_workflows(plugin_root: Path) -> List[Asset]:
     return sorted(workflows, key=lambda a: a.name)
 
 
+def _discover_flags(plugin_root: Path) -> List[Asset]:
+    """Discover available flags."""
+    flags = []
+    flags_dir = plugin_root / "flags"
+
+    if not flags_dir.exists():
+        return flags
+
+    for path in flags_dir.glob("*.md"):
+        if path.name == "README.md":
+            continue
+
+        try:
+            content = path.read_text(encoding="utf-8")
+
+            # Extract description from first non-empty line after title
+            description = ""
+            lines = content.split("\n")
+            found_title = False
+            for line in lines:
+                if line.startswith("# "):
+                    found_title = True
+                    continue
+                if found_title and line.strip() and not line.startswith("**Estimated"):
+                    description = line.strip()
+                    break
+
+            if not description:
+                description = f"Flag: {path.stem}"
+
+            # Extract estimated tokens if present
+            tokens = None
+            for line in lines:
+                if "**Estimated tokens:" in line:
+                    import re
+                    match = re.search(r"~?(\d+)", line)
+                    if match:
+                        tokens = int(match.group(1))
+                    break
+
+            flags.append(Asset(
+                name=path.stem,
+                category=AssetCategory.FLAGS,
+                source_path=path,
+                description=description[:100] + "..." if len(description) > 100 else description,
+                metadata={"estimated_tokens": tokens} if tokens else {},
+            ))
+        except OSError:
+            continue
+
+    return sorted(flags, key=lambda a: a.name)
+
+
+def _discover_rules(plugin_root: Path) -> List[Asset]:
+    """Discover recommendation/config rule files."""
+    rules: List[Asset] = []
+    candidates = [
+        plugin_root / "skills" / "skill-rules.json",
+        plugin_root / "skills" / "recommendation-rules.json",
+    ]
+
+    for path in candidates:
+        if not path.exists():
+            continue
+        try:
+            import json
+
+            data = json.loads(path.read_text(encoding="utf-8"))
+            version = data.get("version")
+            description = (
+                data.get("description")
+                or f"Ruleset for {path.stem.replace('-', ' ')}"
+            )
+            rules.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.RULES,
+                    source_path=path,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    version=version,
+                    metadata=data,
+                )
+            )
+        except (OSError, Exception):
+            continue
+
+    return sorted(rules, key=lambda a: a.name)
+
+
+def _discover_profiles(plugin_root: Path) -> List[Asset]:
+    """Discover reusable profiles."""
+    profiles: List[Asset] = []
+    profiles_dir = plugin_root / "profiles"
+    if not profiles_dir.exists():
+        return profiles
+
+    for path in profiles_dir.glob("*.md"):
+        if path.name == "README.md":
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+            description = content.strip().split("\n")[0]
+            profiles.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.PROFILES,
+                    source_path=path,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    metadata={},
+                )
+            )
+        except OSError:
+            continue
+
+    return sorted(profiles, key=lambda a: a.name)
+
+
+def _discover_scenarios(plugin_root: Path) -> List[Asset]:
+    """Discover scenario templates."""
+    scenarios: List[Asset] = []
+    scenarios_dir = plugin_root / "scenarios"
+    if not scenarios_dir.exists():
+        return scenarios
+
+    for path in scenarios_dir.glob("*.md"):
+        if path.name == "README.md":
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+            description = content.strip().split("\n")[0]
+            scenarios.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.SCENARIOS,
+                    source_path=path,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    metadata={},
+                )
+            )
+        except OSError:
+            continue
+
+    return sorted(scenarios, key=lambda a: a.name)
+
+
+def _discover_tasks(plugin_root: Path) -> List[Asset]:
+    """Discover task templates."""
+    tasks: List[Asset] = []
+    tasks_dir = plugin_root / "tasks"
+    if not tasks_dir.exists():
+        return tasks
+
+    for path in tasks_dir.glob("*.md"):
+        if path.name == "README.md":
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+            description = content.strip().split("\n")[0]
+            tasks.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.TASKS,
+                    source_path=path,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    metadata={},
+                )
+            )
+        except OSError:
+            continue
+
+    return sorted(tasks, key=lambda a: a.name)
+
+
 def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir]:
     """Find all .claude directories from start_path up to root and home.
 
@@ -517,6 +716,11 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
         "skills": [],
         "modes": [],
         "workflows": [],
+        "flags": [],
+        "rules": [],
+        "profiles": [],
+        "scenarios": [],
+        "tasks": [],
     }
 
     # Hooks
@@ -569,6 +773,41 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
         for f in workflows_dir.glob("*.yaml"):
             installed["workflows"].append(f.stem)
 
+    # Flags
+    flags_dir = claude_dir / "flags"
+    if flags_dir.exists():
+        for f in flags_dir.glob("*.md"):
+            if f.name != "README.md":
+                installed["flags"].append(f.stem)
+
+    # Rules (JSON in skills/)
+    rules_dir = claude_dir / "skills"
+    for rule_name in ("skill-rules.json", "recommendation-rules.json"):
+        rule_path = rules_dir / rule_name
+        if rule_path.exists():
+            installed["rules"].append(rule_path.stem)
+
+    # Profiles
+    profiles_dir = claude_dir / "profiles"
+    if profiles_dir.exists():
+        for f in profiles_dir.glob("*.md"):
+            if f.name != "README.md":
+                installed["profiles"].append(f.stem)
+
+    # Scenarios
+    scenarios_dir = claude_dir / "scenarios"
+    if scenarios_dir.exists():
+        for f in scenarios_dir.glob("*.md"):
+            if f.name != "README.md":
+                installed["scenarios"].append(f.stem)
+
+    # Tasks
+    tasks_dir = claude_dir / "tasks"
+    if tasks_dir.exists():
+        for f in tasks_dir.glob("*.md"):
+            if f.name != "README.md":
+                installed["tasks"].append(f.stem)
+
     return installed
 
 
@@ -608,6 +847,18 @@ def check_installation_status(
                 return InstallStatus.INSTALLED_DIFFERENT
 
         return InstallStatus.INSTALLED_SAME
+    # For rules (single JSON files under skills/)
+    if asset.category == AssetCategory.RULES:
+        if not target_path.exists():
+            return InstallStatus.NOT_INSTALLED
+        try:
+            installed_content = target_path.read_text(encoding="utf-8")
+            source_content = asset.source_path.read_text(encoding="utf-8")
+            if installed_content == source_content:
+                return InstallStatus.INSTALLED_SAME
+            return InstallStatus.INSTALLED_DIFFERENT
+        except OSError:
+            return InstallStatus.INSTALLED_DIFFERENT
 
     # For other assets, check the file
     if not target_path.exists():
@@ -654,7 +905,7 @@ def get_all_assets_flat(
         assets = discover_plugin_assets()
 
     result = []
-    for category in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+    for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
         result.extend(assets.get(category, []))
 
     return result

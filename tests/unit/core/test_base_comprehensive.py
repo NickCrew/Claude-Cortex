@@ -22,30 +22,21 @@ from claude_ctx_py.core import base
 def _tmp_claude_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     claude_dir = tmp_path / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(claude_dir))
-    monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
     return claude_dir
 
 
 # --------------------------------------------------------------------------- _resolve_claude_dir
 
 def test_resolve_claude_dir_prefers_env_overrides(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    custom = tmp_path / "custom-home"
-    custom.mkdir()
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(custom))
-    result = base._resolve_claude_dir()
-    assert result == custom
-
     plugin = tmp_path / "plugin-home"
     plugin.mkdir()
-    monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(plugin))
     result_plugin = base._resolve_claude_dir()
     assert result_plugin == plugin
 
 
 def test_resolve_claude_dir_falls_back_to_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
     monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
     home_override = tmp_path / "home"
     result = base._resolve_claude_dir(home_override)

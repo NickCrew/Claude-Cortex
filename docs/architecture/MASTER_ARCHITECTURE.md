@@ -3280,7 +3280,6 @@ $ sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `CLAUDE_CTX_HOME` | Override data directory | `~/.claude` |
 | `CLAUDE_PLUGIN_ROOT` | Plugin sandbox (set by Claude Code) | - |
 | `CLAUDE_CTX_MEMORY_VAULT` | Memory vault location | `~/basic-memory` |
 | `CLAUDE_CTX_DEBUG` | Enable debug logging | `false` |
@@ -3299,7 +3298,7 @@ team-claude-ctx/
 └── profiles/           # Team profiles
 
 # Each developer
-export CLAUDE_CTX_HOME=/path/to/team-claude-ctx
+export CLAUDE_PLUGIN_ROOT=/path/to/team-claude-ctx
 claude-ctx mode list  # Sees team modes
 ```
 
@@ -3329,14 +3328,14 @@ claude-ctx mode list  # Sees team modes
 $ ls ~/.claude/agents/ | grep -i X
 $ ls ~/.claude/inactive/agents/ | grep -i X
 
-# Check CLAUDE_CTX_HOME
-$ echo $CLAUDE_CTX_HOME
+# Check CLAUDE_PLUGIN_ROOT (if you are running via Claude Code/plugin)
+$ echo $CLAUDE_PLUGIN_ROOT
 ```
 
 **Resolution**:
 - If agent is in `inactive/`, move to `agents/`
 - Verify agent filename matches exactly (case-sensitive)
-- Check `CLAUDE_CTX_HOME` points to correct directory
+- Ensure you are editing the correct Claude directory (plugin cache vs `~/.claude`)
 
 #### Issue: TUI not loading
 

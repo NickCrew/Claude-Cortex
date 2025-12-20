@@ -356,7 +356,7 @@ recommendations = learner.recommend_agents(context)
 
 ### Environment Variables
 ```bash
-CLAUDE_CTX_HOME=~/.claude        # Config directory
+CLAUDE_PLUGIN_ROOT=...           # Plugin context directory (optional; set by Claude Code)
 CLAUDE_CTX_DEBUG=1               # Enable debug logging
 CLAUDE_CTX_NO_COLOR=1            # Disable color output
 ```

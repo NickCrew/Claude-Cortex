@@ -22,9 +22,7 @@ def get_metrics_path() -> Path:
     Raises:
         MetricsFileError: If metrics directory cannot be created
     """
-    claude_home = os.environ.get("CLAUDE_CTX_HOME") or os.environ.get(
-        "CLAUDE_PLUGIN_ROOT"
-    )
+    claude_home = os.environ.get("CLAUDE_PLUGIN_ROOT")
     if claude_home:
         base = Path(claude_home)
     else:

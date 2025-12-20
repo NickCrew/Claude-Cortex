@@ -1067,3 +1067,36 @@ def update_mcp_server(
         return True, f"Updated server '{name}'"
     except OSError as exc:
         return False, f"Failed to write config: {exc}"
+
+
+# ---------------------------------------------------------------------------
+# MCP Docs Activation (reference-based, controls CLAUDE.md inclusion)
+# ---------------------------------------------------------------------------
+
+from .components import ref_activate, ref_deactivate, ref_list, ref_status
+
+MCP_COMPONENT_TYPE = "mcp"
+MCP_BASE_PATH = "mcp/docs"
+
+
+def mcp_activate(name: str, home: Path | None = None) -> Tuple[int, str]:
+    """Activate an MCP doc by adding it to .active-mcp.
+
+    This controls which MCP documentation is included in CLAUDE.md.
+    """
+    return ref_activate(MCP_COMPONENT_TYPE, name, MCP_BASE_PATH, home)
+
+
+def mcp_deactivate(name: str, home: Path | None = None) -> Tuple[int, str]:
+    """Deactivate an MCP doc by removing it from .active-mcp."""
+    return ref_deactivate(MCP_COMPONENT_TYPE, name, home)
+
+
+def mcp_list_docs(home: Path | None = None) -> str:
+    """List all MCP docs with their activation status."""
+    return ref_list(MCP_COMPONENT_TYPE, MCP_BASE_PATH, home)
+
+
+def mcp_docs_status(home: Path | None = None) -> str:
+    """Show currently active MCP docs."""
+    return ref_status(MCP_COMPONENT_TYPE, home)

@@ -158,6 +158,96 @@ claude-ctx tui
 
 See [MCP Management Guide](docs/guides/mcp/MCP_MANAGEMENT.md) for complete documentation.
 
+### ⚙️ New: Token-Efficient Flag Management
+
+**Smart flag management** - Control Claude's behavior flags with surgical precision and save tokens:
+
+- **Modular Flag Categories** – 15 flag categories split into focused files (mode-activation, testing, debugging, etc.)
+- **Token Analytics** – Real-time token counting shows savings per category (~100-180 tokens each)
+- **TUI Flag Manager** – Visual interface for enabling/disabling flags (press `Ctrl+G`)
+- **Profile Integration** – Flags auto-configure when switching profiles
+- **CLAUDE.md Auto-Update** – Changes persist immediately to your configuration
+
+**Flag Categories (2,140 tokens total):**
+
+| Category | Tokens | Purpose |
+|----------|--------|---------|
+| Mode Activation | 120 | Core behavioral flags (brainstorm, introspect, orchestrate) |
+| MCP Servers | 160 | MCP server control (context7, sequential, magic, etc.) |
+| Analysis Depth | 130 | Thinking depth control (--think, --ultrathink) |
+| Execution Control | 150 | Delegation, concurrency, iteration control |
+| Visual Excellence | 200 | Super Saiyan, UI polish, design system |
+| Output Optimization | 120 | Scope, focus, compression flags |
+| Testing & Quality | 170 | TDD, coverage, mutation testing |
+| Learning & Education | 160 | Educational modes, explanations |
+| Cost Management | 120 | Budget limits, cost awareness |
+| Refactoring Safety | 140 | Safe refactoring, behavior preservation |
+| Domain Presets | 150 | Frontend, backend, fullstack presets |
+| Debugging & Trace | 110 | Verbose logging, execution tracing |
+| Interactive Control | 130 | Confirmation, pair programming modes |
+| CI/CD | 100 | Headless, JSON output, automation |
+| Auto-Escalation | 180 | Automatic reasoning depth adjustment |
+
+**Quick start:**
+
+```bash
+# Open Flag Manager in TUI
+claude-ctx tui
+# Press Ctrl+G for Flag Manager
+# Use ↑↓ to select, Space to toggle
+
+# Apply profile with flags
+claude-ctx profile apply frontend
+# Auto-enables: visual-excellence, testing-quality, debugging-trace
+# Saves: ~1,120 tokens (52% savings!)
+```
+
+**Example: Frontend Profile**
+
+Default configuration enables only 6/15 categories (880 tokens):
+- mode-activation, mcp-servers, analysis-depth
+- execution-control, visual-excellence, output-optimization
+
+When you switch to **frontend** profile:
+- **Auto-enables**: testing-quality, domain-presets, debugging-trace
+- **Loads**: 1,020 tokens (7 categories)
+- **Saves**: 1,120 tokens (8 categories disabled)
+- **Savings**: 52% reduction in flag overhead
+
+**All Profile Configurations:**
+
+| Profile | Active Flags | Tokens Loaded | Tokens Saved | Savings |
+|---------|--------------|---------------|--------------|---------|
+| minimal | 3 categories | 360 | 1,780 | 83% |
+| frontend | 7 categories | 1,020 | 1,120 | 52% |
+| backend | 7 categories | 880 | 1,260 | 59% |
+| devops | 5 categories | 600 | 1,540 | 72% |
+| documentation | 3 categories | 340 | 1,800 | 84% |
+| quality | 7 categories | 1,000 | 1,140 | 53% |
+| full | 15 categories | 2,140 | 0 | 0% |
+
+**Flag Manager Interface:**
+
+```
+⚙️ Flag Manager
+
+Status  Flag Category                    Tokens  File
+──────  ────────────────────────────────  ──────  ─────────────────────────────
+Summary 6/15 active                       880/2140 Saving 59% tokens (1260 tokens)
+──────  ────────────────────────────────  ──────  ─────────────────────────────
+✓ ON    ▸ Mode Activation Flags           120     mode-activation.md
+✓ ON    MCP Server Flags                  160     mcp-servers.md
+✗ OFF   Testing Quality Flags             170     testing-quality.md
+✗ OFF   Learning Education Flags          160     learning-education.md
+...
+
+Controls: ↑↓ Select    Space Toggle    Changes saved to CLAUDE.md
+```
+
+**Location:** Flag files live in `~/.claude/flags/` and are referenced in `~/.claude/CLAUDE.md`
+
+See [Flag Management Guide](docs/guides/FLAGS_MANAGEMENT.md) for complete documentation.
+
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
 
 ## Installing via Claude Code
@@ -211,19 +301,17 @@ claude-ctx agent graph --export dependency-map.md
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
 
-> **Tip:** The CLI looks in this order for its data folder: `CLAUDE_CTX_HOME`, `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. After installing the plugin you can point the standalone CLI at the cached copy with:
+> **Tip:** The CLI looks in this order for its data folder: `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
-> export CLAUDE_CTX_HOME="$HOME/.claude/plugins/cache/claude-ctx"
+> export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
 > ```
 >
-> or, if you work from another checkout:
+> or:
 >
 > ```bash
-> export CLAUDE_CTX_HOME="$HOME/Developer/personal/claude-ctx-plugin"
+> export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
 > ```
->
-> Set that once (for example in `~/.zshrc`) and both the CLI and Claude Code will use the same data without reinstalling.
 
 ### Shell completion
 

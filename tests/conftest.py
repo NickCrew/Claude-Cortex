@@ -339,7 +339,7 @@ def tmp_claude_dir(tmp_path):
 
 @pytest.fixture
 def mock_claude_home(tmp_claude_dir, monkeypatch):
-    """Mock the Claude home directory environment variable.
+    """Mock the Claude plugin root environment variable.
 
     Args:
         tmp_claude_dir: Temporary .claude directory
@@ -348,5 +348,5 @@ def mock_claude_home(tmp_claude_dir, monkeypatch):
     Returns:
         Path to temporary .claude directory
     """
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(tmp_claude_dir))
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_claude_dir))
     return tmp_claude_dir

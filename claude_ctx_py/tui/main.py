@@ -27,7 +27,7 @@ AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
 from .types import (
-    RuleNode, AgentTask, WorkflowInfo, ModeInfo, ScenarioInfo, ScenarioRuntimeState,
+    RuleNode, AgentTask, WorkflowInfo, ModeInfo, MCPDocInfo, ScenarioInfo, ScenarioRuntimeState,
     AssetInfo, MemoryNote, WatchModeState,
 )
 from .constants import (
@@ -55,6 +55,8 @@ from ..core import (
     collect_context_components,
     export_context,
     init_profile,
+    init_wizard,
+    init_minimal,
     profile_save,
     _profile_reset,
     scenario_preview,
@@ -86,6 +88,7 @@ from ..core import (
     _parse_claude_md_refs,
     _inactive_dir_candidates,
     _inactive_category_dir,
+    _write_active_entries,
 )
 from ..core.rules import rules_activate, rules_deactivate
 from ..core.modes import (
@@ -94,7 +97,9 @@ from ..core.modes import (
     mode_activate_intelligent,
     mode_deactivate_intelligent,
 )
-from ..core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes
+from ..core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes, _ensure_claude_structure
+from ..core.migration import migrate_to_file_activation
+from ..core.doctor import doctor_run
 from ..core.mcp import (
     discover_servers,
     validate_server_config,
@@ -108,6 +113,9 @@ from ..core.mcp import (
     update_mcp_server,
     MCPServerInfo,
     list_doc_only_servers,
+    # MCP docs activation
+    mcp_activate,
+    mcp_deactivate,
 )
 from ..core.agents import BUILT_IN_PROFILES
 from ..core.asset_discovery import (
@@ -115,6 +123,7 @@ from ..core.asset_discovery import (
     discover_plugin_assets, find_claude_directories, check_installation_status,
 )
 from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
+from ..core.hooks import detect_settings_files, get_settings_path, get_settings_scope
 from .dialogs import (
     TargetSelectorDialog,
     AssetDetailDialog,
@@ -206,6 +215,7 @@ class AgentTUI(App[None]):
         self.workflows: List[WorkflowInfo] = []
         self.profiles: List[Dict[str, Optional[str]]] = []
         self.mcp_servers: List[MCPServerInfo] = []
+        self.mcp_docs: List[MCPDocInfo] = []
         self.mcp_error: Optional[str] = None
         self.export_options: Dict[str, bool] = DEFAULT_EXPORT_OPTIONS.copy()
         self.export_agent_generic: bool = True
@@ -226,6 +236,24 @@ class AgentTUI(App[None]):
         # Watch mode state
         self.watch_mode_instance: Optional[WatchMode] = None
         self.watch_mode_thread: Optional[threading.Thread] = None
+        # Flags explorer state
+        self.current_flag_category = "all"  # Track selected flag category
+        self.flag_categories = [
+            "all",
+            "Mode Activation",
+            "MCP Server",
+            "Thinking Budget",
+            "Analysis Depth",
+            "Auto-Escalation",
+            "Execution Control",
+            "Output Optimization",
+            "Visual Excellence",
+        ]
+        # Track which categories are enabled (all enabled by default, except "all" which is special)
+        self.flag_categories_enabled = {cat: True for cat in self.flag_categories if cat != "all"}
+        # Flag manager state
+        self.flag_files: List[Dict[str, Any]] = []  # List of {name, path, tokens, active, category}
+        self.selected_flag_index = 0
 
     CSS_PATH = "styles.tcss"
     # Bindings registered for key handling; display handled by AdaptiveFooter
@@ -237,6 +265,7 @@ class AgentTUI(App[None]):
         Binding("S", "view_scenarios", "Scenarios", show=False),
         Binding("o", "view_orchestrate", "Orchestrate", show=False),
         Binding("g", "view_galaxy", "Galaxy", show=False),
+        Binding("ctrl+g", "view_flag_manager", "Flag Mgr", show=False),
         Binding("t", "view_tasks", "Tasks", show=False),
         Binding("/", "view_commands", "Slash Cmds", show=False),
         Binding("ctrl+p", "command_palette", "Commands", show=False),
@@ -286,6 +315,11 @@ class AgentTUI(App[None]):
         Binding("enter", "agent_view", "View Agent", show=False),
         # Profile bindings
         Binding("enter", "profile_edit", "View/Edit Profile", show=False),
+        # Setup Tools bindings (profiles view)
+        Binding("I", "setup_init_wizard", "Init Wizard", show=False),
+        Binding("m", "setup_init_minimal", "Init Minimal", show=False),
+        Binding("M", "setup_migration", "Migration", show=False),
+        Binding("c", "setup_health_check", "Health Check", show=False),
         # CLAUDE.md Wizard
         Binding("W", "claude_md_wizard", "Configure CLAUDE.md", show=False),
         # Hooks Manager
@@ -507,7 +541,7 @@ class AgentTUI(App[None]):
                 "mcp_edit",
                 "mcp_remove",
             },
-            "profiles": {"toggle", "profile_save_prompt", "profile_delete"},
+            "profiles": {"toggle", "profile_save_prompt", "profile_delete", "setup_init_wizard", "setup_init_minimal", "setup_migration", "setup_health_check"},
             "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
             "workflows": {"run_selected", "stop_selected"},
             "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
@@ -613,6 +647,18 @@ class AgentTUI(App[None]):
             return None
         return table.cursor_row
 
+    def _restore_main_table_cursor(self, saved_cursor_row: Optional[int]) -> None:
+        """Restore the cursor position in the main table after a refresh."""
+        if saved_cursor_row is None:
+            return
+        try:
+            table = self.query_one("#main-table", DataTable)
+        except Exception:
+            return
+        if table.row_count <= 0:
+            return
+        table.move_cursor(row=min(saved_cursor_row, table.row_count - 1))
+
     def _selected_profile(self) -> Optional[Dict[str, Optional[str]]]:
         index = self._table_cursor_index()
         if index is None or not self.profiles:
@@ -672,22 +718,22 @@ class AgentTUI(App[None]):
         return self._normalize_slug(relative.as_posix())
 
     def _active_rule_slugs(self, claude_dir: Path) -> Set[str]:
-        """Combine CLAUDE.md and .active-rules entries into a slug set."""
-        from_claude = _parse_claude_md_refs(claude_dir, "rules")
-        from_file = {
+        """Return active rule slugs from .active-rules and live files."""
+        active = {
             self._normalize_slug(entry)
             for entry in _parse_active_entries(claude_dir / ".active-rules")
         }
-        return from_claude | from_file
+        rules_dir = claude_dir / "rules"
+        for path in _iter_md_files(rules_dir):
+            active.add(self._relative_slug(path, rules_dir))
+        return active
 
     def _active_mode_slugs(self, claude_dir: Path) -> Set[str]:
-        """Combine CLAUDE.md and .active-modes entries into a slug set."""
-        from_claude = _parse_claude_md_refs(claude_dir, "modes")
-        from_file = {
+        """Return active mode slugs from .active-modes file only."""
+        return {
             self._normalize_slug(entry)
             for entry in _parse_active_entries(claude_dir / ".active-modes")
         }
-        return from_claude | from_file
 
     def _ensure_configured_mcp(self, server: MCPServerInfo, action: str) -> bool:
         """Ensure an MCP server is configured before running certain actions."""
@@ -1340,11 +1386,49 @@ class AgentTUI(App[None]):
             )
 
     def show_profiles_view(self, table: DataTable[Any]) -> None:
-        """Render profile management view."""
-        table.add_column("Profile", width=28)
+        """Render profile management view with setup tools."""
+        table.add_column("Item", width=28)
         table.add_column("Type", width=12)
         table.add_column("Description")
-        table.add_column("Updated", width=18)
+        table.add_column("Action", width=18)
+
+        # Setup Tools Section
+        table.add_row(
+            "[bold cyan]━━━ Setup Tools ━━━[/bold cyan]",
+            "",
+            "[dim]Press key to run[/dim]",
+            "",
+        )
+        table.add_row(
+            f"{Icons.PLAY} Init Wizard",
+            "[yellow]Setup[/yellow]",
+            "Interactive project initialization wizard",
+            "[dim]Shift+I[/dim]",
+        )
+        table.add_row(
+            f"{Icons.SUCCESS} Init Minimal",
+            "[yellow]Setup[/yellow]",
+            "Quick minimal configuration setup",
+            "[dim]m[/dim]",
+        )
+        table.add_row(
+            f"{Icons.SYNC} Migration",
+            "[yellow]Setup[/yellow]",
+            "Migrate from comment-based to file-based activation",
+            "[dim]Shift+M[/dim]",
+        )
+        table.add_row(
+            f"{Icons.TEST} Health Check",
+            "[yellow]Setup[/yellow]",
+            "Run diagnostics and verify directory structure",
+            "[dim]c[/dim]",
+        )
+        table.add_row(
+            "[bold cyan]━━━ Profiles ━━━[/bold cyan]",
+            "",
+            "[dim]Enter to apply, n to save new[/dim]",
+            "",
+        )
 
         if not self.profiles:
             table.add_row("[dim]No profiles found[/dim]", "", "", "")
@@ -2018,6 +2102,52 @@ class AgentTUI(App[None]):
             self.mcp_error = str(exc)
             self.status_message = f"Failed to load MCP servers: {exc}"
 
+    def load_mcp_docs(self) -> None:
+        """Load MCP docs from mcp/docs/ with their activation status."""
+        try:
+            docs: List[MCPDocInfo] = []
+            claude_dir = _resolve_claude_dir()
+            mcp_docs_dir = claude_dir / "mcp" / "docs"
+
+            # Get active docs from .active-mcp
+            active_docs = set(_parse_active_entries(claude_dir / ".active-mcp"))
+
+            if mcp_docs_dir.is_dir():
+                for path in _iter_md_files(mcp_docs_dir):
+                    name = path.stem
+                    status = "active" if name in active_docs else "inactive"
+
+                    # Read description from first paragraph
+                    try:
+                        content = path.read_text(encoding="utf-8")
+                        lines = content.split("\n")
+                        description = ""
+                        for line in lines:
+                            line = line.strip()
+                            if line and not line.startswith("#"):
+                                description = line[:100]
+                                break
+                    except Exception:
+                        description = ""
+
+                    docs.append(MCPDocInfo(
+                        name=name,
+                        status=status,
+                        description=description,
+                        path=path,
+                    ))
+
+            # Sort: active first, then by name
+            docs.sort(key=lambda d: (d.status != "active", d.name.lower()))
+            self.mcp_docs = docs
+
+            active_count = sum(1 for d in docs if d.status == "active")
+            self.status_message = f"Loaded {len(docs)} MCP docs ({active_count} active)"
+
+        except Exception as e:
+            self.mcp_docs = []
+            self.status_message = f"Error loading MCP docs: {e}"
+
     def load_assets(self) -> None:
         """Load available assets from the plugin."""
         try:
@@ -2034,7 +2164,12 @@ class AgentTUI(App[None]):
                     self.selected_target_dir = self.claude_directories[0].path
 
             total = sum(len(assets) for assets in self.available_assets.values())
-            self.status_message = f"Loaded {total} assets from plugin"
+            active_settings = get_settings_path()
+            settings_scope = get_settings_scope(active_settings)
+            self.status_message = (
+                f"Loaded {total} assets from plugin | settings: {settings_scope} "
+                f"({active_settings})"
+            )
         except Exception as e:
             self.available_assets = {}
             self.claude_directories = []
@@ -2112,6 +2247,10 @@ class AgentTUI(App[None]):
             self.show_export_view(table)
         elif self.current_view == "ai_assistant":
             self.show_ai_assistant_view(table)
+        elif self.current_view == "flags":
+            self.show_flags_view(table)
+        elif self.current_view == "flag_manager":
+            self.show_flag_manager_view(table)
         elif self.current_view == "tasks":
             self.show_tasks_view(table)
         elif self.current_view == "assets":
@@ -2224,6 +2363,189 @@ class AgentTUI(App[None]):
                 started_text,
                 details_text,
             )
+
+    def show_flags_view(self, table: AnyDataTable) -> None:
+        """Show flags explorer with categories and descriptions."""
+        # Parse FLAGS.md
+        flags_data = self._parse_flags_md()
+
+        if not flags_data:
+            table.add_column("Message")
+            table.add_row("[dim]No flags found[/dim]")
+            table.add_row("[dim]Check FLAGS.md file[/dim]")
+            return
+
+        # Category colors
+        category_colors = {
+            "Mode Activation": "cyan",
+            "MCP Server": "magenta",
+            "Thinking Budget": "yellow",
+            "Analysis Depth": "green",
+            "Auto-Escalation": "red",
+            "Execution Control": "blue",
+            "Output Optimization": "white",
+            "Visual Excellence": "bold magenta",
+        }
+
+        # Filter by category and enabled state
+        if self.current_flag_category != "all":
+            # Show specific category (regardless of enabled state when viewing it directly)
+            filtered_flags = [f for f in flags_data if f["category"] == self.current_flag_category]
+        else:
+            # In "All" view, only show flags from enabled categories
+            filtered_flags = [
+                f for f in flags_data
+                if self.flag_categories_enabled.get(f["category"], True)
+            ]
+
+        # Add header row showing category navigation
+        table.add_column("Flag", key="flag", width=32)
+        table.add_column("Category", key="category", width=20)
+        table.add_column("Trigger/Purpose", key="trigger", width=50)
+        table.add_column("Behavior", key="behavior", width=45)
+
+        # Add category selector as first row
+        category_display = self._format_flag_categories(category_colors)
+        enabled_count = sum(1 for enabled in self.flag_categories_enabled.values() if enabled)
+        table.add_row(
+            f"[bold]Category:[/bold]",
+            category_display,
+            f"[dim]← → navigate | [space] toggle[/dim]",
+            f"[dim]Showing {len(filtered_flags)}/{len(flags_data)} flags ({enabled_count} categories enabled)[/dim]",
+        )
+
+        # Add separator
+        table.add_row("─" * 30, "─" * 18, "─" * 48, "─" * 43)
+
+        if not filtered_flags:
+            table.add_row("[dim]No flags in this category[/dim]", "", "", "")
+            return
+
+        for flag_info in filtered_flags:
+            flag_name = flag_info["name"]
+            category = flag_info["category"]
+            trigger = flag_info["trigger"]
+            behavior = flag_info["behavior"]
+
+            # Color-coded category
+            cat_color = category_colors.get(category, "white")
+            category_text = f"[{cat_color}]{category}[/{cat_color}]"
+
+            # Format flag name
+            flag_text = f"[bold cyan]{flag_name}[/bold cyan]"
+
+            # Truncate long descriptions
+            trigger_text = Format.truncate(trigger, 90)
+            behavior_text = Format.truncate(behavior, 85)
+
+            table.add_row(
+                flag_text,
+                category_text,
+                f"[dim]{trigger_text}[/dim]",
+                behavior_text,
+            )
+
+    def _format_flag_categories(self, category_colors: dict) -> str:
+        """Format category selector with current selection highlighted."""
+        parts = []
+        for i, cat in enumerate(self.flag_categories):
+            if cat == "all":
+                display = "All"
+                color = "white"
+            else:
+                display = cat
+                color = category_colors.get(cat, "white")
+                # Add enabled/disabled indicator
+                is_enabled = self.flag_categories_enabled.get(cat, True)
+                indicator = "✓" if is_enabled else "✗"
+                display = f"{indicator} {display}"
+
+            if cat == self.current_flag_category:
+                # Highlight current category
+                parts.append(f"[bold {color} on black]▸ {display} ◂[/bold {color} on black]")
+            else:
+                if cat != "all" and not self.flag_categories_enabled.get(cat, True):
+                    # Dim disabled categories
+                    parts.append(f"[dim strikethrough]{display}[/dim strikethrough]")
+                else:
+                    parts.append(f"[dim]{display}[/dim]")
+
+        return " | ".join(parts)
+
+    def _parse_flags_md(self) -> list:
+        """Parse FLAGS.md and extract flag information."""
+        # Try to find FLAGS.md in various locations
+        claude_dir = _resolve_claude_dir()
+        possible_paths = [
+            Path.cwd() / "FLAGS.md",
+            claude_dir / "FLAGS.md",
+            claude_dir.parent / "FLAGS.md",
+        ]
+
+        flags_path = None
+        for path in possible_paths:
+            if path.exists():
+                flags_path = path
+                break
+
+        if not flags_path:
+            return []
+
+        try:
+            with open(flags_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            return []
+
+        flags = []
+        current_category = ""
+        lines = content.split("\n")
+        i = 0
+
+        while i < len(lines):
+            line = lines[i].strip()
+
+            # Detect category headers (## Category Name)
+            if line.startswith("## ") and "Flags" in line:
+                current_category = line[3:].replace(" Flags", "").strip()
+                i += 1
+                continue
+
+            # Detect flag definitions (**--flag-name** or **--flag-name [options]**)
+            if line.startswith("**--") or line.startswith("**--"):
+                # Extract flag name
+                flag_match = line.split("**")[1] if "**" in line else ""
+                flag_name = flag_match.strip()
+
+                # Look ahead for trigger and behavior
+                trigger = ""
+                behavior = ""
+                j = i + 1
+
+                while j < len(lines) and not lines[j].startswith("**--") and not lines[j].startswith("## "):
+                    subline = lines[j].strip()
+                    if subline.startswith("- Trigger:"):
+                        trigger = subline.replace("- Trigger:", "").strip()
+                    elif subline.startswith("- Behavior:"):
+                        behavior = subline.replace("- Behavior:", "").strip()
+                    elif subline.startswith("- Purpose:"):
+                        trigger = subline.replace("- Purpose:", "").strip()
+                    j += 1
+
+                if flag_name:
+                    flags.append({
+                        "name": flag_name,
+                        "category": current_category,
+                        "trigger": trigger or "See documentation",
+                        "behavior": behavior or "See documentation",
+                    })
+
+                i = j
+                continue
+
+            i += 1
+
+        return flags
 
     def show_rules_view(self, table: AnyDataTable) -> None:
         """Show rules table with enhanced colors."""
@@ -2353,7 +2675,7 @@ class AgentTUI(App[None]):
         hero = EnhancedOverview.create_hero_banner(active_agents, total_agents)
         add_multiline(hero)
         claude_home = getattr(self, "claude_home", _resolve_claude_dir())
-        table.add_row(f"[bold cyan]CLAUDE_CTX_HOME[/bold cyan]: [dim]{claude_home}[/dim]")
+        table.add_row(f"[bold cyan]Claude directory[/bold cyan]: [dim]{claude_home}[/dim]")
         table.add_row("")
 
         metrics_grid = EnhancedOverview.create_status_grid(
@@ -2404,12 +2726,12 @@ class AgentTUI(App[None]):
 
         Preference order:
         1) Explicit override via CLAUDE_TASKS_HOME (if set)
-        2) Primary CLAUDE_CTX_HOME/.claude
+        2) Primary resolved Claude directory (plugin or ~/.claude)
         3) Project-local .claude next to the current working directory
 
         The newest directory that already exists and contains any task files
         (active_agents.json, active_workflow, workflow_status, workflow_started)
-        wins. If none exist, we create the primary directory under CLAUDE_CTX_HOME.
+        wins. If none exist, we create the primary directory under the resolved Claude directory.
         """
 
         def candidates() -> list[Path]:
@@ -2460,7 +2782,7 @@ class AgentTUI(App[None]):
             viable.sort(key=lambda t: t[0], reverse=True)
             return viable[0][1]
 
-        # fallback: create primary under CLAUDE_CTX_HOME
+        # fallback: create primary under resolved Claude directory
         primary = _resolve_claude_dir() / "tasks" / "current"
         primary.mkdir(parents=True, exist_ok=True)
         return self._validate_path(primary.parents[1], primary)
@@ -3232,70 +3554,105 @@ class AgentTUI(App[None]):
                 table.add_row("Estimated Completion:", "", "TBD", "", "")
 
     def show_mcp_view(self, table: AnyDataTable) -> None:
-        """Show MCP server overview with validation status."""
-        table.add_column("Server", width=24)
-        table.add_column("Command", width=30)
-        table.add_column("Docs", width=6)
-        table.add_column("Status", width=18)
+        """Show MCP server overview with validation status and MCP docs."""
+        table.add_column("Name", width=24)
+        table.add_column("Type", width=10)
+        table.add_column("Status", width=12)
+        table.add_column("Details", width=30)
         table.add_column("Notes")
 
+        # Show MCP Docs section first (these control CLAUDE.md inclusion)
+        mcp_docs = getattr(self, "mcp_docs", [])
+        if mcp_docs:
+            table.add_row(
+                "[bold cyan]📚 MCP Documentation[/bold cyan]",
+                "",
+                "",
+                "[dim]Controls CLAUDE.md inclusion[/dim]",
+                "[dim]Space=Toggle[/dim]",
+            )
+            for doc in mcp_docs:
+                if doc.status == "active":
+                    status_text = "[bold green]● ACTIVE[/bold green]"
+                    name = f"[bold]{Icons.DOC} {doc.name}[/bold]"
+                else:
+                    status_text = "[dim]○ inactive[/dim]"
+                    name = f"[dim]{Icons.DOC} {doc.name}[/dim]"
+
+                table.add_row(
+                    name,
+                    "[cyan]doc[/cyan]",
+                    status_text,
+                    Format.truncate(doc.description, 30),
+                    "",
+                )
+
+            # Separator
+            table.add_row("", "", "", "", "")
+
+        # Show MCP Servers section
         if self.mcp_error:
             table.add_row(
-                "[red]Error[/red]", Format.truncate(self.mcp_error, 40), "", "", ""
+                "[red]Error[/red]", "", "", Format.truncate(self.mcp_error, 40), ""
             )
             return
 
         servers = getattr(self, "mcp_servers", [])
-        if not servers:
-            table.add_row("[dim]No MCP servers configured[/dim]", "", "", "", "")
-            return
-
-        for server in servers:
-            args = " ".join(server.args) if server.args else ""
-            docs_text = "[green]✓[/green]" if server.docs_path else "[dim]-[/dim]"
-
-            if getattr(server, "doc_only", False):
-                command_text = "[dim]Not configured[/dim]"
-                status_text = "[yellow]Docs only[/yellow]"
-                note = server.description or "Add this server via 'Add MCP'"
-            else:
-                command_text = Format.truncate(
-                    f"{server.command} {args}".strip(), 30
-                )
-                try:
-                    is_valid, errors, warnings = validate_server_config(server.name)
-                except Exception as exc:
-                    is_valid = False
-                    errors = [str(exc)]
-                    warnings = []
-
-                if is_valid:
-                    status_text = "[green]Valid[/green]"
-                else:
-                    status_text = f"[red]{len(errors)} issue(s)[/red]"
-                if warnings:
-                    status_text += f" [yellow]{len(warnings)} warn[/yellow]"
-
-                note = server.description or ""
-                if errors:
-                    note = errors[0]
-                elif warnings:
-                    note = warnings[0]
-
+        if servers:
             table.add_row(
-                f"{Icons.CODE} {server.name}",
-                command_text,
-                docs_text,
-                status_text,
-                Format.truncate(note, 60),
+                "[bold cyan]🛰 MCP Servers[/bold cyan]",
+                "",
+                "",
+                "[dim]Claude Desktop configuration[/dim]",
+                "",
             )
+            for server in servers:
+                args = " ".join(server.args) if server.args else ""
+
+                if getattr(server, "doc_only", False):
+                    details_text = "[dim]Not configured[/dim]"
+                    status_text = "[yellow]Docs only[/yellow]"
+                    note = server.description or "Add via 'Add MCP'"
+                else:
+                    details_text = Format.truncate(
+                        f"{server.command} {args}".strip(), 30
+                    )
+                    try:
+                        is_valid, errors, warnings = validate_server_config(server.name)
+                    except Exception as exc:
+                        is_valid = False
+                        errors = [str(exc)]
+                        warnings = []
+
+                    if is_valid:
+                        status_text = "[green]Valid[/green]"
+                    else:
+                        status_text = f"[red]{len(errors)} issue(s)[/red]"
+                    if warnings:
+                        status_text += f" [yellow]{len(warnings)} warn[/yellow]"
+
+                    note = server.description or ""
+                    if errors:
+                        note = errors[0]
+                    elif warnings:
+                        note = warnings[0]
+
+                table.add_row(
+                    f"{Icons.CODE} {server.name}",
+                    "[magenta]server[/magenta]",
+                    status_text,
+                    details_text,
+                    Format.truncate(note, 40),
+                )
+        elif not mcp_docs:
+            table.add_row("[dim]No MCP servers or docs found[/dim]", "", "", "", "")
 
     def show_ai_assistant_view(self, table: AnyDataTable) -> None:
         """Show AI assistant recommendations and predictions."""
-        table.add_column("Type", key="type", width=18)
-        table.add_column("Recommendation", key="recommendation", width=25)
-        table.add_column("Confidence", key="confidence", width=10)
-        table.add_column("Reason", width=50)
+        table.add_column("Type", key="type", width=14)
+        table.add_column("Recommendation", key="recommendation", width=30)
+        table.add_column("Conf", key="confidence", width=6)
+        table.add_column("Reason", width=45)
 
         if not hasattr(self, "intelligent_agent"):
             table.add_row(
@@ -3363,6 +3720,85 @@ class AgentTUI(App[None]):
                     confidence_text,
                     f"[dim italic]{rec.reason}[/dim italic]",
                 )
+
+        # Show deactivation recommendations
+        table.add_row("", "", "", "")
+        table.add_row("[bold orange1]⚠ Deactivation Suggestions[/bold orange1]", "", "", "")
+        table.add_row(
+            "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
+            "",
+            "",
+            "",
+        )
+        table.add_row("", "", "", "")
+
+        # Get active agents from profiles
+        active_agents = []
+        if hasattr(self, "profiles_manager") and self.profiles_manager:
+            active_agents = self.profiles_manager.get_active_agents()
+
+        if active_agents:
+            deactivation_recs = self.intelligent_agent.get_deactivation_recommendations(
+                active_agents
+            )
+
+            if not deactivation_recs:
+                table.add_row(
+                    "[dim]Agent[/dim]",
+                    "[dim]No deactivation needed[/dim]",
+                    "",
+                    "[dim]All active agents are relevant to current context[/dim]",
+                )
+            else:
+                # Show deactivation recommendations
+                for rec in deactivation_recs[:5]:  # Top 5
+                    # Color by urgency
+                    if rec.urgency == "high":
+                        urgency_color = "orange1"
+                        urgency_icon = "🔸"
+                    elif rec.urgency == "medium":
+                        urgency_color = "yellow"
+                        urgency_icon = "🔹"
+                    else:
+                        urgency_color = "dim"
+                        urgency_icon = "⚪"
+
+                    # Color by confidence
+                    confidence_pct = int(rec.confidence * 100)
+                    if rec.confidence >= 0.8:
+                        confidence_text = f"[bold orange1]{confidence_pct}%[/bold orange1]"
+                    elif rec.confidence >= 0.6:
+                        confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
+                    else:
+                        confidence_text = f"[dim]{confidence_pct}%[/dim]"
+
+                    # Auto-deactivate indicator
+                    auto_text = (
+                        " [bold orange1]AUTO[/bold orange1]"
+                        if rec.auto_deactivate
+                        else ""
+                    )
+
+                    # Resource impact indicator
+                    resource_text = ""
+                    if rec.resource_impact == "high":
+                        resource_text = " [red]⚡HIGH[/red]"
+                    elif rec.resource_impact == "medium":
+                        resource_text = " [yellow]⚡MED[/yellow]"
+
+                    table.add_row(
+                        f"[{urgency_color}]{urgency_icon} Agent[/{urgency_color}]",
+                        f"[bold]{rec.agent_name}[/bold]{auto_text}{resource_text}",
+                        confidence_text,
+                        f"[dim italic]{rec.reason}[/dim italic]",
+                    )
+        else:
+            table.add_row(
+                "[dim]Agent[/dim]",
+                "[dim]No active agents[/dim]",
+                "",
+                "[dim]Activate agents to see deactivation suggestions[/dim]",
+            )
 
         # Show skill recommendations
         table.add_row("", "", "", "")
@@ -3610,10 +4046,11 @@ class AgentTUI(App[None]):
             "skills": ("🎯", "yellow"),
             "modes": ("🎨", "magenta"),
             "workflows": ("🔄", "white"),
+            "flags": ("🚩", "red"),
         }
 
         # Render assets by category
-        for category_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        for category_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
             assets = self.available_assets.get(category_name, [])
             if not assets:
                 continue
@@ -3758,6 +4195,7 @@ class AgentTUI(App[None]):
         """Switch to MCP servers view."""
         self.current_view = "mcp"
         self.load_mcp_servers()
+        self.load_mcp_docs()
         self.status_message = "Switched to MCP"
         self.notify("🛰 MCP Servers", severity="information", timeout=1)
 
@@ -3802,6 +4240,304 @@ class AgentTUI(App[None]):
         self.current_view = "watch_mode"
         self.status_message = "Switched to Watch Mode"
         self.notify("🔍 Watch Mode", severity="information", timeout=1)
+
+    def action_view_flags(self) -> None:
+        """Switch to flags explorer view."""
+        self.current_view = "flags"
+        self.status_message = "Switched to Flag Explorer"
+        self.notify("🚩 Flag Explorer", severity="information", timeout=1)
+
+    # ─────────────────────────────────────────────────────────────────────
+    # Flags Explorer Actions
+    # ─────────────────────────────────────────────────────────────────────
+
+    async def on_key(self, event) -> None:
+        """Handle key events for flags and flag manager navigation."""
+        if self.current_view == "flags":
+            if event.key == "left":
+                self.action_flag_category_prev()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "right":
+                self.action_flag_category_next()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "space":
+                self.action_flag_category_toggle()
+                event.prevent_default()
+                event.stop()
+        elif self.current_view == "flag_manager":
+            if event.key == "up":
+                self.action_flag_manager_prev()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "down":
+                self.action_flag_manager_next()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "space":
+                self.action_flag_manager_toggle()
+                event.prevent_default()
+                event.stop()
+
+    def action_flag_category_next(self) -> None:
+        """Navigate to next flag category."""
+        if self.current_view != "flags":
+            return
+        current_idx = self.flag_categories.index(self.current_flag_category)
+        next_idx = (current_idx + 1) % len(self.flag_categories)
+        self.current_flag_category = self.flag_categories[next_idx]
+        self.update_view()
+        category_name = "All Flags" if self.current_flag_category == "all" else self.current_flag_category
+        self.status_message = f"Category: {category_name}"
+
+    def action_flag_category_prev(self) -> None:
+        """Navigate to previous flag category."""
+        if self.current_view != "flags":
+            return
+        current_idx = self.flag_categories.index(self.current_flag_category)
+        prev_idx = (current_idx - 1) % len(self.flag_categories)
+        self.current_flag_category = self.flag_categories[prev_idx]
+        self.update_view()
+        category_name = "All Flags" if self.current_flag_category == "all" else self.current_flag_category
+        self.status_message = f"Category: {category_name}"
+
+    def action_flag_category_toggle(self) -> None:
+        """Toggle the current flag category on/off."""
+        if self.current_view != "flags":
+            return
+
+        # Can't toggle "all" category
+        if self.current_flag_category == "all":
+            self.notify("Cannot toggle 'All' view - toggle individual categories instead", severity="warning", timeout=2)
+            return
+
+        # Toggle the current category
+        current_state = self.flag_categories_enabled.get(self.current_flag_category, True)
+        self.flag_categories_enabled[self.current_flag_category] = not current_state
+
+        new_state = "enabled" if not current_state else "disabled"
+        self.update_view()
+        self.notify(f"{self.current_flag_category}: {new_state}", severity="information", timeout=2)
+        self.status_message = f"{self.current_flag_category}: {new_state}"
+
+    # ─────────────────────────────────────────────────────────────────────
+    # Flag Manager Actions
+    # ─────────────────────────────────────────────────────────────────────
+
+    def action_view_flag_manager(self) -> None:
+        """Switch to flag manager view."""
+        self.current_view = "flag_manager"
+        self.flag_files = self._load_flag_files_metadata()
+        self.selected_flag_index = 0
+        self.status_message = "Switched to Flag Manager (Ctrl+G)"
+        self.notify("⚙️ Flag Manager", severity="information", timeout=1)
+
+    def show_flag_manager_view(self, table: AnyDataTable) -> None:
+        """Show flag manager view for enabling/disabling flag categories."""
+        if not self.flag_files:
+            self.flag_files = self._load_flag_files_metadata()
+
+        if not self.flag_files:
+            table.add_column("Message")
+            table.add_row("[dim]No flag files found[/dim]")
+            table.add_row("[dim]Check ~/.claude/flags/ directory[/dim]")
+            return
+
+        # Calculate totals
+        total_tokens = sum(f["tokens"] for f in self.flag_files)
+        active_tokens = sum(f["tokens"] for f in self.flag_files if f["active"])
+        inactive_tokens = total_tokens - active_tokens
+        savings_pct = (inactive_tokens / total_tokens * 100) if total_tokens > 0 else 0
+
+        # Add columns
+        table.add_column("Status", key="status", width=8)
+        table.add_column("Flag Category", key="category", width=30)
+        table.add_column("Tokens", key="tokens", width=10)
+        table.add_column("File", key="file", width=35)
+
+        # Add header with token summary
+        table.add_row(
+            "[bold]Summary[/bold]",
+            f"[bold cyan]{len([f for f in self.flag_files if f['active']])}/{len(self.flag_files)} active[/bold cyan]",
+            f"[bold yellow]{active_tokens}/{total_tokens}[/bold yellow]",
+            f"[dim]Saving {savings_pct:.0f}% tokens ({inactive_tokens} tokens)[/dim]",
+        )
+        table.add_row("─" * 6, "─" * 28, "─" * 8, "─" * 33)
+
+        # Add flag files
+        for i, flag_file in enumerate(self.flag_files):
+            is_selected = (i == self.selected_flag_index)
+            active = flag_file["active"]
+            category = flag_file["category"]
+            tokens = flag_file["tokens"]
+            filename = flag_file["filename"]
+
+            # Status indicator
+            if active:
+                status = "[green]✓ ON[/green]"
+            else:
+                status = "[dim]✗ OFF[/dim]"
+
+            # Category text with selection highlight
+            if is_selected:
+                category_text = f"[bold cyan on black]▸ {category}[/bold cyan on black]"
+            else:
+                if active:
+                    category_text = f"[white]{category}[/white]"
+                else:
+                    category_text = f"[dim]{category}[/dim]"
+
+            # Tokens
+            if active:
+                tokens_text = f"[yellow]{tokens}[/yellow]"
+            else:
+                tokens_text = f"[dim]{tokens}[/dim]"
+
+            # Filename
+            if active:
+                file_text = f"[dim]{filename}[/dim]"
+            else:
+                file_text = f"[dim strikethrough]{filename}[/dim strikethrough]"
+
+            table.add_row(status, category_text, tokens_text, file_text)
+
+        # Add footer with instructions
+        table.add_row("", "", "", "")
+        table.add_row(
+            "[dim]Controls:[/dim]",
+            "[dim]↑↓ Select[/dim]",
+            "[dim]Space Toggle[/dim]",
+            "[dim]Changes saved to CLAUDE.md[/dim]",
+        )
+
+    def _load_flag_files_metadata(self) -> List[Dict[str, Any]]:
+        """Load metadata about all flag files and their active status."""
+        flag_files = []
+
+        # Find ~/.claude directory
+        claude_home = Path.home() / ".claude"
+        flags_dir = claude_home / "flags"
+        claude_md_path = claude_home / "CLAUDE.md"
+
+        if not flags_dir.exists():
+            return []
+
+        # Parse CLAUDE.md to see which flags are active
+        active_flags = set()
+        if claude_md_path.exists():
+            with open(claude_md_path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    # Check if line starts with @flags/ (active) vs <!-- @flags/ (commented/inactive)
+                    if line.startswith("@flags/"):
+                        # Extract filename: @flags/mode-activation.md -> mode-activation.md
+                        filename = line.replace("@flags/", "").strip()
+                        active_flags.add(filename)
+
+        # Scan all .md files in flags directory
+        for flag_file in sorted(flags_dir.glob("*.md")):
+            filename = flag_file.name
+
+            # Parse the file to extract category name and token count
+            category_name = filename.replace(".md", "").replace("-", " ").title()
+            tokens = 100  # Default
+
+            with open(flag_file, "r") as f:
+                content = f.read()
+                # Extract category name from first heading
+                first_heading = None
+                for line in content.split("\n"):
+                    if line.startswith("# "):
+                        first_heading = line[2:].strip()
+                        break
+                if first_heading:
+                    category_name = first_heading
+
+                # Extract token count from "**Estimated tokens: ~XXX**"
+                import re
+                token_match = re.search(r"\*\*Estimated tokens:\s*~?(\d+)\*\*", content)
+                if token_match:
+                    tokens = int(token_match.group(1))
+
+            flag_files.append({
+                "category": category_name,
+                "filename": filename,
+                "path": str(flag_file),
+                "tokens": tokens,
+                "active": filename in active_flags,
+            })
+
+        return flag_files
+
+    def _toggle_flag_in_claude_md(self, filename: str) -> bool:
+        """Toggle a flag file in CLAUDE.md by commenting/uncommenting it."""
+        claude_md_path = Path.home() / ".claude" / "CLAUDE.md"
+
+        if not claude_md_path.exists():
+            return False
+
+        # Read CLAUDE.md
+        with open(claude_md_path, "r") as f:
+            lines = f.readlines()
+
+        # Find the line with @flags/{filename}
+        modified = False
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+
+            # Check if this is our flag line (active or commented)
+            if f"@flags/{filename}" in stripped:
+                if stripped.startswith("@flags/"):
+                    # Currently active -> comment it out
+                    lines[i] = f"<!-- @flags/{filename} -->\n"
+                    modified = True
+                elif stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
+                    # Currently commented -> activate it
+                    lines[i] = f"@flags/{filename}\n"
+                    modified = True
+                break
+
+        # Write back if modified
+        if modified:
+            with open(claude_md_path, "w") as f:
+                f.writelines(lines)
+            return True
+
+        return False
+
+    def action_flag_manager_next(self) -> None:
+        """Navigate to next flag in manager."""
+        if self.current_view != "flag_manager" or not self.flag_files:
+            return
+        self.selected_flag_index = (self.selected_flag_index + 1) % len(self.flag_files)
+        self.update_view()
+
+    def action_flag_manager_prev(self) -> None:
+        """Navigate to previous flag in manager."""
+        if self.current_view != "flag_manager" or not self.flag_files:
+            return
+        self.selected_flag_index = (self.selected_flag_index - 1) % len(self.flag_files)
+        self.update_view()
+
+    def action_flag_manager_toggle(self) -> None:
+        """Toggle the selected flag on/off."""
+        if self.current_view != "flag_manager" or not self.flag_files:
+            return
+
+        if 0 <= self.selected_flag_index < len(self.flag_files):
+            flag = self.flag_files[self.selected_flag_index]
+            success = self._toggle_flag_in_claude_md(flag["filename"])
+
+            if success:
+                # Reload flag files to reflect changes
+                self.flag_files = self._load_flag_files_metadata()
+                new_state = "enabled" if flag["active"] == False else "disabled"
+                self.update_view()
+                self.notify(f"{flag['category']}: {new_state} in CLAUDE.md", severity="success", timeout=2)
+                self.status_message = f"{flag['category']}: {new_state}"
+            else:
+                self.notify("Failed to toggle flag in CLAUDE.md", severity="error", timeout=2)
 
     # ─────────────────────────────────────────────────────────────────────
     # Watch Mode Actions
@@ -3880,7 +4616,10 @@ class AgentTUI(App[None]):
         )
         self.watch_mode_thread.start()
         self.notify("✅ Watch mode started", severity="information", timeout=2)
+        # Immediate update
         self.update_view()
+        # Schedule another update after brief delay to ensure thread has set running=True
+        self.set_timer(0.1, self.update_view)
 
     def action_watch_stop(self) -> None:
         """Stop watch mode gracefully."""
@@ -4032,7 +4771,7 @@ class AgentTUI(App[None]):
 
         # Flatten assets list
         all_assets: List[Asset] = []
-        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
             all_assets.extend(self.available_assets.get(category, []))
 
         asset_idx = row_idx - 2  # Adjust for header rows
@@ -4101,7 +4840,7 @@ class AgentTUI(App[None]):
         try:
             if not action or not hasattr(self, "_current_asset"):
                 return
-
+            saved_cursor_row = self._table_cursor_index()
             asset = self._current_asset
 
             if action == "install":
@@ -4111,6 +4850,7 @@ class AgentTUI(App[None]):
                 else:
                     self.notify(f"Failed: {message}", severity="error", timeout=3)
                 self.update_view()
+                self._restore_main_table_cursor(saved_cursor_row)
             elif action == "uninstall":
                 self._uninstall_asset_sync(asset)
             elif action == "diff":
@@ -4140,6 +4880,7 @@ class AgentTUI(App[None]):
             if not confirmed or not hasattr(self, "_uninstall_asset_pending"):
                 return
 
+            saved_cursor_row = self._table_cursor_index()
             asset = self._uninstall_asset_pending
             exit_code, message = uninstall_asset(
                 asset.category.value, asset.name, self.selected_target_dir
@@ -4149,6 +4890,7 @@ class AgentTUI(App[None]):
             else:
                 self.notify(f"Failed: {message}", severity="error", timeout=3)
             self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -4175,6 +4917,7 @@ class AgentTUI(App[None]):
             if action != "apply" or not hasattr(self, "_diff_asset_pending"):
                 return
 
+            saved_cursor_row = self._table_cursor_index()
             asset = self._diff_asset_pending
             exit_code, message = install_asset(asset, self.selected_target_dir)
             if exit_code == 0:
@@ -4182,6 +4925,7 @@ class AgentTUI(App[None]):
             else:
                 self.notify(f"Failed: {message}", severity="error", timeout=3)
             self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -4220,7 +4964,7 @@ class AgentTUI(App[None]):
 
         # Gather category counts (only not-installed assets)
         categories: List[Tuple[str, int]] = []
-        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
             assets = self.available_assets.get(cat_name, [])
             not_installed = [
                 a for a in assets
@@ -4242,6 +4986,7 @@ class AgentTUI(App[None]):
             if not selected:
                 return
 
+            saved_cursor_row = self._table_cursor_index()
             installed_count = 0
             failed_count = 0
 
@@ -4264,6 +5009,7 @@ class AgentTUI(App[None]):
                     timeout=3,
                 )
             self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -4278,7 +5024,7 @@ class AgentTUI(App[None]):
 
         # Find all assets that need updating (differ from source)
         assets_to_update: List[Asset] = []
-        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows"]:
+        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
             assets = self.available_assets.get(cat_name, [])
             for asset in assets:
                 status = check_installation_status(asset, self.selected_target_dir)
@@ -4303,6 +5049,7 @@ class AgentTUI(App[None]):
             if not confirmed or not hasattr(self, "_assets_to_update"):
                 return
 
+            saved_cursor_row = self._table_cursor_index()
             assets = self._assets_to_update
             updated_count = 0
             failed_count = 0
@@ -4323,6 +5070,7 @@ class AgentTUI(App[None]):
                     timeout=3,
                 )
             self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -4837,6 +5585,158 @@ class AgentTUI(App[None]):
 
         except Exception as exc:
             self.notify(f"Failed to apply: {exc}", severity="error", timeout=3)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Setup Tools Actions (profiles view)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    async def action_setup_init_wizard(self) -> None:
+        """Launch the interactive initialization wizard."""
+        if self.current_view != "profiles":
+            return
+
+        self.notify("Starting Init Wizard...", severity="information", timeout=2)
+
+        try:
+            # Run in worker to avoid blocking
+            exit_code, message = init_wizard(cwd=Path.cwd())
+            clean_msg = self._clean_ansi(message)
+
+            if exit_code == 0:
+                self.notify("Init Wizard completed", severity="information", timeout=3)
+                # Reload all data
+                self.load_agents()
+                self.load_modes()
+                self.load_rules()
+                self.load_profiles()
+                self.update_view()
+            else:
+                self.notify(f"Wizard cancelled or failed", severity="warning", timeout=3)
+
+            # Show full output in dialog
+            await self._show_text_dialog("Init Wizard Result", clean_msg)
+
+        except Exception as exc:
+            self.notify(f"Init Wizard failed: {exc}", severity="error", timeout=3)
+
+    async def action_setup_init_minimal(self) -> None:
+        """Apply minimal configuration quickly."""
+        if self.current_view != "profiles":
+            return
+
+        confirm = await self.push_screen(
+            ConfirmDialog(
+                "Init Minimal",
+                "Apply minimal configuration? This will reset to essential agents only."
+            ),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+
+        try:
+            exit_code, message = init_minimal()
+            clean_msg = self._clean_ansi(message)
+
+            if exit_code == 0:
+                self.notify("Minimal configuration applied", severity="information", timeout=3)
+                # Reload all data
+                self.load_agents()
+                self.load_modes()
+                self.load_rules()
+                self.load_profiles()
+                self.update_view()
+            else:
+                self.notify(f"Init failed: {clean_msg[:100]}", severity="error", timeout=3)
+
+            # Show full output
+            await self._show_text_dialog("Init Minimal Result", clean_msg)
+
+        except Exception as exc:
+            self.notify(f"Init Minimal failed: {exc}", severity="error", timeout=3)
+
+    async def action_setup_migration(self) -> None:
+        """Migrate from comment-based to file-based activation."""
+        if self.current_view != "profiles":
+            return
+
+        confirm = await self.push_screen(
+            ConfirmDialog(
+                "Run Migration",
+                "Migrate CLAUDE.md from comment-based to file-based activation?\n"
+                "This will update rules and modes to use the new system."
+            ),
+            wait_for_dismiss=True,
+        )
+        if not confirm:
+            return
+
+        try:
+            exit_code, message = migrate_to_file_activation()
+            clean_msg = self._clean_ansi(message)
+
+            if exit_code == 0:
+                self.notify("Migration completed successfully", severity="information", timeout=3)
+            else:
+                self.notify("Migration completed with warnings", severity="warning", timeout=3)
+
+            # Reload all data
+            self.load_agents()
+            self.load_modes()
+            self.load_rules()
+            self.load_profiles()
+            self.update_view()
+
+            # Show full output
+            await self._show_text_dialog("Migration Result", clean_msg)
+
+        except Exception as exc:
+            self.notify(f"Migration failed: {exc}", severity="error", timeout=3)
+
+    async def action_setup_health_check(self) -> None:
+        """Run diagnostics and verify directory structure."""
+        if self.current_view != "profiles":
+            return
+
+        self.notify("Running health check...", severity="information", timeout=2)
+
+        try:
+            claude_dir = _resolve_claude_dir()
+
+            # First ensure structure exists
+            created = _ensure_claude_structure(claude_dir)
+
+            # Then run doctor diagnostics
+            exit_code, doctor_msg = doctor_run(fix=False)
+            clean_doctor = self._clean_ansi(doctor_msg)
+
+            # Build report
+            report_lines = ["[bold cyan]Directory Structure[/bold cyan]"]
+            if created:
+                report_lines.append(f"Created {len(created)} missing directories/files:")
+                for path in created[:10]:
+                    report_lines.append(f"  • {Path(path).name}")
+                if len(created) > 10:
+                    report_lines.append(f"  ... and {len(created) - 10} more")
+            else:
+                report_lines.append("All directories and files present ✓")
+
+            report_lines.append("")
+            report_lines.append("[bold cyan]Diagnostics[/bold cyan]")
+            report_lines.append(clean_doctor)
+
+            if exit_code == 0 and not created:
+                self.notify("Health check passed", severity="information", timeout=3)
+            elif created:
+                self.notify(f"Fixed {len(created)} missing items", severity="information", timeout=3)
+            else:
+                self.notify("Health check found issues", severity="warning", timeout=3)
+
+            # Show full report
+            await self._show_text_dialog("Health Check Report", "\n".join(report_lines))
+
+        except Exception as exc:
+            self.notify(f"Health check failed: {exc}", severity="error", timeout=3)
 
     async def action_skill_info(self) -> None:
         slug = await self._get_skill_slug("Skill Info")
@@ -6417,6 +7317,73 @@ class AgentTUI(App[None]):
                                 f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                             )
 
+        elif self.current_view == "mcp":
+            table = self.query_one(DataTable)
+            if table.cursor_row is not None:
+                saved_cursor_row = table.cursor_row
+                row_key = table.get_row_at(table.cursor_row)
+
+                if row_key and len(row_key) > 0:
+                    from rich.text import Text
+
+                    raw_name = str(row_key[0])
+                    plain_text = Text.from_markup(raw_name).plain
+                    item_name = plain_text.strip()
+                    # Remove icon emoji if present
+                    if item_name and len(item_name) > 0 and ord(item_name[0]) > 127:
+                        item_name = item_name[1:].strip()
+
+                    # Check if it's an MCP doc (type column = "doc")
+                    type_col = str(row_key[1]) if len(row_key) > 1 else ""
+                    type_text = Text.from_markup(type_col).plain.strip()
+
+                    if type_text == "doc":
+                        doc = next((d for d in self.mcp_docs if d.name == item_name), None)
+                        if doc:
+                            try:
+                                import re
+                                if doc.status == "active":
+                                    exit_code, message = mcp_deactivate(doc.name)
+                                else:
+                                    exit_code, message = mcp_activate(doc.name)
+
+                                clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
+                                self.status_message = clean_message.split("\n")[0]
+
+                                if exit_code == 0:
+                                    if doc.status == "active":
+                                        self.notify(
+                                            f"✓ Deactivated {doc.name}",
+                                            severity="warning",
+                                            timeout=2,
+                                        )
+                                    else:
+                                        self.notify(
+                                            f"✓ Activated {doc.name}",
+                                            severity="information",
+                                            timeout=2,
+                                        )
+                                    self.load_mcp_docs()
+                                    self.update_view()
+
+                                    table = self.query_one(DataTable)
+                                    if table.row_count > 0:
+                                        new_cursor_row = min(
+                                            saved_cursor_row, table.row_count - 1
+                                        )
+                                        table.move_cursor(row=new_cursor_row)
+                                else:
+                                    self.notify(
+                                        f"✗ {clean_message}",
+                                        severity="error",
+                                        timeout=5,
+                                    )
+                            except Exception as e:
+                                self.status_message = f"Error: {e}"
+                                self.notify(
+                                    f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                                )
+
     def action_refresh(self) -> None:
         """Refresh current view."""
         if self.current_view == "agents":
@@ -6439,6 +7406,7 @@ class AgentTUI(App[None]):
             self.load_agent_tasks()
         elif self.current_view == "mcp":
             self.load_mcp_servers()
+            self.load_mcp_docs()
         elif self.current_view == "profiles":
             self.load_profiles()
 
@@ -6469,6 +7437,33 @@ class AgentTUI(App[None]):
         claude_dir = _resolve_claude_dir()
         claude_md_path = claude_dir / "CLAUDE.md"
 
+        def _sync_components(category: str, desired: Set[str]) -> None:
+            """Ensure filesystem matches desired active set for a category."""
+            active_dir = claude_dir / category
+            inactive_dir = _inactive_category_dir(claude_dir, category)
+            active_dir.mkdir(parents=True, exist_ok=True)
+            inactive_dir.mkdir(parents=True, exist_ok=True)
+
+            # Deactivate anything not desired
+            for path in list(active_dir.glob("*.md")):
+                if path.stem not in desired:
+                    target = inactive_dir / path.name
+                    if target.exists():
+                        target.unlink()
+                    path.rename(target)
+
+            # Activate desired items (promote from inactive if present)
+            for name in desired:
+                active_path = active_dir / name
+                inactive_path = inactive_dir / name
+                if active_path.exists():
+                    continue
+                if inactive_path.exists():
+                    inactive_path.rename(active_path)
+
+            # Update tracking file
+            _write_active_entries(claude_dir / f".active-{category}", [n for n in desired])
+
         try:
             # Backup existing file
             if claude_md_path.exists():
@@ -6477,6 +7472,10 @@ class AgentTUI(App[None]):
 
             # Write new content
             claude_md_path.write_text(content)
+
+            # Sync rules and modes on disk to match wizard selection
+            _sync_components("rules", {r.removesuffix(".md") for r in config.rules})
+            _sync_components("modes", {m.removesuffix(".md") for m in config.modes})
 
             self.notify(
                 f"✓ CLAUDE.md updated ({len(config.core_files)} core, "

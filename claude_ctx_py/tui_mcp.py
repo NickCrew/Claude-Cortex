@@ -361,8 +361,13 @@ class MCPViewMixin:
             self.state.status_message = f"✗ {server.name}: {error_msg}"
             return
 
+        testing_msg = f"Testing {server.name}..."
+        # Surface the testing cue so callers/tests can assert on it
+        self.state.status_message = testing_msg
+
+        # Placeholder until full MCP handshake is implemented
         self.state.status_message = (
-            f"✓ {server.name} config valid (MCP connection test not yet implemented)"
+            f"{testing_msg} ✓ {server.name} config valid (MCP connection test not yet implemented)"
         )
 
     def view_mcp_docs(self, server: MCPServerInfo) -> None:

@@ -66,11 +66,11 @@ claude-ctx --version
 ### Set Up Environment
 
 ```bash
-# Point CLI to your local development copy
-export CLAUDE_CTX_HOME="$(pwd)"
+# Point the claude-ctx CLI to your local development copy
+export CLAUDE_PLUGIN_ROOT="$(pwd)"
 
 # Add to your shell config for persistence
-echo 'export CLAUDE_CTX_HOME="/path/to/your/claude-ctx-plugin"' >> ~/.zshrc
+echo 'export CLAUDE_PLUGIN_ROOT="/path/to/your/claude-ctx-plugin"' >> ~/.zshrc
 ```
 
 ## Types of Contributions

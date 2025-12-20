@@ -91,8 +91,7 @@ def claude_dir(tmp_path: Path) -> Path:
 @pytest.fixture(autouse=True)
 def _isolate_claude_home(monkeypatch: pytest.MonkeyPatch, claude_dir: Path) -> None:
     """Force claude-ctx to operate inside the temporary .claude directory."""
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(claude_dir))
-    monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
 
 
 # ---- Tests: helpers & parsing -------------------------------------------------

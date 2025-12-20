@@ -23,7 +23,7 @@ def _tmp_home(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
     """Force commands to operate inside a temp .claude directory."""
     claude_dir = tmp_path / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(claude_dir))
+    monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
     return claude_dir
 
 

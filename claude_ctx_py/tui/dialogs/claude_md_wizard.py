@@ -36,25 +36,26 @@ def discover_available_files(claude_dir: Path) -> Dict[str, List[str]]:
         "modes": [],
         "mcp_docs": [],
     }
+    rule_names: Set[str] = set()
+    mode_names: Set[str] = set()
 
     # Core files
     for name in ["FLAGS.md", "PRINCIPLES.md", "RULES.md"]:
         if (claude_dir / name).exists():
             result["core"].append(name)
 
-    # Rules
-    rules_dir = claude_dir / "rules"
-    if rules_dir.exists():
-        for f in sorted(rules_dir.glob("*.md")):
-            result["rules"].append(f.name)
+    # Rules (active + inactive)
+    for rules_dir in [claude_dir / "rules", claude_dir / "inactive" / "rules"]:
+        if rules_dir.exists():
+            for f in sorted(rules_dir.glob("*.md")):
+                rule_names.add(f.name)
 
-    # Modes
-    modes_dir = claude_dir / "modes"
-    if modes_dir.exists():
-        for f in sorted(modes_dir.glob("*.md")):
-            # Skip subdirectories (like supersaiyan/)
-            if f.is_file():
-                result["modes"].append(f.name)
+    # Modes (active + inactive)
+    for modes_dir in [claude_dir / "modes", claude_dir / "inactive" / "modes"]:
+        if modes_dir.exists():
+            for f in sorted(modes_dir.glob("*.md")):
+                if f.is_file():
+                    mode_names.add(f.name)
 
     # MCP docs
     mcp_docs_dir = claude_dir / "mcp" / "docs"
@@ -62,50 +63,50 @@ def discover_available_files(claude_dir: Path) -> Dict[str, List[str]]:
         for f in sorted(mcp_docs_dir.glob("*.md")):
             result["mcp_docs"].append(f.name)
 
+    result["rules"] = sorted(rule_names)
+    result["modes"] = sorted(mode_names)
+
     return result
 
 
 def parse_current_claude_md(claude_dir: Path) -> WizardConfig:
-    """Parse current CLAUDE.md to get enabled items.
-
-    Returns:
-        WizardConfig with currently enabled items
-    """
+    """Read current active state from filesystem (.active-* and live files)."""
     config = WizardConfig()
-    claude_md = claude_dir / "CLAUDE.md"
 
-    if not claude_md.exists():
-        return config
+    # Core files present in CLAUDE dir are always included
+    for name in ["FLAGS.md", "PRINCIPLES.md", "RULES.md"]:
+        if (claude_dir / name).exists():
+            config.core_files.add(name)
 
-    content = claude_md.read_text()
+    # Rules: active dir and .active-rules tracker
+    rules_dir = claude_dir / "rules"
+    if rules_dir.exists():
+        for f in sorted(rules_dir.glob("*.md")):
+            config.rules.add(f.name)
+    active_rules_file = claude_dir / ".active-rules"
+    if active_rules_file.exists():
+        for line in active_rules_file.read_text().splitlines():
+            line = line.strip()
+            if line:
+                config.rules.add(line if line.endswith(".md") else f"{line}.md" if "." not in line else line)
 
-    for line in content.splitlines():
-        line = line.strip()
+    # Modes: active dir and .active-modes tracker
+    modes_dir = claude_dir / "modes"
+    if modes_dir.exists():
+        for f in sorted(modes_dir.glob("*.md")):
+            config.modes.add(f.name)
+    active_modes_file = claude_dir / ".active-modes"
+    if active_modes_file.exists():
+        for line in active_modes_file.read_text().splitlines():
+            line = line.strip()
+            if line:
+                config.modes.add(line if line.endswith(".md") else f"{line}.md" if "." not in line else line)
 
-        # Skip empty lines and comments
-        if not line or line.startswith("#"):
-            continue
-
-        # Skip commented out lines (HTML comments)
-        if line.startswith("<!--"):
-            continue
-
-        # Parse @filename references
-        if line.startswith("@"):
-            ref = line[1:].strip()
-
-            # Core files
-            if ref in ["FLAGS.md", "PRINCIPLES.md", "RULES.md"]:
-                config.core_files.add(ref)
-            # Rules
-            elif ref.startswith("rules/"):
-                config.rules.add(ref.replace("rules/", ""))
-            # Modes
-            elif ref.startswith("modes/"):
-                config.modes.add(ref.replace("modes/", ""))
-            # MCP docs
-            elif ref.startswith("mcp/docs/"):
-                config.mcp_docs.add(ref.replace("mcp/docs/", ""))
+    # MCP docs: keep enabled list based on presence in mcp/docs
+    mcp_docs_dir = claude_dir / "mcp" / "docs"
+    if mcp_docs_dir.exists():
+        for f in sorted(mcp_docs_dir.glob("*.md")):
+            config.mcp_docs.add(f.name)
 
     return config
 
@@ -125,34 +126,21 @@ def generate_claude_md(config: WizardConfig) -> str:
         "# Core Framework",
     ]
 
-    # Core files
+    # Core files (only include selected)
     for name in ["FLAGS.md", "PRINCIPLES.md", "RULES.md"]:
         if name in config.core_files:
             lines.append(f"@{name}")
-        else:
-            lines.append(f"<!-- @{name} -->")
 
     lines.extend(["", "# Rules"])
-
-    # Rules - enabled first, then disabled
-    enabled_rules = sorted(config.rules)
-    all_rules = set()  # We'll add disabled ones from available files
-
-    for rule in enabled_rules:
+    for rule in sorted(config.rules):
         lines.append(f"@rules/{rule}")
 
     lines.extend(["", "# Behavioral Modes"])
-
-    # Modes - enabled first
-    enabled_modes = sorted(config.modes)
-    for mode in enabled_modes:
+    for mode in sorted(config.modes):
         lines.append(f"@modes/{mode}")
 
     lines.extend(["", "# MCP Documentation"])
-
-    # MCP docs - enabled first
-    enabled_mcp = sorted(config.mcp_docs)
-    for doc in enabled_mcp:
+    for doc in sorted(config.mcp_docs):
         lines.append(f"@mcp/docs/{doc}")
 
     lines.append("")

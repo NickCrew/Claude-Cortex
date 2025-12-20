@@ -1,11 +1,95 @@
 {
-  "version": "2025-11-07",
+  "version": "2025-12-14",
   "rules": [
     {
       "name": "brainstorm",
       "command": "/ctx:brainstorm",
       "description": "Kick off Supersaiyan ideation before coding",
-      "keywords": ["brainstorm", "idea", "scope", "plan?", "where to start"]
+      "keywords": [
+        "brainstorm",
+        "idea",
+        "ideation",
+        "scope",
+        "plan?",
+        "where to start",
+        "options"
+      ]
+    },
+    {
+      "name": "idea-lab",
+      "command": "/collaboration:idea-lab",
+      "description": "Timeboxed divergent sprint; 5–7 options + top 3 experiments",
+      "keywords": [
+        "quick ideas",
+        "options",
+        "divergent",
+        "timebox",
+        "experiment",
+        "wow factor",
+        "feasible",
+        "low effort"
+      ]
+    },
+    {
+      "name": "assumption-buster",
+      "command": "/collaboration:assumption-buster",
+      "description": "Invert or remove assumptions to find fresh angles",
+      "keywords": [
+        "assumption",
+        "assumptions",
+        "opposite",
+        "invert",
+        "zero",
+        "10x",
+        "constraints feel wrong",
+        "stuck thinking"
+      ]
+    },
+    {
+      "name": "mashup",
+      "command": "/collaboration:mashup",
+      "description": "Cross-pollinate domains (fintech, gaming, etc.) for novel UX/GT angles",
+      "keywords": [
+        "mashup",
+        "combine",
+        "other domains",
+        "pattern",
+        "loyalty",
+        "streak",
+        "ritual",
+        "marketplace",
+        "inspiration"
+      ]
+    },
+    {
+      "name": "pre-mortem",
+      "command": "/collaboration:pre-mortem",
+      "description": "Imagine failure first; surface guardrails and feature mitigations",
+      "keywords": [
+        "premortem",
+        "pre-mortem",
+        "failure",
+        "risk",
+        "what could go wrong",
+        "guardrail",
+        "mitigation",
+        "horizon"
+      ]
+    },
+    {
+      "name": "concept-forge",
+      "command": "/collaboration:concept-forge",
+      "description": "Ranked concept cards scored on impact/delight/effort with 1-day spikes",
+      "keywords": [
+        "rank ideas",
+        "score ideas",
+        "impact",
+        "delight",
+        "effort",
+        "spike",
+        "concept card",
+        "prioritize ideas"
+      ]
     },
     {
       "name": "plan-writing",

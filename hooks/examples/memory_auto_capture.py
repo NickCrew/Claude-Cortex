@@ -37,8 +37,6 @@ from typing import Optional
 
 def get_claude_dir() -> Path:
     """Get the Claude configuration directory."""
-    if "CLAUDE_CTX_HOME" in os.environ:
-        return Path(os.environ["CLAUDE_CTX_HOME"]).expanduser()
     if "CLAUDE_PLUGIN_ROOT" in os.environ:
         return Path(os.environ["CLAUDE_PLUGIN_ROOT"])
     return Path.home() / ".claude"

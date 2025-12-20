@@ -27,5 +27,22 @@
       ]
     }
   },
-  "hooks": {}
+  "hooks": {
+    "user-prompt-submit": [
+      {
+        "command": "python3",
+        "args": [
+          "/Users/nferguson/Developer/personal/claude-ctx-plugin/hooks/examples/skill_auto_suggester.py"
+        ]
+      }
+    ],
+    "session-end": [
+      {
+        "command": "python3",
+        "args": [
+          "/Users/nferguson/Developer/personal/claude-ctx-plugin/hooks/examples/memory_auto_capture.py"
+        ]
+      }
+    ]
+  }
 }

@@ -80,9 +80,6 @@ class MemoryConfig:
 def _get_claude_dir() -> Path:
     """Get the Claude configuration directory."""
     # Check environment overrides
-    if "CLAUDE_CTX_HOME" in os.environ:
-        return Path(os.environ["CLAUDE_CTX_HOME"]).expanduser()
-
     if "CLAUDE_PLUGIN_ROOT" in os.environ:
         return Path(os.environ["CLAUDE_PLUGIN_ROOT"])
 

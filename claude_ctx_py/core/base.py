@@ -41,14 +41,13 @@ def _resolve_claude_dir(home: Path | None = None) -> Path:
 
     Preference order:
 
-    1. Explicit override via ``CLAUDE_CTX_HOME``
-    2. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
+    1. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
        commands execute inside a plugin sandbox)
-    3. Caller-provided ``home`` argument
-    4. ``$HOME/.claude`` fallback
+    2. Caller-provided ``home`` argument
+    3. ``$HOME/.claude`` fallback
     """
 
-    override = os.environ.get("CLAUDE_CTX_HOME") or os.environ.get("CLAUDE_PLUGIN_ROOT")
+    override = os.environ.get("CLAUDE_PLUGIN_ROOT")
     if override:
         path = Path(override).expanduser().resolve()
         if path.exists():
@@ -72,6 +71,47 @@ def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
         path.mkdir(parents=True, exist_ok=True)
 
     return state_dir, projects_dir, cache_dir
+
+
+def _ensure_claude_structure(claude_dir: Path) -> List[str]:
+    """Ensure all required directories and files exist for claude-ctx.
+
+    Creates the standard directory structure and activation tracking files.
+    Returns a list of created paths for logging.
+    """
+    created: List[str] = []
+
+    # Ensure main claude directory exists
+    claude_dir.mkdir(parents=True, exist_ok=True)
+
+    # Standard directories
+    dirs = [
+        "rules",
+        "modes",
+        "mcp/docs",
+        "inactive/rules",
+        "agents",
+        "skills",
+        "commands",
+        "workflows",
+        "flags",
+    ]
+
+    for dir_name in dirs:
+        dir_path = claude_dir / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+
+    # Activation tracking files
+    active_files = [".active-modes", ".active-mcp", ".active-rules"]
+    for active_file in active_files:
+        file_path = claude_dir / active_file
+        if not file_path.exists():
+            file_path.touch()
+            created.append(str(file_path))
+
+    return created
 
 
 def _init_slug_for_path(path: Path) -> str:
@@ -189,6 +229,19 @@ def _parse_active_entries(path: Path) -> List[str]:
         if value:
             entries.append(value)
     return entries
+
+
+def _write_active_entries(path: Path, entries: Iterable[str]) -> None:
+    """Write normalized entries to an ``.active-*`` file."""
+
+    normalized: List[str] = []
+    for value in entries:
+        text = str(value).strip()
+        if text:
+            normalized.append(text)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(sorted(set(normalized))) + "\n", encoding="utf-8")
 
 
 def _update_with_backup(path: Path, transform: Callable[[str], str]) -> None:
@@ -504,18 +557,13 @@ def _refresh_claude_md(claude_dir: Path) -> None:
 
     rules_dir = claude_dir / "rules"
     modes_dir = claude_dir / "modes"
-    inactive_modes_dir = _inactive_category_dir(claude_dir, "modes")
 
     active_rules = set(_parse_active_entries(claude_dir / ".active-rules"))
-    available_rules = (
-        sorted(p.stem for p in rules_dir.glob("*.md")) if rules_dir.is_dir() else []
-    )
-    active_modes = _parse_active_entries(claude_dir / ".active-modes")
-    inactive_mode_names: Set[str] = set()
-    for directory in _inactive_dir_candidates(claude_dir, "modes"):
-        if directory.is_dir():
-            inactive_mode_names.update(p.stem for p in directory.glob("*.md"))
-    inactive_modes = sorted(inactive_mode_names)
+    if rules_dir.is_dir():
+        active_rules.update(p.stem for p in rules_dir.glob("*.md"))
+
+    # Modes use reference-based activation - only .active-modes determines what's active
+    active_modes = set(_parse_active_entries(claude_dir / ".active-modes"))
 
     claude_md = claude_dir / "CLAUDE.md"
     _backup_config(claude_dir)
@@ -535,39 +583,30 @@ def _refresh_claude_md(claude_dir: Path) -> None:
                 "@rules/workflow-rules.md",
                 "@rules/parallel-execution-rules.md",
                 "@rules/quality-gate-rules.md",
-                "",
-                "# Optional Rules (HTML-commented; uncomment to activate)",
             ]
         )
     )
 
-    always_on_rules = {"workflow-rules", "parallel-execution-rules", "quality-gate-rules"}
-    rule_lines: List[str] = []
-    for rule in available_rules:
-        if rule in always_on_rules:
+    # Optional Rules
+    optional_rule_lines: List[str] = ["", "# Optional Rules"]
+    for rule in sorted(active_rules):
+        if rule in {"workflow-rules", "parallel-execution-rules", "quality-gate-rules"}:
             continue
-        if rule in active_rules:
-            rule_lines.append(f"@rules/{rule}.md")
-        else:
-            rule_lines.append(f"<!-- @rules/{rule}.md -->")
-    rule_lines.append("")
-    sections.append(_render_section(rule_lines))
+        optional_rule_lines.append(f"@rules/{rule}.md")
+    optional_rule_lines.append("")
+    sections.append(_render_section(optional_rule_lines))
 
-    mode_lines: List[str] = ["# Active Behavioral Modes"]
-    mode_lines.extend(f"@modes/{mode}.md" for mode in active_modes)
-    mode_lines.append("")
-    mode_lines.append("# Inactive Modes (HTML-commented; uncomment to activate)")
-    mode_lines.extend(f"<!-- @modes/{mode}.md -->" for mode in inactive_modes)
+    mode_lines: List[str] = ["# Behavioral Modes"]
+    for mode in sorted(active_modes):
+        mode_lines.append(f"@modes/{mode}.md")
     mode_lines.append("")
     sections.append(_render_section(mode_lines))
 
-    mcp_dir = claude_dir / "mcp" / "docs"
-    mcp_docs = sorted(p.stem for p in _iter_md_files(mcp_dir)) if mcp_dir.is_dir() else []
-    default_active_mcp = {"Context7", "Sequential", "Codanna"}
+    # MCP docs use reference-based activation - only .active-mcp determines what's active
+    active_mcp = set(_parse_active_entries(claude_dir / ".active-mcp"))
     mcp_lines: List[str] = ["# MCP Documentation"]
-    for doc in mcp_docs:
-        entry = f"@mcp/docs/{doc}.md" if doc in default_active_mcp else f"<!-- @mcp/docs/{doc}.md -->"
-        mcp_lines.append(entry)
+    for doc in sorted(active_mcp):
+        mcp_lines.append(f"@mcp/docs/{doc}.md")
     mcp_lines.append("")
     sections.append(_render_section(mcp_lines))
 

@@ -19,7 +19,6 @@ class TestGetMetricsPath:
         """Test getting default metrics path (~/.claude/.metrics/skills/)."""
         # Mock home directory
         monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
 
         path = metrics.get_metrics_path()
@@ -28,25 +27,11 @@ class TestGetMetricsPath:
         assert path == expected
         assert path.exists()  # Should create directory
 
-    def test_get_metrics_path_with_ctx_home(self, tmp_path, monkeypatch):
-        """Test getting metrics path when CLAUDE_CTX_HOME is set."""
-        ctx_home = tmp_path / "custom_claude"
-        ctx_home.mkdir(parents=True)
-
-        monkeypatch.setenv("CLAUDE_CTX_HOME", str(ctx_home))
-
-        path = metrics.get_metrics_path()
-
-        expected = ctx_home / ".metrics" / "skills"
-        assert path == expected
-        assert path.exists()
-
     def test_get_metrics_path_with_plugin_root(self, tmp_path, monkeypatch):
         """Test getting metrics path when CLAUDE_PLUGIN_ROOT is set."""
         plugin_root = tmp_path / "plugin"
         plugin_root.mkdir(parents=True)
 
-        monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
         monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(plugin_root))
 
         path = metrics.get_metrics_path()
@@ -57,7 +42,6 @@ class TestGetMetricsPath:
     def test_get_metrics_path_creates_directory(self, tmp_path, monkeypatch):
         """Test that metrics directory is created if it doesn't exist."""
         monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
 
         # Ensure directory doesn't exist

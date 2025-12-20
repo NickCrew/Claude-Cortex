@@ -404,7 +404,7 @@ claude_ctx_py/
 2. **Claude Directory Detection**
    - Walk up from cwd looking for `.claude/`
    - Always include `~/.claude` as global
-   - Support `CLAUDE_CTX_HOME` override
+   - Prefer `CLAUDE_PLUGIN_ROOT` when running as a plugin
 
 3. **Diff Implementation**
    - Use `difflib.unified_diff` from stdlib

@@ -86,6 +86,23 @@ class AgentRecommendation:
 
 
 @dataclass
+class AgentDeactivationRecommendation:
+    """Represents a recommendation to deactivate an active agent."""
+
+    agent_name: str
+    confidence: float  # 0.0 to 1.0
+    reason: str
+    urgency: str  # low, medium, high
+    auto_deactivate: bool
+    inactive_duration: int  # seconds since last relevant activity
+    resource_impact: str  # low, medium, high
+
+    def should_notify(self) -> bool:
+        """Determine if this should notify the user."""
+        return self.confidence >= 0.6 or self.urgency in ("medium", "high")
+
+
+@dataclass
 class WorkflowPrediction:
     """Predicted workflow based on context."""
 
@@ -430,6 +447,107 @@ class PatternLearner:
 
         return recommendations
 
+    def predict_deactivations(
+        self, context: SessionContext, active_agents: List[str]
+    ) -> List[AgentDeactivationRecommendation]:
+        """Predict which active agents should be deactivated based on context.
+
+        Identifies agents that are:
+        - Not relevant to current context
+        - Unused in similar past sessions
+        - Active but not providing value
+        - Consuming resources unnecessarily
+
+        Args:
+            context: Current session context
+            active_agents: List of currently active agent names
+
+        Returns:
+            List of deactivation recommendations sorted by confidence
+        """
+        if not active_agents:
+            return []
+
+        recommendations = []
+        context_key = self._generate_context_key(context)
+
+        # Get agents that SHOULD be active for this context
+        should_be_active = set()
+        activation_recs = self.predict_agents(context)
+        for rec in activation_recs:
+            if rec.confidence >= 0.5:  # Reasonably confident they should be active
+                should_be_active.add(rec.agent_name)
+
+        # Check each active agent
+        for agent_name in active_agents:
+            # Skip if agent should definitely be active
+            if agent_name in should_be_active:
+                continue
+
+            # Check historical usage in similar contexts
+            usage_score = self._calculate_agent_usage(agent_name, context_key)
+
+            # Determine if agent should be deactivated
+            if usage_score < 0.3:  # Low usage in similar contexts
+                confidence = 1.0 - usage_score  # Higher confidence if rarely used
+
+                # Determine urgency and resource impact
+                urgency = "low"
+                resource_impact = "low"
+
+                # High-resource agents get higher urgency
+                if agent_name in {
+                    "performance-engineer",
+                    "security-auditor",
+                    "code-reviewer",
+                }:
+                    resource_impact = "high"
+                    urgency = "medium" if confidence > 0.7 else "low"
+
+                # Very low usage gets higher urgency
+                if usage_score < 0.1:
+                    urgency = "medium"
+
+                recommendations.append(
+                    AgentDeactivationRecommendation(
+                        agent_name=agent_name,
+                        confidence=confidence,
+                        reason=f"Low relevance to {context_key} context (used in {usage_score:.0%} of similar sessions)",
+                        urgency=urgency,
+                        auto_deactivate=confidence > 0.8 and resource_impact == "high",
+                        inactive_duration=0,  # Could be enhanced with activity tracking
+                        resource_impact=resource_impact,
+                    )
+                )
+
+        # Sort by confidence (descending)
+        recommendations.sort(key=lambda r: r.confidence, reverse=True)
+
+        return recommendations
+
+    def _calculate_agent_usage(self, agent_name: str, context_key: str) -> float:
+        """Calculate how often an agent is used in similar contexts.
+
+        Args:
+            agent_name: Name of the agent
+            context_key: Context key to check
+
+        Returns:
+            Usage score (0.0 to 1.0)
+        """
+        similar_sessions = self.patterns.get(context_key, [])
+
+        if not similar_sessions:
+            # No history - assume low usage but don't be too confident
+            return 0.3
+
+        # Count how often this agent was used
+        usage_count = sum(
+            1 for session in similar_sessions if agent_name in session.get("agents", [])
+        )
+
+        return usage_count / len(similar_sessions)
+
     def predict_workflow(self, context: SessionContext) -> Optional[WorkflowPrediction]:
         """Predict optimal workflow based on context.
 
@@ -647,6 +765,28 @@ class IntelligentAgent:
             agent_name: Agent that was activated
         """
         self.auto_activated.add(agent_name)
+
+    def get_deactivation_recommendations(
+        self, active_agents: Optional[List[str]] = None
+    ) -> List[AgentDeactivationRecommendation]:
+        """Get recommendations for agents that should be deactivated.
+
+        Args:
+            active_agents: List of currently active agents (uses current context if None)
+
+        Returns:
+            List of deactivation recommendations
+        """
+        if self.current_context is None:
+            self.analyze_context()
+
+        assert self.current_context is not None
+
+        # Use active agents from context if not provided
+        if active_agents is None:
+            active_agents = self.current_context.active_agents
+
+        return self.learner.predict_deactivations(self.current_context, active_agents)
 
     def predict_workflow(self) -> Optional[WorkflowPrediction]:
         """Predict optimal workflow for current context.

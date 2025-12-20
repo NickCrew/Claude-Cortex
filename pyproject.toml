@@ -21,7 +21,7 @@ dependencies = [
 [project.optional-dependencies]
 # AI Intelligence features
 ai = [
-    "fastembed>=0.2.0",  # Semantic similarity matching
+    "fastembed>=0.7.4",  # Semantic similarity matching
     "numpy>=1.24.0",     # Required by fastembed
 ]
 llm = [
@@ -42,7 +42,7 @@ dev = [
 ]
 # All optional features
 all = [
-    "fastembed>=0.2.0",
+    "fastembed>=0.7.4",
     "numpy>=1.24.0",
     "anthropic>=0.18.0",
 ]

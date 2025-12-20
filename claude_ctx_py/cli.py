@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Iterable, List, cast, Dict, Any, Callable
 
 from . import core
+from .core.migration import migrate_to_file_activation
 
 
 def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
@@ -101,6 +102,15 @@ def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "deactivate", help="Deactivate one or more rule modules"
     )
     rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
+
+
+def _build_setup_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    setup_parser = subparsers.add_parser("setup", help="Setup and migration commands")
+    setup_sub = setup_parser.add_subparsers(dest="setup_command")
+    setup_sub.add_parser(
+        "migrate",
+        help="Migrate CLAUDE.md comment-based activation to file-based rules/modes",
+    )
 
 
 def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -375,6 +385,12 @@ def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     mcp_parser = subparsers.add_parser("mcp", help="MCP server commands")
     mcp_sub = mcp_parser.add_subparsers(dest="mcp_command")
     mcp_sub.add_parser("list", help="List all MCP servers with status")
+    mcp_sub.add_parser("list-docs", help="List MCP docs with activation status")
+    mcp_sub.add_parser("status", help="Show active MCP docs")
+    mcp_activate_parser = mcp_sub.add_parser("activate", help="Activate MCP doc(s) in CLAUDE.md")
+    mcp_activate_parser.add_argument("docs", nargs="+", help="MCP doc name(s) (without .md)")
+    mcp_deactivate_parser = mcp_sub.add_parser("deactivate", help="Deactivate MCP doc(s) from CLAUDE.md")
+    mcp_deactivate_parser.add_argument("docs", nargs="+", help="MCP doc name(s) (without .md)")
     mcp_show_parser = mcp_sub.add_parser("show", help="Show detailed server info")
     mcp_show_parser.add_argument("server", help="Server name")
     mcp_docs_parser = mcp_sub.add_parser("docs", help="Display server documentation")
@@ -727,6 +743,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_install_parser(subparsers)
     _build_doctor_parser(subparsers)
     _build_memory_parser(subparsers)
+    _build_setup_parser(subparsers)
 
     return parser
 
@@ -979,6 +996,32 @@ def _handle_mcp_command(args: argparse.Namespace) -> int:
         exit_code, message = core.mcp_list()
         _print(message)
         return exit_code
+    if args.mcp_command == "list-docs":
+        _print(core.mcp_list_docs())
+        return 0
+    if args.mcp_command == "status":
+        _print(core.mcp_docs_status())
+        return 0
+    if args.mcp_command == "activate":
+        messages = []
+        final_exit_code = 0
+        for doc in args.docs:
+            exit_code, message = core.mcp_activate(doc)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.mcp_command == "deactivate":
+        messages = []
+        final_exit_code = 0
+        for doc in args.docs:
+            exit_code, message = core.mcp_deactivate(doc)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
     if args.mcp_command == "show":
         exit_code, message = core.mcp_show(args.server)
         _print(message)
@@ -1440,6 +1483,15 @@ def _handle_doctor_command(args: argparse.Namespace) -> int:
     return exit_code
 
 
+def _handle_setup_command(args: argparse.Namespace) -> int:
+    """Handle setup/migration commands."""
+    if args.setup_command == "migrate":
+        exit_code, message = migrate_to_file_activation()
+        _print(message)
+        return exit_code
+    return 1
+
+
 def _handle_memory_command(args: argparse.Namespace) -> int:
     """Handle memory subcommands for persistent knowledge capture."""
     from . import memory
@@ -1575,6 +1627,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "install": _handle_install_command,
         "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,
+        "setup": _handle_setup_command,
     }
 
     if args.command == "status":
