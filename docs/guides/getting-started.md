@@ -12,8 +12,10 @@ This repository packages the `claude-ctx` context management toolkit as a Claude
 
 - `commands/` – slash command definitions that surface curated behavioural prompts
 - `agents/` and `inactive/agents/` – Claude subagents with dependency metadata
-- `modes/` and `inactive/modes/` – opinionated context modules that toggle workflow defaults
+- `modes/` – opinionated context modules that toggle workflow defaults (tracked via `.active-modes`)
 - `rules/` – reusable rule sets referenced by the CLI and plugin commands
+- `flags/` – modular context packs toggled via `FLAGS.md`
+- `hooks/` – optional automation hooks
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
 - `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `claude-ctx`
 - `schema/` and `scripts/` – validation schemas and helper scripts
@@ -37,6 +39,22 @@ claude-ctx agent graph --export dependency-map.md
 ```
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
+
+### Init & Migration
+
+Use the init commands to detect project context and apply profiles:
+
+```bash
+claude-ctx init detect
+claude-ctx init profile backend
+claude-ctx init status
+```
+
+If you are upgrading from legacy `CLAUDE.md` comment activation, run:
+
+```bash
+claude-ctx setup migrate
+```
 
 > **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_HOME` (explicit path), `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >

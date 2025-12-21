@@ -2,6 +2,18 @@
 
 ## Installation
 
+### Option 0: Install with the installer (recommended)
+
+```bash
+./scripts/install.sh
+```
+
+This installs the package, shell completions, and manpages in one step. For a Makefile wrapper:
+
+```bash
+make install
+```
+
 ### Option 1: Install from source (recommended for development)
 
 ```bash
@@ -45,24 +57,36 @@ claude-ctx tui
 
 #### TUI Navigation
 
-**View Switching:**
+**Primary Views:**
 - `1` - Overview (system summary)
 - `2` - Agents (manage agents)
 - `3` - Modes (behavioral modes)
 - `4` - Rules (rule modules)
 - `5` - Skills (local + community skills)
 - `6` - Workflows (workflow management)
-- `7` - Orchestrate (parallel execution monitoring)
-- `8` - Profile (quick profile switching)
+- `7` - MCP Servers (MCP management)
+- `8` - Profiles (quick profile switching)
 - `9` - Export (context export)
+- `0` - AI Assistant (recommendations)
+
+**Additional Views:**
+- `A` - Asset Manager (install/diff/update assets)
+- `C` - Worktrees (git worktree manager)
+- `F` - Flag Explorer (flags + token budgets)
+- `M` - Memory Vault (persistent notes)
+- `w` - Watch Mode (real-time monitoring)
+- `/` - Slash Commands catalog
+- `S` - Scenarios
+- `o` - Orchestrate view
+- `g` - Agent Galaxy
+- `t` - Tasks
 
 **Navigation:**
 - `↑/k` - Move up
 - `↓/j` - Move down
 - `Space` - Toggle active/inactive
 - `Enter` - Show details
-- `/` - Filter/search
-- `Esc` - Clear filter
+- `Esc` - Close dialogs / cancel
 - `?` - Help
 - `q` - Quit
 
@@ -85,18 +109,35 @@ claude-ctx mode deactivate <name>        # Deactivate mode
 
 #### Rules
 ```bash
-claude-ctx rule list                     # List all rules
-claude-ctx rule activate <name>          # Activate rule
-claude-ctx rule deactivate <name>        # Deactivate rule
+claude-ctx rules list                    # List all rules
+claude-ctx rules activate <name>         # Activate rule
+claude-ctx rules deactivate <name>       # Deactivate rule
 ```
 
 #### Skills
 ```bash
-claude-ctx skill list                    # List local skills
-claude-ctx skill info <name>             # Show skill details
-claude-ctx skill validate <name>         # Validate skill
-claude-ctx skill community list          # Browse community skills
-claude-ctx skill community search <term> # Search community skills
+claude-ctx skills list                   # List local skills
+claude-ctx skills info <name>            # Show skill details
+claude-ctx skills validate <name>        # Validate skill
+claude-ctx skills community list         # Browse community skills
+claude-ctx skills community search <term># Search community skills
+```
+
+#### Worktrees
+```bash
+claude-ctx worktree list                 # List git worktrees
+claude-ctx worktree add <branch>         # Add a worktree
+claude-ctx worktree remove <target>      # Remove a worktree
+claude-ctx worktree prune --dry-run      # Prune stale worktrees
+claude-ctx worktree dir <path>           # Set base directory
+```
+
+#### Init & Migration
+```bash
+claude-ctx init detect                   # Detect project type
+claude-ctx init profile backend          # Apply a profile
+claude-ctx init status                   # Show init status
+claude-ctx setup migrate                 # Migrate to .active-* activation
 ```
 
 #### Status
@@ -114,10 +155,16 @@ Configuration files are located in `~/.claude/`:
 ├── FLAGS.md               # Behavioral flags
 ├── RULES.md               # Core rules
 ├── PRINCIPLES.md          # Engineering principles
+├── .active-modes          # Active modes (reference-based)
+├── .active-rules          # Active rules (reference-based)
 ├── agents/                # Agent definitions
 ├── modes/                 # Behavioral modes
 ├── rules/                 # Rule modules
-└── skills/                # Custom skills
+├── skills/                # Custom skills
+├── flags/                 # Flag packs
+├── hooks/                 # Automation hooks
+├── workflows/             # Workflow definitions
+└── scenarios/             # Scenario definitions
 ```
 
 ## Troubleshooting
@@ -165,7 +212,7 @@ pipx install .
 ## Features
 
 ### TUI Features
-- 9 interactive views with complete CLI parity
+- Multi-view TUI with dedicated screens for AI, MCP, assets, worktrees, memory, flags, scenarios, and tasks
 - Pagination (max 8 items per view to prevent scrolling)
 - Real-time filtering and search
 - Keyboard navigation
@@ -176,7 +223,7 @@ pipx install .
 - Tab completion (if argcomplete installed)
 - Rich formatted output
 - Status summaries
-- Batch operations
+- Batch operations and migration helpers
 - Community skill browsing
 
 ## Quick Start

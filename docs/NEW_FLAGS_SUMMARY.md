@@ -31,10 +31,10 @@
 - 360-1,280 tokens (typical profiles)
 
 **After:**
-- **21 flag categories** (+6)
+- **22 flag categories** (+7, includes thinking-budget split into its own file)
 - **46+ individual flags** (+18)
-- **~3,240 tokens** (all flags, +1,100 tokens)
-- **360-1,600 tokens** (typical profiles)
+- **~3,380 tokens** (all flags, +1,240 tokens)
+- **430-1,360 tokens** (typical profiles)
 
 **Still optimal:** 46 flags is within the 25-50 sweet spot! ✅
 
@@ -317,22 +317,23 @@
 
 ## 📦 Files Created/Modified
 
-### New Files (6)
+### New Files (7)
 1. `/flags/performance-optimization.md`
 2. `/flags/security-hardening.md`
 3. `/flags/documentation-generation.md`
 4. `/flags/git-workflow.md`
 5. `/flags/migration-upgrade.md`
 6. `/flags/database-operations.md`
+7. `/flags/thinking-budget.md` (split from monolithic flags)
 
 ### Modified Files (2)
 1. `/flags/visual-excellence.md` - Added `--a11y` flag
-2. `~/.claude/FLAGS.md` - Added all new flags to consolidated file
+2. `~/.claude/FLAGS.md` - Added references for new flag files
 
 ### Total Flag Files
 - **Before:** 15 files
-- **After:** 21 files
-- **Total lines:** FLAGS.md grew from 248 → 477 lines
+- **After:** 22 files
+- **Total lines:** FLAGS.md now lists all active flag references
 
 ---
 
@@ -347,6 +348,7 @@ cp flags/documentation-generation.md ~/.claude/flags/
 cp flags/git-workflow.md ~/.claude/flags/
 cp flags/migration-upgrade.md ~/.claude/flags/
 cp flags/database-operations.md ~/.claude/flags/
+cp flags/thinking-budget.md ~/.claude/flags/
 
 # Update visual-excellence with --a11y
 cp flags/visual-excellence.md ~/.claude/flags/
@@ -355,20 +357,20 @@ cp flags/visual-excellence.md ~/.claude/flags/
 ./scripts/copy-flags-to-local.sh
 ```
 
-### 2. Update Your CLAUDE.md
-Add new flag categories (commented out by default):
+### 2. Update Your FLAGS.md
+Add new flag categories (remove lines later to disable):
 ```markdown
 # New Performance & Security
-<!-- @flags/performance-optimization.md -->
-<!-- @flags/security-hardening.md -->
+@flags/performance-optimization.md
+@flags/security-hardening.md
 
 # New Documentation & Git
-<!-- @flags/documentation-generation.md -->
-<!-- @flags/git-workflow.md -->
+@flags/documentation-generation.md
+@flags/git-workflow.md
 
 # New Migration & Database
-<!-- @flags/migration-upgrade.md -->
-<!-- @flags/database-operations.md -->
+@flags/migration-upgrade.md
+@flags/database-operations.md
 ```
 
 ### 3. Enable Flags Based on Your Work
@@ -376,7 +378,7 @@ Use the TUI Flag Manager:
 ```bash
 claude-ctx tui
 # Press Ctrl+G
-# Toggle flags on/off
+# Toggle flags on/off (updates FLAGS.md)
 ```
 
 Or create custom profiles:

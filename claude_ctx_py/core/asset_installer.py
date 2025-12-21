@@ -103,6 +103,8 @@ def install_asset(
             return _install_workflow(asset, target_dir)
         elif asset.category == AssetCategory.RULES:
             return _install_rule(asset, target_dir)
+        elif asset.category == AssetCategory.FLAGS:
+            return _install_flag(asset, target_dir)
         elif asset.category == AssetCategory.PROFILES:
             return _install_profile(asset, target_dir)
         elif asset.category == AssetCategory.SCENARIOS:
@@ -241,6 +243,17 @@ def _install_rule(asset: Asset, target_dir: Path) -> Tuple[int, str]:
     return 0, _color(f"Installed rules: {asset.name}", GREEN)
 
 
+def _install_flag(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a flag file into flags/ (does not auto-enable)."""
+    flags_dir = target_dir / "flags"
+    flags_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = flags_dir / asset.source_path.name
+    shutil.copy2(asset.source_path, target_path)
+
+    return 0, _color(f"Installed flag: {asset.name}", GREEN)
+
+
 def _install_profile(asset: Asset, target_dir: Path) -> Tuple[int, str]:
     """Install a profile markdown file."""
     profiles_dir = target_dir / "profiles"
@@ -310,6 +323,8 @@ def uninstall_asset(
             return _uninstall_workflow(name, target_dir)
         elif category == "rules":
             return _uninstall_rule(name, target_dir)
+        elif category == "flags":
+            return _uninstall_flag(name, target_dir)
         elif category == "profiles":
             return _uninstall_profile(name, target_dir)
         elif category == "scenarios":
@@ -405,6 +420,36 @@ def _uninstall_rule(name: str, target_dir: Path) -> Tuple[int, str]:
 
     rule_path.unlink()
     return 0, _color(f"Uninstalled rules: {name}", GREEN)
+
+
+def _uninstall_flag(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a flag file and remove any FLAGS.md reference."""
+    flag_path = target_dir / "flags" / f"{name}.md"
+    if not flag_path.exists():
+        return 1, _color(f"Flag not installed: {name}", YELLOW)
+
+    flag_path.unlink()
+
+    flags_md = target_dir / "FLAGS.md"
+    if flags_md.exists():
+        try:
+            content = flags_md.read_text(encoding="utf-8")
+        except OSError:
+            return 0, _color(f"Uninstalled flag: {name}", GREEN)
+
+        lines = [
+            line for line in content.splitlines()
+            if line.strip() != f"@flags/{name}.md"
+        ]
+        updated = "\n".join(lines)
+        if updated and not updated.endswith("\n"):
+            updated += "\n"
+        try:
+            _update_with_backup(flags_md, lambda _: updated)
+        except Exception:
+            pass
+
+    return 0, _color(f"Uninstalled flag: {name}", GREEN)
 
 
 def _uninstall_profile(name: str, target_dir: Path) -> Tuple[int, str]:

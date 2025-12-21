@@ -159,7 +159,7 @@ from ..tui_dashboard import MetricsCollector
 from ..tui_performance import PerformanceMonitor
 from ..tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from ..tui_overview_enhanced import EnhancedOverview
-from ..token_counter import get_active_context_tokens, count_category_tokens
+from ..token_counter import get_active_context_tokens, count_category_tokens, count_file_tokens, TokenStats
 from ..intelligence import (
     AgentRecommendation,
     IntelligentAgent,
@@ -252,19 +252,9 @@ class AgentTUI(App[None]):
         self.watch_mode_thread: Optional[threading.Thread] = None
         # Flags explorer state
         self.current_flag_category = "all"  # Track selected flag category
-        self.flag_categories = [
-            "all",
-            "Mode Activation",
-            "MCP Server",
-            "Thinking Budget",
-            "Analysis Depth",
-            "Auto-Escalation",
-            "Execution Control",
-            "Output Optimization",
-            "Visual Excellence",
-        ]
+        self.flag_categories = ["all"]
         # Track which categories are enabled (all enabled by default, except "all" which is special)
-        self.flag_categories_enabled = {cat: True for cat in self.flag_categories if cat != "all"}
+        self.flag_categories_enabled: Dict[str, bool] = {}
         # Flag manager state
         self.flag_files: List[Dict[str, Any]] = []  # List of {name, path, tokens, active, category}
         self.selected_flag_index = 0
@@ -2447,13 +2437,17 @@ class AgentTUI(App[None]):
 
     def show_flags_view(self, table: AnyDataTable) -> None:
         """Show flags explorer with categories and descriptions."""
-        # Parse FLAGS.md
+        # Parse flag definitions from flags/
         flags_data = self._parse_flags_md()
+
+        # Refresh categories dynamically based on discovered flags
+        if flags_data:
+            self._refresh_flag_categories(flags_data)
 
         if not flags_data:
             table.add_column("Message")
             table.add_row("[dim]No flags found[/dim]")
-            table.add_row("[dim]Check FLAGS.md file[/dim]")
+            table.add_row("[dim]Check flags/ directory or FLAGS.md references[/dim]")
             return
 
         # Category colors
@@ -2553,32 +2547,113 @@ class AgentTUI(App[None]):
 
         return " | ".join(parts)
 
+    def _refresh_flag_categories(self, flags_data: List[Dict[str, str]]) -> None:
+        """Update categories list based on parsed flags."""
+        categories = sorted({f["category"] for f in flags_data if f.get("category")})
+        self.flag_categories = ["all"] + categories
+
+        enabled_map: Dict[str, bool] = {}
+        for cat in categories:
+            enabled_map[cat] = self.flag_categories_enabled.get(cat, True)
+        self.flag_categories_enabled = enabled_map
+
+        if self.current_flag_category not in self.flag_categories:
+            self.current_flag_category = "all"
+
     def _parse_flags_md(self) -> list:
-        """Parse FLAGS.md and extract flag information."""
-        # Try to find FLAGS.md in various locations
-        claude_dir = _resolve_claude_dir()
-        possible_paths = [
-            Path.cwd() / "FLAGS.md",
-            claude_dir / "FLAGS.md",
-            claude_dir.parent / "FLAGS.md",
-        ]
+        """Parse flag files from flags/ (or resolve @flags references in FLAGS.md)."""
+        base_dir = self._flag_manager_base_dir()
+        claude_dir = base_dir
+        possible_flags_md: List[Path] = []
+        if claude_dir:
+            possible_flags_md.append(claude_dir / "FLAGS.md")
+            possible_flags_md.append(claude_dir.parent / "FLAGS.md")
+        if Path.cwd() not in (claude_dir, claude_dir.parent):
+            possible_flags_md.append(Path.cwd() / "FLAGS.md")
+        flags_md_path = next((p for p in possible_flags_md if p.exists()), None)
 
-        flags_path = None
-        for path in possible_paths:
-            if path.exists():
-                flags_path = path
-                break
+        possible_flags_dirs: List[Path] = []
+        if claude_dir:
+            possible_flags_dirs.append(claude_dir / "flags")
+            possible_flags_dirs.append(claude_dir.parent / "flags")
+        if Path.cwd() not in (claude_dir, claude_dir.parent):
+            possible_flags_dirs.append(Path.cwd() / "flags")
+        flags_dir = next((p for p in possible_flags_dirs if p.exists()), None)
 
-        if not flags_path:
-            return []
+        flag_files: List[Path] = []
+        if flags_dir and flags_dir.exists():
+            flag_files = sorted(flags_dir.glob("*.md"))
+        elif flags_md_path and flags_md_path.exists():
+            candidate_dir = flags_md_path.parent / "flags"
+            if candidate_dir.exists():
+                flag_files = sorted(candidate_dir.glob("*.md"))
 
-        try:
-            with open(flags_path, "r", encoding="utf-8") as f:
-                content = f.read()
-        except Exception:
-            return []
+        if not flag_files and flags_md_path and flags_md_path.exists():
+            # Fallback for legacy monolithic FLAGS.md
+            try:
+                content = flags_md_path.read_text(encoding="utf-8")
+            except Exception:
+                return []
+            return self._parse_legacy_flags_md(content)
 
-        flags = []
+        flags: List[Dict[str, str]] = []
+        for flag_file in flag_files:
+            try:
+                content = flag_file.read_text(encoding="utf-8")
+            except Exception:
+                continue
+
+            category = ""
+            for line in content.splitlines():
+                if line.startswith("# "):
+                    category = line[2:].strip()
+                    break
+            if category.endswith(" Flags"):
+                category = category.replace(" Flags", "").strip()
+            if not category:
+                category = flag_file.stem.replace("-", " ").title()
+
+            lines = content.split("\n")
+            i = 0
+            while i < len(lines):
+                line = lines[i].strip()
+
+                if line.startswith("**--"):
+                    flag_match = line.split("**")[1] if "**" in line else ""
+                    flag_name = flag_match.strip()
+
+                    trigger = ""
+                    behavior = ""
+                    j = i + 1
+
+                    while j < len(lines) and not lines[j].strip().startswith("**--"):
+                        subline = lines[j].strip()
+                        if subline.startswith("- Trigger:"):
+                            trigger = subline.replace("- Trigger:", "").strip()
+                        elif subline.startswith("- Behavior:"):
+                            behavior = subline.replace("- Behavior:", "").strip()
+                        elif subline.startswith("- Purpose:"):
+                            trigger = subline.replace("- Purpose:", "").strip()
+                        j += 1
+
+                    if flag_name:
+                        flags.append({
+                            "name": flag_name,
+                            "category": category,
+                            "trigger": trigger or "See documentation",
+                            "behavior": behavior or "See documentation",
+                        })
+
+                    i = j
+                    continue
+
+                i += 1
+
+        return flags
+
+    def _parse_legacy_flags_md(self, content: str) -> list:
+        """Parse legacy monolithic FLAGS.md content."""
+        flags: List[Dict[str, str]] = []
         current_category = ""
         lines = content.split("\n")
         i = 0
@@ -2586,19 +2661,15 @@ class AgentTUI(App[None]):
         while i < len(lines):
             line = lines[i].strip()
 
-            # Detect category headers (## Category Name)
             if line.startswith("## ") and "Flags" in line:
                 current_category = line[3:].replace(" Flags", "").strip()
                 i += 1
                 continue
 
-            # Detect flag definitions (**--flag-name** or **--flag-name [options]**)
-            if line.startswith("**--") or line.startswith("**--"):
-                # Extract flag name
+            if line.startswith("**--"):
                 flag_match = line.split("**")[1] if "**" in line else ""
                 flag_name = flag_match.strip()
 
-                # Look ahead for trigger and behavior
                 trigger = ""
                 behavior = ""
                 j = i + 1
@@ -2748,6 +2819,7 @@ class AgentTUI(App[None]):
         running_workflows = sum(
             1 for w in getattr(self, "workflows", []) if w.status == "running"
         )
+        flags_active, flags_total, flags_stats = self._get_flags_summary()
 
         def add_multiline(content: str) -> None:
             for line in content.split("\n"):
@@ -2768,6 +2840,8 @@ class AgentTUI(App[None]):
             total_rules,
             total_skills,
             running_workflows,
+            flags_active,
+            flags_total,
         )
         add_multiline(metrics_grid)
         table.add_row("")
@@ -2788,10 +2862,48 @@ class AgentTUI(App[None]):
         try:
             category_stats, total_stats = get_active_context_tokens()
             table.add_row("")
-            token_display = EnhancedOverview.create_token_usage(category_stats, total_stats)
+            combined_total = total_stats + flags_stats
+            token_display = EnhancedOverview.create_token_usage(
+                category_stats,
+                combined_total,
+                flags_stats=flags_stats,
+            )
             add_multiline(token_display)
         except Exception:
             pass  # Silently skip if token counting fails
+
+    def _get_flags_summary(self) -> tuple[int, int, TokenStats]:
+        """Get active/total flag counts and token stats for active flags."""
+        claude_dir = _resolve_claude_dir()
+        flags_dir = claude_dir / "flags"
+        flags_md = claude_dir / "FLAGS.md"
+
+        total_flags = len(list(flags_dir.glob("*.md"))) if flags_dir.exists() else 0
+        active_flags: set[str] = set()
+
+        if flags_md.exists():
+            try:
+                content = flags_md.read_text(encoding="utf-8")
+                for line in content.splitlines():
+                    stripped = line.strip()
+                    if stripped.startswith("@flags/"):
+                        name = stripped.replace("@flags/", "").strip()
+                        if name:
+                            active_flags.add(name)
+            except OSError:
+                pass
+
+        stats = TokenStats(files=0, chars=0, words=0, tokens=0)
+        for name in active_flags:
+            if not name.endswith(".md"):
+                filename = f"{name}.md"
+            else:
+                filename = name
+            path = flags_dir / filename
+            if path.exists():
+                stats = stats + count_file_tokens(path)
+
+        return len(active_flags), total_flags, stats
 
     def _normalize_agent_dependency(self, value: str) -> Optional[str]:
         if not value:
@@ -4479,7 +4591,7 @@ class AgentTUI(App[None]):
         if not self.flag_files:
             table.add_column("Message")
             table.add_row("[dim]No flag files found[/dim]")
-            table.add_row("[dim]Check ~/.claude/flags/ directory[/dim]")
+            table.add_row("[dim]Check flags/ directory[/dim]")
             return
 
         # Calculate totals
@@ -4546,32 +4658,39 @@ class AgentTUI(App[None]):
             "[dim]Controls:[/dim]",
             "[dim]↑↓ Select[/dim]",
             "[dim]Space Toggle[/dim]",
-            "[dim]Changes saved to CLAUDE.md[/dim]",
+            "[dim]Changes saved to FLAGS.md[/dim]",
         )
+
+    def _flag_manager_base_dir(self) -> Path:
+        """Resolve the base directory for flags (prefer selected target)."""
+        if self.selected_target_dir and self.selected_target_dir.exists():
+            return self.selected_target_dir
+        return _resolve_claude_dir()
 
     def _load_flag_files_metadata(self) -> List[Dict[str, Any]]:
         """Load metadata about all flag files and their active status."""
         flag_files = []
 
-        # Find ~/.claude directory
-        claude_home = Path.home() / ".claude"
+        claude_home = self._flag_manager_base_dir()
         flags_dir = claude_home / "flags"
-        claude_md_path = claude_home / "CLAUDE.md"
+        flags_md_path = claude_home / "FLAGS.md"
 
         if not flags_dir.exists():
             return []
 
-        # Parse CLAUDE.md to see which flags are active
+        # Parse FLAGS.md to see which flags are active
         active_flags = set()
-        if claude_md_path.exists():
-            with open(claude_md_path, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    # Check if line starts with @flags/ (active) vs <!-- @flags/ (commented/inactive)
-                    if line.startswith("@flags/"):
-                        # Extract filename: @flags/mode-activation.md -> mode-activation.md
-                        filename = line.replace("@flags/", "").strip()
-                        active_flags.add(filename)
+        if flags_md_path.exists():
+            try:
+                with open(flags_md_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        stripped = line.strip()
+                        if stripped.startswith("@flags/"):
+                            filename = stripped.replace("@flags/", "").strip()
+                            if filename:
+                                active_flags.add(filename)
+            except OSError:
+                pass
 
         # Scan all .md files in flags directory
         for flag_file in sorted(flags_dir.glob("*.md")):
@@ -4608,41 +4727,61 @@ class AgentTUI(App[None]):
 
         return flag_files
 
-    def _toggle_flag_in_claude_md(self, filename: str) -> bool:
-        """Toggle a flag file in CLAUDE.md by commenting/uncommenting it."""
-        claude_md_path = Path.home() / ".claude" / "CLAUDE.md"
+    def _toggle_flag_in_flags_md(self, filename: str) -> bool:
+        """Toggle a flag file in FLAGS.md by adding/removing its reference."""
+        claude_home = self._flag_manager_base_dir()
+        flags_md_path = claude_home / "FLAGS.md"
 
-        if not claude_md_path.exists():
+        lines: List[str] = []
+        if flags_md_path.exists():
+            try:
+                lines = flags_md_path.read_text(encoding="utf-8").splitlines(keepends=True)
+            except OSError:
+                return False
+
+        active_line = f"@flags/{filename}"
+        modified = False
+        new_lines: List[str] = []
+        found_active = False
+        found_commented = False
+
+        for line in lines:
+            stripped = line.strip()
+            if stripped == active_line:
+                found_active = True
+                modified = True
+                continue
+            if stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
+                commented_name = stripped.replace("<!-- @flags/", "").replace(" -->", "").strip()
+                if commented_name == filename:
+                    found_commented = True
+                    modified = True
+                    continue
+            new_lines.append(line)
+
+        if found_active:
+            # Disabled by removing the line.
+            pass
+        else:
+            if found_commented:
+                # Replace legacy commented entry with active reference.
+                new_lines.append(f"{active_line}\n")
+            else:
+                new_lines.append(f"{active_line}\n")
+            modified = True
+
+        if not modified:
             return False
 
-        # Read CLAUDE.md
-        with open(claude_md_path, "r") as f:
-            lines = f.readlines()
+        if new_lines and not new_lines[-1].endswith("\n"):
+            new_lines[-1] = f"{new_lines[-1]}\n"
 
-        # Find the line with @flags/{filename}
-        modified = False
-        for i, line in enumerate(lines):
-            stripped = line.strip()
+        try:
+            flags_md_path.write_text("".join(new_lines), encoding="utf-8")
+        except OSError:
+            return False
 
-            # Check if this is our flag line (active or commented)
-            if f"@flags/{filename}" in stripped:
-                if stripped.startswith("@flags/"):
-                    # Currently active -> comment it out
-                    lines[i] = f"<!-- @flags/{filename} -->\n"
-                    modified = True
-                elif stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
-                    # Currently commented -> activate it
-                    lines[i] = f"@flags/{filename}\n"
-                    modified = True
-                break
-
-        # Write back if modified
-        if modified:
-            with open(claude_md_path, "w") as f:
-                f.writelines(lines)
-            return True
-
-        return False
+        return True
 
     def action_flag_manager_next(self) -> None:
         """Navigate to next flag in manager."""
@@ -4665,14 +4804,14 @@ class AgentTUI(App[None]):
 
         if 0 <= self.selected_flag_index < len(self.flag_files):
             flag = self.flag_files[self.selected_flag_index]
-            success = self._toggle_flag_in_claude_md(flag["filename"])
+            success = self._toggle_flag_in_flags_md(flag["filename"])
 
             if success:
                 # Reload flag files to reflect changes
                 self.flag_files = self._load_flag_files_metadata()
                 new_state = "enabled" if flag["active"] == False else "disabled"
                 self.update_view()
-                self.notify(f"{flag['category']}: {new_state} in CLAUDE.md", severity="success", timeout=2)
+                self.notify(f"{flag['category']}: {new_state} in FLAGS.md", severity="success", timeout=2)
                 self.status_message = f"{flag['category']}: {new_state}"
             else:
                 self.notify("Failed to toggle flag in CLAUDE.md", severity="error", timeout=2)

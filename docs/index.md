@@ -7,7 +7,7 @@ permalink: /
 
 # Claude Cortex - Documentation Index
 
-> Version 1.1.0 · Last updated November 15, 2025
+> Version 1.2.0 · Last updated December 21, 2025
 
 <div class="hero">
   <div class="hero__copy">
@@ -39,28 +39,28 @@ permalink: /
 
 ## Overview
 
-The Claude Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, rules, and workflow orchestration for systematic software development.
+Claude Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, flags, rules, profiles, workflows, and scenarios for systematic software development.
 
 <div class="metrics-row">
   <div class="metric-box">
     <div class="metric-value">78</div>
     <div class="metric-label">Total Agents</div>
-    <div class="metric-sublabel">27 Sonnet • 31 Haiku • 9 Context</div>
+    <div class="metric-sublabel">13 active • 65 inactive</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">68%</div>
-    <div class="metric-label">Cost Savings</div>
-    <div class="metric-sublabel">Hybrid model optimization</div>
+    <div class="metric-value">49</div>
+    <div class="metric-label">Slash Commands</div>
+    <div class="metric-sublabel">Analyze • Dev • Docs • Orchestrate</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">30-50%</div>
-    <div class="metric-label">Token Reduction</div>
-    <div class="metric-sublabel">Progressive skill disclosure</div>
+    <div class="metric-value">22</div>
+    <div class="metric-label">Flag Modules</div>
+    <div class="metric-sublabel">Toggle via FLAGS.md</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">42</div>
+    <div class="metric-value">54</div>
     <div class="metric-label">Skills Available</div>
-    <div class="metric-sublabel">AI-powered + Ratings</div>
+    <div class="metric-sublabel">Progressive disclosure packs</div>
   </div>
 </div>
 
@@ -70,6 +70,10 @@ The Claude Cortex is a comprehensive context management toolkit packaged as a Cl
   <a href="tutorials/getting-started-tui/">→ TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>
+  <a href="guides/modes.html">Modes</a>
+  <a href="guides/asset-manager.html">Asset Manager</a>
+  <a href="guides/worktrees.html">Worktree Manager</a>
+  <a href="guides/FLAGS_MANAGEMENT.html">Flags Management</a>
   <a href="#presentations">▶ Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
@@ -139,24 +143,24 @@ Hands-on tutorials to master claude-ctx from beginner to advanced.
 
 ## → AI Intelligence & Automation {#ai-intelligence}
 
-**New in 0.2.0** - Stay in Claude Code flow with intelligent, self-managing context:
+Stay in Claude Code flow with intelligent, self-managing context and flags-first customization:
 
 <div class="feature-grid">
   <div class="feature-card">
-    <h3>ℹ Context-Aware Intelligence</h3>
-    <p>Automatically detects auth, API, tests, frontend, backend code. No configuration needed.</p>
+    <h3>ℹ Context-Aware Recommendations</h3>
+    <p>Detects project signals and suggests agents/skills with confidence scores.</p>
   </div>
   <div class="feature-card">
-    <h3>→ Pattern Learning</h3>
-    <p>Learns from successful sessions. Recommends optimal agent combinations for similar work.</p>
+    <h3>→ Auto-Activation + Watch Mode</h3>
+    <p>Watch mode monitors changes and auto-activates high-confidence agents.</p>
   </div>
   <div class="feature-card">
-    <h3>→ Workflow Prediction</h3>
-    <p>Predicts agent sequences based on historical patterns. Estimates duration and success rate.</p>
+    <h3>🚩 Flags & Context Packs</h3>
+    <p>Enable or disable context modules by adding/removing entries in FLAGS.md.</p>
   </div>
   <div class="feature-card">
-    <h3>→ Auto-Activation</h3>
-    <p>High-confidence agents (≥80%) activate automatically. Security-auditor on auth changes, test-automator on failures.</p>
+    <h3>→ Workflow Orchestration</h3>
+    <p>Run workflows and scenarios, then export or share context snapshots.</p>
   </div>
 </div>
 
@@ -220,6 +224,10 @@ claude-ctx ai export --output recommendations.json
 claude-ctx ai record-success --outcome "feature complete"
 ```
 
+<div class="callout" style="margin-top: 1rem;">
+  <strong>✅ Stability update:</strong> AI recommendations, auto-activation, and watch mode have been hardened. Context activation now tracks consistently across sessions and exports.
+</div>
+
 ### Documentation
 
 - [AI Intelligence Guide](AI_INTELLIGENCE.html) - Complete AI system overview
@@ -245,6 +253,54 @@ Checks performed:
 - **Consistency**: Verifies active agents/modes/rules exist.
 - **Duplicates**: Finds duplicate agent definitions.
 - **Optimization**: Identifies large files or unused resources.
+
+---
+
+## 📦 Asset Manager {#asset-manager}
+
+Install, diff, and update plugin assets directly from the TUI.
+
+**What it covers:**
+
+- Hooks, commands, agents, skills, modes, workflows, and flags
+- Install/uninstall to any detected `.claude` directory
+- Diff installed vs source, bulk install by category, update outdated assets
+
+**Quick start:**
+
+```bash
+claude-ctx tui
+# Press 'A' for Asset Manager
+# i=install, u=uninstall, d=diff, U=update all, I=bulk install, T=target dir
+```
+
+**Documentation**: [Asset Manager Guide](guides/asset-manager.html)
+
+---
+
+## 🌿 Worktree Manager {#worktree-manager}
+
+Manage git worktrees from the CLI or the TUI.
+
+**CLI quick start:**
+
+```bash
+claude-ctx worktree list
+claude-ctx worktree add my-branch --path ../worktrees/my-branch
+claude-ctx worktree remove my-branch
+claude-ctx worktree prune --dry-run
+claude-ctx worktree dir ../worktrees
+```
+
+**TUI quick start:**
+
+```bash
+claude-ctx tui
+# Press 'C' for Worktrees
+# Ctrl+N add, Ctrl+O open, Ctrl+W remove, Ctrl+K prune, Ctrl+B set base dir
+```
+
+**Documentation**: [Worktree Manager Guide](guides/worktrees.html)
 
 ---
 
@@ -363,8 +419,10 @@ Active context: Building REST API with authentication
 
 ```
 claude-ctx-plugin/
-├── commands/           # Slash command definitions (37 commands across 11 categories)
+├── commands/           # Slash command definitions (49 across 13 categories)
 │   ├── analyze/       # Code analysis, security scanning, troubleshooting
+│   ├── cleanup/       # Cleanup and maintenance
+│   ├── collaboration/ # Brainstorming, planning, execution
 │   ├── deploy/        # Release preparation and deployment
 │   ├── design/        # System design and workflow planning
 │   ├── dev/           # Development tasks (build, test, review, git, implement)
@@ -376,31 +434,49 @@ claude-ctx-plugin/
 │   ├── test/          # Test generation
 │   └── tools/         # Tool selection and optimization
 │
-├── agents/            # Active specialized agents (11 agents)
+├── agents/            # Active specialized agents (13 agents)
 │   ├── cloud-architect.md
 │   ├── code-reviewer.md
 │   ├── debugger.md
 │   ├── deployment-engineer.md
+│   ├── dx-optimizer.md
 │   ├── kubernetes-architect.md
+│   ├── learning-guide.md
+│   ├── mermaid-expert.md
 │   ├── python-pro.md
 │   ├── security-auditor.md
 │   ├── terraform-specialist.md
+│   ├── tutorial-engineer.md
 │   ├── typescript-pro.md
 │   ├── dependencies.map         # Agent dependency graph
 │   └── triggers.yaml            # Agent activation triggers
 │
 ├── inactive/
-│   ├── agents/        # Disabled agents library (65 agents available)
-│   └── modes/         # Archived behavioral modes
+│   └── agents/        # Disabled agents library (65 agents available)
 │
-├── modes/             # Active behavioral modes
-│   └── Task_Management.md
+├── modes/             # Behavioral modes (9 core)
+│   ├── Amphetamine.md
+│   ├── Architect.md
+│   ├── Brainstorming.md
+│   ├── Idea_Lab.md
+│   ├── Introspection.md
+│   ├── Security_Audit.md
+│   ├── Super_Saiyan.md
+│   ├── Teacher.md
+│   ├── Token_Efficiency.md
+│   └── supersaiyan/   # Platform-specific variants
+│
+├── flags/             # Modular flag packs (22)
+├── hooks/             # Automation hooks
+├── tasks/             # Task tracking and logs
 │
 ├── rules/             # Reusable rule sets
 │   ├── workflow-rules.md       # Git workflow, task patterns
 │   ├── quality-rules.md        # Code organization, failure investigation
 │   └── efficiency-rules.md     # Tool optimization, workspace hygiene
 │
+├── skills/            # Skill packs and metadata
+├── mcp/               # MCP docs + server resources
 ├── profiles/          # Profile templates for different workflows
 │   ├── enhanced/
 │   └── templates/
@@ -415,15 +491,19 @@ claude-ctx-plugin/
 │
 ├── claude_ctx_py/     # Python CLI implementation
 │   ├── cli.py         # CLI entry point
-│   ├── core.py        # Core functionality
-│   └── init_cmds.py   # Command initialization
+│   ├── core/          # Core management modules
+│   ├── init_cmds.py   # Project init helpers
+│   └── watch.py       # Watch mode implementation
 │
 ├── schema/            # Validation schemas
 ├── scripts/           # Helper scripts
 │
-├── CLAUDE.md          # Framework entry point
-├── FLAGS.md           # Behavioral flags and execution modes
-├── RULES.md           # Core behavioral rules
+├── templates/         # Framework configuration templates
+│   ├── CLAUDE.md
+│   ├── FLAGS.md
+│   ├── PRINCIPLES.md
+│   ├── RULES.md
+│   └── settings.json
 ├── README.md          # Project overview
 └── pyproject.toml     # Python package configuration
 ```
@@ -511,6 +591,26 @@ For more detailed setup guidance (including shell completion and CLI overrides) 
 
 ---
 
+## Setup, Init & Migration
+
+Keep your local context healthy and consistent across upgrades:
+
+```bash
+# Detect project type and recommend a profile
+claude-ctx init detect
+
+# Apply a profile directly
+claude-ctx init profile backend
+
+# Check current init status
+claude-ctx init status
+
+# Migrate CLAUDE.md comment activation → .active-* files
+claude-ctx setup migrate
+```
+
+---
+
 ## Data Directory Overrides
 
 The CLI resolves its workspace using the following precedence:
@@ -548,7 +648,7 @@ Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a 
 ### 1. Command System
 
 **Location**: `commands/`
-**Count**: 34 slash commands across 10 categories
+**Count**: 49 slash commands across 13 categories
 
 Commands provide curated behavioral prompts for specific development tasks. Each command includes:
 
@@ -560,16 +660,19 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 
 **Categories**:
 
-- `/analyze` - Code analysis, security, troubleshooting (6 commands)
-- `/deploy` - Release preparation (1 command)
-- `/design` - System design, workflow planning (2 commands)
-- `/dev` - Development tasks (6 commands)
-- `/docs` - Documentation generation (2 commands)
-- `/orchestrate` - Multi-agent orchestration (3 commands)
-- `/quality` - Code quality (2 commands)
-- `/session` - Session management (3 commands)
-- `/test` - Test generation (1 command)
-- `/tools` - Tool selection (1 command)
+- `/analyze` - Code analysis, security, troubleshooting
+- `/cleanup` - Cleanup and maintenance
+- `/collaboration` - Brainstorming, planning, and execution
+- `/deploy` - Release preparation
+- `/design` - System design and workflow planning
+- `/dev` - Development tasks
+- `/docs` - Documentation generation
+- `/orchestrate` - Multi-agent orchestration
+- `/quality` - Code quality
+- `/reasoning` - Reasoning frameworks and structure
+- `/session` - Session management
+- `/test` - Test generation
+- `/tools` - Tool selection
 
 **Reference**: [Command Documentation](guides/commands.md)
 
@@ -578,7 +681,7 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 ### 2. Agent System
 
 **Location**: `agents/` and `inactive/agents/`
-**Active Agents**: 11 | **Available**: 65
+**Active Agents**: 13 | **Available**: 78
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
 
@@ -592,10 +695,14 @@ Agents are specialized personas with domain expertise and specific capabilities.
 - `code-reviewer` - Code quality analysis
 - `debugger` - Issue diagnosis and resolution
 - `deployment-engineer` - Release engineering
+- `dx-optimizer` - Developer experience and workflow tooling
 - `kubernetes-architect` - K8s orchestration
+- `learning-guide` - Guided explanations and onboarding
+- `mermaid-expert` - Architecture diagrams and visuals
 - `python-pro` - Python expertise
 - `security-auditor` - Security assessment
 - `terraform-specialist` - Infrastructure as code
+- `tutorial-engineer` - Hands-on tutorials
 - `typescript-pro` - TypeScript expertise
 
 **Reference**: [Agent Documentation](guides/agents.md)
@@ -604,23 +711,24 @@ Agents are specialized personas with domain expertise and specific capabilities.
 
 ### 3. Mode System
 
-**Location**: `modes/` and `inactive/modes/`
-**Active Modes**: 1 | **Available**: 4
+**Location**: `modes/` (core) and `modes/supersaiyan/` (platform variants)
+**Core Modes**: 9 | **Super Saiyan variants**: 4
 
 Modes are opinionated context modules that toggle workflow defaults and behavioral patterns.
 
-**Active**:
+**Core Modes**:
 
-- `Task_Management` - Multi-step task orchestration
+- `Amphetamine` - Maximum-velocity MVP prototyping
+- `Architect` - Strategic system design & trade-offs
+- `Brainstorming` - Collaborative discovery and exploration
+- `Idea_Lab` - Timeboxed ideation with rapid options
+- `Introspection` - Meta-cognitive analysis & reflection
+- `Security_Audit` - Security-first review mindset
+- `Super_Saiyan` - Visual excellence mode (see variants)
+- `Teacher` - Educational explanations and mentoring
+- `Token_Efficiency` - Concise, token-aware responses
 
-**Available**:
-
-- `Brainstorming` - Collaborative discovery
-- `Introspection` - Meta-cognitive analysis
-- `Orchestration` - Multi-tool optimization
-- `Token_Efficiency` - Symbol-enhanced communication
-
-**Activation**: Move mode files between `modes/` and `inactive/modes/` (legacy `modes/inactive/` supported) or use flags
+**Activation**: Use `claude-ctx mode activate`, the TUI (press `3`), or `FLAGS.md`. Active state is tracked in `.active-modes` (use `claude-ctx setup migrate` for legacy `CLAUDE.md` references).
 
 ---
 
@@ -686,10 +794,12 @@ Python CLI for managing context components outside of Claude Code.
 
 **Capabilities**:
 
-- Mode management (list, activate, deactivate)
-- Agent dependency visualization
-- Command execution
-- Context validation
+- Mode/rule/agent management (list, activate, deactivate)
+- AI recommendations, watch mode, and export
+- Init detection and profile setup
+- Worktree management (list/add/remove/prune/base dir)
+- Migration helpers (`setup migrate`) and diagnostics (`doctor`)
+- Agent dependency visualization and context export
 
 **Reference**: [CLI Documentation](CLI.md)
 
@@ -712,31 +822,31 @@ Comprehensive guides to claude-ctx architecture, optimization strategies, and ad
 
   <a href="guides/agents.html" class="doc-card">
     <h3>Agent Catalog</h3>
-    <p>Complete catalog of 78 specialized agents organized by category. Includes model assignments, dependencies, workflows, and activation criteria for all agents.</p>
+    <p>Complete catalog of 13 specialized agents organized by category. Includes model assignments, dependencies, workflows, and activation criteria.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>23KB reference</span>
-      <span>78 agents</span>
+      <span>13 agents</span>
     </div>
   </a>
 
   <a href="guides/skills.html" class="doc-card">
     <h3>Agent Skills</h3>
-    <p>Progressive disclosure architecture for specialized knowledge. Learn how to create skills, integrate with agents, and achieve 30-50% token reduction.</p>
+    <p>Progressive disclosure architecture for specialized knowledge. Learn how to create skills, integrate with agents, and keep context lean.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>16KB guide</span>
-      <span>2 skills active</span>
+      <span>54 skills</span>
     </div>
   </a>
 
   <a href="guides/development/model-optimization.html" class="doc-card">
     <h3>Model Optimization ✓</h3>
-    <p>Strategic Haiku vs Sonnet assignment for 68% cost savings. Hybrid orchestration patterns, decision matrix, and performance benchmarks. COMPLETE: All 9 agents optimized.</p>
+    <p>Strategic Haiku vs Sonnet assignment guidance. Hybrid orchestration patterns, decision matrix, and performance benchmarks.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>13KB strategy</span>
-      <span>68% savings achieved</span>
+      <span>Tuning guide</span>
     </div>
   </a>
 
@@ -878,6 +988,10 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 
 ## Framework Entry Points
 
+> **Note**: In this repo, core framework files live in `templates/`.
+> Copy `templates/CLAUDE.md`, `templates/FLAGS.md`, `templates/PRINCIPLES.md`,
+> `templates/RULES.md`, and `templates/settings.json` into `~/.claude/` to activate.
+
 ### CLAUDE.md
 
 Primary framework entry point that loads:
@@ -1013,9 +1127,9 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ### Mode Management
 
 1. Activate modes based on task complexity
-2. Use `Task_Management` for multi-step operations
+2. Use `Architect` for multi-phase system work
 3. Enable `Token_Efficiency` for large operations
-4. Combine modes for optimal behavior
+4. Combine modes thoughtfully (conflicts are detected via mode metadata)
 
 ### Flag Optimization
 
@@ -1088,7 +1202,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 **Agent System**
 
-- [Agent Catalog](guides/agents.html) - Complete agent reference with 78 agents
+- [Agent Catalog](guides/agents.html) - Complete agent reference with 13 agents
 - [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
 - [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 
@@ -1097,6 +1211,9 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [AI Intelligence Guide](AI_INTELLIGENCE.html) - AI intelligence & automation system overview
 - [LLM Intelligence Guide](guides/ai/LLM_INTELLIGENCE_GUIDE.html) - Claude API configuration, pricing, and advanced usage
 - [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
+- [Modes Guide](guides/modes.html) - Behavioral modes and activation
+- [Asset Manager Guide](guides/asset-manager.html) - Install, diff, and update assets
+- [Worktree Manager Guide](guides/worktrees.html) - Git worktree workflows
 - [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) - Interactive command palette
 - [TUI Guide](guides/tui.html) - Terminal user interface
 - [TUI Quick Start](guides/tui-quick-start.html) - Get started with TUI in 5 minutes
@@ -1127,6 +1244,14 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ---
 
 ## Version History
+
+### 1.2.0 (2025-12-21)
+
+- Asset Manager TUI for installing, diffing, and updating assets
+- Worktree Manager (CLI + TUI) with base directory control
+- Init detection and migration tooling (`init` and `setup migrate`)
+- New modes (Amphetamine, Idea_Lab, Teacher) + mode metadata/conflict detection
+- AI stability and context tracking fixes
 
 ### 0.1.0 (2025-10-17)
 

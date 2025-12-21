@@ -116,10 +116,10 @@ class TestUltrathinkEnhancements:
 
     def test_ultrathink_has_summary_options(self):
         """Test that ultrathink documents summary options."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "analysis-depth.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found in expected location")
+            pytest.skip("analysis-depth.md not found in expected location")
 
         content = flags_path.read_text()
 
@@ -131,17 +131,17 @@ class TestUltrathinkEnhancements:
 
     def test_ultrathink_auto_enables_introspect(self):
         """Test that ultrathink auto-enables introspect."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "analysis-depth.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found in expected location")
+            pytest.skip("analysis-depth.md not found in expected location")
 
         content = flags_path.read_text()
 
         # Find ultrathink section
         ultrathink_start = content.find("**--ultrathink**")
         if ultrathink_start == -1:
-            pytest.fail("--ultrathink flag not found in FLAGS.md")
+            pytest.fail("--ultrathink flag not found in analysis-depth.md")
 
         # Check next 500 characters for introspect reference
         ultrathink_section = content[ultrathink_start:ultrathink_start + 500]
@@ -150,17 +150,17 @@ class TestUltrathinkEnhancements:
 
     def test_introspect_documents_transparency_markers(self):
         """Test that introspect flag documents transparency markers."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "mode-activation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found in expected location")
+            pytest.skip("mode-activation.md not found in expected location")
 
         content = flags_path.read_text()
 
         # Find introspect section
         introspect_start = content.find("**--introspect**")
         if introspect_start == -1:
-            pytest.fail("--introspect flag not found in FLAGS.md")
+            pytest.fail("--introspect flag not found in mode-activation.md")
 
         # Check for transparency markers (emoji or descriptions)
         introspect_section = content[introspect_start:introspect_start + 400]
@@ -260,10 +260,10 @@ class TestThinkingBudget:
 
     def test_budget_flag_in_flags_md(self):
         """Test that --thinking-budget flag is documented."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "thinking-budget.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("thinking-budget.md not found")
 
         content = flags_path.read_text()
 
@@ -341,11 +341,11 @@ class TestIntrospectLevels:
     """Tests for --introspect-level enhancement."""
 
     def test_introspect_levels_documented(self):
-        """Test that introspect levels are in FLAGS.md."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        """Test that introspect levels are documented in mode-activation flags."""
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "mode-activation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("mode-activation.md not found")
 
         content = flags_path.read_text()
 
@@ -355,11 +355,11 @@ class TestIntrospectLevels:
         assert "full" in content.lower()
 
     def test_transparency_markers_documented(self):
-        """Test that transparency markers are documented."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        """Test that transparency markers are documented in mode-activation flags."""
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "mode-activation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("mode-activation.md not found")
 
         content = flags_path.read_text()
 
@@ -414,11 +414,11 @@ class TestAutoEscalation:
     """Tests for --auto-escalate flag."""
 
     def test_auto_escalate_documented(self):
-        """Test that --auto-escalate is in FLAGS.md."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        """Test that --auto-escalate is documented in auto-escalation flags."""
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "auto-escalation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("auto-escalation.md not found")
 
         content = flags_path.read_text()
 
@@ -426,10 +426,10 @@ class TestAutoEscalation:
 
     def test_escalation_triggers_documented(self):
         """Test that escalation triggers are documented."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "auto-escalation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("auto-escalation.md not found")
 
         content = flags_path.read_text()
 
@@ -441,10 +441,10 @@ class TestAutoEscalation:
 
     def test_escalation_modes_documented(self):
         """Test that all escalation modes are documented."""
-        flags_path = Path(__file__).parent.parent.parent / "FLAGS.md"
+        flags_path = Path(__file__).parent.parent.parent / "flags" / "auto-escalation.md"
 
         if not flags_path.exists():
-            pytest.skip("FLAGS.md not found")
+            pytest.skip("auto-escalation.md not found")
 
         content = flags_path.read_text()
 

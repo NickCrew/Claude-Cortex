@@ -18,6 +18,8 @@ help:
     @echo "  just type-check-all       # Run mypy over entire module tree"
     @echo "  just clean                # Remove build artifacts and caches"
     @echo "  just docs                 # Build documentation site"
+    @echo "  just build                # Build sdist/wheel with python -m build"
+    @echo "  just publish              # Build and publish to PyPI via twine"
     @echo "  just verify               # Verify CLI, manpage, and dependencies"
     @echo ""
     @echo "Examples:"
@@ -86,6 +88,13 @@ clean:
     @find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
     @find . -type f -name "*.pyc" -delete
     @echo "✓ Cleaned build artifacts"
+
+build:
+    @python -m build
+
+publish:
+    @python -m build
+    @python -m twine upload dist/*
 
 docs:
     @cd docs && bundle exec jekyll serve --livereload

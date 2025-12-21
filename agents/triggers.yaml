@@ -18,7 +18,7 @@ triggers:
     events:
       - post-commit
       - pre-push
-    auto: false
+    auto: true
     priority: high
 
   # Security Agents
@@ -57,7 +57,7 @@ triggers:
       - "**/__tests__/**"
     events:
       - pre-commit
-    auto: false
+    auto: true
     priority: medium
 
   # Performance Agents
@@ -77,8 +77,25 @@ triggers:
       response_time: ">500ms"
       memory_usage: ">500MB"
       cpu_usage: ">80%"
-    auto: false
+    auto: true
     priority: high
+
+  # Debugging Agents
+  debugger:
+    keywords:
+      - "debug"
+      - "bug"
+      - "error"
+      - "stack trace"
+      - "exception"
+      - "crash"
+      - "traceback"
+    file_patterns:
+      - "**/logs/**"
+      - "**/*.log"
+      - "**/crash/**"
+    auto: true
+    priority: medium
 
   # Database Agents
   database-optimizer:
@@ -94,7 +111,7 @@ triggers:
       - "**/models/**"
       - "**/*model*.{js,ts,py}"
       - "**/*schema*.{js,ts,py}"
-    auto: false
+    auto: true
     priority: medium
 
   # Deployment Agents
@@ -113,8 +130,75 @@ triggers:
       - "**/.github/workflows/**"
     events:
       - pre-deploy
-    auto: false
+    auto: true
     priority: high
+
+  # Cloud & Infrastructure Agents
+  cloud-architect:
+    keywords:
+      - "cloud architecture"
+      - "cloud"
+      - "aws"
+      - "gcp"
+      - "azure"
+      - "migration"
+      - "scalability"
+      - "cost"
+    file_patterns:
+      - "**/*.tf"
+      - "**/infra/**"
+      - "**/infrastructure/**"
+      - "**/cloud/**"
+      - "**/k8s/**"
+    auto: true
+    priority: medium
+
+  terraform-specialist:
+    keywords:
+      - "terraform"
+      - "iac"
+      - "infrastructure as code"
+      - "terraform plan"
+      - "terraform apply"
+    file_patterns:
+      - "**/*.tf"
+      - "**/*.tfvars"
+      - "**/terraform/**"
+    auto: true
+    priority: medium
+
+  kubernetes-architect:
+    keywords:
+      - "kubernetes"
+      - "k8s"
+      - "helm"
+      - "cluster"
+      - "ingress"
+      - "service mesh"
+    file_patterns:
+      - "**/k8s/**"
+      - "**/helm/**"
+      - "**/*.yaml"
+      - "**/*.yml"
+    auto: true
+    priority: medium
+
+  # Developer Experience Agents
+  dx-optimizer:
+    keywords:
+      - "dx"
+      - "developer experience"
+      - "onboarding"
+      - "tooling"
+      - "workflow"
+      - "automation"
+    file_patterns:
+      - "**/README.md"
+      - "**/package.json"
+      - "**/Makefile"
+      - "**/scripts/**"
+    auto: true
+    priority: medium
 
   # Language-Specific Agents
   typescript-pro:
@@ -126,7 +210,7 @@ triggers:
     file_patterns:
       - "**/*.ts"
       - "**/*.tsx"
-    auto: false
+    auto: true
     priority: low
 
   python-pro:
@@ -137,8 +221,52 @@ triggers:
       - "fastapi"
     file_patterns:
       - "**/*.py"
-    auto: false
+    auto: true
     priority: low
+
+  # Documentation & Learning Agents
+  learning-guide:
+    keywords:
+      - "teach"
+      - "explain"
+      - "learning"
+      - "lesson"
+      - "eli5"
+      - "concept"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: low
+
+  mermaid-expert:
+    keywords:
+      - "mermaid"
+      - "diagram"
+      - "flowchart"
+      - "sequence"
+      - "erd"
+      - "gantt"
+      - "architecture diagram"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: medium
+
+  tutorial-engineer:
+    keywords:
+      - "tutorial"
+      - "workshop"
+      - "guide"
+      - "walkthrough"
+      - "hands-on"
+      - "lab"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: medium
 
   # Architecture Agents
   system-architect:
@@ -148,7 +276,7 @@ triggers:
       - "system design"
       - "microservice"
       - "api design"
-    auto: false
+    auto: true
     priority: medium
 
   # DevOps Agents
@@ -164,7 +292,7 @@ triggers:
       - "**/*.tf"
       - "**/k8s/**"
       - "**/infrastructure/**"
-    auto: false
+    auto: true
     priority: medium
 
 # Trigger Rules

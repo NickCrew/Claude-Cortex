@@ -75,6 +75,8 @@ class EnhancedOverview:
         rules_total: int,
         skills_total: int,
         workflows_running: int,
+        flags_active: int,
+        flags_total: int,
     ) -> str:
         """Create a grid of status cards."""
 
@@ -82,12 +84,14 @@ class EnhancedOverview:
         agent_pct = (agents_active / agents_total * 100) if agents_total > 0 else 0
         mode_pct = (modes_active / modes_total * 100) if modes_total > 0 else 0
         rule_pct = (rules_active / rules_total * 100) if rules_total > 0 else 0
+        flag_pct = (flags_active / flags_total * 100) if flags_total > 0 else 0
 
         # Format content with proper padding (box interior is 26 chars for left, 28 for right)
         agent_status = f"{agents_active}/{agents_total} Active"
         mode_status = f"{modes_active}/{modes_total} Active"
         rule_status = f"{rules_active}/{rules_total} Active"
         skills_status = f"{skills_total} Installed"
+        flags_status = f"{flags_active}/{flags_total} Active"
         workflow_status = f"{workflows_running} Running"
 
         # Color selection for progress bars
@@ -100,6 +104,9 @@ class EnhancedOverview:
         rule_color = (
             "green" if rule_pct >= 75 else "yellow" if rule_pct >= 50 else "cyan"
         )
+        flag_color = (
+            "green" if flag_pct >= 75 else "yellow" if flag_pct >= 50 else "cyan"
+        )
         workflow_color = "green" if workflows_running > 0 else "dim"
 
         # Progress bars
@@ -107,35 +114,52 @@ class EnhancedOverview:
         mode_bar = f"[{mode_color}]{'█' * int(mode_pct/5)}[/{mode_color}][dim]{'░' * (20 - int(mode_pct/5))}[/dim]"
         rule_bar = f"[{rule_color}]{'█' * int(rule_pct/5)}[/{rule_color}][dim]{'░' * (20 - int(rule_pct/5))}[/dim]"
         skills_bar = f"[green]{'█' * 15}[/green][dim]{'░' * 5}[/dim]"
+        flags_bar = f"[{flag_color}]{'█' * int(flag_pct/5)}[/{flag_color}][dim]{'░' * (20 - int(flag_pct/5))}[/dim]"
         workflow_bar = f"[{workflow_color}]{'█' * (10 if workflows_running > 0 else 0)}[/{workflow_color}][dim]{'░' * (10 if workflows_running == 0 else 10)}[/dim]"
 
         # Status messages
         agent_msg = f"{agent_pct:.0f}% operational"
         mode_msg = f"{mode_pct:.0f}% enabled"
         rule_msg = f"{rule_pct:.0f}% enforced"
+        flag_msg = f"{flag_pct:.0f}% enabled" if flags_total > 0 else "No flags"
         workflow_msg = "Active tasks" if workflows_running > 0 else "No active tasks"
 
-        grid = f"""
-[bold cyan]📊 SYSTEM METRICS[/bold cyan]
-[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
+        def strip_rich(text: str) -> str:
+            import re
+            return re.sub(r"\[/?[^\]]+\]", "", text)
 
-  [cyan]⚡ AGENTS[/cyan]                        [magenta]🎨 MODES[/magenta]
-  [bold white]{agent_status}[/bold white]                  [bold white]{mode_status}[/bold white]
-  {agent_bar}  {mode_bar}
-  [dim]{agent_msg}[/dim]              [dim]{mode_msg}[/dim]
+        def two_col(left: str, right: str, left_width: int = 34, gap: int = 2) -> str:
+            left_len = len(strip_rich(left))
+            pad = max(0, left_width - left_len)
+            return f"{left}{' ' * pad}{' ' * gap}{right}".rstrip()
 
-  [blue]📜 RULES[/blue]                        [green]💎 SKILLS[/green]
-  [bold white]{rule_status}[/bold white]                  [bold white]{skills_status}[/bold white]
-  {rule_bar}  {skills_bar}
-  [dim]{rule_msg}[/dim]              [dim]Ready for use[/dim]
+        lines = [
+            "[bold cyan]📊 SYSTEM METRICS[/bold cyan]",
+            "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
+            "",
+            two_col("  [cyan]⚡ AGENTS[/cyan]", "  [magenta]🎨 MODES[/magenta]"),
+            two_col(f"  [bold white]{agent_status}[/bold white]", f"[bold white]{mode_status}[/bold white]"),
+            two_col(f"  {agent_bar}", f"{mode_bar}"),
+            two_col(f"  [dim]{agent_msg}[/dim]", f"[dim]{mode_msg}[/dim]"),
+            "",
+            two_col("  [blue]📜 RULES[/blue]", "  [green]💎 SKILLS[/green]"),
+            two_col(f"  [bold white]{rule_status}[/bold white]", f"[bold white]{skills_status}[/bold white]"),
+            two_col(f"  {rule_bar}", f"{skills_bar}"),
+            two_col(f"  [dim]{rule_msg}[/dim]", f"[dim]Ready for use[/dim]"),
+            "",
+            two_col("  [white]🏁 FLAGS[/white]", "  [yellow]🏃 WORKFLOWS[/yellow]"),
+            two_col(f"  [bold white]{flags_status}[/bold white]", f"[bold white]{workflow_status}[/bold white]"),
+            two_col(f"  {flags_bar}", f"{workflow_bar}"),
+            two_col(f"  [dim]{flag_msg}[/dim]", f"[dim]{workflow_msg}[/dim]"),
+            "",
+            two_col("  ", "  [red]⚡ QUICK ACTIONS[/red]"),
+            two_col("  ", "  [dim cyan]Press [white]2[/white] → Manage Agents[/dim cyan]"),
+            two_col("  ", "  [dim cyan]Press [white]3[/white] → Toggle Modes[/dim cyan]"),
+            two_col("  ", "  [dim cyan]Press [white]4[/white] → View Rules[/dim cyan]"),
+            two_col("  ", "  [dim cyan]Press [white]Ctrl+P[/white] → Commands[/dim cyan]"),
+        ]
 
-  [yellow]🏃 WORKFLOWS[/yellow]                    [red]⚡ QUICK ACTIONS[/red]
-  [bold white]{workflow_status}[/bold white]                  [dim cyan]Press [white]2[/white] → Manage Agents[/dim cyan]
-  {workflow_bar}  [dim cyan]Press [white]3[/white] → Toggle Modes[/dim cyan]
-  [dim]{workflow_msg}[/dim]              [dim cyan]Press [white]4[/white] → View Rules[/dim cyan]
-                                [dim cyan]Press [white]Ctrl+P[/white] → Commands[/dim cyan]
-"""
-        return grid.strip()
+        return "\n".join(lines).strip()
 
     @staticmethod
     def create_activity_timeline() -> str:
@@ -171,6 +195,7 @@ class EnhancedOverview:
     def create_token_usage(
         category_stats: Dict[str, TokenStats],
         total_stats: TokenStats,
+        flags_stats: Optional[TokenStats] = None,
     ) -> str:
         """Create a token usage visualization.
 
@@ -189,6 +214,11 @@ class EnhancedOverview:
             "mcp_docs": ("MCP", "yellow"),
             "skills": ("Skills", "red"),
         }
+
+        if flags_stats and flags_stats.files > 0:
+            category_stats = dict(category_stats)
+            category_stats["flags"] = flags_stats
+            category_names["flags"] = ("Flags", "white")
 
         # Calculate bar widths proportional to token count
         max_tokens = max(

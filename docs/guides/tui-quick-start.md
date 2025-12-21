@@ -2,7 +2,7 @@
 
 ## Launch the TUI
 ```bash
-uv run claude-ctx tui
+claude-ctx tui
 ```
 
 ## 🎯 What You Should See
@@ -65,11 +65,11 @@ uv run claude-ctx tui
 ```
 System Overview
 
-💻 Agents      5/12 active
-⚑ Modes        3/8 active
-📝 Rules       7/15 active
-💻 Skills      24 installed
-⏳ Workflows   2 running
+💻 Agents      13/78 active
+⚑ Modes        3/9 active
+📝 Rules       3/6 active
+💻 Skills      54 installed
+⏳ Workflows   0 running
 
 Performance Metrics
 ⏳ 5m 23s │ 📊 45MB │ CPU 12% │ ├─ 8 threads
@@ -96,7 +96,18 @@ Every view now has:
 | Key | Action |
 |-----|--------|
 | `Ctrl+P` | **Command Palette** (NEW!) |
-| `1-7` | Switch views |
+| `1-9` | Switch primary views |
+| `0` | AI Assistant |
+| `A` | Asset Manager |
+| `C` | Worktrees |
+| `F` | Flags |
+| `M` | Memory Vault |
+| `w` | Watch Mode |
+| `S` | Scenarios |
+| `o` | Orchestrate |
+| `g` | Galaxy |
+| `t` | Tasks |
+| `/` | Slash Commands catalog |
 | `R` | Refresh current view |
 | `Space` | Toggle selected item |
 | `?` | Show help |
@@ -107,7 +118,7 @@ Every view now has:
 ## 🧪 Testing the Features
 
 ### Test 1: Status Bar
-1. Launch TUI: `uv run claude-ctx tui`
+1. Launch TUI: `claude-ctx tui`
 2. Look at **very bottom** of screen
 3. Should see: `[View: ...] ... │ <memory> <cpu>`
 4. Wait 1 second - numbers should update
@@ -157,7 +168,7 @@ Every view now has:
 **Possible causes**:
 1. Terminal is intercepting Ctrl+P
 2. Try in a different terminal
-3. Check if textual keybindings are working (try other keys like 1-7, R, Q)
+3. Check if textual keybindings are working (try other keys like 1-9, A, C, R, Q)
 
 ### Dashboard looks plain (no colors/icons)
 **Cause**: Terminal doesn't support Unicode or colors
@@ -219,7 +230,7 @@ Workflow: workflow-1 | running | 75 | 1699123456
 
 ## ✅ Success Checklist
 
-After launching `uv run claude-ctx tui`, verify:
+After launching `claude-ctx tui`, verify:
 - [ ] Status bar shows memory and CPU at bottom
 - [ ] Ctrl+P opens command palette in center
 - [ ] Typing in command palette filters results

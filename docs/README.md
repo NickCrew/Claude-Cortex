@@ -32,21 +32,26 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 - Extension points and future enhancements
 
 **[Agent Catalog](./guides/agents.md)** - Complete agent reference
-- 74 agents organized by category
-- Model assignments (Haiku/Sonnet/Opus)
+- 13 agents organized by category
+- Model assignments (Haiku/Sonnet)
 - Dependencies and relationships
 - Use cases and activation patterns
 
 **[Agent Skills](./guides/skills.md)** - Progressive disclosure system
-- 42 available skills
+- 54 available skills
 - Creating new skills with templates
-- Token efficiency metrics (30-50% savings)
+- Token efficiency metrics and activation guidance
 - Integration with agents
+
+**[Flags Management](./guides/FLAGS_MANAGEMENT.md)** - Context flag modules
+- 22 modular flag packs in `flags/`
+- Toggle via `FLAGS.md` or the TUI Flag Explorer
+- Supports per-project customization
 
 **[Model Optimization](./guides/development/model-optimization.md)** - Cost and performance strategy
 - Haiku vs Sonnet assignment criteria
 - Hybrid orchestration patterns
-- Cost analysis (68% savings)
+- Cost optimization guidance
 - Migration plan and monitoring
 
 ---
@@ -65,37 +70,40 @@ claude-ctx is a context orchestration framework that provides:
 
 ### Key Concepts
 
-**Agents**: Specialized AI agents with focused responsibilities (74 total)
-- 9 active by default
-- 65 available on-demand
-- Each has dependencies, workflows, and metrics
+**Agents**: Specialized AI agents with focused responsibilities (13 total)
+- Auto-activation supported via `agents/triggers.yaml`
+- Activate/deactivate in the TUI or CLI
+- Each can declare dependencies, workflows, and metrics
 
 **Skills**: Modular knowledge packages that load progressively
-- 42 available skills
-- 30-50% token reduction per agent
+- 54 available skills
 - Shared across multiple agents
+- Progressive disclosure keeps context lean
 
-**Modes**: Behavioral presets that toggle workflow defaults
-- Task_Management, Project_Memory, Agile_Sprint
-- Control tool preferences and activation patterns
+**Flags**: Context modules toggled via `FLAGS.md`
+- 22 flag files under `flags/`
+- Add/remove `@flags/*.md` lines to enable/disable
+
+**Modes**: Behavioral presets that shape workflow defaults
+- Architect, Brainstorming, Security Audit, Super Saiyan, Token Efficiency, and more
 
 **Profiles**: Saved configurations of agents/modes/rules
-- minimal, backend, full-stack
+- 5 enhanced profiles under `profiles/enhanced`
 - Quick environment setup
 
 ---
 
 ## Common Workflows
 
-### Backend Development
+### Code Quality Pass
 ```
-backend-architect (Sonnet) → Design API
+code-reviewer (Sonnet) → Review changes
   ↓
-python-pro (Haiku) → Implement endpoints
+security-auditor (Sonnet) → Threat sweep
   ↓
-test-automator (Haiku) → Generate tests
+debugger (Sonnet) → Root-cause analysis
   ↓
-security-auditor (Sonnet) → Security review
+python-pro / typescript-pro (Haiku) → Implement fix
 ```
 
 ### Infrastructure Setup
@@ -104,20 +112,18 @@ cloud-architect (Sonnet) → Design infrastructure
   ↓
 terraform-specialist (Haiku) → Write IaC
   ↓
-kubernetes-architect (Sonnet) → K8s architecture
+kubernetes-architect (Haiku) → K8s architecture
   ↓
-deployment-engineer (Sonnet) → CI/CD pipelines
+deployment-engineer (Haiku) → CI/CD pipelines
 ```
 
-### Incident Response
+### Documentation & Enablement
 ```
-incident-responder (Sonnet) → Coordinate triage
+mermaid-expert (Haiku) → System diagrams
   ↓
-debugger (Sonnet) → Diagnose root cause
+tutorial-engineer (Haiku) → Hands-on walkthroughs
   ↓
-python-pro (Haiku) → Implement fix
-  ↓
-test-automator (Haiku) → Add regression tests
+learning-guide (Haiku) → Learning paths + explanations
 ```
 
 ---
@@ -218,39 +224,19 @@ claude-ctx doctor --fix
 ┌─────────────────────────────────────┐
 │      Context Storage                │
 │  agents/    skills/    modes/       │
-│  9 active   42 skills  3 active     │
-│  65 inactive           4 inactive   │
+│  13 total   54 skills  9 modes      │
+│  flags/     rules/     profiles/    │
+│  22 flags   6 rules    5 profiles   │
 └─────────────────────────────────────┘
 ```
 
 ---
 
-## Performance Metrics
+## Performance Notes
 
-### Token Efficiency
-
-| Agent | Without Skills | With Skills | Savings |
-|-------|---------------|-------------|---------|
-| backend-architect | 8,000 | 4,800 | 40% |
-| kubernetes-architect | 7,500 | 4,500 | 40% |
-| security-auditor | 6,800 | 4,500 | 34% |
-
-**Average Savings**: 35-40%
-
-### Cost Optimization
-
-| Scenario | All Sonnet | Hybrid | Savings |
-|----------|-----------|--------|---------|
-| Per 1M tokens | $15.00 | $4.76 | 68% |
-| 1000 tasks/day | $15,000 | $4,760 | 68% |
-
-### Latency
-
-| Agent Type | Haiku P95 | Sonnet P95 | Improvement |
-|------------|-----------|------------|-------------|
-| Code Gen | 1.2s | 4.8s | 4x faster |
-| Tests | 0.8s | 3.2s | 4x faster |
-| IaC | 1.0s | 3.5s | 3.5x faster |
+- Model selection is configured per agent (Haiku or Sonnet) in agent frontmatter.
+- Skills load on demand to keep default context lightweight.
+- See `guides/development/model-optimization.md` for tuning guidance and deeper analysis.
 
 ---
 
@@ -273,11 +259,10 @@ claude-ctx init --help
 
 ### Examples
 
-See [~/agents](https://github.com/wshobson/agents) for:
-- 63 granular plugins
-- 85 agent examples
-- 47 skill implementations
-- Multi-agent orchestration patterns
+Browse the local catalog for up-to-date examples:
+- `agents/` for current agent definitions
+- `skills/` for skill packs and templates
+- `commands/` for slash command specs
 
 ---
 

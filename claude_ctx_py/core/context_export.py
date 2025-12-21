@@ -46,8 +46,13 @@ def _get_core_framework_files(claude_dir: Path) -> Dict[str, Path]:
         Dictionary mapping file names to their paths
     """
     core_files = {}
+    template_dir = claude_dir / "templates"
     for name in ["FLAGS.md", "PRINCIPLES.md", "RULES.md"]:
         path = claude_dir / name
+        if not path.exists() and template_dir.is_dir():
+            template_path = template_dir / name
+            if template_path.exists():
+                path = template_path
         if path.exists():
             core_files[name] = path
     return core_files

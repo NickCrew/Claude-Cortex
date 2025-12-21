@@ -15,7 +15,7 @@ Agent skills enable **progressive disclosure** - loading specialized knowledge o
 **Token Efficiency:**
 - Without skills: Agent loads ~8,000 tokens (all knowledge)
 - With skills: Agent core ~3,000 + skills on-demand ~1,800-3,200
-- **Savings: 30-50% per agent**
+- **Savings: depends on skill mix and activation patterns**
 
 **Architecture:**
 ```
@@ -31,7 +31,7 @@ Tier 3: Resources (loaded on deep-dive)
 
 ## Available Skills
 
-The framework now includes 42 skills covering a wide range of domains, including:
+The framework now includes 54 skills covering a wide range of domains, including:
 - **Architecture & Design:** API design, microservices, event-driven architecture, etc.
 - **Infrastructure:** Kubernetes, Helm, Terraform, GitOps.
 - **Development:** Python, TypeScript, React, testing patterns, and more.

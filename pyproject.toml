@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "claude-ctx-py"
-version = "1.1.0"
-description = "Python rewrite of claude-ctx list and status commands"
+name = "claude-cortex"
+version = "1.2.0"
+description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = {text = "MIT"}
 readme = "README.md"

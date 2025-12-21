@@ -32,6 +32,9 @@ jobs:
       - name: Run unit tests
         run: pytest -m "unit and not slow"
 
+      - name: Build distribution
+        run: python -m build
+
       - name: Python Semantic Release
         uses: python-semantic-release/python-semantic-release@v10
         with:

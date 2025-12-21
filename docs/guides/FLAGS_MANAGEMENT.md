@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Claude Cortex Flag Management System provides surgical control over behavioral flags while dramatically reducing token usage. Instead of loading all 2,140 tokens of flags in every conversation, you can selectively enable only the categories you need.
+The Claude Cortex Flag Management System provides surgical control over behavioral flags while dramatically reducing token usage. Instead of loading all 3,380 tokens of flags in every conversation, you can selectively enable only the categories you need.
 
 ## Quick Start
 
@@ -21,7 +21,7 @@ The Claude Cortex Flag Management System provides surgical control over behavior
 
 3. **See Results:**
    - Real-time token counts update
-   - Changes save immediately to `~/.claude/CLAUDE.md`
+   - Changes save immediately to `~/.claude/FLAGS.md`
    - Enabled flags show `✓ ON` in green
    - Disabled flags show `✗ OFF` in dim gray
 
@@ -64,6 +64,11 @@ claude-ctx profile apply minimal
 
 ### Development Flags
 
+**Thinking Budget** (140 tokens)
+- Flags: `--thinking-budget [4000|10000|32000|128000]`
+- Use for: Explicit reasoning token allocation and cost control
+- Recommended: Deep analysis, cost-sensitive workflows
+
 **Analysis Depth** (130 tokens)
 - Flags: `--think`, `--think-hard`, `--ultrathink`
 - Use for: Complex debugging, architectural decisions, critical redesign
@@ -86,7 +91,7 @@ claude-ctx profile apply minimal
 
 ### UI/UX Flags
 
-**Visual Excellence** (200 tokens)
+**Visual Excellence** (250 tokens)
 - Flags: `--supersaiyan`, `--kamehameha`, `--over9000`
 - Use for: UI work, visual polish, design systems
 - Recommended: frontend, web-dev
@@ -132,7 +137,7 @@ claude-ctx profile apply minimal
 
 ## Profile-to-Flag Mappings
 
-### Minimal Profile (360 tokens, 83% savings)
+### Minimal Profile (430 tokens, 87% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -141,7 +146,7 @@ claude-ctx profile apply minimal
 
 Use when: Starting new project, exploration, minimal overhead
 
-### Frontend Profile (1,020 tokens, 52% savings)
+### Frontend Profile (1,110 tokens, 67% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -154,7 +159,7 @@ Use when: Starting new project, exploration, minimal overhead
 
 Use when: UI development, component work, visual polish
 
-### Backend Profile (880 tokens, 59% savings)
+### Backend Profile (980 tokens, 71% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -167,7 +172,7 @@ Use when: UI development, component work, visual polish
 
 Use when: API development, database work, services
 
-### Web-Dev Profile (1,280 tokens, 40% savings)
+### Web-Dev Profile (1,360 tokens, 60% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -182,7 +187,7 @@ Use when: API development, database work, services
 
 Use when: Full-stack development, end-to-end features
 
-### DevOps Profile (600 tokens, 72% savings)
+### DevOps Profile (640 tokens, 81% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -193,7 +198,7 @@ Use when: Full-stack development, end-to-end features
 
 Use when: Infrastructure, deployment, automation
 
-### Documentation Profile (340 tokens, 84% savings)
+### Documentation Profile (430 tokens, 87% savings)
 ```
 ✓ mode-activation.md
 ✓ execution-control.md
@@ -202,7 +207,7 @@ Use when: Infrastructure, deployment, automation
 
 Use when: Writing docs, guides, tutorials
 
-### Quality Profile (1,000 tokens, 53% savings)
+### Quality Profile (980 tokens, 71% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -215,7 +220,7 @@ Use when: Writing docs, guides, tutorials
 
 Use when: QA work, security audits, code quality
 
-### Data-AI Profile (650 tokens, 70% savings)
+### Data-AI Profile (730 tokens, 78% savings)
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -226,9 +231,9 @@ Use when: QA work, security audits, code quality
 
 Use when: Data science, ML, analysis
 
-### Full Profile (2,140 tokens, 0% savings)
+### Full Profile (3,380 tokens, 0% savings)
 ```
-✓ All 15 categories enabled
+✓ All 22 categories enabled
 ```
 
 Use when: Complex multi-domain work requiring all capabilities
@@ -240,6 +245,7 @@ Use when: Complex multi-domain work requiring all capabilities
 ~/.claude/flags/
 ├── mode-activation.md
 ├── mcp-servers.md
+├── thinking-budget.md
 ├── analysis-depth.md
 ├── execution-control.md
 ├── visual-excellence.md
@@ -252,13 +258,19 @@ Use when: Complex multi-domain work requiring all capabilities
 ├── debugging-trace.md
 ├── interactive-control.md
 ├── ci-cd.md
-└── auto-escalation.md
+├── auto-escalation.md
+├── performance-optimization.md
+├── security-hardening.md
+├── documentation-generation.md
+├── git-workflow.md
+├── migration-upgrade.md
+└── database-operations.md
 ```
 
-### CLAUDE.md References
+### FLAGS.md References
 ```markdown
-# Flag Categories (comment out to disable and save tokens)
-# Core Flags (~120 tokens each)
+# Flag Categories (remove line to disable and save tokens)
+# Core Flags (~120-160 tokens each)
 @flags/mode-activation.md
 @flags/mcp-servers.md
 @flags/analysis-depth.md
@@ -269,24 +281,24 @@ Use when: Complex multi-domain work requiring all capabilities
 @flags/output-optimization.md
 
 # Quality & Testing (~170 tokens)
-<!-- @flags/testing-quality.md -->
+# (remove line to disable)
 
 # Learning & Education (~160 tokens)
-<!-- @flags/learning-education.md -->
+# (remove line to disable)
 
 ...
 ```
 
 - **Active flags**: `@flags/filename.md`
-- **Disabled flags**: `<!-- @flags/filename.md -->`
+- **Disabled flags**: line removed from `FLAGS.md`
 
 ## Manual Management
 
-### Editing CLAUDE.md Directly
+### Editing FLAGS.md Directly
 
-1. Open `~/.claude/CLAUDE.md` in your editor
+1. Open `~/.claude/FLAGS.md` in your editor
 2. Find the flag you want to enable/disable
-3. Remove or add HTML comment markers:
+3. Remove or add the flag reference line:
 
 **To disable a flag:**
 ```markdown
@@ -294,13 +306,13 @@ Use when: Complex multi-domain work requiring all capabilities
 @flags/testing-quality.md
 
 # After
-<!-- @flags/testing-quality.md -->
+# (line removed)
 ```
 
 **To enable a flag:**
 ```markdown
 # Before
-<!-- @flags/learning-education.md -->
+# (line absent)
 
 # After
 @flags/learning-education.md
@@ -313,23 +325,23 @@ Use when: Complex multi-domain work requiring all capabilities
 ### Formula
 ```
 Savings % = (Inactive Tokens / Total Tokens) × 100
-Total Tokens = 2,140
+Total Tokens = 3,380
 ```
 
 ### Examples
 
 **Minimal Profile:**
-- Active: 360 tokens (3 categories)
-- Inactive: 1,780 tokens (12 categories)
-- Savings: 83%
+- Active: 430 tokens (3 categories)
+- Inactive: 2,950 tokens (19 categories)
+- Savings: 87%
 
 **Custom Selection (5 categories):**
-- Active: ~650 tokens
-- Inactive: ~1,490 tokens
-- Savings: 70%
+- Active: ~730 tokens
+- Inactive: ~2,650 tokens
+- Savings: 78%
 
 **Full Profile:**
-- Active: 2,140 tokens (15 categories)
+- Active: 3,380 tokens (22 categories)
 - Inactive: 0 tokens
 - Savings: 0%
 
@@ -346,7 +358,7 @@ Total Tokens = 2,140
 - Consistent experience across sessions
 
 ### 3. Review Flag Usage
-- Check `~/.claude/CLAUDE.md` periodically
+- Check `~/.claude/FLAGS.md` periodically
 - Disable unused categories
 - Consider creating custom profiles for common workflows
 
@@ -364,10 +376,10 @@ Total Tokens = 2,140
 ## Troubleshooting
 
 ### Flags Not Taking Effect
-**Problem**: Changed flags in CLAUDE.md but behavior unchanged
+**Problem**: Changed flags in FLAGS.md but behavior unchanged
 
 **Solutions**:
-1. Verify syntax: `@flags/filename.md` (active) or `<!-- @flags/filename.md -->` (inactive)
+1. Verify syntax: `@flags/filename.md` (active) or remove the line (inactive)
 2. Check file exists in `~/.claude/flags/`
 3. Start new conversation (changes apply to new sessions only)
 
@@ -377,14 +389,14 @@ Total Tokens = 2,140
 **Solutions**:
 1. Exit and re-enter Flag Manager view (Ctrl+G)
 2. Restart TUI (`claude-ctx tui`)
-3. Verify `~/.claude/CLAUDE.md` exists and is writable
+3. Verify `~/.claude/FLAGS.md` exists and is writable
 
 ### Profile Flags Not Applying
 **Problem**: Profile applied but flags didn't change
 
 **Solutions**:
 1. Check profile application succeeded: `claude-ctx profile list`
-2. Manually verify CLAUDE.md was updated
+2. Manually verify FLAGS.md was updated
 3. Re-apply profile: `claude-ctx profile apply <name>`
 
 ### Token Counts Don't Match
@@ -402,7 +414,7 @@ Total Tokens = 2,140
 You can create custom profiles with specific flag combinations:
 
 ```bash
-# Configure flags manually in CLAUDE.md
+# Configure flags manually in FLAGS.md
 # Then save as a profile
 claude-ctx profile save my-custom-profile
 ```
@@ -416,22 +428,20 @@ The flag system uses simple text manipulation:
 ```python
 from pathlib import Path
 
-claude_md = Path.home() / ".claude" / "CLAUDE.md"
-content = claude_md.read_text()
+flags_md = Path.home() / ".claude" / "FLAGS.md"
+content = flags_md.read_text()
 
-# Enable a flag
-content = content.replace(
-    "<!-- @flags/testing-quality.md -->",
-    "@flags/testing-quality.md"
-)
+# Enable a flag (add line if missing)
+if "@flags/testing-quality.md" not in content:
+    content = content.rstrip() + "\n@flags/testing-quality.md\n"
 
-# Disable a flag
-content = content.replace(
-    "@flags/learning-education.md",
-    "<!-- @flags/learning-education.md -->"
-)
+# Disable a flag (remove line)
+content = "\n".join(
+    line for line in content.splitlines()
+    if line.strip() != "@flags/learning-education.md"
+) + "\n"
 
-claude_md.write_text(content)
+flags_md.write_text(content)
 ```
 
 ### Flag File Format
@@ -460,9 +470,9 @@ If you're upgrading from an older version:
 
 1. **Backup**: Save your current `~/.claude/FLAGS.md`
 2. **Install**: The new split flag files are in `~/.claude/flags/`
-3. **Update**: CLAUDE.md now references individual flag files
+3. **Update**: Replace monolithic `FLAGS.md` content with `@flags/*.md` references
 4. **Migrate**: Any custom flags can be added to appropriate category files
-5. **Clean**: Remove old `FLAGS.md` (now unused)
+5. **Verify**: `CLAUDE.md` still includes `@FLAGS.md`
 
 ## See Also
 

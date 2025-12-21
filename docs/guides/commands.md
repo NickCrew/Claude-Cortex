@@ -2465,140 +2465,38 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 
 ## Flag Reference
 
-### Mode Activation Flags
+Flags are modular instruction packs stored in `flags/`. Enable or disable them by adding or removing
+`@flags/<file>.md` lines in `FLAGS.md`. The TUI Flag Explorer (press `F`) and Flag Manager can toggle
+these for you.
 
-**--brainstorm**
-- **Trigger**: Vague project requests, exploration keywords
-- **Behavior**: Activate collaborative discovery mindset, Socratic dialogue
-- **Related Commands**: `/orchestrate:brainstorm`
+### Available Flag Modules
 
-**--introspect**
-- **Trigger**: Self-analysis requests, error recovery, meta-cognition needs
-- **Behavior**: Expose thinking process with transparency markers
-- **Related Commands**: `/session:reflect`, `/analyze:troubleshoot`
+| Flag Module | Summary |
+| --- | --- |
+| `analysis-depth.md` | Control the depth and thoroughness of analysis and reasoning. |
+| `auto-escalation.md` | Flags for automatic reasoning depth adjustment based on task signals. |
+| `ci-cd.md` | Flags optimized for continuous integration and automated pipelines. |
+| `cost-budget.md` | Flags for controlling API costs and optimizing token usage. |
+| `database-operations.md` | Flags for database design, query optimization, and migration safety. |
+| `debugging-trace.md` | Flags for debugging, verbose output, and execution tracing. |
+| `documentation-generation.md` | Flags for generating and maintaining comprehensive documentation. |
+| `domain-presets.md` | Quick presets for common development domains and workflows. |
+| `execution-control.md` | Flags to control execution behavior, validation, and safety. |
+| `git-workflow.md` | Flags for version control best practices, PR workflows, and commit discipline. |
+| `interactive-control.md` | Flags for controlling user interaction and approval workflows. |
+| `learning-education.md` | Flags for educational mode, explanations, and knowledge transfer. |
+| `mcp-servers.md` | Flags to control Model Context Protocol server selection and usage. |
+| `migration-upgrade.md` | Flags for safe migrations, dependency upgrades, and feature flag management. |
+| `mode-activation.md` | Behavioral flags to activate specific execution modes and mindsets. |
+| `output-optimization.md` | Flags for controlling output verbosity and scope. |
+| `performance-optimization.md` | Flags for performance analysis, profiling, and optimization workflows. |
+| `refactoring-safety.md` | Flags for safe code transformation and behavior preservation. |
+| `security-hardening.md` | Flags for security-focused development, threat modeling, and compliance. |
+| `testing-quality.md` | Flags for test-driven development, coverage enforcement, and quality gates. |
+| `thinking-budget.md` | Control internal reasoning token allocation and cost trade-offs. |
+| `visual-excellence.md` | Flags for UI/UX enhancement and visual polish across all platforms. |
 
-**--task-manage**
-- **Trigger**: Multi-step operations (>3 steps), complex scope
-- **Behavior**: Orchestrate through delegation, progressive enhancement
-- **Related Commands**: `/orchestrate:task`, `/orchestrate:spawn`
-
-**--orchestrate**
-- **Trigger**: Multi-tool operations, parallel execution opportunities
-- **Behavior**: Optimize tool selection matrix, enable parallel thinking
-- **Related Commands**: `/orchestrate:spawn`, `/orchestrate:task`
-
-**--token-efficient / --uc / --ultracompressed**
-- **Trigger**: Context usage >75%, large-scale operations
-- **Behavior**: Symbol-enhanced communication, 30-50% token reduction
-- **Related Commands**: All commands benefit when context is constrained
-
-### MCP Server Flags
-
-**--c7 / --context7**
-- **Trigger**: Library imports, framework questions, official docs
-- **Behavior**: Enable Context7 for curated documentation lookup
-- **Related Commands**: `/dev:implement`, `/analyze:explain`, `/quality:improve`
-
-**--seq / --sequential**
-- **Trigger**: Complex debugging, system design, multi-component analysis
-- **Behavior**: Enable Sequential for structured multi-step reasoning
-- **Related Commands**: `/design:workflow`, `/orchestrate:brainstorm`, `/analyze:estimate`
-
-**--magic**
-- **Trigger**: UI component requests, design system queries
-- **Behavior**: Enable Magic for modern UI generation
-- **Related Commands**: `/dev:implement`, `/design:workflow`
-
-**--morph / --morphllm**
-- **Trigger**: Bulk code transformations, pattern-based edits
-- **Behavior**: Enable Morphllm for efficient multi-file patterns
-- **Related Commands**: `/quality:cleanup`, `/quality:improve`
-
-**--serena**
-- **Trigger**: Symbol operations, project memory needs, large codebase navigation
-- **Behavior**: Enable Serena for semantic understanding and session persistence
-- **Related Commands**: `/session:load`, `/session:save`, `/session:reflect`
-
-**--play / --playwright**
-- **Trigger**: Browser testing, E2E scenarios, visual validation
-- **Behavior**: Enable Playwright for real browser automation
-- **Related Commands**: `/dev:test`, `/dev:build`
-
-**--all-mcp**
-- **Trigger**: Maximum complexity scenarios, multi-domain problems
-- **Behavior**: Enable all MCP servers for comprehensive capability
-- **Related Commands**: `/orchestrate:spawn`, `/design:workflow`
-
-**--no-mcp**
-- **Trigger**: Native-only execution needs, performance priority
-- **Behavior**: Disable all MCP servers, use native tools
-- **Related Commands**: Any command can use for native-only execution
-
-### Analysis Depth Flags
-
-**--think**
-- **Trigger**: Multi-component analysis needs, moderate complexity
-- **Behavior**: Standard structured analysis (~4K tokens), enables Sequential
-- **Related Commands**: `/analyze:code`, `/analyze:explain`
-
-**--think-hard**
-- **Trigger**: Architectural analysis, system-wide dependencies
-- **Behavior**: Deep analysis (~10K tokens), enables Sequential + Context7
-- **Related Commands**: `/design:system`, `/analyze:estimate`
-
-**--ultrathink**
-- **Trigger**: Critical system redesign, legacy modernization
-- **Behavior**: Maximum depth analysis (~32K tokens), enables all MCPs
-- **Options**:
-  - `--summary brief`: Key findings only (~25% output reduction)
-  - `--summary detailed`: Full analysis with reasoning (default)
-  - `--summary comprehensive`: Include rationale, alternatives, trade-offs (~50% output increase)
-- **Auto-enables**: `--introspect` transparency markers (🤔 thinking, 🎯 focus, ⚡ insight, 📊 data, 💡 decision)
-- **Related Commands**: `/orchestrate:spawn`, `/design:workflow`, `/reasoning:adjust`
-
-### Execution Control Flags
-
-**--delegate [auto|files|folders]**
-- **Trigger**: >7 directories OR >50 files OR complexity >0.8
-- **Behavior**: Enable sub-agent parallel processing
-- **Related Commands**: `/orchestrate:task`, `/orchestrate:spawn`
-
-**--concurrency [n]**
-- **Trigger**: Resource optimization needs, parallel operation control
-- **Behavior**: Control max concurrent operations (range: 1-15)
-- **Related Commands**: `/orchestrate:spawn`, `/orchestrate:task`
-
-**--loop**
-- **Trigger**: Improvement keywords (polish, refine, enhance, improve)
-- **Behavior**: Enable iterative improvement cycles with validation gates
-- **Related Commands**: `/quality:improve`, `/quality:cleanup`
-
-**--iterations [n]**
-- **Trigger**: Specific improvement cycle requirements
-- **Behavior**: Set improvement cycle count (range: 1-10)
-- **Related Commands**: `/quality:improve`, `/dev:test`
-
-**--validate**
-- **Trigger**: Risk score >0.7, resource usage >75%, production environment
-- **Behavior**: Pre-execution risk assessment and validation gates
-- **Related Commands**: `/deploy:prepare-release`, `/quality:improve`
-
-**--safe-mode**
-- **Trigger**: Resource usage >85%, production environment, critical ops
-- **Behavior**: Maximum validation, conservative execution, auto-enable --uc
-- **Related Commands**: All commands that modify code
-
-### Output Optimization Flags
-
-**--scope [file|module|project|system]**
-- **Trigger**: Analysis boundary needs
-- **Behavior**: Define operational scope and analysis depth
-- **Related Commands**: `/analyze:code`, `/docs:index`
-
-**--focus [performance|security|quality|architecture|accessibility|testing]**
-- **Trigger**: Domain-specific optimization needs
-- **Behavior**: Target specific analysis domain and expertise application
-- **Related Commands**: `/analyze:code`, `/quality:improve`, `/dev:code-review`
+For detailed toggling and profiles, see `guides/FLAGS_MANAGEMENT.md`.
 
 ---
 

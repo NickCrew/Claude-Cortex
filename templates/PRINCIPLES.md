@@ -1,6 +1,10 @@
 <!-- vim: set ft=markdown -->
 # Software Engineering Principles
 
+> **Note**: This is a template file. Copy to your CLAUDE_CTX_HOME (e.g., ~/.claude)
+> as `PRINCIPLES.md` and customize.
+> This repo keeps templates to separate framework files from project files.
+
 **Core Directive**: Evidence > assumptions | Code > documentation | Efficiency > verbosity
 
 ## Philosophy
@@ -58,4 +62,3 @@
 - **Automated Enforcement**: Use tooling for consistent quality
 - **Preventive Measures**: Catch issues early when cheaper to fix
 - **Human-Centered Design**: Prioritize user welfare and autonomy
-

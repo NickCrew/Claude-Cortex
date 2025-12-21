@@ -160,7 +160,9 @@ PROFILE_FLAGS = {
         # All flags enabled for full profile
         "mode-activation.md",
         "mcp-servers.md",
+        "thinking-budget.md",
         "analysis-depth.md",
+        "auto-escalation.md",
         "execution-control.md",
         "visual-excellence.md",
         "output-optimization.md",
@@ -172,63 +174,58 @@ PROFILE_FLAGS = {
         "debugging-trace.md",
         "interactive-control.md",
         "ci-cd.md",
-        "auto-escalation.md",
+        "performance-optimization.md",
+        "security-hardening.md",
+        "documentation-generation.md",
+        "git-workflow.md",
+        "migration-upgrade.md",
+        "database-operations.md",
     ],
 }
 
 
 def _apply_profile_flags(profile_name: str, claude_dir: Path) -> None:
-    """Apply flag configuration for a given profile by modifying CLAUDE.md."""
-    claude_md_path = claude_dir / "CLAUDE.md"
+    """Apply flag configuration for a given profile by modifying FLAGS.md."""
+    flags_md_path = claude_dir / "FLAGS.md"
 
-    if not claude_md_path.exists():
+    if not flags_md_path.exists():
         return
 
-    # Get the flags for this profile
-    profile_flags = set(PROFILE_FLAGS.get(profile_name, []))
+    profile_flags = PROFILE_FLAGS.get(profile_name, [])
+    profile_flag_set = set(profile_flags)
 
-    # Read CLAUDE.md
-    with open(claude_md_path, "r") as f:
-        lines = f.readlines()
+    try:
+        lines = flags_md_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    except OSError:
+        return
 
-    # Modify flag lines based on profile
-    modified_lines = []
+    modified_lines: List[str] = []
+    active_flags_present: Set[str] = set()
+
     for line in lines:
         stripped = line.strip()
+        if stripped.startswith("@flags/"):
+            filename = stripped.replace("@flags/", "").strip()
+            if filename in profile_flag_set:
+                modified_lines.append(f"@flags/{filename}\n")
+                active_flags_present.add(filename)
+            continue
+        if stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
+            # Drop legacy commented references.
+            continue
+        modified_lines.append(line)
 
-        # Check if this is a flag line (active or commented)
-        if "@flags/" in stripped:
-            # Extract the filename from the line
-            # Could be: "@flags/filename.md" or "<!-- @flags/filename.md -->"
-            if stripped.startswith("@flags/"):
-                # Currently active
-                filename = stripped.replace("@flags/", "").strip()
-                if filename in profile_flags:
-                    # Should be active - keep it active
-                    modified_lines.append(line)
-                else:
-                    # Should be inactive - comment it out
-                    modified_lines.append(f"<!-- @flags/{filename} -->\n")
-            elif stripped.startswith("<!-- @flags/") and stripped.endswith("-->"):
-                # Currently commented
-                # Extract filename: "<!-- @flags/filename.md -->" -> "filename.md"
-                filename = stripped.replace("<!-- @flags/", "").replace(" -->", "").strip()
-                if filename in profile_flags:
-                    # Should be active - uncomment it
-                    modified_lines.append(f"@flags/{filename}\n")
-                else:
-                    # Should be inactive - keep it commented
-                    modified_lines.append(line)
-            else:
-                # Unknown format, keep as is
-                modified_lines.append(line)
-        else:
-            # Not a flag line, keep as is
-            modified_lines.append(line)
+    missing_flags = [name for name in profile_flags if name not in active_flags_present]
+    if missing_flags:
+        if modified_lines and not modified_lines[-1].endswith("\n"):
+            modified_lines[-1] = f"{modified_lines[-1]}\n"
+        for filename in missing_flags:
+            modified_lines.append(f"@flags/{filename}\n")
 
-    # Write back to CLAUDE.md
-    with open(claude_md_path, "w") as f:
-        f.writelines(modified_lines)
+    try:
+        flags_md_path.write_text("".join(modified_lines), encoding="utf-8")
+    except OSError:
+        return
 
 
 def _profile_reset(home: Path | None = None) -> Tuple[int, str]:
