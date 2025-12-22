@@ -8,6 +8,12 @@ in .claude directories. Supports:
 - Skills
 - Modes
 - Workflows
+- Flags
+- Rules
+- Profiles
+- Scenarios
+- Tasks
+- Settings
 """
 
 from __future__ import annotations
@@ -21,6 +27,17 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 from .base import _extract_front_matter
+
+
+_SETTINGS_RELATIVE_PATHS = [
+    Path("agents/triggers.yaml"),
+    Path("skills/activation.yaml"),
+    Path("skills/composition.yaml"),
+    Path("skills/versions.yaml"),
+    Path("skills/analytics.schema.json"),
+    Path("skills/metrics.schema.json"),
+    Path("skills/community/registry.yaml"),
+]
 
 
 class AssetCategory(Enum):
@@ -37,6 +54,7 @@ class AssetCategory(Enum):
     PROFILES = "profiles"
     SCENARIOS = "scenarios"
     TASKS = "tasks"
+    SETTINGS = "settings"
 
 
 class InstallStatus(Enum):
@@ -98,6 +116,8 @@ class Asset:
             return f"scenarios/{self.source_path.name}"
         elif self.category == AssetCategory.TASKS:
             return f"tasks/{self.source_path.name}"
+        elif self.category == AssetCategory.SETTINGS:
+            return self.name
         return self.source_path.name
 
 
@@ -162,6 +182,7 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
         "profiles": [],
         "scenarios": [],
         "tasks": [],
+        "settings": [],
     }
 
     # Discover each category
@@ -176,6 +197,7 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
     assets["profiles"] = _discover_profiles(plugin_root)
     assets["scenarios"] = _discover_scenarios(plugin_root)
     assets["tasks"] = _discover_tasks(plugin_root)
+    assets["settings"] = _discover_settings(plugin_root)
 
     return assets
 
@@ -560,6 +582,57 @@ def _discover_rules(plugin_root: Path) -> List[Asset]:
     return sorted(rules, key=lambda a: a.name)
 
 
+def _describe_settings_file(path: Path) -> str:
+    """Best-effort description for a settings file."""
+    try:
+        if path.suffix == ".json":
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                desc = data.get("description") or data.get("title")
+                if desc:
+                    return str(desc)
+    except Exception:
+        pass
+
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith("#"):
+                return stripped.lstrip("#").strip()
+            if stripped.startswith("//"):
+                return stripped.lstrip("/").strip()
+            return stripped
+    except OSError:
+        pass
+
+    return f"Settings: {path.name}"
+
+
+def _discover_settings(plugin_root: Path) -> List[Asset]:
+    """Discover shared settings/config files for agents and skills."""
+    settings: List[Asset] = []
+
+    for rel_path in _SETTINGS_RELATIVE_PATHS:
+        path = plugin_root / rel_path
+        if not path.exists():
+            continue
+
+        description = _describe_settings_file(path)
+        settings.append(
+            Asset(
+                name=rel_path.as_posix(),
+                category=AssetCategory.SETTINGS,
+                source_path=path,
+                description=description[:100] + "..." if len(description) > 100 else description,
+                metadata={},
+            )
+        )
+
+    return sorted(settings, key=lambda a: a.name)
+
+
 def _discover_profiles(plugin_root: Path) -> List[Asset]:
     """Discover reusable profiles."""
     profiles: List[Asset] = []
@@ -735,6 +808,7 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
         "profiles": [],
         "scenarios": [],
         "tasks": [],
+        "settings": [],
     }
 
     # Hooks
@@ -821,6 +895,12 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
         for f in tasks_dir.glob("*.md"):
             if f.name != "README.md":
                 installed["tasks"].append(f.stem)
+
+    # Settings
+    for rel_path in _SETTINGS_RELATIVE_PATHS:
+        setting_path = claude_dir / rel_path
+        if setting_path.exists():
+            installed["settings"].append(rel_path.as_posix())
 
     return installed
 
@@ -919,7 +999,20 @@ def get_all_assets_flat(
         assets = discover_plugin_assets()
 
     result = []
-    for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+    for category in [
+        "hooks",
+        "commands",
+        "agents",
+        "skills",
+        "modes",
+        "workflows",
+        "flags",
+        "rules",
+        "profiles",
+        "scenarios",
+        "tasks",
+        "settings",
+    ]:
         result.extend(assets.get(category, []))
 
     return result

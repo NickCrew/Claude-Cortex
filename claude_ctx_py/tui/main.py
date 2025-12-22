@@ -26,6 +26,21 @@ from .widgets import AdaptiveFooter
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
 
+ASSET_CATEGORY_ORDER = [
+    "hooks",
+    "commands",
+    "agents",
+    "skills",
+    "modes",
+    "workflows",
+    "flags",
+    "rules",
+    "profiles",
+    "scenarios",
+    "tasks",
+    "settings",
+]
+
 from .types import (
     RuleNode, AgentTask, WorkflowInfo, ModeInfo, MCPDocInfo, ScenarioInfo, ScenarioRuntimeState,
     AssetInfo, MemoryNote, WatchModeState,
@@ -4290,10 +4305,15 @@ class AgentTUI(App[None]):
             "modes": ("🎨", "magenta"),
             "workflows": ("🔄", "white"),
             "flags": ("🚩", "red"),
+            "rules": ("🧭", "bright_blue"),
+            "profiles": ("👤", "bright_green"),
+            "scenarios": ("🎬", "bright_magenta"),
+            "tasks": ("✅", "bright_yellow"),
+            "settings": ("⚙️", "bright_cyan"),
         }
 
         # Render assets by category
-        for category_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+        for category_name in ASSET_CATEGORY_ORDER:
             assets = self.available_assets.get(category_name, [])
             if not assets:
                 continue
@@ -4665,7 +4685,11 @@ class AgentTUI(App[None]):
         """Resolve the base directory for flags (prefer selected target)."""
         if self.selected_target_dir and self.selected_target_dir.exists():
             return self.selected_target_dir
-        return _resolve_claude_dir()
+        explicit_home = os.environ.get("CLAUDE_CTX_HOME")
+        explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
+        if explicit_home or explicit_scope:
+            return _resolve_claude_dir()
+        return Path.home() / ".claude"
 
     def _load_flag_files_metadata(self) -> List[Dict[str, Any]]:
         """Load metadata about all flag files and their active status."""
@@ -5048,7 +5072,7 @@ class AgentTUI(App[None]):
 
         # Flatten assets list
         all_assets: List[Asset] = []
-        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+        for category in ASSET_CATEGORY_ORDER:
             all_assets.extend(self.available_assets.get(category, []))
 
         asset_idx = row_idx - 2  # Adjust for header rows
@@ -5241,7 +5265,7 @@ class AgentTUI(App[None]):
 
         # Gather category counts (only not-installed assets)
         categories: List[Tuple[str, int]] = []
-        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+        for cat_name in ASSET_CATEGORY_ORDER:
             assets = self.available_assets.get(cat_name, [])
             not_installed = [
                 a for a in assets
@@ -5301,7 +5325,7 @@ class AgentTUI(App[None]):
 
         # Find all assets that need updating (differ from source)
         assets_to_update: List[Asset] = []
-        for cat_name in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+        for cat_name in ASSET_CATEGORY_ORDER:
             assets = self.available_assets.get(cat_name, [])
             for asset in assets:
                 status = check_installation_status(asset, self.selected_target_dir)

@@ -451,15 +451,23 @@ class SkillRecommender:
     def record_activation(self, skill_name: str, context_hash: str) -> None:
         """Record that a recommended skill was activated."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
-                UPDATE recommendations_history
-                SET was_activated = 1
+            # Find the most recent recommendation ID
+            cursor = conn.execute("""
+                SELECT id FROM recommendations_history
                 WHERE skill_name = ? AND context_hash = ?
                 ORDER BY timestamp DESC
                 LIMIT 1
             """, (skill_name, context_hash))
-
-            conn.commit()
+            
+            row = cursor.fetchone()
+            if row:
+                rec_id = row[0]
+                conn.execute("""
+                    UPDATE recommendations_history
+                    SET was_activated = 1
+                    WHERE id = ?
+                """, (rec_id,))
+                conn.commit()
 
     def learn_from_feedback(
         self,
@@ -511,40 +519,49 @@ class SkillRecommender:
                 cursor = conn.execute("""
                     SELECT
                         COUNT(*) as total_recommendations,
-                        SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activations,
-                        SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful,
+                        COALESCE(SUM(CASE WHEN was_activated THEN 1 ELSE 0 END), 0) as activations,
+                        COALESCE(SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END), 0) as helpful,
                         AVG(confidence) as avg_confidence
                     FROM recommendations_history
                     WHERE skill_name = ?
                 """, (skill_name,))
 
                 row = cursor.fetchone()
+                # Row values will be 0 instead of None due to COALESCE or count behavior
+                total = row[0]
+                activations = row[1]
+                helpful = row[2]
+                
                 stats = {
                     "skill_name": skill_name,
-                    "total_recommendations": row[0],
-                    "activations": row[1],
-                    "helpful_count": row[2],
+                    "total_recommendations": total,
+                    "activations": activations,
+                    "helpful_count": helpful,
                     "avg_confidence": round(row[3], 2) if row[3] else 0,
-                    "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
-                    "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
+                    "activation_rate": round((activations / total) * 100, 1) if total > 0 else 0,
+                    "helpful_rate": round((helpful / activations) * 100, 1) if activations > 0 else 0
                 }
             else:
                 # Overall stats
                 cursor = conn.execute("""
                     SELECT
                         COUNT(*) as total,
-                        SUM(CASE WHEN was_activated THEN 1 ELSE 0 END) as activated,
-                        SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END) as helpful
+                        COALESCE(SUM(CASE WHEN was_activated THEN 1 ELSE 0 END), 0) as activated,
+                        COALESCE(SUM(CASE WHEN was_helpful THEN 1 ELSE 0 END), 0) as helpful
                     FROM recommendations_history
                 """)
 
                 row = cursor.fetchone()
+                total = row[0]
+                activated = row[1]
+                helpful = row[2]
+                
                 stats = {
-                    "total_recommendations": row[0],
-                    "total_activations": row[1],
-                    "total_helpful": row[2],
-                    "activation_rate": round((row[1] / row[0]) * 100, 1) if row[0] > 0 else 0,
-                    "helpful_rate": round((row[2] / row[1]) * 100, 1) if row[1] > 0 else 0
+                    "total_recommendations": total,
+                    "total_activations": activated,
+                    "total_helpful": helpful,
+                    "activation_rate": round((activated / total) * 100, 1) if total > 0 else 0,
+                    "helpful_rate": round((helpful / activated) * 100, 1) if activated > 0 else 0
                 }
 
         return stats

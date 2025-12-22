@@ -205,10 +205,12 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
             AssetCategory.SKILLS: "🎯",
             AssetCategory.MODES: "🎨",
             AssetCategory.WORKFLOWS: "🔄",
+            AssetCategory.FLAGS: "🚩",
             AssetCategory.RULES: "🧭",
             AssetCategory.PROFILES: "👤",
             AssetCategory.SCENARIOS: "🎬",
             AssetCategory.TASKS: "✅",
+            AssetCategory.SETTINGS: "⚙️",
         }
         icon = category_icons.get(self.asset.category, "📦")
 

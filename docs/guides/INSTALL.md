@@ -147,25 +147,88 @@ claude-ctx status                        # Show system overview
 
 ## Configuration
 
-Configuration files are located in `~/.claude/`:
+Configuration files live in the active Claude directory (default `~/.claude/`).
+The same layout applies to project-local `.claude/` when you use `--scope project`
+or set `CLAUDE_CTX_SCOPE=project`.
 
-```
-~/.claude/
-├── CLAUDE.md              # Main configuration
-├── FLAGS.md               # Behavioral flags
-├── RULES.md               # Core rules
-├── PRINCIPLES.md          # Engineering principles
-├── .active-modes          # Active modes (reference-based)
-├── .active-rules          # Active rules (reference-based)
-├── agents/                # Agent definitions
-├── modes/                 # Behavioral modes
-├── rules/                 # Rule modules
-├── skills/                # Custom skills
-├── flags/                 # Flag packs
-├── hooks/                 # Automation hooks
-├── workflows/             # Workflow definitions
-└── scenarios/             # Scenario definitions
-```
+### Core Framework Files
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `CLAUDE.md` | Main manifest with `@` references | Primary entry point for context assembly |
+| `FLAGS.md` | Flag activation list (`@flags/*.md`) | Updated by TUI Flag Manager |
+| `PRINCIPLES.md` | Engineering principles | Included by `CLAUDE.md` |
+| `RULES.md` | Core rules | Included by `CLAUDE.md` |
+
+### Activation State Files
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `.active-modes` | Active mode list | Reference-based activation |
+| `.active-rules` | Active rules list | Reference-based activation |
+| `.active-mcp` | Active MCP docs list | Reference-based activation |
+
+### Agent and Skill Settings
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `agents/triggers.yaml` | Agent trigger metadata | Used by recommendations |
+| `skills/activation.yaml` | Skill keyword activation map | Used by auto-activation |
+| `skills/composition.yaml` | Skill composition rules | Used by skill composer |
+| `skills/versions.yaml` | Skill version registry | Used by `skills versions` |
+| `skills/skill-rules.json` | Skill selection rules | Recommendation logic |
+| `skills/recommendation-rules.json` | Recommendation rules | AI suggestions |
+| `skills/community/registry.yaml` | Community skill registry | Community skill install |
+| `skills/analytics.schema.json` | Skill analytics schema | Validation/reference |
+| `skills/metrics.schema.json` | Skill metrics schema | Validation/reference |
+
+### Hooks and MCP
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `settings.json` | Claude Code settings (hooks) | TUI hooks manager updates this |
+| `mcp/docs/*.md` | Local MCP docs | Activated via `.active-mcp` |
+
+### Intelligence and Memory
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `intelligence-config.json` | LLM intelligence settings | Model selection/budget/caching |
+| `memory-config.json` | Memory vault settings | Vault path and auto-capture |
+
+### Schemas
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `schema/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
+| `schema/scenario-schema-v1.yaml` | Scenario validation schema | Used by validators |
+
+### Auto-Managed Data (for reference)
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `.metrics/skills/stats.json` | Skill metrics summary | Generated automatically |
+| `.metrics/skills/activations.json` | Activation log | Generated automatically |
+| `data/skill-ratings.db` | Skill ratings database | SQLite |
+| `data/skill-rating-prompts.json` | Rating prompt state | Auto-managed |
+| `intelligence/session_history.json` | Recommendation history | Auto-managed |
+| `intelligence/semantic_cache/session_embeddings.jsonl` | Embedding cache | Auto-managed |
+| `tasks/current/active_agents.json` | Task view state | Auto-managed |
+| `tasks/current/active_workflow` | Current workflow name | Auto-managed |
+| `tasks/current/workflow_status` | Workflow status | Auto-managed |
+| `tasks/current/workflow_started` | Workflow start time | Auto-managed |
+| `tasks/current/current_step` | Workflow step label | Auto-managed |
+| `community/ratings/*.json` | Community skill ratings | Auto-managed |
+
+### External (Claude Desktop MCP Config)
+
+Claude Desktop config is outside `.claude` but is read for MCP server setup:
+
+| Platform | Path |
+| --- | --- |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Linux | `~/.config/Claude/claude_desktop_config.json` |
+| Windows | `%APPDATA%/Claude/claude_desktop_config.json` |
 
 ## Troubleshooting
 

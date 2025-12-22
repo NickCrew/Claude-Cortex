@@ -111,6 +111,8 @@ def install_asset(
             return _install_scenario(asset, target_dir)
         elif asset.category == AssetCategory.TASKS:
             return _install_task(asset, target_dir)
+        elif asset.category == AssetCategory.SETTINGS:
+            return _install_setting(asset, target_dir)
         else:
             return 1, _color(f"Unknown asset category: {asset.category}", RED)
     except Exception as e:
@@ -293,6 +295,14 @@ def _install_task(asset: Asset, target_dir: Path) -> Tuple[int, str]:
     return 0, _color(f"Installed task: {asset.name}", GREEN)
 
 
+def _install_setting(asset: Asset, target_dir: Path) -> Tuple[int, str]:
+    """Install a shared settings/config file."""
+    target_path = target_dir / asset.install_target
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(asset.source_path, target_path)
+    return 0, _color(f"Installed settings: {asset.name}", GREEN)
+
+
 def uninstall_asset(
     category: str,
     name: str,
@@ -331,6 +341,8 @@ def uninstall_asset(
             return _uninstall_scenario(name, target_dir)
         elif category == "tasks":
             return _uninstall_task(name, target_dir)
+        elif category == "settings":
+            return _uninstall_setting(name, target_dir)
         else:
             return 1, _color(f"Unknown category: {category}", RED)
     except Exception as e:
@@ -480,6 +492,16 @@ def _uninstall_task(name: str, target_dir: Path) -> Tuple[int, str]:
 
     task_path.unlink()
     return 0, _color(f"Uninstalled task: {name}", GREEN)
+
+
+def _uninstall_setting(name: str, target_dir: Path) -> Tuple[int, str]:
+    """Uninstall a settings file."""
+    setting_path = target_dir / name
+    if not setting_path.exists():
+        return 1, _color(f"Settings not installed: {name}", YELLOW)
+
+    setting_path.unlink()
+    return 0, _color(f"Uninstalled settings: {name}", GREEN)
 
 
 def get_asset_diff(
@@ -670,6 +692,9 @@ def get_installed_path(
         return path if path.exists() else None
     elif asset.category == AssetCategory.WORKFLOWS:
         path = target_dir / "workflows" / asset.source_path.name
+        return path if path.exists() else None
+    elif asset.category == AssetCategory.SETTINGS:
+        path = target_dir / asset.install_target
         return path if path.exists() else None
 
     return None
