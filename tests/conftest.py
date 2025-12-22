@@ -350,3 +350,11 @@ def mock_claude_home(tmp_claude_dir, monkeypatch):
     """
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_claude_dir))
     return tmp_claude_dir
+
+
+@pytest.fixture(autouse=True)
+def clean_claude_env(monkeypatch):
+    """Ensure a clean environment for each test."""
+    monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
+    monkeypatch.delenv("CLAUDE_CTX_SCOPE", raising=False)
+    monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)

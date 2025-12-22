@@ -121,7 +121,20 @@ class TestAssetDiscovery:
         assets = discover_plugin_assets()
         assert isinstance(assets, dict)
         # Should have at least some categories
-        for category in ["hooks", "commands", "agents", "skills", "modes", "workflows", "flags"]:
+        for category in [
+            "hooks",
+            "commands",
+            "agents",
+            "skills",
+            "modes",
+            "workflows",
+            "flags",
+            "rules",
+            "profiles",
+            "scenarios",
+            "tasks",
+            "settings",
+        ]:
             assert category in assets
 
     def test_discover_hooks(self):
@@ -186,6 +199,15 @@ class TestAssetDiscovery:
         for flag in flags:
             assert isinstance(flag, Asset)
             assert flag.category == AssetCategory.FLAGS
+
+    def test_discover_settings(self):
+        """Test settings discovery via discover_plugin_assets."""
+        assets = discover_plugin_assets()
+        settings = assets.get("settings", [])
+        assert isinstance(settings, list)
+        for setting in settings:
+            assert isinstance(setting, Asset)
+            assert setting.category == AssetCategory.SETTINGS
 
 
 class TestClaudeDirectoryDiscovery:
