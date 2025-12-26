@@ -10,7 +10,7 @@ Handles:
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
 from ..core.base import _resolve_claude_dir
 
@@ -90,7 +90,7 @@ class IntelligenceConfig:
     # Minimum confidence score for semantic matching fallback
     semantic_fallback_threshold: float = 0.5
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "llm_enabled": self.llm_enabled,
@@ -101,7 +101,7 @@ class IntelligenceConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "IntelligenceConfig":
+    def from_dict(cls, data: Dict[str, Any]) -> "IntelligenceConfig":
         """Create from dictionary."""
         model_selection_data = data.get("model_selection", {})
         budget_data = data.get("budget", {})

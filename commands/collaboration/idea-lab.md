@@ -8,32 +8,13 @@ personas: [product-manager, architect, frontend]
 subagents: []
 ---
 
-# /collaboration:idea-lab — Divergent Sprint
+# /collaboration:idea-lab — Skill-backed divergent sprint
 
-## Trigger Pattern
+## Use
+- Load `skills/collaboration/idea_lab/SKILL.md` (skill `idea-lab`) and follow it.
+- Keep the timebox + options format from the skill.
+
+## Usage
 ```
 /collaboration:idea-lab [topic] [--time 10|15|25] [--constraints ...]
 ```
-
-## Behavior
-1. Timebox the session (default 15m); state the timebox aloud in the transcript.
-2. Capture **Goals**, **Success Signals**, **Constraints**, **Existing Assets**.
-3. Generate 5–7 distinct solution concepts; for each add **Wow-Factor**, **Feasibility (S/M/L)**, **Dependency to check**.
-4. Surface **Top 3 to test today** and assign a 1-day experiment for each.
-5. Seed Task view (`T` → `A`) with the three experiments or hand off to `/ctx:plan`.
-
-## Output
-- Markdown block with sections: Problem/Goal, Success Signals, Constraints, Existing Assets, Options (table), Top 3 Experiments, Next Steps.
-- Optional file drop under `docs/plans/<date>-idea-lab.md`.
-
-## Personas
-- **product-manager**: user value, success metrics
-- **architect**: feasibility and dependency mapping
-- **frontend**: UX/interaction angles to differentiate concepts
-
-## Delegation
-- Use Task tool when repo/asset discovery is needed before ideating.
-- Skip delegation for quick idea-only sessions.
-
-## Follow-up
-- Immediately run `/ctx:plan` with the chosen top experiment or open Tasks seeded in step 5.

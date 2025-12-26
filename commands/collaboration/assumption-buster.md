@@ -8,35 +8,14 @@ personas: [architect, analyzer, product-manager]
 subagents: []
 ---
 
-# /collaboration:assumption-buster — Reframe Through Inversion
+# /collaboration:assumption-buster — Skill-backed inversion
 
-## Trigger Pattern
+## Use
+- Load `skills/collaboration/assumption_buster/SKILL.md` (skill `assumption-buster`) and follow it.
+- Keep the output structure defined in the skill.
+- Ask for the topic and constraints if not provided.
+
+## Usage
 ```
 /collaboration:assumption-buster [topic] [--opposite|--zero|--10x] [--constraints ...]
 ```
-
-## Behavior
-1. List core assumptions (facts, beliefs, constraints) about the topic.
-2. Apply operator per flag:
-   - `--opposite`: Flip the assumption.
-   - `--zero`: Remove the assumption entirely.
-   - `--10x`: Exaggerate the assumption tenfold.
-3. For each transformed assumption, generate 1–2 reframed ideas.
-4. Capture **Evidence to collect** and **Fast test** for each idea.
-5. Summarize **Most compelling 2–3** ideas with risks/unknowns.
-
-## Output
-- Sections: Assumptions, Transforms, Reframed Ideas, Evidence & Tests, Top Picks.
-- Optional save to `docs/plans/<date>-assumption-buster.md`.
-
-## Personas
-- **architect**: technical feasibility check
-- **analyzer**: logic gaps, critical thinking
-- **product-manager**: user and business impact
-
-## Delegation
-- Use Task tool when assumption list depends on repo/state discovery.
-- Otherwise run inline.
-
-## Follow-up
-- Feed top picks into `/ctx:plan` or create Tasks for fast tests.

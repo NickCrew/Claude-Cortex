@@ -794,6 +794,17 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
+def _build_statusline_parser(
+    subparsers: argparse._SubParsersAction[Any],
+) -> None:
+    from . import statusline
+
+    statusline_parser = subparsers.add_parser(
+        "statusline", help="Render Claude Code status line"
+    )
+    statusline.add_statusline_arguments(statusline_parser)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="claude-ctx",
@@ -823,6 +834,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_worktree_parser(subparsers)
     _build_orchestrate_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
+    _build_statusline_parser(subparsers)
     subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
     _build_ai_parser(subparsers)
     _build_export_parser(subparsers)
@@ -1455,6 +1467,12 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         return 1
 
 
+def _handle_statusline_command(args: argparse.Namespace) -> int:
+    from . import statusline
+
+    return statusline.render_statusline(args)
+
+
 def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     """Build the memory command parser for persistent knowledge capture."""
     memory_parser = subparsers.add_parser(
@@ -1770,6 +1788,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "export": _handle_export_command,
         "completion": _handle_completion_command,
         "install": _handle_install_command,
+        "statusline": _handle_statusline_command,
         "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,
         "setup": _handle_setup_command,

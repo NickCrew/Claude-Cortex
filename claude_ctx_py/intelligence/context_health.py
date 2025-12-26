@@ -2,7 +2,7 @@
 
 Analyzes the alignment between active context (modes, agents) and actual user activity.
 """
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Any
 from pathlib import Path
 import os
 
@@ -12,7 +12,7 @@ class ContextHealth:
     def __init__(self, project_root: Path):
         self.project_root = project_root
 
-    def calculate_health(self, active_modes: List[str], active_agents: List[str], recent_files: List[str]) -> Dict[str, any]:
+    def calculate_health(self, active_modes: List[str], active_agents: List[str], recent_files: List[str]) -> Dict[str, Any]:
         """Calculate health score (0-100) and identify issues.
 
         Args:

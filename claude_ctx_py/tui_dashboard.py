@@ -199,7 +199,7 @@ class DashboardCard:
         # Determine color/icon based on score
         if score >= 80:
             color = "green"
-            icon = Icons.CHECK
+            icon = Icons.SUCCESS
             status = "HEALTHY"
         elif score >= 50:
             color = "yellow"

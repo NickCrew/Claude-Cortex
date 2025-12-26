@@ -81,7 +81,8 @@ def load_settings() -> Dict[str, Any]:
     if not settings_path.exists():
         return {}
     try:
-        return json.loads(settings_path.read_text(encoding="utf-8"))
+        data = json.loads(settings_path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
     except (json.JSONDecodeError, OSError):
         return {}
 

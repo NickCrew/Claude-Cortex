@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Literal
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -87,7 +87,7 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
 
                         label = f"[{scope_color}]{cd.path}[/{scope_color}] ({cd.scope})"
                         is_current = self.current and cd.path == self.current
-                        yield RadioButton(label, value=is_current)
+                        yield RadioButton(label, value=bool(is_current))
 
                 with Container(id="dialog-buttons"):
                     yield Button("Select", variant="primary", id="select")
@@ -294,7 +294,7 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
                         yield Button("Update", variant="primary", id="install")
                         yield Button("Uninstall", variant="error", id="uninstall")
                         # Show diff button for any installed asset
-                        diff_variant = "warning" if self.status == InstallStatus.INSTALLED_DIFFERENT else "default"
+                        diff_variant: Literal["default", "primary", "success", "warning", "error"] = "warning" if self.status == InstallStatus.INSTALLED_DIFFERENT else "default"
                         yield Button("View Diff", variant=diff_variant, id="diff")
 
                     yield Button("Close", variant="default", id="close")

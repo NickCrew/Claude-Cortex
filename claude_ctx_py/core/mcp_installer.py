@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .mcp import add_mcp_server, _get_claude_config_path
 from .mcp_registry import (
@@ -23,11 +23,7 @@ class InstallResult:
     success: bool
     message: str
     server_name: Optional[str] = None
-    warnings: List[str] = None
-
-    def __post_init__(self):
-        if self.warnings is None:
-            self.warnings = []
+    warnings: List[str] = field(default_factory=list)
 
 
 def check_package_manager(pm: PackageManager) -> Tuple[bool, str]:
@@ -166,7 +162,7 @@ def configure_server(
 
     # Add to Claude config
     try:
-        success = add_mcp_server(
+        success, _ = add_mcp_server(
             name=server.name,
             command=command,
             args=args,
@@ -279,7 +275,7 @@ def check_server_installed(server: MCPServerDefinition) -> Tuple[bool, str]:
         return False, f"Error reading config: {e}"
 
 
-def get_server_requirements(server: MCPServerDefinition) -> Dict:
+def get_server_requirements(server: MCPServerDefinition) -> Dict[str, Any]:
     """Get the requirements for installing a server.
 
     Returns dict with:

@@ -30,7 +30,7 @@ def discover_available_files(claude_dir: Path) -> Dict[str, List[str]]:
     Returns:
         Dict with keys: core, rules, modes, mcp_docs
     """
-    result = {
+    result: Dict[str, List[str]] = {
         "core": [],
         "rules": [],
         "modes": [],

@@ -33,11 +33,12 @@ def get_backup_dir() -> Path:
 
 def format_size(size_bytes: int) -> str:
     """Format byte size to human readable."""
+    size = float(size_bytes)
     for unit in ["B", "KB", "MB", "GB"]:
-        if size_bytes < 1024:
-            return f"{size_bytes:.1f} {unit}"
-        size_bytes /= 1024
-    return f"{size_bytes:.1f} TB"
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
 
 
 def create_backup(

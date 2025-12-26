@@ -6,7 +6,7 @@ snippet extraction and relevance scoring.
 
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from .config import get_vault_path
 from .templates import NoteType
@@ -18,7 +18,7 @@ def search_notes(
     vault_path: Optional[Path] = None,
     limit: Optional[int] = None,
     context_lines: int = 1,
-) -> List[dict]:
+) -> List[Dict[str, Any]]:
     """Search for notes matching a query.
 
     Performs case-insensitive full-text search across note content.
@@ -80,10 +80,10 @@ def search_notes(
 
 def _search_file(
     file_path: Path,
-    pattern: re.Pattern,
+    pattern: re.Pattern[str],
     note_type: str,
     context_lines: int,
-) -> Optional[dict]:
+) -> Optional[Dict[str, Any]]:
     """Search a single file for pattern matches.
 
     Args:
@@ -152,7 +152,7 @@ def _search_file(
 
 def _extract_snippet(
     content: str,
-    match: re.Match,
+    match: re.Match[str],
     context_lines: int,
 ) -> str:
     """Extract a snippet around a match.
@@ -207,7 +207,7 @@ def search_by_tags(
     note_type: Optional[NoteType] = None,
     vault_path: Optional[Path] = None,
     limit: Optional[int] = None,
-) -> List[dict]:
+) -> List[Dict[str, Any]]:
     """Search for notes by tags.
 
     Args:
@@ -254,7 +254,7 @@ def _check_tags(
     file_path: Path,
     search_tags: List[str],
     note_type: str,
-) -> Optional[dict]:
+) -> Optional[Dict[str, Any]]:
     """Check if a file has any of the specified tags.
 
     Args:
@@ -313,7 +313,7 @@ def _check_tags(
 
 def get_all_tags(
     vault_path: Optional[Path] = None,
-) -> dict:
+) -> Dict[str, int]:
     """Get all tags used in the vault with counts.
 
     Args:
@@ -325,7 +325,7 @@ def get_all_tags(
     if vault_path is None:
         vault_path = get_vault_path()
 
-    tag_counts: dict = {}
+    tag_counts: Dict[str, int] = {}
 
     for nt in NoteType:
         dir_path = vault_path / nt.value

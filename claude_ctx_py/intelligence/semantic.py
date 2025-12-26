@@ -9,15 +9,15 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Dict, Union
 
-import numpy as np
+import numpy as np  # type: ignore
 
 logger = logging.getLogger(__name__)
 
 
 # Claude model pricing (per million tokens)
-CLAUDE_PRICING = {
+CLAUDE_PRICING: Dict[str, Dict[str, Union[float, str]]] = {
     "claude-opus-4-20250514": {
         "input": 15.0,  # $15/MTok
         "output": 75.0,  # $75/MTok
@@ -141,15 +141,15 @@ class ModelSelector:
             model, CLAUDE_PRICING["claude-sonnet-4-20250514"]
         )
 
-        input_cost = (input_tokens / 1_000_000) * pricing["input"]
-        output_cost = (output_tokens / 1_000_000) * pricing["output"]
+        input_cost = (input_tokens / 1_000_000) * float(pricing["input"])
+        output_cost = (output_tokens / 1_000_000) * float(pricing["output"])
         total_cost = input_cost + output_cost
 
         result = {
             "input_cost": round(input_cost, 6),
             "output_cost": round(output_cost, 6),
             "total_cost": round(total_cost, 6),
-            "model_name": pricing["name"],
+            "model_name": str(pricing["name"]),
             "input_tokens": input_tokens,
             "output_tokens": output_tokens,
         }
@@ -158,8 +158,8 @@ class ModelSelector:
         if model != "claude-sonnet-4-20250514":
             sonnet_pricing = CLAUDE_PRICING["claude-sonnet-4-20250514"]
             sonnet_cost = (
-                (input_tokens / 1_000_000) * sonnet_pricing["input"]
-                + (output_tokens / 1_000_000) * sonnet_pricing["output"]
+                (input_tokens / 1_000_000) * float(sonnet_pricing["input"])
+                + (output_tokens / 1_000_000) * float(sonnet_pricing["output"])
             )
             savings = sonnet_cost - total_cost
             result["savings_vs_sonnet"] = round(savings, 6)
@@ -200,11 +200,11 @@ class SemanticMatcher:
         self._load_embeddings()
 
     @property
-    def model(self):
+    def model(self) -> Any:
         """Lazy load the embedding model only when needed."""
         if self._model is None:
             try:
-                from fastembed import TextEmbedding
+                from fastembed import TextEmbedding  # type: ignore
 
                 self._model = TextEmbedding("BAAI/bge-small-en-v1.5")
                 logger.info("Loaded FastEmbed model: BAAI/bge-small-en-v1.5")
@@ -470,7 +470,7 @@ class LLMIntelligence:
         self.config = config
 
         try:
-            import anthropic
+            import anthropic  # type: ignore
 
             self.client = anthropic.Anthropic()
             logger.info("LLM intelligence initialized (Claude API ready)")

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from rich.text import Text
 from textual.app import ComposeResult
@@ -270,7 +270,7 @@ class MCPBrowseDialog(ModalScreen[Optional[str]]):
             self.dismiss(None)
 
 
-class MCPInstallDialog(ModalScreen[Optional[Dict]]):
+class MCPInstallDialog(ModalScreen[Optional[Dict[str, Any]]]):
     """Dialog for configuring and installing an MCP server."""
 
     CSS = """

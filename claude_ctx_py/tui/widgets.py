@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from rich.console import RenderableType
 from rich.text import Text
+from textual import events
 from textual.reactive import reactive
 from textual.widget import Widget
 
@@ -317,7 +318,7 @@ class AdaptiveFooter(Widget):
         text.append(label, style=self._label_style)
         return text
 
-    def _get_view_shortcuts(self, view: str) -> List[tuple]:
+    def _get_view_shortcuts(self, view: str) -> List[Tuple[str, str]]:
         """Get view-specific shortcuts as (key, label) tuples."""
         mapping = {
             "agents": [("s", "Details"), ("v", "Validate"), ("^e", "Edit")],
@@ -412,6 +413,6 @@ class AdaptiveFooter(Widget):
         """React to view changes."""
         self.refresh()
 
-    def on_resize(self, event) -> None:
+    def on_resize(self, event: events.Resize) -> None:
         """Refresh when terminal is resized."""
         self.refresh()

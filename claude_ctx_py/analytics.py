@@ -8,7 +8,7 @@ import math
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 from .exceptions import ExportError, InvalidMetricsDataError, MetricsFileError
 from .error_utils import safe_load_json, safe_save_json, safe_write_file
@@ -17,7 +17,7 @@ MetricRow = Dict[str, Any]
 MetricsMap = Mapping[str, MetricRow]
 
 # Claude model pricing (per million tokens) - Updated for accuracy
-CLAUDE_PRICING = {
+CLAUDE_PRICING: Dict[str, Dict[str, Union[float, str]]] = {
     "claude-opus-4-20250514": {
         "input": 15.0,  # $15/MTok
         "output": 75.0,  # $75/MTok
@@ -60,15 +60,15 @@ def calculate_llm_cost(
     """
     pricing = CLAUDE_PRICING.get(model, CLAUDE_PRICING["claude-sonnet-4-20250514"])
 
-    input_cost = (input_tokens / 1_000_000) * pricing["input"]
-    output_cost = (output_tokens / 1_000_000) * pricing["output"]
+    input_cost = (input_tokens / 1_000_000) * float(pricing["input"])
+    output_cost = (output_tokens / 1_000_000) * float(pricing["output"])
     total_cost = input_cost + output_cost
 
     result = {
         "input_cost": round(input_cost, 6),
         "output_cost": round(output_cost, 6),
         "total_cost": round(total_cost, 6),
-        "model_name": pricing["name"],
+        "model_name": str(pricing["name"]),
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
     }
@@ -77,8 +77,8 @@ def calculate_llm_cost(
     if model != "claude-sonnet-4-20250514":
         sonnet_pricing = CLAUDE_PRICING["claude-sonnet-4-20250514"]
         sonnet_cost = (
-            (input_tokens / 1_000_000) * sonnet_pricing["input"]
-            + (output_tokens / 1_000_000) * sonnet_pricing["output"]
+            (input_tokens / 1_000_000) * float(sonnet_pricing["input"])
+            + (output_tokens / 1_000_000) * float(sonnet_pricing["output"])
         )
         savings = sonnet_cost - total_cost
         result["savings_vs_sonnet"] = round(savings, 6)

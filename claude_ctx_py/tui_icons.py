@@ -20,8 +20,10 @@ class Icons:
     SELECTED = "▶"
     UNSELECTED = " "
     ARROW_RIGHT = "→"
+    ARROW_LEFT = "←"
     ARROW_DOWN = "↓"
     ARROW_UP = "↑"
+    CLOCK = "🕒"
 
     # File types
     FILE = "📄"
@@ -35,6 +37,7 @@ class Icons:
     PAUSE = "⏸"
     STOP = "⏹"
     REFRESH = "↻"
+    SYNC = "🔄"
     SEARCH = "🔍"
     FILTER = "⚑"
 
@@ -42,6 +45,7 @@ class Icons:
     COMPLETE = "█"
     INCOMPLETE = "░"
     BULLET = "•"
+    HEART = "❤"
 
     # Connectors (for trees/hierarchies)
     BRANCH = "├─"

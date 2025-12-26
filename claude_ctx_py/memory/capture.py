@@ -12,7 +12,7 @@ Implements the main entry points for:
 
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .config import (
     get_config,
@@ -400,7 +400,7 @@ def memory_search(
     return 0, "\n".join(lines)
 
 
-def get_vault_stats() -> dict:
+def get_vault_stats() -> Dict[str, Any]:
     """Get statistics about the memory vault.
 
     Returns:
@@ -408,7 +408,7 @@ def get_vault_stats() -> dict:
     """
     vault_path = get_vault_path()
 
-    stats = {
+    stats: Dict[str, Any] = {
         "vault_path": str(vault_path),
         "exists": vault_path.exists(),
         "types": {},

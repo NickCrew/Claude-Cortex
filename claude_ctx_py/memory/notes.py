@@ -8,7 +8,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .config import ensure_vault_structure, get_vault_path
 from .templates import NoteType
@@ -243,7 +243,7 @@ def list_notes(
     vault_path: Optional[Path] = None,
     recent: Optional[int] = None,
     tags: Optional[List[str]] = None,
-) -> List[dict]:
+) -> List[Dict[str, Any]]:
     """List notes in the vault.
 
     Args:
@@ -299,7 +299,7 @@ def list_notes(
     return notes
 
 
-def _extract_note_info(file_path: Path, note_type: str) -> dict:
+def _extract_note_info(file_path: Path, note_type: str) -> Dict[str, Any]:
     """Extract metadata from a note file.
 
     Args:

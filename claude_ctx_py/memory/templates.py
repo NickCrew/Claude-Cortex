@@ -9,7 +9,7 @@ Defines template rendering functions for each note type:
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 
 class NoteType(Enum):
@@ -112,8 +112,8 @@ def render_project_note(
     path: Optional[str] = None,
     remote: Optional[str] = None,
     architecture: Optional[str] = None,
-    related_projects: Optional[List[tuple]] = None,
-    key_files: Optional[List[tuple]] = None,
+    related_projects: Optional[List[Tuple[str, str]]] = None,
+    key_files: Optional[List[Tuple[str, str]]] = None,
     gotchas: Optional[List[str]] = None,
     tags: Optional[List[str]] = None,
     captured: Optional[datetime] = None,
@@ -278,7 +278,7 @@ def render_fix_note(
     problem: str,
     cause: str,
     solution: str,
-    files_changed: Optional[List[tuple]] = None,
+    files_changed: Optional[List[Tuple[str, str]]] = None,
     prevention: Optional[str] = None,
     related: Optional[List[str]] = None,
     tags: Optional[List[str]] = None,

@@ -258,7 +258,7 @@ class PatternLearner:
         recommendations.extend(self._rule_based_recommendations(context))
 
         # Deduplicate by agent name, keeping highest confidence
-        seen = {}
+        seen: Dict[str, AgentRecommendation] = {}
         for rec in recommendations:
             if rec.agent_name not in seen or rec.confidence > seen[rec.agent_name].confidence:
                 seen[rec.agent_name] = rec

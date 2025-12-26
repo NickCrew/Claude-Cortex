@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import AsyncIterator, Protocol, runtime_checkable
+from typing import AsyncIterator, Protocol, runtime_checkable, Callable
 
 from textual.command import Hit, Provider
 from .tui_icons import Icons
@@ -164,7 +164,7 @@ class AgentCommandProvider(Provider):
                     # Don't yield category headers in search results
 
                 # Create proper closure for action
-                def make_callback(act: str):
+                def make_callback(act: str) -> Callable[[], None]:
                     def callback() -> None:
                         self._run_command(act)
                     return callback

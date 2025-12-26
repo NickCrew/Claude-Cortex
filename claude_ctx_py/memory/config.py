@@ -11,7 +11,7 @@ import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from ..core.base import _resolve_claude_dir
 
@@ -48,7 +48,7 @@ class MemoryConfig:
     auto_capture: AutoCaptureConfig = field(default_factory=AutoCaptureConfig)
     defaults: MemoryDefaults = field(default_factory=MemoryDefaults)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "vault_path": self.vault_path,
@@ -57,7 +57,7 @@ class MemoryConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "MemoryConfig":
+    def from_dict(cls, data: Dict[str, Any]) -> "MemoryConfig":
         """Create from dictionary."""
         auto_capture_data = data.get("auto_capture", {})
         defaults_data = data.get("defaults", {})

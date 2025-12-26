@@ -9,14 +9,11 @@ This prototype demonstrates:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, AsyncIterator
+from typing import AsyncIterator, Callable, Any
 
 from textual.command import Hit, Hits, Provider
 
 from .tui_icons import Icons
-
-if TYPE_CHECKING:
-    from .main import CtxTUI
 
 
 class NavigationProvider(Provider):
@@ -29,9 +26,9 @@ class NavigationProvider(Provider):
     """
 
     @property
-    def app_instance(self) -> "CtxTUI":
+    def app_instance(self) -> Any:
         """Get typed app instance."""
-        return self.app  # type: ignore
+        return self.app
 
     async def search(self, query: str) -> AsyncIterator[Hit]:
         """Search for navigation commands.
@@ -48,7 +45,7 @@ class NavigationProvider(Provider):
         # Back command (if history exists)
         if hasattr(app, 'navigation_index') and app.navigation_index > 0:
             previous_view = app.navigation_stack[app.navigation_index - 1]
-            from .constants import VIEW_TITLES
+            from .tui.constants import VIEW_TITLES
             previous_title = VIEW_TITLES.get(previous_view, previous_view)
 
             if match := matcher.match("back previous"):
@@ -64,7 +61,7 @@ class NavigationProvider(Provider):
            hasattr(app, 'navigation_stack') and \
            app.navigation_index < len(app.navigation_stack) - 1:
             next_view = app.navigation_stack[app.navigation_index + 1]
-            from .constants import VIEW_TITLES
+            from .tui.constants import VIEW_TITLES
             next_title = VIEW_TITLES.get(next_view, next_view)
 
             if match := matcher.match("forward next"):
@@ -87,7 +84,7 @@ class NavigationProvider(Provider):
                     if len(recent_views) >= 10:
                         break
 
-            from .constants import VIEW_TITLES
+            from .tui.constants import VIEW_TITLES
             for idx, view_name in enumerate(recent_views):
                 view_title = VIEW_TITLES.get(view_name, view_name)
                 if match := matcher.match(f"recent {view_title} {view_name}"):
@@ -118,7 +115,7 @@ class NavigationProvider(Provider):
             app.current_view = new_view
             app.notify(f"Forward {Icons.ARROW_RIGHT} {new_view}", severity="information")
 
-    def _jump_to_view(self, view_name: str):
+    def _jump_to_view(self, view_name: str) -> Callable[[], None]:
         """Create callback to jump to specific view.
 
         Args:
@@ -141,9 +138,9 @@ class ViewNavigationProvider(Provider):
     """
 
     @property
-    def app_instance(self) -> "CtxTUI":
+    def app_instance(self) -> Any:
         """Get typed app instance."""
-        return self.app  # type: ignore
+        return self.app
 
     async def search(self, query: str) -> AsyncIterator[Hit]:
         """Search for view navigation commands.
@@ -194,7 +191,7 @@ class ViewNavigationProvider(Provider):
                     help=f"{description} [dim]│[/dim] [yellow]Key: {shortcut}[/yellow]",
                 )
 
-    def _switch_to_view(self, view_name: str):
+    def _switch_to_view(self, view_name: str) -> Callable[[], None]:
         """Create callback to switch to specific view.
 
         Args:
@@ -222,9 +219,9 @@ class ItemJumpProvider(Provider):
     """
 
     @property
-    def app_instance(self) -> "CtxTUI":
+    def app_instance(self) -> Any:
         """Get typed app instance."""
-        return self.app  # type: ignore
+        return self.app
 
     async def search(self, query: str) -> AsyncIterator[Hit]:
         """Search for items across all views.
@@ -319,7 +316,7 @@ class ItemJumpProvider(Provider):
                         help=f"[dim]{description}[/dim]",
                     )
 
-    def _jump_to_item(self, view_name: str, item_name: str):
+    def _jump_to_item(self, view_name: str, item_name: str) -> Callable[[], None]:
         """Create callback to jump to specific item in a view.
 
         Args:

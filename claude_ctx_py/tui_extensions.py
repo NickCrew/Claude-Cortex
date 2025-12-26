@@ -6,13 +6,14 @@ import json
 import subprocess
 import re
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Set
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
 from .core.base import _parse_active_entries, _resolve_claude_dir, _run_detect_project_type
+from .core.asset_discovery import discover_plugin_assets
 from .core.profiles import (
     profile_list,
     profile_save,
@@ -36,6 +37,7 @@ from .core.profiles import (
 from .core.context_export import export_context, collect_context_components
 from .core.agents import (
     agent_status,
+    agent_activate,
     ESSENTIAL_AGENTS,
     FRONTEND_AGENTS,
     WEB_DEV_AGENTS,
@@ -49,8 +51,8 @@ from .core.agents import (
     PRODUCT_AGENTS,
     FULL_AGENTS,
 )
-from .core.modes import mode_status
-from .core.rules import rules_status
+from .core.modes import mode_status, mode_activate
+from .core.rules import rules_status, rules_activate
 
 
 class ProfileViewMixin:
@@ -525,6 +527,121 @@ class WizardViewMixin:
         self.wizard_step = 0
         self.wizard_selections: Dict[str, Any] = {}
 
+    def action_wizard_toggle(self) -> None:
+        """Toggle selection of current item in wizard."""
+        if not self.wizard_active:
+            return
+
+        if self.wizard_step == 1:
+            # Agents
+            assets = discover_plugin_assets()
+            agents = sorted(assets.get("agents", []), key=lambda a: a.name)
+            if 0 <= self.state.selected_index < len(agents):
+                agent_name = agents[self.state.selected_index].name
+                if "agents" not in self.wizard_selections:
+                    self.wizard_selections["agents"] = set()
+                
+                if agent_name in self.wizard_selections["agents"]:
+                    self.wizard_selections["agents"].remove(agent_name)
+                else:
+                    self.wizard_selections["agents"].add(agent_name)
+                self.state.status_message = f"Toggled agent: {agent_name}"
+
+        elif self.wizard_step == 2:
+            # Modes
+            assets = discover_plugin_assets()
+            modes = sorted(assets.get("modes", []), key=lambda m: m.name)
+            if 0 <= self.state.selected_index < len(modes):
+                mode_name = modes[self.state.selected_index].name
+                if "modes" not in self.wizard_selections:
+                    self.wizard_selections["modes"] = set()
+                
+                if mode_name in self.wizard_selections["modes"]:
+                    self.wizard_selections["modes"].remove(mode_name)
+                else:
+                    self.wizard_selections["modes"].add(mode_name)
+                self.state.status_message = f"Toggled mode: {mode_name}"
+
+        elif self.wizard_step == 3:
+            # Rules
+            assets = discover_plugin_assets()
+            rules = sorted(assets.get("rules", []), key=lambda r: r.name)
+            if 0 <= self.state.selected_index < len(rules):
+                rule_name = rules[self.state.selected_index].name
+                if "rules" not in self.wizard_selections:
+                    self.wizard_selections["rules"] = set()
+                
+                if rule_name in self.wizard_selections["rules"]:
+                    self.wizard_selections["rules"].remove(rule_name)
+                else:
+                    self.wizard_selections["rules"].add(rule_name)
+                self.state.status_message = f"Toggled rule: {rule_name}"
+
+    def action_wizard_next(self) -> None:
+        """Advance to next wizard step."""
+        if not self.wizard_active:
+            self.start_wizard()
+            return
+
+        if self.wizard_step == 0:
+            # Project Type selection
+            project_types = [
+                "Web Development (Frontend/Backend)",
+                "Backend API",
+                "DevOps/Infrastructure",
+                "Data Science/AI",
+                "Documentation",
+                "Other/Custom",
+            ]
+            if 0 <= self.state.selected_index < len(project_types):
+                self.wizard_selections["project_type"] = project_types[self.state.selected_index]
+            self.wizard_next_step()
+        elif self.wizard_step == 4:
+            # Confirmation step - Apply!
+            self._apply_wizard_configuration()
+            self.wizard_step += 1 # Move to complete
+        else:
+            self.wizard_next_step()
+
+    def action_wizard_prev(self) -> None:
+        """Go back to previous wizard step."""
+        if self.wizard_active:
+            self.wizard_prev_step()
+
+    def _apply_wizard_configuration(self) -> None:
+        """Actually apply the selections made in the wizard."""
+        try:
+            # 1. Reset/Apply base profile
+            ptype = self.wizard_selections.get("project_type", "")
+            if "Web" in ptype:
+                profile_web_dev()
+            elif "Backend" in ptype:
+                profile_backend()
+            elif "DevOps" in ptype:
+                profile_devops()
+            elif "Data" in ptype:
+                profile_data_ai()
+            elif "Documentation" in ptype:
+                profile_documentation()
+            else:
+                profile_minimal()
+
+            # 2. Activate specific agents
+            for agent in self.wizard_selections.get("agents", []):
+                agent_activate(agent)
+
+            # 3. Activate specific modes
+            for mode in self.wizard_selections.get("modes", []):
+                mode_activate(mode)
+
+            # 4. Activate specific rules
+            for rule in self.wizard_selections.get("rules", []):
+                rules_activate(rule)
+
+            self.state.status_message = "Configuration applied successfully!"
+        except Exception as e:
+            self.state.status_message = f"Error applying configuration: {e}"
+
     def render_wizard_view(self) -> Panel:
         """Render the init wizard view."""
         if not self.wizard_active:
@@ -569,8 +686,8 @@ class WizardViewMixin:
         claude_dir = _resolve_claude_dir()
         detected_type = ""
         try:
-            exit_code, message = _run_detect_project_type(claude_dir)
-            if exit_code == 0:
+            message = _run_detect_project_type(claude_dir)
+            if message:
                 # Message format: "Detected project type: <type>"
                 match = re.search(r"Detected project type: (.*)", message)
                 if match:
@@ -621,11 +738,55 @@ class WizardViewMixin:
         content = Text()
         content.append(f"Step 2/5: Agent Selection\n", style="bold cyan")
         content.append("─" * 60 + "\n\n", style="dim")
-        content.append("Recommended agents based on project type:\n\n", style="dim")
+        content.append("Select additional agents to activate:\n\n")
 
-        # TODO: Show recommended agents
-        content.append("Agent selection coming soon...\n\n")
+        assets = discover_plugin_assets()
+        agents = sorted(assets.get("agents", []), key=lambda a: a.name)
 
+        # Get pre-selected agents based on project type if not already set
+        if "agents" not in self.wizard_selections:
+            # Simple heuristic mapping
+            ptype = self.wizard_selections.get("project_type", "")
+            preselected = set(ESSENTIAL_AGENTS)
+            if "Web" in ptype:
+                preselected.update(WEB_DEV_AGENTS)
+            elif "Backend" in ptype:
+                preselected.update(BACKEND_AGENTS)
+            elif "DevOps" in ptype:
+                preselected.update(DEVOPS_AGENTS)
+            elif "Data" in ptype:
+                preselected.update(DATA_AI_AGENTS)
+            elif "Documentation" in ptype:
+                preselected.update(DOCUMENTATION_AGENTS)
+            self.wizard_selections["agents"] = preselected
+
+        selected_agents = self.wizard_selections.get("agents", set())
+
+        # Paginate if needed (simple display for now)
+        start_idx = getattr(self, "_agent_page_start", 0)
+        page_size = 15
+        
+        display_agents = agents[start_idx:start_idx+page_size]
+
+        for idx, agent in enumerate(display_agents):
+            abs_idx = start_idx + idx
+            is_cursor = abs_idx == self.state.selected_index
+            is_selected = agent.name in selected_agents
+            
+            checkbox = "[x]" if is_selected else "[ ]"
+            prefix = "> " if is_cursor else "  "
+            
+            style = "reverse" if is_cursor else None
+            desc = agent.description[:50] + "..." if len(agent.description) > 50 else agent.description
+            
+            content.append(f"{prefix}{checkbox} {agent.name.ljust(25)} - {desc}\n", style=style)
+
+        if len(agents) > page_size:
+            content.append(f"\n[dim]Showing {start_idx+1}-{min(start_idx+page_size, len(agents))} of {len(agents)}. Use Up/Down to scroll.[/dim]\n")
+
+        content.append("\n")
+        content.append("Space", style="cyan")
+        content.append("=Toggle  ", style="dim")
         content.append("Enter", style="cyan")
         content.append("=Next  ", style="dim")
         content.append("Backspace", style="cyan")
@@ -638,8 +799,33 @@ class WizardViewMixin:
         content = Text()
         content.append(f"Step 3/5: Mode Selection\n", style="bold cyan")
         content.append("─" * 60 + "\n\n", style="dim")
+        content.append("Select behavioral modes to activate:\n\n")
 
-        content.append("Mode selection coming soon...\n\n")
+        assets = discover_plugin_assets()
+        modes = sorted(assets.get("modes", []), key=lambda m: m.name)
+
+        if "modes" not in self.wizard_selections:
+            self.wizard_selections["modes"] = set()
+
+        selected_modes = self.wizard_selections["modes"]
+
+        for idx, mode in enumerate(modes):
+            is_cursor = idx == self.state.selected_index
+            is_selected = mode.name in selected_modes
+            
+            checkbox = "[x]" if is_selected else "[ ]"
+            prefix = "> " if is_cursor else "  "
+            style = "reverse" if is_cursor else None
+            
+            content.append(f"{prefix}{checkbox} {mode.name.ljust(25)} - {mode.description}\n", style=style)
+
+        content.append("\n")
+        content.append("Space", style="cyan")
+        content.append("=Toggle  ", style="dim")
+        content.append("Enter", style="cyan")
+        content.append("=Next  ", style="dim")
+        content.append("Backspace", style="cyan")
+        content.append("=Back  ", style="dim")
 
         return Panel(content, title="Init Wizard - Modes", border_style="cyan")
 
@@ -648,8 +834,33 @@ class WizardViewMixin:
         content = Text()
         content.append(f"Step 4/5: Rule Selection\n", style="bold cyan")
         content.append("─" * 60 + "\n\n", style="dim")
+        content.append("Select rule modules to enforce:\n\n")
 
-        content.append("Rule selection coming soon...\n\n")
+        assets = discover_plugin_assets()
+        rules = sorted(assets.get("rules", []), key=lambda r: r.name)
+
+        if "rules" not in self.wizard_selections:
+            self.wizard_selections["rules"] = set()
+
+        selected_rules = self.wizard_selections["rules"]
+
+        for idx, rule in enumerate(rules):
+            is_cursor = idx == self.state.selected_index
+            is_selected = rule.name in selected_rules
+            
+            checkbox = "[x]" if is_selected else "[ ]"
+            prefix = "> " if is_cursor else "  "
+            style = "reverse" if is_cursor else None
+            
+            content.append(f"{prefix}{checkbox} {rule.name.ljust(25)} - {rule.description}\n", style=style)
+
+        content.append("\n")
+        content.append("Space", style="cyan")
+        content.append("=Toggle  ", style="dim")
+        content.append("Enter", style="cyan")
+        content.append("=Next  ", style="dim")
+        content.append("Backspace", style="cyan")
+        content.append("=Back  ", style="dim")
 
         return Panel(content, title="Init Wizard - Rules", border_style="cyan")
 
@@ -660,7 +871,35 @@ class WizardViewMixin:
         content.append("─" * 60 + "\n\n", style="dim")
 
         content.append("Review your selections:\n\n", style="bold")
-        content.append("Confirmation and apply coming soon...\n\n")
+        
+        ptype = self.wizard_selections.get("project_type", "Unknown")
+        content.append(f"Project Type: [yellow]{ptype}[/yellow]\n\n")
+        
+        agents = self.wizard_selections.get("agents", set())
+        content.append(f"Agents ({len(agents)}):\n", style="bold")
+        if agents:
+            content.append(f"[dim]{', '.join(sorted(agents))}[/dim]\n\n")
+        else:
+            content.append("[dim]None selected[/dim]\n\n")
+            
+        modes = self.wizard_selections.get("modes", set())
+        content.append(f"Modes ({len(modes)}):\n", style="bold")
+        if modes:
+            content.append(f"[dim]{', '.join(sorted(modes))}[/dim]\n\n")
+        else:
+            content.append("[dim]None selected[/dim]\n\n")
+            
+        rules = self.wizard_selections.get("rules", set())
+        content.append(f"Rules ({len(rules)}):\n", style="bold")
+        if rules:
+            content.append(f"[dim]{', '.join(sorted(rules))}[/dim]\n\n")
+        else:
+            content.append("[dim]None selected[/dim]\n\n")
+
+        content.append("Enter", style="cyan")
+        content.append("=Apply Configuration  ", style="dim")
+        content.append("Backspace", style="cyan")
+        content.append("=Back  ", style="dim")
 
         return Panel(content, title="Init Wizard - Confirm", border_style="cyan")
 

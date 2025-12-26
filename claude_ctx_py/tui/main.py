@@ -19,9 +19,11 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Ty
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
+from textual import events
 from textual.widgets import ContentSwitcher, DataTable, Header, Static
 
 from .widgets import AdaptiveFooter
+from ..tui_extensions import ProfileViewMixin, ExportViewMixin, WizardViewMixin
 
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
@@ -156,6 +158,7 @@ from .dialogs import (
     MCPBrowseDialog,
     MCPInstallDialog,
     ClaudeMdWizard,
+    WizardConfig,
     generate_claude_md,
     ProfileEditorDialog,
     ProfileConfig,
@@ -203,7 +206,7 @@ import threading
 
 
 
-class AgentTUI(App[None]):
+class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     """Textual TUI for claude-ctx management."""
 
     CATEGORY_PALETTE = {
@@ -273,6 +276,10 @@ class AgentTUI(App[None]):
         # Flag manager state
         self.flag_files: List[Dict[str, Any]] = []  # List of {name, path, tokens, active, category}
         self.selected_flag_index = 0
+        self.selected_index = 0
+        self.state = self
+        self.wizard_active = False
+        self.wizard_step = 0
 
     CSS_PATH = "styles.tcss"
     # Bindings registered for key handling; display handled by AdaptiveFooter
@@ -1427,7 +1434,7 @@ class AgentTUI(App[None]):
                 description,
             )
 
-    def show_profiles_view(self, table: DataTable[Any]) -> None:
+    def _render_profiles_table(self, table: DataTable[Any]) -> None:
         """Render profile management view with setup tools."""
         table.add_column("Item", width=28)
         table.add_column("Type", width=12)
@@ -1495,7 +1502,7 @@ class AgentTUI(App[None]):
                 updated,
             )
 
-    def show_export_view(self, table: DataTable[Any]) -> None:
+    def _render_export_table(self, table: DataTable[Any]) -> None:
         """Render export configuration view."""
         table.add_column("Component", width=26)
         table.add_column("State", width=20)
@@ -2303,6 +2310,17 @@ class AgentTUI(App[None]):
 
         switcher.current = "main-table"
 
+        if self.wizard_active:
+            # When wizard is active, we don't use the DataTable, we use a Static panel
+            # but we can also just overlay it. For now, let's update a dedicated wizard area or overview.
+            # However, looking at the mixin, it returns a Panel. 
+            # We'll update the switcher to a wizard-view if it exists, or just hijack overview.
+            table.add_column("Wizard")
+            # This is a bit of a hack to render the Panel into the table area
+            # In a real Textual app we'd use a proper Screen or View
+            table.add_row(self.render_wizard_view())
+            return
+
         if self.current_view == "overview":
             self.show_overview(table)
             return
@@ -2328,9 +2346,9 @@ class AgentTUI(App[None]):
         elif self.current_view == "mcp":
             self.show_mcp_view(table)
         elif self.current_view == "profiles":
-            self.show_profiles_view(table)
+            self._render_profiles_table(table)
         elif self.current_view == "export":
-            self.show_export_view(table)
+            self._render_export_table(table)
         elif self.current_view == "ai_assistant":
             self.show_ai_assistant_view(table)
         elif self.current_view == "flags":
@@ -2535,7 +2553,7 @@ class AgentTUI(App[None]):
                 behavior_text,
             )
 
-    def _format_flag_categories(self, category_colors: dict) -> str:
+    def _format_flag_categories(self, category_colors: Dict[str, str]) -> str:
         """Format category selector with current selection highlighted."""
         parts = []
         for i, cat in enumerate(self.flag_categories):
@@ -2575,7 +2593,7 @@ class AgentTUI(App[None]):
         if self.current_flag_category not in self.flag_categories:
             self.current_flag_category = "all"
 
-    def _parse_flags_md(self) -> list:
+    def _parse_flags_md(self) -> List[Dict[str, str]]:
         """Parse flag files from flags/ (or resolve @flags references in FLAGS.md)."""
         base_dir = self._flag_manager_base_dir()
         claude_dir = base_dir
@@ -2666,7 +2684,7 @@ class AgentTUI(App[None]):
 
         return flags
 
-    def _parse_legacy_flags_md(self, content: str) -> list:
+    def _parse_legacy_flags_md(self, content: str) -> List[Dict[str, str]]:
         """Parse legacy monolithic FLAGS.md content."""
         flags: List[Dict[str, str]] = []
         current_category = ""
@@ -4009,12 +4027,12 @@ class AgentTUI(App[None]):
                 )
             else:
                 # Show deactivation recommendations
-                for rec in deactivation_recs[:5]:  # Top 5
+                for drec in deactivation_recs[:5]:  # Top 5
                     # Color by urgency
-                    if rec.urgency == "high":
+                    if drec.urgency == "high":
                         urgency_color = "orange1"
                         urgency_icon = "🔸"
-                    elif rec.urgency == "medium":
+                    elif drec.urgency == "medium":
                         urgency_color = "yellow"
                         urgency_icon = "🔹"
                     else:
@@ -4022,10 +4040,10 @@ class AgentTUI(App[None]):
                         urgency_icon = "⚪"
 
                     # Color by confidence
-                    confidence_pct = int(rec.confidence * 100)
-                    if rec.confidence >= 0.8:
+                    confidence_pct = int(drec.confidence * 100)
+                    if drec.confidence >= 0.8:
                         confidence_text = f"[bold orange1]{confidence_pct}%[/bold orange1]"
-                    elif rec.confidence >= 0.6:
+                    elif drec.confidence >= 0.6:
                         confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
                     else:
                         confidence_text = f"[dim]{confidence_pct}%[/dim]"
@@ -4033,22 +4051,22 @@ class AgentTUI(App[None]):
                     # Auto-deactivate indicator
                     auto_text = (
                         " [bold orange1]AUTO[/bold orange1]"
-                        if rec.auto_deactivate
+                        if drec.auto_deactivate
                         else ""
                     )
 
                     # Resource impact indicator
                     resource_text = ""
-                    if rec.resource_impact == "high":
+                    if drec.resource_impact == "high":
                         resource_text = " [red]⚡HIGH[/red]"
-                    elif rec.resource_impact == "medium":
+                    elif drec.resource_impact == "medium":
                         resource_text = " [yellow]⚡MED[/yellow]"
 
                     table.add_row(
                         f"[{urgency_color}]{urgency_icon} Agent[/{urgency_color}]",
-                        f"[bold]{rec.agent_name}[/bold]{auto_text}{resource_text}",
+                        f"[bold]{drec.agent_name}[/bold]{auto_text}{resource_text}",
                         confidence_text,
-                        f"[dim italic]{rec.reason}[/dim italic]",
+                        f"[dim italic]{drec.reason}[/dim italic]",
                     )
         else:
             table.add_row(
@@ -4472,7 +4490,7 @@ class AgentTUI(App[None]):
     def action_view_profiles(self) -> None:
         """Switch to profiles view."""
         self.current_view = "profiles"
-        self.load_profiles()
+        self._load_profiles_data()
         self.status_message = "Switched to Profiles"
         self.notify("👤 Profiles", severity="information", timeout=1)
 
@@ -4517,12 +4535,76 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Flag Explorer"
         self.notify("🚩 Flag Explorer", severity="information", timeout=1)
 
+    def action_cursor_up(self) -> None:
+        """Navigate up in lists."""
+        if self.state.selected_index > 0:
+            self.state.selected_index -= 1
+            self.update_view()
+
+    def action_cursor_down(self) -> None:
+        """Navigate down in lists."""
+        # Max index depends on view
+        max_idx = 0
+        if self.wizard_active:
+            if self.wizard_step == 0:
+                max_idx = 5 # 6 project types
+            elif self.wizard_step == 1:
+                assets = discover_plugin_assets()
+                max_idx = len(assets.get("agents", [])) - 1
+            elif self.wizard_step == 2:
+                assets = discover_plugin_assets()
+                max_idx = len(assets.get("modes", [])) - 1
+            elif self.wizard_step == 3:
+                assets = discover_plugin_assets()
+                max_idx = len(assets.get("rules", [])) - 1
+        elif self.current_view == "profiles":
+            max_idx = len(self.profiles) - 1
+        elif self.current_view == "export":
+            max_idx = 5 # 6 options
+
+        if self.state.selected_index < max_idx:
+            self.state.selected_index += 1
+            self.update_view()
+
     # ─────────────────────────────────────────────────────────────────────
     # Flags Explorer Actions
     # ─────────────────────────────────────────────────────────────────────
 
-    async def on_key(self, event) -> None:
-        """Handle key events for flags and flag manager navigation."""
+    async def on_key(self, event: events.Key) -> None:
+        """Handle key presses for global navigation."""
+        if self.wizard_active:
+            if event.key == "space":
+                self.action_wizard_toggle()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "enter":
+                self.action_wizard_next()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "backspace":
+                self.action_wizard_prev()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "escape":
+                self.wizard_cancel()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "up":
+                self.action_cursor_up()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            elif event.key == "down":
+                self.action_cursor_down()
+                self.update_view()
+                event.prevent_default()
+                event.stop()
+            return
+
         if self.current_view == "flags":
             if event.key == "left":
                 self.action_flag_category_prev()
@@ -4835,7 +4917,7 @@ class AgentTUI(App[None]):
                 self.flag_files = self._load_flag_files_metadata()
                 new_state = "enabled" if flag["active"] == False else "disabled"
                 self.update_view()
-                self.notify(f"{flag['category']}: {new_state} in FLAGS.md", severity="success", timeout=2)
+                self.notify(f"{flag['category']}: {new_state} in FLAGS.md", severity="information", timeout=2)
                 self.status_message = f"{flag['category']}: {new_state}"
             else:
                 self.notify("Failed to toggle flag in CLAUDE.md", severity="error", timeout=2)
@@ -5062,8 +5144,6 @@ class AgentTUI(App[None]):
             return None
 
         table = self.query_one("#main-table", DataTable)
-        if table.cursor_row is None:
-            return None
 
         # Skip header rows (target info row and blank row)
         row_idx = table.cursor_row
@@ -5141,6 +5221,8 @@ class AgentTUI(App[None]):
         try:
             if not action or not hasattr(self, "_current_asset"):
                 return
+            if not self.selected_target_dir:
+                return
             saved_cursor_row = self._table_cursor_index()
             asset = self._current_asset
 
@@ -5175,10 +5257,12 @@ class AgentTUI(App[None]):
         )
         self.push_screen(dialog, callback=self._handle_uninstall_confirm)
 
-    def _handle_uninstall_confirm(self, confirmed: bool) -> None:
+    def _handle_uninstall_confirm(self, confirmed: Optional[bool]) -> None:
         """Handle uninstall confirmation callback."""
         try:
             if not confirmed or not hasattr(self, "_uninstall_asset_pending"):
+                return
+            if not self.selected_target_dir:
                 return
 
             saved_cursor_row = self._table_cursor_index()
@@ -5216,6 +5300,8 @@ class AgentTUI(App[None]):
         """Handle diff viewer action callback."""
         try:
             if action != "apply" or not hasattr(self, "_diff_asset_pending"):
+                return
+            if not self.selected_target_dir:
                 return
 
             saved_cursor_row = self._table_cursor_index()
@@ -5286,6 +5372,8 @@ class AgentTUI(App[None]):
         try:
             if not selected:
                 return
+            if not self.selected_target_dir:
+                return
 
             saved_cursor_row = self._table_cursor_index()
             installed_count = 0
@@ -5344,10 +5432,12 @@ class AgentTUI(App[None]):
         )
         self.push_screen(dialog, callback=self._handle_update_all_confirm)
 
-    def _handle_update_all_confirm(self, confirmed: bool) -> None:
+    def _handle_update_all_confirm(self, confirmed: Optional[bool]) -> None:
         """Handle update all confirmation callback."""
         try:
-            if not confirmed or not hasattr(self, "_assets_to_update"):
+            if not confirmed or not hasattr(self, "_update_all_assets_pending"):
+                return
+            if not self.selected_target_dir:
                 return
 
             saved_cursor_row = self._table_cursor_index()
@@ -5385,8 +5475,6 @@ class AgentTUI(App[None]):
             return None
 
         table = self.query_one("#main-table", DataTable)
-        if table.cursor_row is None:
-            return None
 
         row_idx = table.cursor_row
         if row_idx < 0 or row_idx >= len(self.memory_notes):
@@ -5487,13 +5575,14 @@ class AgentTUI(App[None]):
         )
         self.push_screen(dialog, callback=self._handle_memory_delete_confirm)
 
-    def _handle_memory_delete_confirm(self, confirmed: bool) -> None:
-        """Handle memory note deletion confirmation."""
+    def _handle_memory_delete_confirm(self, confirmed: Optional[bool]) -> None:
+        """Handle note deletion confirmation callback."""
         try:
-            if not confirmed or not hasattr(self, "_memory_note_to_delete"):
+            if not confirmed or not hasattr(self, "_memory_note_pending"):
                 return
 
-            note = self._memory_note_to_delete
+            saved_cursor_row = self._table_cursor_index()
+            note = self._memory_note_pending
             path = Path(note.path)
 
             if path.exists():
@@ -5838,8 +5927,8 @@ class AgentTUI(App[None]):
             self.notify("Select a profile first", severity="warning", timeout=2)
             return
 
-        name = profile.get("name", "")
-        ptype = profile.get("type", "built-in")
+        name = profile.get("name") or ""
+        ptype = profile.get("type") or "built-in"
         path_str = profile.get("path")
 
         dialog = ProfileEditorDialog(name, ptype, path_str)
@@ -7308,7 +7397,7 @@ class AgentTUI(App[None]):
         install_dialog = MCPInstallDialog(server_name)
         self.push_screen(install_dialog, callback=self._handle_mcp_install_result)
 
-    def _handle_mcp_install_result(self, config: Optional[Dict]) -> None:
+    def _handle_mcp_install_result(self, config: Optional[Dict[str, Any]]) -> None:
         """Handle result from MCP install dialog."""
         if not config:
             return
@@ -7893,7 +7982,7 @@ class AgentTUI(App[None]):
         wizard = ClaudeMdWizard()
         self.push_screen(wizard, callback=self._handle_claude_md_wizard_result)
 
-    def _handle_claude_md_wizard_result(self, config) -> None:
+    def _handle_claude_md_wizard_result(self, config: Optional[WizardConfig]) -> None:
         """Handle result from CLAUDE.md wizard."""
         if config is None:
             return

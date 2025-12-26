@@ -193,11 +193,11 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
             if not self.installed_hooks:
                 installed_list.append(ListItem(Label("[dim]No hooks installed[/dim]")))
             else:
-                for hook in self.installed_hooks:
+                for inst_hook in self.installed_hooks:
                     # Extract hook name from command
-                    cmd = hook.command
+                    cmd = inst_hook.command
                     name = cmd.split("/")[-1].replace(".py", "") if "/" in cmd else cmd
-                    label = f"[green]●[/green] {name} [dim]({hook.event})[/dim]"
+                    label = f"[green]●[/green] {name} [dim]({inst_hook.event})[/dim]"
                     item = ListItem(Label(label), id=f"inst-{self._sanitize_id(name)}")
                     installed_list.append(item)
         except Exception:

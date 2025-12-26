@@ -116,9 +116,8 @@ class Asset:
             return f"scenarios/{self.source_path.name}"
         elif self.category == AssetCategory.TASKS:
             return f"tasks/{self.source_path.name}"
-        elif self.category == AssetCategory.SETTINGS:
+        else:
             return self.name
-        return self.source_path.name
 
 
 @dataclass
@@ -204,7 +203,7 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
 
 def _discover_hooks(plugin_root: Path) -> List[Asset]:
     """Discover available hooks."""
-    hooks = []
+    hooks: List[Asset] = []
     hooks_dir = plugin_root / "hooks" / "examples"
 
     if not hooks_dir.exists():
@@ -252,7 +251,7 @@ def _extract_hook_description(path: Path) -> str:
 
 def _discover_commands(plugin_root: Path) -> List[Asset]:
     """Discover available slash commands."""
-    commands = []
+    commands: List[Asset] = []
     commands_dir = plugin_root / "commands"
 
     if not commands_dir.exists():
@@ -319,7 +318,7 @@ def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]
 
 def _discover_agents(plugin_root: Path) -> List[Asset]:
     """Discover available agents."""
-    agents = []
+    agents: List[Asset] = []
     agents_dir = plugin_root / "agents"
 
     if not agents_dir.exists():
@@ -362,7 +361,7 @@ def _discover_agents(plugin_root: Path) -> List[Asset]:
 
 def _discover_skills(plugin_root: Path) -> List[Asset]:
     """Discover available skills."""
-    skills = []
+    skills: List[Asset] = []
     skills_dir = plugin_root / "skills"
 
     if not skills_dir.exists():
@@ -419,7 +418,7 @@ def _discover_skills(plugin_root: Path) -> List[Asset]:
 
 def _discover_modes(plugin_root: Path) -> List[Asset]:
     """Discover available modes."""
-    modes = []
+    modes: List[Asset] = []
     modes_dir = plugin_root / "modes"
 
     if not modes_dir.exists():
@@ -464,7 +463,7 @@ def _discover_modes(plugin_root: Path) -> List[Asset]:
 
 def _discover_workflows(plugin_root: Path) -> List[Asset]:
     """Discover available workflows."""
-    workflows = []
+    workflows: List[Asset] = []
     workflows_dir = plugin_root / "workflows"
 
     if not workflows_dir.exists():
@@ -495,7 +494,7 @@ def _discover_workflows(plugin_root: Path) -> List[Asset]:
 
 def _discover_flags(plugin_root: Path) -> List[Asset]:
     """Discover available flags."""
-    flags = []
+    flags: List[Asset] = []
     flags_dir = plugin_root / "flags"
 
     if not flags_dir.exists():
@@ -730,7 +729,7 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
         start_path = Path.cwd()
 
     claude_dirs: List[ClaudeDir] = []
-    seen_paths: set = set()
+    seen_paths: set[str] = set()
 
     # Walk up from start_path
     current = start_path.resolve()

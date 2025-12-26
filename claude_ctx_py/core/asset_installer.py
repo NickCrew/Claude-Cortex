@@ -111,10 +111,8 @@ def install_asset(
             return _install_scenario(asset, target_dir)
         elif asset.category == AssetCategory.TASKS:
             return _install_task(asset, target_dir)
-        elif asset.category == AssetCategory.SETTINGS:
-            return _install_setting(asset, target_dir)
         else:
-            return 1, _color(f"Unknown asset category: {asset.category}", RED)
+            return _install_setting(asset, target_dir)
     except Exception as e:
         return 1, _color(f"Installation failed: {e}", RED)
 
