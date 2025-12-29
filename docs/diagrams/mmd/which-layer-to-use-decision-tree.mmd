@@ -1,0 +1,46 @@
+flowchart TD
+    Start{What do you<br/>need to do?}
+
+    Start -->|Quick action| Q1{Specific<br/>task?}
+    Start -->|Change behavior| Q2{How Claude<br/>operates?}
+    Start -->|Multi-step process| Q3{Complex<br/>workflow?}
+
+    Q1 -->|Yes| UseCommand["✅ Use Slash Command<br/>Example:<br/>/refactor:analyze<br/>/test:generate-tests<br/>/docs:generate"]
+
+    Q2 -->|Reasoning depth| UseMode1["✅ Use Mode<br/>Deep_Analysis<br/>--ultrathink"]
+    Q2 -->|Quality standards| UseMode2["✅ Use Mode<br/>Quality_Focus<br/>--focus quality"]
+    Q2 -->|Communication style| UseMode3["✅ Use Mode<br/>Token_Efficient<br/>--uc"]
+    Q2 -->|Execution pattern| UseMode4["✅ Use Mode<br/>Parallel_Orchestration<br/>--orchestrate"]
+
+    Q3 -->|Feature development| UseWorkflow1["✅ Use Workflow<br/>/workflow:run<br/>feature-development"]
+    Q3 -->|Code refactoring| UseWorkflow2["✅ Use Workflow<br/>/workflow:run<br/>refactoring"]
+    Q3 -->|API design| UseWorkflow3["✅ Use Workflow<br/>/workflow:run<br/>api-design"]
+    Q3 -->|Developer onboarding| UseWorkflow4["✅ Use Workflow<br/>/workflow:run<br/>onboarding"]
+
+    UseCommand --> Examples1["Commands are:<br/>✓ Fast<br/>✓ Focused<br/>✓ Single purpose"]
+    UseMode1 --> Examples2["Modes are:<br/>✓ Behavioral<br/>✓ Persistent<br/>✓ Context-aware"]
+    UseMode2 --> Examples2
+    UseMode3 --> Examples2
+    UseMode4 --> Examples2
+    UseWorkflow1 --> Examples3["Workflows are:<br/>✓ Multi-step<br/>✓ Coordinated<br/>✓ Progressive"]
+    UseWorkflow2 --> Examples3
+    UseWorkflow3 --> Examples3
+    UseWorkflow4 --> Examples3
+
+    Examples1 --> Combine{Can be<br/>combined?}
+    Examples2 --> Combine
+    Examples3 --> Combine
+
+    Combine -->|Yes| Combined["✅ Example:<br/>/workflow:run refactoring<br/>└─ Activates: Deep_Analysis<br/>└─ Activates: Quality_Focus<br/>└─ Executes: 10 workflow steps<br/>└─ Uses: code-reviewer agent"]
+
+    style Start fill:#e1f5ff
+    style UseCommand fill:#ffe1e1
+    style UseMode1 fill:#fff3e1
+    style UseMode2 fill:#fff3e1
+    style UseMode3 fill:#fff3e1
+    style UseMode4 fill:#fff3e1
+    style UseWorkflow1 fill:#e8f5e9
+    style UseWorkflow2 fill:#e8f5e9
+    style UseWorkflow3 fill:#e8f5e9
+    style UseWorkflow4 fill:#e8f5e9
+    style Combined fill:#c8e6c9

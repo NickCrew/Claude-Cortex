@@ -39,6 +39,9 @@ Thumbs.db
 # Metrics data
 .claude/.metrics/
 
+# Runtime intelligence data
+intelligence/
+
 # Testing
 .pytest_cache/
 .coverage

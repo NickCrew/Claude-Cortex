@@ -66,7 +66,7 @@ The system prioritizes **learning from real usage** over hardcoded rules, **cont
 │  ├─ ai recommend           ├─ Recommendations           │
 │  ├─ ai auto-activate       ├─ Auto-activation           │
 │  ├─ ai record-success      ├─ Workflow predictions      │
-│  └─ ai export-json         └─ Context analysis          │
+│  └─ ai export              └─ Context analysis          │
 │                                                          │
 └────────────┬─────────────────────────────────────────────┘
              ↓
@@ -128,7 +128,13 @@ The system prioritizes **learning from real usage** over hardcoded rules, **cont
    └─ _rule_based_recommendations(context)
       ├─ If has_auth → recommend security-auditor (0.9)
       ├─ If test_failures → recommend test-automator (0.95)
-      ├─ If 5+ files → recommend code-reviewer (0.85)
+      ├─ If changeset → recommend quality-engineer (0.85)
+      ├─ If changeset → recommend code-reviewer (0.75)
+      ├─ If TS/TSX → recommend typescript-pro (0.85)
+      ├─ If React/JSX/TSX → recommend react-specialist (0.8)
+      ├─ If UI changes → recommend ui-ux-designer (0.8)
+      ├─ If DB/SQL → recommend database-optimizer, sql-pro (0.8)
+      ├─ If cross-cutting → recommend architect-review (0.75)
       └─ Merge with pattern recommendations
 
 4. Confidence Scoring
@@ -925,7 +931,13 @@ confidence = agent_usage_count / total_similar_sessions
 **Rule-Based Confidence**: Hardcoded based on signal strength
 - Auth code detected → security-auditor (0.9)
 - Test failures → test-automator (0.95)
-- 5+ files changed → code-reviewer (0.85)
+- Any changeset → quality-engineer (0.85)
+- Any changeset → code-reviewer (0.75)
+- TypeScript/TSX → typescript-pro (0.85)
+- React/JSX/TSX → react-specialist (0.8)
+- User-facing UI → ui-ux-designer (0.8)
+- Database/SQL → database-optimizer, sql-pro (0.8)
+- Cross-cutting changes → architect-review (0.75)
 
 **Combined Confidence**: When multiple strategies recommend same agent
 ```python
@@ -961,13 +973,17 @@ $ claude-ctx ai recommend
    Confidence: 90%
    Reason: Auth code detected - security review recommended
 
-2. 🟡 test-automator
-   Confidence: 75%
-   Reason: Used in 6/8 similar sessions
+2. 🔵 quality-engineer [AUTO]
+   Confidence: 85%
+   Reason: Changes detected - quality review recommended
 
-3. 🔵 code-reviewer
-   Confidence: 65%
-   Reason: 7 files changed - review recommended
+3. 🔵 code-reviewer [AUTO]
+   Confidence: 75%
+   Reason: Changes detected - code review recommended
+
+4. 🔵 performance-engineer [AUTO]
+   Confidence: 70%
+   Reason: Performance-sensitive changes detected
 
 ══════════════════════════════════════════════════════════════════
 
@@ -1026,12 +1042,12 @@ $ claude-ctx ai record-success "all tests passing"
 💡 This session will improve future recommendations!
 ```
 
-### ai export-json
+### ai export
 
 Export recommendations to JSON:
 
 ```bash
-$ claude-ctx ai export-json recommendations.json
+$ claude-ctx ai export --output recommendations.json
 
 ✓ Exported AI recommendations to recommendations.json
   3 agent recommendations

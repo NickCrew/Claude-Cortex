@@ -18,9 +18,17 @@ The base level provides intelligent recommendations based on detected context si
 
 - **Security Auditor**: Auto-activates when auth code is detected
 - **Test Automator**: Auto-activates when test failures occur
-- **Code Reviewer**: Recommends for large changesets (>5 files)
-- **Performance Engineer**: Recommends for database/API changes
+- **Quality Engineer**: Auto-activates for any non-empty changeset
+- **Code Reviewer**: Auto-activates for any non-empty changeset
+- **Performance Engineer**: Auto-activates for database/API or perf-sensitive changes
 - **API Documenter**: Recommends for API changes
+
+**Multi-review bundles** (can trigger 5+ reviewers at once):
+- **TypeScript** → `typescript-pro`
+- **React / JSX / TSX** → `react-specialist`
+- **User-facing UI** → `ui-ux-designer`
+- **Database / SQL** → `database-optimizer`, `sql-pro`
+- **Cross-cutting architecture** → `architect-review`
 
 **Installation**: Built-in, no additional dependencies
 
@@ -81,10 +89,12 @@ git status
 # Intelligence detects: "auth changes, 8 files, high complexity"
 
 # Get recommendations
-claude-ctx agent recommend
+claude-ctx ai recommend
 # ✓ security-auditor (95% confidence) - Auth code detected
-# ✓ code-reviewer (85% confidence) - 8 files changed
-# ✓ test-automator (75% confidence) - Used in similar sessions
+# ✓ quality-engineer (85% confidence) - Changes detected
+# ✓ code-reviewer (75% confidence) - Changes detected
+# ✓ typescript-pro (85% confidence) - TypeScript changes detected
+# ✓ react-specialist (80% confidence) - React/UI changes detected
 ```
 
 ### Recording Success
@@ -98,7 +108,7 @@ claude-ctx agent activate api-documenter code-reviewer
 # ... make changes ...
 
 # Record success (helps intelligence learn)
-claude-ctx session complete --outcome "API docs updated successfully"
+claude-ctx ai record-success --outcome "API docs updated successfully"
 ```
 
 ### Configuration
@@ -238,7 +248,7 @@ The system automatically detects context from:
 $ vim src/auth/oauth.py src/auth/jwt.py
 
 # Get recommendations
-$ claude-ctx agent recommend
+$ claude-ctx ai recommend
 
 Recommendations:
 ┌───────────────────┬────────────┬─────────────────────────────────────┐
@@ -261,7 +271,7 @@ $ vim api/routes.ts api/handlers.ts
 # System learns from history
 # Previously: API changes → api-documenter + code-reviewer
 
-$ claude-ctx agent recommend
+$ claude-ctx ai recommend
 
 Recommendations:
 ┌──────────────────┬────────────┬──────────────────────────────────┐
@@ -280,7 +290,7 @@ Recommendations:
 Help the system learn by recording successful sessions:
 
 ```bash
-claude-ctx session complete --outcome "Feature complete, tests passing"
+claude-ctx ai record-success --outcome "Feature complete, tests passing"
 ```
 
 ### 2. Use Semantic Matching
@@ -309,9 +319,9 @@ Check what gets auto-activated:
 
 ```bash
 # See what would be auto-activated
-claude-ctx agent recommend --dry-run
+claude-ctx ai recommend
 
-# Adjust threshold if too aggressive
+# Adjust threshold if too aggressive (future config)
 claude-ctx config set ai.auto_activate_threshold 0.9
 ```
 

@@ -41,7 +41,7 @@
 
 - Clean 3-part layout (header/body/footer)
 - Consistent color scheme (6 main colors + modifiers)
-- 9 different views with specialized functionality
+- 10+ views with specialized functionality
 - Good keyboard navigation (1-9 for views, arrow keys for navigation)
 - Helpful status messages and context-aware hints
 - Rich library provides excellent rendering
@@ -61,7 +61,7 @@
 | Metric | Value |
 |--------|-------|
 | Total Code | ~2,500 lines |
-| Views | 9 |
+| Views | 10+ |
 | Color Palette | 6 colors + 4 modifiers |
 | Keyboard Shortcuts | 20+ |
 | Hard-Coded Colors | 1,000+ references |
@@ -153,7 +153,7 @@ REVERSE     - Selected rows
 
 ```
 VIEWS:      1=Overview, 2=Agents, 3=Modes, 4=Rules
-            5=Skills, 6=Workflows, 7=Orchestrate
+            p=Principles, 5=Skills, 6=Workflows, 7=Orchestrate
             8=Profile, 9=Export
 
 MOVEMENT:   ↑/k=Up, ↓/j=Down
@@ -330,6 +330,31 @@ status_style = "bold green" if active else "yellow"
 # Selected row
 row_style = "reverse" if is_selected else None
 ```
+
+### Quick Theme Overrides (CSS-only)
+
+You can override the default TUI palette without touching Python by supplying a
+custom Textual `.tcss` file. The override loads after `styles.tcss` so it can
+redefine variables like `$primary`, `$accent`, `$surface`, etc.
+
+**Options (highest priority first):**
+1. `claude-ctx tui --theme /path/to/theme.tcss`
+2. `CLAUDE_CTX_TUI_THEME=/path/to/theme.tcss`
+3. `~/.claude/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
+
+**Example override:**
+```tcss
+$primary: #22c55e;
+$accent: #f97316;
+$surface: #0b1020;
+$surface-lighten-1: #111827;
+$surface-lighten-2: #1f2937;
+$text: #f9fafb;
+$text-muted: #94a3b8;
+```
+
+Note: This is a quick override only; hard-coded Rich markup colors in Python
+remain unchanged until a full theme system is added.
 
 ### Table Pattern
 

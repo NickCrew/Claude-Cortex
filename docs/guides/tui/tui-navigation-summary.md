@@ -19,7 +19,7 @@ This page summarizes how to move through the claude-ctx TUI and where each major
 
 ```
 A  Asset Manager     C  Worktrees     F  Flags     M  Memory Vault
-w  Watch Mode        S  Scenarios     o  Orchestrate
+p  Principles        w  Watch Mode    S  Scenarios     o  Orchestrate
 g  Agent Galaxy      t  Tasks         /  Slash Commands
 ```
 

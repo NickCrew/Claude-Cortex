@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-cortex"
-version = "1.2.0"
+version = "1.3.0"
 description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = {text = "MIT"}
@@ -48,10 +48,12 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/NickCrew/claude-ctx-plugin"
+Homepage = "https://github.com/NickCrew/claude-cortex"
 
 [project.scripts]
-claude-ctx = "claude_ctx_py.cli:main"
+cortex = "claude_ctx_py.cli:main"
+cortex-ui = "claude_ctx_py.tui.cli:main"
+claude-ctx = "claude_ctx_py.cli:main"  # Deprecated entry point
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -66,12 +68,17 @@ include = ["claude_ctx_py*"]
     "docs/reference/claude-ctx-tui.1",
     "docs/reference/claude-ctx-workflow.1",
 ]
-"share/claude-ctx/docs" = [
+"share/claude-cortex/docs" = [
     "docs/reference/architecture/architecture-diagrams.md",
     "docs/reference/architecture/quick-reference.md",
     "docs/reference/architecture/DIAGRAMS_README.md",
     "docs/reference/architecture/VISUAL_SUMMARY.txt",
     "docs/reference/architecture/README.md",
+    "docs/AI_INTELLIGENCE.md",
+    "docs/WHATS_NEW.md",
+    "CHANGELOG.md",
+    "CREDITS.md",
+    "LICENSE"
 ]
 
 

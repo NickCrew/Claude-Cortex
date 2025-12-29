@@ -43,13 +43,6 @@ def test_resolve_claude_dir_falls_back_to_home(tmp_path: Path, monkeypatch: pyte
     assert result == home_override / ".claude"
 
 
-def test_resolve_claude_dir_respects_ctx_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    custom = tmp_path / "custom-claude"
-    custom.mkdir()
-    monkeypatch.setenv("CLAUDE_CTX_HOME", str(custom))
-    result = base._resolve_claude_dir()
-    assert result == custom
-
 
 def test_resolve_claude_dir_scope_global_ignores_plugin_root(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch

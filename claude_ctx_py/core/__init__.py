@@ -170,6 +170,15 @@ from .rules import (
     list_rules,
 )
 
+# Export all functions from principles
+from .principles import (
+    list_principles,
+    principles_status,
+    principles_activate,
+    principles_deactivate,
+    principles_build,
+)
+
 # Export all functions from workflows
 from .workflows import (
     workflow_run,

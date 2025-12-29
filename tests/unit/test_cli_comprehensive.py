@@ -35,8 +35,8 @@ def mock_sys_argv():
 def test_main_env_setup(mock_core, mock_print):
     """Test environment variable setup in main."""
     with mock.patch.dict(os.environ, {}, clear=True):
-        cli.main(["--scope", "global", "--claude-dir", "/tmp/test", "status"])
-        assert os.environ["CLAUDE_CTX_HOME"] == "/tmp/test"
+        cli.main(["--scope", "global", "--plugin-root", "/tmp/test", "status"])
+        assert os.environ["CLAUDE_PLUGIN_ROOT"] == "/tmp/test"
         assert os.environ["CLAUDE_CTX_SCOPE"] == "global"
 
 def test_main_dispatch_status(mock_core, mock_print):
@@ -98,6 +98,31 @@ def test_handle_agent_validate(mock_core, mock_print):
     mock_core.agent_validate.return_value = (0, "Valid")
     assert cli._handle_agent_command(args) == 0
     mock_core.agent_validate.assert_called_with("a1", include_all=True)
+
+# --------------------------------------------------------------------------- Principles Command
+
+def test_handle_principles_list(mock_core, mock_print):
+    args = argparse.Namespace(principles_command="list")
+    mock_core.list_principles.return_value = "Principles List"
+    assert cli._handle_principles_command(args) == 0
+    mock_print.assert_called_with("Principles List")
+
+
+def test_handle_principles_activate(mock_core, mock_print):
+    args = argparse.Namespace(principles_command="activate", principles=["p1", "p2"])
+    mock_core.principles_activate.side_effect = [(0, "OK1"), (1, "Fail2")]
+    assert cli._handle_principles_command(args) == 1
+    mock_core.principles_activate.assert_any_call("p1")
+    mock_core.principles_activate.assert_any_call("p2")
+    mock_print.assert_called_with("OK1\nFail2")
+
+
+def test_handle_principles_build(mock_core, mock_print):
+    args = argparse.Namespace(principles_command="build")
+    mock_core.principles_build.return_value = (0, "Built")
+    assert cli._handle_principles_command(args) == 0
+    mock_core.principles_build.assert_called_once()
+    mock_print.assert_called_with("Built")
 
 # --------------------------------------------------------------------------- Skills Command
 
@@ -266,4 +291,3 @@ def test_handle_orchestrate_run(mock_core, mock_print):
     mock_core.scenario_run.return_value = (0, "Running")
     assert cli._handle_orchestrate_command(args) == 0
     mock_core.scenario_run.assert_called_with("sc1", "--auto", "--plan")
-

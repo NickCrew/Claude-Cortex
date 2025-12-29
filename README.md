@@ -108,6 +108,7 @@ claude-ctx setup migrate
 - **Watch Mode** – Real-time monitoring with instant recommendations (no daemon required)
 - **TUI AI Assistant** – Interactive view with recommendations and predictions (press `0`)
 - **Skill Palette Shortcuts** – `Ctrl+P` → type “Skill…” to run info, versions, deps, analytics, trending, or community install/validate/rate/search commands without leaving the TUI
+- **Multi-Reviewer Auto-Activation** – Code changes can auto-activate multiple reviewers (quality, code, TS/React/UX, DB/SQL, performance, architecture)
 
 **Quick start:**
 
@@ -130,6 +131,30 @@ claude-ctx tui
 claude-ctx ai record-success --outcome "feature complete"
 ```
 
+**Multi-review output example:**
+
+```
+1. 🔵 quality-engineer [AUTO]
+   Confidence: 85%
+   Reason: Changes detected - quality review recommended
+
+2. 🔵 code-reviewer [AUTO]
+   Confidence: 75%
+   Reason: Changes detected - code review recommended
+
+3. 🔵 typescript-pro [AUTO]
+   Confidence: 85%
+   Reason: TypeScript changes detected - review recommended
+
+4. 🔵 react-specialist [AUTO]
+   Confidence: 80%
+   Reason: React/UI component changes detected - review recommended
+
+5. 🔵 ui-ux-designer [AUTO]
+   Confidence: 80%
+   Reason: User-facing UI changes detected - UX review recommended
+```
+
 **Watch Mode Example:**
 
 ```
@@ -141,10 +166,16 @@ claude-ctx ai record-success --outcome "feature complete"
   3 files changed
 
   💡 Recommendations:
+     🔵 quality-engineer [AUTO]
+        85% - Changes detected - quality review recommended
+     🔵 code-reviewer [AUTO]
+        75% - Changes detected - code review recommended
      🔴 security-auditor [AUTO]
         95% - Auth code detected
 
-[10:33:12] ⚡ Auto-activating 1 agents...
+[10:33:12] ⚡ Auto-activating 3 agents...
+     ✓ quality-engineer
+     ✓ code-reviewer
      ✓ security-auditor
 ```
 
@@ -371,7 +402,7 @@ claude-ctx agent graph --export dependency-map.md
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
 
-> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_HOME` (explicit path), `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
+> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
@@ -383,11 +414,11 @@ Running the CLI directly will operate on the directories in this repository, whi
 > export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
 > ```
 >
-> To target a project-local scope or an explicit directory:
+> To target a project-local scope or a specific plugin root:
 >
 > ```bash
 > claude-ctx --scope project status
-> claude-ctx --claude-dir /path/to/.claude status
+> claude-ctx --plugin-root /path/to/claude-ctx-plugin status
 > ```
 
 ### Shell completion

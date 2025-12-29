@@ -371,15 +371,19 @@ $ git commit -m "..."      # Commit detected (HEAD change)
      🟡 test-automator
         75% - Used in 6/8 similar sessions
 
-     🔵 code-reviewer
-        65% - 7 files changed - review recommended
+     🔵 quality-engineer [AUTO]
+        85% - Changes detected - quality review recommended
+
+     🔵 code-reviewer [AUTO]
+        75% - Changes detected - code review recommended
 ```
 
 **Auto-Activation**:
 ```
-[14:30:16] ⚡ Auto-activating 2 agents...
+[14:30:16] ⚡ Auto-activating 3 agents...
      ✓ security-auditor
-     ✓ test-automator
+     ✓ quality-engineer
+     ✓ code-reviewer
 ```
 
 **Commit Detection**:

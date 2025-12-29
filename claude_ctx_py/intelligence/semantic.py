@@ -8,12 +8,21 @@ from __future__ import annotations
 
 import json
 import logging
+import warnings
 from pathlib import Path
 from typing import Any, Literal, Dict, Union
 
 import numpy as np  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+# Suppress urllib3 LibreSSL warnings; embeddings still work.
+warnings.filterwarnings(
+    "ignore",
+    message="urllib3 v2 only supports OpenSSL*",
+    category=Warning,
+    module="urllib3",
+)
 
 
 # Claude model pricing (per million tokens)

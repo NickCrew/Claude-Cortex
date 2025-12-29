@@ -7,9 +7,11 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ## 📚 Available Diagrams
 
 ### 1. **architecture-diagrams.md** - Comprehensive Diagrams
+
 **Purpose**: Deep dive into system architecture with 10+ Mermaid diagrams
 
 **Contents**:
+
 - System Architecture Overview (full stack)
 - Command → Mode → Workflow Flow (sequence diagram)
 - Mode Activation Flow (flowchart)
@@ -21,6 +23,7 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 - Legend and Quick Start Guide
 
 **Best for**:
+
 - Understanding how the system works
 - Learning integration patterns
 - Architecture reviews
@@ -31,9 +34,11 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ---
 
 ### 2. **quick-reference.md** - One-Page Cheat Sheet
+
 **Purpose**: Fast lookup for common tasks and patterns
 
 **Contents**:
+
 - Three-layer system overview (ASCII diagram)
 - Common commands quick lookup table
 - Behavioral modes comparison table
@@ -48,6 +53,7 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 - System statistics
 
 **Best for**:
+
 - Daily reference during development
 - Quick command lookup
 - Pattern examples
@@ -62,12 +68,14 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ### For Learning
 
 **First Time Users**:
+
 1. Start with `quick-reference.md` → Get overview
 2. Try a simple command → `/refactor:analyze src/`
 3. Read `architecture-diagrams.md` → Understand how it works
 4. Experiment with workflows → `/workflow:run feature-development`
 
 **Visual Learners**:
+
 1. Open `architecture-diagrams.md`
 2. Focus on sequence diagrams and flowcharts
 3. Follow the "Refactoring Example: End-to-End" diagram
@@ -76,12 +84,14 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ### For Reference
 
 **During Development**:
+
 - Keep `quick-reference.md` open
 - Use command lookup tables
 - Reference integration patterns
 - Check keyboard shortcuts
 
 **For Troubleshooting**:
+
 - Review flow diagrams in `architecture-diagrams.md`
 - Check compatibility matrix
 - Verify workflow steps
@@ -90,12 +100,14 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ### For Teaching
 
 **Onboarding New Developers**:
+
 1. Show system architecture overview
 2. Explain three layers with ASCII diagram
 3. Walk through a real example (refactoring flow)
 4. Provide quick-reference.md as cheat sheet
 
 **Architecture Reviews**:
+
 1. Present system architecture diagram
 2. Show component distribution (pie chart)
 3. Explain integration patterns
@@ -106,12 +118,14 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ## 🔍 Diagram Index
 
 ### System Architecture
+
 - **File**: architecture-diagrams.md
 - **Section**: "System Architecture Overview"
 - **Shows**: All layers and their relationships
 - **Format**: Mermaid graph TB (top-bottom)
 
 ### Flow Diagrams
+
 - **File**: architecture-diagrams.md
 - **Sections**:
   - Command → Mode → Workflow Flow (sequence)
@@ -120,12 +134,14 @@ Visual guides for understanding the claude-ctx three-layer automation system.
   - Refactoring Example (graph TB)
 
 ### Decision Aids
+
 - **File**: architecture-diagrams.md
 - **Section**: "Decision Tree: Which Layer to Use?"
 - **Shows**: Interactive decision-making process
 - **Format**: Mermaid flowchart TD
 
 ### Quick Reference
+
 - **File**: quick-reference.md
 - **Sections**: All tables and ASCII diagrams
 - **Shows**: Commands, modes, workflows at a glance
@@ -138,44 +154,52 @@ Visual guides for understanding the claude-ctx three-layer automation system.
 ### Mermaid Diagram Types
 
 **Graph (TB/TD)**: Top-to-bottom flow
+
 ```mermaid
 graph TB
     A --> B
     B --> C
 ```
+
 - Shows hierarchical relationships
 - Good for system architecture
 - Shows data flow direction
 
 **Flowchart (TD)**: Decision flows
+
 ```mermaid
 flowchart TD
     Start --> Decision{?}
     Decision -->|Yes| Action1
     Decision -->|No| Action2
 ```
+
 - Shows decision points
 - Good for processes
 - Shows conditional logic
 
 **Sequence Diagram**: Interaction over time
+
 ```mermaid
 sequenceDiagram
     User->>System: Request
     System->>Agent: Process
     Agent-->>User: Response
 ```
+
 - Shows temporal order
 - Good for protocols
 - Shows message passing
 
 **Pie Chart**: Distribution
+
 ```mermaid
 pie
     "A" : 40
     "B" : 30
     "C" : 30
 ```
+
 - Shows proportions
 - Good for statistics
 - Shows relative sizes
@@ -214,16 +238,19 @@ Diagrams use consistent color coding:
 
 ### Tools
 
-**Mermaid Live Editor**: https://mermaid.live/
+**Mermaid Live Editor**: <https://mermaid.live/>
+
 - Online editor for Mermaid diagrams
 - Real-time preview
 - Export to PNG/SVG/Markdown
 
 **VS Code**: Install "Markdown Preview Mermaid Support"
+
 - Preview diagrams in editor
 - Edit and see changes live
 
 **Command Line**: `mermaid-cli` (mmdc)
+
 ```bash
 npm install -g @mermaid-js/mermaid-cli
 mmdc -i input.md -o output.png
@@ -232,6 +259,7 @@ mmdc -i input.md -o output.png
 ### Templates
 
 **Simple Flow**:
+
 ```markdown
 ```mermaid
 graph TD
@@ -239,6 +267,7 @@ graph TD
     Step1 --> Step2[Step 2]
     Step2 --> End([End])
 ```
+
 ```
 
 **Decision Tree**:
@@ -249,6 +278,7 @@ flowchart TD
     Q -->|Yes| A[Action A]
     Q -->|No| B[Action B]
 ```
+
 ```
 
 **Sequence**:
@@ -258,6 +288,7 @@ sequenceDiagram
     Actor1->>Actor2: Message
     Actor2-->>Actor1: Response
 ```
+
 ```
 
 ---

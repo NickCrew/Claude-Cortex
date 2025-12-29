@@ -422,3 +422,192 @@ skills:
       - "create skill"
       - "skill development"
       - "skill authoring"
+
+  context-health:
+    keywords:
+      - "claude-ctx doctor"
+      - "claude ctx doctor"
+      - "context health"
+      - "context health check"
+      - "context diagnostic"
+      - "environment check"
+      - "consistency check"
+      - "duplicate agents"
+      - "redundancy check"
+      - "claude ctx health"
+
+  code-explanation:
+    keywords:
+      - "explain code"
+      - "explain this code"
+      - "code explanation"
+      - "explain function"
+      - "explain architecture"
+      - "walkthrough"
+      - "how does this work"
+      - "teach code"
+
+  system-design:
+    keywords:
+      - "system design"
+      - "system architecture"
+      - "architecture design"
+      - "architecture diagram"
+      - "component design"
+      - "API specification"
+      - "interface design"
+      - "data model"
+      - "schema design"
+      - "design doc"
+
+  git-ops:
+    keywords:
+      - "git status"
+      - "git commit"
+      - "git push"
+      - "git pull"
+      - "git branch"
+      - "merge conflict"
+      - "rebase"
+      - "smart commit"
+      - "conventional commit"
+
+  test-generation:
+    keywords:
+      - "generate tests"
+      - "test generation"
+      - "write tests"
+      - "increase coverage"
+      - "coverage target"
+      - "test suite"
+      - "regression tests"
+
+  task-orchestration:
+    keywords:
+      - "orchestrate"
+      - "orchestration"
+      - "parallel tasks"
+      - "multi-agent"
+      - "task management"
+      - "workflow execution"
+
+  reasoning-controls:
+    keywords:
+      - "reasoning budget"
+      - "reasoning metrics"
+      - "reasoning depth"
+      - "adjust reasoning"
+      - "think hard"
+      - "ultrathink"
+      - "token budget"
+
+  session-management:
+    keywords:
+      - "session load"
+      - "session save"
+      - "checkpoint restore"
+      - "checkpoint save"
+      - "restore session"
+      - "session context"
+      - "reflect on session"
+      - "save context"
+
+  tool-selection:
+    keywords:
+      - "tool selection"
+      - "mcp tool selection"
+      - "tool routing"
+      - "codanna"
+      - "morphllm"
+      - "capability matching"
+
+  visual-modes:
+    keywords:
+      - "supersaiyan"
+      - "kamehameha"
+      - "over9000"
+      - "over 9000"
+      - "visual mode"
+      - "visual effects"
+      - "showcase UI"
+
+  dev-workflows:
+    keywords:
+      - "build error"
+      - "build failure"
+      - "run build"
+      - "run tests"
+      - "test run"
+      - "test failure"
+      - "developer experience"
+      - "DX"
+      - "tooling improvement"
+      - "onboarding"
+
+  development-estimation:
+    keywords:
+      - "effort estimate"
+      - "time estimate"
+      - "complexity estimate"
+      - "estimate effort"
+      - "t-shirt size"
+      - "scoping"
+
+  documentation-production:
+    keywords:
+      - "documentation"
+      - "generate docs"
+      - "doc index"
+      - "mermaid diagram"
+      - "sequence diagram"
+      - "tutorial"
+      - "learning path"
+
+  feature-implementation:
+    keywords:
+      - "implement feature"
+      - "build feature"
+      - "add feature"
+      - "implement component"
+      - "implement API"
+      - "feature work"
+
+  implementation-workflow:
+    keywords:
+      - "implementation plan"
+      - "implementation workflow"
+      - "workflow plan"
+      - "task breakdown"
+      - "PRD"
+      - "feature spec"
+      - "plan implementation"
+
+  release-prep:
+    keywords:
+      - "prepare release"
+      - "release prep"
+      - "release checklist"
+      - "release candidate"
+      - "version bump"
+      - "changelog"
+      - "deploy prep"
+
+  repo-cleanup:
+    keywords:
+      - "cleanup repo"
+      - "dead code"
+      - "unused dependencies"
+      - "remove artifacts"
+      - "repo cleanup"
+      - "docs cleanup"
+      - "test cleanup"
+      - "archive sprint"
+
+  code-quality-workflow:
+    keywords:
+      - "code quality"
+      - "code review"
+      - "quality review"
+      - "refactor"
+      - "maintainability"
+      - "quality improvement"

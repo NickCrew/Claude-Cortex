@@ -395,6 +395,47 @@ class TestPatternLearner:
         assert test_rec.auto_activate
         assert test_rec.urgency == "critical"
 
+    def test_rule_based_recommendations_frontend_reviews(self, tmp_path):
+        """Test review recommendations for frontend changes."""
+        history_file = tmp_path / "history.json"
+        learner = PatternLearner(history_file)
+
+        now = datetime.now()
+        context = SessionContext(
+            files_changed=["src/components/Button.tsx", "src/styles/main.css"],
+            file_types={".tsx", ".css"},
+            directories={"src/components", "src/styles"},
+            has_tests=False,
+            has_auth=False,
+            has_api=False,
+            has_frontend=True,
+            has_backend=False,
+            has_database=False,
+            errors_count=0,
+            test_failures=0,
+            build_failures=0,
+            session_start=now,
+            last_activity=now,
+            active_agents=[],
+            active_modes=[],
+            active_rules=[],
+        )
+
+        recommendations = learner._rule_based_recommendations(context)
+        recs_by_name = {rec.agent_name: rec for rec in recommendations}
+
+        assert "quality-engineer" in recs_by_name
+        assert "code-reviewer" in recs_by_name
+        assert "typescript-pro" in recs_by_name
+        assert "react-specialist" in recs_by_name
+        assert "ui-ux-designer" in recs_by_name
+
+        assert recs_by_name["quality-engineer"].auto_activate
+        assert recs_by_name["code-reviewer"].auto_activate
+        assert recs_by_name["typescript-pro"].auto_activate
+        assert recs_by_name["react-specialist"].auto_activate
+        assert recs_by_name["ui-ux-designer"].auto_activate
+
     def test_predict_workflow_insufficient_history(self, tmp_path):
         """Test workflow prediction with insufficient history."""
         history_file = tmp_path / "history.json"

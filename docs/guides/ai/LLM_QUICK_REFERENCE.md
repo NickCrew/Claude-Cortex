@@ -40,7 +40,7 @@ With defaults (~15% LLM call rate):
 
 ```bash
 # Get recommendations with LLM analysis
-claude-ctx agent recommend
+claude-ctx ai recommend
 
 # Check stats
 claude-ctx stats --by agent --source llm

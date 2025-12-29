@@ -1,0 +1,18 @@
+{
+  "agent_recommendations": [
+    {
+      "agent": "code-reviewer",
+      "confidence": "85%",
+      "reason": "34 files changed - review recommended",
+      "urgency": "medium",
+      "auto_activate": false
+    }
+  ],
+  "workflow_prediction": null,
+  "context": {
+    "files_changed": 34,
+    "has_tests": true,
+    "has_auth": false,
+    "has_api": false
+  }
+}

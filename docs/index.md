@@ -502,6 +502,12 @@ claude-ctx-plugin/
 │   ├── CLAUDE.md
 │   ├── FLAGS.md
 │   ├── PRINCIPLES.md
+│   ├── principles/
+│   │   ├── 00-core-directive.md
+│   │   ├── 10-philosophy.md
+│   │   ├── 20-engineering-mindset.md
+│   │   ├── 30-decision-framework.md
+│   │   └── 40-quality-philosophy.md
 │   ├── RULES.md
 │   └── settings.json
 ├── README.md          # Project overview
@@ -615,10 +621,9 @@ claude-ctx setup migrate
 
 The CLI resolves its workspace using the following precedence:
 
-1. `CLAUDE_CTX_HOME` (explicit path to a .claude directory)
-2. `CLAUDE_CTX_SCOPE` (project/global/plugin)
-3. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
-4. `~/.claude`
+1. `CLAUDE_CTX_SCOPE` (project/global/plugin)
+2. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
+3. `~/.claude`
 
 Examples:
 
@@ -636,7 +641,7 @@ Project-local and explicit directory examples:
 
 ```bash
 claude-ctx --scope project status
-claude-ctx --claude-dir /path/to/.claude status
+claude-ctx --plugin-root /path/to/claude-ctx-plugin status
 ```
 
 Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a single source of truth for agents, commands, and workflows.
@@ -989,8 +994,10 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 ## Framework Entry Points
 
 > **Note**: In this repo, core framework files live in `templates/`.
-> Copy `templates/CLAUDE.md`, `templates/FLAGS.md`, `templates/PRINCIPLES.md`,
-> `templates/RULES.md`, and `templates/settings.json` into `~/.claude/` to activate.
+> Copy `templates/CLAUDE.md`, `templates/FLAGS.md`, `templates/RULES.md`,
+> `templates/settings.json`, plus `templates/principles/` and
+> `templates/.active-principles` into `~/.claude/`, then run
+> `claude-ctx principles build` to generate `PRINCIPLES.md`.
 
 ### CLAUDE.md
 
@@ -1003,6 +1010,9 @@ Primary framework entry point that loads:
 - MCP documentation
 
 ### PRINCIPLES.md
+
+Generated from `principles/*.md` snippets (tracked in `.active-principles` and ordered by filename).
+Use `claude-ctx principles build` to regenerate.
 
 Software engineering principles and philosophy:
 

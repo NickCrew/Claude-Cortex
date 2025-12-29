@@ -12,6 +12,24 @@ Memory notes are organized into four types:
 
 Notes are stored in `~/basic-memory/` by default, organized by type.
 
+## The Memory Keeper Agent
+
+The **Memory Keeper** (`memory-keeper`) is a specialized agent designed to manage this vault for you. It automatically handles:
+
+- **Recording**: Captures sessions and decisions without you needing to remember CLI commands.
+- **Retrieving**: Searches past context to answer "What did we do yesterday?" or "How did we fix this last time?".
+- **Organizing**: Ensures notes are categorized correctly (Fix vs Knowledge).
+
+Activate it with:
+```bash
+claude-ctx agent activate memory-keeper
+```
+Or just ask it: "Remember that..." or "What was the fix for...?"
+
+## Security
+
+The memory system includes robust **Path Validation** to ensure that all read/write operations are strictly confined to the vault directory. Directory traversal attempts (e.g., `../sensitive_file`) are blocked.
+
 ## Quick Start
 
 ### CLI Commands

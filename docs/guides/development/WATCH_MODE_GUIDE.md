@@ -52,13 +52,18 @@ That's it! Watch mode will:
 
   💡 Recommendations:
 
-     🔵 backend-architect
-        85% - 8 files changed - review recommended
+     🔵 quality-engineer [AUTO]
+        85% - Changes detected - quality review recommended
+
+     🔵 code-reviewer [AUTO]
+        75% - Changes detected - code review recommended
 
      🟡 api-documenter [AUTO]
         90% - API changes detected
 
-[10:30:16] ⚡ Auto-activating 1 agents...
+[10:30:16] ⚡ Auto-activating 3 agents...
+     ✓ quality-engineer
+     ✓ code-reviewer
      ✓ api-documenter
 ```
 
@@ -165,17 +170,23 @@ Agents are **automatically activated** when:
 - Auth/security code changed → `security-auditor`
 - Test failures detected → `test-automator`
 
-### High (85-90% confidence)
-- Large changeset (8+ files) → `code-reviewer`
+### High (75-90% confidence)
+- Any changeset → `quality-engineer`
+- Any changeset → `code-reviewer`
+- TypeScript/TSX → `typescript-pro`
+- React/JSX/TSX → `react-specialist`
+- User-facing UI → `ui-ux-designer`
+- Database/SQL → `database-optimizer`, `sql-pro`
+- Cross-cutting changes → `architect-review`
+- Database/API/perf-sensitive changes → `performance-engineer`
 - API changes + learned pattern → `api-documenter`
 
 ### Medium (70-80% confidence)
-- Database changes → `performance-engineer`
 - Pattern-based from history
 
 ### Won't Auto-Activate (<70% confidence)
-- General refactoring → `code-reviewer` (manual)
-- Exploratory changes → Various (manual)
+- Low-confidence pattern matches → manual review
+- Exploratory changes → various (manual)
 
 ## 💡 Workflows
 
@@ -215,8 +226,10 @@ claude-ctx ai watch --threshold 0.6
   15 files changed
 
   💡 Recommendations:
-     🔵 code-reviewer
-        85% - 15 files changed - review recommended
+     🔵 quality-engineer [AUTO]
+        85% - Changes detected - quality review recommended
+     🔵 code-reviewer [AUTO]
+        75% - Changes detected - code review recommended
      🔵 test-automator
         75% - Large changeset - test updates needed
 

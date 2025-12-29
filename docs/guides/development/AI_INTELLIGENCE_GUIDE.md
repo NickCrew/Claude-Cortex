@@ -172,8 +172,14 @@ Future sessions with "backend_api" context:
 **Rule-Based** (Hard-coded intelligence):
 - Auth code detected → `security-auditor` (95% confidence, auto-activate)
 - Test failures > 0 → `test-automator` (95% confidence, auto-activate)
-- 5+ files changed → `code-reviewer` (85% confidence)
-- Database changes → `performance-engineer` (70% confidence)
+- Any changeset → `quality-engineer` (85% confidence, auto-activate)
+- Any changeset → `code-reviewer` (75% confidence, auto-activate)
+- TypeScript/TSX → `typescript-pro` (85% confidence, auto-activate)
+- React/JSX/TSX → `react-specialist` (80% confidence, auto-activate)
+- User-facing UI → `ui-ux-designer` (80% confidence, auto-activate)
+- Database/SQL changes → `database-optimizer`, `sql-pro` (80% confidence, auto-activate)
+- Cross-cutting changes → `architect-review` (75% confidence, auto-activate)
+- Database/API changes → `performance-engineer` (70% confidence, auto-activate)
 
 **Pattern-Based** (Learned intelligence):
 - Used in 80% of similar sessions → 80% confidence, auto-activate
@@ -196,13 +202,18 @@ Agents are **automatically activated** when:
 Examples:
 - ✅ Auth file changed → `security-auditor` (95%, AUTO)
 - ✅ Test failures detected → `test-automator` (95%, AUTO)
-- ❌ General refactoring → `code-reviewer` (70%, manual)
+- ✅ Any changeset → `quality-engineer`, `code-reviewer` (AUTO)
+- ✅ React UI changes → `react-specialist`, `ui-ux-designer` (AUTO)
 
 ## 💾 Data Storage
 
-All learning data is stored in:
+All learning data is stored in the active Claude directory:
+- default: `~/.claude/`
+- override: `$CLAUDE_PLUGIN_ROOT` or project `.claude/` via `--scope project`
+
+Paths (relative to the active Claude directory):
 ```
-~/.claude/intelligence/
+intelligence/
   └── session_history.json
 ```
 
@@ -266,14 +277,18 @@ All learning data is stored in:
 
 ### Example 3: Code Review Pattern
 
-**Large changesets** (5+ files):
-- AI learns you always review large changes
+**Any changeset**:
+- AI always triggers quality + code review
+- Additional reviewers add based on file types
 
-**Future large changesets**:
+**Future changesets**:
 ```
-🔵 Recommendation: code-reviewer
-   Reason: 8 files changed (pattern match)
+🔵 Recommendation: quality-engineer
+   Reason: Changes detected
    Confidence: 85%
+🔵 Recommendation: code-reviewer
+   Reason: Changes detected
+   Confidence: 75%
 ```
 
 ## 🛠️ CLI Usage Examples
@@ -290,9 +305,13 @@ $ claude-ctx ai recommend
    Confidence: 95%
    Reason: Auth code detected - security review recommended
 
-2. 🔵 code-reviewer
+2. 🔵 quality-engineer [AUTO]
    Confidence: 85%
-   Reason: 8 files changed - review recommended
+   Reason: Changes detected - quality review recommended
+
+3. 🔵 code-reviewer [AUTO]
+   Confidence: 75%
+   Reason: Changes detected - code review recommended
 
 ══════════════════════════════════════════════════════════════════════
 

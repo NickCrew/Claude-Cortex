@@ -15,7 +15,7 @@ _claude_ctx_completion() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Top-level commands
-    local commands="mode agent rules skills mcp init profile workflow tui version completion help doctor"
+    local commands="mode agent rules principles skills mcp init profile workflow tui version completion help doctor"
 
     # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -51,6 +51,12 @@ _claude_ctx_completion() {
             local rules_cmds="list status activate deactivate"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${rules_cmds}" -- ${cur}))
+            fi
+            ;;
+        principles)
+            local principles_cmds="list status activate deactivate build"
+            if [[ ${COMP_CWORD} -eq 2 ]]; then
+                COMPREPLY=($(compgen -W "${principles_cmds}" -- ${cur}))
             fi
             ;;
         skills)
@@ -109,6 +115,7 @@ _claude_ctx() {
         'mode:Mode management commands'
         'agent:Agent management commands'
         'rules:Rule management commands'
+        'principles:Principles snippet commands'
         'skills:Skill management commands'
         'mcp:MCP server management'
         'init:Initialize project configuration'
@@ -146,6 +153,15 @@ _claude_ctx() {
         'status:Show active rules'
         'activate:Activate one or more rules'
         'deactivate:Deactivate one or more rules'
+    )
+
+    local -a principles_commands
+    principles_commands=(
+        'list:List available principle snippets'
+        'status:Show active principle snippets'
+        'activate:Activate one or more principle snippets'
+        'deactivate:Deactivate one or more principle snippets'
+        'build:Build PRINCIPLES.md from active snippets'
     )
 
     local -a skills_commands
@@ -223,6 +239,16 @@ _claude_ctx() {
                             ;;
                     esac
                     ;;
+                principles)
+                    _arguments \
+                        '1: :->principles_command' \
+                        '*::principles_arg:->principles_args'
+                    case $state in
+                        principles_command)
+                            _describe -t principles_commands 'principles command' principles_commands
+                            ;;
+                    esac
+                    ;;
                 skills)
                     _arguments \
                         '1: :->skills_command' \
@@ -269,6 +295,7 @@ def generate_fish_completion() -> str:
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "agent" -d "Agent management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "rules" -d "Rule management"
+complete -c claude-ctx -f -n "__fish_use_subcommand" -a "principles" -d "Principles snippet management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "skills" -d "Skill management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "mcp" -d "MCP server management"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "init" -d "Initialize project"
@@ -306,6 +333,13 @@ complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active rules"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate rules"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate rules"
+
+# Principles subcommands
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "list" -d "List available principle snippets"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "status" -d "Show active principle snippets"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "activate" -d "Activate principle snippets"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "deactivate" -d "Deactivate principle snippets"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "build" -d "Build PRINCIPLES.md"
 
 # Skills subcommands
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "list" -d "List skills"

@@ -1,5 +1,5 @@
 {
-  "version": "2025-12-14",
+  "version": "2025-12-28.1",
   "rules": [
     {
       "trigger": {
@@ -43,6 +43,11 @@
       },
       "recommend": [
         {
+          "skill": "test-generation",
+          "confidence": 0.78,
+          "reason": "Test edits may need structured test generation guidance"
+        },
+        {
           "skill": "python-testing-patterns",
           "confidence": 0.85,
           "reason": "Python tests edited; apply proven patterns"
@@ -75,13 +80,13 @@
       "recommend": [
         {
           "skill": "python-performance-optimization",
-          "confidence": 0.82,
-          "reason": "Python code updated; check perf hotspots early"
+          "confidence": 0.75,
+          "reason": "Python code updated; perf review may help"
         },
         {
           "skill": "async-python-patterns",
-          "confidence": 0.78,
-          "reason": "Async patterns often relevant in Python services"
+          "confidence": 0.7,
+          "reason": "Async patterns can improve Python services"
         }
       ]
     },
@@ -97,17 +102,17 @@
       "recommend": [
         {
           "skill": "typescript-advanced-patterns",
-          "confidence": 0.83,
+          "confidence": 0.78,
           "reason": "TS code touched; advanced typing patterns may help"
         },
         {
           "skill": "react-performance-optimization",
-          "confidence": 0.8,
+          "confidence": 0.76,
           "reason": "TSX/React likely; check render and memo patterns"
         },
         {
           "skill": "condition-based-waiting",
-          "confidence": 0.72,
+          "confidence": 0.68,
           "reason": "Async UI flows benefit from robust waiting patterns"
         }
       ]
@@ -123,6 +128,11 @@
         ]
       },
       "recommend": [
+        {
+          "skill": "test-generation",
+          "confidence": 0.76,
+          "reason": "Frontend tests benefit from structured test generation"
+        },
         {
           "skill": "webapp-testing",
           "confidence": 0.83,
@@ -294,6 +304,11 @@
           "skill": "verification-before-completion",
           "confidence": 0.78,
           "reason": "Ensure verification gates before deploy/merge"
+        },
+        {
+          "skill": "dev-workflows",
+          "confidence": 0.7,
+          "reason": "CI/CD changes often require build/test workflow guidance"
         }
       ]
     },
@@ -321,29 +336,27 @@
       "trigger": {
         "file_patterns": [
           "**/docs/**",
-          "**/*.md"
+          "**/guides/**",
+          "**/README*",
+          "**/CONTRIBUTING*",
+          "**/CODE_OF_CONDUCT*"
         ]
       },
       "recommend": [
         {
-          "skill": "document-skills",
-          "confidence": 0.8,
-          "reason": "Documentation touched; use doc patterns"
+          "skill": "documentation-production",
+          "confidence": 0.86,
+          "reason": "Docs or guides updated; use structured documentation workflows"
         },
         {
-          "skill": "writing-skills",
-          "confidence": 0.78,
-          "reason": "Improve clarity and structure of docs"
+          "skill": "code-explanation",
+          "confidence": 0.72,
+          "reason": "Explanations often accompany documentation updates"
         },
         {
           "skill": "internal-comms",
-          "confidence": 0.74,
-          "reason": "Summaries/announcements often needed alongside docs"
-        },
-        {
-          "skill": "sharing-skills",
-          "confidence": 0.7,
-          "reason": "Prep assets for distribution"
+          "confidence": 0.64,
+          "reason": "Docs changes may need stakeholder communication"
         }
       ]
     },
@@ -362,42 +375,57 @@
         {
           "skill": "ctx-brainstorming",
           "confidence": 0.84,
-          "reason": "Planning/ideation docs detected; run brainstorm"
+          "reason": "Planning artifacts benefit from structured brainstorming"
         },
         {
           "skill": "idea-lab",
+          "confidence": 0.78,
+          "reason": "Divergent ideation helps generate viable plan options"
+        },
+        {
+          "skill": "ctx-plan-writing",
+          "confidence": 0.86,
+          "reason": "Use structured plan-writing for actionable workstreams"
+        },
+        {
+          "skill": "ctx-plan-execution",
           "confidence": 0.82,
-          "reason": "Timeboxed option generation helps early planning"
+          "reason": "Ensure plans translate into tracked execution"
         },
         {
-          "skill": "writing-plans",
-          "confidence": 0.76,
-          "reason": "Document plans clearly for execution handoff"
+          "skill": "implementation-workflow",
+          "confidence": 0.74,
+          "reason": "Translate specs into implementation workflows"
         },
         {
-          "skill": "executing-plans",
-          "confidence": 0.72,
-          "reason": "Ensure plan-to-execution linkage"
+          "skill": "development-estimation",
+          "confidence": 0.7,
+          "reason": "Add scoped estimates and risks to planning"
         },
         {
           "skill": "assumption-buster",
-          "confidence": 0.76,
-          "reason": "Reframe constraints to unlock new angles"
+          "confidence": 0.74,
+          "reason": "Challenge hidden assumptions in planning docs"
         },
         {
           "skill": "mashup",
-          "confidence": 0.74,
-          "reason": "Cross-domain inspiration for concepts"
+          "confidence": 0.72,
+          "reason": "Cross-domain mashups can unlock new angles"
         },
         {
           "skill": "concept-forge",
           "confidence": 0.72,
-          "reason": "Score and pick experiments from idea sets"
+          "reason": "Score and rank concepts before committing"
         },
         {
           "skill": "pre-mortem",
           "confidence": 0.7,
-          "reason": "Add guardrails to the chosen plan"
+          "reason": "Anticipate failure modes and mitigations"
+        },
+        {
+          "skill": "task-orchestration",
+          "confidence": 0.66,
+          "reason": "Orchestrate multi-stream planning work"
         }
       ]
     },
@@ -418,6 +446,11 @@
           "skill": "finishing-a-development-branch",
           "confidence": 0.76,
           "reason": "Ensure branches complete cleanly with worktrees"
+        },
+        {
+          "skill": "git-ops",
+          "confidence": 0.72,
+          "reason": "Worktree operations benefit from git workflow guidance"
         }
       ]
     },
@@ -457,6 +490,11 @@
       },
       "recommend": [
         {
+          "skill": "code-quality-workflow",
+          "confidence": 0.8,
+          "reason": "Review templates align with quality and review workflows"
+        },
+        {
           "skill": "requesting-code-review",
           "confidence": 0.82,
           "reason": "PR templates touched; prep for reviews"
@@ -483,6 +521,11 @@
         ]
       },
       "recommend": [
+        {
+          "skill": "context-health",
+          "confidence": 0.78,
+          "reason": "Core context changes should trigger health checks"
+        },
         {
           "skill": "subagent-driven-development",
           "confidence": 0.84,
@@ -523,6 +566,16 @@
           "skill": "sharing-skills",
           "confidence": 0.76,
           "reason": "Prep skills for distribution after edits"
+        },
+        {
+          "skill": "writing-skills",
+          "confidence": 0.82,
+          "reason": "Skill edits benefit from writing-skill guidance"
+        },
+        {
+          "skill": "testing-skills-with-subagents",
+          "confidence": 0.78,
+          "reason": "Verify skills under pressure before deployment"
         }
       ]
     },
@@ -544,6 +597,16 @@
           "skill": "internal-comms",
           "confidence": 0.7,
           "reason": "Share design updates with stakeholders"
+        },
+        {
+          "skill": "visual-modes",
+          "confidence": 0.72,
+          "reason": "Design assets may need visual showcase modes"
+        },
+        {
+          "skill": "system-design",
+          "confidence": 0.68,
+          "reason": "Design files often pair with system design context"
         }
       ]
     },
@@ -557,14 +620,136 @@
       },
       "recommend": [
         {
-          "skill": "community",
-          "confidence": 0.8,
-          "reason": "Community-facing changes; craft the right tone"
+          "skill": "release-prep",
+          "confidence": 0.78,
+          "reason": "Changelog or announcements often align with release prep"
         },
         {
           "skill": "internal-comms",
           "confidence": 0.74,
           "reason": "Prepare internal/external comms for updates"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/CHANGELOG*",
+          "**/RELEASE*",
+          "**/releases/**",
+          "**/release/**",
+          "**/.github/workflows/*release*.yml"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "release-prep",
+          "confidence": 0.86,
+          "reason": "Release artifacts detected; follow release prep workflow"
+        },
+        {
+          "skill": "verification-before-completion",
+          "confidence": 0.74,
+          "reason": "Releases should include verification gates"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/cleanup/**",
+          "**/archive/**",
+          "**/deprecated/**",
+          "**/legacy/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "repo-cleanup",
+          "confidence": 0.82,
+          "reason": "Cleanup or archive paths detected; use repo cleanup workflow"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/features/**",
+          "**/feature/**",
+          "**/components/**",
+          "**/services/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "feature-implementation",
+          "confidence": 0.8,
+          "reason": "Feature or component changes benefit from structured implementation"
+        },
+        {
+          "skill": "code-quality-workflow",
+          "confidence": 0.72,
+          "reason": "Feature work should include quality validation"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/architecture/**",
+          "**/design/system/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "system-design",
+          "confidence": 0.8,
+          "reason": "Architecture files indicate system design work"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/reasoning/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "reasoning-controls",
+          "confidence": 0.8,
+          "reason": "Reasoning configuration files detected"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/sessions/**",
+          "**/tasks/**",
+          "**/.claude/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "session-management",
+          "confidence": 0.72,
+          "reason": "Session or task artifacts detected; manage lifecycle and reflection"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/mcp/**",
+          "**/tools/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "tool-selection",
+          "confidence": 0.72,
+          "reason": "MCP/tooling files touched; use structured tool selection"
         }
       ]
     }

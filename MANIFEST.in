@@ -3,8 +3,25 @@
 # Documentation
 include README.md
 include LICENSE
+include CREDITS.md
+include CHANGELOG.md
+
 recursive-include docs *.md *.txt *.1
 recursive-include docs/reference/architecture *
+recursive-include docs/diagrams *.png *.txt
+
+global-exclude *PLAN*.md *SUMMARY*.md *IMPLEMENTATION*.md *REPORT*.md *COMPLETE*.md *ANALYSIS*.md *ACTIONS*.md Gemfile*
+
+prune docs/diagrams/mmd
+prune docs/diagrams/svg
+prune docs/archive
+prune docs/plans
+prune docs/designs
+prune docs/prototypes
+prune docs/reports
+prune docs/workstreams
+prune docs/assets
+prune docs/reference/moved-readmes
 
 # Scripts
 recursive-include scripts *.sh
@@ -22,3 +39,35 @@ global-exclude *.pyo
 global-exclude __pycache__
 global-exclude .DS_Store
 global-exclude *.egg-info
+global-exclude dist
+
+# Exclude state files
+global-exclude intelligence/*
+global-exclude tasks/*
+global-exclude htmlcov/*
+
+# Exclude caches
+global-exclude .pytest_cache
+global-exclude .mypy_cache
+global-exclude .fastembed_cache
+
+# Exclude development artifacts
+global-exclude .metrics
+global-exclude .code
+global-exclude .codanna
+global-exclude .coverage
+global-exclude .claude
+global-exclude .githooks
+global-exclude .github
+global-exclude .codacy
+global-exclude coverage.xml 
+global-exclude AGENTS.md GEMINI.md CLAUDE.md 
+global-exclude .claudeignore
+global-exclude .codannaignore
+global-exclude justfile
+global-exclude *.ini
+
+# Exclude virtual environments
+global-exclude .venv
+global-exclude .venv-*
+global-exclude venv

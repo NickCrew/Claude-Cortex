@@ -9,6 +9,7 @@ Understand how the TUI slices the Claude Cortex plugin into manageable pieces so
 | Agents     | Individual specialists with triggers, dependencies, and skills | `agents/*.md`, `inactive/agents/` | View `2` (Agents) | Form the workforce that workflows/scenarios schedule |
 | Modes      | Behavioral overlays that rewrite execution rules (e.g., `Architect`, `Token_Efficiency`) | `modes/*.md`, `.active-modes` | View `3` (Modes) | Change how every active agent executes tasks |
 | Rules      | Instruction blocks (workflow, quality, efficiency) loaded into `CLAUDE.md` | `rules/*.md` | View `4` (Rules) | Provide guardrails that profiles/modes rely on |
+| Principles | Engineering principles snippets | `principles/*.md`, `.active-principles` | View `p` (Principles) | Shapes the baseline reasoning framework |
 | Skills     | Discrete capabilities/commands surfaced in the palette | `skills/**/SKILL.md` | View `5` (Skills) | Extend what agents can automate |
 | Profiles   | Bundles of agents + modes + rules + resource limits | `profiles/**.profile` | View `8` (Profiles) | One tap switches the entire operating posture |
 | Workflows  | Ordered, restartable sequences of steps | `workflows/*.yaml` | View `6` (Workflows) | Drive long-running operations; feed Orchestrate view |

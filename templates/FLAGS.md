@@ -1,7 +1,7 @@
 # Claude Framework Flags
 
-> **Note**: This is a template file. Copy to your CLAUDE_CTX_HOME (e.g., ~/.claude)
-> as `FLAGS.md` and customize.
+> **Note**: This is a template file. Copy to your active `.claude` directory
+> (plugin root or `~/.claude`) as `FLAGS.md` and customize.
 > Keep this template minimal; add more `@flags/*.md` references as needed.
 
 # This file controls which flag category files are active.

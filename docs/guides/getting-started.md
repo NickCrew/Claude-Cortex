@@ -56,7 +56,7 @@ If you are upgrading from legacy `CLAUDE.md` comment activation, run:
 claude-ctx setup migrate
 ```
 
-> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_HOME` (explicit path), `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
+> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
@@ -66,13 +66,13 @@ claude-ctx setup migrate
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
+> ```
 >
-> To target a project-local scope or an explicit directory:
+> To target a project-local scope or a specific plugin root:
 >
 > ```bash
 > claude-ctx --scope project status
-> claude-ctx --claude-dir /path/to/.claude status
-> ```
+> claude-ctx --plugin-root /path/to/claude-ctx-plugin status
 > ```
 >
 > Set that once (for example in `~/.zshrc`) and the standalone CLI will use the same cached plugin copy without reinstalling.

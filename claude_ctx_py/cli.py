@@ -105,6 +105,30 @@ def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
 
 
+def _build_principles_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    principles_parser = subparsers.add_parser(
+        "principles", help="Principles snippet commands"
+    )
+    principles_sub = principles_parser.add_subparsers(dest="principles_command")
+    principles_sub.add_parser("list", help="List available principle snippets")
+    principles_sub.add_parser("status", help="Show active principle snippets")
+    principles_activate = principles_sub.add_parser(
+        "activate", help="Activate one or more principle snippets"
+    )
+    principles_activate.add_argument(
+        "principles", nargs="+", help="Snippet name(s) (without .md)"
+    )
+    principles_deactivate = principles_sub.add_parser(
+        "deactivate", help="Deactivate one or more principle snippets"
+    )
+    principles_deactivate.add_argument(
+        "principles", nargs="+", help="Snippet name(s) (without .md)"
+    )
+    principles_sub.add_parser(
+        "build", help="Build PRINCIPLES.md from active snippets"
+    )
+
+
 def _build_setup_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     setup_parser = subparsers.add_parser("setup", help="Setup and migration commands")
     setup_sub = setup_parser.add_subparsers(dest="setup_command")
@@ -816,16 +840,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Select which .claude scope to use (default: auto)",
     )
     parser.add_argument(
-        "--claude-dir",
-        dest="claude_dir",
+        "--plugin-root",
+        dest="plugin_root",
         type=Path,
-        help="Explicit path to a .claude directory (overrides --scope)",
+        help="Explicit path to the plugin root (overrides --scope)",
     )
     subparsers = parser.add_subparsers(dest="command")
 
     _build_mode_parser(subparsers)
     _build_agent_parser(subparsers)
     _build_rules_parser(subparsers)
+    _build_principles_parser(subparsers)
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_init_parser(subparsers)
@@ -835,7 +860,14 @@ def build_parser() -> argparse.ArgumentParser:
     _build_orchestrate_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
-    subparsers.add_parser("tui", help="Launch interactive TUI for agent management")
+    tui_parser = subparsers.add_parser(
+        "tui", help="Launch interactive TUI for agent management"
+    )
+    tui_parser.add_argument(
+        "--theme",
+        type=Path,
+        help="Path to a Textual .tcss theme override file",
+    )
     _build_ai_parser(subparsers)
     _build_export_parser(subparsers)
     _build_completion_parser(subparsers)
@@ -940,6 +972,40 @@ def _handle_rules_command(args: argparse.Namespace) -> int:
             messages.append(core.rules_deactivate(rule))
         _print("\n".join(messages))
         return 0
+    return 1
+
+
+def _handle_principles_command(args: argparse.Namespace) -> int:
+    if args.principles_command == "list":
+        _print(core.list_principles())
+        return 0
+    if args.principles_command == "status":
+        _print(core.principles_status())
+        return 0
+    if args.principles_command == "activate":
+        messages = []
+        final_exit_code = 0
+        for name in args.principles:
+            exit_code, message = core.principles_activate(name)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.principles_command == "deactivate":
+        messages = []
+        final_exit_code = 0
+        for name in args.principles:
+            exit_code, message = core.principles_deactivate(name)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.principles_command == "build":
+        exit_code, message = core.principles_build()
+        _print(message)
+        return exit_code
     return 1
 
 
@@ -1767,8 +1833,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     _enable_argcomplete(parser)
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    if getattr(args, "claude_dir", None):
-        os.environ["CLAUDE_CTX_HOME"] = str(args.claude_dir)
+    if getattr(args, "plugin_root", None):
+        os.environ["CLAUDE_PLUGIN_ROOT"] = str(args.plugin_root)
     if getattr(args, "scope", None):
         os.environ["CLAUDE_CTX_SCOPE"] = str(args.scope)
 
@@ -1776,6 +1842,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "mode": _handle_mode_command,
         "agent": _handle_agent_command,
         "rules": _handle_rules_command,
+        "principles": _handle_principles_command,
         "skills": _handle_skills_command,
         "mcp": _handle_mcp_command,
         "init": _handle_init_command,
@@ -1800,7 +1867,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     
     if args.command == "tui":
         from . import tui
-        return tui.main()
+        return tui.main(theme_path=getattr(args, "theme", None))
 
     handler = handlers.get(args.command)
     if handler:

@@ -39,7 +39,7 @@ claude-ctx config set ai.use_llm true
 
 ```bash
 # Get recommendations with LLM analysis
-claude-ctx agent recommend
+claude-ctx ai recommend
 ```
 
 ## How It Works

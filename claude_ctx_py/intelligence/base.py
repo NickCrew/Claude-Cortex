@@ -379,6 +379,35 @@ class PatternLearner:
             List of recommendations
         """
         recommendations = []
+        files_lower = [str(path).lower() for path in context.files_changed]
+        file_types = {ext.lower() for ext in context.file_types}
+        directories_lower = {str(path).lower() for path in context.directories}
+
+        def add_review(
+            agent_name: str,
+            confidence: float,
+            reason: str,
+            triggers: List[str],
+            *,
+            urgency: str = "low",
+            auto_activate: bool = False,
+        ) -> None:
+            recommendations.append(
+                AgentRecommendation(
+                    agent_name=agent_name,
+                    confidence=confidence,
+                    reason=reason,
+                    urgency=urgency,
+                    auto_activate=auto_activate,
+                    context_triggers=triggers,
+                )
+            )
+
+        def has_any(substrings: List[str]) -> bool:
+            return any(sub in path for path in files_lower for sub in substrings)
+
+        def dir_has_any(substrings: List[str]) -> bool:
+            return any(sub in path for path in directories_lower for sub in substrings)
 
         # Security recommendations
         if context.has_auth or any("auth" in f.lower() for f in context.files_changed):
@@ -406,6 +435,110 @@ class PatternLearner:
                 )
             )
 
+        # Multi-review recommendations
+        if context.files_changed:
+            # Always request a quality review when there are changes.
+            add_review(
+                "quality-engineer",
+                0.85,
+                "Changes detected - quality review recommended",
+                ["changeset"],
+                urgency="medium",
+                auto_activate=True,
+            )
+            # Always request a code review when there are changes.
+            add_review(
+                "code-reviewer",
+                0.75,
+                "Changes detected - code review recommended",
+                ["changeset"],
+                urgency="low",
+                auto_activate=True,
+            )
+
+            # TypeScript review
+            if ".ts" in file_types or ".tsx" in file_types:
+                add_review(
+                    "typescript-pro",
+                    0.85,
+                    "TypeScript changes detected - review recommended",
+                    ["typescript"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
+
+            # React review (JSX/TSX or React-centric paths)
+            if (
+                ".tsx" in file_types
+                or ".jsx" in file_types
+                or has_any(["react", "/components/", "/hooks/", "/pages/", "/app/"])
+            ):
+                add_review(
+                    "react-specialist",
+                    0.8,
+                    "React/UI component changes detected - review recommended",
+                    ["react", "frontend"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
+
+            # User-facing UX review
+            if (
+                context.has_frontend
+                or file_types.intersection(
+                    {".html", ".css", ".scss", ".less", ".vue", ".svelte"}
+                )
+                or has_any(["/ui/", "/ux/", "/views/", "/templates/", "/styles/"])
+            ):
+                add_review(
+                    "ui-ux-designer",
+                    0.8,
+                    "User-facing UI changes detected - UX review recommended",
+                    ["user_facing"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
+
+            # Architecture review for cross-cutting or structural changes
+            if (
+                (context.has_frontend and context.has_backend)
+                or (context.has_api and context.has_database)
+                or dir_has_any(
+                    ["/architecture", "/design", "/services", "/infra", "/k8s", "/terraform"]
+                )
+            ):
+                add_review(
+                    "architect-review",
+                    0.75,
+                    "Cross-cutting changes detected - architecture review recommended",
+                    ["architecture"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
+
+            # Database reviews
+            if (
+                context.has_database
+                or ".sql" in file_types
+                or has_any(["/migrations/", "/schema", "/db/"])
+            ):
+                add_review(
+                    "database-optimizer",
+                    0.8,
+                    "Database changes detected - optimization review recommended",
+                    ["database"],
+                    auto_activate=True,
+                )
+
+            if ".sql" in file_types or has_any(["/migrations/", "/schema", "/queries/"]):
+                add_review(
+                    "sql-pro",
+                    0.8,
+                    "SQL changes detected - query review recommended",
+                    ["sql"],
+                    auto_activate=True,
+                )
+
         # Code review recommendations
         if len(context.files_changed) >= 5:
             recommendations.append(
@@ -414,22 +547,23 @@ class PatternLearner:
                     confidence=0.85,
                     reason=f"{len(context.files_changed)} files changed - review recommended",
                     urgency="medium",
-                    auto_activate=False,
+                    auto_activate=True,
                     context_triggers=["large_changeset"],
                 )
             )
 
         # Performance recommendations
-        if context.has_database or context.has_api:
-            recommendations.append(
-                AgentRecommendation(
-                    agent_name="performance-engineer",
-                    confidence=0.7,
-                    reason="Database/API changes - performance check recommended",
-                    urgency="low",
-                    auto_activate=False,
-                    context_triggers=["database", "api"],
-                )
+        if (
+            context.has_database
+            or context.has_api
+            or has_any(["performance", "perf", "benchmark", "latency", "throughput", "cache"])
+        ):
+            add_review(
+                "performance-engineer",
+                0.7,
+                "Performance-sensitive changes detected - performance review recommended",
+                ["performance"],
+                auto_activate=True,
             )
 
         # Documentation recommendations

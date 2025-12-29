@@ -1,5 +1,26 @@
 # What's New in Claude-ctx
 
+## 2025-12-28: Multi-Reviewer Auto-Activation & TUI Review Grouping
+
+### ✅ Multi-Reviewer Auto-Activation
+- AI recommendations now trigger **multiple reviewer agents at once** based on the change set.
+- Always-on reviewers: `quality-engineer` + `code-reviewer` for any non-empty changeset.
+- Specialized reviewers: `typescript-pro`, `react-specialist`, `ui-ux-designer`, `database-optimizer`, `sql-pro`, `performance-engineer`, `architect-review` (as applicable).
+
+### 🧭 TUI AI Assistant Improvements
+- The AI Assistant view now groups recommendations into **Review Requests** vs **Other Suggestions** for faster scanning.
+- AUTO badges remain, but review requests are clearly labeled as review actions.
+
+### 🎨 Quick TUI Theme Overrides
+- Add a custom `.tcss` file via `claude-ctx tui --theme`, `CLAUDE_CTX_TUI_THEME`, or `~/.claude/tui/theme.tcss`.
+- Overrides load after the default theme, so palette variables can be swapped without code changes.
+
+### 🧩 Principles Snippets (Option A)
+- `PRINCIPLES.md` can now be generated from modular snippets in `principles/`.
+- New CLI: `claude-ctx principles list|status|activate|deactivate|build`.
+- Activation is tracked in `.active-principles`, with filename ordering (use numeric prefixes).
+- TUI support: press `p` for the Principles view; use `Space` to toggle snippets, `c` to rebuild, and `d` to open `PRINCIPLES.md`.
+
 ## 2025-11-18: Task Log Streaming & Palette Hardening
 
 ### 🔍 Task Detail Panel + Log Actions

@@ -29,7 +29,7 @@ Reveal.js presentation decks for claude-ctx project overview, demos, and enablem
 **What's Covered:**
 
 - Dashboard Overview (unified stats and quick actions)
-- AI Assistant (press 8 - real-time recommendations)
+- AI Assistant (press 0 - review requests + real-time recommendations)
 - Agent Management (press 1 - dependency tracking)
 - Slash Commands (press 2 - command reference)
 - Rules Management (press 5 - rule modules)

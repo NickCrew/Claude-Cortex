@@ -43,6 +43,12 @@ Type to search:
 - **📋 Show Rules** - View active rule modules (Press 4 or select)
 - **🔄 Toggle Rule** - Switch rule on/off (Goes to rules view, then Space)
 
+### 🧩 Principles Management
+- **📘 Show Principles** - View principles snippets (Press `p` or select)
+- **🔄 Toggle Principle** - Switch snippet on/off (Goes to principles view, then Space)
+- **🧱 Build Principles** - Rebuild `PRINCIPLES.md` from active snippets
+- **📄 Open Principles** - View generated `PRINCIPLES.md`
+
 ### 📁 Other Views
 - **💻 Show Skills** - Browse available skills (Press 5 or select)
 - **🏃 Show Workflows** - View workflow execution (Press 6 or select)

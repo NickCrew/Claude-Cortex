@@ -770,19 +770,6 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
         ))
         seen_paths.add(str(global_claude))
 
-    # Include explicit override if set and not already found
-    override_home = os.environ.get("CLAUDE_CTX_HOME")
-    if override_home:
-        override_path = Path(override_home).expanduser().resolve()
-        if override_path.exists() and str(override_path) not in seen_paths:
-            installed = get_installed_assets(override_path)
-            claude_dirs.insert(0, ClaudeDir(
-                path=override_path,
-                scope="custom",
-                installed_assets=installed,
-            ))
-            seen_paths.add(str(override_path))
-
     return claude_dirs
 
 

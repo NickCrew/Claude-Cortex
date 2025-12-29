@@ -2,8 +2,9 @@
 
 This catalog lists the configuration, state, and reference files that the app
 reads or writes. Paths are shown relative to the active Claude directory
-(default `~/.claude/`). The same layout applies to project-local `.claude/` when
-using `--scope project` or setting `CLAUDE_CTX_SCOPE=project`.
+(default `~/.claude/`). You can override the active directory with
+`CLAUDE_PLUGIN_ROOT` / `--plugin-root`, or use project-local `.claude/` via
+`--scope project` or `CLAUDE_CTX_SCOPE=project`.
 
 ## Core Framework Files
 
@@ -11,8 +12,14 @@ using `--scope project` or setting `CLAUDE_CTX_SCOPE=project`.
 | --- | --- | --- |
 | `CLAUDE.md` | Main manifest with `@` references | Primary entry point for context assembly |
 | `FLAGS.md` | Flag activation list (`@flags/*.md`) | Updated by TUI Flag Manager |
-| `PRINCIPLES.md` | Engineering principles | Included by `CLAUDE.md` |
+| `PRINCIPLES.md` | Engineering principles | Generated from `principles/*.md` |
 | `RULES.md` | Core rules | Included by `CLAUDE.md` |
+
+## Principles Snippets
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `principles/*.md` | Principles snippets | Concatenated by `claude-ctx principles build` |
 
 ## Activation State Files
 
@@ -21,6 +28,7 @@ using `--scope project` or setting `CLAUDE_CTX_SCOPE=project`.
 | `.active-modes` | Active mode list | Reference-based activation |
 | `.active-rules` | Active rules list | Reference-based activation |
 | `.active-mcp` | Active MCP docs list | Reference-based activation |
+| `.active-principles` | Active principles snippet list | Used by `claude-ctx principles build` (order is filename-sorted) |
 
 ## Agent and Skill Settings
 
@@ -43,6 +51,12 @@ using `--scope project` or setting `CLAUDE_CTX_SCOPE=project`.
 | `settings.json` | Claude Code settings (hooks) | TUI hooks manager updates this |
 | `mcp/docs/*.md` | Local MCP docs | Activated via `.active-mcp` |
 
+## TUI
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `tui/theme.tcss` | TUI theme override | Optional; loaded after `styles.tcss` |
+
 ## Intelligence and Memory
 
 | Path | Purpose | Notes |
@@ -58,6 +72,8 @@ using `--scope project` or setting `CLAUDE_CTX_SCOPE=project`.
 | `schema/scenario-schema-v1.yaml` | Scenario validation schema | Used by validators |
 
 ## Auto-Managed Data (for reference)
+
+All paths below are relative to the active Claude directory.
 
 | Path | Purpose | Notes |
 | --- | --- | --- |

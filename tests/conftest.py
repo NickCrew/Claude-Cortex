@@ -355,6 +355,5 @@ def mock_claude_home(tmp_claude_dir, monkeypatch):
 @pytest.fixture(autouse=True)
 def clean_claude_env(monkeypatch):
     """Ensure a clean environment for each test."""
-    monkeypatch.delenv("CLAUDE_CTX_HOME", raising=False)
     monkeypatch.delenv("CLAUDE_CTX_SCOPE", raising=False)
     monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)

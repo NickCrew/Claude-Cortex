@@ -1,20 +1,52 @@
 {
-  "name": "claude-ctx",
-  "version": "1.1.0",
-  "description": "Context orchestration plugin bundling claude-ctx Python tooling with curated commands, agents, modes, rules, and workflows.",
+  "name": "claude-cortex",
+  "version": "1.2.0",
+  "description": "Context orchestration plugin bundling claude-cortex Python tooling with curated commands, agents, modes, rules, and workflows.",
   "author": {
     "name": "Nicholas Ferguson",
-    "email": "ncf423@gmail.com"
+    "email": "ncf423@gmail.com",
+    "url": "https://github.com/NickCrew"
   },
-  "repository": "https://github.com/NickCrew/claude-ctx-plugin",
+  "repository": "https://github.com/NickCrew/claude-cortex",
+  "homepage": "https://github.com/NickCrew/claude-cortex",
   "license": "MIT",
   "keywords": [
     "context",
     "agents",
     "workflows",
-    "claude-ctx"
+    "claude-cortex",
+    "claude",
+    "cortex",
+    "claude code",
+    "claude skills",
+    "claude agents",
+    "claude plugin",
+    "TUI",
+    "terminal UI",
+    "CLI",
+    "command line interface",
+    "recommendation engine",
+    "token management",
+    "memory management",
+    "markdown",
+    "AI",
+    "AI Agents",
+    "automation",
+    "orchestration",
+    "developer tools",
+    "productivity",
+    "software development",
+    "python",
+    "machine learning",
+    "artificial intelligence"
   ],
-  "commands": [
-    "./commands"
+  "agents": [
+    "./inactive/agents/"
+  ],
+  "hooks": [
+    "./hooks/hooks.json"
+  ],
+  "mcpServers": [
+    "./.mcp.json"
   ]
 }

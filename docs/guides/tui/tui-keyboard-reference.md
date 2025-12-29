@@ -32,6 +32,7 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `C` | Worktrees | Git worktree management |
 | `F` | Flag Explorer | Toggle flag packs |
 | `M` | Memory Vault | Persistent notes |
+| `p` | Principles | Manage principles snippets |
 | `w` | Watch Mode | Real-time monitoring |
 | `S` | Scenarios | Scenario orchestration |
 | `o` | Orchestrate | Parallel execution view |
@@ -78,6 +79,15 @@ Quick reference for claude-ctx TUI navigation and commands.
 | --- | --- | --- |
 | `Space` | Toggle | Activate/deactivate rule |
 | `Ctrl+E` | Edit | Edit rule file |
+
+### Principles View
+| Key | Action | Description |
+| --- | --- | --- |
+| `Space` | Toggle | Activate/deactivate snippet |
+| `s` | Details | View snippet details |
+| `c` | Build | Rebuild `PRINCIPLES.md` |
+| `d` | Open | View `PRINCIPLES.md` |
+| `Ctrl+E` | Edit | Edit snippet file |
 
 ### Skills View
 | Key | Action | Description |

@@ -18,6 +18,17 @@ class RuleNode:
 
 
 @dataclass
+class PrincipleSnippet:
+    """Represents a principles snippet in the system."""
+
+    name: str
+    status: str  # "active" or "inactive"
+    title: str
+    description: str
+    path: Path
+
+
+@dataclass
 class AgentTask:
     """Represents an active agent task in the orchestration system."""
 

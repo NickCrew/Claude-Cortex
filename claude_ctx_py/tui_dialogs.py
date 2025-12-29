@@ -613,7 +613,7 @@ class HelpDialog(ModalScreen[None]):
 
 [bold]View Navigation:[/bold]
   [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents    [cyan]3[/cyan] Modes     [cyan]4[/cyan] Rules
-  [cyan]5[/cyan] Skills      [cyan]6[/cyan] Workflows [cyan]C[/cyan] Worktrees [cyan]7[/cyan] MCP
+  [cyan]p[/cyan] Principles  [cyan]5[/cyan] Skills   [cyan]6[/cyan] Workflows [cyan]C[/cyan] Worktrees [cyan]7[/cyan] MCP
   [cyan]8[/cyan] Profiles    [cyan]9[/cyan] Export   [cyan]0[/cyan] AI Asst   [cyan]A[/cyan] Assets
   [cyan]M[/cyan] Memory      [cyan]S[/cyan] Scenarios [cyan]o[/cyan] Orchestrate [cyan]g[/cyan] Galaxy
   [cyan]t[/cyan] Tasks
@@ -641,6 +641,14 @@ class HelpDialog(ModalScreen[None]):
 [bold]Rule Management:[/bold]
   [cyan]Space[/cyan]  → Toggle rule active/inactive
   [cyan]Ctrl+E[/cyan] → Edit rule file
+""",
+            "principles": """
+[bold]Principles Management:[/bold]
+  [cyan]Space[/cyan]  → Toggle snippet active/inactive
+  [cyan]s[/cyan]      → View snippet details
+  [cyan]c[/cyan]      → Rebuild PRINCIPLES.md
+  [cyan]d[/cyan]      → Open PRINCIPLES.md
+  [cyan]Ctrl+E[/cyan] → Edit snippet file
 """,
             "skills": """
 [bold]Skill Management:[/bold]

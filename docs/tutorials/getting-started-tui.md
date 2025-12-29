@@ -647,13 +647,15 @@ The AI Assistant analyzes your project and recommends optimal agent configuratio
 ├─────────────────────────────────────────────────┤
 │ Context: Backend, Auth, Testing                 │
 │                                                 │
-│ Recommended Agents:                             │
+│ Review Requests:                                │
 │ 🔴 security-auditor        [AUTO]   95%         │
 │     Reason: Auth code detected                  │
+│ 🔵 quality-engineer        [AUTO]   85%         │
+│     Reason: Changes detected                    │
+│ 🔵 code-reviewer           [AUTO]   75%         │
+│     Reason: Changes detected                    │
 │                                                 │
-│ 🟡 test-engineer           [MANUAL] 75%         │
-│     Reason: Test files present                  │
-│                                                 │
+│ Other Suggestions:                              │
 │ 🟢 api-documenter          [MANUAL] 60%         │
 │     Reason: API endpoints found                 │
 ╰─────────────────────────────────────────────────╯

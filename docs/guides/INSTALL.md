@@ -74,6 +74,7 @@ claude-ctx tui
 - `C` - Worktrees (git worktree manager)
 - `F` - Flag Explorer (flags + token budgets)
 - `M` - Memory Vault (persistent notes)
+- `p` - Principles (manage snippet activation)
 - `w` - Watch Mode (real-time monitoring)
 - `/` - Slash Commands catalog
 - `S` - Scenarios
@@ -157,8 +158,14 @@ or set `CLAUDE_CTX_SCOPE=project`.
 | --- | --- | --- |
 | `CLAUDE.md` | Main manifest with `@` references | Primary entry point for context assembly |
 | `FLAGS.md` | Flag activation list (`@flags/*.md`) | Updated by TUI Flag Manager |
-| `PRINCIPLES.md` | Engineering principles | Included by `CLAUDE.md` |
+| `PRINCIPLES.md` | Engineering principles | Generated from `principles/*.md` |
 | `RULES.md` | Core rules | Included by `CLAUDE.md` |
+
+### Principles Snippets
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `principles/*.md` | Principles snippets | Concatenated by `claude-ctx principles build` |
 
 ### Activation State Files
 
@@ -167,6 +174,7 @@ or set `CLAUDE_CTX_SCOPE=project`.
 | `.active-modes` | Active mode list | Reference-based activation |
 | `.active-rules` | Active rules list | Reference-based activation |
 | `.active-mcp` | Active MCP docs list | Reference-based activation |
+| `.active-principles` | Active principles snippet list | Used by `claude-ctx principles build` (order is filename-sorted) |
 
 ### Agent and Skill Settings
 
@@ -275,7 +283,7 @@ pipx install .
 ## Features
 
 ### TUI Features
-- Multi-view TUI with dedicated screens for AI, MCP, assets, worktrees, memory, flags, scenarios, and tasks
+- Multi-view TUI with dedicated screens for AI, MCP, assets, worktrees, memory, flags, principles, scenarios, and tasks
 - Pagination (max 8 items per view to prevent scrolling)
 - Real-time filtering and search
 - Keyboard navigation

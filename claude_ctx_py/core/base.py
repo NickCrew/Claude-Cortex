@@ -36,7 +36,6 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
 
 
-_CLAUDE_CTX_HOME_ENV = "CLAUDE_CTX_HOME"
 _CLAUDE_CTX_SCOPE_ENV = "CLAUDE_CTX_SCOPE"
 
 
@@ -62,17 +61,12 @@ def _resolve_claude_dir(
 
     Preference order:
 
-    1. Explicit override via ``CLAUDE_CTX_HOME``
-    2. Explicit scope selection via ``CLAUDE_CTX_SCOPE`` / ``scope`` argument
-    3. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
+    1. Explicit scope selection via ``CLAUDE_CTX_SCOPE`` / ``scope`` argument
+    2. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
        commands execute inside a plugin sandbox)
-    4. Caller-provided ``home`` argument
-    5. ``$HOME/.claude`` fallback
+    3. Caller-provided ``home`` argument
+    4. ``$HOME/.claude`` fallback
     """
-
-    override_home = os.environ.get(_CLAUDE_CTX_HOME_ENV)
-    if override_home:
-        return Path(override_home).expanduser().resolve()
 
     scope_value = (scope or os.environ.get(_CLAUDE_CTX_SCOPE_ENV) or "").strip().lower()
     if scope_value:
@@ -147,6 +141,7 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
         "commands",
         "workflows",
         "flags",
+        "principles",
     ]
 
     for dir_name in dirs:
@@ -156,7 +151,7 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
             created.append(str(dir_path))
 
     # Activation tracking files
-    active_files = [".active-modes", ".active-mcp", ".active-rules"]
+    active_files = [".active-modes", ".active-mcp", ".active-rules", ".active-principles"]
     for active_file in active_files:
         file_path = claude_dir / active_file
         if not file_path.exists():

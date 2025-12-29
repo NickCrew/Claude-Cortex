@@ -45,7 +45,7 @@ ASSET_CATEGORY_ORDER = [
 
 from .types import (
     RuleNode, AgentTask, WorkflowInfo, ModeInfo, MCPDocInfo, ScenarioInfo, ScenarioRuntimeState,
-    AssetInfo, MemoryNote, WatchModeState,
+    AssetInfo, MemoryNote, WatchModeState, PrincipleSnippet,
 )
 from .constants import (
     PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
@@ -117,6 +117,11 @@ from ..core import (
     _write_active_entries,
 )
 from ..core.rules import rules_activate, rules_deactivate
+from ..core.principles import (
+    principles_activate,
+    principles_deactivate,
+    principles_build,
+)
 from ..core.modes import (
     mode_activate,
     mode_deactivate,
@@ -233,12 +238,31 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         "orange3",
     ]
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        *,
+        theme_path: Optional[Path] = None,
+        **kwargs: Any,
+    ) -> None:
+        resolved_theme = self._resolve_theme_path(theme_path)
+        css_path = None
+        if resolved_theme is not None:
+            css_path = []
+            base_css = self.CSS_PATH
+            if base_css:
+                if isinstance(base_css, (list, tuple)):
+                    css_path.extend(base_css)
+                else:
+                    css_path.append(base_css)
+            css_path.append(str(resolved_theme))
+
+        super().__init__(css_path=css_path, **kwargs)
+        self.theme_path = resolved_theme
         self.claude_home: Path = _resolve_claude_dir()
         self.agents: List[AgentGraphNode] = []
         self.rules: List[RuleNode] = []
         self.modes: List[ModeInfo] = []
+        self.principles: List[PrincipleSnippet] = []
         self.workflows: List[WorkflowInfo] = []
         self.worktrees: List[WorktreeInfo] = []
         self.worktree_repo_root: Optional[Path] = None
@@ -258,6 +282,30 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
+
+    @staticmethod
+    def _resolve_theme_path(theme_path: Optional[Path]) -> Optional[Path]:
+        if theme_path is not None:
+            return theme_path
+
+        env_path = os.environ.get("CLAUDE_CTX_TUI_THEME") or os.environ.get(
+            "CLAUDE_TUI_THEME"
+        )
+        if env_path:
+            candidate = Path(env_path).expanduser()
+            if candidate.is_file():
+                return candidate
+            return None
+
+        claude_dir = _resolve_claude_dir()
+        candidates = [
+            claude_dir / "tui" / "theme.tcss",
+            claude_dir / "tui-theme.tcss",
+        ]
+        for candidate in candidates:
+            if candidate.is_file():
+                return candidate
+        return None
         self._tasks_state_signature: Optional[str] = None
         # Asset manager state
         self.available_assets: Dict[str, List[Asset]] = {}
@@ -421,6 +469,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 mode = self.modes[index]
                 file_path = mode.path
                 item_name = mode.name
+        elif self.current_view == "principles":
+            index = self._table_cursor_index()
+            if index is not None and 0 <= index < len(self.principles):
+                snippet = self.principles[index]
+                file_path = snippet.path
+                item_name = snippet.name
         elif self.current_view == "skills":
             skill = self._selected_skill()
             if skill and "path" in skill:
@@ -477,6 +531,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.load_agents()
         self.load_rules()
         self.load_modes()
+        self.load_principles()
         self.load_skills()
         self.load_slash_commands()
         self.load_agent_tasks()
@@ -555,6 +610,14 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             "agents": {"toggle", "details_context", "validate_context", "edit_item", "copy_definition"},
             "rules": {"toggle", "edit_item", "copy_definition"},
             "modes": {"toggle", "edit_item", "copy_definition"},
+            "principles": {
+                "toggle",
+                "edit_item",
+                "copy_definition",
+                "details_context",
+                "context_action",
+                "docs_context",
+            },
             "skills": {
                 "details_context",
                 "validate_context",
@@ -1689,6 +1752,79 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.status_message = f"Error loading rules: {e}"
             self.rules = []
 
+    def load_principles(self) -> None:
+        """Load principles snippets from the system."""
+        try:
+            principles: List[PrincipleSnippet] = []
+            claude_dir = _resolve_claude_dir()
+            principles_dir = self._validate_path(claude_dir, claude_dir / "principles")
+
+            active_entries = _parse_active_entries(claude_dir / ".active-principles")
+            active_names = {
+                entry[:-3] if entry.endswith(".md") else entry
+                for entry in active_entries
+            }
+
+            if not active_names and principles_dir.is_dir():
+                active_names = {path.stem for path in _iter_md_files(principles_dir)}
+
+            if principles_dir.is_dir():
+                for path in _iter_md_files(principles_dir):
+                    status = "active" if path.stem in active_names else "inactive"
+                    node = self._parse_principle_file(path, status)
+                    if node:
+                        principles.append(node)
+
+            self.principles = principles
+            active_count = sum(1 for p in principles if p.status == "active")
+            self.status_message = (
+                f"Loaded {len(principles)} principles ({active_count} active)"
+            )
+            if hasattr(self, "metrics_collector"):
+                self.metrics_collector.record(
+                    "principles_active",
+                    float(active_count),
+                )
+        except Exception as e:
+            self.status_message = f"Error loading principles: {e}"
+            self.principles = []
+
+    def _parse_principle_file(
+        self,
+        path: Path,
+        status: str,
+    ) -> Optional[PrincipleSnippet]:
+        """Parse a principles snippet file into a PrincipleSnippet."""
+        try:
+            content = path.read_text(encoding="utf-8")
+            lines = content.splitlines()
+
+            title = path.stem
+            description = ""
+            for line in lines:
+                stripped = line.strip()
+                if not stripped or stripped.startswith("<!--"):
+                    continue
+                if stripped.startswith("#"):
+                    if title == path.stem:
+                        title = stripped.lstrip("#").strip()
+                    continue
+                description = stripped
+                break
+
+            if not description:
+                description = title
+
+            return PrincipleSnippet(
+                name=path.stem,
+                status=status,
+                title=title,
+                description=description,
+                path=path,
+            )
+        except Exception:
+            return None
+
     def _parse_rule_file(self, path: Path, status: str) -> Optional[RuleNode]:
         """Parse a rule file and return a RuleNode."""
         try:
@@ -2236,8 +2372,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             # Set default target dir (respect explicit scope overrides)
             if self.selected_target_dir is None:
                 explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
-                explicit_home = os.environ.get("CLAUDE_CTX_HOME")
-                preferred = _resolve_claude_dir() if (explicit_scope or explicit_home) else None
+                explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
+                preferred = _resolve_claude_dir() if (explicit_scope or explicit_root) else None
                 if preferred is not None:
                     for cd in self.claude_directories:
                         if cd.path.resolve() == preferred.resolve():
@@ -2327,6 +2463,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         if self.current_view == "agents":
             self.show_agents_view(table)
+        elif self.current_view == "principles":
+            self.show_principles_view(table)
         elif self.current_view == "rules":
             self.show_rules_view(table)
         elif self.current_view == "modes":
@@ -2731,6 +2869,49 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             i += 1
 
         return flags
+
+    def show_principles_view(self, table: AnyDataTable) -> None:
+        """Show principles snippets view."""
+        table.add_column("Snippet", key="name", width=24)
+        table.add_column("Status", key="status", width=12)
+        table.add_column("Summary", key="summary")
+        table.add_column("Source", key="source", width=36)
+
+        if not hasattr(self, "principles") or not self.principles:
+            table.add_row("[dim]No principles found[/dim]", "", "", "")
+            table.add_row(
+                "[dim]Add snippets under principles/[/dim]",
+                "",
+                "",
+                "",
+            )
+            return
+
+        claude_dir = _resolve_claude_dir()
+
+        def _relpath(path: Path) -> str:
+            try:
+                return path.relative_to(claude_dir).as_posix()
+            except ValueError:
+                return path.as_posix()
+
+        for snippet in self.principles:
+            if snippet.status == "active":
+                status_text = "[bold green]● ACTIVE[/bold green]"
+                name = f"[bold]{Icons.DOC} {snippet.name}[/bold]"
+            else:
+                status_text = "[dim]○ inactive[/dim]"
+                name = f"[dim]{Icons.DOC} {snippet.name}[/dim]"
+
+            summary_parts = [snippet.title] if snippet.title else []
+            if snippet.description and snippet.description != snippet.title:
+                summary_parts.append(snippet.description)
+            summary_text = " — ".join(summary_parts) if summary_parts else "Snippet"
+            summary_text = Format.truncate(summary_text, 140).replace("[", "\\[")
+            summary = f"[dim]{summary_text}[/dim]"
+            source = f"[dim]{Format.truncate(_relpath(snippet.path), 60)}[/dim]"
+
+            table.add_row(name, status_text, summary, source)
 
     def show_rules_view(self, table: AnyDataTable) -> None:
         """Show rules table with enhanced colors."""
@@ -3962,8 +4143,83 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 "[dim]Context analysis found no suggestions[/dim]",
             )
         else:
-            # Show agent recommendations
-            for rec in agent_recommendations[:10]:  # Top 10
+            top_recs = agent_recommendations[:10]
+            review_agents = {
+                "architect-review",
+                "code-reviewer",
+                "database-optimizer",
+                "performance-engineer",
+                "quality-engineer",
+                "react-specialist",
+                "security-auditor",
+                "sql-pro",
+                "typescript-pro",
+                "ui-ux-designer",
+            }
+
+            def is_review_rec(rec: AgentRecommendation) -> bool:
+                return (
+                    rec.agent_name in review_agents
+                    or "review" in rec.reason.lower()
+                )
+
+            review_recs = [rec for rec in top_recs if is_review_rec(rec)]
+            other_recs = [rec for rec in top_recs if not is_review_rec(rec)]
+
+            if review_recs:
+                table.add_row(
+                    "[bold cyan]Review Requests[/bold cyan]",
+                    f"[dim]{len(review_recs)} reviewers[/dim]",
+                    "",
+                    "",
+                )
+
+            # Show review recommendations
+            for rec in review_recs:
+                # Color by urgency
+                if rec.urgency == "critical":
+                    urgency_color = "red"
+                    urgency_icon = "🔴"
+                elif rec.urgency == "high":
+                    urgency_color = "yellow"
+                    urgency_icon = "🟡"
+                elif rec.urgency == "medium":
+                    urgency_color = "cyan"
+                    urgency_icon = "🔵"
+                else:
+                    urgency_color = "dim"
+                    urgency_icon = "⚪"
+
+                # Color by confidence
+                confidence_pct = int(rec.confidence * 100)
+                if rec.confidence >= 0.8:
+                    confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
+                elif rec.confidence >= 0.6:
+                    confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
+                else:
+                    confidence_text = f"[dim]{confidence_pct}%[/dim]"
+
+                # Auto-activate indicator
+                auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
+
+                table.add_row(
+                    f"[{urgency_color}]{urgency_icon} Review[/{urgency_color}]",
+                    f"[bold]{rec.agent_name}[/bold]{auto_text}",
+                    confidence_text,
+                    f"[dim italic]{rec.reason}[/dim italic]",
+                )
+
+            if other_recs:
+                table.add_row("", "", "", "")
+                table.add_row(
+                    "[bold cyan]Other Suggestions[/bold cyan]",
+                    f"[dim]{len(other_recs)} items[/dim]",
+                    "",
+                    "",
+                )
+
+            # Show non-review recommendations
+            for rec in other_recs:
                 # Color by urgency
                 if rec.urgency == "critical":
                     urgency_color = "red"
@@ -4440,6 +4696,13 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.status_message = "Switched to Rules"
         self.notify("📜 Rules", severity="information", timeout=1)
 
+    def action_view_principles(self) -> None:
+        """Switch to principles view."""
+        self.current_view = "principles"
+        self.load_principles()
+        self.status_message = "Switched to Principles"
+        self.notify(f"{Icons.DOC} Principles", severity="information", timeout=1)
+
     def action_view_skills(self) -> None:
         """Switch to skills view."""
         self.current_view = "skills"
@@ -4767,9 +5030,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Resolve the base directory for flags (prefer selected target)."""
         if self.selected_target_dir and self.selected_target_dir.exists():
             return self.selected_target_dir
-        explicit_home = os.environ.get("CLAUDE_CTX_HOME")
+        explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
         explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
-        if explicit_home or explicit_scope:
+        if explicit_root or explicit_scope:
             return _resolve_claude_dir()
         return Path.home() / ".claude"
 
@@ -5647,6 +5910,23 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         )
         self.status_message = f"Previewed {scenario.name}"
 
+    def action_principles_build(self) -> None:
+        """Rebuild PRINCIPLES.md from active snippets."""
+        if self.current_view != "principles":
+            self.action_view_principles()
+
+        exit_code, message = principles_build()
+        clean = self._clean_ansi(message)
+        if clean:
+            self.status_message = clean.split("\n")[0]
+
+        if exit_code == 0:
+            self.notify("✓ Principles rebuilt", severity="information", timeout=2)
+            self.load_principles()
+            self.update_view()
+        else:
+            self.notify(clean or "Build failed", severity="error", timeout=3)
+
     async def action_scenario_run_auto(self) -> None:
         """Run the selected scenario in automatic mode."""
         if self.current_view != "scenarios":
@@ -6511,6 +6791,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             await self.action_skill_community()
         elif self.current_view == "mcp":
             await self.action_mcp_snippet()
+        elif self.current_view == "principles":
+            self.action_principles_build()
         else:
             self.notify("No contextual action", severity="warning", timeout=2)
 
@@ -6518,6 +6800,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Context-aware docs shortcut."""
         if self.current_view == "mcp":
             await self.action_mcp_docs()
+        elif self.current_view == "principles":
+            self.action_principles_open()
         else:
             self.notify(
                 "Docs not available in this view", severity="warning", timeout=2
@@ -6528,6 +6812,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if self.current_view == "agents":
             # Running in a worker ensures push_screen wait semantics work reliably
             self.run_worker(self._show_selected_agent_definition(), exclusive=True)
+            return
+        elif self.current_view == "principles":
+            self.run_worker(self._show_selected_principle_definition(), exclusive=True)
             return
         elif self.current_view == "mcp":
             await self.action_mcp_details()
@@ -6561,6 +6848,88 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return
         else:
             self.notify("Details not available", severity="warning", timeout=2)
+
+    async def _show_selected_principle_definition(self) -> None:
+        """Open the selected principles snippet for review."""
+        index = self._table_cursor_index()
+        if index is None or not self.principles:
+            self.notify(
+                "Select a principles snippet to view details",
+                severity="warning",
+                timeout=2,
+            )
+            return
+        if index < 0 or index >= len(self.principles):
+            return
+
+        snippet = self.principles[index]
+        try:
+            claude_dir = _resolve_claude_dir()
+            snippet_path = self._validate_path(claude_dir, snippet.path)
+        except ValueError:
+            snippet_path = snippet.path
+
+        try:
+            body = snippet_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to load {snippet.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        meta_lines = [
+            f"Snippet : {snippet.name}",
+            f"Title   : {snippet.title}",
+            f"Status  : {snippet.status}",
+            f"Path    : {snippet.path}",
+            "",
+        ]
+        meta_lines.append(body)
+        await self._show_text_dialog(
+            f"Principles Snippet · {snippet.name}",
+            "\n".join(meta_lines),
+        )
+        self.status_message = f"Viewing principles snippet {snippet.name}"
+        self.refresh_status_bar()
+
+    def action_principles_open(self) -> None:
+        """Open the generated PRINCIPLES.md for review."""
+        self.run_worker(self._show_principles_output(), exclusive=True)
+
+    async def _show_principles_output(self) -> None:
+        if self.current_view != "principles":
+            self.action_view_principles()
+
+        claude_dir = _resolve_claude_dir()
+        principles_path = claude_dir / "PRINCIPLES.md"
+
+        if not principles_path.is_file():
+            exit_code, message = principles_build()
+            clean = self._clean_ansi(message)
+            if exit_code != 0:
+                self.notify(
+                    clean or "Failed to build PRINCIPLES.md",
+                    severity="error",
+                    timeout=3,
+                )
+                return
+            self.notify("✓ Built PRINCIPLES.md", severity="information", timeout=2)
+
+        try:
+            body = principles_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read PRINCIPLES.md: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        await self._show_text_dialog("PRINCIPLES.md", body)
+        self.status_message = "Viewing PRINCIPLES.md"
+        self.refresh_status_bar()
 
     async def _show_selected_agent_definition(self) -> None:
         """Open the full agent definition for the selected agent."""
@@ -6642,6 +7011,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 await self._copy_agent_definition()
             elif self.current_view == "modes":
                 await self._copy_mode_definition()
+            elif self.current_view == "principles":
+                await self._copy_principle_definition()
             elif self.current_view == "rules":
                 await self._copy_rule_definition()
             elif self.current_view == "skills":
@@ -6740,6 +7111,51 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 timeout=2,
             )
             self.status_message = f"Copied {mode.name} mode"
+        else:
+            self.notify(
+                "Failed to copy to clipboard",
+                severity="error",
+                timeout=3,
+            )
+
+    async def _copy_principle_definition(self) -> None:
+        """Copy the selected principles snippet to clipboard."""
+        index = self._table_cursor_index()
+        if index is None or not self.principles:
+            self.notify(
+                "Select a principles snippet to copy",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        if index < 0 or index >= len(self.principles):
+            return
+
+        snippet = self.principles[index]
+        try:
+            claude_dir = _resolve_claude_dir()
+            snippet_path = self._validate_path(claude_dir, snippet.path)
+        except ValueError:
+            snippet_path = snippet.path
+
+        try:
+            definition = snippet_path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to read {snippet.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        if self._copy_to_clipboard(definition):
+            self.notify(
+                f"✓ Copied {snippet.name} snippet to clipboard",
+                severity="information",
+                timeout=2,
+            )
+            self.status_message = f"Copied {snippet.name} snippet"
         else:
             self.notify(
                 "Failed to copy to clipboard",
@@ -7872,6 +8288,80 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                 f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                             )
 
+        elif self.current_view == "principles":
+            table = self.query_one(DataTable)
+            if table.cursor_row is not None:
+                saved_cursor_row = table.cursor_row
+                row_key = table.get_row_at(table.cursor_row)
+                if row_key and len(row_key) > 0:
+                    from rich.text import Text
+
+                    raw_name = str(row_key[0])
+                    plain_text = Text.from_markup(raw_name).plain
+                    snippet_name = plain_text.strip()
+                    if (
+                        snippet_name
+                        and len(snippet_name) > 0
+                        and ord(snippet_name[0]) > 127
+                    ):
+                        snippet_name = snippet_name[1:].strip()
+
+                    snippet = next(
+                        (p for p in self.principles if p.name == snippet_name),
+                        None,
+                    )
+                    if snippet:
+                        try:
+                            if snippet.status == "active":
+                                exit_code, message = principles_deactivate(
+                                    snippet.path.stem
+                                )
+                            else:
+                                exit_code, message = principles_activate(
+                                    snippet.path.stem
+                                )
+
+                            import re
+
+                            clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
+                            self.status_message = clean_message.split("\n")[0]
+
+                            if exit_code == 0:
+                                if snippet.status == "active":
+                                    self.notify(
+                                        f"✓ Deactivated {snippet.name}",
+                                        severity="information",
+                                        timeout=2,
+                                    )
+                                else:
+                                    self.notify(
+                                        f"✓ Activated {snippet.name}",
+                                        severity="information",
+                                        timeout=2,
+                                    )
+                                self.load_principles()
+                                self.update_view()
+
+                                table = self.query_one(DataTable)
+                                if table.row_count > 0:
+                                    new_cursor_row = min(
+                                        saved_cursor_row, table.row_count - 1
+                                    )
+                                    table.move_cursor(row=new_cursor_row)
+                            else:
+                                self.notify(
+                                    f"✗ {clean_message}",
+                                    severity="error",
+                                    timeout=3,
+                                )
+                        except Exception as e:
+                            self.status_message = f"Error: {e}"
+                            self.notify(
+                                f"✗ Error: {str(e)[:50]}",
+                                severity="error",
+                                timeout=3,
+                            )
+
         elif self.current_view == "mcp":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
@@ -7943,6 +8433,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Refresh current view."""
         if self.current_view == "agents":
             self.load_agents()
+        elif self.current_view == "principles":
+            self.load_principles()
         elif self.current_view == "rules":
             self.load_rules()
         elif self.current_view == "modes":
@@ -8104,9 +8596,16 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
 
 
-def main() -> int:
+def main(theme_path: Optional[Path] = None) -> int:
     """Entry point for the Textual TUI."""
-    app = AgentTUI()
+    resolved_theme: Optional[Path] = None
+    if theme_path is not None:
+        resolved_theme = Path(theme_path).expanduser()
+        if not resolved_theme.is_file():
+            print(f"Theme file not found: {resolved_theme}")
+            return 1
+
+    app = AgentTUI(theme_path=resolved_theme)
     app.run()
     return 0
 

@@ -340,6 +340,13 @@ class AdaptiveFooter(Widget):
             "memory": [("Enter", "View"), ("O", "Open"), ("D", "Delete")],
             "modes": [("Spc", "Toggle"), ("^e", "Edit")],
             "rules": [("Spc", "Toggle"), ("^e", "Edit")],
+            "principles": [
+                ("Spc", "Toggle"),
+                ("s", "Details"),
+                ("c", "Build"),
+                ("d", "Open"),
+                ("^e", "Edit"),
+            ],
             "ai_assistant": [("a", "Auto-Activate")],
             "commands": [("Enter", "View"), ("^e", "Edit")],
         }

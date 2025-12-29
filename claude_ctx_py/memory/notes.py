@@ -41,6 +41,31 @@ def slugify(text: str) -> str:
     return slug
 
 
+def _validate_path(path: Path, vault_path: Path) -> Path:
+    """Validate that path is within vault_path.
+
+    Args:
+        path: Path to validate
+        vault_path: Vault root path
+
+    Returns:
+        Validated absolute path
+
+    Raises:
+        ValueError: If path is outside vault
+    """
+    try:
+        # Resolve both paths to absolute
+        abs_vault = vault_path.resolve()
+        abs_path = path.resolve()
+
+        # Check if path is relative to vault
+        abs_path.relative_to(abs_vault)
+        return abs_path
+    except (ValueError, RuntimeError) as e:
+        raise ValueError(f"Path traversal detected: {path} is not within {vault_path}") from e
+
+
 def get_note_path(
     note_type: NoteType,
     name: str,
@@ -60,7 +85,9 @@ def get_note_path(
         vault_path = get_vault_path()
 
     slug = slugify(name)
-    return vault_path / note_type.value / f"{slug}.md"
+    # Construct path and validate
+    full_path = vault_path / note_type.value / f"{slug}.md"
+    return _validate_path(full_path, vault_path)
 
 
 def get_session_note_path(
@@ -105,7 +132,7 @@ def get_session_note_path(
                 break
             seq += 1
 
-    return note_path
+    return _validate_path(note_path, vault_path)
 
 
 def note_exists(

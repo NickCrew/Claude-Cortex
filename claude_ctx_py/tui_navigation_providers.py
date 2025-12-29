@@ -134,7 +134,7 @@ class NavigationProvider(Provider):
 class ViewNavigationProvider(Provider):
     """Command provider for view switching with enhanced metadata.
 
-    Provides all 19 views with descriptions and keyboard shortcuts.
+    Provides all views with descriptions and keyboard shortcuts.
     """
 
     @property
@@ -160,6 +160,7 @@ class ViewNavigationProvider(Provider):
             ("agents", "👥 Agents", "View and manage agents", "2"),
             ("modes", "🎨 Modes", "View behavioral modes", "3"),
             ("rules", "📜 Rules", "View active rules", "4"),
+            ("principles", "📝 Principles", "Manage principles snippets", "p"),
             ("skills", "💎 Skills", "Browse skill library", "5"),
             ("workflows", "⚙️ Workflows", "Monitor workflows", "6"),
             ("mcp", "🔌 MCP", "Manage MCP servers", "7"),
