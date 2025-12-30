@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-cortex"
-version = "1.3.0"
+version = "1.4.0"
 description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = {text = "MIT"}
@@ -72,7 +72,6 @@ include = ["claude_ctx_py*"]
     "docs/reference/architecture/architecture-diagrams.md",
     "docs/reference/architecture/quick-reference.md",
     "docs/reference/architecture/DIAGRAMS_README.md",
-    "docs/reference/architecture/VISUAL_SUMMARY.txt",
     "docs/reference/architecture/README.md",
     "docs/AI_INTELLIGENCE.md",
     "docs/WHATS_NEW.md",
