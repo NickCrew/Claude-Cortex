@@ -292,6 +292,18 @@ skills:
           - "Vulnerability testing"
           - "Security regression tests"
 
+  multi-llm-consult:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-12-30"
+        notes: "Initial release"
+        changes:
+          - "Consult Gemini, OpenAI/Codex, and Qwen via script"
+          - "Store provider keys in settings.json (TUI configuration)"
+
 # Version Management Guidelines
 #
 # When to increment versions:

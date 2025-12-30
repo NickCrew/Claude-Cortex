@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, TextIO
+from typing import Any, Callable, Dict, Iterable, Mapping, TextIO, cast
 
 try:
     import yaml
@@ -58,7 +58,10 @@ class C:
 # =========================================================================
 CONFIG_PATH = Path.home() / ".claude" / "statusline.yaml"
 
-DEFAULT_CONFIG = {
+ConfigDict = Dict[str, Any]
+IconMap = Dict[str, str]
+
+DEFAULT_CONFIG: ConfigDict = {
     "show_git": True,
     "show_kube": False,
     "show_aws": False,
@@ -95,7 +98,7 @@ DEFAULT_CONFIG = {
 }
 
 
-def load_config() -> dict:
+def load_config() -> ConfigDict:
     """Load config from file, falling back to defaults."""
     config = DEFAULT_CONFIG.copy()
     if CONFIG_PATH.exists():
@@ -105,13 +108,14 @@ def load_config() -> dict:
                     user_config = yaml.safe_load(f) or {}
                 else:
                     user_config = json.load(f)
-                config.update(user_config)
+                if isinstance(user_config, dict):
+                    config.update(user_config)
         except Exception:
             pass
     return config
 
 
-def save_config(config: dict) -> None:
+def save_config(config: ConfigDict) -> None:
     """Save config to file."""
     CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(CONFIG_PATH, "w") as f:
@@ -232,9 +236,14 @@ def get_git_state(git_dir: str) -> str:
     return ""
 
 
-def get_git_info(cwd: str, icons: dict, config: dict | None = None) -> str:
+def get_git_info(
+    cwd: str,
+    icons: Mapping[str, str],
+    config: ConfigDict | None = None,
+) -> str:
     """Get git branch and status."""
-    config = config or {}
+    if config is None:
+        config = {}
 
     git_dir = run_cmd(["git", "-C", cwd, "rev-parse", "--git-dir"])
     if not git_dir:
@@ -361,7 +370,7 @@ def get_git_info(cwd: str, icons: dict, config: dict | None = None) -> str:
 # =========================================================================
 # Context Providers
 # =========================================================================
-def get_kube_context(icons: dict) -> str:
+def get_kube_context(icons: Mapping[str, str]) -> str:
     """Get current kubectl context."""
     ctx = run_cmd(["kubectx", "-c"]) or run_cmd(
         ["kubectl", "config", "current-context"]
@@ -369,7 +378,7 @@ def get_kube_context(icons: dict) -> str:
     return f"{C.MAG}{icons.get('kube', '')} {ctx}{C.NC}" if ctx else ""
 
 
-def get_aws_info(icons: dict) -> str:
+def get_aws_info(icons: Mapping[str, str]) -> str:
     """Get AWS profile/region from environment."""
     profile = os.environ.get("AWS_PROFILE", "")
     region = os.environ.get("AWS_REGION", "")
@@ -379,7 +388,7 @@ def get_aws_info(icons: dict) -> str:
     return f"{C.YEL}{icons.get('aws', '')} {info}{C.NC}"
 
 
-def get_docker_context(icons: dict) -> str:
+def get_docker_context(icons: Mapping[str, str]) -> str:
     """Get current Docker context."""
     ctx = run_cmd(["docker", "context", "show"])
     if ctx and ctx != "default":
@@ -387,7 +396,7 @@ def get_docker_context(icons: dict) -> str:
     return ""
 
 
-def get_venv_info(icons: dict) -> str:
+def get_venv_info(icons: Mapping[str, str]) -> str:
     """Get Python virtual environment name."""
     venv = os.environ.get("VIRTUAL_ENV", "")
     if venv:
@@ -396,7 +405,7 @@ def get_venv_info(icons: dict) -> str:
     return ""
 
 
-def get_node_version(icons: dict) -> str:
+def get_node_version(icons: Mapping[str, str]) -> str:
     """Get Node.js version if in a node project."""
     if Path("package.json").exists():
         version = run_cmd(["node", "--version"])
@@ -439,10 +448,17 @@ class StatusData:
 # =========================================================================
 # Formatters
 # =========================================================================
-def format_default(data: StatusData, config: dict) -> str:
+def _get_icons(config: ConfigDict) -> IconMap:
+    icons = config.get("icons")
+    if isinstance(icons, dict):
+        return {str(k): str(v) for k, v in icons.items()}
+    return {}
+
+
+def format_default(data: StatusData, config: ConfigDict) -> str:
     """Default multi-line format."""
-    sep = config.get("separator", " | ")
-    icons = config.get("icons", {})
+    sep = str(config.get("separator", " | "))
+    icons = _get_icons(config)
 
     lines = []
 
@@ -472,9 +488,9 @@ def format_default(data: StatusData, config: dict) -> str:
     return "\n".join(lines)
 
 
-def format_oneline(data: StatusData, config: dict) -> str:
+def format_oneline(data: StatusData, config: ConfigDict) -> str:
     """Single line for tmux/i3bar."""
-    sep = config.get("separator", " | ")
+    sep = str(config.get("separator", " | "))
     parts = [
         shorten_path(data.cwd),
         f"{data.tokens_pct}%",
@@ -485,7 +501,7 @@ def format_oneline(data: StatusData, config: dict) -> str:
     return sep.join(parts)
 
 
-def format_json(data: StatusData, _config: dict) -> str:
+def format_json(data: StatusData, _config: ConfigDict) -> str:
     """JSON output for scripting."""
     return json.dumps(
         {
@@ -504,7 +520,7 @@ def format_json(data: StatusData, _config: dict) -> str:
     )
 
 
-FORMATTERS = {
+FORMATTERS: Dict[str, Callable[[StatusData, ConfigDict], str]] = {
     "default": format_default,
     "oneline": format_oneline,
     "json": format_json,
@@ -539,7 +555,7 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def _apply_cli_overrides(config: dict, args: argparse.Namespace) -> None:
+def _apply_cli_overrides(config: ConfigDict, args: argparse.Namespace) -> None:
     for key in [
         "show_git",
         "show_kube",
@@ -559,14 +575,17 @@ def _configure_colors(args: argparse.Namespace, stdout: TextIO) -> None:
         C.disable()
 
 
-def _read_claude_data(stdin: TextIO) -> dict:
+def _read_claude_data(stdin: TextIO) -> Dict[str, Any]:
     try:
-        return json.load(stdin)
+        data = json.load(stdin)
+        if isinstance(data, dict):
+            return cast(Dict[str, Any], data)
+        return {}
     except json.JSONDecodeError:
         return {}
 
 
-def _build_status_data(claude_data: dict, config: dict) -> StatusData:
+def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> StatusData:
     cwd = claude_data.get("workspace", {}).get("current_dir", os.getcwd())
     ctx = claude_data.get("context_window", {})
     context_size = ctx.get("context_window_size", 1)
@@ -599,7 +618,7 @@ def _build_status_data(claude_data: dict, config: dict) -> StatusData:
         version=get_claude_version(),
     )
 
-    icons = config.get("icons", {})
+    icons = _get_icons(config)
 
     with ThreadPoolExecutor(max_workers=6) as ex:
         futures = {}

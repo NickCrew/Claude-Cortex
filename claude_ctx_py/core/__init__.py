@@ -451,6 +451,12 @@ __all__ = [
     "rules_activate",
     "rules_deactivate",
     "list_rules",
+    # Principles functions
+    "list_principles",
+    "principles_status",
+    "principles_activate",
+    "principles_deactivate",
+    "principles_build",
     # Workflow functions
     "workflow_run",
     "workflow_list",

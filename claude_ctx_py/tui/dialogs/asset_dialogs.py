@@ -9,7 +9,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Vertical, VerticalScroll, Horizontal
 from textual.screen import ModalScreen
-from textual.widgets import Button, Static, RadioSet, RadioButton
+from textual.widgets import Button, Static, RadioSet, RadioButton, Checkbox
 
 from ...tui_icons import Icons
 from ...tui_format import Format
@@ -534,6 +534,8 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
             "profiles": "👤",
             "scenarios": "🎬",
             "tasks": "✅",
+            "flags": "🚩",
+            "settings": "⚙️",
         }
 
         with Container(id="dialog", classes="visible"):
@@ -550,10 +552,17 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
                 with VerticalScroll(id="category-list"):
                     for category, count in self.categories:
                         icon = category_icons.get(category, "📦")
-                        yield Static(
-                            f"  {icon} [bold]{category}[/bold] ({count} assets)",
+                        yield Checkbox(
+                            f"{icon} {category} ({count} assets)",
+                            value=True,
+                            id=f"bulk-{category}",
                             classes="category-row",
                         )
+
+                yield Static(
+                    "[dim]Space to toggle • Enter to install selected[/dim]",
+                    id="dialog-hint",
+                )
 
                 with Horizontal(id="dialog-buttons"):
                     yield Button("Install All", variant="success", id="install")
@@ -565,8 +574,16 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
 
     def action_install(self) -> None:
         """Confirm installation."""
-        # Return all categories for bulk install
-        self.dismiss([cat for cat, _ in self.categories])
+        selected: List[str] = []
+        for category, _ in self.categories:
+            try:
+                checkbox = self.query_one(f"#bulk-{category}", Checkbox)
+            except Exception:
+                continue
+            if checkbox.value:
+                selected.append(category)
+
+        self.dismiss(selected)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button press."""

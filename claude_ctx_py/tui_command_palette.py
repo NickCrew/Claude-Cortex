@@ -326,6 +326,7 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Copy to Clipboard", "Copy export to clipboard", "export_clipboard", "utilities"),
     # Configuration
     ("Configure CLAUDE.md", "Wizard to configure CLAUDE.md", "claude_md_wizard", "config"),
+    ("Configure LLM Providers", "Set API keys for Gemini/OpenAI/Qwen", "llm_provider_settings", "config"),
     ("Manage Hooks", "Install and configure hooks", "hooks_manager", "config"),
     ("Backup Manager", "Create and restore backups", "backup_manager", "utilities"),
     # Help

@@ -158,6 +158,18 @@ skills:
       - "relational database"
       - "NoSQL design"
 
+  multi-llm-consult:
+    keywords:
+      - "second opinion"
+      - "external model"
+      - "compare models"
+      - "another LLM"
+      - "cross-check"
+      - "delegate to model"
+      - "Gemini"
+      - "Qwen"
+      - "Codex"
+
   typescript-advanced-patterns:
     keywords:
       - "TypeScript"

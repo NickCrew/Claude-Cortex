@@ -161,6 +161,53 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
     return created
 
 
+def _get_builtin_templates_dir() -> Path:
+    """Get the bundled templates directory shipped with the plugin."""
+    this_file = Path(__file__).resolve()
+    return this_file.parent.parent.parent / "templates"
+
+
+def _list_template_files(template_dir: Path) -> List[Path]:
+    """Return all template files under the given directory."""
+    if not template_dir.is_dir():
+        return []
+    return sorted(path for path in template_dir.rglob("*") if path.is_file())
+
+
+def _find_missing_template_files(target_root: Path) -> List[Path]:
+    """Find template files missing from the target root's templates/ directory."""
+    source_dir = _get_builtin_templates_dir()
+    if not source_dir.is_dir():
+        return []
+
+    target_dir = target_root / "templates"
+    missing: List[Path] = []
+    for src in _list_template_files(source_dir):
+        rel_path = src.relative_to(source_dir)
+        if not (target_dir / rel_path).exists():
+            missing.append(rel_path)
+    return missing
+
+
+def _ensure_template_files(target_root: Path) -> List[str]:
+    """Copy any missing template files into target_root/templates."""
+    source_dir = _get_builtin_templates_dir()
+    if not source_dir.is_dir():
+        return []
+
+    created: List[str] = []
+    target_dir = target_root / "templates"
+    for src in _list_template_files(source_dir):
+        rel_path = src.relative_to(source_dir)
+        dest = target_dir / rel_path
+        if dest.exists():
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
+        created.append(str(dest))
+    return created
+
+
 def _init_slug_for_path(path: Path) -> str:
     """Generate a stable slug for the given project path."""
 

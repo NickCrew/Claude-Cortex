@@ -497,7 +497,7 @@ Exported from: ~/.claude
         except Exception as e:
             self.state.status_message = f"Export error: {e}"
 
-    def copy_to_clipboard(self) -> None:
+    def export_copy_to_clipboard(self) -> None:
         """Copy export to clipboard."""
         try:
             content_to_copy = self.generate_export_preview()

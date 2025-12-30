@@ -35,6 +35,10 @@ from .backup_manager import (
     BackupManagerDialog,
 )
 
+from .llm_provider_settings import (
+    LLMProviderSettingsDialog,
+)
+
 __all__ = [
     "TargetSelectorDialog",
     "AssetDetailDialog",
@@ -50,4 +54,5 @@ __all__ = [
     "ProfileConfig",
     "HooksManagerDialog",
     "BackupManagerDialog",
+    "LLMProviderSettingsDialog",
 ]

@@ -13,8 +13,8 @@ import re
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
+from pathlib import Path, PurePath
+from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -128,7 +128,14 @@ from ..core.modes import (
     mode_activate_intelligent,
     mode_deactivate_intelligent,
 )
-from ..core.base import _iter_md_files, _parse_active_entries, _strip_ansi_codes, _ensure_claude_structure
+from ..core.base import (
+    _iter_md_files,
+    _parse_active_entries,
+    _strip_ansi_codes,
+    _ensure_claude_structure,
+    _find_missing_template_files,
+    _ensure_template_files,
+)
 from ..core.migration import migrate_to_file_activation
 from ..core.doctor import doctor_run
 from ..core.mcp import (
@@ -169,6 +176,7 @@ from .dialogs import (
     ProfileConfig,
     HooksManagerDialog,
     BackupManagerDialog,
+    LLMProviderSettingsDialog,
 )
 from ..core.mcp_installer import install_and_configure
 from ..core.mcp_registry import get_server
@@ -245,16 +253,16 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         **kwargs: Any,
     ) -> None:
         resolved_theme = self._resolve_theme_path(theme_path)
-        css_path = None
+        css_path: list[str | PurePath] | None = None
         if resolved_theme is not None:
             css_path = []
             base_css = self.CSS_PATH
             if base_css:
-                if isinstance(base_css, (list, tuple)):
+                if isinstance(base_css, list):
                     css_path.extend(base_css)
-                else:
+                elif isinstance(base_css, (str, PurePath)):
                     css_path.append(base_css)
-            css_path.append(str(resolved_theme))
+            css_path.append(resolved_theme)
 
         super().__init__(css_path=css_path, **kwargs)
         self.theme_path = resolved_theme
@@ -282,6 +290,28 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
+        self._tasks_state_signature: Optional[str] = None
+        # Asset manager state
+        self.available_assets: Dict[str, List[Asset]] = {}
+        self.claude_directories: List[ClaudeDir] = []
+        self.selected_target_dir: Optional[Path] = None
+        # Memory vault state
+        self.memory_notes: List[MemoryNote] = []
+        # Watch mode state
+        self.watch_mode_instance: Optional[WatchMode] = None
+        self.watch_mode_thread: Optional[threading.Thread] = None
+        # Flags explorer state
+        self.current_flag_category = "all"  # Track selected flag category
+        self.flag_categories = ["all"]
+        # Track which categories are enabled (all enabled by default, except "all" which is special)
+        self.flag_categories_enabled: Dict[str, bool] = {}
+        # Flag manager state
+        self.flag_files: List[Dict[str, Any]] = []
+        self.selected_flag_index = 0
+        self.selected_index = 0
+        self.state = self
+        self.wizard_active = False
+        self.wizard_step = 0
 
     @staticmethod
     def _resolve_theme_path(theme_path: Optional[Path]) -> Optional[Path]:
@@ -306,30 +336,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             if candidate.is_file():
                 return candidate
         return None
-        self._tasks_state_signature: Optional[str] = None
-        # Asset manager state
-        self.available_assets: Dict[str, List[Asset]] = {}
-        self.claude_directories: List[ClaudeDir] = []
-        self.selected_target_dir: Optional[Path] = None
-        # Memory vault state
-        self.memory_notes: List[MemoryNote] = []
-        # Watch mode state
-        self.watch_mode_instance: Optional[WatchMode] = None
-        self.watch_mode_thread: Optional[threading.Thread] = None
-        # Flags explorer state
-        self.current_flag_category = "all"  # Track selected flag category
-        self.flag_categories = ["all"]
-        # Track which categories are enabled (all enabled by default, except "all" which is special)
-        self.flag_categories_enabled: Dict[str, bool] = {}
-        # Flag manager state
-        self.flag_files: List[Dict[str, Any]] = []  # List of {name, path, tokens, active, category}
-        self.selected_flag_index = 0
-        self.selected_index = 0
-        self.state = self
-        self.wizard_active = False
-        self.wizard_step = 0
 
-    CSS_PATH = "styles.tcss"
+    CSS_PATH: ClassVar[str | PurePath | list[str | PurePath] | None] = "styles.tcss"
     # Bindings registered for key handling; display handled by AdaptiveFooter
     BINDINGS = [
         *[
@@ -552,8 +560,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
-        # Schedule background check for pending skill rating prompts
-        self.call_after_refresh(self._maybe_prompt_for_skill_ratings)
+        # Schedule background check for pending prompts
+        self.call_after_refresh(self._post_startup_checks)
 
     def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""
@@ -1363,6 +1371,62 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return f"[red]Unavailable[/red]\n[dim]{summary}[/dim]"
 
         return "[dim]No ratings yet[/dim]"
+
+    async def _post_startup_checks(self) -> None:
+        """Run startup prompts after the UI has mounted."""
+        await self._maybe_prompt_for_missing_templates()
+        await self._maybe_prompt_for_skill_ratings()
+
+    async def _maybe_prompt_for_missing_templates(self) -> None:
+        """Offer to initialize missing template files in CLAUDE_PLUGIN_ROOT."""
+        explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
+        if not explicit_root:
+            return
+
+        target_root = Path(explicit_root).expanduser()
+        if not target_root.exists():
+            return
+
+        missing = _find_missing_template_files(target_root)
+        if not missing:
+            return
+
+        preview = ", ".join(str(path) for path in missing[:5])
+        if len(missing) > 5:
+            preview += f" (+{len(missing) - 5} more)"
+
+        dialog = ConfirmDialog(
+            "Initialize Templates",
+            "Template files are missing from CLAUDE_PLUGIN_ROOT:\n"
+            f"{target_root}\n\n"
+            f"Missing: {preview}\n\n"
+            "Initialize missing templates and launch the Init Wizard?",
+            default=True,
+        )
+        confirm = await self.push_screen(dialog, wait_for_dismiss=True)
+        if not confirm:
+            self.notify(
+                "Templates missing. Run Init Wizard from Profiles when ready.",
+                severity="warning",
+                timeout=4,
+            )
+            return
+
+        created = _ensure_template_files(target_root)
+        if created:
+            self.notify(
+                f"Initialized {len(created)} template files",
+                severity="information",
+                timeout=3,
+            )
+        else:
+            self.notify(
+                "Templates already present",
+                severity="information",
+                timeout=2,
+            )
+
+        await self._run_init_wizard()
 
     async def _maybe_prompt_for_skill_ratings(self) -> None:
         """Surface auto-prompts for recently used skills."""
@@ -2245,7 +2309,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             running = sum(1 for s in scenarios if s.status == "running")
             self.metrics_collector.record("scenarios_running", float(running))
 
-    def load_profiles(self) -> None:
+    def load_profiles(self) -> List[Dict[str, Optional[str]]]:
         """Load available profiles (built-in + saved)."""
         try:
             profiles: List[Dict[str, Optional[str]]] = []
@@ -2285,9 +2349,11 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                     )
 
             self.profiles = profiles
+            return profiles
         except Exception as exc:
             self.profiles = []
             self.status_message = f"Error loading profiles: {exc}"[:160]
+            return []
 
     def load_mcp_servers(self) -> None:
         """Load MCP server definitions."""
@@ -4566,7 +4632,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             "[bold cyan]Target[/bold cyan]",
             f"[dim]{target_text}[/dim]",
             "",
-            "[dim]Press [white]t[/white] to change target[/dim]",
+            "[dim]Press [white]T[/white] to change target[/dim]",
         )
         table.add_row("", "", "", "")
 
@@ -4753,7 +4819,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     def action_view_profiles(self) -> None:
         """Switch to profiles view."""
         self.current_view = "profiles"
-        self._load_profiles_data()
+        self.load_profiles()
         self.status_message = "Switched to Profiles"
         self.notify("👤 Profiles", severity="information", timeout=1)
 
@@ -5183,7 +5249,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 self.notify(f"{flag['category']}: {new_state} in FLAGS.md", severity="information", timeout=2)
                 self.status_message = f"{flag['category']}: {new_state}"
             else:
-                self.notify("Failed to toggle flag in CLAUDE.md", severity="error", timeout=2)
+                self.notify("Failed to toggle flag in FLAGS.md", severity="error", timeout=2)
 
     # ─────────────────────────────────────────────────────────────────────
     # Watch Mode Actions
@@ -5609,7 +5675,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return
 
         if not self.selected_target_dir:
-            self.notify("Select a target directory first (press t)", severity="warning", timeout=2)
+            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
             return
 
         # Gather category counts (only not-installed assets)
@@ -5634,6 +5700,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Handle bulk install dialog callback."""
         try:
             if not selected:
+                self.notify("No categories selected", severity="warning", timeout=2)
                 return
             if not self.selected_target_dir:
                 return
@@ -5689,6 +5756,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         # Show confirmation dialog
         self._assets_to_update = assets_to_update
+        self._update_all_assets_pending = True
         dialog = ConfirmDialog(
             "Update All Assets",
             f"Update {len(assets_to_update)} asset(s) to latest version?",
@@ -5698,7 +5766,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     def _handle_update_all_confirm(self, confirmed: Optional[bool]) -> None:
         """Handle update all confirmation callback."""
         try:
-            if not confirmed or not hasattr(self, "_update_all_assets_pending"):
+            if not confirmed or not hasattr(self, "_assets_to_update"):
                 return
             if not self.selected_target_dir:
                 return
@@ -5725,6 +5793,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
             self.update_view()
             self._restore_main_table_cursor(saved_cursor_row)
+            if hasattr(self, "_update_all_assets_pending"):
+                delattr(self, "_update_all_assets_pending")
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -6260,15 +6330,11 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     # Setup Tools Actions (profiles view)
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def action_setup_init_wizard(self) -> None:
-        """Launch the interactive initialization wizard."""
-        if self.current_view != "profiles":
-            return
-
+    async def _run_init_wizard(self) -> None:
+        """Run the interactive initialization wizard."""
         self.notify("Starting Init Wizard...", severity="information", timeout=2)
 
         try:
-            # Run in worker to avoid blocking
             exit_code, message = init_wizard(cwd=Path.cwd())
             clean_msg = self._clean_ansi(message)
 
@@ -6281,13 +6347,19 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 self.load_profiles()
                 self.update_view()
             else:
-                self.notify(f"Wizard cancelled or failed", severity="warning", timeout=3)
+                self.notify("Wizard cancelled or failed", severity="warning", timeout=3)
 
-            # Show full output in dialog
             await self._show_text_dialog("Init Wizard Result", clean_msg)
 
         except Exception as exc:
             self.notify(f"Init Wizard failed: {exc}", severity="error", timeout=3)
+
+    async def action_setup_init_wizard(self) -> None:
+        """Launch the interactive initialization wizard."""
+        if self.current_view != "profiles":
+            return
+
+        await self._run_init_wizard()
 
     async def action_setup_init_minimal(self) -> None:
         """Apply minimal configuration quickly."""
@@ -8039,6 +8111,18 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     def action_toggle(self) -> None:  # type: ignore[override]
         """Toggle selected item."""
+        if self.wizard_active:
+            self.action_wizard_toggle()
+            return
+
+        if self.current_view == "flags":
+            self.action_flag_category_toggle()
+            return
+
+        if self.current_view == "flag_manager":
+            self.action_flag_manager_toggle()
+            return
+
         if self.current_view == "profiles":
             self.action_profile_apply()
             return
@@ -8559,6 +8643,16 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Handle result from backup manager."""
         if result:
             self.notify(result, severity="information", timeout=2)
+
+    def action_llm_provider_settings(self) -> None:
+        """Open the LLM provider settings dialog."""
+        dialog = LLMProviderSettingsDialog()
+        self.push_screen(dialog, callback=self._handle_llm_provider_settings_result)
+
+    def _handle_llm_provider_settings_result(self, saved: Optional[bool]) -> None:
+        """Handle result from provider settings dialog."""
+        if saved:
+            self.notify("LLM provider settings saved", severity="information", timeout=2)
 
     def action_command_palette(self) -> None:
         """Show the command palette."""
