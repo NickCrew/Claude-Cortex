@@ -152,6 +152,12 @@ class AgentCommandProvider(Provider):
                 "export_context",
                 CATEGORY_SYSTEM,
             ),
+            (
+                f"[bright_magenta]🧠[/] [bold]Memory Vault[/bold] [dim bright_magenta]✦[/dim bright_magenta]",
+                f"[dim]Browse memory notes [dim white]│[/dim white] Hotkey: [magenta]Ctrl+M[/magenta] [dim white]│[/dim white] Access: [cyan]Vault[/cyan][/dim]",
+                "show_memory",
+                CATEGORY_SYSTEM,
+            ),
         ]
 
         # Search and yield matching commands with category grouping
@@ -238,3 +244,14 @@ class AgentCommandProvider(Provider):
         elif action == "export_context":
             app.current_view = "export"
             app.update_view()
+        elif action == "show_memory":
+            if hasattr(app, "push_screen"):
+                try:
+                    from .tui_memory import MemoryScreen
+                    # app is typed as _CommandApp but at runtime it is the App instance
+                    # We need to ignore type checking for this dynamic call
+                    getattr(app, "push_screen")(MemoryScreen())
+                except ImportError:
+                    app.status_message = "Memory module not available"
+                except Exception as e:
+                    app.status_message = f"Error opening memory: {e}"
