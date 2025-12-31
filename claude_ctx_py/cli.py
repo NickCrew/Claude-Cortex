@@ -1866,8 +1866,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 0
     
     if args.command == "tui":
-        from . import tui
-        return tui.main(theme_path=getattr(args, "theme", None))
+        from .tui.main import main as tui_main
+        return tui_main(theme_path=getattr(args, "theme", None))
 
     handler = handlers.get(args.command)
     if handler:

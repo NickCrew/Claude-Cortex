@@ -10,9 +10,15 @@ import json
 import logging
 import warnings
 from pathlib import Path
-from typing import Any, Literal, Dict, Union
+from typing import Any, Literal, Dict, Union, TYPE_CHECKING
 
-import numpy as np  # type: ignore
+if TYPE_CHECKING:
+    import numpy as np
+else:
+    try:
+        import numpy as np  # type: ignore
+    except ModuleNotFoundError:  # pragma: no cover - optional dependency
+        np = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +204,11 @@ class SemanticMatcher:
         Args:
             cache_dir: Directory for caching embeddings
         """
+        if np is None:
+            raise RuntimeError(
+                "Semantic matching requires numpy. "
+                "Install with: pip install \"claude-cortex[ai]\""
+            )
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
