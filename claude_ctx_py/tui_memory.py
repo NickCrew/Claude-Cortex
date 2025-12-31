@@ -21,10 +21,10 @@ from textual.widgets import (
 from textual import on
 
 from .tui_icons import Icons
-from .memory.notes import list_notes, read_note, NoteType, create_note
+from .memory import list_notes, read_note, NoteType, create_note
 
 
-class MemoryScreen(Screen):
+class MemoryScreen(Screen[None]):
     """Screen for browsing and managing the Memory Vault."""
 
     BINDINGS = [
@@ -136,7 +136,8 @@ class MemoryScreen(Screen):
                 key=note["path"]  # Store path as key
             )
         
-        self.query_one("#search-input").border_subtitle = f"{len(notes)} notes found"
+        search_input = self.query_one("#search-input", Input)
+        search_input.border_subtitle = f"{len(notes)} notes found"
 
     def _get_type_icon(self, note_type: str) -> str:
         """Get icon for note type."""
@@ -178,14 +179,14 @@ class MemoryScreen(Screen):
 
     def action_focus_search(self) -> None:
         """Focus the search input."""
-        self.query_one("#search-input").focus()
+        self.query_one("#search-input", Input).focus()
 
     def action_refresh_notes(self) -> None:
         """Refresh the notes list."""
-        query = self.query_one("#search-input").value
+        query = self.query_one("#search-input", Input).value
         self.load_notes(query)
         self.notify("Memory Vault refreshed")
 
     def action_new_note(self) -> None:
         """Create a new note (placeholder)."""
-        self.notify("New note creation coming soon!", severity="info")
+        self.notify("New note creation coming soon!", severity="information")

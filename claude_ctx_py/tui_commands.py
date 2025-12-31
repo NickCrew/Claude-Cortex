@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import AsyncIterator, Protocol, runtime_checkable, Callable
+from typing import Any, AsyncIterator, Protocol, Optional, runtime_checkable, Callable
 
 from textual.command import Hit, Provider
 from .tui_icons import Icons
@@ -421,4 +421,3 @@ class AgentCommandProvider(Provider):
         elif action == "show_help":
             if hasattr(app, "action_help"):
                 getattr(app, "action_help")()
-

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Literal, Dict, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import numpy as np
+    import numpy as np  # type: ignore[import-not-found]
 else:
     try:
         import numpy as np  # type: ignore
