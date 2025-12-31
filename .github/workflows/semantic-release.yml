@@ -32,11 +32,19 @@ jobs:
       - name: Run unit tests
         run: pytest -m "unit and not slow"
 
-      - name: Build distribution
-        run: python -m build
-
       - name: Python Semantic Release
+        id: release
         uses: python-semantic-release/python-semantic-release@v10
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build: false
+
+      - name: Build distribution
+        if: steps.release.outputs.released == 'true'
+        run: python -m build
+
+      - name: Publish package to PyPI
+        if: steps.release.outputs.released == 'true' && secrets.PYPI_API_TOKEN != ''
+        uses: pypa/gh-action-pypi-publish@v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

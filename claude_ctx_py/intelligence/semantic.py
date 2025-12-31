@@ -205,7 +205,7 @@ class SemanticMatcher:
             cache_dir: Directory for caching embeddings
         """
         if np is None:
-            raise RuntimeError(
+            raise ImportError(
                 "Semantic matching requires numpy. "
                 "Install with: pip install \"claude-cortex[ai]\""
             )
