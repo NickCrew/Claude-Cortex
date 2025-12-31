@@ -1,11 +1,12 @@
-# Claude Cortex - Quick Reference
+# Cortex - Quick Reference
 
 ## Quick Start
 
 ### Installation
+
 ```bash
 # Clone repository
-git clone https://github.com/NickCrew/claude-ctx-plugin.git
+git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-ctx-plugin
 
 # Create virtual environment
@@ -23,6 +24,7 @@ claude-ctx tui
 ```
 
 ### Running Tests
+
 ```bash
 # Run all tests with coverage
 pytest
@@ -40,6 +42,7 @@ pytest -m unit
 ## Key File Locations
 
 ### Source Code
+
 ```
 claude_ctx_py/
 ├── cli.py                  # CLI entry point
@@ -57,6 +60,7 @@ claude_ctx_py/
 ```
 
 ### User Configuration
+
 ```
 ~/.claude/
 ├── CLAUDE.md              # Active components
@@ -71,6 +75,7 @@ claude_ctx_py/
 ## Common Commands
 
 ### CLI Commands
+
 ```bash
 # Mode management
 claude-ctx mode list
@@ -111,6 +116,7 @@ claude-ctx tui
 ```
 
 ### TUI Key Bindings
+
 ```
 Navigation:
   0-8          - Switch to view (Agents, Modes, Rules, etc.)
@@ -142,6 +148,7 @@ AI Assistant (8):
 ## Quick Reference: Core APIs
 
 ### Agent Management
+
 ```python
 from claude_ctx_py.core import (
     agent_activate,
@@ -164,6 +171,7 @@ agent_deps("code-reviewer")
 ```
 
 ### Intelligence System
+
 ```python
 from claude_ctx_py.intelligence import (
     SessionContext,
@@ -190,6 +198,7 @@ auto_activate = [r for r in recommendations if r.confidence >= 0.8]
 ```
 
 ### Skill Management
+
 ```python
 from claude_ctx_py.core import (
     skill_rate,
@@ -210,6 +219,7 @@ recommendations = skill_recommend(context="security audit")
 ## Architecture Quick View
 
 ### System Layers
+
 ```
 ┌─────────────┐
 │  CLI / TUI  │ ← User Interface
@@ -223,6 +233,7 @@ recommendations = skill_recommend(context="security audit")
 ```
 
 ### Data Flow
+
 ```
 User Input → CLI/TUI → Core Module → File System → CLAUDE.md
                 ↓
@@ -234,6 +245,7 @@ User Input → CLI/TUI → Core Module → File System → CLAUDE.md
 ```
 
 ### Component Types
+
 ```
 Agents    - Claude subagents (code-reviewer, test-automator)
 Modes     - Behavioral contexts (Brainstorming, Super_Saiyan)
@@ -246,6 +258,7 @@ Profiles  - Component bundles (frontend, backend, devops)
 ## Common Patterns
 
 ### Creating a New Agent
+
 ```markdown
 ---
 name: my-agent
@@ -265,6 +278,7 @@ Agent instructions and prompt go here...
 ```
 
 ### Creating a New Mode
+
 ```markdown
 ---
 name: my-mode
@@ -278,6 +292,7 @@ Mode-specific instructions...
 ```
 
 ### Creating a Skill
+
 ```markdown
 ---
 name: my-skill
@@ -297,6 +312,7 @@ Skill content with examples...
 ## Testing Patterns
 
 ### Unit Test Example
+
 ```python
 def test_agent_activate():
     # Arrange
@@ -311,6 +327,7 @@ def test_agent_activate():
 ```
 
 ### TUI Test Example
+
 ```python
 async def test_agent_view():
     app = AgentTUI()
@@ -326,6 +343,7 @@ async def test_agent_view():
 ## Debugging Tips
 
 ### Enable Debug Logging
+
 ```bash
 # Set environment variable
 export CLAUDE_CTX_DEBUG=1
@@ -335,6 +353,7 @@ claude-ctx ai recommend
 ```
 
 ### TUI Debugging
+
 ```python
 # Add to tui/main.py
 self.log("Debug message", severity="debug")
@@ -344,6 +363,7 @@ tail -f ~/.textual/claude-ctx.log
 ```
 
 ### Intelligence Debugging
+
 ```python
 # Add verbose output
 from claude_ctx_py.intelligence import PatternLearner
@@ -355,6 +375,7 @@ recommendations = learner.recommend_agents(context)
 ## Configuration
 
 ### Environment Variables
+
 ```bash
 CLAUDE_PLUGIN_ROOT=...           # Plugin context directory (optional; set by Claude Code)
 CLAUDE_CTX_DEBUG=1               # Enable debug logging
@@ -362,6 +383,7 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 ```
 
 ### Config File Locations
+
 ```
 ~/.claude/CLAUDE.md              # Main config
 ~/.claude/data/sessions/         # Session history
@@ -372,16 +394,19 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 ## Performance Tips
 
 ### CLI Performance
+
 - Use `--no-color` in scripts for faster output
 - Enable shell completion for faster typing
 - Cache expensive operations (already done internally)
 
 ### TUI Performance
+
 - Large tables render incrementally
 - Search is debounced for responsiveness
 - Background data loading where possible
 
 ### Intelligence Performance
+
 - Pattern database auto-prunes old sessions
 - Confidence scoring optimized for speed
 - Parallel recommendation generation
@@ -391,21 +416,26 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 ### Common Issues
 
 **Issue**: `ModuleNotFoundError: No module named 'claude_ctx_py'`
+
 - **Solution**: Install package: `pip install -e .`
 
 **Issue**: TUI doesn't render correctly
+
 - **Solution**: Update terminal or use different emulator
 - **Check**: `echo $TERM` should be `xterm-256color` or similar
 
 **Issue**: Agent activation fails with dependency errors
+
 - **Solution**: Check dependency graph: `claude-ctx agent graph`
 - **Activate dependencies**: `claude-ctx agent deps <agent-name>`
 
 **Issue**: Intelligence recommendations not working
+
 - **Solution**: Record some sessions: `claude-ctx ai record-success`
 - **Check**: Session data exists: `ls ~/.claude/data/sessions/`
 
 **Issue**: MCP servers not detected
+
 - **Solution**: Verify Claude Desktop config exists
 - **Check**: `~/.config/claude-desktop/config.json`
 
@@ -414,5 +444,5 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 - [Full Architecture Documentation](README.md)
 - [AI Intelligence Guide](../guides/development/AI_INTELLIGENCE_GUIDE.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
-- [GitHub Repository](https://github.com/NickCrew/claude-ctx-plugin)
+- [GitHub Repository](https://github.com/NickCrew/claude-cortex)
 - [Documentation Site](https://nickcrew.github.io/claude-ctx-plugin/)

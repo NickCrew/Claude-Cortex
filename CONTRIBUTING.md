@@ -1,6 +1,6 @@
-# Contributing to Claude Cortex
+# Contributing to Cortex
 
-Thank you for your interest in contributing to the Claude Cortex! This document provides guidelines for different types of contributions.
+Thank you for your interest in contributing to the Cortex! This document provides guidelines for different types of contributions.
 
 ## Table of Contents
 
@@ -40,12 +40,14 @@ Unacceptable behavior includes harassment, discrimination, trolling, or personal
 
 1. Fork the repository on GitHub
 2. Clone your fork locally:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/claude-ctx-plugin.git
    cd claude-ctx-plugin
    ```
 
 3. Add upstream remote:
+
    ```bash
    git remote add upstream https://github.com/NickCrew/claude-ctx-plugin.git
    ```
@@ -78,25 +80,32 @@ echo 'export CLAUDE_PLUGIN_ROOT="/path/to/your/claude-ctx-plugin"' >> ~/.zshrc
 We welcome several types of contributions:
 
 ### 1. Community Skills
+
 Expert knowledge modules in specific domains. See [Contributing Community Skills](#contributing-community-skills).
 
 ### 2. Bug Fixes
+
 Corrections to existing functionality. Include:
+
 - Clear description of the bug
 - Steps to reproduce
 - Expected vs actual behavior
 - Your fix with tests
 
 ### 3. Feature Enhancements
+
 Improvements to existing features. Discuss in GitHub Issues first.
 
 ### 4. Documentation
+
 Improvements to README, guides, examples, or code comments.
 
 ### 5. Tests
+
 Additional test coverage for existing functionality.
 
 ### 6. Tooling
+
 Improvements to build process, CLI, or developer experience.
 
 ## Development Workflow
@@ -117,6 +126,7 @@ git checkout -b skill/your-skill-name
 ```
 
 Branch naming conventions:
+
 - `feature/` - New features or enhancements
 - `fix/` - Bug fixes
 - `skill/` - Community skills
@@ -161,6 +171,7 @@ Fixes #123"
 ```
 
 Commit message format:
+
 - `Add:` - New features or files
 - `Fix:` - Bug fixes
 - `Update:` - Changes to existing features
@@ -185,6 +196,7 @@ Community skills are the most common contribution type. See [skills/community/RE
 ### Quick Reference
 
 1. **Copy the template**:
+
    ```bash
    mkdir -p skills/community/your-skill-name
    cp skills/community/.template/SKILL.md skills/community/your-skill-name/SKILL.md
@@ -193,6 +205,7 @@ Community skills are the most common contribution type. See [skills/community/RE
 2. **Write your skill** following the template structure
 
 3. **Update frontmatter**:
+
    ```yaml
    ---
    name: your-skill-name
@@ -207,11 +220,13 @@ Community skills are the most common contribution type. See [skills/community/RE
    ```
 
 4. **Validate**:
+
    ```bash
    claude-ctx skills validate your-skill-name
    ```
 
 5. **Add registry entry** in `skills/community/registry.yaml`:
+
    ```yaml
    your-skill-name:
      author: Your Name
@@ -437,6 +452,7 @@ Paragraph with **bold** and *italic* formatting.
 ```language
 // Code block with language
 ```
+
 ```
 
 ### File Naming
@@ -530,7 +546,7 @@ Contributors are recognized in several ways:
 - **Contributors list**: GitHub contributors page
 - **Release notes**: Significant contributions mentioned
 
-Thank you for contributing to Claude Cortex!
+Thank you for contributing to Cortex!
 
 ## License
 

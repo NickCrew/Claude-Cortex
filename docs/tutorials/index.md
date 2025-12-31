@@ -6,7 +6,7 @@ has_children: true
 permalink: /tutorials/
 ---
 
-# Claude Cortex Tutorials
+# Cortex Tutorials
 
 Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
@@ -16,7 +16,7 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 <div class="doc-grid">
   <a href="getting-started-tui/" class="doc-card">
-    <h3>📖 Getting Started with Claude Cortex TUI</h3>
+    <h3>📖 Getting Started with Cortex TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI.</p>
     <p class="muted"><strong>Topics:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
     <span class="doc-card__arrow">Start Tutorial →</span>
@@ -55,15 +55,15 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 ### Documentation
 
-- [TUI Keyboard Reference](/guides/tui/tui-keyboard-reference.html)
-- [AI Intelligence Guide](/guides/development/AI_INTELLIGENCE_GUIDE.html)
-- [MCP Management Guide](/guides/mcp/MCP_MANAGEMENT.md)
+- [TUI Keyboard Reference]({{ '/guides/tui/tui-keyboard-reference.html' | relative_url }})
+- [AI Intelligence Guide]({{ '/guides/development/AI_INTELLIGENCE_GUIDE.html' | relative_url }})
+- [MCP Management Guide]({{ '/guides/mcp/MCP_MANAGEMENT.md' | relative_url }})
 
 ### Reference Materials
 
 - `man claude-ctx` — Complete CLI reference (requires installation)
 - `claude-ctx --help` — Built-in command help
-- [GitHub Repository](https://github.com/NickCrew/claude-ctx-plugin)
+- [GitHub Repository](https://github.com/NickCrew/claude-cortex)
 
 ---
 
@@ -71,7 +71,7 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 **For Visual Learners:**
 
-- Check out the [TUI Showcase Presentation](/presentations/tui-showcase.html)
+- Check out the [Feature Catalog Presentation]({{ '/presentations/tui-showcase.html' | relative_url }})
 - Screenshots included in Getting Started tutorial
 
 **For Command-Line Fans:**
@@ -88,4 +88,4 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 ---
 
-*Have a tutorial request? [Open an issue](https://github.com/NickCrew/claude-ctx-plugin/issues) on GitHub.*
+*Have a tutorial request? [Open an issue](https://github.com/NickCrew/claude-cortex/issues) on GitHub.*

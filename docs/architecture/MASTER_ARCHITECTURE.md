@@ -1,4 +1,4 @@
-# Claude Cortex: Master Architecture Document
+# Cortex: Master Architecture Document
 
 **Version**: 1.1  
 **Last Updated**: 2025-12-05  
@@ -40,33 +40,38 @@
 
 ### 1.1 Purpose
 
-The Claude Cortex is a **comprehensive context management and intelligent automation system** for Claude Code. It provides developers with a framework to organize, activate, and intelligently manage agents, modes, rules, skills, and workflows through both command-line (CLI) and terminal user interface (TUI) interactions.
+The Cortex is a **comprehensive context management and intelligent automation system** for Claude Code. It provides developers with a framework to organize, activate, and intelligently manage agents, modes, rules, skills, and workflows through both command-line (CLI) and terminal user interface (TUI) interactions.
 
 ### 1.2 Key Capabilities
 
 **Context Management**
+
 - Organize agents, modes, rules, and skills as reusable markdown components
 - Dependency-aware activation and deactivation
 - Profile-based configuration for different project types
 
 **Intelligent Automation**
+
 - AI-powered agent recommendations based on file changes and patterns
 - Pattern learning from successful sessions
 - Auto-activation of high-confidence agents (≥80%)
 - Real-time watch mode for continuous monitoring
 
 **Interactive Experience**
+
 - Rich terminal UI with 9 specialized views
 - Command palette with fuzzy search
 - Real-time notifications and status updates
 - Keyboard-driven navigation
 
 **Persistent Memory**
+
 - Knowledge vault for domain knowledge, gotchas, and fixes
 - Session capture and replay
 - Auto-capture hooks for seamless workflow integration
 
 **Integration & Extensibility**
+
 - MCP (Model Context Protocol) server management
 - Skill rating and analytics system
 - Profile and scenario templates
@@ -77,6 +82,7 @@ The Claude Cortex is a **comprehensive context management and intelligent automa
 **Primary Audience**: Software developers using Claude Code for daily development tasks
 
 **User Personas**:
+
 - **Solo Developer**: Quick context switching, productivity automation
 - **Team Lead**: Standard profiles, team conventions, quality gates
 - **DevOps Engineer**: Infrastructure-as-code workflows, deployment automation
@@ -167,24 +173,28 @@ The system follows a **layered architecture** with clear separation of concerns:
 ### 2.2 Design Philosophy
 
 **Simplicity First**
+
 - Human-readable markdown configuration
 - No daemons or background services
 - File-based state management
 - Opt-in complexity
 
 **Progressive Enhancement**
+
 - Start with basic agent activation
 - Add intelligence when ready
 - Enable watch mode for automation
 - Adopt memory vault for persistence
 
 **User in Control**
+
 - Explicit actions by default
 - Auto-activation only for high-confidence (≥80%)
 - Easy disable of automation features
 - Transparent decision-making
 
 **Extensibility by Design**
+
 - Plugin architecture for agents/modes/skills
 - Markdown-based component definitions
 - Hook system for custom integrations
@@ -197,18 +207,22 @@ The system follows a **layered architecture** with clear separation of concerns:
 ### 3.1 Separation of Concerns
 
 **UI Layer** (`cli.py`, `tui/main.py`)
+
 - ✅ **Responsible for**: User interaction, input validation, output formatting
 - ❌ **Not responsible for**: Business logic, file I/O, data persistence
 
 **Intelligence Layer** (`intelligence.py`, `skill_recommender.py`)
+
 - ✅ **Responsible for**: Context analysis, pattern matching, recommendations
 - ❌ **Not responsible for**: UI rendering, direct file manipulation
 
 **Core Business Logic** (`core/` modules)
+
 - ✅ **Responsible for**: Component management, validation, CRUD operations
 - ❌ **Not responsible for**: UI concerns, intelligence algorithms
 
 **Data Layer** (file system, SQLite)
+
 - ✅ **Responsible for**: Persistence, retrieval, schema management
 - ❌ **Not responsible for**: Business rules, presentation logic
 
@@ -230,6 +244,7 @@ class AgentManager:
 ```
 
 **Benefits**:
+
 - Easy unit testing with temp directories
 - Support for multiple environments (dev, test, prod)
 - Plugin sandbox isolation
@@ -257,6 +272,7 @@ triggers:
 ```
 
 **Advantages**:
+
 - Add agents without code changes
 - Easy community sharing (just markdown files)
 - Version control friendly
@@ -276,6 +292,7 @@ class AgentsView(Screen):
 ```
 
 **Benefits**:
+
 - No manual polling
 - Efficient updates (only changed components re-render)
 - Clean separation of state and presentation
@@ -283,12 +300,14 @@ class AgentsView(Screen):
 ### 3.5 Fail-Safe Defaults
 
 **Conservative Automation**:
+
 - Auto-activation OFF by default in interactive mode
 - Requires explicit opt-in for watch mode
 - High threshold (80%) for auto-activation
 - Easy to disable with `--no-auto-activate`
 
 **Graceful Degradation**:
+
 - Missing dependencies → warning, continue with available
 - Parse errors → skip file, log error, continue
 - Network errors (MCP) → cached data, offline mode
@@ -297,6 +316,7 @@ class AgentsView(Screen):
 ### 3.6 Zero-Configuration Intelligence
 
 AI features work out-of-the-box:
+
 - No training required
 - Uses rule-based heuristics initially
 - Learns from usage over time
@@ -413,6 +433,7 @@ claude-ctx completion bash --install
 ```
 
 **Implementation**:
+
 - Uses `argcomplete` library for intelligent completion
 - Completes subcommands, flags, and arguments
 - Dynamic completion for agent/mode/skill names
@@ -480,6 +501,7 @@ tui/
 ```
 
 **Key Improvements** (Recent Refactoring):
+
 - **Package Structure**: Proper Python package with `__init__.py`
 - **Centralized Main**: `main.py` consolidated from 1,000+ LOC scattered file
 - **TCSS Styling**: External CSS-like styling for maintainability
@@ -534,12 +556,14 @@ The command palette provides fuzzy search across all TUI commands:
 **Trigger**: `Ctrl+P`
 
 **Features**:
+
 - Fuzzy matching on command names
 - Real-time filtering
 - Keyboard navigation
 - Quick action execution
 
 **Implementation**:
+
 ```python
 class CommandPalette(Container):
     """Command palette for fuzzy search."""
@@ -565,6 +589,7 @@ class CommandPalette(Container):
 The TUI is fully keyboard-driven:
 
 **Global Keys**:
+
 - `0-8`: Switch to view
 - `m`: Memory vault view
 - `Ctrl+P`: Command palette
@@ -573,6 +598,7 @@ The TUI is fully keyboard-driven:
 - `r`: Refresh current view
 
 **View-Specific Keys**:
+
 - `↑`, `↓`: Navigate table rows
 - `Enter`: Activate/select item
 - `Space`: Toggle selection
@@ -582,17 +608,20 @@ The TUI is fully keyboard-driven:
 - `/`: Search within view
 
 **Agent View (0)**:
+
 - `a`: Activate agent
 - `d`: Deactivate agent
 - `g`: Show dependency graph
 - `x`: Export active agents
 
 **Skills View (3)**:
+
 - `Ctrl+R`: Rate selected skill
 - `v`: View skill details
 - `f`: Filter by category
 
 **AI Assistant View (8)**:
+
 - `A`: Auto-activate recommendations
 - `R`: Refresh recommendations
 
@@ -1703,6 +1732,7 @@ Response:
 ```
 
 [... more patterns ...]
+
 ```
 
 #### Skill Recommender
@@ -2049,6 +2079,7 @@ npm install -g @context7/mcp-server
 ```
 
 ## Configuration
+
 ```json
 {
   "mcpServers": {
@@ -2064,22 +2095,26 @@ npm install -g @context7/mcp-server
 ```
 
 ## Best Practices
+
 - Use semantic_search_with_context for broad queries
 - Use find_symbol for specific symbol lookups
 - Use analyze_impact before making changes
 """,
         "sequential-thinking": """
+
 # Sequential Thinking MCP Server
 
 **Purpose**: Step-by-step reasoning and complex problem solving
 
 ## Features
+
 - Break down complex problems
 - Sequential reasoning steps
 - Persistent thought chains
 - Progress tracking
 
 ## Installation
+
 ```bash
 npm install -g @sequential/mcp-server
 ```
@@ -2087,10 +2122,11 @@ npm install -g @sequential/mcp-server
 [... more docs ...]
 """,
     }
-    
+
     def get_docs(self, server_name: str) -> Optional[str]:
         """Get documentation for a server."""
         return self.BUILT_IN_DOCS.get(server_name)
+
 ```
 
 #### TUI MCP View
@@ -2098,6 +2134,7 @@ npm install -g @sequential/mcp-server
 The MCP view (key 7) provides an interactive interface:
 
 ```
+
 ┌─────────────────────────────────────────────────────────────────┐
 │                         MCP Servers                              │
 ├────────────┬──────────┬────────────┬─────────────────────────────┤
@@ -2110,6 +2147,7 @@ The MCP view (key 7) provides an interactive interface:
 └────────────┴──────────┴────────────┴─────────────────────────────┘
 
 Keys: Enter=Docs | t=Test | c=Copy config | v=Validate | r=Refresh
+
 ```
 
 **Actions**:
@@ -2160,6 +2198,7 @@ Components are toggled via HTML comments in CLAUDE.md:
 #### Core Functions
 
 **Parse Components**:
+
 ```python
 def parse_claude_md_components(
     claude_dir: Path,
@@ -2195,6 +2234,7 @@ def parse_claude_md_components(
 ```
 
 **Toggle Component**:
+
 ```python
 def toggle_component_in_claude_md(
     claude_dir: Path,
@@ -2238,6 +2278,7 @@ def toggle_component_in_claude_md(
 ```
 
 **High-Level Interface**:
+
 ```python
 def component_activate(
     component_type: str,
@@ -2290,26 +2331,31 @@ def component_deactivate(
 #### Benefits
 
 **1. Consistency**
+
 - All component types use the same activation mechanism
 - Predictable behavior across modes, rules, and future component types
 - Easier to maintain and extend
 
 **2. Simplicity**
+
 - HTML comments are human-readable
 - Easy to manually edit CLAUDE.md
 - No separate state files to manage
 
 **3. Backward Compatibility**
+
 - Existing CLAUDE.md files work without migration
 - Supports both active and inactive sections
 
 **4. Extensibility**
+
 - Easy to add new component types
 - Generic implementation works for any `@{type}/{name}.md` pattern
 
 #### Usage Examples
 
 **CLI Usage**:
+
 ```bash
 # Activate a mode
 $ claude-ctx mode activate Brainstorming
@@ -2322,6 +2368,7 @@ $ claude-ctx mode list
 ```
 
 **Programmatic Usage**:
+
 ```python
 from claude_ctx_py.core.components import (
     component_activate,
@@ -2485,6 +2532,7 @@ class Diagnosis:
 #### CLI Usage
 
 **Run Diagnostics**:
+
 ```bash
 # Full diagnostic report
 $ claude-ctx doctor
@@ -2500,6 +2548,7 @@ $ claude-ctx doctor
 ```
 
 **Auto-Fix Mode** (Future):
+
 ```bash
 # Attempt automatic fixes
 $ claude-ctx doctor --fix
@@ -2514,6 +2563,7 @@ $ claude-ctx doctor --fix
 #### Integration with Workflows
 
 **Pre-Commit Hook**:
+
 ```bash
 #!/bin/bash
 # .git/hooks/pre-commit
@@ -2526,6 +2576,7 @@ fi
 ```
 
 **CI/CD Pipeline**:
+
 ```yaml
 # .github/workflows/quality.yml
 steps:
@@ -2541,21 +2592,25 @@ steps:
 #### Benefits
 
 **1. Proactive Issue Detection**
+
 - Catch problems before they cause failures
 - Validate configuration integrity
 - Identify performance bottlenecks
 
 **2. Automated Maintenance**
+
 - Suggest cleanup actions
 - Detect duplicates and redundancy
 - Optimize resource usage
 
 **3. Developer Experience**
+
 - Clear, actionable suggestions
 - Categorized diagnostics (error vs warning)
 - Integration with existing workflows
 
 **4. System Health Monitoring**
+
 - Track configuration quality over time
 - Prevent configuration drift
 - Enforce best practices
@@ -2569,11 +2624,13 @@ The data layer uses multiple storage backends optimized for different use cases.
 #### Storage Backends
 
 **1. Markdown Files** (Primary configuration)
+
 - **Location**: `~/.claude/agents/`, `modes/`, `rules/`, `skills/`
 - **Format**: Markdown with YAML frontmatter
 - **Use case**: Component definitions, human-readable, version control friendly
 
 **2. JSON Files** (Runtime state)
+
 - **Location**: `~/.claude/data/`
 - **Files**:
   - `patterns.json` - Session history for pattern learning
@@ -2582,11 +2639,13 @@ The data layer uses multiple storage backends optimized for different use cases.
 - **Use case**: Fast serialization, structured data
 
 **3. SQLite Database** (Skill ratings)
+
 - **Location**: `~/.claude/data/skill-ratings.db`
 - **Schema**: Ratings, feedback, analytics
 - **Use case**: Relational queries, aggregations, transactions
 
 **4. Memory Vault** (Knowledge persistence)
+
 - **Location**: `~/basic-memory/` (configurable)
 - **Format**: Markdown with YAML frontmatter
 - **Use case**: Long-term knowledge storage, searchable
@@ -2975,24 +3034,28 @@ $ claude-ctx profile unload
 ### 9.1 Performance Considerations
 
 **File System Operations**:
+
 - ✅ Lazy loading of markdown files
 - ✅ Caching of parsed frontmatter
 - ✅ Incremental CLAUDE.md updates (not full rewrites)
 - ✅ Memory-mapped files for large skill documents
 
 **TUI Responsiveness**:
+
 - ✅ Async data loading (non-blocking)
 - ✅ Progressive rendering (pagination)
 - ✅ Debounced search inputs (300ms delay)
 - ✅ Virtual scrolling for large lists (>100 items)
 
 **Intelligence System**:
+
 - ✅ Pattern database pruning (keep last 1000 sessions)
 - ✅ Fast confidence scoring (<10ms per agent)
 - ✅ Background pattern learning (non-blocking)
 - ✅ Recommendation caching (5-minute TTL)
 
 **Database Queries**:
+
 - ✅ Indexed queries (skill_name, timestamp)
 - ✅ Connection pooling (reuse connections)
 - ✅ Prepared statements (parameterized queries)
@@ -3012,16 +3075,19 @@ $ claude-ctx profile unload
 ### 9.3 Resource Usage
 
 **Memory**:
+
 - CLI: ~20MB (minimal)
 - TUI: ~50MB (with all views loaded)
 - Watch mode: ~30MB (polling process)
 
 **Disk**:
+
 - Installation: ~5MB (Python package)
 - Data directory: ~10MB (patterns, ratings, cache)
 - Memory vault: Variable (user-generated content)
 
 **CPU**:
+
 - Idle: <1% (event-driven, no polling)
 - Active: ~5-10% (during analysis/rendering)
 - Watch mode: ~2-5% (periodic git checks)
@@ -3033,18 +3099,21 @@ $ claude-ctx profile unload
 ### 10.1 Threat Model
 
 **Assets**:
+
 - User configuration (CLAUDE.md)
 - Session history (patterns.json)
 - Skill ratings database
 - Memory vault notes
 
 **Threats**:
+
 - Malicious agents/skills (code injection)
 - Unauthorized access to sensitive notes
 - Data exfiltration via MCP servers
 - CLAUDE.md corruption
 
 **Mitigations**:
+
 - ✅ No code execution in agents/skills (markdown only)
 - ✅ File permissions (0600 for sensitive files)
 - ✅ Input validation (XSS prevention in markdown)
@@ -3054,6 +3123,7 @@ $ claude-ctx profile unload
 ### 10.2 Secrets Management
 
 **Best Practices**:
+
 - ❌ Never store API keys in CLAUDE.md
 - ✅ Use environment variables for secrets
 - ✅ Reference secrets indirectly: `${OPENAI_API_KEY}`
@@ -3075,12 +3145,14 @@ Environment:
 ### 10.3 Data Privacy
 
 **User Data**:
+
 - ✅ All data stored locally (no cloud sync)
 - ✅ No telemetry or analytics sent
 - ✅ Memory vault fully under user control
 - ✅ SQLite database encrypted at rest (OS-level)
 
 **Community Features**:
+
 - ⚠️ Skill ratings are local by default
 - ⚠️ Optional: Export ratings for community sharing (opt-in)
 - ✅ No PII collected in skill metadata
@@ -3108,13 +3180,13 @@ dependencies: []
 [Agent behavior description...]
 ```
 
-2. Activate via CLI or TUI:
+1. Activate via CLI or TUI:
 
 ```bash
-$ claude-ctx agent activate my-custom-agent
+claude-ctx agent activate my-custom-agent
 ```
 
-3. Agent is auto-discovered, no code changes needed.
+1. Agent is auto-discovered, no code changes needed.
 
 ### 11.2 Adding Custom Skills
 
@@ -3136,7 +3208,7 @@ tags: [custom, domain]
 [Skill content...]
 ```
 
-2. Reference in agent frontmatter:
+1. Reference in agent frontmatter:
 
 ```yaml
 ---
@@ -3175,7 +3247,7 @@ class MyView(Screen):
         # ...
 ```
 
-2. Register in main app:
+1. Register in main app:
 
 ```python
 # tui/main.py
@@ -3234,9 +3306,9 @@ $ ./scripts/install.sh
 **2. Manual Installation**:
 
 ```bash
-$ python3 -m pip install .
-$ claude-ctx completion bash --install
-$ sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
+python3 -m pip install .
+claude-ctx completion bash --install
+sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
 ```
 
 **3. Claude Code Plugin**:
@@ -3323,6 +3395,7 @@ claude-ctx mode list  # Sees team modes
 **Symptoms**: `claude-ctx agent activate X` fails with "Agent 'X' not found"
 
 **Diagnosis**:
+
 ```bash
 # Check if agent exists
 $ ls ~/.claude/agents/ | grep -i X
@@ -3333,6 +3406,7 @@ $ echo $CLAUDE_PLUGIN_ROOT
 ```
 
 **Resolution**:
+
 - If agent is in `inactive/`, move to `agents/`
 - Verify agent filename matches exactly (case-sensitive)
 - Ensure you are editing the correct Claude directory (plugin cache vs `~/.claude`)
@@ -3342,6 +3416,7 @@ $ echo $CLAUDE_PLUGIN_ROOT
 **Symptoms**: `claude-ctx tui` crashes or shows blank screen
 
 **Diagnosis**:
+
 ```bash
 # Check Textual version
 $ python3 -m pip show textual
@@ -3351,6 +3426,7 @@ $ TEXTUAL_LOG=1 claude-ctx tui
 ```
 
 **Resolution**:
+
 - Update Textual: `pip install --upgrade textual`
 - Check terminal supports 256 colors: `echo $TERM`
 - Try different terminal emulator (iTerm2, Alacritty)
@@ -3360,6 +3436,7 @@ $ TEXTUAL_LOG=1 claude-ctx tui
 **Symptoms**: `claude-ctx ai watch` runs but doesn't show recommendations
 
 **Diagnosis**:
+
 ```bash
 # Check git status
 $ git status
@@ -3372,6 +3449,7 @@ $ claude-ctx ai watch --no-auto-activate
 ```
 
 **Resolution**:
+
 - Ensure you're in a git repository
 - Make a git commit (watch mode detects commits)
 - Lower the check interval
@@ -3382,6 +3460,7 @@ $ claude-ctx ai watch --no-auto-activate
 **Symptoms**: Ratings not persisting after TUI restart
 
 **Diagnosis**:
+
 ```bash
 # Check database exists
 $ ls ~/.claude/data/skill-ratings.db
@@ -3395,6 +3474,7 @@ $ sqlite3 ~/.claude/data/skill-ratings.db \
 ```
 
 **Resolution**:
+
 - Ensure data directory exists: `mkdir -p ~/.claude/data`
 - Check disk space: `df -h ~`
 - Check SQLite is not locked: `lsof ~/.claude/data/skill-ratings.db`
@@ -3407,6 +3487,7 @@ $ sqlite3 ~/.claude/data/skill-ratings.db \
 **Symptoms**: View switching takes >1 second
 
 **Diagnosis**:
+
 ```bash
 # Count total agents/skills
 $ find ~/.claude/agents -name "*.md" | wc -l
@@ -3417,6 +3498,7 @@ $ top -p $(pgrep -f "claude-ctx tui")
 ```
 
 **Resolution**:
+
 - Move unused agents to `inactive/`
 - Reduce skill count (archive old skills)
 - Increase Python heap: `PYTHONMALLOC=malloc claude-ctx tui`
@@ -3427,6 +3509,7 @@ $ top -p $(pgrep -f "claude-ctx tui")
 **Symptoms**: Watch mode uses >20% CPU constantly
 
 **Diagnosis**:
+
 ```bash
 # Check polling interval
 $ ps aux | grep "claude-ctx ai watch"
@@ -3436,6 +3519,7 @@ $ strace -p $(pgrep -f "claude-ctx ai watch") 2>&1 | grep git
 ```
 
 **Resolution**:
+
 - Increase check interval: `claude-ctx ai watch --interval 5.0`
 - Reduce repository size (if very large)
 - Disable watch mode, use manual recommendations instead
@@ -3447,6 +3531,7 @@ $ strace -p $(pgrep -f "claude-ctx ai watch") 2>&1 | grep git
 **Symptoms**: Can't activate/deactivate agents
 
 **Diagnosis**:
+
 ```bash
 # Check for syntax errors
 $ cat ~/.claude/CLAUDE.md
@@ -3456,6 +3541,7 @@ $ ls -t ~/.claude/*.bak | head -1
 ```
 
 **Resolution**:
+
 ```bash
 # Restore from backup
 $ cp ~/.claude/CLAUDE.md.bak ~/.claude/CLAUDE.md
@@ -3600,6 +3686,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 **Decision**: Use Markdown with YAML frontmatter.
 
 **Rationale**:
+
 - Human-readable and editable in any text editor
 - Version control friendly (line-based diffs)
 - No code execution required (safe for community sharing)
@@ -3607,6 +3694,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 - Easy to parse with existing libraries
 
 **Consequences**:
+
 - ✅ Easy to create new components
 - ✅ Safe to share (no code injection)
 - ⚠️ Requires parsing on every load (mitigated by caching)
@@ -3621,6 +3709,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 **Decision**: Use embedded SQLite database for ratings.
 
 **Rationale**:
+
 - No server setup required
 - Excellent for read-heavy workloads (analytics)
 - ACID transactions for data integrity
@@ -3628,6 +3717,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 - Battle-tested and stable
 
 **Consequences**:
+
 - ✅ Fast analytics queries
 - ✅ No external dependencies
 - ⚠️ File-based locking (one writer at a time)
@@ -3642,6 +3732,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 **Decision**: Use Textual framework for TUI.
 
 **Rationale**:
+
 - Modern, reactive architecture
 - Rich widgets (tables, modals, command palette)
 - CSS-like styling (TCSS)
@@ -3649,6 +3740,7 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 - Python 3.9+ compatible
 
 **Consequences**:
+
 - ✅ Beautiful, responsive UI
 - ✅ Easy to extend with new views
 - ⚠️ Requires Python 3.9+ (acceptable given target audience)
@@ -3659,16 +3751,19 @@ def fuzzy_match(query: str, candidates: List[str]) -> List[Tuple[str, float]]:
 ### Appendix E: References
 
 **Claude Code Documentation**:
-- Plugin System: https://docs.claude.ai/plugins
-- MCP Specification: https://modelcontextprotocol.org
+
+- Plugin System: <https://docs.claude.ai/plugins>
+- MCP Specification: <https://modelcontextprotocol.org>
 
 **Python Libraries**:
-- Textual: https://textual.textualize.io
-- Rich: https://rich.readthedocs.io
-- argparse: https://docs.python.org/3/library/argparse.html
-- PyYAML: https://pyyaml.org
+
+- Textual: <https://textual.textualize.io>
+- Rich: <https://rich.readthedocs.io>
+- argparse: <https://docs.python.org/3/library/argparse.html>
+- PyYAML: <https://pyyaml.org>
 
 **Inspired By**:
+
 - obra/superpowers: Debugging patterns
 - VoltAgent/awesome-claude-code-subagents: Agent architecture
 - SuperClaude-Org/SuperClaude_Framework: Mode system

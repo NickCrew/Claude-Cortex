@@ -14,8 +14,8 @@ Commands for generating focused and comprehensive project documentation.
 
 ```bash
 # Generate component documentation
-claude-ctx cmd docs:generate
+cortex cmd docs:generate
 
 # Create comprehensive project index
-claude-ctx cmd docs:index
+cortex cmd docs:index
 ```

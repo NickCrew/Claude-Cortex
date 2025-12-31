@@ -1,10 +1,11 @@
-# Claude Cortex Architecture
+# Cortex Architecture
 
 ## System Overview
 
-The Claude Cortex is a comprehensive context management system for Claude Code, providing intelligent automation, workflow orchestration, and a rich terminal user interface (TUI). The system is built in Python and follows a modular architecture with clear separation of concerns.
+The Cortex is a comprehensive context management system for Claude Code, providing intelligent automation, workflow orchestration, and a rich terminal user interface (TUI). The system is built in Python and follows a modular architecture with clear separation of concerns.
 
 ### Core Purpose
+
 - **Context Management**: Organize and activate modes, agents, rules, and skills
 - **Intelligent Automation**: AI-powered recommendations and auto-activation
 - **Interactive TUI**: Rich terminal interface for exploring and managing context
@@ -68,15 +69,18 @@ The Claude Cortex is a comprehensive context management system for Claude Code, 
 ### 1. User Interface Layer
 
 #### CLI (`claude_ctx_py/cli.py`)
+
 **Purpose**: Command-line interface for scripting and automation
 
 **Key Functions**:
+
 - Command routing (argparse-based)
 - Subcommand organization (mode, agent, skill, workflow, etc.)
 - Integration with core modules
 - Output formatting (rich text)
 
 **Command Structure**:
+
 ```
 claude-ctx <command> <subcommand> [options]
 
@@ -88,14 +92,17 @@ Examples:
 ```
 
 #### TUI (`claude_ctx_py/tui/main.py`)
+
 **Purpose**: Interactive terminal UI for exploration and management
 
 **Architecture**:
+
 - Built on Textual framework (reactive TUI)
 - Single-page app with view switching
 - 9 primary views (0-8) + command palette
 
 **Views**:
+
 1. **Agents (0)** - List and manage agents with dependency visualization
 2. **Modes (1)** - Activate/deactivate behavior modes
 3. **Rules (2)** - Manage rule modules
@@ -107,6 +114,7 @@ Examples:
 9. **AI Assistant (8)** - View recommendations and auto-activate
 
 **Key Features**:
+
 - Command palette (Ctrl+P) for fuzzy search
 - Real-time updates and notifications
 - Keyboard-driven navigation
@@ -115,6 +123,7 @@ Examples:
 ### 2. Intelligence Layer
 
 #### AI System (`claude_ctx_py/intelligence.py`)
+
 **Purpose**: Context-aware automation and learning
 
 **Core Classes**:
@@ -143,6 +152,7 @@ Examples:
    - Based on historical patterns
 
 **Data Flow**:
+
 ```
 File Changes → Context Detection → Pattern Matching → Recommendations
                      ↓                     ↓                ↓
@@ -154,6 +164,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 #### Module Organization (`claude_ctx_py/core/`)
 
 **`base.py`** - Shared utilities
+
 - File system operations
 - Markdown parsing
 - Front matter extraction
@@ -161,12 +172,14 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 - ANSI code handling
 
 **`agents.py`** - Agent management
+
 - Agent activation/deactivation
 - Dependency graph building
 - Agent validation
 - Metadata parsing
 
 **`skills.py`** - Skill management
+
 - Skill discovery and validation
 - Metrics tracking
 - Rating system
@@ -174,41 +187,49 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 - Analytics and trending
 
 **`modes.py`** - Mode management
+
 - Mode activation/deactivation
 - CLAUDE.md integration
 - Intelligent mode selection
 
 **`rules.py`** - Rule management
+
 - Rule activation/deactivation
 - Rule composition
 
 **`workflows.py`** - Workflow orchestration
+
 - Multi-step execution
 - State management
 - Resume/stop functionality
 
 **`scenarios.py`** - Scenario testing
+
 - Test scenario execution
 - Validation and preview
 - State tracking
 
 **`profiles.py`** - Profile management
+
 - Profile templates (minimal, frontend, backend, etc.)
 - Profile save/load
 - Context export
 
 **`mcp.py`** - MCP server integration
+
 - Server discovery
 - Configuration validation
 - Documentation access
 - Diagnostic tools
 
 **`context_export.py`** - Context export
+
 - Component collection
 - Export formatting
 - Clipboard integration
 
 **`doctor.py`** - System diagnostics
+
 - Health checks
 - Configuration validation
 - Issue detection
@@ -216,6 +237,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 ### 4. Data Layer
 
 #### File System Structure
+
 ```
 ~/.claude/
 ├── CLAUDE.md              # Main config (active components)
@@ -250,6 +272,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 ```
 
 #### Metadata Format (YAML Frontmatter)
+
 ```yaml
 ---
 name: agent-name
@@ -271,6 +294,7 @@ triggers:
 ## Data Flow
 
 ### Context Detection Flow
+
 ```
 1. File System Watcher (optional)
    ↓
@@ -297,6 +321,7 @@ triggers:
 ```
 
 ### Agent Activation Flow
+
 ```
 1. User Request (CLI or TUI)
    ↓
@@ -319,6 +344,7 @@ triggers:
 ```
 
 ### TUI View Switching Flow
+
 ```
 1. Key Press (0-8 or Ctrl+P)
    ↓
@@ -342,6 +368,7 @@ triggers:
 ## Technology Stack
 
 ### Core Dependencies
+
 - **Python 3.9+** - Runtime
 - **argcomplete** - Shell completion
 - **rich** - Terminal formatting
@@ -350,6 +377,7 @@ triggers:
 - **psutil** - System monitoring
 
 ### Development Dependencies
+
 - **pytest** - Testing framework
 - **pytest-cov** - Coverage reporting
 - **pytest-mock** - Mocking support
@@ -357,6 +385,7 @@ triggers:
 - **black** - Code formatting
 
 ### External Integrations
+
 - **Claude Desktop** - MCP server integration
 - **Git** - Version control (agent dependencies)
 - **SQLite** - Ratings database
@@ -364,22 +393,26 @@ triggers:
 ## Design Patterns
 
 ### Separation of Concerns
+
 - **UI Layer**: No business logic, only presentation
 - **Intelligence**: No direct file I/O, delegates to core
 - **Core**: No UI code, only business logic
 - **Data**: No logic, only storage/retrieval
 
 ### Dependency Injection
+
 - Core modules accept directory paths as parameters
 - No hardcoded paths in business logic
 - Environment variable override support
 
 ### Plugin Architecture
+
 - Agents, modes, rules, skills are markdown files
 - Metadata in YAML frontmatter
 - Easy to add/remove without code changes
 
 ### Event-Driven TUI
+
 - Textual reactive properties
 - Message passing between components
 - No polling, event-driven updates
@@ -387,21 +420,25 @@ triggers:
 ## Key Workflows
 
 ### 1. New Agent Activation
+
 ```
 User → CLI/TUI → agents.py → Dependency Graph → CLAUDE.md Update
 ```
 
 ### 2. AI Recommendation
+
 ```
 File Changes → SessionContext → PatternLearner → AgentRecommendation → UI
 ```
 
 ### 3. Workflow Execution
+
 ```
 User → workflows.py → Scenario Steps → Agent Activation → Status Tracking
 ```
 
 ### 4. Skill Rating
+
 ```
 User → TUI (Ctrl+R) → skills.py → SQLite DB → Analytics Update
 ```
@@ -409,17 +446,20 @@ User → TUI (Ctrl+R) → skills.py → SQLite DB → Analytics Update
 ## Configuration System
 
 ### Primary Config: CLAUDE.md
+
 - Human-readable markdown
 - HTML comments for inactive items
 - `@` references for file inclusion
 - Hierarchical structure (core → rules → modes → agents)
 
 ### Component Metadata
+
 - YAML frontmatter in each markdown file
 - Standard fields: name, description, dependencies, priority
 - Custom fields per component type
 
 ### Runtime Data
+
 - JSON for metrics and sessions
 - SQLite for ratings
 - File-based state (no daemon)
@@ -427,18 +467,21 @@ User → TUI (Ctrl+R) → skills.py → SQLite DB → Analytics Update
 ## Extension Points
 
 ### Adding New Components
+
 1. Create markdown file in appropriate directory
 2. Add YAML frontmatter with metadata
 3. Reference in CLAUDE.md (optional)
 4. Component auto-discovered by CLI/TUI
 
 ### Adding TUI Views
+
 1. Add view class in `tui/main.py`
 2. Register in view switcher
 3. Add key binding
 4. Implement data loading and rendering
 
 ### Adding Intelligence Rules
+
 1. Extend `PatternLearner` with new detection logic
 2. Add trigger patterns to agent frontmatter
 3. Update confidence scoring algorithm
@@ -446,16 +489,19 @@ User → TUI (Ctrl+R) → skills.py → SQLite DB → Analytics Update
 ## Performance Considerations
 
 ### File System Operations
+
 - Lazy loading of markdown files
 - Caching of parsed frontmatter
 - Incremental updates to CLAUDE.md
 
 ### TUI Responsiveness
+
 - Async data loading where possible
 - Progressive rendering
 - Debounced search inputs
 
 ### Intelligence System
+
 - Pattern database kept small (recent sessions only)
 - Confidence scoring optimized for speed
 - Background learning (no blocking)
@@ -468,6 +514,7 @@ See [Testing Workstream](../workstreams/ws1-testing/) for detailed test plan.
 **Target Coverage**: 80% (by Week 8)
 
 **Test Categories**:
+
 - Unit tests: Core business logic
 - Integration tests: CLI workflows
 - TUI tests: View rendering and interactions
@@ -476,6 +523,7 @@ See [Testing Workstream](../workstreams/ws1-testing/) for detailed test plan.
 ## Diagrams
 
 ### Component Dependency Graph
+
 ```mermaid
 graph TD
     CLI[CLI Layer] --> Core[Core Modules]
@@ -488,6 +536,7 @@ graph TD
 ```
 
 ### Agent Activation Sequence
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -509,6 +558,7 @@ sequenceDiagram
 ```
 
 ### Intelligence Recommendation Flow
+
 ```mermaid
 sequenceDiagram
     participant FS[File System]

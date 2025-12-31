@@ -2,13 +2,14 @@
 
 ## Overview
 
-The Claude Cortex Flag Management System provides surgical control over behavioral flags while dramatically reducing token usage. Instead of loading all 3,380 tokens of flags in every conversation, you can selectively enable only the categories you need.
+The Cortex Flag Management System provides surgical control over behavioral flags while dramatically reducing token usage. Instead of loading all 3,380 tokens of flags in every conversation, you can selectively enable only the categories you need.
 
 ## Quick Start
 
 ### Using the TUI Flag Manager
 
 1. **Open the Flag Manager:**
+
    ```bash
    claude-ctx tui
    # Press Ctrl+G
@@ -48,16 +49,19 @@ claude-ctx profile apply minimal
 ### Core Flags (Always Recommended)
 
 **Mode Activation** (120 tokens)
+
 - Flags: `--brainstorm`, `--introspect`, `--task-manage`, `--orchestrate`, `--token-efficient`
 - Use for: Collaborative discovery, transparent reasoning, multi-step orchestration
 - Recommended: All profiles
 
 **MCP Servers** (160 tokens)
+
 - Flags: `--c7`, `--seq`, `--magic`, `--morph`, `--codanna`, `--play`, `--all-mcp`, `--no-mcp`
 - Use for: External tool integration, documentation lookup, structured reasoning
 - Recommended: Most profiles
 
 **Execution Control** (150 tokens)
+
 - Flags: `--delegate`, `--concurrency`, `--loop`, `--iterations`, `--validate`, `--safe-mode`
 - Use for: Parallel execution, iterative improvement, validation gates
 - Recommended: All profiles
@@ -65,26 +69,31 @@ claude-ctx profile apply minimal
 ### Development Flags
 
 **Thinking Budget** (140 tokens)
+
 - Flags: `--thinking-budget [4000|10000|32000|128000]`
 - Use for: Explicit reasoning token allocation and cost control
 - Recommended: Deep analysis, cost-sensitive workflows
 
 **Analysis Depth** (130 tokens)
+
 - Flags: `--think`, `--think-hard`, `--ultrathink`
 - Use for: Complex debugging, architectural decisions, critical redesign
 - Recommended: backend, web-dev, quality, meta
 
 **Testing & Quality** (170 tokens)
+
 - Flags: `--tdd`, `--coverage`, `--mutation-test`
 - Use for: Test-driven development, quality assurance
 - Recommended: frontend, backend, web-dev, quality, data-ai
 
 **Debugging & Trace** (110 tokens)
+
 - Flags: `--trace`, `--verbose`, `--quiet`
 - Use for: Complex debugging, performance issues, mysterious failures
 - Recommended: frontend, backend, web-dev, quality, devops
 
 **Refactoring Safety** (140 tokens)
+
 - Flags: `--refactor-safe`, `--preserve-behavior`, `--modernize`
 - Use for: Large refactorings, legacy code changes, framework upgrades
 - Recommended: backend, quality, meta
@@ -92,11 +101,13 @@ claude-ctx profile apply minimal
 ### UI/UX Flags
 
 **Visual Excellence** (250 tokens)
+
 - Flags: `--supersaiyan`, `--kamehameha`, `--over9000`
 - Use for: UI work, visual polish, design systems
 - Recommended: frontend, web-dev
 
 **Domain Presets** (150 tokens)
+
 - Flags: `--frontend`, `--backend`, `--fullstack`, `--data-science`
 - Use for: Quick domain-specific stack activation
 - Recommended: frontend, web-dev
@@ -104,16 +115,19 @@ claude-ctx profile apply minimal
 ### Productivity Flags
 
 **Learning & Education** (160 tokens)
+
 - Flags: `--teach-me`, `--eli5`, `--show-alternatives`, `--best-practices`
 - Use for: Learning new concepts, understanding trade-offs
 - Recommended: documentation, product
 
 **Interactive Control** (130 tokens)
+
 - Flags: `--confirm-changes`, `--auto-approve`, `--pair-programming`
 - Use for: Production changes, learning sessions, collaboration
 - Recommended: developer-experience
 
 **Output Optimization** (120 tokens)
+
 - Flags: `--uc`, `--scope`, `--focus`
 - Use for: Context pressure, focused analysis, token efficiency
 - Recommended: Default (already enabled)
@@ -121,16 +135,19 @@ claude-ctx profile apply minimal
 ### Cost & Automation Flags
 
 **Cost Management** (120 tokens)
+
 - Flags: `--cost-limit`, `--cost-aware`, `--frugal`
 - Use for: Budget constraints, cost tracking
 - Recommended: Enable when cost-conscious
 
 **CI/CD** (100 tokens)
+
 - Flags: `--ci-mode`, `--json-output`, `--exit-on-error`
 - Use for: Automation, pipelines, scripting
 - Recommended: devops
 
 **Auto-Escalation** (180 tokens)
+
 - Flags: `--auto-escalate [confidence|errors|complexity|adaptive]`
 - Use for: Automatic reasoning depth adjustment
 - Recommended: Advanced use only (expensive)
@@ -138,6 +155,7 @@ claude-ctx profile apply minimal
 ## Profile-to-Flag Mappings
 
 ### Minimal Profile (430 tokens, 87% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -147,6 +165,7 @@ claude-ctx profile apply minimal
 Use when: Starting new project, exploration, minimal overhead
 
 ### Frontend Profile (1,110 tokens, 67% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -160,6 +179,7 @@ Use when: Starting new project, exploration, minimal overhead
 Use when: UI development, component work, visual polish
 
 ### Backend Profile (980 tokens, 71% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -173,6 +193,7 @@ Use when: UI development, component work, visual polish
 Use when: API development, database work, services
 
 ### Web-Dev Profile (1,360 tokens, 60% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -188,6 +209,7 @@ Use when: API development, database work, services
 Use when: Full-stack development, end-to-end features
 
 ### DevOps Profile (640 tokens, 81% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -199,6 +221,7 @@ Use when: Full-stack development, end-to-end features
 Use when: Infrastructure, deployment, automation
 
 ### Documentation Profile (430 tokens, 87% savings)
+
 ```
 ✓ mode-activation.md
 ✓ execution-control.md
@@ -208,6 +231,7 @@ Use when: Infrastructure, deployment, automation
 Use when: Writing docs, guides, tutorials
 
 ### Quality Profile (980 tokens, 71% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -221,6 +245,7 @@ Use when: Writing docs, guides, tutorials
 Use when: QA work, security audits, code quality
 
 ### Data-AI Profile (730 tokens, 78% savings)
+
 ```
 ✓ mode-activation.md
 ✓ mcp-servers.md
@@ -232,6 +257,7 @@ Use when: QA work, security audits, code quality
 Use when: Data science, ML, analysis
 
 ### Full Profile (3,380 tokens, 0% savings)
+
 ```
 ✓ All 22 categories enabled
 ```
@@ -241,6 +267,7 @@ Use when: Complex multi-domain work requiring all capabilities
 ## File Structure
 
 ### Flag Files Location
+
 ```
 ~/.claude/flags/
 ├── mode-activation.md
@@ -268,6 +295,7 @@ Use when: Complex multi-domain work requiring all capabilities
 ```
 
 ### FLAGS.md References
+
 ```markdown
 # Flag Categories (remove line to disable and save tokens)
 # Core Flags (~120-160 tokens each)
@@ -301,6 +329,7 @@ Use when: Complex multi-domain work requiring all capabilities
 3. Remove or add the flag reference line:
 
 **To disable a flag:**
+
 ```markdown
 # Before
 @flags/testing-quality.md
@@ -310,6 +339,7 @@ Use when: Complex multi-domain work requiring all capabilities
 ```
 
 **To enable a flag:**
+
 ```markdown
 # Before
 # (line absent)
@@ -318,11 +348,12 @@ Use when: Complex multi-domain work requiring all capabilities
 @flags/learning-education.md
 ```
 
-4. Save the file - changes take effect in next conversation
+1. Save the file - changes take effect in next conversation
 
 ## Token Savings Calculator
 
 ### Formula
+
 ```
 Savings % = (Inactive Tokens / Total Tokens) × 100
 Total Tokens = 3,380
@@ -331,16 +362,19 @@ Total Tokens = 3,380
 ### Examples
 
 **Minimal Profile:**
+
 - Active: 430 tokens (3 categories)
 - Inactive: 2,950 tokens (19 categories)
 - Savings: 87%
 
 **Custom Selection (5 categories):**
+
 - Active: ~730 tokens
 - Inactive: ~2,650 tokens
 - Savings: 78%
 
 **Full Profile:**
+
 - Active: 3,380 tokens (22 categories)
 - Inactive: 0 tokens
 - Savings: 0%
@@ -348,27 +382,32 @@ Total Tokens = 3,380
 ## Best Practices
 
 ### 1. Start Minimal, Add As Needed
+
 - Begin with minimal profile
 - Add categories when you encounter specific needs
 - Remove categories after specialized work is done
 
 ### 2. Use Profiles for Consistency
+
 - Profile switching ensures optimal flag sets
 - Less cognitive overhead than manual selection
 - Consistent experience across sessions
 
 ### 3. Review Flag Usage
+
 - Check `~/.claude/FLAGS.md` periodically
 - Disable unused categories
 - Consider creating custom profiles for common workflows
 
 ### 4. Context-Aware Selection
+
 - Frontend work → Enable visual-excellence
 - Debugging → Enable debugging-trace
 - Learning → Enable learning-education
 - Production changes → Enable interactive-control
 
 ### 5. Monitor Token Usage
+
 - Use TUI Flag Manager to see real-time counts
 - Track savings percentage
 - Optimize for your most common workflows
@@ -376,33 +415,41 @@ Total Tokens = 3,380
 ## Troubleshooting
 
 ### Flags Not Taking Effect
+
 **Problem**: Changed flags in FLAGS.md but behavior unchanged
 
 **Solutions**:
+
 1. Verify syntax: `@flags/filename.md` (active) or remove the line (inactive)
 2. Check file exists in `~/.claude/flags/`
 3. Start new conversation (changes apply to new sessions only)
 
 ### TUI Manager Not Updating
+
 **Problem**: Flag Manager shows old state
 
 **Solutions**:
+
 1. Exit and re-enter Flag Manager view (Ctrl+G)
 2. Restart TUI (`claude-ctx tui`)
 3. Verify `~/.claude/FLAGS.md` exists and is writable
 
 ### Profile Flags Not Applying
+
 **Problem**: Profile applied but flags didn't change
 
 **Solutions**:
+
 1. Check profile application succeeded: `claude-ctx profile list`
 2. Manually verify FLAGS.md was updated
 3. Re-apply profile: `claude-ctx profile apply <name>`
 
 ### Token Counts Don't Match
+
 **Problem**: TUI shows different token counts than expected
 
 **Solutions**:
+
 1. Verify `**Estimated tokens: ~XXX**` in each flag file
 2. Check for file modifications
 3. Refresh flag metadata: Restart TUI

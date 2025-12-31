@@ -1,612 +1,1428 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Claude Cortex - TUI Dashboard Showcase</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap"
-    />
-    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reset.css" />
-    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reveal.css" />
-    <style>
-      :root {
-        --primary-blue: #0256B6;
-        --deep-navy: #001E62;
-        --sky-blue: #519DEC;
-        --steel-blue: #5E89B3;
-        --magenta: #D62597;
-        --purple: #430098;
-        --alert-orange: #E35205;
-        --success-green: #02B040;
-        --danger-red: #ED3240;
-        --charcoal: #221E20;
 
-        --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--deep-navy) 50%, var(--magenta) 100%);
-        --gradient-accent: linear-gradient(135deg, var(--magenta) 0%, var(--purple) 100%);
-        --gradient-cool: linear-gradient(135deg, var(--sky-blue) 0%, var(--primary-blue) 100%);
+<head>
+  <meta charset="utf-8" />
+  <title>Cortex - Feature Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reset.css" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/plugin/highlight/monokai.css" />
+  <style>
+    :root {
+      --primary-blue: #0256B6;
+      --deep-navy: #001E62;
+      --sky-blue: #519DEC;
+      --steel-blue: #5E89B3;
+      --magenta: #D62597;
+      --purple: #430098;
+      --alert-orange: #E35205;
+      --success-green: #02B040;
+      --danger-red: #ED3240;
+      --charcoal: #221E20;
 
-        color-scheme: dark;
+      --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--deep-navy) 50%, var(--magenta) 100%);
+      --gradient-accent: linear-gradient(135deg, var(--magenta) 0%, var(--purple) 100%);
+      --gradient-cool: linear-gradient(135deg, var(--sky-blue) 0%, var(--primary-blue) 100%);
+
+      color-scheme: dark;
+    }
+
+    body,
+    .reveal {
+      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #0a0f1e 0%, #020510 60%);
+      color: #e8eef7;
+    }
+
+    .reveal .slides {
+      text-align: left;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: #ffffff;
+    }
+
+    .reveal h1 {
+      font-size: 3.0em;
+      line-height: 1.1;
+      margin-bottom: 0.5em;
+      background: linear-gradient(135deg, #ffffff 0%, var(--sky-blue) 50%, var(--magenta) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 8s ease infinite;
+      filter: drop-shadow(0 0 30px rgba(81, 157, 236, 0.5));
+    }
+
+    .reveal h2 {
+      font-size: 2.1em;
+      line-height: 1.2;
+      margin-bottom: 0.75em;
+      color: #ffffff;
+      position: relative;
+      padding-bottom: 0.5em;
+    }
+
+    .reveal h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--sky-blue), var(--magenta));
+      border-radius: 2px;
+      box-shadow: 0 0 15px rgba(81, 157, 236, 0.6);
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    .reveal h3 {
+      font-size: 1.35em;
+      margin-bottom: 0.5em;
+      color: var(--sky-blue);
+    }
+
+    .reveal section {
+      height: 100%;
+      padding: 1.25rem;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .reveal section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .reveal p {
+      margin: 0 0 0.75em;
+      line-height: 1.6;
+      color: rgba(232, 238, 247, 0.9);
+    }
+
+    .reveal ul {
+      margin: 0 0 1em 1.5em;
+    }
+
+    .reveal li {
+      margin-bottom: 0.4em;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 0.5em;
+    }
+
+    .reveal li::before {
+      content: '';
+      position: absolute;
+      left: -1em;
+      top: 0.7em;
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, var(--sky-blue), var(--magenta));
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(81, 157, 236, 0.6);
+    }
+
+    .reveal strong {
+      color: var(--sky-blue);
+      font-weight: 600;
+    }
+
+    .reveal section img {
+      max-height: 430px;
+      max-width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(81, 157, 236, 0.2);
+      border: none;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .reveal section img.zoomable {
+      cursor: zoom-in;
+    }
+
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 5, 16, 0.92);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 9999;
+      padding: 2rem;
+    }
+
+    .zoom-overlay.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .zoom-overlay img {
+      max-width: 95vw;
+      max-height: 92vh;
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(81, 157, 236, 0.35);
+    }
+
+    .zoom-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(8, 28, 56, 0.9);
+      color: #ffffff;
+      border: 1px solid rgba(81, 157, 236, 0.5);
+      border-radius: 999px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .subtitle {
+      font-size: 0.6em;
+      margin-top: 0.5rem;
+      color: rgba(232, 238, 247, 0.75);
+      font-weight: 400;
+    }
+
+    .muted {
+      color: rgba(232, 238, 247, 0.6);
+      font-size: 0.85em;
+    }
+
+    .mono {
+      font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      padding: 0.15em 0.4em;
+      background: rgba(81, 157, 236, 0.15);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(81, 157, 236, 0.3);
+      border-radius: 6px;
+      color: var(--sky-blue);
+    }
+
+    .callout .mono,
+    .feature-card .mono {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .reveal pre {
+      background: rgba(10, 18, 32, 0.85);
+      border: 1px solid rgba(81, 157, 236, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      overflow: auto;
+    }
+
+    .reveal pre code,
+    .reveal pre code.hljs,
+    .reveal .hljs {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .reveal code {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    .badge {
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, rgba(81, 157, 236, 0.2), rgba(2, 86, 182, 0.3));
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 2px solid rgba(81, 157, 236, 0.4);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(81, 157, 236, 0.3);
+    }
+
+    .title-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+    }
+
+    .title-slide h1 {
+      font-size: 3.5em;
+      margin-bottom: 0.3em;
+    }
+
+    .title-slide h3 {
+      font-size: 1.5em;
+      color: rgba(232, 238, 247, 0.9);
+      font-weight: 500;
+      margin-bottom: 0.5em;
+    }
+
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .content-wrapper>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    .reveal a {
+      color: var(--sky-blue);
+      text-decoration: none;
+    }
+
+    .reveal a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card,
+    .callout {
+      padding: 1rem 1.2rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%);
+      border: 1px solid rgba(81, 157, 236, 0.3);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .feature-card h3,
+    .callout h3 {
+      margin-top: 0;
+      color: var(--sky-blue);
+      font-size: 1.05em;
+    }
+
+    .callout ul,
+    .callout ol {
+      margin: 0.35rem 0 0 1.2rem;
+    }
+
+    .doc-links {
+      font-size: 0.85em;
+      color: rgba(232, 238, 247, 0.7);
+      margin-top: 0.5rem;
+    }
+
+    .doc-links strong {
+      color: var(--sky-blue);
+    }
+
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        background-position: 0% 50%;
       }
 
-      body,
-      .reveal {
-        font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        background: radial-gradient(circle at top left, #0a0f1e 0%, #020510 60%);
-        color: #e8eef7;
+      50% {
+        background-position: 100% 50%;
       }
+    }
 
-      .reveal .slides {
-        text-align: left;
-      }
+    @keyframes glow {
 
-      .reveal h1,
-      .reveal h2,
-      .reveal h3,
-      .reveal h4 {
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        text-transform: none;
-        color: #ffffff;
-      }
-
-      .reveal h1 {
-        font-size: 3.2em;
-        line-height: 1.1;
-        margin-bottom: 0.5em;
-        background: linear-gradient(135deg, #ffffff 0%, var(--sky-blue) 50%, var(--magenta) 100%);
-        background-size: 200% 200%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        animation: gradientShift 8s ease infinite;
-        filter: drop-shadow(0 0 30px rgba(81, 157, 236, 0.5));
-      }
-
-      .reveal h2 {
-        font-size: 2.4em;
-        line-height: 1.2;
-        margin-bottom: 0.75em;
-        color: #ffffff;
-        position: relative;
-        padding-bottom: 0.5em;
-      }
-
-      .reveal h2::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--sky-blue), var(--magenta));
-        border-radius: 2px;
+      0%,
+      100% {
         box-shadow: 0 0 15px rgba(81, 157, 236, 0.6);
-        animation: glow 3s ease-in-out infinite;
       }
 
-      .reveal h3 {
-        font-size: 1.5em;
-        margin-bottom: 0.5em;
-        color: var(--sky-blue);
+      50% {
+        box-shadow: 0 0 25px rgba(81, 157, 236, 0.9);
       }
+    }
 
-      .reveal section {
-        height: 100%;
-        padding: 2rem;
-        position: relative;
-      }
+    .screenshot-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+    }
 
-      .reveal section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image:
-          repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px),
-          repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px);
-        pointer-events: none;
-        opacity: 0.5;
-      }
+    .screenshot-slide h2 {
+      margin-bottom: 0.75rem;
+    }
 
-      .reveal p {
-        margin: 0 0 1em;
-        line-height: 1.6;
-        color: rgba(232, 238, 247, 0.9);
-      }
+    .screenshot-slide p {
+      max-width: 1000px;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
 
-      .reveal ul {
-        margin: 0 0 1em 1.5em;
-      }
+<body>
+  <div class="reveal">
+    <div class="slides">
 
-      .reveal li {
-        margin-bottom: 0.5em;
-        line-height: 1.6;
-        position: relative;
-        padding-left: 0.5em;
-      }
+      <!-- Title Slide -->
+      <section
+        data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="title-slide">
+          <h1>Cortex</h1>
+          <h3>Feature Catalog</h3>
+          <p class="subtitle">Every capability, how to use it, and where to learn more</p>
+          <div class="badge-row">
+            <span class="badge">TUI Views</span>
+            <span class="badge">CLI Actions</span>
+            <span class="badge">Docs Links</span>
+            <span class="badge">December 2025</span>
+          </div>
+        </div>
+      </section>
 
-      .reveal li::before {
-        content: '';
-        position: absolute;
-        left: -1em;
-        top: 0.7em;
-        width: 6px;
-        height: 6px;
-        background: linear-gradient(135deg, var(--sky-blue), var(--magenta));
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(81, 157, 236, 0.6);
-      }
-
-      .reveal strong {
-        color: var(--sky-blue);
-        font-weight: 600;
-      }
-
-      .reveal section img {
-        max-height: 550px;
-        max-width: 100%;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
-                    0 0 0 1px rgba(81, 157, 236, 0.2);
-        border: none;
-        margin: 0 auto;
-        display: block;
-      }
-
-      .subtitle {
-        font-size: 0.6em;
-        margin-top: 0.5rem;
-        color: rgba(232, 238, 247, 0.75);
-        font-weight: 400;
-      }
-
-      .muted {
-        color: rgba(232, 238, 247, 0.6);
-        font-size: 0.85em;
-      }
-
-      .mono {
-        font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
-        font-size: 0.9em;
-        padding: 0.15em 0.4em;
-        background: rgba(81, 157, 236, 0.15);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        border: 1px solid rgba(81, 157, 236, 0.3);
-        border-radius: 6px;
-        color: var(--sky-blue);
-      }
-
-      .badge-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        justify-content: center;
-      }
-
-      .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 999px;
-        font-size: 0.7em;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        background: linear-gradient(135deg, rgba(81, 157, 236, 0.2), rgba(2, 86, 182, 0.3));
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        border: 2px solid rgba(81, 157, 236, 0.4);
-        color: #ffffff;
-        box-shadow: 0 4px 12px rgba(81, 157, 236, 0.3);
-      }
-
-      .title-slide {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        height: 100%;
-      }
-
-      .title-slide h1 {
-        font-size: 4em;
-        margin-bottom: 0.3em;
-      }
-
-      .title-slide h3 {
-        font-size: 1.8em;
-        color: rgba(232, 238, 247, 0.9);
-        font-weight: 500;
-        margin-bottom: 0.5em;
-      }
-
-      .content-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-      }
-
-      .content-wrapper > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-      }
-
-      @keyframes glow {
-        0%, 100% { box-shadow: 0 0 15px rgba(81, 157, 236, 0.6); }
-        50% { box-shadow: 0 0 25px rgba(81, 157, 236, 0.9); }
-      }
-
-      .screenshot-slide {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-      }
-
-      .screenshot-slide h2 {
-        margin-bottom: 1rem;
-      }
-
-      .screenshot-slide p {
-        max-width: 900px;
-        text-align: center;
-        margin-bottom: 1.5rem;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="reveal">
-      <div class="slides">
-        <!-- Title Slide -->
-        <section data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="title-slide">
-            <h1>🎨 Claude Cortex TUI</h1>
-            <h3>Interactive Dashboard Showcase</h3>
-            <p class="subtitle">Textual Framework • Real-Time Updates • Beautiful CLI • 15+ Views</p>
-            <div class="badge-row">
-              <span class="badge">Keyboard Navigation</span>
-              <span class="badge">Live Metrics</span>
-              <span class="badge">AI Recommendations</span>
-              <span class="badge">MCP Integration</span>
+      <!-- Catalog Map -->
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Catalog Map</h2>
+          <p>Use this deck as a guided tour. Each slide covers what the feature does, how to use it, and where to find
+            documentation.</p>
+          <div class="three-col" style="margin-top: 1.5rem;">
+            <div class="feature-card">
+              <h3>AI + Intelligence</h3>
+              <p>AI Assistant, Watch Mode, Skill ratings</p>
+            </div>
+            <div class="feature-card">
+              <h3>Core Entities</h3>
+              <p>Agents, skills, modes, profiles, principles</p>
+            </div>
+            <div class="feature-card">
+              <h3>Ops + Orchestration</h3>
+              <p>Workflows, scenarios, MCP, hooks</p>
+            </div>
+            <div class="feature-card">
+              <h3>Configuration</h3>
+              <p>Flags, asset manager, setup wizard</p>
+            </div>
+            <div class="feature-card">
+              <h3>Support</h3>
+              <p>Worktrees, exports, backups, CLI</p>
             </div>
           </div>
-        </section>
+          <p class="doc-links" style="margin-top: 1rem;">
+            <strong>Docs:</strong> <a href="../index.html">Documentation Index</a> • <a
+              href="../guides/tui/tui-keyboard-reference.html">Keyboard Reference</a>
+          </p>
+        </div>
+      </section>
 
-        <!-- Overview -->
-        <section data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>📊 Overview (Press 1)</h2>
-            <p>Unified view of agents, modes, rules, flags, and system stats with quick actions and metrics.</p>
-            <figure>
-              <img src="../assets/images/screenshots/overview.png" alt="Overview View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                <strong>Launch:</strong> <span class="mono">claude-ctx tui</span> or <span class="mono">python -m claude_ctx_py.tui</span>
-              </figcaption>
-            </figure>
-          </div>
-        </section>
 
-        <!-- Skills -->
-        <section data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🧩 Skills (Press 5)</h2>
-            <p>Browse skill packs, validate content, and drill into progressive disclosure modules.</p>
-            <figure>
-              <img src="../assets/images/screenshots/skills.png" alt="Skills View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Skill catalog • Validation status • Usage metadata
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- AI Intelligence -->
-        <section data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🧠 AI Assistant (Press 0)</h2>
-            <p>Real-time AI recommendations with review grouping, confidence scores, and one-click auto-activation.</p>
-            <figure>
-              <img src="../assets/images/screenshots/ai.png" alt="AI Intelligence View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Review requests grouped • Confidence scoring • Auto-activation • Workflow hints
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Agents -->
-        <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🤖 Agent Management (Press 2)</h2>
-            <p>Browse, activate, and manage agents with dependency tracking and validation.</p>
-            <figure>
-              <img src="../assets/images/screenshots/agents.png" alt="Agents View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Dependency resolution • Activation status • Agent metadata
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Commands -->
-        <section data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>⌨️ Slash Commands (Press /)</h2>
-            <p>Explore available slash commands with descriptions and usage examples.</p>
-            <figure>
-              <img src="../assets/images/screenshots/commands.png" alt="Commands View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Command reference • Quick access • Usage examples
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Modes -->
-        <section data-background="radial-gradient(circle at bottom right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🎭 Modes Management (Press 3)</h2>
-            <p>Activate and configure behavioral modes for different workflow patterns and optimization strategies.</p>
-            <figure>
-              <img src="../assets/images/screenshots/modes.png" alt="Modes View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Behavioral modes • Activation status • Configuration options
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Profiles -->
-        <section data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>👤 Profiles (Press 8)</h2>
-            <p>Manage and switch between configuration profiles for different projects and workflows.</p>
-            <figure>
-              <img src="../assets/images/screenshots/profiles.png" alt="Profiles View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Profile templates • Quick switching • Configuration management
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Rules -->
-        <section data-background="radial-gradient(circle at bottom right, rgba(227, 82, 5, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>📏 Rules Management (Press 4)</h2>
-            <p>Activate and manage rule modules for workflow optimization and quality enforcement.</p>
-            <figure>
-              <img src="../assets/images/screenshots/rules.png" alt="Rules View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Rule modules • Activation status • Configuration
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Orchestration -->
-        <section data-background="radial-gradient(circle at top center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🎯 Orchestration (Press o)</h2>
-            <p>Coordinate multiple agents, modes, and workflows for complex multi-step tasks.</p>
-            <figure>
-              <img src="../assets/images/screenshots/orchestrate.png" alt="Orchestration View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Multi-agent coordination • Task delegation • Real-time progress monitoring
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Workflows -->
-        <section data-background="radial-gradient(circle at center left, rgba(198, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🔄 Workflows (Press 6)</h2>
-            <p>Orchestrate complex multi-step workflows with templates and automation.</p>
-            <figure>
-              <img src="../assets/images/screenshots/workflows.png" alt="Workflows View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Workflow templates • Step-by-step execution • Progress tracking
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- MCP -->
-        <section data-background="radial-gradient(circle at bottom center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>🔌 MCP Integration (Press 7)</h2>
-            <p>Manage Model Context Protocol servers and integrations for enhanced capabilities.</p>
-            <figure>
-              <img src="../assets/images/screenshots/mcp.png" alt="MCP View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Server status • Connection management • Integration options
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Scenarios -->
-        <section data-background="radial-gradient(circle at top right, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>📋 Scenarios (Press S)</h2>
-            <p>Pre-configured scenario templates for common development workflows and tasks.</p>
-            <figure>
-              <img src="../assets/images/screenshots/scenarios.png" alt="Scenarios View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Scenario templates • Quick launch • Customization options
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Export -->
-        <section data-background="radial-gradient(circle at center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>💾 Export (Press 9)</h2>
-            <p>Export configurations, reports, and analytics in multiple formats for sharing and documentation.</p>
-            <figure>
-              <img src="../assets/images/screenshots/export.png" alt="Export View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Multiple formats • Configuration export • Analytics reports
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Keybindings -->
-        <section data-background="radial-gradient(circle at top center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="screenshot-slide">
-            <h2>⌨️ Keyboard Bindings (Press ?)</h2>
-            <p>Comprehensive keyboard shortcuts for maximum productivity and fast navigation.</p>
-            <figure>
-              <img src="../assets/images/screenshots/keybindings.png" alt="Keybindings View" />
-              <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">
-                Complete shortcuts reference • Context-sensitive bindings • Quick help
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <!-- Keyboard Shortcuts -->
-        <section data-background="radial-gradient(circle at bottom center, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="content-wrapper">
-            <h2>⌨️ Keyboard Navigation</h2>
-            <p>Fast, keyboard-driven workflow for maximum productivity.</p>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
-              <div>
-                <h3>View Navigation</h3>
-                <ul style="font-size: 0.9em;">
-                  <li><span class="mono">1</span> - Overview</li>
-                  <li><span class="mono">2</span> - Agents</li>
-                  <li><span class="mono">3</span> - Modes</li>
-                  <li><span class="mono">4</span> - Rules</li>
-                  <li><span class="mono">5</span> - Skills</li>
-                  <li><span class="mono">6</span> - Workflows</li>
-                  <li><span class="mono">7</span> - MCP</li>
-                  <li><span class="mono">8</span> - Profiles</li>
-                  <li><span class="mono">9</span> - Export</li>
-                  <li><span class="mono">0</span> - AI Assistant</li>
-                  <li><span class="mono">F</span> - Flags</li>
-                  <li><span class="mono">A</span> - Assets</li>
-                  <li><span class="mono">M</span> - Memory</li>
-                  <li><span class="mono">C</span> - Worktrees</li>
-                  <li><span class="mono">/</span> - Slash Commands</li>
-                  <li><span class="mono">o</span> - Orchestrate</li>
-                  <li><span class="mono">S</span> - Scenarios</li>
-                  <li><span class="mono">w</span> - Watch Mode</li>
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Agent Galaxy (Press g)</h2>
+          <p>Visualize dependencies, coverage, and collaboration paths across agents.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Dependency graph for active and inactive agents</li>
+                  <li>Quickly spot missing prerequisites</li>
+                  <li>See overlaps between specialist roles</li>
                 </ul>
               </div>
-
-              <div>
-                <h3>Quick Actions</h3>
-                <ul style="font-size: 0.9em;">
-                  <li><span class="mono">A</span> - Auto-activate recommendations</li>
-                  <li><span class="mono">R</span> - Refresh view</li>
-                  <li><span class="mono">?</span> - Help</li>
-                  <li><span class="mono">Q</span> - Quit</li>
-                  <li><span class="mono">↑/↓</span> - Navigate items</li>
-                  <li><span class="mono">Enter</span> - Select/Activate</li>
-                  <li><span class="mono">Tab</span> - Next section</li>
-                  <li><span class="mono">Shift+Tab</span> - Previous section</li>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press g to open the Galaxy view</li>
+                  <li>Select an agent to inspect relationships</li>
+                  <li>Use it before activating large bundles</li>
                 </ul>
               </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/agents.html">Agents Guide</a> • <a
+                  href="../guides/tui/tui-entity-guide.html">TUI Entity Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/galaxy-view.png" alt="Agent Galaxy view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Dependency graph and
+                  relationship overview</figcaption>
+              </figure>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Features -->
-        <section data-background="radial-gradient(circle at center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="content-wrapper">
-            <h2>✨ TUI Features</h2>
-            <p>Built with Textual framework for modern, responsive terminal experiences.</p>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;">
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Real-Time Updates</h3>
-                <p style="font-size: 0.9em;">Live metrics, status changes, and AI recommendations update automatically</p>
+      <section
+        data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>AI Assistant (Press 0)</h2>
+          <p>Live recommendations with confidence scoring and quick activation controls.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Grouped review requests and next-best actions</li>
+                  <li>Confidence scoring for each recommendation</li>
+                  <li>Auto-activation suggestions for high confidence</li>
+                </ul>
               </div>
-
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Mouse Support</h3>
-                <p style="font-size: 0.9em;">Click buttons, scroll tables, and interact with UI elements using mouse</p>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 0 to open the AI Assistant</li>
+                  <li>Review rationale before activating</li>
+                  <li>Use it to keep your context aligned</li>
+                </ul>
               </div>
-
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Responsive Design</h3>
-                <p style="font-size: 0.9em;">Adapts to terminal size with fluid layouts and scrollable content</p>
-              </div>
-
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Rich Styling</h3>
-                <p style="font-size: 0.9em;">Color-coded status, progress bars, tables, and visual indicators</p>
-              </div>
-
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Modal Dialogs</h3>
-                <p style="font-size: 0.9em;">Confirmation prompts, input forms, and detailed information overlays</p>
-              </div>
-
-              <div style="padding: 1.25rem; border-radius: 16px; background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%); backdrop-filter: blur(10px); border: 2px solid rgba(81, 157, 236, 0.3);">
-                <h3>Fast Performance</h3>
-                <p style="font-size: 0.9em;">Async-first design with minimal latency and smooth animations</p>
-              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/ai/README.html">AI Overview</a> • <a
+                  href="../guides/development/AI_INTELLIGENCE_GUIDE.html">AI Intelligence Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/ai-assist-view.png" alt="AI Assistant view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Recommendations, confidence,
+                  and one-click activation</figcaption>
+              </figure>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Thank You -->
-        <section data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-          <div class="title-slide">
-            <h2 style="font-size: 3.5em; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Thank You!</h2>
-            <p class="subtitle" style="font-size: 1.5em; margin-top: 1rem;">
-              🎨 Claude Cortex TUI - Beautiful Terminal Experience
-            </p>
-            <div class="badge-row" style="margin-top: 2rem;">
-              <span class="badge">Textual Framework</span>
-              <span class="badge">Keyboard Driven</span>
-              <span class="badge">Real-Time Updates</span>
-              <span class="badge">15+ Views</span>
+
+      <section
+        data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>AI Watch Mode (Press w)</h2>
+          <p>Continuous monitoring that emits recommendations as the repo changes.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Real-time context detection from git changes</li>
+                  <li>Optional auto-activation for high-confidence signals</li>
+                  <li>Live telemetry on checks and activations</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press w to view watch mode status</li>
+                  <li>Use the CLI to adjust thresholds</li>
+                  <li>Leave it running while you code</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/development/WATCH_MODE_GUIDE.html">Watch
+                  Mode Guide</a></p>
             </div>
-            <p class="muted" style="margin-top: 3rem; font-size: 1.2em;">
-              <strong>Launch:</strong> <span class="mono">claude-ctx tui</span>
-            </p>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/ai-watch-mode.png" alt="AI Watch Mode view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Live context detection and
+                  auto-activation</figcaption>
+              </figure>
+            </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Agents (Press 2)</h2>
+          <p>Browse, activate, and manage individual agents with dependency tracking.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Activate agents directly from the list</li>
+                  <li>Inspect dependencies and tiers</li>
+                  <li>Validate agent metadata before use</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 2 to open Agents</li>
+                  <li>Use Space to toggle activation</li>
+                  <li>Select a row to review details</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/agents.html">Agents Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/agents-view.png" alt="Agents view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Dependency resolution and
+                  activation status</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Skills (Press 5)</h2>
+          <p>Browse skill packs, validation status, and usage metadata.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Discover available skill packs</li>
+                  <li>Validate skills before invoking them</li>
+                  <li>Track usage metadata across workflows</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 5 to open Skills</li>
+                  <li>Review SKILL.md summaries</li>
+                  <li>Use skills to enrich prompts</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/skills.html">Skills Guide</a> • <a
+                  href="../guides/skills-tui-integration.html">Skills TUI Integration</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/skills-view.png" alt="Skills view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Skill catalog with validation
+                  metadata</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Command Palette (Ctrl+P)</h2>
+          <p>Fast navigation, actions, and configuration in one search bar.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Search across views and actions</li>
+                  <li>Launch provider settings and tools</li>
+                  <li>Jump to any entity instantly</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press Ctrl+P to open</li>
+                  <li>Type to filter actions</li>
+                  <li>Run commands without leaving the view</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/COMMAND_PALETTE_GUIDE.html">Command Palette
+                  Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/command-palette.png" alt="Command Palette view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Fuzzy search and quick actions
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom right, rgba(227, 82, 5, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Slash Commands (Press /)</h2>
+          <p>Built-in slash command reference with usage details.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Browse commands by category</li>
+                  <li>Copy usage patterns into Claude</li>
+                  <li>Reference prompt templates quickly</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press / to open the catalog</li>
+                  <li>Search by keyword or category</li>
+                  <li>Copy the command into a request</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/commands.html">Command Reference</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/slash-commands-view.png"
+                  alt="Slash Commands view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Command catalog with usage
+                  examples</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Modes (Press 3)</h2>
+          <p>Toggle behavioral overlays that reshape how agents work.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Enable quality, efficiency, or architecture modes</li>
+                  <li>Apply multiple modes together</li>
+                  <li>Track active modes in .active-modes</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 3 to open Modes</li>
+                  <li>Use Space to toggle a mode</li>
+                  <li>Apply profiles for batch changes</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/modes.html">Modes Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/modes-view.png" alt="Modes view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Behavioral mode management
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Profiles (Press 8)</h2>
+          <p>Apply curated bundles of agents, modes, and rules in one action.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>One-tap workflow posture changes</li>
+                  <li>Bundle agents + modes + rules</li>
+                  <li>Save snapshots for reuse</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 8 to open Profiles</li>
+                  <li>Use Space to apply a profile</li>
+                  <li>Save your current selection</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/FLAGS_MANAGEMENT.html">Flags & Profiles</a>
+                • <a href="../guides/tui/tui-entity-guide.html">TUI Entity Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/profiles-view.png" alt="Profiles view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Profile templates and quick
+                  switching</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Principles (Press p)</h2>
+          <p>Activate curated principles that guide reasoning and style.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Reusable engineering principles</li>
+                  <li>Source-linked guidance snippets</li>
+                  <li>Toggle on demand per project</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press p to open Principles</li>
+                  <li>Use Space to toggle entries</li>
+                  <li>Keep teams aligned on standards</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
+                  Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/principles-view.png" alt="Principles view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Principles catalog with
+                  activation status</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Flags Explorer (Press F)</h2>
+          <p>Control modular flag packs and token budgets.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Toggle flag packs by category</li>
+                  <li>Inspect triggers and budgets</li>
+                  <li>Keep context lean and focused</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press F to open Flags</li>
+                  <li>Use Space to toggle packs</li>
+                  <li>Review budgets before enabling</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/FLAGS_MANAGEMENT.html">Flags Management</a>
+              </p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/flags-view.png" alt="Flags Explorer view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Flag packs and budgets
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Workflows (Press 6)</h2>
+          <p>Run multi-step, repeatable workflows with status tracking.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Orchestrate multi-step sequences</li>
+                  <li>Track progress and current steps</li>
+                  <li>Coordinate agent execution</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 6 to open Workflows</li>
+                  <li>Use Shift+R to run</li>
+                  <li>Press s to stop active runs</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
+                  Guide</a> • <a href="../guides/development/PARALLEL_ORCHESTRATION_GUIDE.html">Parallel
+                  Orchestration</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/workflows-view.png" alt="Workflows view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Workflow templates and run
+                  status</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Scenarios (Press S)</h2>
+          <p>Event playbooks with phases, monitoring, and rollback steps.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Scenario phases with profiles + agents</li>
+                  <li>Monitoring and rollback guidance</li>
+                  <li>Historical run status</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press S to open Scenarios</li>
+                  <li>Use P to preview and Shift+R to run</li>
+                  <li>Press V to validate schemas</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
+                  Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/scenarios-view.png" alt="Scenarios view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Scenario catalog and status
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom right, rgba(227, 82, 5, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Worktrees (Press C)</h2>
+          <p>Manage git worktrees for parallel workstreams.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Create, open, and prune worktrees</li>
+                  <li>Keep feature branches isolated</li>
+                  <li>Fast context switching</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press C to open Worktrees</li>
+                  <li>Use actions to add/open/remove</li>
+                  <li>CLI supports batch operations</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/worktrees.html">Worktrees Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/worktrees-view.png" alt="Worktrees view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Worktree list and actions
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Asset Manager (Press A)</h2>
+          <p>Install, update, diff, and target assets across Claude directories.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Bulk install by category</li>
+                  <li>Update or diff installed assets</li>
+                  <li>Target multiple Claude roots</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press A to open Asset Manager</li>
+                  <li>Choose install/update actions</li>
+                  <li>Pick the target directory</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/asset-manager.html">Asset Manager Guide</a>
+              </p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/asset-manager.png" alt="Asset Manager view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Bulk install and update
+                  workflows</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Hooks Manager (Press h)</h2>
+          <p>Enable or disable automation hooks that run alongside workflows.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Toggle lifecycle hooks</li>
+                  <li>Inspect hook descriptions</li>
+                  <li>Keep automation consistent</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press h to open Hooks</li>
+                  <li>Use Space to enable or disable</li>
+                  <li>Review the hook description</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/hooks.html">Hooks Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/hooks-manager.png" alt="Hooks Manager view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Hook catalog with status
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Backup Manager (Press b)</h2>
+          <p>Snapshot and restore context state before major changes.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Create backups before risky edits</li>
+                  <li>Restore previous activation state</li>
+                  <li>Audit backup history</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press b to open Backups</li>
+                  <li>Create or restore a snapshot</li>
+                  <li>Confirm before overwriting</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/development/TUI_ARCHITECTURE.html">TUI
+                  Architecture</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/backup-manager.png" alt="Backup Manager view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Snapshot and restore controls
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Memory Vault (Press M)</h2>
+          <p>Capture notes, fixes, and knowledge for fast recall.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Store key notes and decisions</li>
+                  <li>Search across memory entries</li>
+                  <li>Enable auto-capture workflows</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press M to open Memory</li>
+                  <li>Add notes or search entries</li>
+                  <li>Use CLI automation when needed</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/memory.html">Memory Guide</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/memory-vault.png" alt="Memory Vault view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Memory vault entries and
+                  search</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>MCP Manager (Press 7)</h2>
+          <p>Manage MCP servers and integrations from one console.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Add or remove MCP servers</li>
+                  <li>Inspect active integrations</li>
+                  <li>Control MCP availability per project</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 7 to open MCP</li>
+                  <li>Select a server to review</li>
+                  <li>Enable or disable entries</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/mcp/MCP_MANAGEMENT.html">MCP Management</a>
+              </p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/mcp-view.png" alt="MCP Manager view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">MCP servers and status
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Export (Press 9)</h2>
+          <p>Export curated context bundles for sharing and reuse.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Create export bundles of active context</li>
+                  <li>Filter assets by type</li>
+                  <li>Share with teammates or CI</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press 9 to open Export</li>
+                  <li>Pick the export format</li>
+                  <li>Save to file or clipboard</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-navigation-summary.html">TUI
+                  Navigation Summary</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/export-view.png" alt="Export view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Export configuration and
+                  output</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at bottom right, rgba(227, 82, 5, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Setup Wizard (Press W)</h2>
+          <p>Guided setup for missing templates and configuration.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Detect missing template files</li>
+                  <li>Initialize CLAUDE.md and FLAGS.md</li>
+                  <li>Keep installs consistent</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press W to launch the wizard</li>
+                  <li>Review missing files</li>
+                  <li>Confirm initialization actions</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/INSTALL.html">Install Guide</a> • <a
+                  href="../guides/getting-started.html">Getting Started</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/config-wizard.png" alt="Setup Wizard view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Guided setup and template
+                  guardrails</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>Shortcuts & Help (Press ?)</h2>
+          <p>Keyboard reference overlay for quick navigation.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Full hotkey map</li>
+                  <li>Reminders for palette and views</li>
+                  <li>Fast navigation training</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Press ? to open help</li>
+                  <li>Use Ctrl+P for the palette</li>
+                  <li>Press Esc to close overlays</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-keyboard-reference.html">TUI
+                  Keyboard Reference</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/shortcuts-help.png" alt="Shortcuts & Help view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Shortcut overlay and help
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper screenshot-slide">
+          <h2>CLI Usage (Terminal)</h2>
+          <p>CLI commands mirror TUI actions for automation and scripts.</p>
+          <div class="two-col" style="margin-top: 1.1rem;">
+            <div>
+              <div class="callout" style="margin-bottom: 0.9rem;">
+                <h3>What it enables</h3>
+                <ul>
+                  <li>Automate activation and exports</li>
+                  <li>Script workflows in CI</li>
+                  <li>Use alongside the plugin</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h3>How to use</h3>
+                <ul>
+                  <li>Run cortex tui for the dashboard</li>
+                  <li>Use cortex ai recommend for guidance</li>
+                  <li>Apply profiles via cortex profile apply</li>
+                </ul>
+              </div>
+              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/INSTALL.html">Install Guide</a> • <a
+                  href="../guides/getting-started.html">Getting Started</a></p>
+            </div>
+            <div>
+              <figure style="margin: 0;">
+                <img class="zoomable" src="../assets/images/screenshots/december-2025/cli-usage.png" alt="CLI Usage view" />
+                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">CLI commands and quick
+                  reference</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <section
+        data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="title-slide">
+          <h2
+            style="font-size: 3.2em; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            Feature Catalog Complete</h2>
+          <p class="subtitle" style="font-size: 1.4em; margin-top: 1rem;">Pick a feature, open the TUI, and dive into
+            the docs.</p>
+          <div class="badge-row" style="margin-top: 2rem;">
+            <span class="badge">Launch: cortex tui</span>
+            <span class="badge">Docs Index</span>
+            <span class="badge">Keyboard Reference</span>
+            <span class="badge">Asset Manager</span>
+          </div>
+          <p class="doc-links" style="margin-top: 2rem; font-size: 1em;">
+            <strong>Start Here:</strong> <a href="../index.html">Documentation Index</a> • <a
+              href="../guides/tui/tui-keyboard-reference.html">Keyboard Reference</a>
+          </p>
+        </div>
+      </section>
     </div>
+  </div>
 
-    <script src="https://unpkg.com/reveal.js@5/dist/reveal.js"></script>
-    <script>
-      Reveal.initialize({
-        hash: true,
-        transition: 'fade',
-        transitionSpeed: 'default',
-        backgroundTransition: 'fade',
-        controls: true,
-        progress: true,
-        center: false,
-        width: 1280,
-        height: 720,
-        margin: 0.04,
-        minScale: 0.2,
-        maxScale: 2.0,
+  <div class="zoom-overlay" id="zoom-overlay" aria-hidden="true">
+    <button class="zoom-close" type="button" aria-label="Close image">Close</button>
+    <img id="zoom-image" alt="" />
+  </div>
+
+  <script src="https://unpkg.com/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://unpkg.com/reveal.js@5/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      transition: 'fade',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      controls: true,
+      progress: true,
+      center: false,
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2.0,
+      plugins: [RevealHighlight],
+    });
+
+    const overlay = document.getElementById('zoom-overlay');
+    const zoomImage = document.getElementById('zoom-image');
+    const closeBtn = overlay.querySelector('.zoom-close');
+    const zoomables = document.querySelectorAll('img.zoomable');
+
+    const closeZoom = () => {
+      overlay.classList.remove('is-active');
+      overlay.setAttribute('aria-hidden', 'true');
+      zoomImage.removeAttribute('src');
+      zoomImage.removeAttribute('alt');
+    };
+
+    zoomables.forEach((img) => {
+      img.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        zoomImage.src = img.src;
+        zoomImage.alt = img.alt || 'Expanded screenshot';
+        overlay.classList.add('is-active');
+        overlay.setAttribute('aria-hidden', 'false');
       });
-    </script>
-  </body>
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+        closeZoom();
+      }
+    });
+
+    closeBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeZoom();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && overlay.classList.contains('is-active')) {
+        closeZoom();
+      }
+    });
+  </script>
+</body>
+
 </html>

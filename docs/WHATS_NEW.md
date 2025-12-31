@@ -1,34 +1,40 @@
-# What's New in Claude-ctx
+# What's New in Cortex
 
 ## 2025-12-28: Multi-Reviewer Auto-Activation & TUI Review Grouping
 
 ### ✅ Multi-Reviewer Auto-Activation
+
 - AI recommendations now trigger **multiple reviewer agents at once** based on the change set.
 - Always-on reviewers: `quality-engineer` + `code-reviewer` for any non-empty changeset.
 - Specialized reviewers: `typescript-pro`, `react-specialist`, `ui-ux-designer`, `database-optimizer`, `sql-pro`, `performance-engineer`, `architect-review` (as applicable).
 
 ### 🧭 TUI AI Assistant Improvements
+
 - The AI Assistant view now groups recommendations into **Review Requests** vs **Other Suggestions** for faster scanning.
 - AUTO badges remain, but review requests are clearly labeled as review actions.
 
 ### 🎨 Quick TUI Theme Overrides
-- Add a custom `.tcss` file via `claude-ctx tui --theme`, `CLAUDE_CTX_TUI_THEME`, or `~/.claude/tui/theme.tcss`.
+
+- Add a custom `.tcss` file via `cortex tui --theme`, `CLAUDE_CTX_TUI_THEME`, or `~/.claude/tui/theme.tcss`.
 - Overrides load after the default theme, so palette variables can be swapped without code changes.
 
 ### 🧩 Principles Snippets (Option A)
+
 - `PRINCIPLES.md` can now be generated from modular snippets in `principles/`.
-- New CLI: `claude-ctx principles list|status|activate|deactivate|build`.
+- New CLI: `cortex principles list|status|activate|deactivate|build`.
 - Activation is tracked in `.active-principles`, with filename ordering (use numeric prefixes).
 - TUI support: press `p` for the Principles view; use `Space` to toggle snippets, `c` to rebuild, and `d` to open `PRINCIPLES.md`.
 
 ## 2025-11-18: Task Log Streaming & Palette Hardening
 
 ### 🔍 Task Detail Panel + Log Actions
+
 - The Tasks view now surfaces every workstream with inline summaries and a detail modal (`s`) that shows raw notes, timestamps, and the source log path.
 - Two new shortcuts ship with the view: `L` tails the underlying `agent-*.jsonl` file inside the TUI log viewer, and `O` opens the same file via `open`/`xdg-open`/`start` so you can keep digging in your native editor.
 - Docs updated: [Entity guide](guides/tui/tui-entity-guide.html) and [keyboard reference](guides/tui/tui-keyboard-reference.html) call out the new workflow, and the screenshots section now has placeholders for Tasks view details.
 
 ### 🎛 Command Palette Reliability
+
 - Ctrl+P previously threw `NoActiveWorker` in edge cases (e.g., when other modals were open). The palette now launches on its own worker, so you can summon it repeatedly while logs stream or tasks refresh.
 - The [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) has been refreshed to note the stability fix and reiterate the quick actions you can stack while workflows run.
 
@@ -87,11 +93,13 @@ Multi-step processes with agent coordination:
 Quick-action commands across 3 new namespaces:
 
 **New Namespaces**:
+
 - `/refactor:*` - Code refactoring operations
 - `/workflow:*` - Workflow execution
 - `/mode:*` - Mode management
 
 **Commands**:
+
 1. `/refactor:analyze` - Analyze code for refactoring opportunities
 2. `/refactor:execute` - Execute refactoring plan safely
 3. `/workflow:run` - Execute multi-step workflows
@@ -105,6 +113,7 @@ Quick-action commands across 3 new namespaces:
 Comprehensive visual documentation ships with the plugin:
 
 **Files Included**:
+
 1. **architecture-diagrams.md** (15K)
    - 10+ Mermaid diagrams
    - System architecture, flows, decision trees
@@ -126,11 +135,13 @@ Comprehensive visual documentation ships with the plugin:
    - Update checklist
 
 **Installation**:
+
 - Automatically installs to `~/.claude/docs/`
 - Included in package distribution
 - View via `/docs:diagrams` command
 
 **Quick View**:
+
 ```bash
 cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
@@ -168,6 +179,7 @@ Layer 4: EXECUTION (Agents + MCP + Tools)
 ### 🎯 New Integration Patterns
 
 **Example: Refactoring Flow**
+
 ```
 User: /refactor:analyze src/auth
   ↓
@@ -183,27 +195,32 @@ Output: Refactoring plan with priorities
 ### 🛠️ Installation Changes
 
 **New Files Installed**:
+
 - `~/.claude/docs/architecture-diagrams.md`
 - `~/.claude/docs/quick-reference.md`
 - `~/.claude/docs/VISUAL_SUMMARY.txt`
 - `~/.claude/docs/DIAGRAMS_README.md`
 
 **New Scripts**:
+
 - `scripts/post-install-docs.sh` - Auto-installs documentation
 - Updated `scripts/install.sh` - Calls post-install script
 
 **Package Configuration**:
+
 - `pyproject.toml` - Includes docs in package data
 - `MANIFEST.in` - Ensures docs in distribution
 
 ### 📚 Documentation Improvements
 
 **New Sections in docs/README.md**:
+
 - Architecture Documentation section (top of page)
 - Links to all diagram files
 - Quick view commands
 
 **New Directory Structure**:
+
 ```
 docs/
 ├── reference/
@@ -218,6 +235,7 @@ docs/
 ### 🚀 Usage Examples
 
 **View Documentation**:
+
 ```bash
 # ASCII art overview
 cat ~/.claude/docs/VISUAL_SUMMARY.txt
@@ -229,6 +247,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
 
 **Activate Modes**:
+
 ```bash
 /mode:activate Brainstorm              # Collaborative discovery
 /mode:activate Deep_Analysis           # Maximum reasoning
@@ -236,6 +255,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
 
 **Run Workflows**:
+
 ```bash
 /workflow:run refactoring              # Safe refactoring
 /workflow:run api-design               # API design
@@ -243,6 +263,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
 
 **Execute Refactoring**:
+
 ```bash
 /refactor:analyze src/auth             # Analyze for opportunities
 /refactor:execute refactor-plan.md     # Execute safely
@@ -251,6 +272,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ### 🎨 Visual Enhancements
 
 **Color-Coded Diagrams**:
+
 - Light Blue - User/Input
 - Light Red - Commands
 - Light Orange - Modes
@@ -260,6 +282,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 - Red - Error states
 
 **Diagram Types**:
+
 - System architecture (graph)
 - Sequence diagrams (flows)
 - Flowcharts (decisions)
@@ -269,16 +292,19 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ### 📖 Learning Resources
 
 **For New Users**:
+
 1. View `VISUAL_SUMMARY.txt` for overview
 2. Read `quick-reference.md` for patterns
 3. Study `architecture-diagrams.md` for details
 
 **For Developers**:
+
 - Keep `quick-reference.md` open for command lookup
 - Use TUI (press 3 for Modes, 6 for Workflows)
 - Reference integration patterns
 
 **For Architects**:
+
 - Present `architecture-diagrams.md` in reviews
 - Use compatibility matrix for planning
 - Reference decision trees
@@ -286,6 +312,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ### 🔧 Maintenance
 
 **Updating Documentation**:
+
 ```bash
 # Edit source files
 vim docs/reference/architecture/architecture-diagrams.md
@@ -297,6 +324,7 @@ bash scripts/post-install-docs.sh
 ```
 
 **Adding New Components**:
+
 - Update component counts in VISUAL_SUMMARY.txt
 - Add to tables in quick-reference.md
 - Update diagrams in architecture-diagrams.md
@@ -305,6 +333,7 @@ bash scripts/post-install-docs.sh
 ### 🎯 What's Next
 
 Planned features:
+
 - More slash commands for common tasks
 - Additional workflows for specialized scenarios
 - More behavioral modes for different contexts
@@ -316,11 +345,13 @@ Planned features:
 ## Previous Updates
 
 ### 2025-11-08: TUI Enhancements
+
 - Enhanced visual interface
 - Keyboard shortcuts
 - Entity guides
 
 ### 2025-11-05: Scenario Management
+
 - Scenario definitions
 - Progress tracking
 - Status monitoring

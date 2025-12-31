@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "Claude-ctx Development Makefile"
+	@echo "Cortex Development Makefile"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  install              - Install package, completions, and manpage"
@@ -94,5 +94,5 @@ verify:
 	@man -w claude-ctx >/dev/null 2>&1 && echo "✓ manpage installed" || echo "✗ manpage not found"
 	@python3 -c "import argcomplete" 2>/dev/null && echo "✓ argcomplete available" || echo "✗ argcomplete not found"
 	@echo ""
-	@echo "Claude-ctx version:"
+	@echo "Cortex version:"
 	@claude-ctx --help | head -1 || true

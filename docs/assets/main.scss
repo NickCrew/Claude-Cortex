@@ -243,10 +243,12 @@ hr {
 }
 
 .doc-card__arrow {
-  position: absolute;
-  top: 1.8rem;
-  right: 1.8rem;
-  font-size: 1.8rem;
+  display: block;
+  text-align: right;
+  margin-top: -0.2rem;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: #38bdff;
   transition: transform 0.3s ease;
 }
@@ -350,8 +352,8 @@ hr {
 }
 
 /* Enhanced Code Blocks - FORCE DARK BACKGROUND */
-.highlight,
-.highlighter-rouge,
+div.highlighter-rouge,
+figure.highlighter-rouge,
 div.highlight,
 figure.highlight {
   border-radius: 12px !important;
@@ -361,15 +363,24 @@ figure.highlight {
   overflow: hidden !important;
   background-color: #0d1117 !important;
   background: #0d1117 !important;
+  padding: 1.2rem !important;
+}
+
+div.highlighter-rouge .highlight {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 pre,
 pre.highlight,
 .highlight pre {
-  padding: 1.2rem !important;
-  border-radius: 12px !important;
-  background-color: #0d1117 !important;
-  background: #0d1117 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  background: transparent !important;
   margin: 0 !important;
   border: none !important;
 }

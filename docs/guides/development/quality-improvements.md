@@ -562,7 +562,7 @@ make docs           # Start docs server
 
 ```bash
 # Clone and install
-git clone https://github.com/NickCrew/claude-ctx-plugin.git
+git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-ctx-plugin
 
 # Install with dev dependencies

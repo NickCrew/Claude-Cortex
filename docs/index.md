@@ -5,13 +5,13 @@ nav_order: 1
 permalink: /
 ---
 
-# Claude Cortex - Documentation Index
+# Cortex - Documentation Index
 
-> Version 1.2.0 · Last updated December 21, 2025
+> Version 1.2.0 · Last updated December 31, 2025
 
 <div class="hero">
   <div class="hero__copy">
-    <h2>Claude Cortex keeps your agents, commands &amp; workflows in perfect sync.</h2>
+    <h2>Cortex keeps your agents, commands &amp; workflows in perfect sync.</h2>
     <p>
       Activate a fully curated context stack for Claude Code: purpose-built slash commands,
       dependency-aware agents, behavioural modes, and a Python CLI that all speak the same
@@ -19,7 +19,7 @@ permalink: /
     </p>
 
     <div class="hero__cta">
-      <a href="https://github.com/NickCrew/claude-ctx-plugin" target="_blank" rel="noopener">
+      <a href="https://github.com/NickCrew/claude-cortex" target="_blank" rel="noopener">
         View on GitHub →
       </a>
       <a class="secondary" href="#installation">Install the plugin</a>
@@ -33,13 +33,13 @@ permalink: /
     </div>
   </div>
   <div class="hero__visual">
-    <img src="{{ '/assets/images/hero.png' | relative_url }}" alt="Claude Cortex blueprint" />
+    <img src="{{ '/assets/images/hero.png' | relative_url }}" alt="Cortex blueprint" />
   </div>
 </div>
 
 ## Overview
 
-Claude Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, flags, rules, profiles, workflows, and scenarios for systematic software development.
+Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, flags, rules, profiles, workflows, and scenarios for systematic software development.
 
 <div class="metrics-row">
   <div class="metric-box">
@@ -88,42 +88,64 @@ Claude Cortex is a comprehensive context management toolkit packaged as a Claude
 Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="doc-grid">
-  <a href="presentations/claude-ctx-overview.html" class="doc-card" target="_blank">
-    <h3>→ Claude Cortex Overview</h3>
-    <p>Comprehensive platform overview covering AI intelligence, watch mode, metrics, architecture, and developer workflow. Perfect for team introductions and project demos.</p>
-    <p class="muted"><strong>Topics:</strong> AI Intelligence System • Watch Mode • Metrics & Analytics • Architecture • Developer Workflow • Super Saiyan Mode</p>
+  <a href="{{ '/presentations/claude-ctx-overview.html' | relative_url }}" class="doc-card" target="_blank">
+    <h3>→ Cortex Intro Overview</h3>
+    <p>High-level story of the platform: AI intelligence, watch mode, asset manager, visual excellence, and multi-LLM consult. Great for quick introductions.</p>
+    <p class="muted"><strong>Topics:</strong> AI Intelligence • Watch Mode • Asset Manager • Visual Excellence • Multi-LLM Consult • Recent Improvements</p>
     <span class="doc-card__arrow">Launch →</span>
     <div class="doc-card__meta">
-      <span>11 slides</span>
+      <span>9 slides</span>
       <span>Screenshots included</span>
     </div>
   </a>
 
-  <a href="presentations/tui-showcase.html" class="doc-card" target="_blank">
-    <h3>▶ TUI Dashboard Showcase</h3>
-    <p>Interactive TUI walkthrough with full-screen captures of every major view. Ideal for showcasing the terminal interface capabilities and navigation patterns.</p>
-    <p class="muted"><strong>Views:</strong> Dashboard Overview (2 parts) • AI Assistant • Agents • Commands • Modes • Profiles • Rules • Orchestration • Workflows • MCP • Scenarios • Export • Keybindings</p>
+  <a href="{{ '/presentations/claude-ctx-technical-deep-dive.html' | relative_url }}" class="doc-card" target="_blank">
+    <h3>→ Technical Deep Dive</h3>
+    <p>Deep focus on activation, recommendations, intelligence signals, watch mode loops, skill ratings, and plugin/CLI integration.</p>
+    <p class="muted"><strong>Topics:</strong> Activation Pipeline • Intelligence Signals • Watch Mode • Skill Ratings • Install Flow • Plugin + CLI</p>
     <span class="doc-card__arrow">Launch →</span>
     <div class="doc-card__meta">
-      <span>18 slides</span>
-      <span>15+ screenshots</span>
+      <span>13 slides</span>
+      <span>Technical focus</span>
+    </div>
+  </a>
+
+  <a href="{{ '/presentations/claude-ctx-executive-roadmap.html' | relative_url }}" class="doc-card" target="_blank">
+    <h3>→ Executive Overview & Roadmap</h3>
+    <p>Executive-friendly narrative with capability highlights, recent improvements, adoption plan, and phased roadmap.</p>
+    <p class="muted"><strong>Topics:</strong> Business Value • Capability Highlights • Recent Improvements • Roadmap • Adoption • Risks</p>
+    <span class="doc-card__arrow">Launch →</span>
+    <div class="doc-card__meta">
+      <span>9 slides</span>
+      <span>Strategy + roadmap</span>
+    </div>
+  </a>
+
+  <a href="{{ '/presentations/tui-showcase.html' | relative_url }}" class="doc-card" target="_blank">
+    <h3>▶ Feature Catalog (TUI + CLI)</h3>
+    <p>Comprehensive catalog of every capability, with how-to guidance, docs links, and up-to-date TUI screenshots.</p>
+    <p class="muted"><strong>Coverage:</strong> AI Assistant • Watch Mode • Agents • Skills • Command Palette • Slash Commands • Modes • Profiles • Principles • Flags • Workflows • Scenarios • Worktrees • Asset Manager • Hooks • Backups • Memory • MCP • Export • Setup Wizard • Shortcuts • CLI</p>
+    <span class="doc-card__arrow">Launch →</span>
+    <div class="doc-card__meta">
+      <span>26 slides</span>
+      <span>Docs-linked catalog</span>
     </div>
   </a>
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>ℹ How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="presentations/README.md">presentations/README.md</a> for keyboard controls and customization guide.
+  <strong>ℹ How to View:</strong> Open presentations directly in your browser or serve locally with `python3 -m http.server 8080` from the presentations directory. See <a href="{{ '/presentations/README.md' | relative_url }}">presentations/README.md</a> for keyboard controls and customization guide.
 </div>
 
 ---
 
 ## → Tutorials {#tutorials}
 
-Hands-on tutorials to master claude-ctx from beginner to advanced.
+Hands-on tutorials to master cortex from beginner to advanced.
 
 <div class="doc-grid">
   <a href="tutorials/getting-started-tui/" class="doc-card">
-    <h3>→ Getting Started with Claude Cortex TUI</h3>
+    <h3>→ Getting Started with Cortex TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI. Perfect for beginners and visual learners.</p>
     <p class="muted"><strong>You'll Learn:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
     <span class="doc-card__arrow">Start Tutorial →</span>
@@ -136,7 +158,7 @@ Hands-on tutorials to master claude-ctx from beginner to advanced.
 </div>
 
 <div class="callout" style="margin-top: 1rem;">
-  <strong>→ New to claude-ctx?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
+  <strong>→ New to cortex?</strong> Start with the TUI tutorial above. It includes CLI alternatives for power users and clear markers for advanced features. <a href="tutorials/">View all tutorials →</a>
 </div>
 
 ---
@@ -168,7 +190,7 @@ Stay in Claude Code flow with intelligent, self-managing context and flags-first
 
 ```bash
 # Start watch mode (foreground, no daemon)
-claude-ctx ai watch
+cortex ai watch
 
 # Monitor as you code:
 # • Git commits detected
@@ -196,7 +218,7 @@ claude-ctx ai watch
 ### TUI AI Assistant
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press '0' for AI Assistant view
 # Press 'A' to auto-activate recommendations
 ```
@@ -212,16 +234,16 @@ Interactive AI view shows:
 
 ```bash
 # Get recommendations for current context
-claude-ctx ai recommend
+cortex ai recommend
 
 # Auto-activate high-confidence agents
-claude-ctx ai auto-activate
+cortex ai auto-activate
 
 # Export recommendations to JSON
-claude-ctx ai export --output recommendations.json
+cortex ai export --output recommendations.json
 
 # Record successful session for learning
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 ```
 
 <div class="callout" style="margin-top: 1rem;">
@@ -242,10 +264,10 @@ claude-ctx ai record-success --outcome "feature complete"
 
 ```bash
 # Run system health check
-claude-ctx doctor
+cortex doctor
 
 # Attempt to auto-fix issues
-claude-ctx doctor --fix
+cortex doctor --fix
 ```
 
 Checks performed:
@@ -269,7 +291,7 @@ Install, diff, and update plugin assets directly from the TUI.
 **Quick start:**
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'A' for Asset Manager
 # i=install, u=uninstall, d=diff, U=update all, I=bulk install, T=target dir
 ```
@@ -285,17 +307,17 @@ Manage git worktrees from the CLI or the TUI.
 **CLI quick start:**
 
 ```bash
-claude-ctx worktree list
-claude-ctx worktree add my-branch --path ../worktrees/my-branch
-claude-ctx worktree remove my-branch
-claude-ctx worktree prune --dry-run
-claude-ctx worktree dir ../worktrees
+cortex worktree list
+cortex worktree add my-branch --path ../worktrees/my-branch
+cortex worktree remove my-branch
+cortex worktree prune --dry-run
+cortex worktree dir ../worktrees
 ```
 
 **TUI quick start:**
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'C' for Worktrees
 # Ctrl+N add, Ctrl+O open, Ctrl+W remove, Ctrl+K prune, Ctrl+B set base dir
 ```
@@ -384,16 +406,16 @@ See [guides/skills.md](guides/skills.md) for the full catalog and resource snipp
 
 ```bash
 # Get AI-recommended skills for your project
-claude-ctx skills recommend
+cortex skills recommend
 
 # Rate a skill you just used
-claude-ctx skills rate owasp-top-10 --stars 5 --review "Essential for security"
+cortex skills rate owasp-top-10 --stars 5 --review "Essential for security"
 
 # View ratings and reviews
-claude-ctx skills ratings owasp-top-10
+cortex skills ratings owasp-top-10
 
 # See top-rated skills
-claude-ctx skills top-rated
+cortex skills top-rated
 ```
 
 **Example recommendation output:**
@@ -418,7 +440,7 @@ Active context: Building REST API with authentication
 ## Project Structure
 
 ```
-claude-ctx-plugin/
+claude-cortex/
 ├── commands/           # Slash command definitions (49 across 13 categories)
 │   ├── analyze/       # Code analysis, security scanning, troubleshooting
 │   ├── cleanup/       # Cleanup and maintenance
@@ -523,7 +545,7 @@ claude-ctx-plugin/
   </div>
   <div class="feature-card">
     <h3>Python CLI Included</h3>
-    <p>An installable `claude-ctx` CLI mirrors the plugin structure, enabling scripts, CI checks, and local automation.</p>
+    <p>An installable `cortex` CLI mirrors the plugin structure, enabling scripts, CI checks, and local automation.</p>
   </div>
   <div class="feature-card">
     <h3>MCP &amp; Hook Ready</h3>
@@ -550,7 +572,7 @@ claude-ctx-plugin/
 2. Install the plugin:
 
    ```bash
-   /plugin install claude-ctx@<marketplace-name>
+   /plugin install cortex@<marketplace-name>
    ```
 
 3. Restart Claude Code to load commands and agents
@@ -574,23 +596,23 @@ make install
 python3 -m pip install -e ".[dev]"
 
 # Verify installation
-claude-ctx --version
+cortex --version
 
 # View documentation
-man claude-ctx
+man cortex
 
 # List available modes
-claude-ctx mode list
+cortex mode list
 
 # Generate dependency map
-claude-ctx agent graph --export dependency-map.md
+cortex agent graph --export dependency-map.md
 ```
 
 **What Gets Installed:**
 
-- Python package (`claude-ctx` command)
+- Python package (`cortex` command)
 - Shell completions (bash/zsh/fish)
-- Manpage (`man claude-ctx`)
+- Manpage (`man cortex`)
 - Development dependencies (pytest, mypy, black)
 
 For more detailed setup guidance (including shell completion and CLI overrides) see [guides/getting-started.md](guides/getting-started.md).
@@ -603,16 +625,16 @@ Keep your local context healthy and consistent across upgrades:
 
 ```bash
 # Detect project type and recommend a profile
-claude-ctx init detect
+cortex init detect
 
 # Apply a profile directly
-claude-ctx init profile backend
+cortex init profile backend
 
 # Check current init status
-claude-ctx init status
+cortex init status
 
 # Migrate CLAUDE.md comment activation → .active-* files
-claude-ctx setup migrate
+cortex setup migrate
 ```
 
 ---
@@ -629,19 +651,19 @@ Examples:
 
 ```bash
 # Use the plugin cache that Claude Code maintains
-export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
+export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
 
 # Or target a local checkout of this repository
-export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
+export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-cortex"
 
-claude-ctx mode status
+cortex mode status
 ```
 
 Project-local and explicit directory examples:
 
 ```bash
-claude-ctx --scope project status
-claude-ctx --plugin-root /path/to/claude-ctx-plugin status
+cortex --scope project status
+cortex --plugin-root /path/to/claude-cortex status
 ```
 
 Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a single source of truth for agents, commands, and workflows.
@@ -733,7 +755,7 @@ Modes are opinionated context modules that toggle workflow defaults and behavior
 - `Teacher` - Educational explanations and mentoring
 - `Token_Efficiency` - Concise, token-aware responses
 
-**Activation**: Use `claude-ctx mode activate`, the TUI (press `3`), or `FLAGS.md`. Active state is tracked in `.active-modes` (use `claude-ctx setup migrate` for legacy `CLAUDE.md` references).
+**Activation**: Use `cortex mode activate`, the TUI (press `3`), or `FLAGS.md`. Active state is tracked in `.active-modes` (use `cortex setup migrate` for legacy `CLAUDE.md` references).
 
 ---
 
@@ -793,7 +815,7 @@ Pre-defined multi-agent sequences for common development tasks.
 ### 7. Python CLI
 
 **Location**: `claude_ctx_py/`
-**Entry Point**: `claude-ctx`
+**Entry Point**: `cortex`
 
 Python CLI for managing context components outside of Claude Code.
 
@@ -812,7 +834,7 @@ Python CLI for managing context components outside of Claude Code.
 
 ## Deep Dive Documentation
 
-Comprehensive guides to claude-ctx architecture, optimization strategies, and advanced patterns.
+Comprehensive guides to cortex architecture, optimization strategies, and advanced patterns.
 
 <div class="doc-grid">
   <a href="guides/development/architecture.html" class="doc-card">
@@ -997,7 +1019,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 > Copy `templates/CLAUDE.md`, `templates/FLAGS.md`, `templates/RULES.md`,
 > `templates/settings.json`, plus `templates/principles/` and
 > `templates/.active-principles` into `~/.claude/`, then run
-> `claude-ctx principles build` to generate `PRINCIPLES.md`.
+> `cortex principles build` to generate `PRINCIPLES.md`.
 
 ### CLAUDE.md
 
@@ -1012,7 +1034,7 @@ Primary framework entry point that loads:
 ### PRINCIPLES.md
 
 Generated from `principles/*.md` snippets (tracked in `.active-principles` and ordered by filename).
-Use `claude-ctx principles build` to regenerate.
+Use `cortex principles build` to regenerate.
 
 Software engineering principles and philosophy:
 
@@ -1042,7 +1064,7 @@ Core behavioral rules with priority system:
 
 ```json
 {
-  "name": "claude-ctx",
+  "name": "cortex",
   "version": "0.1.0",
   "description": "Context orchestration plugin",
   "commands": ["./commands"]
@@ -1055,12 +1077,12 @@ Core behavioral rules with priority system:
 
 ```toml
 [project]
-name = "claude-ctx-py"
+name = "cortex-py"
 version = "0.1.0"
 requires-python = ">=3.9"
 
 [project.scripts]
-claude-ctx = "claude_ctx_py.cli:main"
+cortex = "claude_ctx_py.cli:main"
 ```
 
 ---
@@ -1168,7 +1190,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### CLI Issues
 
-1. Verify installation: `python3 -m pip show claude-ctx-py`
+1. Verify installation: `python3 -m pip show cortex-py`
 2. Check Python version: `python3 --version` (>=3.9 required)
 3. Reinstall: `python3 -m pip install --force-reinstall .`
 
@@ -1277,9 +1299,9 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ## Support
 
-**Repository**: [github.com/NickCrew/claude-ctx-plugin](https://github.com/NickCrew/claude-ctx-plugin)
+**Repository**: [github.com/NickCrew/claude-cortex](https://github.com/NickCrew/claude-cortex)
 
-**Issues**: [Report a bug or request a feature](https://github.com/NickCrew/claude-ctx-plugin/issues)
+**Issues**: [Report a bug or request a feature](https://github.com/NickCrew/claude-cortex/issues)
 
 **Marketplace**: [claude-marketplace](https://github.com/NickCrew/claude-marketplace)
 

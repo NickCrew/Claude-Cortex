@@ -19,7 +19,7 @@ reads or writes. Paths are shown relative to the active Claude directory
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
-| `principles/*.md` | Principles snippets | Concatenated by `claude-ctx principles build` |
+| `principles/*.md` | Principles snippets | Concatenated by `cortex principles build` |
 
 ## Activation State Files
 
@@ -28,7 +28,7 @@ reads or writes. Paths are shown relative to the active Claude directory
 | `.active-modes` | Active mode list | Reference-based activation |
 | `.active-rules` | Active rules list | Reference-based activation |
 | `.active-mcp` | Active MCP docs list | Reference-based activation |
-| `.active-principles` | Active principles snippet list | Used by `claude-ctx principles build` (order is filename-sorted) |
+| `.active-principles` | Active principles snippet list | Used by `cortex principles build` (order is filename-sorted) |
 
 ## Agent and Skill Settings
 

@@ -1,4 +1,4 @@
-# Claude-CTX Competitive Analysis
+# Cortex Competitive Analysis
 
 ## Executive Summary
 
@@ -27,23 +27,27 @@
 ### Market Segments
 
 **1. AI Coding IDEs**
+
 - Cursor IDE (primary)
 - GitHub Copilot
 - Tabnine
 - Replit AI
 
 **2. Claude Code Plugins**
+
 - Individual command collections (10-30 commands)
 - MCP server integrations
 - Specialized workflows (testing, deployment)
 - Community marketplaces (227+ plugins total)
 
 **3. Context Management Tools**
+
 - Aider (CLI-based)
 - Continue.dev (VS Code)
 - Cody (Sourcegraph)
 
 **4. Reasoning/Thinking Tools**
+
 - OpenAI o1 (via ChatGPT)
 - Claude 3.7 Extended Thinking (direct API)
 - Claude Code native flags (built-in)
@@ -122,6 +126,7 @@
 | **Best For** | Line-by-line coding | **System design, debugging** |
 
 **Verdict:** Complementary tools. **Best practice: Use both together**
+
 - Cursor: Hands-on coding partner
 - claude-ctx: Architect/mentor with structured reasoning
 
@@ -139,6 +144,7 @@
 | **Performance (SWE-bench)** | ~50% | **62.3% (Claude 3.7)** |
 
 **claude-ctx adds on top of Claude API:**
+
 - Budget controls (4 levels)
 - Domain profiles (6 specialized)
 - Metrics dashboard
@@ -271,6 +277,7 @@
 **claude-ctx:** 20 curated skills with dependency composition
 
 Skills include:
+
 - api-design-patterns
 - microservices-patterns
 - database-design-patterns
@@ -369,6 +376,7 @@ Skills include:
 ### Target Segments
 
 **Primary (90% fit):**
+
 1. **Senior developers** needing architectural reasoning with cost control
 2. **Tech leads** making system design decisions with metrics tracking
 3. **Teams** requiring consistent workflows and shared profiles
@@ -380,6 +388,7 @@ Skills include:
 7. **Open-source maintainers** with complex projects
 
 **Poor fit (<30%):**
+
 - Junior developers (learning Claude Code basics first)
 - Simple CRUD apps (over-engineered)
 - Non-Claude users
@@ -407,6 +416,7 @@ Skills include:
 ### 1. **Positioning: "Systematic Framework for Claude Code's Extended Thinking"**
 
 **Messaging:**
+
 - Wraps native features with structure
 - Ad-hoc keywords → Explicit budgets
 - Generic analysis → Domain profiles
@@ -419,26 +429,31 @@ Skills include:
 ### 2. **Competitive Strategy**
 
 **vs Native Claude Code:**
+
 - "Enhance built-in thinking with structure and measurement"
 - Not a replacement, a systematic wrapper
 - Value: Cost control, domain expertise, analytics
 
 **vs Cursor IDE:**
+
 - Position as complementary ("Use both together")
 - Cursor for typing, claude-ctx for thinking
 - Different use cases, not competitors
 
 **vs Other Plugins:**
+
 - "Most comprehensive reasoning management plugin"
 - Quality over quantity (37 curated vs 227 mixed)
 - Integration: skills + profiles + metrics
 
 **vs o1 (API users):**
+
 - Lead with cost (5x cheaper API)
 - Highlight transparency (visible reasoning)
 - Show SWE-bench superiority (62.3% vs ~50%)
 
 **vs Aider:**
+
 - Enterprise features (metrics, teams, 78 agents)
 - Systematic framework vs ad-hoc
 - Domain specialization (profiles + skills)
@@ -448,6 +463,7 @@ Skills include:
 ### 3. **Differentiation Priorities**
 
 **Double down on (genuinely unique):**
+
 1. Explicit budget controls with cost tracking
 2. Domain-specific reasoning profiles
 3. Skill-based knowledge composition
@@ -493,17 +509,20 @@ Skills include:
 ### Growth Vectors
 
 **1. Claude Code Power Users**
+
 - Users already familiar with `--think` flags
 - Want more control and measurement
 - **TAM:** Medium (Claude Code Pro/Max users seeking optimization)
 
 **2. Teams and Enterprises**
+
 - Need consistent workflows across developers
 - Cost controls important at scale
 - Metrics enable team optimization
 - **TAM:** Small-to-Medium (Claude Code enterprise adoption)
 
 **3. Cost-Conscious API Users**
+
 - Using Claude API directly (not ChatGPT)
 - 5x savings vs o1 compelling
 - **TAM:** Small (API users doing complex reasoning)
@@ -515,16 +534,19 @@ Skills include:
 ### Overall Assessment
 
 **Market Position:** Strong within niche
+
 - **Enhancement** to Claude Code's built-in features (not replacement)
 - **Unique** in systematic reasoning management approach
 - **Best fit** for teams requiring structure and measurement
 
 **Competitive Strength:** Moderate
+
 - Strong differentiation within plugin ecosystem
 - No direct competitor with all features (budgets + profiles + skills + metrics)
 - Weakness: Adds complexity vs simple keyword flags
 
 **Sustainability:** Good
+
 - Built on Claude's strengths (long context, coding)
 - Addresses real needs (cost control, domain expertise, analytics)
 - Extensible architecture (skills, agents, commands)
@@ -534,6 +556,7 @@ Skills include:
 **claude-ctx is the most comprehensive reasoning management plugin for Claude Code.**
 
 **What it uniquely offers:**
+
 1. Explicit budget controls (4 levels: 4K/10K/32K/128K)
 2. Domain-specific profiles (security, performance, architecture, data, testing)
 3. Skill-based knowledge system (20 curated skills)
@@ -542,17 +565,20 @@ Skills include:
 6. Cost transparency (real-time tracking)
 
 **What it's NOT:**
+
 - Not the only extended thinking solution (Claude Code has native flags)
 - Not simpler than built-in keywords (adds structure = adds complexity)
 - Not a replacement for IDE tools (complementary to Cursor)
 
 **Best used by:**
+
 - **Teams** requiring consistent reasoning workflows
 - **Professionals** needing cost control and metrics
 - **Complex projects** benefiting from domain profiles
 - **Power users** wanting explicit control vs implicit keywords
 
 **NOT best for:**
+
 - Beginners learning Claude Code basics
 - Simple projects where keywords suffice
 - Solo developers prioritizing simplicity

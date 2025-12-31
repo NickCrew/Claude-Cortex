@@ -1,6 +1,6 @@
-# claude-ctx Documentation
+# cortex Documentation
 
-Comprehensive documentation for the claude-ctx context management framework.
+Comprehensive documentation for the cortex context management framework.
 
 ## 📐 Architecture Documentation
 
@@ -14,6 +14,7 @@ Comprehensive documentation for the claude-ctx context management framework.
 **After installation**: These docs are available at `~/.claude/docs/`
 
 **Quick view**:
+
 ```bash
 cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 /docs:diagrams                               # View via command
@@ -26,29 +27,34 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 ### Core Guides
 
 **[Architecture](./guides/development/architecture.md)** - System design and technical architecture
+
 - Component overview and system architecture
 - Dependency management and workflow orchestration
 - Performance characteristics and design patterns
 - Extension points and future enhancements
 
 **[Agent Catalog](./guides/agents.md)** - Complete agent reference
+
 - 13 agents organized by category
 - Model assignments (Haiku/Sonnet)
 - Dependencies and relationships
 - Use cases and activation patterns
 
 **[Agent Skills](./guides/skills.md)** - Progressive disclosure system
+
 - 54 available skills
 - Creating new skills with templates
 - Token efficiency metrics and activation guidance
 - Integration with agents
 
 **[Flags Management](./guides/FLAGS_MANAGEMENT.md)** - Context flag modules
+
 - 22 modular flag packs in `flags/`
 - Toggle via `FLAGS.md` or the TUI Flag Explorer
 - Supports per-project customization
 
 **[Model Optimization](./guides/development/model-optimization.md)** - Cost and performance strategy
+
 - Haiku vs Sonnet assignment criteria
 - Hybrid orchestration patterns
 - Cost optimization guidance
@@ -58,9 +64,9 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 
 ## Quick Start
 
-### Understanding claude-ctx
+### Understanding cortex
 
-claude-ctx is a context orchestration framework that provides:
+cortex is a context orchestration framework that provides:
 
 1. **On-Demand Loading**: Agents load only when triggered
 2. **Progressive Disclosure**: Skills load knowledge in tiers
@@ -71,23 +77,28 @@ claude-ctx is a context orchestration framework that provides:
 ### Key Concepts
 
 **Agents**: Specialized AI agents with focused responsibilities (13 total)
+
 - Auto-activation supported via `agents/triggers.yaml`
 - Activate/deactivate in the TUI or CLI
 - Each can declare dependencies, workflows, and metrics
 
 **Skills**: Modular knowledge packages that load progressively
+
 - 54 available skills
 - Shared across multiple agents
 - Progressive disclosure keeps context lean
 
 **Flags**: Context modules toggled via `FLAGS.md`
+
 - 22 flag files under `flags/`
 - Add/remove `@flags/*.md` lines to enable/disable
 
 **Modes**: Behavioral presets that shape workflow defaults
+
 - Architect, Brainstorming, Security Audit, Super Saiyan, Token Efficiency, and more
 
 **Profiles**: Saved configurations of agents/modes/rules
+
 - 5 enhanced profiles under `profiles/enhanced`
 - Quick environment setup
 
@@ -96,6 +107,7 @@ claude-ctx is a context orchestration framework that provides:
 ## Common Workflows
 
 ### Code Quality Pass
+
 ```
 code-reviewer (Sonnet) → Review changes
   ↓
@@ -107,6 +119,7 @@ python-pro / typescript-pro (Haiku) → Implement fix
 ```
 
 ### Infrastructure Setup
+
 ```
 cloud-architect (Sonnet) → Design infrastructure
   ↓
@@ -118,6 +131,7 @@ deployment-engineer (Haiku) → CI/CD pipelines
 ```
 
 ### Documentation & Enablement
+
 ```
 mermaid-expert (Haiku) → System diagrams
   ↓
@@ -131,64 +145,69 @@ learning-guide (Haiku) → Learning paths + explanations
 ## CLI Quick Reference
 
 ### Agent Management
+
 ```bash
 # List agents
-claude-ctx agent list
+cortex agent list
 
 # Show agent details
-claude-ctx agent deps backend-architect
+cortex agent deps backend-architect
 
 # Activate/deactivate
-claude-ctx agent activate backend-architect
-claude-ctx agent deactivate backend-architect
+cortex agent activate backend-architect
+cortex agent deactivate backend-architect
 
 # Dependency graph
-claude-ctx agent graph --export deps.md
+cortex agent graph --export deps.md
 
 # Validate agents
-claude-ctx agent validate --all
+cortex agent validate --all
 ```
 
 ### Skill Management
+
 ```bash
 # List skills
-claude-ctx skills list
+cortex skills list
 
 # Show skill details
-claude-ctx skills info api-design-patterns
+cortex skills info api-design-patterns
 
 # Validate skills
-claude-ctx skills validate --all
+cortex skills validate --all
 ```
 
 ### Project Initialization
+
 ```bash
 # Auto-detect project
-claude-ctx init detect
+cortex init detect
 
 # Interactive wizard
-claude-ctx init wizard
+cortex init wizard
 
 # Show current config
-claude-ctx init status
+cortex init status
 
 # Load profile
-claude-ctx profile backend
+cortex profile backend
 ```
 
 ### Status
+
 ```bash
 # Show all status
-claude-ctx status
+cortex status
 
 ### Diagnostics
 ```bash
 # Run system check
-claude-ctx doctor
+cortex doctor
 
 # Attempt auto-fix
-claude-ctx doctor --fix
+cortex doctor --fix
 ```
+
 ```
 
 ---
@@ -196,13 +215,14 @@ claude-ctx doctor --fix
 ## Architecture Overview
 
 ```
+
 ┌─────────────────────────────────────┐
 │      Claude Code Interface          │
 └──────────────┬──────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────┐
-│         claude-ctx CLI              │
+│         cortex CLI              │
 │  ┌──────────┐  ┌──────────┐        │
 │  │  Agents  │  │  Skills  │        │
 │  │  list    │  │  list    │        │
@@ -228,6 +248,7 @@ claude-ctx doctor --fix
 │  flags/     rules/     profiles/    │
 │  22 flags   6 rules    5 profiles   │
 └─────────────────────────────────────┘
+
 ```
 
 ---
@@ -251,15 +272,16 @@ claude-ctx doctor --fix
 
 ### CLI Help
 ```bash
-claude-ctx --help
-claude-ctx agent --help
-claude-ctx skills --help
-claude-ctx init --help
+cortex --help
+cortex agent --help
+cortex skills --help
+cortex init --help
 ```
 
 ### Examples
 
 Browse the local catalog for up-to-date examples:
+
 - `agents/` for current agent definitions
 - `skills/` for skill packs and templates
 - `commands/` for slash command specs
@@ -279,7 +301,7 @@ All planned phases for skill development and integration are now **COMPLETED**. 
 1. Research clear responsibility
 2. Define dependencies and workflows
 3. Create agent .md with frontmatter
-4. Validate: `claude-ctx agent validate`
+4. Validate: `cortex agent validate`
 5. Document in guides/agents.md
 6. Assign model (Haiku/Sonnet)
 
@@ -290,7 +312,7 @@ All planned phases for skill development and integration are now **COMPLETED**. 
 3. Write frontmatter with triggers
 4. Structure with progressive tiers
 5. Link to agent frontmatter
-6. Validate: `claude-ctx skills validate`
+6. Validate: `cortex skills validate`
 7. Document in guides/skills.md
 
 ### Documentation Updates
@@ -305,11 +327,13 @@ All planned phases for skill development and integration are now **COMPLETED**. 
 ## Resources
 
 ### Internal
+
 - [Main README](../../README.md) - Project overview
 - [Skills README](../../skills/README.md) - Skill integration guide
 - [CLI Source](../../claude_ctx_py/) - Python CLI implementation
 
 ### External
+
 - [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code/overview)
 - [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md)
 - [~/agents Reference](https://github.com/wshobson/agents)

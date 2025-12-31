@@ -1,4 +1,4 @@
-# Claude-ctx Architecture Diagrams
+# Cortex Architecture Diagrams
 
 Visual documentation of the three-layer automation system.
 
@@ -511,6 +511,7 @@ graph TB
 ### For Developers
 
 1. **Explore the system**:
+
    ```bash
    claude-ctx
    # Press 3 → View Modes
@@ -518,6 +519,7 @@ graph TB
    ```
 
 2. **Try a command**:
+
    ```bash
    /refactor:analyze src/
    /workflow:run feature-development

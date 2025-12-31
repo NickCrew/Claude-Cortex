@@ -6,7 +6,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ LAYER 1: Claude-ctx System (Your Framework)                │
+│ LAYER 1: Cortex System (Your Framework)                │
 ├─────────────────────────────────────────────────────────────┤
 │ - Modes: Behavioral states (Parallel_Orchestration, etc.)  │
 │ - Rules: Mandatory behaviors (quality-gate-rules.md)       │
@@ -35,7 +35,7 @@
 
 ## Key Terms
 
-### Claude-ctx System Terms
+### Cortex System Terms
 
 **Mode**
 

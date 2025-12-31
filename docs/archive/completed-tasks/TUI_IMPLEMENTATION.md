@@ -1,4 +1,4 @@
-# Claude-CTX TUI Implementation Summary
+# Cortex TUI Implementation Summary
 
 ## Overview
 
@@ -25,6 +25,7 @@ A Terminal User Interface (TUI) dashboard has been implemented for claude-ctx us
 ### 1. Main Layout
 
 The TUI uses a three-panel layout:
+
 - **Header**: Title and help hint
 - **Body**: Agent list table or help/details panel
 - **Footer**: Status messages, filter indicator, and agent count
@@ -63,6 +64,7 @@ The TUI uses a three-panel layout:
 ### 5. Agent Details Panel
 
 When pressing `Enter`, shows:
+
 - Agent name
 - Status (with color coding)
 - Category
@@ -101,11 +103,13 @@ class TUIState:
 ### Agent Loading
 
 The TUI loads agents from three sources:
+
 1. `~/.claude/agents/` (active agents)
 2. `~/.claude/inactive/agents/` (disabled agents)
 3. `~/.claude/agents/disabled/` (legacy disabled location)
 
 Agents are parsed from YAML front matter with:
+
 - Name extraction
 - Category detection (default: "general")
 - Tier detection (default: "standard")
@@ -140,6 +144,7 @@ claude-ctx tui
 ## Testing
 
 The TUI was tested with:
+
 - 94 agents loaded (26 active, 68 inactive)
 - Agent activation/deactivation (not fully interactive due to terminal constraints)
 - Layout rendering
@@ -156,6 +161,7 @@ Inactive agents: 68
 ```
 
 Sample render:
+
 ```
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │ claude-ctx Agent Manager                                                     │

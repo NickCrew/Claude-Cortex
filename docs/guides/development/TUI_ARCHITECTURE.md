@@ -202,7 +202,7 @@ class ClaudeCtxApp(App):
     \"\"\"Main TUI application for claude-ctx management.\"\"\"
     
     CSS_PATH = "styles.tcss"
-    TITLE = "Claude Cortex Manager"
+    TITLE = "Cortex Manager"
     
     # Reactive state
     active_agents: Reactive[List[str]] = Reactive([])
@@ -949,16 +949,31 @@ def update_agent_status(self, agent_name: str, new_status: str):
 
 ## Screenshots
 
-Fresh screenshots available in `docs/assets/images/screenshots/`:
+Fresh screenshots available in `docs/assets/images/screenshots/december-2025/`:
 
-- `overview.png` - Overview dashboard (1.4MB)
-- `agents.png` - Agents view (2.3MB)
-- `modes.png` - Modes view (658KB)
-- `skills.png` - Skills catalog (3.3MB)
-- `memory.png` - Memory vault (886KB)
-- `ai-assist.png` - AI assistant view (236KB)
-- `mcp.png` - MCP servers (204KB)
-- `wizard.png` - Setup wizard (165KB)
+- `agents-view.png` - Agents view
+- `ai-assist-view.png` - AI assistant view
+- `ai-watch-mode.png` - AI watch mode
+- `asset-manager.png` - Asset manager
+- `backup-manager.png` - Backup manager
+- `cli-usage.png` - CLI usage
+- `command-palette.png` - Command palette
+- `config-wizard.png` - Setup wizard
+- `export-view.png` - Export view
+- `flags-view.png` - Flags explorer
+- `galaxy-view.png` - Agent galaxy
+- `hooks-manager.png` - Hooks manager
+- `mcp-view.png` - MCP servers
+- `memory-vault.png` - Memory vault
+- `modes-view.png` - Modes view
+- `principles-view.png` - Principles view
+- `profiles-view.png` - Profiles view
+- `scenarios-view.png` - Scenarios view
+- `shortcuts-help.png` - Shortcuts/help overlay
+- `skills-view.png` - Skills catalog
+- `slash-commands-view.png` - Slash commands
+- `workflows-view.png` - Workflows
+- `worktrees-view.png` - Worktrees
 
 ---
 

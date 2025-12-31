@@ -1,6 +1,6 @@
 # AI Intelligence Features
 
-claude-ctx includes an intelligent agent recommendation system that learns from your usage patterns and makes smart suggestions about which agents to activate.
+cortex includes an intelligent agent recommendation system that learns from your usage patterns and makes smart suggestions about which agents to activate.
 
 ## Overview
 
@@ -24,6 +24,7 @@ The base level provides intelligent recommendations based on detected context si
 - **API Documenter**: Recommends for API changes
 
 **Multi-review bundles** (can trigger 5+ reviewers at once):
+
 - **TypeScript** → `typescript-pro`
 - **React / JSX / TSX** → `react-specialist`
 - **User-facing UI** → `ui-ux-designer`
@@ -38,10 +39,11 @@ Adds semantic similarity matching using FastEmbed to find similar past sessions:
 
 ```bash
 # Install semantic intelligence
-pip install claude-ctx-py[ai]
+pip install cortex-py[ai]
 ```
 
 **Benefits**:
+
 - Understands that `auth.py` ≈ `login.ts` ≈ `oauth_handler.go`
 - Learns from actual usage patterns
 - Fast (~50ms per query)
@@ -49,6 +51,7 @@ pip install claude-ctx-py[ai]
 - No API costs
 
 **How it works**:
+
 1. Records embeddings of successful sessions
 2. When new context appears, finds semantically similar past sessions
 3. Recommends agents that worked in those similar contexts
@@ -59,20 +62,22 @@ Uses Claude API for actual reasoning about context:
 
 ```bash
 # Install LLM intelligence
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 
 # Enable LLM recommendations (requires ANTHROPIC_API_KEY)
 export ANTHROPIC_API_KEY=your_key_here
-claude-ctx config set ai.use_llm true
+cortex config set ai.use_llm true
 ```
 
 **Benefits**:
+
 - Actually reasons about context (not just pattern matching)
 - Understands nuance ("this is a refactoring task, not new feature")
 - Can explain recommendations
 - Considers agent combinations
 
 **Costs**:
+
 - ~$0.003-0.01 per recommendation
 - Only called when semantic confidence is low (<0.5)
 - Can be disabled for watch mode
@@ -89,7 +94,7 @@ git status
 # Intelligence detects: "auth changes, 8 files, high complexity"
 
 # Get recommendations
-claude-ctx ai recommend
+cortex ai recommend
 # ✓ security-auditor (95% confidence) - Auth code detected
 # ✓ quality-engineer (85% confidence) - Changes detected
 # ✓ code-reviewer (75% confidence) - Changes detected
@@ -103,43 +108,43 @@ The system learns from successful sessions:
 
 ```bash
 # Work on a feature
-claude-ctx agent activate api-documenter code-reviewer
+cortex agent activate api-documenter code-reviewer
 
 # ... make changes ...
 
 # Record success (helps intelligence learn)
-claude-ctx ai record-success --outcome "API docs updated successfully"
+cortex ai record-success --outcome "API docs updated successfully"
 ```
 
 ### Configuration
 
 ```bash
 # Enable/disable semantic matching
-claude-ctx config set ai.semantic_enabled true
+cortex config set ai.semantic_enabled true
 
 # Enable/disable LLM recommendations
-claude-ctx config set ai.use_llm false
+cortex config set ai.use_llm false
 
 # Set LLM confidence threshold (only call LLM if semantic < threshold)
-claude-ctx config set ai.llm_threshold 0.5
+cortex config set ai.llm_threshold 0.5
 
 # Select model (affects quality/cost)
-claude-ctx config set ai.llm_model claude-sonnet-4-20250514
+cortex config set ai.llm_model claude-sonnet-4-20250514
 
 # Control determinism
-claude-ctx config set ai.llm_temperature 0.3
+cortex config set ai.llm_temperature 0.3
 
 # Limit response size
-claude-ctx config set ai.llm_max_tokens 1024
+cortex config set ai.llm_max_tokens 1024
 
 # Disable LLM in watch mode
-claude-ctx config set ai.use_llm_in_watch_mode false
+cortex config set ai.use_llm_in_watch_mode false
 
 # Auto-activate high-confidence recommendations
-claude-ctx config set ai.auto_activate true
+cortex config set ai.auto_activate true
 
 # Set auto-activation threshold
-claude-ctx config set ai.auto_activate_threshold 0.8
+cortex config set ai.auto_activate_threshold 0.8
 ```
 
 See also: guides/ai/LLM_INTELLIGENCE_GUIDE.md#configuration
@@ -248,7 +253,7 @@ The system automatically detects context from:
 $ vim src/auth/oauth.py src/auth/jwt.py
 
 # Get recommendations
-$ claude-ctx ai recommend
+$ cortex ai recommend
 
 Recommendations:
 ┌───────────────────┬────────────┬─────────────────────────────────────┐
@@ -271,7 +276,7 @@ $ vim api/routes.ts api/handlers.ts
 # System learns from history
 # Previously: API changes → api-documenter + code-reviewer
 
-$ claude-ctx ai recommend
+$ cortex ai recommend
 
 Recommendations:
 ┌──────────────────┬────────────┬──────────────────────────────────┐
@@ -290,7 +295,7 @@ Recommendations:
 Help the system learn by recording successful sessions:
 
 ```bash
-claude-ctx ai record-success --outcome "Feature complete, tests passing"
+cortex ai record-success --outcome "Feature complete, tests passing"
 ```
 
 ### 2. Use Semantic Matching
@@ -298,7 +303,7 @@ claude-ctx ai record-success --outcome "Feature complete, tests passing"
 Install FastEmbed for much better recommendations:
 
 ```bash
-pip install claude-ctx-py[ai]
+pip install cortex-py[ai]
 ```
 
 ### 3. Start Conservative with LLM
@@ -307,10 +312,10 @@ Only enable LLM recommendations if semantic matching isn't enough:
 
 ```bash
 # High threshold = rare LLM calls
-claude-ctx config set ai.llm_threshold 0.3
+cortex config set ai.llm_threshold 0.3
 
 # Low threshold = frequent LLM calls (costs more)
-claude-ctx config set ai.llm_threshold 0.7
+cortex config set ai.llm_threshold 0.7
 ```
 
 ### 4. Review Auto-Activations
@@ -319,10 +324,10 @@ Check what gets auto-activated:
 
 ```bash
 # See what would be auto-activated
-claude-ctx ai recommend
+cortex ai recommend
 
 # Adjust threshold if too aggressive (future config)
-claude-ctx config set ai.auto_activate_threshold 0.9
+cortex config set ai.auto_activate_threshold 0.9
 ```
 
 ## Troubleshooting
@@ -332,7 +337,7 @@ claude-ctx config set ai.auto_activate_threshold 0.9
 Install FastEmbed:
 
 ```bash
-pip install claude-ctx-py[ai]
+pip install cortex-py[ai]
 ```
 
 ### "LLM recommendations not available"
@@ -340,7 +345,7 @@ pip install claude-ctx-py[ai]
 Install Anthropic SDK:
 
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=your_key
 ```
 
@@ -351,13 +356,13 @@ More help: guides/ai/LLM_INTELLIGENCE_GUIDE.md#troubleshooting
 The system needs history to learn from:
 
 1. Work on a few sessions
-2. Record successes with `claude-ctx session complete`
+2. Record successes with `cortex session complete`
 3. Give it time to build up patterns
 
 ### "Wrong agents recommended"
 
-1. Review recorded sessions: `claude-ctx session list`
-2. Clear bad sessions: `claude-ctx session clear --before "2024-01-01"`
+1. Review recorded sessions: `cortex session list`
+2. Clear bad sessions: `cortex session clear --before "2024-01-01"`
 3. Record correct patterns going forward
 
 ## Architecture
@@ -375,7 +380,7 @@ intelligence/
 ### Data Storage
 
 ```
-~/.local/share/claude-ctx/
+~/.local/share/cortex/
 ├── session_history.json     # Pattern learning data
 └── semantic_cache/
     └── session_embeddings.jsonl  # Semantic embeddings
@@ -444,12 +449,14 @@ similar = matcher.find_similar(
 ## Additional Resources
 
 Guides:
+
 - guides/ai/LLM_INTELLIGENCE_GUIDE.md — Detailed LLM configuration and usage
 - AI_IMPLEMENTATION_SUMMARY.md — Technical implementation details
 
 External:
-- FastEmbed: https://github.com/qdrant/fastembed
-- BGE Embeddings: https://huggingface.co/BAAI/bge-small-en-v1.5
-- Claude API: https://docs.anthropic.com/claude/reference/getting-started-with-the-api
-- Claude Models: https://docs.anthropic.com/claude/reference/models-overview
-- Pricing: https://www.anthropic.com/pricing/claude
+
+- FastEmbed: <https://github.com/qdrant/fastembed>
+- BGE Embeddings: <https://huggingface.co/BAAI/bge-small-en-v1.5>
+- Claude API: <https://docs.anthropic.com/claude/reference/getting-started-with-the-api>
+- Claude Models: <https://docs.anthropic.com/claude/reference/models-overview>
+- Pricing: <https://www.anthropic.com/pricing/claude>

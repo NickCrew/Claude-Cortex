@@ -367,7 +367,7 @@ done
 
 # Main installation flow
 echo ""
-log_info "Claude-ctx Installation Script"
+log_info "Cortex Installation Script"
 echo ""
 
 detect_shell

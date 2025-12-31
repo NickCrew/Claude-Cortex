@@ -1,4 +1,4 @@
-# Claude Cortex TUI - Visual Implementation Exploration Summary
+# Cortex TUI - Visual Implementation Exploration Summary
 
 **Date**: November 3, 2025
 **Focus**: Understanding current visual components, rendering approach, and enhancement opportunities

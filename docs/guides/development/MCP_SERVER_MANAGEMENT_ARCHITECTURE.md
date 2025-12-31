@@ -3,6 +3,7 @@
 **Technical Documentation** | Version 1.0 | Last Updated: December 6, 2025
 
 ## Table of Contents
+
 1. [Executive Summary](#executive-summary)
 2. [System Overview](#system-overview)
 3. [Core Architecture](#core-architecture)
@@ -23,6 +24,7 @@
 The **MCP Server Management System** provides comprehensive tools for discovering, validating, configuring, and managing Model Context Protocol (MCP) servers within Claude Desktop. It bridges the gap between Claude Code's AI capabilities and external data sources/tools through a curated registry, automated installation, and interactive management interfaces.
 
 ### Key Capabilities
+
 - ✅ **Cross-platform server discovery** (macOS, Linux, Windows)
 - ✅ **Curated server registry** with 25+ pre-configured popular MCP servers
 - ✅ **Automated installation** with package manager detection
@@ -33,6 +35,7 @@ The **MCP Server Management System** provides comprehensive tools for discoverin
 - ✅ **Config snippet generation** for easy setup
 
 ### Technology Stack
+
 - **Core**: Python 3.9+ with dataclasses and Path-based I/O
 - **Config Format**: JSON (Claude Desktop's `claude_desktop_config.json`)
 - **TUI**: Textual framework with modal dialogs
@@ -93,9 +96,11 @@ User Action → TUI/CLI → Discovery/Registry → Validation → Config Modific
 ### Module Structure
 
 #### `core/mcp.py` (1,070 lines)
+
 **Purpose**: Core MCP server discovery, validation, and configuration management.
 
 **Key Components**:
+
 - `MCPServerInfo`: Dataclass representing server configuration
 - `MCPServerCapabilities`: Server capabilities and metadata (tools, resources, prompts)
 - Platform-specific config path resolution
@@ -103,6 +108,7 @@ User Action → TUI/CLI → Discovery/Registry → Validation → Config Modific
 - Config modification operations (add, remove, update)
 
 **Critical Functions**:
+
 ```python
 def discover_servers(config_path: Optional[Path] = None) -> Tuple[bool, List[MCPServerInfo], str]
 def get_server_info(name: str, config_path: Optional[Path] = None) -> Tuple[bool, Optional[MCPServerInfo], str]
@@ -111,9 +117,11 @@ def add_mcp_server(name: str, command: str, args: Optional[List[str]] = None, ..
 ```
 
 #### `core/mcp_registry.py` (503 lines)
+
 **Purpose**: Curated catalog of popular MCP servers with installation metadata.
 
 **Key Components**:
+
 - `PackageManager` enum: NPX, NPM, PIP, PIPX, BREW, CARGO, BINARY, MANUAL
 - `ServerCategory` enum: 10 categories (Documentation, Code Intelligence, Reasoning, etc.)
 - `EnvVarConfig`: Environment variable configuration with secret masking
@@ -121,6 +129,7 @@ def add_mcp_server(name: str, command: str, args: Optional[List[str]] = None, ..
 - Registry of 25+ pre-configured servers
 
 **Popular Servers**:
+
 - **context7**: Official library documentation lookup
 - **codanna**: Code intelligence and semantic search
 - **brave-search**: Web search using Brave API
@@ -130,9 +139,11 @@ def add_mcp_server(name: str, command: str, args: Optional[List[str]] = None, ..
 - **puppeteer/playwright**: Browser automation
 
 #### `core/mcp_installer.py` (310 lines)
+
 **Purpose**: Automated installation and configuration of MCP servers.
 
 **Key Components**:
+
 - `InstallResult`: Installation outcome with warnings
 - Package manager availability checking
 - Installation command execution with 5-minute timeout
@@ -140,6 +151,7 @@ def add_mcp_server(name: str, command: str, args: Optional[List[str]] = None, ..
 - Integrated config generation and registration
 
 **Installation Flow**:
+
 ```python
 install_and_configure(server, env_values, extra_args)
     ↓
@@ -150,9 +162,11 @@ install_and_configure(server, env_values, extra_args)
 ```
 
 #### `tui_mcp.py` (433 lines)
+
 **Purpose**: TUI mixin providing interactive MCP server management.
 
 **Key Components**:
+
 - `MCPViewMixin`: Mixin class for TUI integration
 - Server list view with status indicators
 - Detailed server view with validation
@@ -181,6 +195,7 @@ def _get_claude_config_path() -> Path:
 ### Discovery Process
 
 **Step 1: Locate Config File**
+
 ```python
 config_path = _get_claude_config_path()
 if not config_path.exists():
@@ -188,12 +203,14 @@ if not config_path.exists():
 ```
 
 **Step 2: Parse JSON**
+
 ```python
 config = json.loads(config_path.read_text(encoding="utf-8"))
 mcp_servers = config.get("mcpServers", {})
 ```
 
 **Step 3: Extract Server Definitions**
+
 ```python
 for name, server_config in mcp_servers.items():
     command = server_config.get("command", "")
@@ -212,6 +229,7 @@ for name, server_config in mcp_servers.items():
 ```
 
 **Step 4: Documentation Lookup**
+
 ```python
 def get_server_docs_path(name: str, claude_dir: Optional[Path] = None) -> Optional[Path]:
     docs_dir = claude_dir / "mcp" / "docs"
@@ -255,6 +273,7 @@ def list_doc_only_servers(configured_names: Iterable[str], claude_dir: Optional[
 ### Validation System
 
 **Three-Level Validation**:
+
 1. **Structural**: Name and command required
 2. **Executable**: Command exists (for absolute paths)
 3. **Documentation**: Docs availability (warning, not error)
@@ -380,6 +399,7 @@ class EnvVarConfig:
 ```
 
 **Secret Masking Example**:
+
 ```python
 if env_var.secret:
     # Mask sensitive values in displays
@@ -548,6 +568,7 @@ def configure_server(
 **Location**: Platform-specific (see Discovery section)
 
 **Format**:
+
 ```json
 {
   "mcpServers": {
@@ -785,6 +806,7 @@ def action_view_mcp(self) -> None:
 ### Server List View
 
 **Columns**:
+
 - **Selection Indicator**: `>` marks current selection
 - **Status**: `●` (green) for configured servers, `-` (dim) for doc-only
 - **Server Name**: Cyan text
@@ -793,6 +815,7 @@ def action_view_mcp(self) -> None:
 - **Docs**: `✓` (green) if available, `-` (dim) if missing
 
 **Rendering Code**:
+
 ```python
 def _render_mcp_list(self) -> Panel:
     servers = self.get_filtered_servers()
@@ -835,6 +858,7 @@ def _render_mcp_list(self) -> Panel:
 ### Server Details View
 
 **Information Displayed**:
+
 - **Server Name**: Bold cyan header
 - **Command**: Full command path
 - **Arguments**: Bulleted list
@@ -844,6 +868,7 @@ def _render_mcp_list(self) -> Panel:
 - **Full Command**: Preview of complete command line
 
 **Secret Masking**:
+
 ```python
 # Mask sensitive values in details view
 if any(sensitive in key.lower() for sensitive in ["key", "secret", "token", "password"]):
@@ -853,6 +878,7 @@ else:
 ```
 
 **Validation Display**:
+
 ```python
 is_valid, errors = server.is_valid()
 if is_valid:
@@ -868,6 +894,7 @@ else:
 **Purpose**: Interactive browser for selecting servers from the curated registry to install.
 
 **Features**:
+
 - **Category Navigation**: Left sidebar with 10 categories + "All Servers"
 - **Server List**: Right panel with search functionality
 - **Status Indicators**: ✓ for installed servers, ⚠️ for missing package managers
@@ -875,6 +902,7 @@ else:
 - **Interactive Selection**: Click or Enter to select
 
 **Dialog Layout**:
+
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │               🔌 Browse MCP Servers                          │
@@ -904,6 +932,7 @@ else:
 ```
 
 **Implementation**:
+
 ```python
 class MCPBrowseDialog(ModalScreen[Optional[str]]):
     def on_mount(self) -> None:
@@ -964,6 +993,7 @@ class MCPBrowseDialog(ModalScreen[Optional[str]]):
 **Purpose**: Configure environment variables and install selected MCP server.
 
 **Features**:
+
 - **Server Information**: Name, package, category, description
 - **Requirements Display**: Package manager availability
 - **Environment Variable Collection**: Masked input for secrets
@@ -971,6 +1001,7 @@ class MCPBrowseDialog(ModalScreen[Optional[str]]):
 - **Validation**: Required fields must be filled
 
 **Dialog Layout**:
+
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │               🔧 Install brave-search                        │
@@ -1005,6 +1036,7 @@ class MCPBrowseDialog(ModalScreen[Optional[str]]):
 ```
 
 **Implementation**:
+
 ```python
 class MCPInstallDialog(ModalScreen[Optional[Dict]]):
     def __init__(self, server_name: str) -> None:
@@ -1076,11 +1108,13 @@ class MCPInstallDialog(ModalScreen[Optional[Dict]]):
 **Purpose**: Display all configured MCP servers with status indicators.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:list
 ```
 
 **Output Example**:
+
 ```
 MCP Servers:
 
@@ -1105,11 +1139,13 @@ MCP Servers:
 **Purpose**: Display detailed information about a specific MCP server.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:show context7
 ```
 
 **Output Example**:
+
 ```
 MCP Server: context7
 
@@ -1129,6 +1165,7 @@ Status: Valid
 **Purpose**: Display local documentation for an MCP server.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:docs context7
 ```
@@ -1140,11 +1177,13 @@ claude-ctx mcp:docs context7
 **Purpose**: Validate server configuration and check command availability.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:test context7
 ```
 
 **Output Example**:
+
 ```
 Testing MCP Server: context7
 
@@ -1161,11 +1200,13 @@ Command:
 **Purpose**: Run comprehensive validation on all configured servers.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:diagnose
 ```
 
 **Output Example**:
+
 ```
 MCP Server Diagnostics
 ============================================================
@@ -1188,11 +1229,13 @@ Some servers have errors ✗
 **Purpose**: Generate JSON config snippet for easy copy-paste.
 
 **Usage**:
+
 ```bash
 claude-ctx mcp:snippet context7
 ```
 
 **Output Example**:
+
 ```json
 // Add this to your Claude Desktop config under 'mcpServers':
 {
@@ -1378,6 +1421,7 @@ class InstallResult:
 ### Adding a New Server to Registry
 
 **Step 1: Define Server**
+
 ```python
 # In core/mcp_registry.py
 
@@ -1422,6 +1466,7 @@ _register(MCPServerDefinition(
 **Step 2: Add Documentation**
 
 Create `/Users/user/.claude/mcp/docs/my-awesome-server.md`:
+
 ```markdown
 # My Awesome Server
 
@@ -1446,6 +1491,7 @@ Common issues and solutions.
 ```
 
 **Step 3: Test**
+
 ```bash
 # Verify server appears in registry
 claude-ctx mcp:registry
@@ -1587,6 +1633,7 @@ class ExtendedMCPView(MCPViewMixin):
 ### Configuration File Parsing
 
 **Caching Strategy**:
+
 ```python
 # Avoid repeated file reads in tight loops
 servers_cache: Optional[List[MCPServerInfo]] = None
@@ -1611,6 +1658,7 @@ def get_servers_cached(ttl: float = 5.0) -> List[MCPServerInfo]:
 ```
 
 **Lazy Documentation Loading**:
+
 ```python
 # Don't read all docs upfront
 def load_server_docs_lazy(server: MCPServerInfo) -> Optional[str]:
@@ -1627,6 +1675,7 @@ def load_server_docs_lazy(server: MCPServerInfo) -> Optional[str]:
 ### Registry Search Optimization
 
 **Indexed Search**:
+
 ```python
 from typing import Dict, Set
 
@@ -1679,6 +1728,7 @@ def fast_search_servers(query: str) -> List[MCPServerDefinition]:
 ### Installation Timeouts
 
 **Configurable Timeouts**:
+
 ```python
 def install_package_with_progress(
     server: MCPServerDefinition,
@@ -1743,6 +1793,7 @@ def install_package_with_progress(
 ### Validation Best Practices
 
 **Fail-Fast Validation**:
+
 ```python
 def quick_validate(server: MCPServerInfo) -> bool:
     """Quick validation for UI filtering."""
@@ -1756,6 +1807,7 @@ def full_validate(server: MCPServerInfo) -> Tuple[bool, List[str], List[str]]:
 ```
 
 **Batch Validation**:
+
 ```python
 def validate_all_servers_parallel(
     config_path: Optional[Path] = None,
@@ -1789,6 +1841,7 @@ def validate_all_servers_parallel(
 ### Memory Management
 
 **Server Info Cleanup**:
+
 ```python
 def cleanup_server_info(server: MCPServerInfo) -> MCPServerInfo:
     """Remove heavy fields for long-term storage."""
@@ -1814,19 +1867,23 @@ def cleanup_server_info(server: MCPServerInfo) -> MCPServerInfo:
 ## Related Documentation
 
 ### Core Documentation
+
 - [Master Architecture](MASTER_ARCHITECTURE.md) - System-wide architecture overview
 - [TUI Architecture](TUI_ARCHITECTURE.md) - TUI framework and design patterns
 
 ### Feature Documentation
+
 - [AI Intelligence System](AI_INTELLIGENCE_ARCHITECTURE.md) - Context-aware recommendations
 - [Memory Vault System](MEMORY_VAULT_ARCHITECTURE.md) - Note-taking and retrieval
 
 ### Usage Guides
+
 - [MCP Implementation Summary](../guides/mcp/MCP_IMPLEMENTATION_SUMMARY.md) - High-level MCP overview
 - [MCP Management Guide](../guides/mcp/MCP_MANAGEMENT.md) - User-facing management guide
 - [TUI MCP View](../guides/tui/tui-mcp-view.md) - TUI usage instructions
 
 ### API References
+
 - [MCP Module Usage](../guides/mcp/MCP_MODULE_USAGE.md) - Python API documentation
 - [MCP Module README](../guides/mcp/MCP_MODULE_README.md) - Module overview
 
@@ -1835,6 +1892,7 @@ def cleanup_server_info(server: MCPServerInfo) -> MCPServerInfo:
 ## Changelog
 
 ### Version 1.0 (December 6, 2025)
+
 - Initial comprehensive documentation
 - Covered all 4 core modules (mcp.py, mcp_registry.py, mcp_installer.py, tui_mcp.py)
 - Documented 25+ registry servers across 10 categories
@@ -1845,6 +1903,6 @@ def cleanup_server_info(server: MCPServerInfo) -> MCPServerInfo:
 
 ---
 
-**Document Maintainer**: Claude Context Plugin Team  
+**Document Maintainer**: Cortex Plugin Team  
 **Last Review**: December 6, 2025  
 **Next Review**: March 2026

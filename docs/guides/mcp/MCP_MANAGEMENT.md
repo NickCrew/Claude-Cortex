@@ -4,14 +4,16 @@ Complete guide to managing Model Context Protocol (MCP) servers in claude-ctx.
 
 ## Overview
 
-Claude-ctx provides comprehensive MCP server management through three interfaces:
+Cortex provides comprehensive MCP server management through three interfaces:
+
 1. **CLI Commands** - Terminal commands for quick operations
 2. **TUI View** - Visual dashboard for interactive management
 3. **Core Module** - Python API for programmatic access
 
 ## Philosophy: Read-Only + Intelligence
 
-Claude-ctx observes and assists with MCP servers, not controls them:
+Cortex observes and assists with MCP servers, not controls them:
+
 - ✅ Reads Claude Desktop config (`~/.config/Claude/claude_desktop_config.json`)
 - ✅ Validates and diagnoses server configurations
 - ✅ Provides curated documentation and best practices
@@ -24,31 +26,37 @@ Claude-ctx observes and assists with MCP servers, not controls them:
 ## Quick Start
 
 ### View All Servers
+
 ```bash
 claude-ctx mcp list
 ```
 
 ### Get Server Details
+
 ```bash
 claude-ctx mcp show context7
 ```
 
 ### View Documentation
+
 ```bash
 claude-ctx mcp docs serena
 ```
 
 ### Test Configuration
+
 ```bash
 claude-ctx mcp test context7
 ```
 
 ### Diagnose All Servers
+
 ```bash
 claude-ctx mcp diagnose
 ```
 
 ### Generate Config Snippet
+
 ```bash
 claude-ctx mcp snippet playwright
 ```
@@ -56,9 +64,11 @@ claude-ctx mcp snippet playwright
 ## CLI Reference
 
 ### `claude-ctx mcp list`
+
 List all configured MCP servers with validation status.
 
 **Output:**
+
 - Server name
 - Command and arguments
 - Environment variables (if any)
@@ -66,6 +76,7 @@ List all configured MCP servers with validation status.
 - Validation status (✓ or ✗)
 
 **Example:**
+
 ```
 MCP Servers (2 configured):
 
@@ -85,12 +96,15 @@ MCP Servers (2 configured):
 ```
 
 ### `claude-ctx mcp show <server>`
+
 Show detailed information about a specific server.
 
 **Arguments:**
+
 - `<server>`: Server name (case-insensitive)
 
 **Output:**
+
 - Full command line
 - All arguments
 - Environment variables
@@ -99,17 +113,21 @@ Show detailed information about a specific server.
 - Configuration snippet
 
 **Example:**
+
 ```bash
 claude-ctx mcp show context7
 ```
 
 ### `claude-ctx mcp docs <server>`
+
 Display curated documentation for an MCP server.
 
 **Arguments:**
+
 - `<server>`: Server name (case-insensitive)
 
 **Output:**
+
 - Server purpose
 - When to use triggers
 - Decision criteria ("Choose When")
@@ -118,17 +136,21 @@ Display curated documentation for an MCP server.
 - Quality gates
 
 **Example:**
+
 ```bash
 claude-ctx mcp docs sequential
 ```
 
 ### `claude-ctx mcp test <server>`
+
 Test server configuration and display diagnostic information.
 
 **Arguments:**
+
 - `<server>`: Server name (case-insensitive)
 
 **Checks:**
+
 - Config file readable
 - Server definition valid
 - Command specified
@@ -136,14 +158,17 @@ Test server configuration and display diagnostic information.
 - Documentation available
 
 **Example:**
+
 ```bash
 claude-ctx mcp test browser-tools
 ```
 
 ### `claude-ctx mcp diagnose`
+
 Run comprehensive diagnostics on all configured servers.
 
 **Output:**
+
 - Total server count
 - Valid server count
 - Servers with errors
@@ -151,22 +176,27 @@ Run comprehensive diagnostics on all configured servers.
 - Detailed issue reports
 
 **Example:**
+
 ```bash
 claude-ctx mcp diagnose
 ```
 
 ### `claude-ctx mcp snippet <server>`
+
 Generate a JSON configuration snippet for a server.
 
 **Arguments:**
+
 - `<server>`: Server name (case-insensitive)
 
 **Output:**
+
 - JSON snippet ready to paste into `claude_desktop_config.json`
 - Properly formatted with indentation
 - Includes command, args, and env
 
 **Example:**
+
 ```bash
 claude-ctx mcp snippet magic
 # Copy output to claude_desktop_config.json
@@ -175,18 +205,21 @@ claude-ctx mcp snippet magic
 ## TUI Interface
 
 ### Accessing MCP View
+
 1. Launch TUI: `claude-ctx tui`
 2. Press `7` to navigate to MCP Servers view
 
 ### MCP View Features
 
 **List View:**
+
 - All configured servers with status indicators
 - Server name, command, and args
 - Documentation availability (✓ or -)
 - Visual selection highlighting
 
 **Details View:**
+
 - Full command and arguments
 - Environment variables (sensitive values masked)
 - Documentation paths
@@ -196,11 +229,13 @@ claude-ctx mcp snippet magic
 ### Keyboard Shortcuts
 
 **Navigation:**
+
 - `j` / `k` or `↑` / `↓` - Navigate servers
 - `Enter` - Show detailed server information
 - `Esc` - Return from details to list
 
 **Actions:**
+
 - `t` - Test server connection
 - `d` - View server documentation
 - `c` - Copy configuration snippet
@@ -208,6 +243,7 @@ claude-ctx mcp snippet magic
 - `r` - Reload servers from config
 
 **Global:**
+
 - `?` - Show help
 - `q` - Quit TUI
 - `1-0` - Navigate to other views
@@ -221,7 +257,7 @@ claude-ctx mcp snippet magic
 
 ## MCP Server Documentation
 
-Claude-ctx includes curated documentation for popular MCP servers in `~/.claude/mcp/docs/`:
+Cortex includes curated documentation for popular MCP servers in `~/.claude/mcp/docs/`:
 
 ### Available Docs
 
@@ -236,6 +272,7 @@ Claude-ctx includes curated documentation for popular MCP servers in `~/.claude/
 ### Documentation Format
 
 Each doc includes:
+
 - **Purpose**: What the server does
 - **Triggers**: When to use it
 - **Choose When**: Decision criteria vs other tools
@@ -272,16 +309,19 @@ Name the file with the server name: `MyServer.md`
 ### Claude Desktop Config Location
 
 **macOS:**
+
 ```
 ~/Library/Application Support/Claude/claude_desktop_config.json
 ```
 
 **Linux:**
+
 ```
 ~/.config/Claude/claude_desktop_config.json
 ```
 
 **Windows:**
+
 ```
 %APPDATA%/Claude/claude_desktop_config.json
 ```
@@ -367,41 +407,51 @@ class MCPServerInfo:
 ## Troubleshooting
 
 ### "No MCP servers configured"
+
 **Cause:** Claude Desktop config file not found or has no `mcpServers` section.
 
 **Solution:**
+
 1. Check config file exists at platform-specific location
 2. Add `mcpServers` object to JSON
 3. Run `claude-ctx mcp diagnose` to verify
 
 ### "Server not found: xyz"
+
 **Cause:** Server name not in config or case mismatch.
 
 **Solution:**
+
 1. Run `claude-ctx mcp list` to see available servers
 2. Check spelling and case (search is case-insensitive)
 3. Verify server in Claude Desktop config
 
 ### "Invalid JSON in config file"
+
 **Cause:** Malformed JSON in `claude_desktop_config.json`.
 
 **Solution:**
+
 1. Open config in editor
 2. Fix JSON syntax (use JSON validator)
 3. Common issues: trailing commas, missing quotes
 
 ### "Documentation not found"
+
 **Cause:** No `.md` file in `~/.claude/mcp/docs/` for server.
 
 **Solution:**
+
 1. Check if file exists: `ls ~/.claude/mcp/docs/`
 2. Create custom doc (see "Adding Custom Docs")
 3. Use exact server name for filename
 
 ### "Permission denied reading config"
+
 **Cause:** Config file not readable.
 
 **Solution:**
+
 ```bash
 # macOS/Linux
 chmod 644 ~/Library/Application\ Support/Claude/claude_desktop_config.json
@@ -413,30 +463,39 @@ sudo claude-ctx mcp list
 ## Best Practices
 
 ### 1. Document Your Servers
+
 Create documentation for all custom MCP servers in `~/.claude/mcp/docs/`.
 
 ### 2. Validate Regularly
+
 Run `claude-ctx mcp diagnose` after config changes.
 
 ### 3. Use Snippets
+
 Generate and review snippets before manual config edits:
+
 ```bash
 claude-ctx mcp snippet myserver > snippet.json
 # Review snippet.json before adding to config
 ```
 
 ### 4. Organize Documentation
+
 Group related servers in docs:
+
 - Web automation: BrowserTools, Playwright
 - Code transformation: Serena, Morphllm
 - Reasoning: Sequential
 - UI generation: Magic
 
 ### 5. Version Control
+
 Track `~/.claude/mcp/docs/` in git for team consistency.
 
 ### 6. Test New Servers
+
 Always test after adding:
+
 ```bash
 claude-ctx mcp test newserver
 ```
@@ -455,6 +514,7 @@ The `/tools:select` command uses MCP server information to recommend optimal too
 ```
 
 This integration enables intelligent tool routing based on:
+
 - Operation complexity
 - File count
 - Pattern vs semantic requirements
@@ -463,6 +523,7 @@ This integration enables intelligent tool routing based on:
 ## Future Enhancements
 
 Planned features:
+
 - [ ] Real-time server health monitoring
 - [ ] Active connection testing via MCP protocol
 - [ ] Server capability introspection

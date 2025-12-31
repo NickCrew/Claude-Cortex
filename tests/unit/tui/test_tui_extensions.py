@@ -163,7 +163,7 @@ class TestExportViewMixin:
         assert "xml" in mock_app.generate_export_preview()
         
         mock_app.export_format = "markdown"
-        assert "Claude Cortex Context Export" in mock_app.generate_export_preview()
+        assert "Cortex Context Export" in mock_app.generate_export_preview()
 
     @patch("claude_ctx_py.tui_extensions.export_context")
     def test_execute_export(self, mock_export, mock_app):

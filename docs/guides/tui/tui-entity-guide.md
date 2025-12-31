@@ -1,6 +1,6 @@
-# Claude Cortex TUI Entity Relationship Guide
+# Cortex TUI Entity Relationship Guide
 
-Understand how the TUI slices the Claude Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`claude-ctx tui`) but the concepts match the CLI and context bundle.
+Understand how the TUI slices the Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`claude-ctx tui`) but the concepts match the CLI and context bundle.
 
 ## Quick Reference Map
 

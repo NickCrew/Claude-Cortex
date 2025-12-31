@@ -1,12 +1,12 @@
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                    Claude Cortex PLUGIN - ARCHITECTURE SUMMARY               ║
+║                    Cortex PLUGIN - ARCHITECTURE SUMMARY               ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ SYSTEM OVERVIEW                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-The Claude Cortex is a context management system with AI-powered automation
+The Cortex is a context management system with AI-powered automation
 and a rich terminal user interface for Claude Code.
 
   ┌──────────────────────────────────────────────────────────────┐

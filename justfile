@@ -1,9 +1,7 @@
-set shell := ["bash", "-lc"]
 
-default := ["help"]
 
 help:
-    @echo "Claude-ctx Development Justfile"
+    @echo "Cortex Development Justfile"
     @echo ""
     @echo "Available recipes:"
     @echo "  just install              # Install package, completions, and manpage"
@@ -18,6 +16,10 @@ help:
     @echo "  just type-check-all       # Run mypy over entire module tree"
     @echo "  just clean                # Remove build artifacts and caches"
     @echo "  just docs                 # Build documentation site"
+    @echo "  just docs-serve           # Serve docs (custom domain config)"
+    @echo "  just docs-serve-gh        # Serve docs with GitHub Pages config"
+    @echo "  just docs-build           # Build docs site to docs/_site"
+    @echo "  just docs-build-gh        # Build docs with GitHub Pages config"
     @echo "  just build                # Build sdist/wheel with python -m build"
     @echo "  just publish              # Build and publish to PyPI via twine"
     @echo "  just verify               # Verify CLI, manpage, and dependencies"
@@ -99,11 +101,23 @@ publish:
 docs:
     @cd docs && bundle exec jekyll serve --livereload
 
+docs-serve:
+    @cd docs && bundle exec jekyll serve --livereload --config _config.yml
+
+docs-serve-gh:
+    @cd docs && bundle exec jekyll serve --livereload --config _config.yml,_config_ghpages.yml
+
+docs-build:
+    @cd docs && bundle exec jekyll build --config _config.yml -d _site
+
+docs-build-gh:
+    @cd docs && bundle exec jekyll build --config _config.yml,_config_ghpages.yml -d _site
+
 verify:
     @echo "=== Verifying Installation ==="
     @command -v claude-ctx >/dev/null 2>&1 && echo "✓ claude-ctx command found" || echo "✗ claude-ctx not found"
     @man -w claude-ctx >/dev/null 2>&1 && echo "✓ manpage installed" || echo "✗ manpage not found"
     @python3 -c "import argcomplete" 2>/dev/null && echo "✓ argcomplete available" || echo "✗ argcomplete not found"
     @echo ""
-    @echo "Claude-ctx version:"
+    @echo "Cortex version:"
     @claude-ctx --help | head -1 || true

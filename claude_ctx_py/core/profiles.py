@@ -1502,7 +1502,7 @@ def show_status(home: Path | None = None) -> str:
     claude_dir = _resolve_claude_dir(home)
     home_arg = claude_dir.parent
 
-    sections: List[str] = [_color("=== Claude Context Status ===", BLUE)]
+    sections: List[str] = [_color("=== Cortex Status ===", BLUE)]
     sections.append("")
     sections.append(agent_status(home=home_arg))
     sections.append("")

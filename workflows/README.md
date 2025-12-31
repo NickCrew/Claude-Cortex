@@ -1,10 +1,11 @@
-# Claude-ctx Workflow Templates
+# Cortex Workflow Templates
 
 Pre-defined multi-agent sequences for common development tasks.
 
 ## Available Workflows
 
 ### 🚀 [Feature Development](feature-development.yaml)
+
 **Purpose**: Complete workflow for developing new features from design to deployment
 
 **Trigger**: `new feature`, `implement`, `build`, `create feature`
@@ -16,6 +17,7 @@ Pre-defined multi-agent sequences for common development tasks.
 ---
 
 ### 🐛 [Bug Fix](bug-fix.yaml)
+
 **Purpose**: Systematic bug identification, fixing, and validation
 
 **Trigger**: `bug`, `fix`, `error`, `issue`, `broken`
@@ -27,6 +29,7 @@ Pre-defined multi-agent sequences for common development tasks.
 ---
 
 ### 🔒 [Security Audit](security-audit.yaml)
+
 **Purpose**: Comprehensive security assessment and remediation
 
 **Trigger**: `security`, `vulnerability`, `audit`, `penetration test`
@@ -39,6 +42,7 @@ Pre-defined multi-agent sequences for common development tasks.
 ---
 
 ### ⚡ [Performance Optimization](performance-optimize.yaml)
+
 **Purpose**: Systematic performance analysis and optimization
 
 **Trigger**: `slow`, `performance`, `optimize`, `speed up`, `bottleneck`
@@ -53,6 +57,7 @@ Pre-defined multi-agent sequences for common development tasks.
 ## Usage
 
 ### Via CLI
+
 ```bash
 # Run a workflow
 claude-ctx workflow run feature-development
@@ -68,6 +73,7 @@ claude-ctx workflow resume
 ```
 
 ### Via Natural Language
+
 Workflows are automatically suggested when you use trigger keywords:
 
 ```

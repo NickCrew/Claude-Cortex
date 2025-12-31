@@ -6,7 +6,7 @@ nav_order: 1
 permalink: /tutorials/getting-started-tui/
 ---
 
-# Getting Started with Claude Cortex
+# Getting Started with Cortex
 
 Welcome! This tutorial will help you master the **claude-ctx TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, workflows, and more.
 
@@ -26,7 +26,7 @@ By the end of this tutorial, you'll be able to:
 
 ## 🎯 What You'll Build
 
-You'll set up a working Claude Cortex environment and learn to:
+You'll set up a working Cortex environment and learn to:
 
 1. Navigate between views using keyboard shortcuts
 2. Activate an agent configuration that matches your project type
@@ -210,7 +210,7 @@ Agents are specialized AI behaviors (like "security-auditor" or "test-engineer")
 - Activation date
 - Metadata
 
-4. **Close details:**
+1. **Close details:**
    - Press `Esc` or `Enter` again
 
 **✅ Checkpoint:**

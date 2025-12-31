@@ -6,7 +6,7 @@ nav_order: 6
 
 # Modes
 
-Modes are opinionated behavioral presets that shape how Claude Cortex works: planning depth, tone, trade-off bias, and emphasis on speed vs quality. They are designed to be lightweight, composable, and easy to toggle per task.
+Modes are opinionated behavioral presets that shape how Cortex works: planning depth, tone, trade-off bias, and emphasis on speed vs quality. They are designed to be lightweight, composable, and easy to toggle per task.
 
 ## How Modes Activate
 

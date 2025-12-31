@@ -3,6 +3,7 @@
 **Technical Documentation** | Version 1.0 | Last Updated: December 6, 2025
 
 ## Table of Contents
+
 1. [Executive Summary](#executive-summary)
 2. [Philosophy & Design Principles](#philosophy--design-principles)
 3. [Component Architecture](#component-architecture)
@@ -21,6 +22,7 @@
 **Super Saiyan Mode** is an enhanced visual experience layer for the claude-ctx TUI that provides beautiful, animated, and accessible UI components. Named after the transformation in Dragon Ball Z, it represents a "power-up" of the standard Textual framework components with smooth animations, rich styling, and delightful user interactions while maintaining **accessibility first, performance always** principles.
 
 ### Key Features
+
 - ✨ **Smooth Animations**: Fade-in, slide-in, and transition effects using CSS animations
 - 🎨 **Rich Styling**: Gradient borders, hover effects, color-coded status indicators
 - 📊 **Enhanced Components**: Cards, tables, buttons, status bars, and panels
@@ -29,6 +31,7 @@
 - 🔧 **Developer-Friendly**: Simple API, extensive CSS customization, reusable patterns
 
 ### Technology Stack
+
 - **Framework**: Textual (Rich + Textual widgets)
 - **Styling**: TCSS (Textual CSS) with transitions and animations
 - **Color System**: Custom theme with semantic color palette
@@ -42,7 +45,9 @@
 ### Core Principles
 
 #### 1. **Accessibility First** ♿
+
 Every enhancement must maintain or improve accessibility:
+
 - Keyboard-only navigation fully supported
 - Focus indicators clearly visible
 - Status communicated via text, not just color
@@ -50,7 +55,9 @@ Every enhancement must maintain or improve accessibility:
 - High contrast color choices
 
 #### 2. **Performance Always** 🚀  
+
 Visual enhancements must be lightweight:
+
 - CSS transitions handled by Textual's rendering engine
 - No blocking animations
 - Minimal CPU usage (< 2% for animations)
@@ -58,7 +65,9 @@ Visual enhancements must be lightweight:
 - Lazy loading where applicable
 
 #### 3. **Delight Users** ✨
+
 Create moments of joy without sacrificing professionalism:
+
 - Smooth, natural animations (300ms standard timing)
 - Subtle hover effects provide feedback
 - Progress indicators show system activity
@@ -66,7 +75,9 @@ Create moments of joy without sacrificing professionalism:
 - Color-coded information reduces cognitive load
 
 #### 4. **Progressive Enhancement** 📈
+
 Works everywhere, enhanced where possible:
+
 - Graceful degradation for limited terminals
 - Core functionality works without animations
 - Color themes adapt to terminal capabilities
@@ -75,6 +86,7 @@ Works everywhere, enhanced where possible:
 ### Design Language
 
 **Visual Hierarchy**:
+
 ```
 Primary (Blue #3b82f6)    → Main actions, headers, borders
 Accent (Cyan #06b6d4)     → Highlights, hover states, focus indicators  
@@ -84,11 +96,13 @@ Error (Red #ef4444)       → Failed items, errors, dangers
 ```
 
 **Typography**:
+
 - **Bold**: Headers, values, emphasis
 - **Dim**: Secondary info, timestamps, hints
 - **Italic**: Trends, metadata, captions
 
 **Spacing**:
+
 - Consistent padding (1-2 units)
 - Generous margins between sections
 - Grid layouts with 1-unit gutters
@@ -102,6 +116,7 @@ Error (Red #ef4444)       → Failed items, errors, dangers
 **File**: `claude_ctx_py/tui_supersaiyan.py` (409 lines)
 
 **Components**:
+
 1. `SuperSaiyanCard` - Metric display cards with trends and sparklines
 2. `SuperSaiyanTable` - Enhanced DataTable with status indicators
 3. `SuperSaiyanButton` - Stylized buttons with hover effects
@@ -109,6 +124,7 @@ Error (Red #ef4444)       → Failed items, errors, dangers
 5. `SuperSaiyanPanel` - Animated container with entrance effects
 
 **Utilities**:
+
 - `generate_sparkline()` - ASCII sparkline generator
 - `create_rich_table()` - Rich table factory with styling
 - `SUPER_SAIYAN_THEME` - Color palette constants
@@ -170,6 +186,7 @@ class AgentTUI(App[None]):
 **Purpose**: Display metrics with trends and sparklines in a visually appealing card.
 
 **Features**:
+
 - Smooth fade-in animation on mount (300ms)
 - Hover effects with color and border transitions (200ms)
 - Gradient-style borders
@@ -177,6 +194,7 @@ class AgentTUI(App[None]):
 - Optional sparkline visualization
 
 **Usage Example**:
+
 ```python
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanCard, generate_sparkline
 
@@ -191,6 +209,7 @@ card = SuperSaiyanCard(
 ```
 
 **Visual Output**:
+
 ```
 ┌─────────────────────┐
 │ Active Agents       │  ← Dim cyan title
@@ -200,6 +219,7 @@ card = SuperSaiyanCard(
 ```
 
 **CSS Styling**:
+
 ```css
 SuperSaiyanCard {
     height: auto;
@@ -221,6 +241,7 @@ SuperSaiyanCard:hover {
 ```
 
 **Implementation**:
+
 ```python
 class SuperSaiyanCard(Static):
     """Beautiful metric card with smooth animations and rich styling."""
@@ -257,6 +278,7 @@ class SuperSaiyanCard(Static):
 **Purpose**: Enhanced DataTable with color-coded status indicators and progress visualization.
 
 **Features**:
+
 - Color-coded status dots (●) for item states
 - ASCII progress bars with percentage
 - Smooth row highlighting with focus indicators
@@ -264,6 +286,7 @@ class SuperSaiyanCard(Static):
 - Efficient cursor transitions
 
 **Usage Example**:
+
 ```python
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanTable
 
@@ -278,6 +301,7 @@ table.add_status_row("quality-engineer", "pending", 0, "0.0s")
 ```
 
 **Visual Output**:
+
 ```
 ┌────────────────┬──────────────┬──────────────┬──────────┐
 │ Agent          │ Status       │ Progress     │ Duration │
@@ -290,6 +314,7 @@ table.add_status_row("quality-engineer", "pending", 0, "0.0s")
 ```
 
 **Status Mapping**:
+
 ```python
 status_map = {
     "active": "[green]●[/green] Active",
@@ -301,6 +326,7 @@ status_map = {
 ```
 
 **Progress Bar Visualization**:
+
 ```python
 def add_status_row(self, name: str, status: str, progress: int, duration: str) -> None:
     # Progress bar: filled + empty = 10 total chars
@@ -317,6 +343,7 @@ def add_status_row(self, name: str, status: str, progress: int, duration: str) -
 **Purpose**: Stylized button with smooth interactions and keyboard accessibility.
 
 **Features**:
+
 - Three variants: `primary`, `success`, `danger`
 - Smooth hover effects (150ms transitions)
 - Keyboard focus indicators with tall borders
@@ -324,6 +351,7 @@ def add_status_row(self, name: str, status: str, progress: int, duration: str) -
 - Consistent spacing and sizing
 
 **Usage Example**:
+
 ```python
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanButton
 
@@ -334,6 +362,7 @@ btn_danger = SuperSaiyanButton("Deactivate", classes="danger")
 ```
 
 **Visual States**:
+
 ```
 Normal:  [ Activate Agent ]  ← Primary background
 Hover:   [ Activate Agent ]  ← Lighter background, bold text
@@ -341,6 +370,7 @@ Focus:   ┃ Activate Agent ┃  ← Tall accent border, bold text
 ```
 
 **CSS Variants**:
+
 ```css
 SuperSaiyanButton.primary {
     background: $primary;      /* Blue */
@@ -376,6 +406,7 @@ SuperSaiyanButton:focus {
 **Purpose**: Live-updating status bar with animated waveform and real-time metrics.
 
 **Features**:
+
 - Reactive properties for live updates
 - Neon waveform animation (6-frame cycle)
 - Metrics display (agents, tasks, performance)
@@ -383,6 +414,7 @@ SuperSaiyanButton:focus {
 - Minimal CPU usage (~0.5%)
 
 **Usage Example**:
+
 ```python
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanStatusBar
 
@@ -398,11 +430,13 @@ status_bar.update_payload(
 ```
 
 **Visual Output**:
+
 ```
 Agents Loading agents... │ 3/12 agents │ 2 active tasks │ CPU: 2% | Mem: 45MB │ ≈~~~~
 ```
 
 **Reactive Properties**:
+
 ```python
 class SuperSaiyanStatusBar(Static):
     view = reactive("Agents")
@@ -415,6 +449,7 @@ class SuperSaiyanStatusBar(Static):
 ```
 
 **Waveform Animation**:
+
 ```python
 _WAVE_FRAMES = (
     "≈~~~~",  # Frame 0
@@ -436,6 +471,7 @@ def update_payload(self, **kwargs) -> None:
 ```
 
 **Render Method**:
+
 ```python
 def render(self) -> str:
     agent_text = f"[cyan]{self.agent_active}/{self.agent_total} agents"
@@ -454,12 +490,14 @@ def render(self) -> str:
 **Purpose**: Container with smooth entrance animations.
 
 **Features**:
+
 - Fade-in animation (300ms)
 - Slide-in effect (offset-y: 5 → 0)
 - Hover border color change
 - Automatic animation trigger on mount
 
 **Usage Example**:
+
 ```python
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanPanel
 
@@ -468,6 +506,7 @@ with SuperSaiyanPanel():
 ```
 
 **CSS Animation**:
+
 ```css
 SuperSaiyanPanel {
     border: solid $primary;
@@ -489,6 +528,7 @@ SuperSaiyanPanel:hover {
 ```
 
 **Implementation**:
+
 ```python
 class SuperSaiyanPanel(Container):
     def on_mount(self) -> None:
@@ -503,6 +543,7 @@ class SuperSaiyanPanel(Container):
 ### Color Palette
 
 **Theme Definition**:
+
 ```python
 SUPER_SAIYAN_THEME = {
     "primary": "#3b82f6",      # Blue - Main actions, borders
@@ -521,6 +562,7 @@ SUPER_SAIYAN_THEME = {
 ```
 
 **Semantic Usage**:
+
 ```
 Primary (#3b82f6)     → Headers, main borders, primary buttons
 Accent (#06b6d4)      → Hover states, focus indicators, highlights
@@ -535,6 +577,7 @@ Text-muted (#9ca3af) → Timestamps, secondary info, dim text
 ### Border Styles
 
 **Available Border Types**:
+
 ```css
 border: solid $primary     /* ─│ solid line */
 border: tall $accent       /* ┃│ tall line (focus) */
@@ -544,6 +587,7 @@ border: dashed $warning    /* ╌│ dashed line (temporary) */
 ```
 
 **Border Usage Examples**:
+
 ```css
 /* Standard card */
 SuperSaiyanCard {
@@ -564,6 +608,7 @@ SuperSaiyanButton:focus {
 ### Typography
 
 **Text Styles**:
+
 ```python
 # Bold emphasis
 Text.append("Important", style="bold")
@@ -581,6 +626,7 @@ Text.append("Error", style="red")
 ```
 
 **Size Hierarchy**:
+
 ```
 Large (Headers)     → text-style: bold + larger font
 Medium (Values)     → text-style: bold
@@ -591,6 +637,7 @@ Tiny (Metadata)     → text-style: dim + smaller font
 ### Spacing System
 
 **Padding**:
+
 ```css
 padding: 0         /* No padding */
 padding: 1         /* 1 unit all sides */
@@ -599,6 +646,7 @@ padding: 1 2 1 2   /* top right bottom left */
 ```
 
 **Margins**:
+
 ```css
 margin: 1          /* 1 unit all sides */
 margin-top: 1      /* Top margin only */
@@ -606,6 +654,7 @@ margin-bottom: 1   /* Bottom margin only */
 ```
 
 **Layout Spacing**:
+
 ```css
 /* Grid layout with gaps */
 .dashboard {
@@ -628,6 +677,7 @@ margin-bottom: 1   /* Bottom margin only */
 ### CSS Transitions
 
 **Transition Properties**:
+
 ```css
 transition: opacity 300ms                    /* Fade effect */
 transition: offset-y 300ms                   /* Slide effect */
@@ -637,6 +687,7 @@ transition: opacity 300ms, offset-y 300ms   /* Combined */
 ```
 
 **Timing Standards**:
+
 ```
 Quick (100-150ms)  → Hover effects, button presses
 Standard (200-300ms) → Fade-in, slide-in, focus changes
@@ -646,6 +697,7 @@ Slow (400-500ms)   → Page transitions, complex animations
 ### Animation Patterns
 
 #### 1. Fade-In Animation
+
 ```css
 /* Initial state */
 SuperSaiyanCard {
@@ -660,12 +712,14 @@ SuperSaiyanCard.mounted {
 ```
 
 **Usage**:
+
 ```python
 def on_mount(self) -> None:
     self.add_class("mounted")  # Trigger animation
 ```
 
 #### 2. Slide-In Animation
+
 ```css
 /* Initial state */
 SuperSaiyanPanel {
@@ -682,6 +736,7 @@ SuperSaiyanPanel.visible {
 ```
 
 #### 3. Hover Effects
+
 ```css
 SuperSaiyanCard:hover {
     border: tall $accent;
@@ -691,6 +746,7 @@ SuperSaiyanCard:hover {
 ```
 
 #### 4. Focus Indicators
+
 ```css
 SuperSaiyanButton:focus {
     border: tall $accent;
@@ -702,6 +758,7 @@ SuperSaiyanButton:focus {
 ### Reactive Animations
 
 **Waveform Animation** (Status Bar):
+
 ```python
 # Frame-based animation
 _WAVE_FRAMES = ("≈~~~~", "~≈~~~", "~~≈~~", "~~~≈~", "~~≈~~", "~≈~~~")
@@ -719,6 +776,7 @@ def render(self) -> str:
 ```
 
 **Sparkline Animation** (Data Visualization):
+
 ```python
 def generate_sparkline(data: list[float]) -> str:
     """Generate ASCII sparkline from data points."""
@@ -736,6 +794,7 @@ def generate_sparkline(data: list[float]) -> str:
 ```
 
 **Usage**:
+
 ```python
 # Trend data
 data = [1, 2, 3, 5, 6, 8]
@@ -745,6 +804,7 @@ sparkline = generate_sparkline(data)  # "▁▂▃▅▆█"
 ### Performance Optimization
 
 **Animation Best Practices**:
+
 1. **Use CSS transitions** instead of Python loops
 2. **Limit frame rates** (1-2 updates/second for status bar)
 3. **Batch updates** to minimize re-renders
@@ -752,6 +812,7 @@ sparkline = generate_sparkline(data)  # "▁▂▃▅▆█"
 5. **Avoid blocking** the main thread
 
 **Resource Usage**:
+
 ```
 CPU: < 2% during animations
 Memory: ~500KB per animated component
@@ -765,6 +826,7 @@ Render time: < 16ms (60fps target)
 ### Main TUI Integration
 
 **Step 1: Import Components**
+
 ```python
 from ..tui_supersaiyan import (
     SuperSaiyanCard,
@@ -777,6 +839,7 @@ from ..tui_supersaiyan import (
 ```
 
 **Step 2: Compose UI**
+
 ```python
 class AgentTUI(App[None]):
     def compose(self) -> ComposeResult:
@@ -805,6 +868,7 @@ class AgentTUI(App[None]):
 ```
 
 **Step 3: Update Status Bar**
+
 ```python
 def refresh_status_bar(self) -> None:
     try:
@@ -829,11 +893,13 @@ def refresh_status_bar(self) -> None:
 **Purpose**: Showcase all Super Saiyan components in a runnable demo.
 
 **Running the Demo**:
+
 ```bash
 python examples/supersaiyan_demo.py
 ```
 
 **Demo Features**:
+
 - Dashboard with 3 metric cards
 - Table with status indicators and progress bars
 - Button group with 4 variants
@@ -841,6 +907,7 @@ python examples/supersaiyan_demo.py
 - Interactive keyboard navigation
 
 **Demo Structure**:
+
 ```python
 class SuperSaiyanDemo(App):
     BINDINGS = [
@@ -878,6 +945,7 @@ class SuperSaiyanDemo(App):
 ### Custom Component Development
 
 **Template for New Components**:
+
 ```python
 from textual.widgets import Static
 from textual.reactive import reactive
@@ -930,6 +998,7 @@ class SuperSaiyanCustom(Static):
 ### Resource Usage
 
 **Benchmarks** (on MacBook Pro M1, 2021):
+
 ```
 Component Creation:  < 1ms per component
 Render Time:         < 5ms per frame
@@ -941,6 +1010,7 @@ Status Bar Updates:  < 0.5ms per update
 ### Optimization Strategies
 
 #### 1. **Minimize Re-renders**
+
 ```python
 # Bad: Re-render entire table
 def update_status(self):
@@ -956,6 +1026,7 @@ def update_status(self):
 ```
 
 #### 2. **Batch Updates**
+
 ```python
 # Bad: Multiple updates
 status_bar.view = "Agents"
@@ -973,6 +1044,7 @@ status_bar.update_payload(
 ```
 
 #### 3. **Lazy Rendering**
+
 ```python
 class SuperSaiyanCard(Static):
     def render(self) -> Panel:
@@ -986,6 +1058,7 @@ class SuperSaiyanCard(Static):
 ```
 
 #### 4. **Debounce Rapid Updates**
+
 ```python
 from functools import wraps
 import time
@@ -1013,6 +1086,7 @@ class SuperSaiyanStatusBar(Static):
 ```
 
 #### 5. **Async Operations**
+
 ```python
 async def load_data_async(self):
     """Load data without blocking UI."""
@@ -1026,6 +1100,7 @@ async def load_data_async(self):
 ### Memory Management
 
 **Component Lifecycle**:
+
 ```python
 class SuperSaiyanCard(Static):
     def on_mount(self) -> None:
@@ -1040,6 +1115,7 @@ class SuperSaiyanCard(Static):
 ```
 
 **Cache Limits**:
+
 ```python
 from collections import OrderedDict
 
@@ -1062,6 +1138,7 @@ class SuperSaiyanTable(DataTable):
 ### Creating Custom Super Saiyan Components
 
 **Step 1: Inherit from Textual Widget**
+
 ```python
 from textual.widgets import Static
 
@@ -1071,6 +1148,7 @@ class SuperSaiyanMetric(Static):
 ```
 
 **Step 2: Define CSS**
+
 ```python
 DEFAULT_CSS = """
 SuperSaiyanMetric {
@@ -1088,6 +1166,7 @@ SuperSaiyanMetric:hover {
 ```
 
 **Step 3: Implement Rendering**
+
 ```python
 def render(self) -> Panel:
     content = Text()
@@ -1097,6 +1176,7 @@ def render(self) -> Panel:
 ```
 
 **Step 4: Add Reactivity**
+
 ```python
 from textual.reactive import reactive
 
@@ -1109,6 +1189,7 @@ class SuperSaiyanMetric(Static):
 ```
 
 **Step 5: Add Animations**
+
 ```python
 def on_mount(self) -> None:
     """Trigger entrance animation."""
@@ -1118,6 +1199,7 @@ def on_mount(self) -> None:
 ### Testing Super Saiyan Components
 
 **Unit Test Example**:
+
 ```python
 from textual.testing import AppTest
 from claude_ctx_py.tui_supersaiyan import SuperSaiyanCard
@@ -1139,6 +1221,7 @@ async def test_card_animation():
 ```
 
 **Integration Test Example**:
+
 ```python
 from textual.testing import AppTest
 
@@ -1167,6 +1250,7 @@ async def test_status_bar_updates():
 ### Styling Guidelines
 
 **DO**: ✅
+
 - Use semantic color names (`$primary`, `$success`, `$error`)
 - Define transitions for smooth effects
 - Provide hover and focus states
@@ -1174,6 +1258,7 @@ async def test_status_bar_updates():
 - Add accessibility features (focus indicators)
 
 **DON'T**: ❌
+
 - Hardcode hex colors in components
 - Create jarring animations (> 500ms)
 - Omit keyboard navigation support
@@ -1181,6 +1266,7 @@ async def test_status_bar_updates():
 - Rely solely on color for status
 
 **Example**:
+
 ```python
 # ✅ Good
 DEFAULT_CSS = """
@@ -1223,15 +1309,18 @@ SuperSaiyanButton:hover {
 ## Related Documentation
 
 ### Core Documentation
+
 - [Master Architecture](MASTER_ARCHITECTURE.md) - System-wide architecture overview
 - [TUI Architecture](TUI_ARCHITECTURE.md) - TUI framework and design patterns
 
 ### Feature Documentation
+
 - [AI Intelligence System](AI_INTELLIGENCE_ARCHITECTURE.md) - Context-aware recommendations
 - [Memory Vault System](MEMORY_VAULT_ARCHITECTURE.md) - Note-taking and retrieval
 - [MCP Server Management](MCP_SERVER_MANAGEMENT_ARCHITECTURE.md) - MCP server management
 
 ### Usage Guides
+
 - [TUI Guide](../tui/tui-guide.md) - User-facing TUI usage instructions
 - [Textual Documentation](https://textual.textualize.io/) - Official Textual framework docs
 
@@ -1240,6 +1329,7 @@ SuperSaiyanButton:hover {
 ## Changelog
 
 ### Version 1.0 (December 6, 2025)
+
 - Initial comprehensive documentation
 - Documented all 5 core components (Card, Table, Button, StatusBar, Panel)
 - Complete styling system with color palette
@@ -1249,6 +1339,6 @@ SuperSaiyanButton:hover {
 
 ---
 
-**Document Maintainer**: Claude Context Plugin Team  
+**Document Maintainer**: Cortex Plugin Team  
 **Last Review**: December 6, 2025  
 **Next Review**: March 2026

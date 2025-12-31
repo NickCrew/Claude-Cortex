@@ -289,7 +289,7 @@ def export_context(
         lines.append("---")
         lines.append("")
     else:
-        lines.append("# Claude Cortex Context Export")
+        lines.append("# Cortex Context Export")
         lines.append("")
         lines.append(f"Exported from: {claude_dir}")
         lines.append("")

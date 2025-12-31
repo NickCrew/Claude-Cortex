@@ -268,7 +268,7 @@ Semantic Matching (FastEmbed)
 
 ## Support
 
-- 🐛 Report bugs: [GitHub Issues](https://github.com/NickCrew/claude-ctx-plugin/issues)
+- 🐛 Report bugs: [GitHub Issues](https://github.com/NickCrew/claude-cortex/issues)
 - 💬 Questions: Check [FAQ](LLM_INTELLIGENCE_GUIDE.md#faq) or troubleshooting
 - 📖 More help: See [Troubleshooting](LLM_INTELLIGENCE_GUIDE.md#troubleshooting) in main guide
 - 🌐 API Help: [Anthropic Support](https://support.anthropic.com)

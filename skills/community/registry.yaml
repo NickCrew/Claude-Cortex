@@ -1,6 +1,6 @@
 # Community Skills Registry
 #
-# This file tracks all community-contributed skills for the Claude Cortex.
+# This file tracks all community-contributed skills for the Cortex.
 # Each skill entry includes metadata about the author, version, status, and usage.
 #
 # Entry Format:
@@ -33,7 +33,7 @@
 
 # Example Entry (remove this when first community skill is added)
 example-skill-template:
-  author: Claude Cortex Team
+  author: Cortex Team
   email: support@example.com
   github: claudectx
   version: 1.0.0

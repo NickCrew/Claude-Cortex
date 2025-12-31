@@ -321,4 +321,4 @@ pipx install .
 - In TUI: Press `?` for keyboard shortcuts
 - CLI help: `claude-ctx --help`
 - Command help: `claude-ctx <command> --help`
-- Report issues: https://github.com/NickCrew/claude-ctx-plugin/issues
+- Report issues: https://github.com/NickCrew/claude-cortex/issues

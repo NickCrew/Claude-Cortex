@@ -6,7 +6,7 @@ nav_order: 3
 
 # Slash Commands API Reference
 
-Complete API documentation for all slash commands in the Claude Context Plugin.
+Complete API documentation for all slash commands in the Cortex Plugin.
 
 ## Table of Contents
 
@@ -34,6 +34,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 ### By Use Case
 
 **Code Quality & Analysis**
+
 - `/analyze:code` - Comprehensive code analysis
 - `/analyze:security-scan` - Security vulnerability assessment
 - `/dev:code-review` - Code quality review
@@ -41,6 +42,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/quality:improve` - Systematic code improvements
 
 **Development Workflow**
+
 - `/dev:implement` - Feature implementation
 - `/dev:build` - Project building and packaging
 - `/dev:test` - Test execution with coverage
@@ -48,6 +50,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/test:generate-tests` - Test suite generation
 
 **Documentation & Planning**
+
 - `/ctx:brainstorm` - Structured Supersaiyan ideation *(new)*
 - `/ctx:plan` - Multi-stream planning + Task TUI sync *(new)*
 - `/ctx:execute-plan` - Execute plans with verification *(new)*
@@ -58,6 +61,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/analyze:explain` - Code and concept explanations
 
 **Project Management**
+
 - `/orchestrate:brainstorm` - Requirements discovery
 - `/orchestrate:task` - Task management and delegation
 - `/orchestrate:spawn` - Complex task orchestration
@@ -68,6 +72,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - `/reasoning:metrics` - Reasoning effectiveness analytics
 
 **Session Management**
+
 - `/session:load` - Load project context
 - `/session:save` - Save session context
 - `/session:reflect` - Task reflection and validation
@@ -83,11 +88,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Description**: Supersaiyan-aligned brainstorming flow (adapted from Superpowers). Captures goals, constraints, assets, and at least three solution options before coding.
 
 **Usage**:
+
 ```bash
 /ctx:brainstorm [topic] [--constraints ...]
 ```
 
 **Flow**:
+
 1. Load `modes/Super_Saiyan.md`.
 2. Summarize objectives, success signals, constraints, and existing assets.
 3. List ≥3 options with verification + risk notes.
@@ -98,11 +105,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Description**: Converts brainstorm output into multi-stream plans, with explicit Definition of Done and verification per task.
 
 **Usage**:
+
 ```bash
 /ctx:plan [summary] [--streams n] [--save]
 ```
 
 **Flow**:
+
 1. Restate objective and constraints.
 2. Break work into streams; map required agents/modes/rules.
 3. Define tasks + verification steps and sync the Task TUI.
@@ -113,11 +122,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Description**: Drives the plan through orchestration view + Task TUI, ensuring verification and status updates.
 
 **Usage**:
+
 ```bash
 /ctx:execute-plan [plan-link] [--sync-tasks] [--verify]
 ```
 
 **Flow**:
+
 1. Sync/validate tasks for each plan bullet.
 2. Toggle required modes/rules.
 3. Loop: pick task → implement → verify → update.
@@ -132,11 +143,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Description**: Directly invoke a skill from the skill library.
 
 **Usage**:
+
 ```bash
 /ctx:skill <skill-name>
 ```
 
 **Behavioral Flow**:
+
 1. **Load Skill**: The specified skill is loaded into the context.
 2. **Execute Skill**: The instructions within the skill are executed.
 
@@ -153,17 +166,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Code quality assessment requests for projects or specific components
 - Security vulnerability scanning and compliance validation needs
 - Performance bottleneck identification and optimization planning
 - Architecture review and technical debt assessment requirements
 
 **Usage**:
+
 ```bash
 /analyze:code [target] [--focus quality|security|performance|architecture] [--depth quick|deep|ultra] [--reasoning-profile default|security|performance] [--format text|json|report]
 ```
 
 **Behavioral Flow**:
+
 1. **Discover**: Categorize source files using language detection and project analysis
 2. **Scan**: Apply domain-specific analysis techniques and pattern matching
 3. **Evaluate**: Generate prioritized findings with severity ratings and impact assessment
@@ -171,6 +187,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Report**: Present comprehensive analysis with metrics and improvement roadmap
 
 **Tool Coordination**:
+
 - **Glob**: File discovery and project structure analysis
 - **Grep**: Pattern analysis and code search operations
 - **Read**: Source code inspection and configuration analysis
@@ -180,11 +197,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Reasoning Profiles**:
 
 **default**
+
 - Balanced analysis across all focus domains
 - Standard severity assessment and prioritization
 - Comprehensive reporting with actionable insights
 
 **security**
+
 - Deep threat modeling and attack vector analysis
 - OWASP Top 10 pattern matching and CVE correlation
 - Enhanced severity scoring for security vulnerabilities
@@ -192,6 +211,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Enables: Context7 for security best practices, Sequential for threat chains
 
 **performance**
+
 - Algorithmic complexity analysis (Big-O notation)
 - Resource usage profiling and bottleneck identification
 - Scalability assessment and load testing recommendations
@@ -199,6 +219,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Enables: Sequential for performance impact chains
 
 **Key Patterns**:
+
 - **Domain Analysis**: Quality/Security/Performance/Architecture → specialized assessment
 - **Pattern Recognition**: Language detection → appropriate analysis techniques
 - **Severity Assessment**: Issue classification → prioritized recommendations
@@ -232,11 +253,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Perform comprehensive static code analysis across multiple domains
 - Generate severity-rated findings with actionable recommendations
 - Provide detailed reports with metrics and improvement guidance
 
 **Will Not**:
+
 - Execute dynamic analysis requiring code compilation or runtime
 - Modify source code or apply fixes without explicit user consent
 - Analyze external dependencies beyond import and usage patterns
@@ -256,17 +279,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, performance, project-manager
 
 **Triggers**:
+
 - Development planning requiring time, effort, or complexity estimates
 - Project scoping and resource allocation decisions
 - Feature breakdown needing systematic estimation methodology
 - Risk assessment and confidence interval analysis requirements
 
 **Usage**:
+
 ```bash
 /analyze:estimate [target] [--type time|effort|complexity] [--unit hours|days|weeks] [--breakdown]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine scope, complexity factors, dependencies, and framework patterns
 2. **Calculate**: Apply estimation methodology with historical benchmarks and complexity scoring
 3. **Validate**: Cross-reference estimates with project patterns and domain expertise
@@ -274,17 +300,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Track**: Document estimation accuracy for continuous methodology improvement
 
 **MCP Integration**:
+
 - **Sequential MCP**: Complex multi-step estimation analysis and systematic complexity assessment
 - **Context7 MCP**: Framework-specific estimation patterns and historical benchmark data
 - **Persona Coordination**: Architect (design complexity), Performance (optimization effort), Project Manager (timeline)
 
 **Tool Coordination**:
+
 - **Read/Grep/Glob**: Codebase analysis for complexity assessment and scope evaluation
 - **TodoWrite**: Estimation breakdown and progress tracking for complex estimation workflows
 - **Task**: Advanced delegation for multi-domain estimation requiring systematic coordination
 - **Bash**: Project analysis and dependency evaluation for accurate complexity scoring
 
 **Key Patterns**:
+
 - **Scope Analysis**: Project requirements → complexity factors → framework patterns → risk assessment
 - **Estimation Methodology**: Time-based → Effort-based → Complexity-based → Cost-based approaches
 - **Multi-Domain Assessment**: Architecture complexity → Performance requirements → Project timeline
@@ -312,11 +341,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Provide systematic development estimates with confidence intervals and risk assessment
 - Apply multi-persona coordination for comprehensive complexity analysis
 - Generate detailed breakdown analysis with historical benchmark comparisons
 
 **Will Not**:
+
 - Guarantee estimate accuracy without proper scope analysis and validation
 - Provide estimates without appropriate domain expertise and complexity assessment
 - Override historical benchmarks without clear justification and analysis
@@ -336,17 +367,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: educator, architect, security
 
 **Triggers**:
+
 - Code understanding and documentation requests for complex functionality
 - System behavior explanation needs for architectural components
 - Educational content generation for knowledge transfer
 - Framework-specific concept clarification requirements
 
 **Usage**:
+
 ```bash
 /analyze:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine target code, concept, or system for comprehensive understanding
 2. **Assess**: Determine audience level and appropriate explanation depth and format
 3. **Structure**: Plan explanation sequence with progressive complexity and logical flow
@@ -354,16 +388,19 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Validate**: Verify explanation accuracy and educational effectiveness
 
 **MCP Integration**:
+
 - **Sequential MCP**: Auto-activated for complex multi-component analysis and structured reasoning
 - **Context7 MCP**: Framework documentation and official pattern explanations
 - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
 
 **Tool Coordination**:
+
 - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
 - **TodoWrite**: Progress tracking for complex multi-part explanations
 - **Task**: Delegation for comprehensive explanation workflows requiring systematic breakdown
 
 **Key Patterns**:
+
 - **Progressive Learning**: Basic concepts → intermediate details → advanced implementation
 - **Framework Integration**: Context7 documentation → accurate official patterns and practices
 - **Multi-Domain Analysis**: Technical accuracy + educational clarity + security awareness
@@ -396,11 +433,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Provide clear, comprehensive explanations with educational clarity
 - Auto-activate relevant personas for domain expertise and accurate analysis
 - Generate framework-specific explanations with official documentation integration
 
 **Will Not**:
+
 - Generate explanations without thorough analysis and accuracy verification
 - Override project-specific documentation standards or reveal sensitive details
 - Bypass established explanation validation or educational quality requirements
@@ -418,12 +457,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Agents**: security-auditor
 
 **Triggers**:
+
 - Security audit requests
 - Pre-release security checks
 - Compliance requirements
 - Vulnerability reports
 
 **Usage**:
+
 ```bash
 /analyze:security-scan [path] [--standard OWASP|GDPR|SOC2|HIPAA]
 ```
@@ -470,6 +511,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Security Checks**:
 
 **Authentication & Authorization**
+
 - Password security
 - Session management
 - Token validation
@@ -477,6 +519,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Permission boundaries
 
 **Data Protection**
+
 - Encryption at rest
 - Encryption in transit
 - Data sanitization
@@ -484,6 +527,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Secure storage
 
 **API Security**
+
 - Rate limiting
 - Input validation
 - Authentication
@@ -491,6 +535,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Error handling
 
 **Infrastructure**
+
 - Security headers
 - SSL/TLS configuration
 - Firewall rules
@@ -498,6 +543,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Logging and monitoring
 
 **Severity Levels**:
+
 - **Critical**: Immediate fix required
 - **High**: Fix within 7 days
 - **Medium**: Fix within 30 days
@@ -507,12 +553,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Output Format**:
 
 **Executive Summary**
+
 - Overall security posture
 - Critical findings count
 - Risk assessment
 - Compliance status
 
 **Detailed Findings**
+
 - Vulnerability description
 - Affected components
 - Severity rating
@@ -520,12 +568,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Code examples
 
 **Compliance Report**
+
 - Standard requirements
 - Compliance gaps
 - Recommendations
 - Implementation timeline
 
 **Example**:
+
 ```bash
 /analyze:security-scan src/auth --standard OWASP
 ```
@@ -533,11 +583,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Perform comprehensive security analysis following industry standards
 - Identify vulnerabilities with detailed remediation guidance
 - Generate compliance reports for specified security frameworks
 
 **Will Not**:
+
 - Perform actual penetration testing on production systems
 - Automatically fix security vulnerabilities without explicit authorization
 - Guarantee 100% security coverage (security is defense-in-depth)
@@ -553,17 +605,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Code defects and runtime error investigation requests
 - Build failure analysis and resolution needs
 - Performance issue diagnosis and optimization requirements
 - Deployment problem analysis and system behavior debugging
 
 **Usage**:
+
 ```bash
 /analyze:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine issue description and gather relevant system state information
 2. **Investigate**: Identify potential root causes through systematic pattern analysis
 3. **Debug**: Execute structured debugging procedures including log and state examination
@@ -571,12 +626,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Resolve**: Apply appropriate fixes and verify resolution effectiveness
 
 **Tool Coordination**:
+
 - **Read**: Log analysis and system state examination
 - **Bash**: Diagnostic command execution and system investigation
 - **Grep**: Error pattern detection and log analysis
 - **Write**: Diagnostic reports and resolution documentation
 
 **Key Patterns**:
+
 - **Bug Investigation**: Error analysis → stack trace examination → code inspection → fix validation
 - **Build Troubleshooting**: Build log analysis → dependency checking → configuration validation
 - **Performance Diagnosis**: Metrics analysis → bottleneck identification → optimization recommendations
@@ -609,11 +666,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute systematic issue diagnosis using structured debugging methodologies
 - Provide validated solution approaches with comprehensive problem analysis
 - Apply safe fixes with verification and detailed resolution documentation
 
 **Will Not**:
+
 - Apply risky fixes without proper analysis and user confirmation
 - Modify production systems without explicit permission and safety validation
 - Make architectural changes without understanding full system impact
@@ -633,12 +692,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Agents**: deployment-engineer, quality-engineer
 
 **Triggers**:
+
 - Version release requests
 - Production deployment preparation
 - Release candidate creation
 - Deployment readiness validation
 
 **Usage**:
+
 ```bash
 /deploy:prepare-release [version] [--type major|minor|patch]
 ```
@@ -689,36 +750,42 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Checklist Output**:
 
 **Pre-Release**
+
 - [ ] All tests passing
 - [ ] Security audit complete
 - [ ] Performance validated
 - [ ] Dependencies updated
 
 **Version Control**
+
 - [ ] Version bumped
 - [ ] Changelog generated
 - [ ] Git tag created
 - [ ] Branch merged
 
 **Build**
+
 - [ ] Production build created
 - [ ] Assets optimized
 - [ ] Source maps generated
 - [ ] Build validated
 
 **Documentation**
+
 - [ ] Release notes written
 - [ ] API docs updated
 - [ ] Migration guide ready
 - [ ] Changelog complete
 
 **Deployment**
+
 - [ ] Rollback plan documented
 - [ ] Environment configured
 - [ ] Monitoring setup
 - [ ] Team notified
 
 **Example**:
+
 ```bash
 /deploy:prepare-release 2.1.0 --type minor
 ```
@@ -726,11 +793,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute comprehensive pre-release validation and preparation
 - Generate deployment checklists and rollback plans
 - Update version management and documentation systematically
 
 **Will Not**:
+
 - Automatically deploy to production without explicit approval
 - Skip critical validation steps for faster deployment
 - Modify production infrastructure without proper planning
@@ -748,17 +817,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Architecture planning and system design requests
 - API specification and interface design needs
 - Component design and technical specification requirements
 - Database schema and data model design requests
 
 **Usage**:
+
 ```bash
 /design:system [target] [--type architecture|api|component|database] [--format diagram|spec|code]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine target requirements and existing system context
 2. **Plan**: Define design approach and structure based on type and format
 3. **Design**: Create comprehensive specifications with industry best practices
@@ -766,12 +838,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Document**: Generate clear design documentation with diagrams and specifications
 
 **Tool Coordination**:
+
 - **Read**: Requirements analysis and existing system examination
 - **Grep/Glob**: Pattern analysis and system structure investigation
 - **Write**: Design documentation and specification generation
 - **Bash**: External design tool integration when needed
 
 **Key Patterns**:
+
 - **Architecture Design**: Requirements → system structure → scalability planning
 - **API Design**: Interface specification → RESTful/GraphQL patterns → documentation
 - **Component Design**: Functional requirements → interface design → implementation guidance
@@ -804,11 +878,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Create comprehensive design specifications with industry best practices
 - Generate multiple format outputs (diagrams, specs, code) based on requirements
 - Validate designs against maintainability and scalability standards
 
 **Will Not**:
+
 - Generate actual implementation code (use /dev:implement for implementation)
 - Modify existing system architecture without explicit design approval
 - Create designs that violate established architectural constraints
@@ -828,17 +904,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, analyzer, frontend, backend, security, devops, project-manager
 
 **Triggers**:
+
 - PRD and feature specification analysis for implementation planning
 - Structured workflow generation for development projects
 - Multi-persona coordination for complex implementation strategies
 - Cross-session workflow management and dependency mapping
 
 **Usage**:
+
 ```bash
 /design:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Parse PRD and feature specifications to understand implementation requirements
 2. **Plan**: Generate comprehensive workflow structure with dependency mapping and task orchestration
 3. **Coordinate**: Activate multiple personas for domain expertise and implementation strategy
@@ -846,6 +925,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Validate**: Apply quality gates and ensure workflow completeness across domains
 
 **MCP Integration**:
+
 - **Sequential MCP**: Complex multi-step workflow analysis and systematic implementation planning
 - **Context7 MCP**: Framework-specific workflow patterns and implementation best practices
 - **Magic MCP**: UI/UX workflow generation and design system integration strategies
@@ -854,6 +934,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Serena MCP**: Cross-session workflow persistence, memory management, and project context
 
 **Tool Coordination**:
+
 - **Read/Write/Edit**: PRD analysis and workflow documentation generation
 - **TodoWrite**: Progress tracking for complex multi-phase workflow execution
 - **Task**: Advanced delegation for parallel workflow generation and multi-agent coordination
@@ -861,6 +942,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **sequentialthinking**: Structured reasoning for complex workflow dependency analysis
 
 **Key Patterns**:
+
 - **PRD Analysis**: Document parsing → requirement extraction → implementation strategy development
 - **Workflow Generation**: Task decomposition → dependency mapping → structured implementation planning
 - **Multi-Domain Coordination**: Cross-functional expertise → comprehensive implementation strategies
@@ -893,11 +975,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Generate comprehensive implementation workflows from PRD and feature specifications
 - Coordinate multiple personas and MCP servers for complete implementation strategies
 - Provide cross-session workflow management and progressive enhancement capabilities
 
 **Will Not**:
+
 - Execute actual implementation tasks beyond workflow planning and strategy
 - Override established development processes without proper analysis and validation
 - Generate workflows without comprehensive requirement analysis and dependency mapping
@@ -919,17 +1003,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: devops-engineer
 
 **Triggers**:
+
 - Project compilation and packaging requests for different environments
 - Build optimization and artifact generation needs
 - Error debugging during build processes
 - Deployment preparation and artifact packaging requirements
 
 **Usage**:
+
 ```bash
 /dev:build [target] [--type dev|prod|test] [--clean] [--optimize] [--verbose]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Project structure, build configurations, and dependency manifests
 2. **Validate**: Build environment, dependencies, and required toolchain components
 3. **Execute**: Build process with real-time monitoring and error detection
@@ -937,11 +1024,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Package**: Generate deployment artifacts and comprehensive build reports
 
 **MCP Integration**:
+
 - **Playwright MCP**: Auto-activated for build validation and UI testing during builds
 - **DevOps Engineer Persona**: Activated for build optimization and deployment preparation
 - **Enhanced Capabilities**: Build pipeline integration, performance monitoring, artifact validation
 
 **Tool Coordination**:
+
 - **Bash**: Build system execution and process management
 - **Read**: Configuration analysis and manifest inspection
 - **Grep**: Error parsing and build log analysis
@@ -949,6 +1038,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Write**: Build reports and deployment documentation
 
 **Key Patterns**:
+
 - **Environment Builds**: dev/prod/test → appropriate configuration and optimization
 - **Error Analysis**: Build failures → diagnostic analysis and resolution guidance
 - **Optimization**: Artifact analysis → size reduction and performance improvements
@@ -981,11 +1071,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute project build systems using existing configurations
 - Provide comprehensive error analysis and optimization recommendations
 - Generate deployment-ready artifacts with detailed reporting
 
 **Will Not**:
+
 - Modify build system configuration or create new build scripts
 - Install missing build dependencies or development tools
 - Execute deployment operations beyond artifact preparation
@@ -1003,12 +1095,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Agents**: code-reviewer, security-auditor
 
 **Triggers**:
+
 - Pull request reviews
 - Pre-commit code quality checks
 - Refactoring validation
 - Manual code review requests
 
 **Usage**:
+
 ```bash
 /dev:code-review [path] [--focus quality|security|performance|all]
 ```
@@ -1052,6 +1146,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Best Practices**: Recommendations for improvement
 
 **Example**:
+
 ```bash
 /dev:code-review src/auth --focus security
 ```
@@ -1059,11 +1154,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Perform comprehensive code review across multiple quality dimensions
 - Identify issues with severity ratings and actionable recommendations
 - Generate detailed review reports with improvement guidance
 
 **Will Not**:
+
 - Automatically apply code changes without explicit approval
 - Override project-specific coding standards or conventions
 - Guarantee 100% issue detection (review is advisory)
@@ -1079,17 +1176,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Git repository operations: status, add, commit, push, pull, branch
 - Need for intelligent commit message generation
 - Repository workflow optimization requests
 - Branch management and merge operations
 
 **Usage**:
+
 ```bash
 /dev:git [operation] [args] [--smart-commit] [--interactive]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Check repository state and working directory changes
 2. **Validate**: Ensure operation is appropriate for current Git context
 3. **Execute**: Run Git command with intelligent automation
@@ -1097,12 +1197,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Report**: Provide status and next steps guidance
 
 **Tool Coordination**:
+
 - **Bash**: Git command execution and repository operations
 - **Read**: Repository state analysis and configuration review
 - **Grep**: Log parsing and status analysis
 - **Write**: Commit message generation and documentation
 
 **Key Patterns**:
+
 - **Smart Commits**: Analyze changes → generate conventional commit message
 - **Status Analysis**: Repository state → actionable recommendations
 - **Branch Strategy**: Consistent naming and workflow enforcement
@@ -1129,11 +1231,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute Git operations with intelligent automation
 - Generate conventional commit messages from change analysis
 - Provide workflow optimization and best practice guidance
 
 **Will Not**:
+
 - Modify repository configuration without explicit authorization
 - Execute destructive operations without confirmation
 - Handle complex merges requiring manual intervention
@@ -1155,17 +1259,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, frontend, backend, security, qa-specialist
 
 **Triggers**:
+
 - Feature development requests for components, APIs, or complete functionality
 - Code implementation needs with framework-specific requirements
 - Multi-domain development requiring coordinated expertise
 - Implementation projects requiring testing and validation integration
 
 **Usage**:
+
 ```bash
 /dev:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine implementation requirements and detect technology context
 2. **Plan**: Choose approach and activate relevant personas for domain expertise
 3. **Generate**: Create implementation code with framework-specific best practices
@@ -1173,18 +1280,21 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Integrate**: Update documentation and provide testing recommendations
 
 **MCP Integration**:
+
 - **Context7 MCP**: Framework patterns and official documentation for React, Vue, Angular, Express
 - **Magic MCP**: Auto-activated for UI component generation and design system integration
 - **Sequential MCP**: Complex multi-step analysis and implementation planning
 - **Playwright MCP**: Testing validation and quality assurance integration
 
 **Tool Coordination**:
+
 - **Write/Edit/MultiEdit**: Code generation and modification for implementation
 - **Read/Grep/Glob**: Project analysis and pattern detection for consistency
 - **TodoWrite**: Progress tracking for complex multi-file implementations
 - **Task**: Delegation for large-scale feature development requiring systematic coordination
 
 **Key Patterns**:
+
 - **Context Detection**: Framework/tech stack → appropriate persona and MCP activation
 - **Implementation Flow**: Requirements → code generation → validation → integration
 - **Multi-Persona Coordination**: Frontend + Backend + Security → comprehensive solutions
@@ -1217,11 +1327,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Implement features with intelligent persona activation and MCP coordination
 - Apply framework-specific best practices and security validation
 - Provide comprehensive implementation with testing and documentation integration
 
 **Will Not**:
+
 - Make architectural decisions without appropriate persona consultation
 - Implement features conflicting with security policies or architectural constraints
 - Override user-specified safety constraints or bypass quality gates
@@ -1241,17 +1353,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: qa-specialist
 
 **Triggers**:
+
 - Test execution requests for unit, integration, or e2e tests
 - Coverage analysis and quality gate validation needs
 - Continuous testing and watch mode scenarios
 - Test failure analysis and debugging requirements
 
 **Usage**:
+
 ```bash
 /dev:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]
 ```
 
 **Behavioral Flow**:
+
 1. **Discover**: Categorize available tests using runner patterns and conventions
 2. **Configure**: Set up appropriate test environment and execution parameters
 3. **Execute**: Run tests with monitoring and real-time progress tracking
@@ -1259,17 +1374,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Report**: Provide actionable recommendations and quality metrics
 
 **MCP Integration**:
+
 - **Playwright MCP**: Auto-activated for `--type e2e` browser testing
 - **QA Specialist Persona**: Activated for test analysis and quality assessment
 - **Enhanced Capabilities**: Cross-browser testing, visual validation, performance metrics
 
 **Tool Coordination**:
+
 - **Bash**: Test runner execution and environment management
 - **Glob**: Test discovery and file pattern matching
 - **Grep**: Result parsing and failure analysis
 - **Write**: Coverage reports and test summaries
 
 **Key Patterns**:
+
 - **Test Discovery**: Pattern-based categorization → appropriate runner selection
 - **Coverage Analysis**: Execution metrics → comprehensive coverage reporting
 - **E2E Testing**: Browser automation → cross-platform validation
@@ -1301,11 +1419,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute existing test suites using project's configured test runner
 - Generate coverage reports and quality metrics
 - Provide intelligent test failure analysis with actionable recommendations
 
 **Will Not**:
+
 - Generate test cases or modify test framework configuration
 - Execute tests requiring external services without proper setup
 - Make destructive changes to test files without explicit permission
@@ -1323,17 +1443,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Documentation requests for specific components, functions, or features
 - API documentation and reference material generation needs
 - Code comment and inline documentation requirements
 - User guide and technical documentation creation requests
 
 **Usage**:
+
 ```bash
 /docs:generate [target] [--type inline|external|api|guide] [--style brief|detailed]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine target component structure, interfaces, and functionality
 2. **Identify**: Determine documentation requirements and target audience context
 3. **Generate**: Create appropriate documentation content based on type and style
@@ -1341,12 +1464,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Integrate**: Ensure compatibility with existing project documentation ecosystem
 
 **Tool Coordination**:
+
 - **Read**: Component analysis and existing documentation review
 - **Grep**: Reference extraction and pattern identification
 - **Write**: Documentation file creation with proper formatting
 - **Glob**: Multi-file documentation projects and organization
 
 **Key Patterns**:
+
 - **Inline Documentation**: Code analysis → JSDoc/docstring generation → inline comments
 - **API Documentation**: Interface extraction → reference material → usage examples
 - **User Guides**: Feature analysis → tutorial content → implementation guidance
@@ -1379,11 +1504,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Generate focused documentation for specific components and features
 - Create multiple documentation formats based on target audience needs
 - Integrate with existing documentation ecosystems and maintain consistency
 
 **Will Not**:
+
 - Generate documentation without proper code analysis and context understanding
 - Override existing documentation standards or project-specific conventions
 - Create documentation that exposes sensitive implementation details
@@ -1403,17 +1530,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, scribe, quality
 
 **Triggers**:
+
 - Project documentation creation and maintenance requirements
 - Knowledge base generation and organization needs
 - API documentation and structure analysis requirements
 - Cross-referencing and navigation enhancement requests
 
 **Usage**:
+
 ```bash
 /docs:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine project structure and identify key documentation components
 2. **Organize**: Apply intelligent organization patterns and cross-referencing strategies
 3. **Generate**: Create comprehensive documentation with framework-specific patterns
@@ -1421,17 +1551,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Maintain**: Update existing documentation while preserving manual additions and customizations
 
 **MCP Integration**:
+
 - **Sequential MCP**: Complex multi-step project analysis and systematic documentation generation
 - **Context7 MCP**: Framework-specific documentation patterns and established standards
 - **Persona Coordination**: Architect (structure), Scribe (content), Quality (validation)
 
 **Tool Coordination**:
+
 - **Read/Grep/Glob**: Project structure analysis and content extraction for documentation generation
 - **Write**: Documentation creation with intelligent organization and cross-referencing
 - **TodoWrite**: Progress tracking for complex multi-component documentation workflows
 - **Task**: Advanced delegation for large-scale documentation requiring systematic coordination
 
 **Key Patterns**:
+
 - **Structure Analysis**: Project examination → component identification → logical organization → cross-referencing
 - **Documentation Types**: API docs → Structure docs → README → Knowledge base approaches
 - **Quality Validation**: Completeness assessment → accuracy verification → standard compliance → maintenance planning
@@ -1459,11 +1592,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Generate comprehensive project documentation with intelligent organization and cross-referencing
 - Apply multi-persona coordination for systematic analysis and quality validation
 - Provide framework-specific patterns and established documentation standards
 
 **Will Not**:
+
 - Override existing manual documentation without explicit update permission
 - Generate documentation without appropriate project structure analysis and validation
 - Bypass established documentation standards or quality requirements
@@ -1485,17 +1620,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, analyzer, frontend, backend, security, devops, project-manager
 
 **Triggers**:
+
 - Ambiguous project ideas requiring structured exploration
 - Requirements discovery and specification development needs
 - Concept validation and feasibility assessment requests
 - Cross-session brainstorming and iterative refinement scenarios
 
 **Usage**:
+
 ```bash
 /orchestrate:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
 **Behavioral Flow**:
+
 1. **Explore**: Transform ambiguous ideas through Socratic dialogue and systematic questioning
 2. **Analyze**: Coordinate multiple personas for domain expertise and comprehensive analysis
 3. **Validate**: Apply feasibility assessment and requirement validation across domains
@@ -1503,6 +1641,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Handoff**: Create actionable briefs ready for implementation or further development
 
 **MCP Integration**:
+
 - **Sequential MCP**: Complex multi-step reasoning for systematic exploration and validation
 - **Context7 MCP**: Framework-specific feasibility assessment and pattern analysis
 - **Magic MCP**: UI/UX feasibility and design system integration analysis
@@ -1511,6 +1650,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
 
 **Tool Coordination**:
+
 - **Read/Write/Edit**: Requirements documentation and specification generation
 - **TodoWrite**: Progress tracking for complex multi-phase exploration
 - **Task**: Advanced delegation for parallel exploration paths and multi-agent coordination
@@ -1518,6 +1658,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **sequentialthinking**: Structured reasoning for complex requirements analysis
 
 **Key Patterns**:
+
 - **Socratic Dialogue**: Question-driven exploration → systematic requirements discovery
 - **Multi-Domain Analysis**: Cross-functional expertise → comprehensive feasibility assessment
 - **Progressive Coordination**: Systematic exploration → iterative refinement and validation
@@ -1550,11 +1691,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Transform ambiguous ideas into concrete specifications through systematic exploration
 - Coordinate multiple personas and MCP servers for comprehensive analysis
 - Provide cross-session persistence and progressive dialogue enhancement
 
 **Will Not**:
+
 - Make implementation decisions without proper requirements discovery
 - Override user vision with prescriptive solutions during exploration phase
 - Bypass systematic exploration for complex multi-domain projects
@@ -1564,6 +1707,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 ---
 
 ### /reasoning:adjust
+
 ### /reasoning:budget
 
 **Description**: Control internal reasoning token budget for cost and quality optimization
@@ -1571,22 +1715,26 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Need to control reasoning depth and cost trade-offs
 - Complex problems requiring extended thinking time
 - Budget-conscious operations with quality requirements
 
 **Usage**:
+
 ```bash
 /reasoning:budget [4000|10000|32000|128000] [--auto-adjust] [--show-usage]
 ```
 
 **Budget Levels**:
+
 - **4K**: Standard reasoning (~$0.012) - routine tasks
 - **10K**: Deep reasoning (~$0.030) - architectural decisions  
 - **32K**: Maximum reasoning (~$0.096) - critical redesign
 - **128K**: Extended thinking (~$0.384) - extreme complexity (5x cheaper than OpenAI o1)
 
 **Examples**:
+
 ```bash
 # Extended thinking for critical issue
 /reasoning:budget 128000 --show-usage
@@ -1607,16 +1755,19 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Need to understand reasoning effectiveness and costs
 - Optimization of reasoning depth for specific task types
 - Budget planning and cost analysis
 
 **Usage**:
+
 ```bash
 /reasoning:metrics [--command <name>] [--timeframe 7d|30d|all] [--export json|markdown|csv]
 ```
 
 **Metrics Tracked**:
+
 - Token usage by reasoning level and command
 - Success rates and confidence scores
 - Cost analysis and budget efficiency
@@ -1624,6 +1775,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Optimization recommendations
 
 **Examples**:
+
 ```bash
 # Overall dashboard
 /reasoning:metrics
@@ -1639,18 +1791,19 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 
 ---
 
-
 **Description**: Dynamically adjust reasoning depth during task execution
 
 **Category**: utility | **Complexity**: basic
 
 **Triggers**:
+
 - Need to escalate or reduce reasoning depth during complex task execution
 - Initial analysis insufficient or overly verbose for current subtask
 - Performance optimization during long-running operations
 - Runtime adaptation based on emerging task complexity
 
 **Usage**:
+
 ```bash
 /reasoning:adjust [low|medium|high|ultra] [--scope current|remaining]
 ```
@@ -1658,23 +1811,27 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Reasoning Depth Levels**:
 
 **low (~2K tokens)**
+
 - Simple operations, quick iterations, prototyping
 - No MCP servers (native tools only)
 - Direct solutions, minimal exploration
 
 **medium (~4K tokens)**
+
 - Standard development tasks, moderate complexity
 - MCP: Sequential (structured reasoning)
 - Systematic exploration, hypothesis testing
 - Equivalent to `--think` flag
 
 **high (~10K tokens)**
+
 - Architectural decisions, system-wide dependencies
 - MCP: Sequential + Context7 (official patterns)
 - Deep exploration, trade-off analysis
 - Equivalent to `--think-hard` flag
 
 **ultra (~32K tokens)**
+
 - Critical redesigns, legacy modernization, complex debugging
 - MCP: All available (Sequential, Context7, Serena, etc.)
 - Maximum depth, exhaustive exploration, meta-analysis
@@ -1682,6 +1839,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - Auto-enables `--introspect` transparency markers
 
 **Scope Control**:
+
 - `--scope current`: Apply to current subtask only, revert after completion
 - `--scope remaining`: Apply to all remaining work (default)
 
@@ -1712,17 +1870,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Category**: special | **Complexity**: high
 
 **Triggers**:
+
 - Complex multi-domain operations requiring intelligent task breakdown
 - Large-scale system operations spanning multiple technical areas
 - Operations requiring parallel coordination and dependency management
 - Meta-level orchestration beyond standard command capabilities
 
 **Usage**:
+
 ```bash
 /orchestrate:spawn [complex-task] [--strategy sequential|parallel|adaptive] [--depth normal|deep]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Parse complex operation requirements and assess scope across domains
 2. **Decompose**: Break down operation into coordinated subtask hierarchies
 3. **Orchestrate**: Execute tasks using optimal coordination strategy (parallel/sequential)
@@ -1730,17 +1891,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Integrate**: Aggregate results and provide comprehensive orchestration summary
 
 **MCP Integration**:
+
 - **Native Orchestration**: Meta-system command uses native coordination without MCP dependencies
 - **Progressive Integration**: Coordination with systematic execution for progressive enhancement
 - **Framework Integration**: Advanced integration with SuperClaude orchestration layers
 
 **Tool Coordination**:
+
 - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
 - **Read/Grep/Glob**: System analysis and dependency mapping for complex operations
 - **Edit/MultiEdit/Write**: Coordinated file operations with parallel and sequential execution
 - **Bash**: System-level operations coordination with intelligent resource management
 
 **Key Patterns**:
+
 - **Hierarchical Breakdown**: Epic-level operations → Story coordination → Task execution → Subtask granularity
 - **Strategy Selection**: Sequential (dependency-ordered) → Parallel (independent) → Adaptive (dynamic)
 - **Meta-System Coordination**: Cross-domain operations → resource optimization → result integration
@@ -1768,11 +1932,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Decompose complex multi-domain operations into coordinated task hierarchies
 - Provide intelligent orchestration with parallel and sequential coordination strategies
 - Execute meta-system operations beyond standard command capabilities
 
 **Will Not**:
+
 - Replace domain-specific commands for simple operations
 - Override user coordination preferences or execution strategies
 - Execute operations without proper dependency analysis and validation
@@ -1792,17 +1958,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, analyzer, frontend, backend, security, devops, project-manager
 
 **Triggers**:
+
 - Complex tasks requiring multi-agent coordination and delegation
 - Projects needing structured workflow management and cross-session persistence
 - Operations requiring intelligent MCP server routing and domain expertise
 - Tasks benefiting from systematic execution and progressive enhancement
 
 **Usage**:
+
 ```bash
 /orchestrate:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Parse task requirements and determine optimal execution strategy
 2. **Delegate**: Route to appropriate MCP servers and activate relevant personas
 3. **Coordinate**: Execute tasks with intelligent workflow management and parallel processing
@@ -1810,6 +1979,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Optimize**: Analyze performance and provide enhancement recommendations
 
 **MCP Integration**:
+
 - **Sequential MCP**: Complex multi-step task analysis and systematic execution planning
 - **Context7 MCP**: Framework-specific patterns and implementation best practices
 - **Magic MCP**: UI/UX task coordination and design system integration
@@ -1818,12 +1988,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Serena MCP**: Cross-session task persistence and project memory management
 
 **Tool Coordination**:
+
 - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
 - **Task**: Advanced delegation for complex multi-agent coordination and sub-task management
 - **Read/Write/Edit**: Task documentation and implementation coordination
 - **sequentialthinking**: Structured reasoning for complex task dependency analysis
 
 **Key Patterns**:
+
 - **Task Hierarchy**: Epic-level objectives → Story coordination → Task execution → Subtask granularity
 - **Strategy Selection**: Systematic (comprehensive) → Agile (iterative) → Enterprise (governance)
 - **Multi-Agent Coordination**: Persona activation → MCP routing → parallel execution → result integration
@@ -1851,11 +2023,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Execute complex tasks with multi-agent coordination and intelligent delegation
 - Provide hierarchical task breakdown with cross-session persistence
 - Coordinate multiple MCP servers and personas for optimal task outcomes
 
 **Will Not**:
+
 - Execute simple tasks that don't require advanced orchestration
 - Compromise quality standards for speed or convenience
 - Operate without proper validation and quality gates
@@ -1877,17 +2051,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, quality, security
 
 **Triggers**:
+
 - Code maintenance and technical debt reduction requests
 - Dead code removal and import optimization needs
 - Project structure improvement and organization requirements
 - Codebase hygiene and quality improvement initiatives
 
 **Usage**:
+
 ```bash
 /quality:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Assess cleanup opportunities and safety considerations across target scope
 2. **Plan**: Choose cleanup approach and activate relevant personas for domain expertise
 3. **Execute**: Apply systematic cleanup with intelligent dead code detection and removal
@@ -1895,17 +2072,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Report**: Generate cleanup summary with recommendations for ongoing maintenance
 
 **MCP Integration**:
+
 - **Sequential MCP**: Auto-activated for complex multi-step cleanup analysis and planning
 - **Context7 MCP**: Framework-specific cleanup patterns and best practices
 - **Persona Coordination**: Architect (structure), Quality (debt), Security (credentials)
 
 **Tool Coordination**:
+
 - **Read/Grep/Glob**: Code analysis and pattern detection for cleanup opportunities
 - **Edit/MultiEdit**: Safe code modification and structure optimization
 - **TodoWrite**: Progress tracking for complex multi-file cleanup operations
 - **Task**: Delegation for large-scale cleanup workflows requiring systematic coordination
 
 **Key Patterns**:
+
 - **Dead Code Detection**: Usage analysis → safe removal with dependency validation
 - **Import Optimization**: Dependency analysis → unused import removal and organization
 - **Structure Cleanup**: Architectural analysis → file organization and modular improvements
@@ -1938,11 +2118,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Systematically clean code, remove dead code, and optimize project structure
 - Provide comprehensive safety validation with backup and rollback capabilities
 - Apply intelligent cleanup algorithms with framework-specific pattern recognition
 
 **Will Not**:
+
 - Remove code without thorough safety analysis and validation
 - Override project-specific cleanup exclusions or architectural constraints
 - Apply cleanup operations that compromise functionality or introduce bugs
@@ -1962,17 +2144,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Personas**: architect, performance, quality, security
 
 **Triggers**:
+
 - Code quality enhancement and refactoring requests
 - Performance optimization and bottleneck resolution needs
 - Maintainability improvements and technical debt reduction
 - Best practices application and coding standards enforcement
 
 **Usage**:
+
 ```bash
 /quality:improve [target] [--type quality|performance|maintainability|style] [--safe] [--interactive]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine codebase for improvement opportunities and quality issues
 2. **Plan**: Choose improvement approach and activate relevant personas for expertise
 3. **Execute**: Apply systematic improvements with domain-specific best practices
@@ -1980,17 +2165,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Document**: Generate improvement summary and recommendations for future work
 
 **MCP Integration**:
+
 - **Sequential MCP**: Auto-activated for complex multi-step improvement analysis and planning
 - **Context7 MCP**: Framework-specific best practices and optimization patterns
 - **Persona Coordination**: Architect (structure), Performance (speed), Quality (maintainability), Security (safety)
 
 **Tool Coordination**:
+
 - **Read/Grep/Glob**: Code analysis and improvement opportunity identification
 - **Edit/MultiEdit**: Safe code modification and systematic refactoring
 - **TodoWrite**: Progress tracking for complex multi-file improvement operations
 - **Task**: Delegation for large-scale improvement workflows requiring systematic coordination
 
 **Key Patterns**:
+
 - **Quality Improvement**: Code analysis → technical debt identification → refactoring application
 - **Performance Optimization**: Profiling analysis → bottleneck identification → optimization implementation
 - **Maintainability Enhancement**: Structure analysis → complexity reduction → documentation improvement
@@ -2023,11 +2211,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Apply systematic improvements with domain-specific expertise and validation
 - Provide comprehensive analysis with multi-persona coordination and best practices
 - Execute safe refactoring with rollback capabilities and quality preservation
 
 **Will Not**:
+
 - Apply risky improvements without proper analysis and user confirmation
 - Make architectural changes without understanding full system impact
 - Override established coding standards or project-specific conventions
@@ -2047,17 +2237,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **MCP Servers**: serena
 
 **Triggers**:
+
 - Session initialization and project context loading requests
 - Cross-session persistence and memory retrieval needs
 - Project activation and context management requirements
 - Session lifecycle management and checkpoint loading scenarios
 
 **Usage**:
+
 ```bash
 /session:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
 ```
 
 **Behavioral Flow**:
+
 1. **Initialize**: Establish Serena MCP connection and session context management
 2. **Discover**: Analyze project structure and identify context loading requirements
 3. **Load**: Retrieve project memories, checkpoints, and cross-session persistence data
@@ -2065,17 +2258,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Validate**: Ensure loaded context integrity and session readiness
 
 **MCP Integration**:
+
 - **Serena MCP**: Mandatory integration for project activation, memory retrieval, and session management
 - **Memory Operations**: Cross-session persistence, checkpoint loading, and context restoration
 - **Performance Critical**: <200ms for core operations, <1s for checkpoint creation
 
 **Tool Coordination**:
+
 - **activate_project**: Core project activation and context establishment
 - **list_memories/read_memory**: Memory retrieval and session context loading
 - **Read/Grep/Glob**: Project structure analysis and configuration discovery
 - **Write**: Session context documentation and checkpoint creation
 
 **Key Patterns**:
+
 - **Project Activation**: Directory analysis → memory retrieval → context establishment
 - **Session Restoration**: Checkpoint loading → context validation → workflow preparation
 - **Memory Management**: Cross-session persistence → context continuity → development efficiency
@@ -2108,11 +2304,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Load project context using Serena MCP integration for memory management
 - Provide session lifecycle management with cross-session persistence
 - Establish project activation with comprehensive context loading
 
 **Will Not**:
+
 - Modify project structure or configuration without explicit permission
 - Load context without proper Serena MCP integration and validation
 - Override existing session context without checkpoint preservation
@@ -2130,17 +2328,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **MCP Servers**: serena
 
 **Triggers**:
+
 - Task completion requiring validation and quality assessment
 - Session progress analysis and reflection on work accomplished
 - Cross-session learning and insight capture for project improvement
 - Quality gates requiring comprehensive task adherence verification
 
 **Usage**:
+
 ```bash
 /session:reflect [--type task|session|completion] [--analyze] [--validate]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine current task state and session progress using Serena reflection tools
 2. **Validate**: Assess task adherence, completion quality, and requirement fulfillment
 3. **Reflect**: Apply deep analysis of collected information and session insights
@@ -2148,12 +2349,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Optimize**: Provide recommendations for process improvement and quality enhancement
 
 **MCP Integration**:
+
 - **Serena MCP**: Mandatory integration for reflection analysis, task validation, and session metadata
 - **Reflection Tools**: think_about_task_adherence, think_about_collected_information, think_about_whether_you_are_done
 - **Memory Operations**: Cross-session persistence with read_memory, write_memory, list_memories
 - **Performance Critical**: <200ms for core reflection operations, <1s for checkpoint creation
 
 **Tool Coordination**:
+
 - **TodoRead/TodoWrite**: Bridge between traditional task management and advanced reflection analysis
 - **think_about_task_adherence**: Validates current approach against project goals and session objectives
 - **think_about_collected_information**: Analyzes session work and information gathering completeness
@@ -2161,6 +2364,7 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 - **Memory Tools**: Session metadata updates and cross-session learning capture
 
 **Key Patterns**:
+
 - **Task Validation**: Current approach → goal alignment → deviation identification → course correction
 - **Session Analysis**: Information gathering → completeness assessment → quality evaluation → insight capture
 - **Completion Assessment**: Progress evaluation → completion criteria → remaining work → decision validation
@@ -2188,11 +2392,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Perform comprehensive task reflection and validation using Serena MCP analysis tools
 - Bridge TodoWrite patterns with advanced reflection capabilities for enhanced task management
 - Provide cross-session learning capture and session lifecycle integration
 
 **Will Not**:
+
 - Operate without proper Serena MCP integration and reflection tool access
 - Override task completion decisions without proper adherence and quality validation
 - Bypass session integrity checks and cross-session persistence requirements
@@ -2210,17 +2416,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **MCP Servers**: serena
 
 **Triggers**:
+
 - Session completion and project context persistence needs
 - Cross-session memory management and checkpoint creation requests
 - Project understanding preservation and discovery archival scenarios
 - Session lifecycle management and progress tracking requirements
 
 **Usage**:
+
 ```bash
 /session:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
 ```
 
 **Behavioral Flow**:
+
 1. **Analyze**: Examine session progress and identify discoveries worth preserving
 2. **Persist**: Save session context and learnings using Serena MCP memory management
 3. **Checkpoint**: Create recovery points for complex sessions and progress tracking
@@ -2228,17 +2437,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Prepare**: Ready session context for seamless continuation in future sessions
 
 **MCP Integration**:
+
 - **Serena MCP**: Mandatory integration for session management, memory operations, and cross-session persistence
 - **Memory Operations**: Session context storage, checkpoint creation, and discovery archival
 - **Performance Critical**: <200ms for memory operations, <1s for checkpoint creation
 
 **Tool Coordination**:
+
 - **write_memory/read_memory**: Core session context persistence and retrieval
 - **think_about_collected_information**: Session analysis and discovery identification
 - **summarize_changes**: Session summary generation and progress documentation
 - **TodoRead**: Task completion tracking for automatic checkpoint triggers
 
 **Key Patterns**:
+
 - **Session Preservation**: Discovery analysis → memory persistence → checkpoint creation
 - **Cross-Session Learning**: Context accumulation → pattern archival → enhanced project understanding
 - **Progress Tracking**: Task completion → automatic checkpoints → session continuity
@@ -2271,11 +2483,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Save session context using Serena MCP integration for cross-session persistence
 - Create automatic checkpoints based on session progress and task completion
 - Preserve discoveries and patterns for enhanced project understanding
 
 **Will Not**:
+
 - Operate without proper Serena MCP integration and memory access
 - Save session data without validation and integrity verification
 - Override existing session context without proper checkpoint preservation
@@ -2295,12 +2509,14 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Agents**: test-automator, quality-engineer
 
 **Triggers**:
+
 - New feature implementation
 - Low test coverage areas
 - Regression testing needs
 - API endpoint testing
 
 **Usage**:
+
 ```bash
 /test:generate-tests [path] [--type unit|integration|e2e|all] [--coverage-target 80]
 ```
@@ -2334,35 +2550,41 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Test Types**:
 
 **Unit Tests**
+
 - Individual function/method testing
 - Mocked dependencies
 - Fast execution
 - High coverage of business logic
 
 **Integration Tests**
+
 - Component interaction testing
 - Database and API integration
 - Service communication
 - Realistic scenarios
 
 **End-to-End Tests**
+
 - User workflow testing
 - Full system integration
 - Browser automation (if web app)
 - Production-like environment
 
 **Coverage Targets**:
+
 - Unit tests: 80%+ coverage
 - Integration tests: Key workflows covered
 - E2e tests: Critical user paths validated
 
 **Output**:
+
 - Generated test files in appropriate directories
 - Coverage report with metrics
 - Test execution commands
 - Suggested improvements for uncovered areas
 
 **Example**:
+
 ```bash
 /test:generate-tests src/api --type integration --coverage-target 90
 ```
@@ -2370,11 +2592,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Generate comprehensive test suites with high coverage targets
 - Create tests following framework-specific best practices
 - Provide coverage analysis and improvement recommendations
 
 **Will Not**:
+
 - Replace manual testing or QA processes
 - Generate tests requiring complex domain knowledge without guidance
 - Guarantee 100% coverage (some code may be untestable)
@@ -2394,17 +2618,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **MCP Servers**: serena, morphllm
 
 **Triggers**:
+
 - Operations requiring optimal MCP tool selection between Serena and Morphllm
 - Meta-system decisions needing complexity analysis and capability matching
 - Tool routing decisions requiring performance vs accuracy trade-offs
 - Operations benefiting from intelligent tool capability assessment
 
 **Usage**:
+
 ```bash
 /tools:select [operation] [--analyze] [--explain]
 ```
 
 **Behavioral Flow**:
+
 1. **Parse**: Analyze operation type, scope, file count, and complexity indicators
 2. **Score**: Apply multi-dimensional complexity scoring across various operation factors
 3. **Match**: Compare operation requirements against Serena and Morphllm capabilities
@@ -2412,17 +2639,20 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 5. **Validate**: Verify selection accuracy and provide confidence metrics
 
 **MCP Integration**:
+
 - **Serena MCP**: Optimal for semantic operations, LSP functionality, symbol navigation, and project context
 - **Morphllm MCP**: Optimal for pattern-based edits, bulk transformations, and speed-critical operations
 - **Decision Matrix**: Intelligent routing based on complexity scoring and operation characteristics
 
 **Tool Coordination**:
+
 - **get_current_config**: System configuration analysis for tool capability assessment
 - **execute_sketched_edit**: Operation testing and validation for selection accuracy
 - **Read/Grep**: Operation context analysis and complexity factor identification
 - **Integration**: Automatic selection logic used by refactor, edit, implement, and improve commands
 
 **Key Patterns**:
+
 - **Direct Mapping**: Symbol operations → Serena, Pattern edits → Morphllm, Memory operations → Serena
 - **Complexity Thresholds**: Score >0.6 → Serena, Score <0.4 → Morphllm, 0.4-0.6 → Feature-based
 - **Performance Trade-offs**: Speed requirements → Morphllm, Accuracy requirements → Serena
@@ -2450,11 +2680,13 @@ Complete API documentation for all slash commands in the Claude Context Plugin.
 **Boundaries**:
 
 **Will**:
+
 - Analyze operations and provide optimal tool selection between Serena and Morphllm
 - Apply complexity scoring based on file count, operation type, and requirements
 - Provide sub-100ms decision time with >95% selection accuracy
 
 **Will Not**:
+
 - Override explicit tool specifications when user has clear preference
 - Select tools without proper complexity analysis and capability matching
 - Compromise performance requirements for convenience or speed
@@ -2503,15 +2735,18 @@ For detailed toggling and profiles, see `guides/FLAGS_MANAGEMENT.md`.
 ## MCP Integration Patterns
 
 ### Sequential MCP Pattern
+
 **Use Case**: Complex multi-step reasoning, systematic analysis
 
 **Best For**:
+
 - Implementation workflow planning
 - Complex estimation and breakdown
 - Multi-component explanation
 - Requirements discovery
 
 **Commands Using Sequential**:
+
 - `/design:workflow`
 - `/analyze:estimate`
 - `/analyze:explain`
@@ -2522,20 +2757,24 @@ For detailed toggling and profiles, see `guides/FLAGS_MANAGEMENT.md`.
 - `/quality:improve`
 
 **Integration Pattern**:
+
 ```
 User Request → Sequential Analysis → Structured Breakdown → Systematic Execution
 ```
 
 ### Context7 MCP Pattern
+
 **Use Case**: Framework-specific patterns, official documentation
 
 **Best For**:
+
 - Framework-specific implementation
 - Library best practices
 - Official pattern adherence
 - Technology validation
 
 **Commands Using Context7**:
+
 - `/dev:implement`
 - `/design:workflow`
 - `/analyze:estimate`
@@ -2547,40 +2786,48 @@ User Request → Sequential Analysis → Structured Breakdown → Systematic Exe
 - `/quality:improve`
 
 **Integration Pattern**:
+
 ```
 Framework Detection → Context7 Lookup → Official Patterns → Implementation
 ```
 
 ### Magic MCP Pattern
+
 **Use Case**: UI component generation, design systems
 
 **Best For**:
+
 - React/Vue/Angular components
 - Design system integration
 - UI implementation
 - Frontend development
 
 **Commands Using Magic**:
+
 - `/dev:implement`
 - `/design:workflow`
 - `/orchestrate:brainstorm`
 - `/orchestrate:task`
 
 **Integration Pattern**:
+
 ```
 Component Request → Magic Generation → Design System → Framework Integration
 ```
 
 ### Playwright MCP Pattern
+
 **Use Case**: Browser testing, E2E validation
 
 **Best For**:
+
 - End-to-end testing
 - Browser automation
 - Visual validation
 - Cross-browser testing
 
 **Commands Using Playwright**:
+
 - `/dev:test`
 - `/dev:build`
 - `/dev:implement`
@@ -2589,20 +2836,24 @@ Component Request → Magic Generation → Design System → Framework Integrati
 - `/orchestrate:task`
 
 **Integration Pattern**:
+
 ```
 Test Request → Playwright Setup → Browser Automation → Validation Report
 ```
 
 ### Serena MCP Pattern
+
 **Use Case**: Project memory, cross-session persistence
 
 **Best For**:
+
 - Session management
 - Project context
 - Memory operations
 - Symbol navigation
 
 **Commands Using Serena**:
+
 - `/session:load`
 - `/session:save`
 - `/session:reflect`
@@ -2612,26 +2863,31 @@ Test Request → Playwright Setup → Browser Automation → Validation Report
 - `/tools:select`
 
 **Integration Pattern**:
+
 ```
 Session Start → Serena Activation → Context Loading → Memory Persistence
 ```
 
 ### Morphllm MCP Pattern
+
 **Use Case**: Pattern-based bulk edits, transformations
 
 **Best For**:
+
 - Multi-file refactoring
 - Pattern replacements
 - Bulk transformations
 - Speed-critical edits
 
 **Commands Using Morphllm**:
+
 - `/design:workflow`
 - `/orchestrate:brainstorm`
 - `/orchestrate:task`
 - `/tools:select`
 
 **Integration Pattern**:
+
 ```
 Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 ```
@@ -2849,6 +3105,7 @@ Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 ## Command Index by Complexity
 
 ### Basic (Complexity: basic)
+
 - `/analyze:code`
 - `/analyze:troubleshoot`
 - `/design:system`
@@ -2856,6 +3113,7 @@ Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 - `/docs:generate`
 
 ### Standard (Complexity: standard)
+
 - `/analyze:estimate`
 - `/analyze:explain`
 - `/dev:implement`
@@ -2867,15 +3125,18 @@ Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 - `/session:save`
 
 ### Enhanced (Complexity: enhanced)
+
 - `/dev:build`
 - `/dev:test`
 
 ### Advanced (Complexity: advanced)
+
 - `/design:workflow`
 - `/orchestrate:brainstorm`
 - `/orchestrate:task`
 
 ### High (Complexity: high)
+
 - `/orchestrate:spawn`
 - `/tools:select`
 
@@ -2886,18 +3147,22 @@ Pattern Detection → Morphllm Processing → Bulk Transform → Validation
 ### Common Issues
 
 **MCP Server Not Available**
+
 - Solution: Check MCP server configuration and ensure server is running
 - Related: `--no-mcp` flag to fall back to native tools
 
 **Command Not Responding**
+
 - Solution: Check for syntax errors in command usage
 - Related: Use `--help` flag or consult this documentation
 
 **Unexpected Results**
+
 - Solution: Try adding `--validate` or `--safe` flags
 - Related: Use `--interactive` for guided workflows
 
 **Performance Issues**
+
 - Solution: Use `--token-efficient` or `--uc` flags
 - Related: Adjust `--concurrency` settings
 

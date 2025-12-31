@@ -1,10 +1,12 @@
-# Claude Cortex
+# Cortex
 
-This repository packages the Claude Cortex (`claude-ctx`) context management toolkit as a Claude Code plugin.
-It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `claude-ctx` script.
+This repository packages the Cortex (`cortex`) context management toolkit as a Claude Code plugin.
+It bundles the curated agents, commands, modes, rules, and supporting Python CLI + TUI so teams can install the complete experience through the plugin system or keep using the standalone `cortex` / `cortex-ui` scripts.
 
-> 📚 **Docs:** <https://nickcrew.github.io/claude-ctx-plugin/>
-> 🎬 **Presentations:** [Claude Cortex Overview](docs/presentations/claude-ctx-overview.html) • [TUI Showcase](docs/presentations/tui-showcase.html)
+**Note:** The `cortex` command  has been deprecated but will remain available for a while.  
+
+> 📚 **Docs:** <https://nickcrew.github.io/claude-cortex/>
+> 🎬 **Presentations:** [Intro Overview](docs/presentations/claude-ctx-overview.html) • [Technical Deep Dive](docs/presentations/claude-ctx-technical-deep-dive.html) • [Executive Roadmap](docs/presentations/claude-ctx-executive-roadmap.html) • [Feature Catalog](docs/presentations/tui-showcase.html)
 
 ## What's inside
 
@@ -15,12 +17,19 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 - `flags/` – modular context packs toggled via `FLAGS.md`
 - `hooks/` – optional automation hooks for command workflows
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
-- `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `claude-ctx`
+- `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `cortex`
 - `schema/` and `scripts/` – validation schemas and helper scripts
+
+### 🆕 Latest Updates
+
+- **Template guardrails** – The TUI detects missing `templates/` files in the active `CLAUDE_PLUGIN_ROOT` and offers to initialize them or run the setup wizard.
+- **Multi-LLM consult skill** – Ask Gemini, OpenAI (Codex), or Qwen for a second opinion; configure provider API keys via the TUI Command Palette -> "Configure LLM Providers".
+- **Asset Manager reliability** – “Update All” and “Install All in Category” now behave consistently with clearer prompts.
+- **Flag toggles restored** – Spacebar toggling works again in the Flag Explorer and Flag Manager, updating `FLAGS.md` immediately.
 
 ### ✅ Stability Update: AI + Context Management
 
-We’ve fixed major issues across AI recommendations and context state tracking. Auto-activation and watch mode are more reliable, and context activation now uses `.active-*` state files with `claude-ctx doctor` and `claude-ctx setup migrate` to keep everything consistent.
+We’ve fixed major issues across AI recommendations and context state tracking. Auto-activation and watch mode are more reliable, and context activation now uses `.active-*` state files with `cortex doctor` and `cortex setup migrate` to keep everything consistent.
 
 ### 🔥 New: Super Saiyan Mode
 
@@ -51,7 +60,7 @@ Install, diff, and update plugin assets directly from the TUI:
 **Quick start:**
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'A' for Asset Manager
 # i=install, u=uninstall, d=diff, U=update all, I=bulk install, T=target dir
 ```
@@ -63,18 +72,18 @@ Manage git worktrees from the CLI or TUI.
 **CLI:**
 
 ```bash
-claude-ctx worktree list
-claude-ctx worktree add my-branch --path ../worktrees/my-branch
-claude-ctx worktree remove my-branch
-claude-ctx worktree prune --dry-run
-claude-ctx worktree dir ../worktrees
-claude-ctx worktree dir --clear
+cortex worktree list
+cortex worktree add my-branch --path ../worktrees/my-branch
+cortex worktree remove my-branch
+cortex worktree prune --dry-run
+cortex worktree dir ../worktrees
+cortex worktree dir --clear
 ```
 
 **TUI:**
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'C' for Worktrees
 # Ctrl+N add, Ctrl+O open, Ctrl+W remove, Ctrl+K prune, Ctrl+B set base dir
 ```
@@ -85,16 +94,16 @@ The installer and setup tooling have been overhauled to keep projects consistent
 
 ```bash
 # Detect your project and recommend a profile
-claude-ctx init detect
+cortex init detect
 
 # Apply a profile directly
-claude-ctx init profile backend
+cortex init profile backend
 
 # Check init status
-claude-ctx init status
+cortex init status
 
 # Migrate CLAUDE.md comment activation → .active-* files
-claude-ctx setup migrate
+cortex setup migrate
 ```
 
 ### 🤖 New: AI Intelligence & Automation
@@ -114,21 +123,21 @@ claude-ctx setup migrate
 
 ```bash
 # Get AI recommendations for current context
-claude-ctx ai recommend
+cortex ai recommend
 
 # Auto-activate high-confidence agents
-claude-ctx ai auto-activate
+cortex ai auto-activate
 
 # Start watch mode (real-time monitoring)
-claude-ctx ai watch
+cortex ai watch
 
 # Interactive TUI with AI assistant
-claude-ctx tui
+cortex tui
 # Press '0' for AI Assistant view
 # Press 'A' to auto-activate recommendations
 
 # Record successful sessions for learning
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 ```
 
 **Multi-review output example:**
@@ -185,28 +194,28 @@ See [AI Intelligence Guide](docs/guides/development/AI_INTELLIGENCE_GUIDE.md) an
 
 **Phase 5** introduces a first-class feedback engine so skills can improve themselves:
 
-- **Ratings & Reviews** – `claude-ctx skills rate <skill>` stores star ratings, helpful/not-helpful votes, and optional text feedback in `~/.claude/data/skill-ratings.db`.
-- **Quality Metrics** – `claude-ctx skills ratings <skill>` shows averages, distributions, success correlation, and token efficiency; `skills top-rated`, `skills export-ratings`, and `skills analytics` expose the aggregate view.
+- **Ratings & Reviews** – `cortex skills rate <skill>` stores star ratings, helpful/not-helpful votes, and optional text feedback in `~/.claude/data/skill-ratings.db`.
+- **Quality Metrics** – `cortex skills ratings <skill>` shows averages, distributions, success correlation, and token efficiency; `skills top-rated`, `skills export-ratings`, and `skills analytics` expose the aggregate view.
 - **TUI Surfacing** – The Skills table now includes a **Rating** column (press `5`). Select a skill and press `Ctrl+R` to launch an inline rating dialog without leaving the terminal.
 - **Auto Prompts** – Recent skill activations trigger modal prompts shortly after the TUI launches. The prompt explains why the skill was selected (usage count, task types, success rate) and offers to collect feedback on the spot. Dismiss once to snooze for 24 h; rating it clears future prompts until another burst of usage.
 - **Recommendation Feedback Loop** – Ratings feed back into the AI recommender, so highly rated skills are prioritized and low-signal ones get demoted automatically (Feature 2 of the Phase 5 roadmap).
 
 ```bash
 # Record a rating and optional review
-claude-ctx skills rate owasp-top-10 --stars 5 --review "Still the best security checklist"
+cortex skills rate owasp-top-10 --stars 5 --review "Still the best security checklist"
 
 # Inspect ratings/metrics
-claude-ctx skills ratings owasp-top-10
-claude-ctx skills top-rated --limit 5
+cortex skills ratings owasp-top-10
+cortex skills top-rated --limit 5
 
 # Export for analysis
-claude-ctx skills export-ratings --format csv > skill-feedback.csv
+cortex skills export-ratings --format csv > skill-feedback.csv
 ```
 
 Within the TUI:
 
 ```
-claude-ctx tui
+cortex tui
 # Press 5 for Skills view, highlight a skill, press Ctrl+R to rate
 # Auto prompts appear when the assistant detects a frequently used skill that lacks fresh feedback
 ```
@@ -227,25 +236,25 @@ See [Phase 5 Roadmap](docs/guides/development/PHASE5_ROADMAP.md) for the broader
 
 ```bash
 # List all configured MCP servers
-claude-ctx mcp list
+cortex mcp list
 
 # Show server details and validation
-claude-ctx mcp show context7
+cortex mcp show context7
 
 # View curated documentation
-claude-ctx mcp docs serena
+cortex mcp docs serena
 
 # Diagnose all servers
-claude-ctx mcp diagnose
+cortex mcp diagnose
 
 # Generate config snippet
-claude-ctx mcp snippet playwright
+cortex mcp snippet playwright
 ```
 
 **TUI Interface:**
 
 ```
-claude-ctx tui
+cortex tui
 # Press '7' for MCP Servers view
 # t=test, d=docs, c=copy, v=validate
 ```
@@ -293,12 +302,12 @@ See [MCP Management Guide](docs/guides/mcp/MCP_MANAGEMENT.md) for complete docum
 
 ```bash
 # Open Flag Manager in TUI
-claude-ctx tui
+cortex tui
 # Press Ctrl+G for Flag Manager
 # Use ↑↓ to select, Space to toggle
 
 # Apply profile with flags
-claude-ctx profile apply frontend
+cortex profile apply frontend
 # Auto-enables: visual-excellence, testing-quality, debugging-trace
 # Saves: ~1,120 tokens (52% savings!)
 ```
@@ -306,10 +315,12 @@ claude-ctx profile apply frontend
 **Example: Frontend Profile**
 
 Example configuration enables 6/22 categories (930 tokens):
+
 - mode-activation, mcp-servers, analysis-depth
 - execution-control, visual-excellence, output-optimization
 
 When you switch to **frontend** profile:
+
 - **Auto-enables**: testing-quality, domain-presets, debugging-trace
 - **Loads**: 1,110 tokens (7 categories)
 - **Saves**: 2,270 tokens (15 categories disabled)
@@ -354,7 +365,7 @@ The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects
 ## Installing via Claude Code
 
 1. Add the marketplace that references this repository (see the companion [`NickCrew/claude-marketplace`](https://github.com/NickCrew/claude-marketplace) project).
-2. Install the plugin with `/plugin install claude-ctx@<marketplace-name>`.
+2. Install the plugin with `/plugin install cortex@<marketplace-name>`.
 3. Restart Claude Code so the new commands and agents load.
 
 After installation, the `/plugin` browser will list the bundled commands, and the `/agents` panel will show all active agents from the `agents/` directory.
@@ -396,8 +407,8 @@ make help           # Show all targets
 
 ```bash
 python3 -m pip install .
-claude-ctx mode list
-claude-ctx agent graph --export dependency-map.md
+cortex mode list
+cortex agent graph --export dependency-map.md
 ```
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
@@ -405,20 +416,20 @@ Running the CLI directly will operate on the directories in this repository, whi
 > **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/claude-ctx"
+> export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
 > ```
 >
 > or:
 >
 > ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-ctx-plugin"
+> export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-cortex"
 > ```
 >
 > To target a project-local scope or a specific plugin root:
 >
 > ```bash
-> claude-ctx --scope project status
-> claude-ctx --plugin-root /path/to/claude-ctx-plugin status
+> cortex --scope project status
+> cortex --plugin-root /path/to/claude-cortex status
 > ```
 
 ### Shell completion
@@ -429,41 +440,41 @@ Shell completions are automatically installed when using `./scripts/install.sh`.
 
 ```bash
 # Generate and install completions for your shell
-claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
-claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
-claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+cortex completion bash > ~/.bash_completion.d/cortex
+cortex completion zsh > ~/.zsh/completions/_cortex
+cortex completion fish > ~/.config/fish/completions/cortex.fish
 
 # Show installation instructions
-claude-ctx completion bash --install
+cortex completion bash --install
 ```
 
 **Using argcomplete (legacy method):**
 
 ```bash
 # Bash
-register-python-argcomplete claude-ctx > ~/.local/share/bash-completion/completions/claude-ctx
+register-python-argcomplete cortex > ~/.local/share/bash-completion/completions/cortex
 
 # Zsh
-register-python-argcomplete --shell zsh claude-ctx > ~/.local/share/zsh/site-functions/_claude-ctx
+register-python-argcomplete --shell zsh cortex > ~/.local/share/zsh/site-functions/_cortex
 
 # Fish
-register-python-argcomplete --shell fish claude-ctx > ~/.config/fish/completions/claude-ctx.fish
+register-python-argcomplete --shell fish cortex > ~/.config/fish/completions/cortex.fish
 ```
 
 See [Shell Completions Guide](docs/guides/COMPLETIONS.md) for detailed instructions.
 
 ### Manual page (manpage)
 
-A comprehensive manual page is available in `docs/reference/claude-ctx.1` and is automatically installed when using `./scripts/install.sh`.
+A comprehensive manual page is available in `docs/reference/cortex.1` and is automatically installed when using `./scripts/install.sh`.
 
 **View locally:**
 
 ```bash
-man docs/reference/claude-ctx.1
+man docs/reference/cortex.1
 ```
 
-Dedicated entries are also available for the TUI (`man claude-ctx-tui`) and the
-workflow/scenario orchestration commands (`man claude-ctx-workflow`).
+Dedicated entries are also available for the TUI (`man cortex-tui`) and the
+workflow/scenario orchestration commands (`man cortex-workflow`).
 
 **Manual installation:**
 
@@ -474,7 +485,7 @@ workflow/scenario orchestration commands (`man claude-ctx-workflow`).
 **After installation:**
 
 ```bash
-man claude-ctx
+man cortex
 ```
 
 The manpage documents all commands, subcommands, options, file locations, environment variables, and includes practical examples. It follows standard Unix manual page conventions and can be searched with `/` when viewing.
@@ -492,7 +503,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### Credits
 
-Claude Cortex builds upon ideas and patterns from several excellent projects in the Claude Code ecosystem:
+Cortex builds upon ideas and patterns from several excellent projects in the Claude Code ecosystem:
 
 - **[obra/superpowers](https://github.com/obra/superpowers)** - Systematic debugging and quality gate patterns (MIT License)
 - **[VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents)** - Specialized agent architecture and modular design (MIT License)

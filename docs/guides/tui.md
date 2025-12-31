@@ -1,4 +1,4 @@
-# Claude Cortex TUI - Documentation Index
+# Cortex TUI - Documentation Index
 
 ## Quick Links to Documentation
 
@@ -338,11 +338,13 @@ custom Textual `.tcss` file. The override loads after `styles.tcss` so it can
 redefine variables like `$primary`, `$accent`, `$surface`, etc.
 
 **Options (highest priority first):**
+
 1. `claude-ctx tui --theme /path/to/theme.tcss`
 2. `CLAUDE_CTX_TUI_THEME=/path/to/theme.tcss`
 3. `~/.claude/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
 
 **Example override:**
+
 ```tcss
 $primary: #22c55e;
 $accent: #f97316;

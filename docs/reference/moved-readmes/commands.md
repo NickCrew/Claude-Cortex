@@ -1,4 +1,4 @@
-# Claude-ctx Command Namespaces
+# Cortex Command Namespaces
 
 Organized command library for efficient development workflows.
 
@@ -7,12 +7,15 @@ Organized command library for efficient development workflows.
 Commands are organized by domain for better discoverability and logical grouping.
 
 ### 📦 /dev - Development Commands
+
 Core development tasks and code management.
 
 **Available Commands:**
+
 - `code-review` - Comprehensive code quality review
 
 **Usage:**
+
 ```bash
 /dev:code-review [path] [--focus quality|security|performance|all]
 ```
@@ -20,12 +23,15 @@ Core development tasks and code management.
 ---
 
 ### 🧪 /test - Testing Commands
+
 Test generation, execution, and quality assurance.
 
 **Available Commands:**
+
 - `generate-tests` - Generate comprehensive test suite
 
 **Usage:**
+
 ```bash
 /test:generate-tests [path] [--type unit|integration|e2e|all] [--coverage-target 80]
 ```
@@ -33,12 +39,15 @@ Test generation, execution, and quality assurance.
 ---
 
 ### 🚀 /deploy - Deployment Commands
+
 Release preparation and deployment automation.
 
 **Available Commands:**
+
 - `prepare-release` - Prepare application for production deployment
 
 **Usage:**
+
 ```bash
 /deploy:prepare-release [version] [--type major|minor|patch]
 ```
@@ -46,12 +55,15 @@ Release preparation and deployment automation.
 ---
 
 ### 🔍 /analyze - Analysis Commands
+
 Code analysis, security scanning, and optimization.
 
 **Available Commands:**
+
 - `security-scan` - Comprehensive security vulnerability assessment
 
 **Usage:**
+
 ```bash
 /analyze:security-scan [path] [--standard OWASP|GDPR|SOC2|HIPAA]
 ```
@@ -61,12 +73,15 @@ Code analysis, security scanning, and optimization.
 ## Using Commands
 
 ### Via Claude Code Chat
+
 Simply type the command in the chat:
+
 ```
 /dev:code-review src/components
 ```
 
 ### Via CLI (Future)
+
 ```bash
 claude-ctx cmd dev:code-review src/components
 claude-ctx cmd test:generate-tests --coverage-target 90
@@ -99,6 +114,7 @@ mcp-servers: [external, integrations] # Optional MCP integrations
    - `/analyze` - Analysis and auditing
 
 2. Create a markdown file:
+
    ```bash
    touch ~/.claude/commands/[namespace]/[command-name].md
    ```
@@ -116,7 +132,9 @@ mcp-servers: [external, integrations] # Optional MCP integrations
 Commands coordinate two types of guidance:
 
 ### Personas (Thinking Modes)
+
 Conceptual roles that guide Claude's perspective and decision-making:
+
 - `architect` - System design thinking
 - `frontend` - UI/UX focus
 - `backend` - API and data modeling
@@ -126,33 +144,40 @@ Conceptual roles that guide Claude's perspective and decision-making:
 *Personas influence HOW Claude thinks, not WHAT tools are used.*
 
 ### Subagents (Workers via Task Tool)
+
 Specialized agents launched via Claude Code's Task tool for complex work:
 
 **Development Subagents:**
+
 - `general-purpose` - Versatile implementation work
 - `code-reviewer` - Code quality and security analysis
 - `typescript-pro` / `python-pro` - Language specialists
 
 **Testing Subagents:**
+
 - `test-automator` - Test generation and execution
 - `quality-engineer` - Quality assurance
 
 **Deployment Subagents:**
+
 - `deployment-engineer` - Release preparation
 - `devops-architect` - Infrastructure
 
 **Analysis Subagents:**
+
 - `Explore` - Codebase exploration and discovery
 - `security-auditor` - Security assessment
 - `performance-engineer` - Performance analysis
 
 **When commands delegate** (use Task tool to launch subagents):
+
 - ✅ Complex operations (>3 files, >5 steps)
 - ✅ Multi-domain work (code + tests + docs)
 - ✅ Parallel workstreams possible
 - ✅ User needs progress visibility
 
 **When commands use direct tools**:
+
 - Simple operations (1-2 files)
 - Quick reads/searches
 - Atomic changes
@@ -170,6 +195,7 @@ See: [`docs/architecture/terminology.md`](../docs/architecture/terminology.md) f
 ## Future Namespaces
 
 Planned additions:
+
 - `/docs` - Documentation generation
 - `/optimize` - Performance optimization
 - `/refactor` - Code refactoring

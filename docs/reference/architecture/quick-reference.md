@@ -1,4 +1,4 @@
-# Claude-ctx Quick Reference
+# Cortex Quick Reference
 
 **One-page guide to the three-layer automation system**
 
@@ -96,6 +96,7 @@ Command → Activates Mode(s) → Triggers Workflow → Coordinates Agents
 ```
 
 **Example Flow**:
+
 ```
 User: /refactor:analyze src/auth
   ↓
@@ -113,12 +114,14 @@ Produces: Refactoring plan with priorities
 ## Integration Patterns
 
 ### Pattern 1: Quick Action
+
 ```bash
 /refactor:analyze src/auth
 # Fast, focused analysis
 ```
 
 ### Pattern 2: Workflow with Modes
+
 ```bash
 /workflow:run feature-development
 # Auto-activates: Task_Management, Parallel_Orchestration
@@ -126,6 +129,7 @@ Produces: Refactoring plan with priorities
 ```
 
 ### Pattern 3: Manual Mode Control
+
 ```bash
 /mode:activate Brainstorm
 # Then discuss requirements
@@ -133,6 +137,7 @@ Produces: Refactoring plan with priorities
 ```
 
 ### Pattern 4: Chained Commands
+
 ```bash
 /refactor:analyze src/
 # Review the plan
@@ -191,6 +196,7 @@ r  →  Refresh
 ## Typical Workflows
 
 ### Starting a New Feature
+
 ```
 1. /collaboration:brainstorm [feature idea]
    ↓ Clarify requirements
@@ -201,6 +207,7 @@ r  →  Refresh
 ```
 
 ### Refactoring Code
+
 ```
 1. /refactor:analyze src/module
    ↓ Get refactoring plan
@@ -212,6 +219,7 @@ r  →  Refresh
 ```
 
 ### Designing an API
+
 ```
 1. /workflow:run api-design --input api-params.yaml
    ↓ Full API design process
@@ -221,6 +229,7 @@ r  →  Refresh
 ```
 
 ### Monthly Maintenance
+
 ```
 1. /workflow:run security-audit
    ↓ Security check
@@ -231,6 +240,7 @@ r  →  Refresh
 ```
 
 ### Quarterly Cleanup
+
 ```
 1. /workflow:run technical-debt
    ↓ 13-step debt reduction
@@ -255,24 +265,28 @@ All workflows enforce quality standards:
 ## Tips & Best Practices
 
 ### 💡 Efficiency Tips
+
 - Use `/workflow:run` for multi-step processes
 - Activate modes at session start for persistent behavior
 - Use `--dry-run` to preview workflows
 - Check `/workflow:status` to monitor progress
 
 ### 🎯 Quality Tips
+
 - Always use Quality_Focus mode for production code
 - Let workflows handle quality gates automatically
 - Review refactoring plans before executing
 - Run security audits monthly
 
 ### 🚀 Speed Tips
+
 - Use Parallel_Orchestration for independent tasks
 - Leverage `--parallel` flag in workflows
 - Batch similar commands together
 - Use Token_Efficient mode for large codebases
 
 ### 🛡️ Safety Tips
+
 - Workflows auto-checkpoint for resume capability
 - Refactoring uses incremental execution with rollback
 - Quality gates block on failures

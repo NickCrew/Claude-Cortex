@@ -1,4 +1,4 @@
-# Claude Cortex TUI - Visual Implementation Analysis
+# Cortex TUI - Visual Implementation Analysis
 
 ## Current Architecture Overview
 

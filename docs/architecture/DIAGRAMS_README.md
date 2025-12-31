@@ -1,6 +1,6 @@
 # Architecture Diagrams
 
-This document provides visual representations of the Claude Cortex architecture to help developers understand the system structure and data flows.
+This document provides visual representations of the Cortex architecture to help developers understand the system structure and data flows.
 
 ## System Architecture Diagrams
 

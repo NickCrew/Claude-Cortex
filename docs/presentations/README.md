@@ -1,44 +1,88 @@
-# Claude Cortex Presentations
+# Cortex Presentations
 
 Reveal.js presentation decks for claude-ctx project overview, demos, and enablement sessions.
 
 ## 📊 Available Presentations
 
-### 🤖 Claude Cortex Overview
+### 🚀 Cortex Intro Overview
 
 **File:** `claude-ctx-overview.html`
-**Topics:** Platform overview, AI intelligence, watch mode, metrics, architecture, testing
+**Topics:** High-level platform overview, AI intelligence, watch mode, asset manager, visual excellence
 
 **What's Covered:**
 
 - AI Intelligence System (context detection, pattern learning)
 - Watch Mode (real-time monitoring, auto-activation)
-- Metrics & Analytics (ROI, effectiveness scoring)
-- Architecture Overview (modules, storage, CLI)
-- Developer Workflow (tech stack, testing, coverage)
-- Super Saiyan Mode (universal visual excellence)
-- Recent achievements and roadmap
+- Asset Manager + setup guardrails
+- Super Saiyan Mode (visual excellence system)
+- Multi-LLM consult skill + provider settings
+- Recent improvements and momentum
 
-**Screenshots:** Includes TUI screenshots for overview, AI intelligence, and agent management
+**Screenshots:** Agent galaxy, AI assistant, watch mode, asset manager, command palette
 
-### 🎨 TUI Dashboard Showcase
+### 🧠 Technical Deep Dive
 
-**File:** `tui-showcase.html`
-**Topics:** Interactive TUI walkthrough with screenshots of all views
+**File:** `claude-ctx-technical-deep-dive.html`
+**Topics:** Activation pipeline, intelligence signals, watch mode, skill ratings, plugin + CLI integration
 
 **What's Covered:**
 
-- Dashboard Overview (unified stats and quick actions)
-- AI Assistant (press 0 - review requests + real-time recommendations)
-- Agent Management (press 1 - dependency tracking)
-- Slash Commands (press 2 - command reference)
-- Rules Management (press 5 - rule modules)
-- Workflows (press 7 - workflow orchestration)
-- Orchestration (press 6 - multi-agent coordination)
-- Keyboard Navigation (shortcuts and quick actions)
-- TUI Features (real-time updates, mouse support, responsive design)
+- Activation + recommendation pipeline
+- Signal sources and confidence scoring
+- Watch mode loop and tuning
+- Skill ratings + feedback loop
+- Plugin and CLI integration + install flow
+- Operational controls for activation
 
-**Screenshots:** Full-screen TUI captures for every major view
+**Screenshots:** Galaxy, AI assistant, watch mode, flags, CLI usage
+
+### 📈 Executive Overview & Roadmap
+
+**File:** `claude-ctx-executive-roadmap.html`
+**Topics:** Business value, capability highlights, adoption plan, and roadmap
+
+**What's Covered:**
+
+- Value proposition and operating leverage
+- Capability highlights (watch mode, visual excellence, asset manager)
+- Recent improvements and readiness
+- Phased roadmap and adoption plan
+- Risks and mitigations
+
+**Screenshots:** AI assistant hero shot
+
+### 🎨 Feature Catalog (TUI + CLI)
+
+**File:** `tui-showcase.html`
+**Topics:** Comprehensive feature catalog with how-to guidance and docs links
+
+**What's Covered:**
+
+- Agent Galaxy (Press g)
+- AI Assistant (Press 0)
+- AI Watch Mode (Press w)
+- Agents (Press 2)
+- Skills (Press 5)
+- Command Palette (Ctrl+P)
+- Slash Commands (Press /)
+- Modes (Press 3)
+- Profiles (Press 8)
+- Principles (Press p)
+- Flags Explorer (Press F)
+- Workflows (Press 6)
+- Scenarios (Press S)
+- Worktrees (Press C)
+- Asset Manager (Press A)
+- Hooks Manager (Press h)
+- Backup Manager (Press b)
+- Memory Vault (Press M)
+- MCP Manager (Press 7)
+- Export (Press 9)
+- Setup Wizard (Press I)
+- Shortcuts & Help (Press ?)
+- CLI Usage (Terminal)
+
+**Screenshots:** Full-screen TUI captures with feature descriptions and docs links
 
 ## 🚀 Viewing Presentations
 
@@ -52,6 +96,8 @@ python3 -m http.server 8080
 
 # Then open in browser:
 open http://localhost:8080/claude-ctx-overview.html
+open http://localhost:8080/claude-ctx-technical-deep-dive.html
+open http://localhost:8080/claude-ctx-executive-roadmap.html
 open http://localhost:8080/tui-showcase.html
 ```
 
@@ -63,6 +109,8 @@ npx http-server -p 8080
 
 # Then open in browser:
 open http://localhost:8080/claude-ctx-overview.html
+open http://localhost:8080/claude-ctx-technical-deep-dive.html
+open http://localhost:8080/claude-ctx-executive-roadmap.html
 open http://localhost:8080/tui-showcase.html
 ```
 
@@ -70,6 +118,8 @@ open http://localhost:8080/tui-showcase.html
 
 ```bash
 open presentations/claude-ctx-overview.html
+open presentations/claude-ctx-technical-deep-dive.html
+open presentations/claude-ctx-executive-roadmap.html
 open presentations/tui-showcase.html
 ```
 
@@ -107,11 +157,13 @@ Note: Some features may require a local server due to CORS restrictions.
 
 ## 🎯 Use Cases
 
-1. **Project Overview** - Introduce claude-ctx to team members
-2. **Demo Preparation** - Review features before customer demos
-3. **Enablement Sessions** - Onboard new developers
-4. **Architecture Review** - Explain system design decisions
-5. **Progress Updates** - Show testing and coverage improvements
+1. **Project Overview** - Intro deck for team onboarding
+2. **Technical Deep Dive** - Activation, intelligence, watch mode, and ratings
+3. **Executive Briefings** - Roadmap and adoption planning
+4. **Feature Catalog** - Full capability walkthrough with docs links
+5. **Demo Preparation** - Review features before customer demos
+6. **Enablement Sessions** - Onboard new developers
+7. **Progress Updates** - Highlight recent improvements
 
 ## 📝 Creating New Presentations
 

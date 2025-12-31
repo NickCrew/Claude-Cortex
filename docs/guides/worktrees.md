@@ -6,7 +6,7 @@ nav_order: 8
 
 # Worktree Manager
 
-Claude Cortex includes a Git worktree manager in both the CLI and TUI. It supports listing, adding, pruning, and removing worktrees with a configurable base directory.
+Cortex includes a Git worktree manager in both the CLI and TUI. It supports listing, adding, pruning, and removing worktrees with a configurable base directory.
 
 ## CLI Commands
 

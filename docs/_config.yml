@@ -1,4 +1,4 @@
-title: Claude Cortex
+title: Cortex
 description: Comprehensive context management plugin for Claude Code
 theme: minima
 markdown: kramdown
@@ -18,10 +18,10 @@ header_pages:
   - AI_INTELLIGENCE.md
 logo: /assets/images/hero.png
 github:
-  repository_url: https://github.com/NickCrew/claude-ctx-plugin
-repository: NickCrew/claude-ctx-plugin
-url: https://nickcrew.github.io
-baseurl: /claude-ctx-plugin
+  repository_url: https://github.com/NickCrew/claude-cortex
+repository: NickCrew/claude-cortex
+url: https://cortex.atlascrew.dev
+baseurl: ""
 minima:
   skin: dark
   date_format: "%Y-%m-%d"

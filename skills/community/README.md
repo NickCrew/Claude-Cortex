@@ -1,6 +1,6 @@
 # Community Contributed Skills
 
-Welcome to the community skills directory! This is where developers can contribute specialized knowledge and patterns to the Claude Cortex ecosystem.
+Welcome to the community skills directory! This is where developers can contribute specialized knowledge and patterns to the Cortex ecosystem.
 
 ## What are Community Skills?
 
@@ -91,6 +91,7 @@ tags: [category1, category2, category3]
 ```
 
 Follow the progressive disclosure pattern:
+
 1. **Overview** (1-2 paragraphs)
 2. **When to Use** (bulleted list)
 3. **Core Patterns** (essential → detailed → advanced)
@@ -138,6 +139,7 @@ your-skill-name:
 **PR Title Format**: `[Community Skill] Add {skill-name}`
 
 **PR Description Template**:
+
 ```markdown
 ## Skill Information
 - **Name**: your-skill-name
@@ -177,36 +179,42 @@ Reviews typically take 3-7 days. Reviewers may request changes.
 Organize skills by primary domain:
 
 ### Architecture & Design
+
 - System architecture patterns
 - API design approaches
 - Database design patterns
 - Design principles and methodologies
 
 ### Development
+
 - Language-specific patterns
 - Framework best practices
 - Testing strategies
 - Performance optimization
 
 ### Infrastructure
+
 - Deployment patterns
 - Container orchestration
 - Infrastructure as Code
 - CI/CD workflows
 
 ### Security
+
 - Security patterns
 - Threat modeling
 - Secure coding practices
 - Compliance frameworks
 
 ### DevOps
+
 - Monitoring and observability
 - Incident response
 - SRE practices
 - Automation patterns
 
 ### Domain-Specific
+
 - Industry-specific patterns (fintech, healthcare, etc.)
 - Specialized technologies
 - Emerging paradigms
@@ -232,6 +240,7 @@ As a skill author, you commit to:
 ### Community Maintenance
 
 If original author becomes inactive:
+
 1. Open issue requesting adoption
 2. Wait 30 days for author response
 3. Community member can request adoption
@@ -249,6 +258,7 @@ If original author becomes inactive:
 ### Promotion to Core
 
 Skills may be promoted to core if they:
+
 - Receive high usage (>100 unique users)
 - Maintain high quality (>4.5/5 rating)
 - Fill critical gap in core skills
@@ -322,16 +332,19 @@ See these community skills for reference:
 ### Template Variations
 
 **Minimal Skill** (500-1,500 tokens):
+
 - Single focused topic
 - Quick reference format
 - Essential patterns only
 
 **Standard Skill** (1,500-3,000 tokens):
+
 - Multiple related patterns
 - Detailed examples
 - Best practices included
 
 **Comprehensive Skill** (3,000-8,000 tokens):
+
 - Complex domain coverage
 - Advanced patterns
 - Multiple tiers of disclosure
