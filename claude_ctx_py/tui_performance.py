@@ -64,7 +64,7 @@ class SystemMetrics:
 
             process = psutil.Process(os.getpid())
             # Get CPU percent with interval for accuracy
-            return process.cpu_percent(interval=0.1)  # type: ignore[no-any-return]
+            return float(process.cpu_percent(interval=0.1))
         except ImportError:
             return 0.0
 
@@ -78,7 +78,7 @@ class SystemMetrics:
             import psutil
 
             process = psutil.Process(os.getpid())
-            return process.num_threads()  # type: ignore[no-any-return]
+            return int(process.num_threads())
         except ImportError:
             import threading
 
