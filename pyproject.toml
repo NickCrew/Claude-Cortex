@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-cortex"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = {text = "MIT"}
