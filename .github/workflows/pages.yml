@@ -27,9 +27,9 @@ jobs:
           ruby-version: "3.2"
           bundler-cache: true
           working-directory: docs
-      - name: Build Jekyll site (GitHub Pages config)
+      - name: Build Jekyll site
         working-directory: docs
-        run: bundle exec jekyll build --config _config.yml,_config_ghpages.yml -d _site
+        run: bundle exec jekyll build --config _config.yml -d _site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_site
