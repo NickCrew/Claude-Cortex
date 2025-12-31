@@ -12,7 +12,9 @@ CATEGORY_AGENT = "⚡ AGENT"
 CATEGORY_MODE = "🎨 MODE"
 CATEGORY_RULE = "📜 RULE"
 CATEGORY_VIEW = "👁️  VIEW"
-CATEGORY_SYSTEM = "⚙️  SYSTEM"
+CATEGORY_CONFIG = "⚙️  CONFIG"
+CATEGORY_TOOLS = "🛠️  TOOLS"
+CATEGORY_SYSTEM = "💻 SYSTEM"
 
 
 @runtime_checkable
@@ -24,6 +26,15 @@ class _CommandApp(Protocol):
         ...
 
     def load_scenarios(self) -> None:
+        ...
+
+    def load_worktrees(self) -> None:
+        ...
+
+    def load_slash_commands(self) -> None:
+        ...
+
+    def push_screen(self, screen: Any, callback: Optional[Callable[[Any], None]] = None) -> None:
         ...
 
 
@@ -74,6 +85,12 @@ class AgentCommandProvider(Provider):
                 "deactivate_agent",
                 CATEGORY_AGENT,
             ),
+            (
+                f"[magenta]✦[/] [bold]Agent Galaxy[/bold] [dim magenta]🌌[/dim magenta]",
+                f"[dim]Visualize agent dependencies [dim white]│[/dim white] Hotkey: [yellow]g[/yellow][/dim]",
+                "show_galaxy",
+                CATEGORY_AGENT,
+            ),
             # ═══════════════════════════════════════════════════════
             # MODE MANAGEMENT - Behavioral Control
             # ═══════════════════════════════════════════════════════
@@ -102,6 +119,12 @@ class AgentCommandProvider(Provider):
                 f"[yellow]⟳[/] [bold]Toggle Rule[/bold] [dim yellow]⚡[/dim yellow]",
                 f"[dim]Modify rule state [dim white]│[/dim white] Action: [white]Space[/white] [dim white]│[/dim white] Scope: [cyan]Global[/cyan][/dim]",
                 "toggle_rule",
+                CATEGORY_RULE,
+            ),
+            (
+                f"[cyan]📖[/] [bold]Show Principles[/bold] [dim cyan]📜[/dim cyan]",
+                f"[dim]View guidance principles [dim white]│[/dim white] Hotkey: [yellow]p[/yellow][/dim]",
+                "show_principles",
                 CATEGORY_RULE,
             ),
             # ═══════════════════════════════════════════════════════
@@ -143,6 +166,81 @@ class AgentCommandProvider(Provider):
                 "show_commands",
                 CATEGORY_VIEW,
             ),
+            (
+                f"[yellow]📝[/] [bold]Show Tasks[/bold] [dim yellow]✅[/dim yellow]",
+                f"[dim]View active agent tasks [dim white]│[/dim white] Hotkey: [yellow]t[/yellow][/dim]",
+                "show_tasks",
+                CATEGORY_VIEW,
+            ),
+            # ═══════════════════════════════════════════════════════
+            # AI & INTELLIGENCE
+            # ═══════════════════════════════════════════════════════
+            (
+                f"[bright_magenta]🤖[/] [bold]AI Assistant[/bold] [dim bright_magenta]✨[/dim bright_magenta]",
+                f"[dim]Get AI recommendations [dim white]│[/dim white] Hotkey: [yellow]0[/yellow][/dim]",
+                "show_ai_assistant",
+                CATEGORY_VIEW,
+            ),
+            (
+                f"[cyan]👁️[/] [bold]Watch Mode[/bold] [dim cyan]🔍[/dim cyan]",
+                f"[dim]Monitor repo changes [dim white]│[/dim white] Hotkey: [yellow]w[/yellow][/dim]",
+                "show_watch_mode",
+                CATEGORY_VIEW,
+            ),
+            # ═══════════════════════════════════════════════════════
+            # CONFIGURATION & ASSETS
+            # ═══════════════════════════════════════════════════════
+            (
+                f"[yellow]🚩[/] [bold]Flag Explorer[/bold] [dim yellow]⚐[/dim yellow]",
+                f"[dim]Browse behavior flags [dim white]│[/dim white] Hotkey: [yellow]F[/yellow][/dim]",
+                "show_flags",
+                CATEGORY_CONFIG,
+            ),
+            (
+                f"[bright_blue]⚙️[/] [bold]Flag Manager[/bold] [dim bright_blue]🛠[/dim bright_blue]",
+                f"[dim]Manage flag files [dim white]│[/dim white] Hotkey: [yellow]Ctrl+G[/yellow][/dim]",
+                "show_flag_manager",
+                CATEGORY_CONFIG,
+            ),
+            (
+                f"[green]📦[/] [bold]Asset Manager[/bold] [dim green]↓[/dim green]",
+                f"[dim]Install plugin assets [dim white]│[/dim white] Hotkey: [yellow]A[/yellow][/dim]",
+                "show_assets",
+                CATEGORY_CONFIG,
+            ),
+            (
+                f"[blue]👤[/] [bold]Profiles[/bold] [dim blue]👥[/dim blue]",
+                f"[dim]Switch config profiles [dim white]│[/dim white] Hotkey: [yellow]8[/yellow][/dim]",
+                "show_profiles",
+                CATEGORY_CONFIG,
+            ),
+            # ═══════════════════════════════════════════════════════
+            # TOOLS & UTILITIES
+            # ═══════════════════════════════════════════════════════
+            (
+                f"[bright_magenta]🧠[/] [bold]Memory Vault[/bold] [dim bright_magenta]✦[/dim bright_magenta]",
+                f"[dim]Browse memory notes [dim white]│[/dim white] Hotkey: [magenta]M[/magenta] or [magenta]Ctrl+M[/magenta][/dim]",
+                "show_memory",
+                CATEGORY_TOOLS,
+            ),
+            (
+                f"[cyan]🔌[/] [bold]MCP Servers[/bold] [dim cyan]⚡[/dim cyan]",
+                f"[dim]Manage MCP integrations [dim white]│[/dim white] Hotkey: [yellow]7[/yellow][/dim]",
+                "show_mcp",
+                CATEGORY_TOOLS,
+            ),
+            (
+                f"[blue]📎[/] [bold]Hooks Manager[/bold] [dim blue]⚓[/dim blue]",
+                f"[dim]Configure automation hooks [dim white]│[/dim white] Hotkey: [yellow]h[/yellow][/dim]",
+                "show_hooks",
+                CATEGORY_TOOLS,
+            ),
+            (
+                f"[yellow]💾[/] [bold]Backup Manager[/bold] [dim yellow]📥[/dim yellow]",
+                f"[dim]Snapshot context state [dim white]│[/dim white] Hotkey: [yellow]b[/yellow][/dim]",
+                "show_backups",
+                CATEGORY_TOOLS,
+            ),
             # ═══════════════════════════════════════════════════════
             # SYSTEM OPERATIONS - Core Functions
             # ═══════════════════════════════════════════════════════
@@ -153,9 +251,27 @@ class AgentCommandProvider(Provider):
                 CATEGORY_SYSTEM,
             ),
             (
-                f"[bright_magenta]🧠[/] [bold]Memory Vault[/bold] [dim bright_magenta]✦[/dim bright_magenta]",
-                f"[dim]Browse memory notes [dim white]│[/dim white] Hotkey: [magenta]Ctrl+M[/magenta] [dim white]│[/dim white] Access: [cyan]Vault[/cyan][/dim]",
-                "show_memory",
+                f"[green]🧙[/] [bold]Init Wizard[/bold] [dim green]✨[/dim green]",
+                f"[dim]Start project setup [dim white]│[/dim white] Hotkey: [white]I[/white] (in Profiles)[/dim]",
+                "run_init_wizard",
+                CATEGORY_SYSTEM,
+            ),
+            (
+                f"[cyan]🩺[/] [bold]Health Check[/bold] [dim cyan]✚[/dim cyan]",
+                f"[dim]Run doctor diagnostics [dim white]│[/dim white] Hotkey: [white]c[/white] (in Profiles)[/dim]",
+                "run_health_check",
+                CATEGORY_SYSTEM,
+            ),
+            (
+                f"[blue]🔄[/] [bold]Setup Migration[/bold] [dim blue]⟳[/dim blue]",
+                f"[dim]Migrate activation files [dim white]│[/dim white] Hotkey: [white]M[/white] (in Profiles)[/dim]",
+                "run_migration",
+                CATEGORY_SYSTEM,
+            ),
+            (
+                f"[white]❓[/] [bold]Help[/bold] [dim white]ℹ[/dim white]",
+                f"[dim]Show keyboard shortcuts [dim white]│[/dim white] Hotkey: [yellow]?[/yellow][/dim]",
+                "show_help",
                 CATEGORY_SYSTEM,
             ),
         ]
@@ -204,6 +320,9 @@ class AgentCommandProvider(Provider):
             app.current_view = "agents"
             app.update_view()
             app.status_message = "Select an agent and press Space to deactivate"
+        elif action == "show_galaxy":
+            app.current_view = "galaxy"
+            app.update_view()
         elif action == "show_modes":
             app.current_view = "modes"
             app.update_view()
@@ -218,6 +337,9 @@ class AgentCommandProvider(Provider):
             app.current_view = "rules"
             app.update_view()
             app.status_message = "Select a rule and press Space to toggle"
+        elif action == "show_principles":
+            app.current_view = "principles"
+            app.update_view()
         elif action == "show_skills":
             app.current_view = "skills"
             app.update_view()
@@ -241,6 +363,36 @@ class AgentCommandProvider(Provider):
             if hasattr(app, "load_slash_commands"):
                 app.load_slash_commands()
             app.update_view()
+        elif action == "show_tasks":
+            app.current_view = "tasks"
+            app.update_view()
+        elif action == "show_ai_assistant":
+            app.current_view = "ai_assistant"
+            app.update_view()
+        elif action == "show_watch_mode":
+            app.current_view = "watch_mode"
+            app.update_view()
+        elif action == "show_flags":
+            app.current_view = "flags"
+            app.update_view()
+        elif action == "show_flag_manager":
+            app.current_view = "flag_manager"
+            app.update_view()
+        elif action == "show_assets":
+            app.current_view = "assets"
+            app.update_view()
+        elif action == "show_profiles":
+            app.current_view = "profiles"
+            app.update_view()
+        elif action == "show_mcp":
+            app.current_view = "mcp"
+            app.update_view()
+        elif action == "show_hooks":
+            if hasattr(app, "action_hooks_manager"):
+                getattr(app, "action_hooks_manager")()
+        elif action == "show_backups":
+            if hasattr(app, "action_backup_manager"):
+                getattr(app, "action_backup_manager")()
         elif action == "export_context":
             app.current_view = "export"
             app.update_view()
@@ -252,6 +404,21 @@ class AgentCommandProvider(Provider):
                     # We need to ignore type checking for this dynamic call
                     getattr(app, "push_screen")(MemoryScreen())
                 except ImportError:
-                    app.status_message = "Memory module not available"
+                    # Fallback to standard memory view if dedicated screen is missing
+                    app.current_view = "memory"
+                    app.update_view()
                 except Exception as e:
                     app.status_message = f"Error opening memory: {e}"
+        elif action == "run_init_wizard":
+            if hasattr(app, "action_setup_init_wizard"):
+                getattr(app, "action_setup_init_wizard")()
+        elif action == "run_health_check":
+            if hasattr(app, "action_setup_health_check"):
+                getattr(app, "action_setup_health_check")()
+        elif action == "run_migration":
+            if hasattr(app, "action_setup_migration"):
+                getattr(app, "action_setup_migration")()
+        elif action == "show_help":
+            if hasattr(app, "action_help"):
+                getattr(app, "action_help")()
+

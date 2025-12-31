@@ -289,15 +289,15 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
                 with Horizontal(id="dialog-buttons"):
                     # Show appropriate buttons based on status
                     if self.status == InstallStatus.NOT_INSTALLED:
-                        yield Button("Install", variant="success", id="install")
+                        yield Button("Install [i]", variant="success", id="install")
                     else:
-                        yield Button("Update", variant="primary", id="install")
-                        yield Button("Uninstall", variant="error", id="uninstall")
+                        yield Button("Update [i]", variant="primary", id="install")
+                        yield Button("Uninstall [u]", variant="error", id="uninstall")
                         # Show diff button for any installed asset
                         diff_variant: Literal["default", "primary", "success", "warning", "error"] = "warning" if self.status == InstallStatus.INSTALLED_DIFFERENT else "default"
-                        yield Button("View Diff", variant=diff_variant, id="diff")
+                        yield Button("View Diff [d]", variant=diff_variant, id="diff")
 
-                    yield Button("Close", variant="default", id="close")
+                    yield Button("Close [esc]", variant="default", id="close")
 
     def action_close(self) -> None:
         """Close the dialog."""
@@ -420,9 +420,9 @@ class DiffViewerDialog(ModalScreen[Optional[str]]):
                 )
 
                 with Horizontal(id="dialog-buttons"):
-                    yield Button("Apply Update", variant="success", id="apply")
-                    yield Button("Keep Installed", variant="default", id="keep")
-                    yield Button("Close", variant="primary", id="close")
+                    yield Button("Apply Update [a]", variant="success", id="apply")
+                    yield Button("Keep Installed [k]", variant="default", id="keep")
+                    yield Button("Close [esc]", variant="primary", id="close")
 
     def _colorize_diff(self, diff: str) -> str:
         """Colorize diff output for display."""
@@ -509,6 +509,7 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
     BINDINGS = [
         Binding("escape", "cancel", "Cancel"),
         Binding("enter", "install", "Install"),
+        Binding("i", "install", "Install All"),
     ]
 
     def __init__(self, categories: List[Tuple[str, int]]):
@@ -560,13 +561,13 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
                         )
 
                 yield Static(
-                    "[dim]Space to toggle • Enter to install selected[/dim]",
+                    "[dim]Space to toggle • [i] or Enter to install selected[/dim]",
                     id="dialog-hint",
                 )
 
                 with Horizontal(id="dialog-buttons"):
-                    yield Button("Install All", variant="success", id="install")
-                    yield Button("Cancel", variant="default", id="cancel")
+                    yield Button("Install Selected [i]", variant="success", id="install")
+                    yield Button("Cancel [esc]", variant="default", id="cancel")
 
     def action_cancel(self) -> None:
         """Cancel installation."""

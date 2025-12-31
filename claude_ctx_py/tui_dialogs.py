@@ -70,14 +70,15 @@ class ConfirmDialog(ModalScreen[bool]):
                     f"{Icons.WARNING} [bold]{self.title}[/bold]", id="dialog-title"
                 )
                 yield Static(self.message, id="dialog-message")
+                yield Static("[dim][y] Yes • [n] No • [esc] Cancel[/dim]", id="dialog-hint")
                 with Container(id="dialog-buttons"):
                     yield Button(
-                        "Yes",
+                        "Yes [y]",
                         variant="success" if self.default else "default",
                         id="yes",
                     )
                     yield Button(
-                        "No",
+                        "No [n]",
                         variant="error" if not self.default else "default",
                         id="no",
                     )
