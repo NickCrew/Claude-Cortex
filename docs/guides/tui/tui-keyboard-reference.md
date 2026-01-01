@@ -124,6 +124,11 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `T` | Change target directory |
 | `Enter` | Show asset details |
 
+**Dialog Shortcuts:**
+- **Bulk Install:** `i` or `Enter` to Install All
+- **Asset Details:** `i` Install/Update, `u` Uninstall, `d` Diff
+
+
 ### MCP View
 | Key | Action |
 | --- | --- |

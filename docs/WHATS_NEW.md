@@ -25,6 +25,26 @@
 - Activation is tracked in `.active-principles`, with filename ordering (use numeric prefixes).
 - TUI support: press `p` for the Principles view; use `Space` to toggle snippets, `c` to rebuild, and `d` to open `PRINCIPLES.md`.
 
+## 2025-12-31: Command Palette & Memory Vault Overhaul
+
+### 🚀 Expanded Command Palette (Ctrl+P)
+
+- Added **20+ new commands** covering every major view (Galaxy, Flags, Tasks, Watch Mode, etc.).
+- Commands are now organized into logical categories: `AGENT`, `MODE`, `RULE`, `VIEW`, `CONFIG`, `TOOLS`, `SYSTEM`.
+- Search results now display visual hotkey reminders, making the palette a great way to learn shortcuts.
+
+### 🧠 TUI Memory Vault Viewer
+
+- New dedicated **Memory Screen** (`M` or `Ctrl+P` -> "Memory") with split-pane browsing.
+- **Real-time search**: Filter notes instantly by title or content.
+- **Markdown viewer**: Read note content directly in the TUI without opening an external editor.
+
+### 📦 Asset Manager Polish
+
+- **Keyboard Shortcuts**: Added `i` for "Install All" in the Bulk Install dialog.
+- **Button Hints**: Updated all modal buttons to explicitly show their hotkeys (e.g., "Install [i]", "Close [esc]").
+- **Confirm Dialogs**: Added visible `[y]/[n]` hints to confirmation prompts.
+
 ## 2025-11-18: Task Log Streaming & Palette Hardening
 
 ### 🔍 Task Detail Panel + Log Actions
