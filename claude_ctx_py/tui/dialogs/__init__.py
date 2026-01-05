@@ -9,6 +9,7 @@ from .asset_dialogs import (
 
 from .memory_dialogs import (
     MemoryNoteDialog,
+    MemoryNoteCreateDialog,
 )
 
 from .mcp_install_dialogs import (
@@ -45,6 +46,7 @@ __all__ = [
     "DiffViewerDialog",
     "BulkInstallDialog",
     "MemoryNoteDialog",
+    "MemoryNoteCreateDialog",
     "MCPBrowseDialog",
     "MCPInstallDialog",
     "ClaudeMdWizard",

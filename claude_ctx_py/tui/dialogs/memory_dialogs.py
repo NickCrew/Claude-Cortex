@@ -2,16 +2,107 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, TypedDict
 
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Vertical, VerticalScroll, Horizontal
 from textual.screen import ModalScreen
-from textual.widgets import Button, Static
+from textual.widgets import Button, Input, Static
 
 from ...tui_icons import Icons
 from ..types import MemoryNote
+
+
+class MemoryNoteCreateData(TypedDict):
+    note_type: str
+    title: str
+    summary: str
+
+
+class MemoryNoteCreateDialog(ModalScreen[Optional[MemoryNoteCreateData]]):
+    """Dialog for creating a new memory note."""
+
+    CSS = """
+    MemoryNoteCreateDialog {
+        align: center middle;
+    }
+
+    MemoryNoteCreateDialog #dialog {
+        opacity: 1;
+    }
+
+    MemoryNoteCreateDialog #dialog-hint {
+        color: $text-muted;
+        padding-bottom: 1;
+    }
+    """
+
+    BINDINGS = [
+        Binding("escape", "close", "Cancel"),
+        Binding("enter", "submit", "Save"),
+    ]
+
+    def __init__(self, title: str, *, default_type: str = "knowledge"):
+        super().__init__()
+        self.title = title
+        self.default_type = default_type
+
+    def compose(self) -> ComposeResult:
+        with Container(id="dialog"):
+            with Vertical():
+                yield Static(
+                    f"🧠 [bold]{self.title}[/bold]", id="dialog-title"
+                )
+                yield Static(
+                    "[dim]Types: knowledge, projects, sessions, fixes[/dim]",
+                    id="dialog-hint",
+                )
+                yield Input(
+                    value=self.default_type,
+                    placeholder="Note type",
+                    id="note-type",
+                )
+                yield Input(
+                    placeholder="Title / topic",
+                    id="note-title",
+                )
+                yield Input(
+                    placeholder="Summary (optional)",
+                    id="note-summary",
+                )
+                with Container(id="dialog-buttons"):
+                    yield Button("Save", variant="success", id="save")
+                    yield Button("Cancel", variant="error", id="cancel")
+
+    def action_close(self) -> None:
+        self.dismiss(None)
+
+    def action_submit(self) -> None:
+        self._submit()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            self._submit()
+        else:
+            self.dismiss(None)
+
+    def _submit(self) -> None:
+        note_type = self.query_one("#note-type", Input).value.strip() or "knowledge"
+        title = self.query_one("#note-title", Input).value.strip()
+        summary = self.query_one("#note-summary", Input).value.strip()
+
+        if not title:
+            self.dismiss(None)
+            return
+
+        self.dismiss(
+            {
+                "note_type": note_type,
+                "title": title,
+                "summary": summary,
+            }
+        )
 
 
 class MemoryNoteDialog(ModalScreen[Optional[str]]):

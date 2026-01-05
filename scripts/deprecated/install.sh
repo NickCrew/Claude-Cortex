@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Comprehensive installation script for claude-ctx
+# Comprehensive installation script for cortex
 # Installs package, shell completions, and manpage
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="${SCRIPT_DIR}/.."
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Color output
 RED='\033[0;31m'
@@ -20,27 +20,57 @@ INSTALL_COMPLETIONS=true
 INSTALL_MANPAGE=true
 EDITABLE_MODE=true
 SHELL_TYPE=""
+OS=$(uname | tr '[:upper:]' '[:lower:]')
+
+#  Package manager (can be pip, pipx, or uv)
+PKG_MGR="pip"
 
 usage() {
     cat <<EOF
 Usage: $0 [OPTIONS]
 
-Install claude-ctx with optional components.
+Install cortex with optional components.
 
 OPTIONS:
     -h, --help              Show this help message
-    --no-package            Skip package installation
+
+    # Select components
+    --no-package            Skip Python package installation
     --no-completions        Skip shell completion installation
-    --no-manpage            Skip manpage installation
-    --system-install        Install package system-wide (not editable)
+    --no-docs               Skip manpage and documentation installation
     --shell SHELL           Specify shell (bash, zsh, fish) for completions
     --all                   Install everything (default)
 
+    # Alt. Installation modes
+    [--system|--user]       Install package system-wide (requires sudo)
+                            or for the current user only.
+                            Default is editable mode for current user.
+
+    # Package manger
+    [--uv|--pipx]           Use 'uv' or 'pipx' as package manager
+                            instead of pip
+
 EXAMPLES:
-    $0                      # Install everything in editable mode
+    $0                      # Install only the package in editable mode
+    $0 --shell zsh          # Install everything EXCEPT the package
     $0 --no-completions     # Install package and manpage only
     $0 --shell zsh          # Install with zsh completions only
     $0 --system-install     # Install system-wide (not editable)
+    $0                      # Install package only in editable mode
+    $0 --
+    $0 --shell zsh   # Install in editable mode with all 
+                              shell integrations, docs, etc.
+
+
+NOTES:
+    > The default installation mode is editable and 
+      only links an executable to  ~/.local
+    > The system (global) install mode  is NOT editable, 
+      requires sudo privileges and installs to /usr/local
+    > The user install mode is NOT editable and 
+      installs to ~/.local
+    > Any manpages, docs or shell integrations use the same
+      base install path, e.g. ~/.local/man for user mode
 
 EOF
 }
@@ -78,8 +108,86 @@ detect_shell() {
     fi
 }
 
+check_path() {
+  test -d "$1" && return 0
+
+  # Check for automatic directory creation enabled
+  if [[ "$MKDIRS" != "true" ]]; 
+  then
+    echo "$1 does not exist. Use --mkdirs to create automatically"
+    return 1
+  fi
+
+  # Check if the user has permission to create the directory
+  base_path=$(echo "$1" | cut -d '/' -f1-3)
+  if [[  -w "$base_path" ]]; 
+  then
+    # User can write 
+    mkdir -p "$1"
+  else
+    # Try with sudo
+    echo "No permissions to write in ${base_path}."
+    echo "Trying with sudo..."
+    sudo mkdir -p "$1" 
+  fi
+
+  # Confirm creation
+  test -d "$1" \
+    && echo "Created directory $1" \
+    && return 0 \
+    || echo "Failed to create directory $1. "
+
+  return 1
+}
+
+check_manpath() { 
+  local target="$1"
+  local rc_files=">> ${HOME}/.bashrc >> $ZDOTDIR/.zshrc >> ${CONFIG_DIR}/fish/config.fish"
+  
+  if manpath | grep -q "$target" ; then return 0; fi
+
+  log_warn "$target not found in MANPATH"
+  echo "Use the following command to add it to your shell configuration:"
+  echo "    echo 'export MANPATH=\"\$MANPATH:${target}\"' ${rc_files} && eval "exec \$SHELL""
+  return 1
+}
+
+print_dirs() {
+  echo "---------[ Installation Directories ]----------------"
+  echo "Base:          ${DATA_DIR}"
+  echo "Docs:          ${DOC_DIR}"
+  echo "Manpages:      ${MAN_DIR}"
+  echo "-----------------------------------------------------"
+}
+
+set_install_paths() {
+
+  if [[ "${OSTYPE}" == "darwin"* ]]; 
+  then
+    DATA_DIR="${HOME}/.local/share"
+    DOC_DIR="${HOME}/Library/Documentation/cortex"
+    MAN_DIR="${DATA_DIR}/man/man1"
+    return 0
+  fi
+  
+  [[ "${OSTYPE}" != "linux-gnu"* ]] && (log_error "Unsupported OS: $OSTYPE"; return 1)
+
+
+  if [[ "${SYSTEM_INSTALL" == "true" ]]; then 
+    DATA_DIR=/usr/local/share
+    CONFIG_PATH="/etc/cortex"
+  fi
+
+  DOC_DIR="${DATA_DIR}/cortex/doc"
+  MAN_DIR="${DATA_DIR}/man/man1"
+
+
+  return 0
+      
+}
+
 install_package() {
-    log_info "Installing claude-ctx Python package..."
+    log_info "Installing cortex Python package..."
 
     cd "${PROJECT_ROOT}"
 
@@ -112,9 +220,9 @@ install_completions() {
         }
     fi
 
-    # Ensure claude-ctx is available
-    if ! command -v claude-ctx &> /dev/null; then
-        log_error "claude-ctx command not found. Install package first."
+    # Ensure cortex is available
+    if ! command -v cortex &> /dev/null; then
+        log_error "cortex command not found. Install package first."
         return 1
     fi
 
@@ -137,14 +245,14 @@ install_completions() {
 }
 
 install_bash_completions() {
-    local completion_dir="${HOME}/.local/share/bash-completion/completions"
-    local completion_file="${completion_dir}/claude-ctx"
+    local completion_dir="${DATA_DIR}/bash-completion/completions"
+    local completion_file="${completion_dir}/cortex"
 
     # Create directory if it doesn't exist
     mkdir -p "${completion_dir}"
 
     # Generate completion script
-    register-python-argcomplete claude-ctx > "${completion_file}" || {
+    register-python-argcomplete cortex > "${completion_file}" || {
         log_error "Failed to generate bash completions"
         return 1
     }
@@ -154,7 +262,7 @@ install_bash_completions() {
     echo "    source ${completion_file}"
 
     # Check if already sourced in .bashrc
-    if [[ -f "${HOME}/.bashrc" ]] && grep -q "claude-ctx" "${HOME}/.bashrc"; then
+    if [[ -f "${HOME}/.bashrc" ]] && grep -q "cortex" "${HOME}/.bashrc"; then
         log_info "Completions already configured in ~/.bashrc"
     else
         log_warn "To enable now, run: source ${completion_file}"
@@ -162,14 +270,14 @@ install_bash_completions() {
 }
 
 install_zsh_completions() {
-    local completion_dir="${HOME}/.local/share/zsh/site-functions"
-    local completion_file="${completion_dir}/_claude-ctx"
+    local completion_dir="${DATA_DIR}/zsh/site-functions"
+    local completion_file="${completion_dir}/_cortex"
 
     # Create directory if it doesn't exist
     mkdir -p "${completion_dir}"
 
     # Generate completion script
-    register-python-argcomplete --shell zsh claude-ctx > "${completion_file}" || {
+    register-python-argcomplete --shell zsh cortex > "${completion_file}" || {
         log_error "Failed to generate zsh completions"
         return 1
     }
@@ -177,8 +285,10 @@ install_zsh_completions() {
     log_success "Zsh completions installed to ${completion_file}"
 
     # Check if directory is in fpath
-    if [[ ":${FPATH}:" != *":${completion_dir}:"* ]]; then
-        log_info "Add this to your ~/.zshrc before compinit:"
+    if zsh -c 'echo $fpath' | grep -q "${completion_dir}"; then
+      log_info "Completion directory already in fpath"
+    else
+        log_warn "Add this to your ~/.zshrc before compinit:"
         echo "    fpath=(${completion_dir} \$fpath)"
         echo "    autoload -Uz compinit && compinit"
     fi
@@ -187,14 +297,14 @@ install_zsh_completions() {
 }
 
 install_fish_completions() {
-    local completion_dir="${HOME}/.config/fish/completions"
-    local completion_file="${completion_dir}/claude-ctx.fish"
+    local completion_dir="${CONFIG_DIR}/fish/completions"
+    local completion_file="${completion_dir}/cortex.fish"
 
     # Create directory if it doesn't exist
     mkdir -p "${completion_dir}"
 
     # Generate completion script
-    register-python-argcomplete --shell fish claude-ctx > "${completion_file}" || {
+    register-python-argcomplete --shell fish cortex > "${completion_file}" || {
         log_error "Failed to generate fish completions"
         return 1
     }
@@ -207,7 +317,7 @@ install_manpage() {
     log_info "Generating manpages..."
     
     # Generate fresh manpages from CLI definitions
-    python3 "${SCRIPT_DIR}/generate-manpages.py" || {
+    python3 "${SCRIPT_DIR}/../generate-manpages.py" || {
         log_warn "Manpage generation failed, using existing manpages"
     }
     
@@ -224,13 +334,11 @@ install_manpage() {
     # Determine installation directory
     if [[ "${OSTYPE}" == "darwin"* ]]; then
         # macOS
-        MAN_DIR="/usr/local/share/man/man1"
+        MAN_DIR="${DATA_DIR}/man/man1"
     elif [[ "${OSTYPE}" == "linux-gnu"* ]]; then
         # Linux
-        if [[ -d "/usr/local/man/man1" ]]; then
-            MAN_DIR="/usr/local/man/man1"
-        elif [[ -d "/usr/share/man/man1" ]]; then
-            MAN_DIR="/usr/share/man/man1"
+        if [[ -d "${DATA_DIR}/man/man1" ]]; then
+            MAN_DIR="${DATA_DIR}/man/man1"
         else
             log_error "Cannot find standard man directory"
             return 1
@@ -269,7 +377,7 @@ install_manpage() {
     fi
 
     log_success "Installed ${#manpage_sources[@]} manpage(s) to ${MAN_DIR}"
-    log_info "Primary entry point: man claude-ctx"
+    log_info "Primary entry point: man cortex"
 }
 
 verify_installation() {
@@ -278,35 +386,35 @@ verify_installation() {
     local all_good=true
 
     # Check command
-    if command -v claude-ctx &> /dev/null; then
-        log_success "claude-ctx command available"
-        claude-ctx --help > /dev/null 2>&1 && log_success "claude-ctx runs correctly"
+    if command -v cortex &> /dev/null; then
+        log_success "cortex command available"
+        cortex --help > /dev/null 2>&1 && log_success "claude-ctx runs correctly"
     else
-        log_error "claude-ctx command not found"
+        log_error "cortex command not found"
         all_good=false
     fi
 
     # Check manpage
-    if man -w claude-ctx &> /dev/null; then
+    if man -w cortex &> /dev/null; then
         log_success "Manpage installed and accessible"
     else
-        log_warn "Manpage not accessible via 'man claude-ctx'"
+        log_warn "Manpage not accessible via 'man cortex'"
     fi
 
     # Check completions
     case "${SHELL_TYPE}" in
         bash)
-            if [[ -f "${HOME}/.local/share/bash-completion/completions/claude-ctx" ]]; then
+            if [[ -f "${DATA_DIR}/ash-completion/completions/cortex" ]]; then
                 log_success "Bash completions installed"
             fi
             ;;
         zsh)
-            if [[ -f "${HOME}/.local/share/zsh/site-functions/_claude-ctx" ]]; then
+            if [[ -f "${DATA_DIR}/zsh/site-functions/_cortex" ]]; then
                 log_success "Zsh completions installed"
             fi
             ;;
         fish)
-            if [[ -f "${HOME}/.config/fish/completions/claude-ctx.fish" ]]; then
+            if [[ -f "${HOME}/.config/fish/completions/cortex.fish" ]]; then
                 log_success "Fish completions installed"
             fi
             ;;
@@ -318,9 +426,9 @@ verify_installation() {
         echo ""
         log_info "Next steps:"
         echo "  1. Restart your shell or source your shell config"
-        echo "  2. Try: claude-ctx status"
-        echo "  3. View docs: man claude-ctx"
-        echo "  4. Test completions: claude-ctx <TAB><TAB>"
+        echo "  2. Try: cortex status"
+        echo "  3. View docs: man cortex"
+        echo "  4. Test completions: cortex <TAB><TAB>"
     fi
 }
 
@@ -345,6 +453,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --system-install)
             EDITABLE_MODE=false
+            if [[ "$OS" != "darwin" ]]; then 
+              DATA_DIR="/usr/local/share"
+            fi
+            shift
+            ;;
+        --user-install)
+            EDITABLE_MODE=false
+            DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}"
             shift
             ;;
         --shell)
@@ -369,6 +485,27 @@ done
 echo ""
 log_info "Cortex Installation Script"
 echo ""
+
+
+
+[[ "${OSTYPE}" == "linux-gnu"* || "${OSTYPE}" == "darwin"* ]] \
+  || (log_error "Unsupported OS: ${OSTYPE}"; exit 1)
+
+echo "Prepping the installation paths..."
+
+MAN_DIR="${DATA_DIR}/man/man1"
+DOC_DIR="${DATA_DIR}/cortex/doc"
+
+[[ "${OSTYPE}" == "darwin"* ]] \
+  && DOC_DIR="${HOME}/Library/Documentation/cortex"
+
+print_dirs
+
+check_path "${DATA_DIR}"
+check_path "${DOC_DIR}"
+check_path "${MAN_DIR}"
+check_manpath "${MAN_DIR}"
+
 
 detect_shell
 

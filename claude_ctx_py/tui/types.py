@@ -144,3 +144,16 @@ class WatchModeState:
     auto_activations: int
     started_at: Optional[datetime]
     last_notification: Optional[str]
+
+
+@dataclass
+class PromptInfo:
+    """Represents a prompt in the prompt library."""
+
+    name: str
+    slug: str  # category/name format (e.g., "guidelines/code-review")
+    status: str  # "active" or "inactive"
+    category: str
+    description: str
+    tokens: int
+    path: Path

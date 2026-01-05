@@ -21,6 +21,7 @@ class WizardConfig:
     core_files: Set[str] = field(default_factory=set)
     rules: Set[str] = field(default_factory=set)
     modes: Set[str] = field(default_factory=set)
+    prompts: Set[str] = field(default_factory=set)
     mcp_docs: Set[str] = field(default_factory=set)
 
 
@@ -28,12 +29,13 @@ def discover_available_files(claude_dir: Path) -> Dict[str, List[str]]:
     """Discover available configuration files.
 
     Returns:
-        Dict with keys: core, rules, modes, mcp_docs
+        Dict with keys: core, rules, modes, prompts, mcp_docs
     """
     result: Dict[str, List[str]] = {
         "core": [],
         "rules": [],
         "modes": [],
+        "prompts": [],
         "mcp_docs": [],
     }
     rule_names: Set[str] = set()
@@ -56,6 +58,15 @@ def discover_available_files(claude_dir: Path) -> Dict[str, List[str]]:
             for f in sorted(modes_dir.glob("*.md")):
                 if f.is_file():
                     mode_names.add(f.name)
+
+    # Prompts (from subdirectories)
+    prompts_dir = claude_dir / "prompts"
+    if prompts_dir.exists():
+        for category_dir in sorted(prompts_dir.iterdir()):
+            if category_dir.is_dir() and not category_dir.name.startswith("."):
+                for f in sorted(category_dir.glob("*.md")):
+                    if f.is_file():
+                        result["prompts"].append(f"{category_dir.name}/{f.stem}")
 
     # MCP docs
     mcp_docs_dir = claude_dir / "mcp" / "docs"
@@ -102,6 +113,14 @@ def parse_current_claude_md(claude_dir: Path) -> WizardConfig:
             if line:
                 config.modes.add(line if line.endswith(".md") else f"{line}.md" if "." not in line else line)
 
+    # Prompts: from .active-prompts tracker
+    active_prompts_file = claude_dir / ".active-prompts"
+    if active_prompts_file.exists():
+        for line in active_prompts_file.read_text().splitlines():
+            line = line.strip()
+            if line:
+                config.prompts.add(line)
+
     # MCP docs: keep enabled list based on presence in mcp/docs
     mcp_docs_dir = claude_dir / "mcp" / "docs"
     if mcp_docs_dir.exists():
@@ -138,6 +157,11 @@ def generate_claude_md(config: WizardConfig) -> str:
     lines.extend(["", "# Behavioral Modes"])
     for mode in sorted(config.modes):
         lines.append(f"@modes/{mode}")
+
+    if config.prompts:
+        lines.extend(["", "# Prompt Library"])
+        for prompt in sorted(config.prompts):
+            lines.append(f"@prompts/{prompt}.md")
 
     lines.extend(["", "# MCP Documentation"])
     for doc in sorted(config.mcp_docs):
@@ -219,7 +243,7 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
         Binding("right", "next_step", "Next"),
     ]
 
-    STEPS = ["Core Framework", "Rules", "Modes", "MCP Documentation", "Review"]
+    STEPS = ["Core Framework", "Rules", "Modes", "Prompts", "MCP Documentation", "Review"]
 
     def __init__(self) -> None:
         super().__init__()
@@ -267,8 +291,10 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
         elif self.current_step == 2:
             yield from self._compose_modes_step()
         elif self.current_step == 3:
-            yield from self._compose_mcp_step()
+            yield from self._compose_prompts_step()
         elif self.current_step == 4:
+            yield from self._compose_mcp_step()
+        elif self.current_step == 5:
             yield from self._compose_review_step()
 
     def _sanitize_id(self, name: str) -> str:
@@ -330,6 +356,35 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
                 classes="checkbox-item",
             )
 
+    def _compose_prompts_step(self) -> ComposeResult:
+        yield Static("[bold]Prompt Library[/bold]", classes="section-title")
+        yield Static(
+            "Select prompts to inject into context.",
+            classes="section-desc",
+        )
+
+        if not self.available["prompts"]:
+            yield Static(
+                "[dim]No prompts found. Create prompts in ~/.claude/prompts/[/dim]",
+                classes="section-desc",
+            )
+            return
+
+        for slug in self.available["prompts"]:
+            checked = slug in self.config.prompts
+            # Format: category/name -> [category] Name
+            if "/" in slug:
+                category, name = slug.split("/", 1)
+                display = f"[{category}] {name.replace('-', ' ').title()}"
+            else:
+                display = slug.replace("-", " ").title()
+            yield Checkbox(
+                display,
+                value=checked,
+                id=f"prompt-{self._sanitize_id(slug)}",
+                classes="checkbox-item",
+            )
+
     def _compose_mcp_step(self) -> ComposeResult:
         yield Static("[bold]MCP Documentation[/bold]", classes="section-title")
         yield Static(
@@ -378,6 +433,13 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
         else:
             lines.append("  [dim]None selected[/dim]")
 
+        lines.append("\n[bold]Prompts:[/bold]")
+        if self.config.prompts:
+            for f in sorted(self.config.prompts):
+                lines.append(f"  [green]✓[/green] {f}")
+        else:
+            lines.append("  [dim]None selected[/dim]")
+
         lines.append("\n[bold]MCP Documentation:[/bold]")
         if self.config.mcp_docs:
             for f in sorted(self.config.mcp_docs):
@@ -420,6 +482,16 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
                     pass
 
         elif self.current_step == 3:
+            self.config.prompts = set()
+            for slug in self.available["prompts"]:
+                try:
+                    cb = self.query_one(f"#prompt-{self._sanitize_id(slug)}", Checkbox)
+                    if cb.value:
+                        self.config.prompts.add(slug)
+                except Exception:
+                    pass
+
+        elif self.current_step == 4:
             self.config.mcp_docs = set()
             for name in self.available["mcp_docs"]:
                 try:
