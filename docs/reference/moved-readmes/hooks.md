@@ -321,7 +321,7 @@ set -euo pipefail
 # Your hook logic here
 # Access environment variables:
 # - CLAUDE_USER_PROMPT: User's input
-# - CLAUDE_TOOL_NAME: Tool being called (for tool-call hooks)
+# - CLAUDE_TOOL_NAME: Tool being called (for tool hooks)
 # - CLAUDE_FILE_PATH: File path (for file operation hooks)
 
 # Exit codes:
