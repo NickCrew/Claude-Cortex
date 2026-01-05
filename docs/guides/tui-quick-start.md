@@ -105,7 +105,7 @@ Every view now has:
 | `w` | Watch Mode |
 | `S` | Scenarios |
 | `o` | Orchestrate |
-| `g` | Galaxy |
+| `Alt+g` | Galaxy |
 | `t` | Tasks |
 | `/` | Slash Commands catalog |
 | `R` | Refresh current view |

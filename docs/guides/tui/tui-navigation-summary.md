@@ -20,7 +20,7 @@ This page summarizes how to move through the claude-ctx TUI and where each major
 ```
 A  Asset Manager     C  Worktrees     F  Flags     M  Memory Vault
 p  Principles        w  Watch Mode    S  Scenarios     o  Orchestrate
-g  Agent Galaxy      t  Tasks         /  Slash Commands
+Alt+g  Agent Galaxy  t  Tasks         /  Slash Commands
 ```
 
 ## Command Palette
@@ -37,12 +37,22 @@ Press `Ctrl+P` to open the command palette. It provides fuzzy search across view
 | `Space` | Toggle selected item (where supported) |
 | `Ctrl+E` | Edit current item |
 
+## Navigation
+
+| Key | Action |
+| --- | --- |
+| `j/k` or `↑/↓` | Move selection |
+| `gg` | Jump to top |
+| `G` | Jump to bottom |
+| `Ctrl+U` / `Ctrl+D` | Half page up/down |
+| `Ctrl+B` / `Ctrl+F` | Page up/down |
+
 ## View Highlights
 
 | View | Key | Key Actions |
 | --- | --- | --- |
 | Asset Manager | `A` | `i` install, `u` uninstall, `d` diff, `U` update all, `I` bulk install, `T` target |
-| Worktrees | `C` | `Ctrl+N` add, `Ctrl+O` open, `Ctrl+W` remove, `Ctrl+K` prune, `Ctrl+B` base dir |
+| Worktrees | `C` | `Ctrl+N` add, `Ctrl+O` open, `Ctrl+W` remove, `Ctrl+K` prune, `B` base dir |
 | Workflows | `6` | `R` run, `s` stop |
 | Scenarios | `S` | `P` preview, `R` run, `V` validate, `H` history |
 | MCP Servers | `7` | `B` browse, `Ctrl+A` add, `E` edit, `X` remove, `v` validate |

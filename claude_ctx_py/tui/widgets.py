@@ -52,7 +52,7 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
     "mcp": [
         ShortcutDef("B", "Browse/Install", priority=19),
         ShortcutDef("^t", "Test", priority=20),
-        ShortcutDef("^d", "Diagnose", priority=21),
+        ShortcutDef("D", "Diagnose", priority=21),
         ShortcutDef("^a", "Add", priority=22),
         ShortcutDef("E", "Edit", priority=23),
         ShortcutDef("X", "Remove", priority=24),
@@ -101,7 +101,7 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
     ],
     "ai_assistant": [
         ShortcutDef("a", "Auto-Activate", priority=20),
-        ShortcutDef("G", "Gemini", priority=21),
+        ShortcutDef("J", "Gemini", priority=21),
         ShortcutDef("K", "Assign LLMs", priority=22),
         ShortcutDef("Y", "Request Reviews", priority=23),
     ],
@@ -115,9 +115,12 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
 EXTRA_NAV_SHORTCUTS: List[ShortcutDef] = [
     ShortcutDef("S", "Scenarios", priority=30),
     ShortcutDef("o", "Orchestrate", priority=31),
-    ShortcutDef("g", "Galaxy", priority=32),
+    ShortcutDef("Alt+g", "Galaxy", priority=32),
     ShortcutDef("t", "Tasks", priority=33),
     ShortcutDef("/", "Cmds", priority=34),
+    ShortcutDef("gg/G", "Top/Bottom", priority=35),
+    ShortcutDef("^b/^f", "Page", priority=36),
+    ShortcutDef("^u/^d", "Half Page", priority=37),
 ]
 
 
@@ -326,7 +329,7 @@ class AdaptiveFooter(Widget):
         mapping = {
             "agents": [("s", "Details"), ("v", "Validate"), ("^e", "Edit")],
             "skills": [("s", "Details"), ("v", "Validate"), ("m", "Metrics"), ("d", "Docs")],
-            "mcp": [("B", "Browse/Install"), ("^t", "Test"), ("^d", "Diagnose"), ("^a", "Add")],
+            "mcp": [("B", "Browse/Install"), ("^t", "Test"), ("D", "Diagnose"), ("^a", "Add")],
             "profiles": [("Spc", "Apply"), ("n", "Save"), ("D", "Delete")],
             "export": [("f", "Format"), ("e", "Export"), ("x", "Copy")],
             "workflows": [("R", "Run"), ("s", "Details")],
@@ -335,7 +338,7 @@ class AdaptiveFooter(Widget):
                 ("^o", "Open"),
                 ("^w", "Remove"),
                 ("^k", "Prune"),
-                ("^b", "Base Dir"),
+                ("B", "Base Dir"),
             ],
             "scenarios": [("R", "Run"), ("P", "Preview"), ("V", "Validate")],
             "tasks": [("a", "Add"), ("L", "Log"), ("O", "Open")],
@@ -350,7 +353,7 @@ class AdaptiveFooter(Widget):
                 ("d", "Open"),
                 ("^e", "Edit"),
             ],
-            "ai_assistant": [("a", "Auto-Activate"), ("G", "Gemini"), ("Y", "Request Reviews")],
+            "ai_assistant": [("a", "Auto-Activate"), ("J", "Gemini"), ("Y", "Request Reviews")],
             "commands": [("Enter", "View"), ("^e", "Edit")],
         }
         return mapping.get(view, [])

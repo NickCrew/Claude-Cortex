@@ -43,9 +43,9 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
 
 <div class="metrics-row">
   <div class="metric-box">
-    <div class="metric-value">78</div>
+    <div class="metric-value">107</div>
     <div class="metric-label">Total Agents</div>
-    <div class="metric-sublabel">13 active • 65 inactive</div>
+    <div class="metric-sublabel">19 active • 88 inactive</div>
   </div>
   <div class="metric-box">
     <div class="metric-value">49</div>
@@ -319,7 +319,7 @@ cortex worktree dir ../worktrees
 ```bash
 cortex tui
 # Press 'C' for Worktrees
-# Ctrl+N add, Ctrl+O open, Ctrl+W remove, Ctrl+K prune, Ctrl+B set base dir
+# Ctrl+N add, Ctrl+O open, Ctrl+W remove, Ctrl+K prune, B set base dir
 ```
 
 **Documentation**: [Worktree Manager Guide](guides/worktrees.html)
@@ -456,17 +456,23 @@ claude-cortex/
 │   ├── test/          # Test generation
 │   └── tools/         # Tool selection and optimization
 │
-├── agents/            # Active specialized agents (13 agents)
+├── agents/            # Active specialized agents (19 agents)
 │   ├── cloud-architect.md
 │   ├── code-reviewer.md
 │   ├── debugger.md
 │   ├── deployment-engineer.md
 │   ├── dx-optimizer.md
+│   ├── knowledge-synthesizer.md
 │   ├── kubernetes-architect.md
 │   ├── learning-guide.md
+│   ├── memory-keeper.md
 │   ├── mermaid-expert.md
+│   ├── orchestrator.md
+│   ├── prompt-engineer.md
 │   ├── python-pro.md
+│   ├── refiner.md
 │   ├── security-auditor.md
+│   ├── sql-pro.md
 │   ├── terraform-specialist.md
 │   ├── tutorial-engineer.md
 │   ├── typescript-pro.md
@@ -474,7 +480,7 @@ claude-cortex/
 │   └── triggers.yaml            # Agent activation triggers
 │
 ├── inactive/
-│   └── agents/        # Disabled agents library (65 agents available)
+│   └── agents/        # Disabled agents library (88 agents available)
 │
 ├── modes/             # Behavioral modes (9 core)
 │   ├── Amphetamine.md
@@ -498,6 +504,10 @@ claude-cortex/
 │   └── efficiency-rules.md     # Tool optimization, workspace hygiene
 │
 ├── skills/            # Skill packs and metadata
+├── prompts/           # Prompt library (guidelines, templates, personas)
+│   ├── guidelines/    # Code review, style guides, checklists
+│   ├── templates/     # PR descriptions, ADRs, documentation
+│   └── personas/      # Specialized behavioral profiles
 ├── mcp/               # MCP docs + server resources
 ├── profiles/          # Profile templates for different workflows
 │   ├── enhanced/
@@ -714,7 +724,7 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 ### 2. Agent System
 
 **Location**: `agents/` and `inactive/agents/`
-**Active Agents**: 13 | **Available**: 78
+**Active Agents**: 19 | **Available**: 107
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
 
@@ -729,11 +739,17 @@ Agents are specialized personas with domain expertise and specific capabilities.
 - `debugger` - Issue diagnosis and resolution
 - `deployment-engineer` - Release engineering
 - `dx-optimizer` - Developer experience and workflow tooling
+- `knowledge-synthesizer` - Cross-agent pattern synthesis
 - `kubernetes-architect` - K8s orchestration
 - `learning-guide` - Guided explanations and onboarding
+- `memory-keeper` - Memory vault curation
 - `mermaid-expert` - Architecture diagrams and visuals
+- `orchestrator` - High-level planning and delegation
+- `prompt-engineer` - Prompt optimization
 - `python-pro` - Python expertise
+- `refiner` - Iterative improvements
 - `security-auditor` - Security assessment
+- `sql-pro` - SQL expertise
 - `terraform-specialist` - Infrastructure as code
 - `tutorial-engineer` - Hands-on tutorials
 - `typescript-pro` - TypeScript expertise
@@ -855,11 +871,11 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
 
   <a href="guides/agents.html" class="doc-card">
     <h3>Agent Catalog</h3>
-    <p>Complete catalog of 13 specialized agents organized by category. Includes model assignments, dependencies, workflows, and activation criteria.</p>
+    <p>Catalog of 107 agents (19 active, 88 inactive) organized by category with model assignments, dependencies, workflows, and activation criteria.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>23KB reference</span>
-      <span>13 agents</span>
+      <span>107 agents</span>
     </div>
   </a>
 
@@ -1240,7 +1256,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 **Agent System**
 
-- [Agent Catalog](guides/agents.html) - Complete agent reference with 13 agents
+- [Agent Catalog](guides/agents.html) - Agent reference with 107 documented agents
 - [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
 - [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 
@@ -1264,6 +1280,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 - [Shell Completions](guides/COMPLETIONS.html) - Bash, Zsh, and Fish completion scripts
 - [Warp AI Integration](guides/features/WARP_AI_INTEGRATION.html) - Terminal AI tools integration with context export aliases
+- [Prompt Library](guides/prompt-library.html) - On-demand prompts, guidelines, and templates
 
 **Advanced Features**
 

@@ -51,7 +51,7 @@ claude-ctx tui
 | `Ctrl+O` | Open selected worktree |
 | `Ctrl+W` | Remove selected worktree |
 | `Ctrl+K` | Prune stale worktrees |
-| `Ctrl+B` | Set base directory (use `-` to clear) |
+| `B` | Set base directory (use `-` to clear) |
 
 ---
 

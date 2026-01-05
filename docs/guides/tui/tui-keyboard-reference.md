@@ -36,7 +36,7 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `w` | Watch Mode | Real-time monitoring |
 | `S` | Scenarios | Scenario orchestration |
 | `o` | Orchestrate | Parallel execution view |
-| `g` | Agent Galaxy | Dependency graph |
+| `Alt+g` | Agent Galaxy | Dependency graph |
 | `t` | Tasks | Task tracking |
 | `/` | Slash Commands | Command catalog |
 
@@ -46,6 +46,12 @@ Quick reference for claude-ctx TUI navigation and commands.
 | --- | --- | --- |
 | `↑` / `k` | Up | Move selection up |
 | `↓` / `j` | Down | Move selection down |
+| `gg` | Top | Jump to top |
+| `G` | Bottom | Jump to bottom |
+| `Ctrl+U` | Half Page Up | Scroll up half a page |
+| `Ctrl+D` | Half Page Down | Scroll down half a page |
+| `Ctrl+B` | Page Up | Scroll up one page |
+| `Ctrl+F` | Page Down | Scroll down one page |
 
 ## Global Actions
 
@@ -111,7 +117,7 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `Ctrl+O` | Open selected worktree |
 | `Ctrl+W` | Remove selected worktree |
 | `Ctrl+K` | Prune stale worktrees |
-| `Ctrl+B` | Set base directory |
+| `B` | Set base directory |
 
 ### Asset Manager View
 | Key | Action |
@@ -140,7 +146,7 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `d` | View docs |
 | `v` | Validate server |
 | `Ctrl+T` | Test server |
-| `Ctrl+D` | Diagnose all |
+| `D` | Diagnose all |
 
 ### Profiles View
 | Key | Action |
@@ -157,6 +163,14 @@ Quick reference for claude-ctx TUI navigation and commands.
 | `f` | Cycle export format |
 | `e` | Execute export |
 | `x` | Copy to clipboard |
+
+### AI Assistant View
+| Key | Action |
+| --- | --- |
+| `a` | Auto-activate recommendations |
+| `J` | Consult Gemini |
+| `K` | Assign LLM tasks |
+| `Y` | Request review tasks |
 
 ### Memory Vault View
 | Key | Action |

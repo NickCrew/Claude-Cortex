@@ -741,7 +741,7 @@ Watch mode monitors file changes and recommends agents in real-time!
 - `d` — View server documentation
 - `t` — Test server connection
 - `c` — Copy config snippet
-- `Ctrl+D` — Diagnose all servers
+- `D` — Diagnose all servers
 
 **Example:**
 
