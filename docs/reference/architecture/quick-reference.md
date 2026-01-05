@@ -186,7 +186,7 @@ Produces: Refactoring plan with priorities
 
 S  →  Scenarios
 o  →  Orchestrate
-g  →  Galaxy
+Alt+g  →  Galaxy
 t  →  Tasks
 r  →  Refresh
 ```

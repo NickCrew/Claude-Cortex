@@ -240,6 +240,7 @@ class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
     BINDINGS = [
         Binding("escape", "close", "Cancel"),
         Binding("enter", "submit", "Save"),
+        Binding("ctrl+s", "submit", "Save"),
     ]
 
     def __init__(self, title: str, defaults: Optional[TaskEditorData] = None):
@@ -371,6 +372,9 @@ class PromptDialog(ModalScreen[Optional[str]]):
     def action_submit(self) -> None:
         value = self.query_one("#prompt-input", Input).value.strip()
         self.dismiss(value or None)
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        self.action_submit()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "save":
@@ -609,14 +613,20 @@ class HelpDialog(ModalScreen[None]):
   [cyan]b[/cyan]      → Backup manager
 
 [bold]Navigation (Vi-style):[/bold]
-  [cyan]j/k[/cyan]    → Cursor down/up
-  [cyan]↑/↓[/cyan]    → Cursor up/down
+  [cyan]j/k[/cyan]       → Cursor down/up
+  [cyan]gg[/cyan]        → Jump to top
+  [cyan]G[/cyan]         → Jump to bottom
+  [cyan]Ctrl+U[/cyan]    → Half page up
+  [cyan]Ctrl+D[/cyan]    → Half page down
+  [cyan]Ctrl+B[/cyan]    → Page up
+  [cyan]Ctrl+F[/cyan]    → Page down
+  [cyan]↑/↓[/cyan]       → Cursor up/down
 
 [bold]View Navigation:[/bold]
   [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents    [cyan]3[/cyan] Modes     [cyan]4[/cyan] Rules
   [cyan]p[/cyan] Principles  [cyan]5[/cyan] Skills   [cyan]6[/cyan] Workflows [cyan]C[/cyan] Worktrees [cyan]7[/cyan] MCP
   [cyan]8[/cyan] Profiles    [cyan]9[/cyan] Export   [cyan]0[/cyan] AI Asst   [cyan]A[/cyan] Assets
-  [cyan]M[/cyan] Memory      [cyan]S[/cyan] Scenarios [cyan]o[/cyan] Orchestrate [cyan]g[/cyan] Galaxy
+  [cyan]M[/cyan] Memory      [cyan]S[/cyan] Scenarios [cyan]o[/cyan] Orchestrate [cyan]Alt+g[/cyan] Galaxy
   [cyan]t[/cyan] Tasks
   [cyan]/[/cyan] Slash Cmds
 """
@@ -671,7 +681,7 @@ class HelpDialog(ModalScreen[None]):
   [cyan]Ctrl+O[/cyan] → Open selected worktree
   [cyan]Ctrl+W[/cyan] → Remove selected worktree
   [cyan]Ctrl+K[/cyan] → Prune stale worktrees
-  [cyan]Ctrl+B[/cyan] → Set base directory (use '-' to clear)
+  [cyan]B[/cyan]      → Set base directory (use '-' to clear)
 """,
             "scenarios": """
 [bold]Scenario Management:[/bold]
@@ -690,7 +700,7 @@ class HelpDialog(ModalScreen[None]):
   [cyan]d[/cyan]      → View server docs
   [cyan]v[/cyan]      → Validate server
   [cyan]Ctrl+T[/cyan] → Test selected server
-  [cyan]Ctrl+D[/cyan] → Diagnose all servers
+  [cyan]D[/cyan]      → Diagnose all servers
 """,
             "profiles": """
 [bold]Profile Management:[/bold]
@@ -709,6 +719,9 @@ class HelpDialog(ModalScreen[None]):
             "ai_assistant": """
 [bold]AI Assistant:[/bold]
   [cyan]a[/cyan] → Auto-activate recommended agents
+  [cyan]J[/cyan] → Consult Gemini
+  [cyan]K[/cyan] → Assign LLM tasks
+  [cyan]Y[/cyan] → Request review tasks
 """,
             "tasks": """
 [bold]Task Management:[/bold]
@@ -729,6 +742,7 @@ class HelpDialog(ModalScreen[None]):
             "memory": """
 [bold]Memory Vault:[/bold]
   [cyan]Enter[/cyan] → View note content
+  [cyan]N[/cyan]     → New note
   [cyan]O[/cyan]     → Open note in editor ($EDITOR)
   [cyan]D[/cyan]     → Delete note
 """,

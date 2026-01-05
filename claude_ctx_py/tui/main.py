@@ -22,7 +22,7 @@ from textual.app import App, ComposeResult, SuspendNotSupported
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual import events
-from textual.widgets import ContentSwitcher, DataTable, Header, Static
+from textual.widgets import ContentSwitcher, DataTable, Header, Input, Static
 
 from .widgets import AdaptiveFooter
 from ..tui_extensions import ProfileViewMixin, ExportViewMixin, WizardViewMixin
@@ -316,6 +316,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.state = self
         self.wizard_active = False
         self.wizard_step = 0
+        # Vi-style navigation state
+        self._vi_g_pending = False
+        self._vi_g_deadline = 0.0
 
     @staticmethod
     def _resolve_theme_path(theme_path: Optional[Path]) -> Optional[Path]:
@@ -350,7 +353,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         ],
         Binding("S", "view_scenarios", "Scenarios", show=False),
         Binding("o", "view_orchestrate", "Orchestrate", show=False),
-        Binding("g", "view_galaxy", "Galaxy", show=False),
+        Binding("alt+g", "view_galaxy", "Galaxy", show=False),
         Binding("ctrl+g", "view_flag_manager", "Flag Mgr", show=False),
         Binding("t", "view_tasks", "Tasks", show=False),
         Binding("/", "view_commands", "Slash Cmds", show=False),
@@ -361,7 +364,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("r", "refresh", "Refresh", show=False),
         Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
         Binding("a", "auto_activate", "Auto-Activate", show=False),
-        Binding("G", "consult_gemini", "Consult Gemini", show=False),
+        Binding("J", "consult_gemini", "Consult Gemini", show=False),
         Binding("K", "assign_llm_tasks", "Assign LLM Tasks", show=False),
         Binding("Y", "request_reviews", "Request Reviews", show=False),
         Binding("s", "details_context", "Details", show=False),
@@ -371,9 +374,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("d", "docs_context", "Docs", show=False),
         Binding("ctrl+e", "edit_item", "Edit", show=False),
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
-        Binding("ctrl+d", "mcp_diagnose", "Diagnose", show=False),
         Binding("ctrl+a", "mcp_add", "Add MCP", show=False),
-        Binding("B", "mcp_browse_install", "Browse & Install", show=False),
+        Binding("B", "context_browse_or_base", "Browse/Base", show=False),
         Binding("E", "mcp_edit", "Edit MCP", show=False),
         Binding("X", "mcp_remove", "Remove MCP", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
@@ -384,10 +386,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("ctrl+o", "worktree_open", "Open Worktree", show=False),
         Binding("ctrl+w", "worktree_remove", "Remove Worktree", show=False),
         Binding("ctrl+k", "worktree_prune", "Prune Worktrees", show=False),
-        Binding("ctrl+b", "worktree_set_base_dir", "Worktree Dir", show=False),
         Binding("y", "copy_definition", "Copy Definition", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
-        Binding("D", "profile_delete", "Delete Profile", show=False),
+        Binding("D", "context_delete", "Delete/Diagnose", show=False),
         Binding("P", "scenario_preview", "Preview", show=False),
         Binding("R", "run_selected", "Run", show=False),
         Binding("s", "stop_selected", "Stop", show=False),
@@ -406,7 +407,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("enter", "memory_view_note", "View", show=False),
         Binding("N", "memory_new_note", "New Note", show=False),
         Binding("O", "memory_open_note", "Open", show=False),
-        Binding("D", "memory_delete_note", "Delete", show=False),
         # Agent bindings
         Binding("enter", "agent_view", "View Agent", show=False),
         # Profile bindings
@@ -425,6 +425,11 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         # Vi-style navigation
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("k", "cursor_up", "Cursor Up", show=False),
+        Binding("G", "cursor_bottom", "Bottom", show=False),
+        Binding("ctrl+b", "page_up", "Page Up", show=False),
+        Binding("ctrl+f", "page_down", "Page Down", show=False),
+        Binding("ctrl+u", "half_page_up", "Half Page Up", show=False),
+        Binding("ctrl+d", "half_page_down", "Half Page Down", show=False),
         # Watch Mode bindings
         Binding("d", "watch_change_directory", "Change Dir", show=False),
         Binding("t", "watch_adjust_threshold", "Adjust Threshold", show=False),
@@ -770,25 +775,152 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         except Exception:
             return None
 
-    def _table_cursor_index(self) -> Optional[int]:
-        """Return the current row index in the main DataTable."""
+    def _main_table(self) -> Optional[DataTable[Any]]:
+        """Return the main DataTable widget if available."""
         try:
-            table = self.query_one("#main-table", DataTable)
+            return self.query_one("#main-table", DataTable)
         except Exception:
             return None
-        return table.cursor_row
+
+    def _table_cursor_index(self) -> Optional[int]:
+        """Return the current row index in the main DataTable."""
+        table = self._main_table()
+        return table.cursor_row if table else None
 
     def _restore_main_table_cursor(self, saved_cursor_row: Optional[int]) -> None:
         """Restore the cursor position in the main table after a refresh."""
         if saved_cursor_row is None:
             return
-        try:
-            table = self.query_one("#main-table", DataTable)
-        except Exception:
+        table = self._main_table()
+        if not table:
             return
         if table.row_count <= 0:
             return
         table.move_cursor(row=min(saved_cursor_row, table.row_count - 1))
+
+    def _wizard_max_index(self) -> int:
+        """Return max selectable index for the init wizard."""
+        if not self.wizard_active:
+            return 0
+        if self.wizard_step == 0:
+            return 5
+        if self.wizard_step == 1:
+            assets = discover_plugin_assets()
+            return max(0, len(assets.get("agents", [])) - 1)
+        if self.wizard_step == 2:
+            assets = discover_plugin_assets()
+            return max(0, len(assets.get("modes", [])) - 1)
+        if self.wizard_step == 3:
+            assets = discover_plugin_assets()
+            return max(0, len(assets.get("rules", [])) - 1)
+        return 0
+
+    def _wizard_set_index(self, index: int) -> None:
+        """Set wizard selection index with bounds checking."""
+        if not self.wizard_active:
+            return
+        max_idx = self._wizard_max_index()
+        new_idx = max(0, min(index, max_idx))
+        if new_idx != self.state.selected_index:
+            self.state.selected_index = new_idx
+            self.update_view()
+
+    def _wizard_move_by(self, delta: int) -> None:
+        """Move wizard selection by delta with bounds checking."""
+        if not self.wizard_active:
+            return
+        self._wizard_set_index(self.state.selected_index + delta)
+
+    def _wizard_half_page_delta(self) -> int:
+        """Compute half-page jump for the wizard selection."""
+        max_idx = self._wizard_max_index()
+        if max_idx <= 0:
+            return 1
+        return max(1, (max_idx + 1) // 2)
+
+    def _table_page_delta(self, table: DataTable[Any], row_index: int, direction: str) -> int:
+        """Compute a page-sized row delta for the given table."""
+        if table.row_count <= 1:
+            return 0
+        try:
+            height = table.size.height - (table.header_height if table.show_header else 0)
+        except Exception:
+            height = 0
+
+        rows_to_scroll = 0
+        if height > 0:
+            try:
+                ordered_rows = table.ordered_rows
+            except Exception:
+                ordered_rows = []
+            if ordered_rows:
+                row_index = max(0, min(row_index, len(ordered_rows) - 1))
+                offset = 0
+                if direction == "up":
+                    rows_iter = ordered_rows[: row_index + 1]
+                else:
+                    rows_iter = ordered_rows[row_index:]
+                for ordered_row in rows_iter:
+                    offset += ordered_row.height
+                    if offset > height:
+                        break
+                    rows_to_scroll += 1
+
+        if rows_to_scroll <= 0:
+            rows_to_scroll = min(10, table.row_count)
+
+        return max(1, rows_to_scroll - 1)
+
+    def _table_page_move(self, direction: str, *, half: bool = False) -> None:
+        """Move the main table cursor by a page (or half-page)."""
+        table = self._main_table()
+        if not table or table.row_count <= 0:
+            return
+        row_index = table.cursor_row if table.cursor_row is not None else 0
+        delta = self._table_page_delta(table, row_index, direction)
+        if delta <= 0:
+            return
+        if half:
+            delta = max(1, delta // 2)
+        if direction == "up":
+            new_row = row_index - delta
+        else:
+            new_row = row_index + delta
+        new_row = max(0, min(new_row, table.row_count - 1))
+        table.move_cursor(row=new_row)
+
+    def _flag_manager_set_index(self, index: int) -> None:
+        """Set flag manager selection with bounds checking."""
+        if self.current_view != "flag_manager":
+            return
+        if not self.flag_files:
+            return
+        new_idx = max(0, min(index, len(self.flag_files) - 1))
+        if new_idx != self.selected_flag_index:
+            self.selected_flag_index = new_idx
+            self.update_view()
+
+    def _flag_manager_page_move(self, direction: str, *, half: bool = False) -> None:
+        """Move flag manager selection by a page (or half-page)."""
+        if self.current_view != "flag_manager" or not self.flag_files:
+            return
+        delta = 1
+        table = self._main_table()
+        if table and table.row_count > 0:
+            row_offset = 2
+            row_index = min(table.row_count - 1, row_offset + self.selected_flag_index)
+            delta = self._table_page_delta(table, row_index, direction)
+        if half:
+            delta = max(1, delta // 2)
+        if direction == "up":
+            self._flag_manager_set_index(self.selected_flag_index - delta)
+        else:
+            self._flag_manager_set_index(self.selected_flag_index + delta)
+
+    def _text_input_focused(self) -> bool:
+        """Return True if a text input widget currently has focus."""
+        focused = self.focused
+        return isinstance(focused, Input)
 
     def _selected_profile(self) -> Optional[Dict[str, Optional[str]]]:
         index = self._table_cursor_index()
@@ -5380,34 +5512,92 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     def action_cursor_up(self) -> None:
         """Navigate up in lists."""
-        if self.state.selected_index > 0:
-            self.state.selected_index -= 1
-            self.update_view()
+        if self.wizard_active:
+            self._wizard_move_by(-1)
+            return
+        if self.current_view == "flag_manager":
+            self.action_flag_manager_prev()
+            return
+        table = self._main_table()
+        if table:
+            table.action_cursor_up()
 
     def action_cursor_down(self) -> None:
         """Navigate down in lists."""
-        # Max index depends on view
-        max_idx = 0
         if self.wizard_active:
-            if self.wizard_step == 0:
-                max_idx = 5 # 6 project types
-            elif self.wizard_step == 1:
-                assets = discover_plugin_assets()
-                max_idx = len(assets.get("agents", [])) - 1
-            elif self.wizard_step == 2:
-                assets = discover_plugin_assets()
-                max_idx = len(assets.get("modes", [])) - 1
-            elif self.wizard_step == 3:
-                assets = discover_plugin_assets()
-                max_idx = len(assets.get("rules", [])) - 1
-        elif self.current_view == "profiles":
-            max_idx = len(self.profiles) - 1
-        elif self.current_view == "export":
-            max_idx = 5 # 6 options
+            self._wizard_move_by(1)
+            return
+        if self.current_view == "flag_manager":
+            self.action_flag_manager_next()
+            return
+        table = self._main_table()
+        if table:
+            table.action_cursor_down()
 
-        if self.state.selected_index < max_idx:
-            self.state.selected_index += 1
-            self.update_view()
+    def action_cursor_top(self) -> None:
+        """Jump to the top of the current list."""
+        if self.wizard_active:
+            self._wizard_set_index(0)
+            return
+        if self.current_view == "flag_manager":
+            self._flag_manager_set_index(0)
+            return
+        table = self._main_table()
+        if table and table.row_count > 0:
+            table.move_cursor(row=0)
+
+    def action_cursor_bottom(self) -> None:
+        """Jump to the bottom of the current list."""
+        if self.wizard_active:
+            self._wizard_set_index(self._wizard_max_index())
+            return
+        if self.current_view == "flag_manager":
+            if self.flag_files:
+                self._flag_manager_set_index(len(self.flag_files) - 1)
+            return
+        table = self._main_table()
+        if table and table.row_count > 0:
+            table.move_cursor(row=table.row_count - 1)
+
+    def action_page_up(self) -> None:
+        """Move up by one page."""
+        if self.wizard_active:
+            self._wizard_set_index(0)
+            return
+        if self.current_view == "flag_manager":
+            self._flag_manager_page_move("up")
+            return
+        self._table_page_move("up")
+
+    def action_page_down(self) -> None:
+        """Move down by one page."""
+        if self.wizard_active:
+            self._wizard_set_index(self._wizard_max_index())
+            return
+        if self.current_view == "flag_manager":
+            self._flag_manager_page_move("down")
+            return
+        self._table_page_move("down")
+
+    def action_half_page_up(self) -> None:
+        """Move up by half a page."""
+        if self.wizard_active:
+            self._wizard_move_by(self._wizard_half_page_delta() * -1)
+            return
+        if self.current_view == "flag_manager":
+            self._flag_manager_page_move("up", half=True)
+            return
+        self._table_page_move("up", half=True)
+
+    def action_half_page_down(self) -> None:
+        """Move down by half a page."""
+        if self.wizard_active:
+            self._wizard_move_by(self._wizard_half_page_delta())
+            return
+        if self.current_view == "flag_manager":
+            self._flag_manager_page_move("down", half=True)
+            return
+        self._table_page_move("down", half=True)
 
     # ─────────────────────────────────────────────────────────────────────
     # Flags Explorer Actions
@@ -5474,6 +5664,24 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 self.action_flag_manager_toggle()
                 event.prevent_default()
                 event.stop()
+
+        if self._text_input_focused():
+            return
+
+        if event.key == "g":
+            now = time.monotonic()
+            if self._vi_g_pending and now <= self._vi_g_deadline:
+                self._vi_g_pending = False
+                self.action_cursor_top()
+            else:
+                self._vi_g_pending = True
+                self._vi_g_deadline = now + 0.5
+            event.prevent_default()
+            event.stop()
+            return
+
+        if self._vi_g_pending:
+            self._vi_g_pending = False
 
     def action_flag_category_next(self) -> None:
         """Navigate to next flag category."""
@@ -8439,6 +8647,25 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         await self.push_screen(
             TextViewerDialog(f"Test: {server.name}", output), wait_for_dismiss=True
         )
+
+    async def action_context_delete(self) -> None:
+        """Contextual delete/diagnose handler for D."""
+        if self.current_view == "mcp":
+            await self.action_mcp_diagnose()
+            return
+        if self.current_view == "profiles":
+            await self.action_profile_delete()
+            return
+        if self.current_view == "memory":
+            self.action_memory_delete_note()
+            return
+
+    async def action_context_browse_or_base(self) -> None:
+        """Contextual MCP browse or worktree base dir handler for B."""
+        if self.current_view == "worktrees":
+            await self.action_worktree_set_base_dir()
+            return
+        self.action_mcp_browse_install()
 
     async def action_mcp_diagnose(self) -> None:
         """Run diagnostics across all MCP servers."""

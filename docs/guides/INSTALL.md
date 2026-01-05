@@ -113,7 +113,7 @@ claude-ctx tui
 - `/` - Slash Commands catalog
 - `S` - Scenarios
 - `o` - Orchestrate view
-- `g` - Agent Galaxy
+- `Alt+g` - Agent Galaxy
 - `t` - Tasks
 
 **Navigation:**
