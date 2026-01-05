@@ -783,7 +783,7 @@ def _build_completion_parser(subparsers: argparse._SubParsersAction[Any]) -> Non
 
 def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     install_parser = subparsers.add_parser(
-        "install", help="Install shell integrations (aliases, completions)"
+        "install", help="Install CLI integrations and optional extras"
     )
     install_sub = install_parser.add_subparsers(dest="install_command")
 
@@ -815,6 +815,154 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     aliases_parser.add_argument(
         "--show", action="store_true", help="Show available aliases without installing"
+    )
+
+    # Install shell completions
+    completions_parser = install_sub.add_parser(
+        "completions", help="Install shell completion scripts"
+    )
+    completions_parser.add_argument(
+        "--shell",
+        choices=["bash", "zsh", "fish"],
+        help="Target shell (auto-detected if not specified)",
+    )
+    completions_parser.add_argument(
+        "--path",
+        dest="completion_path",
+        type=Path,
+        help="Target completion file path (overrides default)",
+    )
+    completions_parser.add_argument(
+        "--system",
+        action="store_true",
+        help="Use system completion directory (may require sudo)",
+    )
+    completions_parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing completion file"
+    )
+    completions_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing files",
+    )
+
+    # Install manpages
+    manpage_parser = install_sub.add_parser(
+        "manpage", help="Install manpage files"
+    )
+    manpage_parser.add_argument(
+        "--path",
+        dest="manpath",
+        type=Path,
+        help="Target man1 directory (overrides default)",
+    )
+    manpage_parser.add_argument(
+        "--system",
+        action="store_true",
+        help="Install to system manpath (may require sudo)",
+    )
+    manpage_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing files",
+    )
+
+    # Install architecture docs
+    docs_parser = install_sub.add_parser(
+        "docs", help="Install architecture docs to ~/.claude/docs"
+    )
+    docs_parser.add_argument(
+        "--target",
+        dest="docs_target",
+        type=Path,
+        help="Target docs directory (overrides default)",
+    )
+    docs_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing files",
+    )
+
+    # Run all post-install steps
+    post_parser = install_sub.add_parser(
+        "post", help="Install completions, manpages, and docs"
+    )
+    post_parser.add_argument(
+        "--shell",
+        choices=["bash", "zsh", "fish"],
+        help="Target shell (auto-detected if not specified)",
+    )
+    post_parser.add_argument(
+        "--completion-path",
+        dest="completion_path",
+        type=Path,
+        help="Override completion output path",
+    )
+    post_parser.add_argument(
+        "--manpath",
+        dest="manpath",
+        type=Path,
+        help="Override manpage directory",
+    )
+    post_parser.add_argument(
+        "--docs-target",
+        dest="docs_target",
+        type=Path,
+        help="Override docs target directory",
+    )
+    post_parser.add_argument(
+        "--system",
+        action="store_true",
+        help="Use system paths for completions/manpages",
+    )
+    post_parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing completion file"
+    )
+    post_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing files",
+    )
+
+    # Install package via pip/uv/pipx
+    package_parser = install_sub.add_parser(
+        "package", help="Install the package via pip, uv, or pipx"
+    )
+    package_parser.add_argument(
+        "--manager",
+        choices=["pip", "uv", "pipx"],
+        default="pip",
+        help="Package manager to use",
+    )
+    package_parser.add_argument(
+        "--path",
+        type=Path,
+        help="Local path to install (defaults to current directory when used)",
+    )
+    package_parser.add_argument(
+        "--name",
+        default="claude-cortex",
+        help="Package name for non-path installs",
+    )
+    package_parser.add_argument(
+        "--editable",
+        action="store_true",
+        help="Install in editable mode (local paths only)",
+    )
+    package_parser.add_argument(
+        "--dev",
+        action="store_true",
+        help="Install with [dev] extras",
+    )
+    package_parser.add_argument(
+        "--upgrade",
+        action="store_true",
+        help="Upgrade if already installed",
+    )
+    package_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be installed without running",
     )
 
 
@@ -1524,6 +1672,68 @@ def _handle_install_command(args: argparse.Namespace) -> int:
             shell=args.shell,
             rc_file=args.rc_file,
             force=args.force,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "completions":
+        from . import installer
+
+        exit_code, message = installer.install_completions(
+            shell=args.shell,
+            target_path=args.completion_path,
+            system=args.system,
+            force=args.force,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "manpage":
+        from . import installer
+
+        exit_code, message = installer.install_manpages(
+            target_dir=args.manpath,
+            system=args.system,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "docs":
+        from . import installer
+
+        exit_code, message = installer.install_docs(
+            target_dir=args.docs_target,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "post":
+        from . import installer
+
+        exit_code, message = installer.install_post(
+            shell=args.shell,
+            completion_path=args.completion_path,
+            manpath=args.manpath,
+            docs_target=args.docs_target,
+            system=args.system,
+            force=args.force,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "package":
+        from . import installer
+
+        path = args.path
+        if path is None and args.editable:
+            path = Path(".")
+        exit_code, message = installer.install_package(
+            manager=args.manager,
+            path=path,
+            name=args.name,
+            editable=args.editable,
+            dev=args.dev,
+            upgrade=args.upgrade,
             dry_run=args.dry_run,
         )
         _print(message)

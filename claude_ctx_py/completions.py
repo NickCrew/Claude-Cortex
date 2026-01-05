@@ -15,7 +15,7 @@ _claude_ctx_completion() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Top-level commands
-    local commands="mode agent rules principles skills mcp init profile workflow tui version completion help doctor"
+    local commands="mode agent rules principles skills mcp init profile workflow tui version completion install help doctor"
 
     # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -95,6 +95,12 @@ _claude_ctx_completion() {
                 COMPREPLY=($(compgen -W "${shells}" -- ${cur}))
             fi
             ;;
+        install)
+            local install_cmds="aliases completions manpage docs post package"
+            if [[ ${COMP_CWORD} -eq 2 ]]; then
+                COMPREPLY=($(compgen -W "${install_cmds}" -- ${cur}))
+            fi
+            ;;
     esac
 
     return 0
@@ -125,6 +131,7 @@ _claude_ctx() {
         'doctor:Diagnose and fix context issues'
         'version:Show version information'
         'completion:Generate shell completions'
+        'install:Install integrations and extras'
         'help:Show help information'
     )
 
@@ -197,6 +204,16 @@ _claude_ctx() {
         'bash:Generate bash completion'
         'zsh:Generate zsh completion'
         'fish:Generate fish completion'
+    )
+
+    local -a install_commands
+    install_commands=(
+        'aliases:Install shell aliases'
+        'completions:Install shell completions'
+        'manpage:Install manpages'
+        'docs:Install architecture docs'
+        'post:Run all post-install steps'
+        'package:Install via pip/uv/pipx'
     )
 
     _arguments -C \
@@ -278,6 +295,15 @@ _claude_ctx() {
                             ;;
                     esac
                     ;;
+                install)
+                    _arguments \
+                        '1: :->install_command'
+                    case $state in
+                        install_command)
+                            _describe -t install_commands 'install command' install_commands
+                            ;;
+                    esac
+                    ;;
             esac
             ;;
     esac
@@ -305,6 +331,7 @@ complete -c claude-ctx -f -n "__fish_use_subcommand" -a "tui" -d "Launch termina
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "version" -d "Show version"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "completion" -d "Generate completions"
+complete -c claude-ctx -f -n "__fish_use_subcommand" -a "install" -d "Install integrations"
 complete -c claude-ctx -f -n "__fish_use_subcommand" -a "help" -d "Show help"
 
 # Doctor subcommands
@@ -362,6 +389,14 @@ complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_se
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "bash" -d "Bash completion"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "zsh" -d "Zsh completion"
 complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "fish" -d "Fish completion"
+
+# Install subcommands
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "aliases" -d "Install aliases"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "completions" -d "Install shell completions"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "manpage" -d "Install manpages"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "docs" -d "Install architecture docs"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "post" -d "Run all post-install steps"
+complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "package" -d "Install via pip/uv/pipx"
 """
 
 
