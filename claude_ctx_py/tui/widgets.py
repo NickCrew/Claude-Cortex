@@ -101,6 +101,9 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
     ],
     "ai_assistant": [
         ShortcutDef("a", "Auto-Activate", priority=20),
+        ShortcutDef("G", "Gemini", priority=21),
+        ShortcutDef("K", "Assign LLMs", priority=22),
+        ShortcutDef("Y", "Request Reviews", priority=23),
     ],
     "commands": [
         ShortcutDef("Enter", "View", priority=20),
@@ -347,7 +350,7 @@ class AdaptiveFooter(Widget):
                 ("d", "Open"),
                 ("^e", "Edit"),
             ],
-            "ai_assistant": [("a", "Auto-Activate")],
+            "ai_assistant": [("a", "Auto-Activate"), ("G", "Gemini"), ("Y", "Request Reviews")],
             "commands": [("Enter", "View"), ("^e", "Edit")],
         }
         return mapping.get(view, [])

@@ -11,12 +11,14 @@ import time
 import yaml
 import re
 import sys
+import asyncio
+import shlex
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePath
 from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
 
-from textual.app import App, ComposeResult
+from textual.app import App, ComposeResult, SuspendNotSupported
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual import events
@@ -34,6 +36,7 @@ ASSET_CATEGORY_ORDER = [
     "agents",
     "skills",
     "modes",
+    "prompts",
     "workflows",
     "flags",
     "rules",
@@ -45,7 +48,7 @@ ASSET_CATEGORY_ORDER = [
 
 from .types import (
     RuleNode, AgentTask, WorkflowInfo, ModeInfo, MCPDocInfo, ScenarioInfo, ScenarioRuntimeState,
-    AssetInfo, MemoryNote, WatchModeState, PrincipleSnippet,
+    AssetInfo, MemoryNote, WatchModeState, PrincipleSnippet, PromptInfo,
 )
 from .constants import (
     PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
@@ -280,6 +283,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.profiles: List[Dict[str, Optional[str]]] = []
         self.mcp_servers: List[MCPServerInfo] = []
         self.mcp_docs: List[MCPDocInfo] = []
+        self.prompts: List[PromptInfo] = []
         self.mcp_error: Optional[str] = None
         self.export_options: Dict[str, bool] = DEFAULT_EXPORT_OPTIONS.copy()
         self.export_agent_generic: bool = True
@@ -357,6 +361,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("r", "refresh", "Refresh", show=False),
         Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
         Binding("a", "auto_activate", "Auto-Activate", show=False),
+        Binding("G", "consult_gemini", "Consult Gemini", show=False),
+        Binding("K", "assign_llm_tasks", "Assign LLM Tasks", show=False),
+        Binding("Y", "request_reviews", "Request Reviews", show=False),
         Binding("s", "details_context", "Details", show=False),
         Binding("v", "validate_context", "Validate", show=False),
         Binding("m", "metrics_context", "Metrics", show=False),
@@ -397,6 +404,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("enter", "asset_details", "Details", show=False),
         # Memory Vault bindings
         Binding("enter", "memory_view_note", "View", show=False),
+        Binding("N", "memory_new_note", "New Note", show=False),
         Binding("O", "memory_open_note", "Open", show=False),
         Binding("D", "memory_delete_note", "Delete", show=False),
         # Agent bindings
@@ -477,6 +485,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 mode = self.modes[index]
                 file_path = mode.path
                 item_name = mode.name
+        elif self.current_view == "prompts":
+            index = self._table_cursor_index()
+            if index is not None and 0 <= index < len(self.prompts):
+                prompt = self.prompts[index]
+                file_path = prompt.path
+                item_name = prompt.name
         elif self.current_view == "principles":
             index = self._table_cursor_index()
             if index is not None and 0 <= index < len(self.principles):
@@ -657,7 +671,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 "details_context",
             },
             "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
-            "ai_assistant": {"auto_activate"},
+            "ai_assistant": {
+                "auto_activate",
+                "consult_gemini",
+                "request_reviews",
+                "assign_llm_tasks",
+            },
             "watch_mode": {"toggle", "watch_change_directory", "watch_toggle_auto", "watch_adjust_threshold", "watch_adjust_interval"},
             "tasks": {"details_context", "edit_item", "task_open_source", "task_open_external"},
         }
@@ -2062,6 +2081,43 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 path=path,
             )
 
+    def load_prompts(self) -> None:
+        """Load prompts from the prompt library."""
+        try:
+            from ..core.prompts import discover_prompts as core_discover_prompts
+
+            core_prompts = core_discover_prompts()
+
+            # Convert core PromptInfo to TUI PromptInfo
+            prompts: List[PromptInfo] = []
+            for cp in core_prompts:
+                prompts.append(PromptInfo(
+                    name=cp.name,
+                    slug=cp.slug,
+                    status=cp.status,
+                    category=cp.category,
+                    description=cp.description,
+                    tokens=cp.tokens,
+                    path=cp.path,
+                ))
+
+            # Sort by status (active first), then by category, then by name
+            prompts.sort(key=lambda p: (p.status != "active", p.category.lower(), p.name.lower()))
+
+            self.prompts = prompts
+            active_count = sum(1 for p in prompts if p.status == "active")
+            self.status_message = f"Loaded {len(prompts)} prompts ({active_count} active)"
+
+            if hasattr(self, "metrics_collector"):
+                self.metrics_collector.record("prompts_active", float(active_count))
+
+        except Exception as e:
+            import traceback
+            error_detail = traceback.format_exc()
+            self.status_message = f"Error loading prompts: {e}"
+            self.prompts = []
+            print(f"[DEBUG] Prompt loading error:\n{error_detail}")
+
     def load_workflows(self) -> None:
         """Load workflows from the workflows directory."""
         workflows: List[WorkflowInfo] = []
@@ -2535,6 +2591,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.show_rules_view(table)
         elif self.current_view == "modes":
             self.show_modes_view(table)
+        elif self.current_view == "prompts":
+            self.show_prompts_view(table)
         elif self.current_view == "skills":
             self.show_skills_view(table)
         elif self.current_view == "commands":
@@ -3077,6 +3135,45 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 status_text,
                 purpose,
                 source,
+            )
+
+    def show_prompts_view(self, table: AnyDataTable) -> None:
+        """Show prompts table with categories and status."""
+        table.add_column("Name", key="name", width=25)
+        table.add_column("Category", key="category", width=15)
+        table.add_column("Tokens", key="tokens", width=10)
+        table.add_column("Status", key="status", width=12)
+        table.add_column("Description", key="description")
+
+        if not hasattr(self, "prompts") or not self.prompts:
+            table.add_row(
+                "[dim]No prompts found[/dim]",
+                "",
+                "",
+                "",
+                "[dim]Create prompts in ~/.claude/prompts/[/dim]",
+            )
+            return
+
+        for prompt in self.prompts:
+            # Color-coded status
+            if prompt.status == "active":
+                status_text = f"[bold green]● ACTIVE[/bold green]"
+                name = f"[bold]{Icons.DOCUMENT} {prompt.name}[/bold]"
+            else:
+                status_text = f"[dim]○ inactive[/dim]"
+                name = f"[dim]{Icons.DOCUMENT} {prompt.name}[/dim]"
+
+            category = f"[cyan]{prompt.category}[/cyan]" if prompt.category else "[dim]—[/dim]"
+            tokens = f"[dim]~{prompt.tokens}[/dim]" if prompt.tokens else "[dim]—[/dim]"
+            description = Format.truncate(prompt.description, 60).replace("[", "\\[")
+
+            table.add_row(
+                name,
+                category,
+                tokens,
+                status_text,
+                f"[dim italic]{description}[/dim italic]",
             )
 
     def show_overview(self, table: AnyDataTable) -> None:
@@ -4170,6 +4267,425 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         elif not mcp_docs:
             table.add_row("[dim]No MCP servers or docs found[/dim]", "", "", "", "")
 
+    def _split_review_recommendations(
+        self, recommendations: List[AgentRecommendation]
+    ) -> tuple[List[AgentRecommendation], List[AgentRecommendation]]:
+        """Split recommendations into review vs non-review groups."""
+        review_agents = {
+            "architect-review",
+            "code-reviewer",
+            "database-optimizer",
+            "performance-engineer",
+            "quality-engineer",
+            "react-specialist",
+            "security-auditor",
+            "sql-pro",
+            "typescript-pro",
+            "ui-ux-designer",
+        }
+
+        def is_review_rec(rec: AgentRecommendation) -> bool:
+            return rec.agent_name in review_agents or "review" in rec.reason.lower()
+
+        review_recs = [rec for rec in recommendations if is_review_rec(rec)]
+        other_recs = [rec for rec in recommendations if not is_review_rec(rec)]
+        return review_recs, other_recs
+
+    def _resolve_agent_slug(self, name: str) -> str:
+        """Resolve a display name to an agent slug if possible."""
+        raw = name.strip()
+        if not raw:
+            return raw
+        lookup = getattr(self, "agent_slug_lookup", {})
+        if not lookup:
+            self.load_agents()
+            lookup = getattr(self, "agent_slug_lookup", {})
+
+        key = raw.lower()
+        if key in lookup:
+            return lookup[key]
+        key = key.replace(" ", "-")
+        return lookup.get(key, raw)
+
+    def _is_agent_active(self, slug_or_name: str) -> bool:
+        agents = getattr(self, "agents", [])
+        needle = slug_or_name.lower()
+        for agent in agents:
+            if agent.slug.lower() == needle or agent.name.lower() == needle:
+                return agent.status == "active"
+        return False
+
+    def _ensure_agent_active(self, slug_or_name: str) -> bool:
+        """Activate agent if inactive. Returns True if active after call."""
+        if self._is_agent_active(slug_or_name):
+            return True
+        exit_code, message = agent_activate(slug_or_name)
+        if exit_code != 0:
+            clean = self._clean_ansi(message)
+            self.notify(
+                clean or f"Failed to activate {slug_or_name}",
+                severity="error",
+                timeout=3,
+            )
+            return False
+        self.load_agents()
+        return self._is_agent_active(slug_or_name)
+
+    def _review_output_dir(self) -> Path:
+        """Create a timestamped output directory for review runs."""
+        tasks_dir = self._tasks_dir()
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        output_dir = tasks_dir / "review-outputs" / stamp
+        output_dir.mkdir(parents=True, exist_ok=True)
+        return output_dir
+
+    def _llm_output_dir(self) -> Path:
+        """Create a timestamped output directory for LLM consult runs."""
+        tasks_dir = self._tasks_dir()
+        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        output_dir = tasks_dir / "llm-outputs" / stamp
+        output_dir.mkdir(parents=True, exist_ok=True)
+        return output_dir
+
+    def _llm_consult_script_path(self) -> Optional[Path]:
+        script_path = (
+            Path(__file__).resolve().parents[2]
+            / "skills"
+            / "multi-llm-consult"
+            / "scripts"
+            / "consult_llm.py"
+        )
+        if script_path.exists():
+            return script_path
+        return None
+
+    def _summarize_prompt(self, prompt: str, max_len: int = 120) -> str:
+        cleaned = " ".join(prompt.strip().split())
+        if len(cleaned) > max_len:
+            return cleaned[: max_len - 1] + "…"
+        return cleaned
+
+    def _build_review_prompt(
+        self,
+        agent_name: str,
+        rec: AgentRecommendation,
+        context: Optional[SessionContext],
+        diff_text: Optional[str] = None,
+    ) -> str:
+        """Build a review prompt tailored to the recommendation/context."""
+        lines = [
+            f"You are the {agent_name} reviewer.",
+            f"Review the current repository changes. Focus on: {rec.reason}.",
+            "Use git diff and inspect relevant files.",
+            "Return: Strengths, Issues (Critical/Important/Minor), Fixes, and Approval status.",
+        ]
+
+        files_changed: List[str] = []
+        if context and getattr(context, "files_changed", None):
+            files_changed = list(context.files_changed)
+
+        if files_changed:
+            lines.append("")
+            lines.append("Changed files:")
+            max_files = 30
+            for path in files_changed[:max_files]:
+                lines.append(f"- {path}")
+            if len(files_changed) > max_files:
+                lines.append(f"... and {len(files_changed) - max_files} more")
+
+        if diff_text:
+            lines.append("")
+            lines.append("Git diff (truncated):")
+            lines.append("```")
+            lines.append(diff_text)
+            lines.append("```")
+
+        return "\n".join(lines)
+
+    def _get_git_diff(self, max_chars: int = 40000) -> Optional[str]:
+        """Return a combined git diff (staged + unstaged), truncated."""
+        try:
+            probe = subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if probe.returncode != 0:
+                return None
+        except Exception:
+            return None
+
+        def run_diff(args: List[str]) -> str:
+            result = subprocess.run(
+                ["git", "diff", *args],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            return result.stdout or ""
+
+        unstaged = run_diff(["--stat=0"])
+        staged = run_diff(["--cached", "--stat=0"])
+        if not unstaged and not staged:
+            unstaged = run_diff([])
+            staged = run_diff(["--cached"])
+        else:
+            unstaged = run_diff([])
+            staged = run_diff(["--cached"])
+
+        combined = []
+        if unstaged.strip():
+            combined.append("# Unstaged diff")
+            combined.append(unstaged.strip())
+        if staged.strip():
+            combined.append("# Staged diff")
+            combined.append(staged.strip())
+        if not combined:
+            return None
+
+        text = "\n\n".join(combined)
+        if len(text) > max_chars:
+            return text[:max_chars] + "\n...[truncated]"
+        return text
+
+    def _update_review_task_status(
+        self,
+        task_id: str,
+        *,
+        status: str,
+        progress: int,
+        source_path: Optional[Path] = None,
+        note: Optional[str] = None,
+    ) -> None:
+        tasks_file = self._tasks_file_path()
+        if not tasks_file.exists():
+            return
+
+        try:
+            payload = json.loads(tasks_file.read_text(encoding="utf-8"))
+        except Exception:
+            return
+
+        task = payload.get(task_id)
+        if not isinstance(task, dict):
+            return
+
+        task["status"] = status
+        task["progress"] = progress
+        if status in {"running"} and not task.get("started"):
+            task["started"] = time.time()
+        if status in {"complete", "error"}:
+            task["completed"] = time.time()
+
+        if source_path is not None:
+            task["source_path"] = str(source_path)
+
+        if note:
+            existing_notes = task.get("raw_notes") or task.get("description") or ""
+            combined = f"{existing_notes}\n{note}".strip()
+            task["raw_notes"] = combined
+            if not task.get("description"):
+                task["description"] = note
+
+        tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def _spawn_review_cli_task(
+        self,
+        *,
+        task_id: str,
+        agent_name: str,
+        prompt: str,
+        output_path: Path,
+    ) -> None:
+        """Run a Claude CLI review for a single agent and update task status."""
+        error_path = output_path.with_suffix(".err.txt")
+
+        def runner() -> None:
+            cmd = [
+                "claude",
+                "--agent",
+                agent_name,
+                "--print",
+                "--output-format",
+                "text",
+                prompt,
+            ]
+            try:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                with output_path.open("w", encoding="utf-8") as out, error_path.open(
+                    "w", encoding="utf-8"
+                ) as err:
+                    proc = subprocess.Popen(
+                        cmd,
+                        cwd=str(Path.cwd()),
+                        stdout=out,
+                        stderr=err,
+                        text=True,
+                    )
+                    rc = proc.wait()
+            except FileNotFoundError:
+                error_path.write_text("Claude CLI not found.", encoding="utf-8")
+                self._update_review_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"CLI not found. See {error_path.name}.",
+                )
+                return
+            except Exception as exc:
+                error_path.write_text(str(exc), encoding="utf-8")
+                self._update_review_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"Review failed. See {error_path.name}.",
+                )
+                return
+
+            if rc == 0:
+                self._update_review_task_status(
+                    task_id,
+                    status="complete",
+                    progress=100,
+                    source_path=output_path,
+                )
+            else:
+                self._update_review_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"Review exited with code {rc}. See {error_path.name}.",
+                )
+
+        thread = threading.Thread(target=runner, daemon=True)
+        thread.start()
+
+    def _update_llm_task_status(
+        self,
+        task_id: str,
+        *,
+        status: str,
+        progress: int,
+        source_path: Optional[Path] = None,
+        note: Optional[str] = None,
+    ) -> None:
+        tasks_file = self._tasks_file_path()
+        if not tasks_file.exists():
+            return
+
+        try:
+            payload = json.loads(tasks_file.read_text(encoding="utf-8"))
+        except Exception:
+            return
+
+        task = payload.get(task_id)
+        if not isinstance(task, dict):
+            return
+
+        task["status"] = status
+        task["progress"] = progress
+        if status in {"running"} and not task.get("started"):
+            task["started"] = time.time()
+        if status in {"complete", "error"}:
+            task["completed"] = time.time()
+
+        if source_path is not None:
+            task["source_path"] = str(source_path)
+
+        if note:
+            existing_notes = task.get("raw_notes") or task.get("description") or ""
+            combined = f"{existing_notes}\n{note}".strip()
+            task["raw_notes"] = combined
+            if not task.get("description"):
+                task["description"] = note
+
+        tasks_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def _spawn_llm_consult_task(
+        self,
+        *,
+        task_id: str,
+        provider_key: str,
+        purpose: str,
+        prompt: str,
+        output_path: Path,
+        script_path: Path,
+        context_file: Optional[Path],
+    ) -> None:
+        """Run a multi-LLM consult script and update task status."""
+        error_path = output_path.with_suffix(".err.txt")
+
+        def runner() -> None:
+            cmd = [
+                sys.executable,
+                str(script_path),
+                "--provider",
+                provider_key,
+                "--purpose",
+                purpose,
+                "--prompt",
+                prompt,
+            ]
+            if context_file is not None:
+                cmd += ["--context-file", str(context_file)]
+
+            try:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                with output_path.open("w", encoding="utf-8") as out, error_path.open(
+                    "w", encoding="utf-8"
+                ) as err:
+                    proc = subprocess.Popen(
+                        cmd,
+                        cwd=str(Path.cwd()),
+                        stdout=out,
+                        stderr=err,
+                        text=True,
+                    )
+                    rc = proc.wait()
+            except FileNotFoundError:
+                error_path.write_text("LLM consult script not found.", encoding="utf-8")
+                self._update_llm_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"Consult script not found. See {error_path.name}.",
+                )
+                return
+            except Exception as exc:
+                error_path.write_text(str(exc), encoding="utf-8")
+                self._update_llm_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"LLM consult failed. See {error_path.name}.",
+                )
+                return
+
+            if rc == 0:
+                self._update_llm_task_status(
+                    task_id,
+                    status="complete",
+                    progress=100,
+                    source_path=output_path,
+                )
+            else:
+                self._update_llm_task_status(
+                    task_id,
+                    status="error",
+                    progress=0,
+                    source_path=output_path,
+                    note=f"LLM consult exited with code {rc}. See {error_path.name}.",
+                )
+
+        thread = threading.Thread(target=runner, daemon=True)
+        thread.start()
+
     def show_ai_assistant_view(self, table: AnyDataTable) -> None:
         """Show AI assistant recommendations and predictions."""
         table.add_column("Type", key="type", width=14)
@@ -4210,27 +4726,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
         else:
             top_recs = agent_recommendations[:10]
-            review_agents = {
-                "architect-review",
-                "code-reviewer",
-                "database-optimizer",
-                "performance-engineer",
-                "quality-engineer",
-                "react-specialist",
-                "security-auditor",
-                "sql-pro",
-                "typescript-pro",
-                "ui-ux-designer",
-            }
-
-            def is_review_rec(rec: AgentRecommendation) -> bool:
-                return (
-                    rec.agent_name in review_agents
-                    or "review" in rec.reason.lower()
-                )
-
-            review_recs = [rec for rec in top_recs if is_review_rec(rec)]
-            other_recs = [rec for rec in top_recs if not is_review_rec(rec)]
+            review_recs, other_recs = self._split_review_recommendations(top_recs)
 
             if review_recs:
                 table.add_row(
@@ -4607,7 +5103,25 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         )
         table.add_row(
             "",
-            "[dim cyan]Press [white]R[/white] → Refresh recommendations[/dim cyan]",
+            "[dim cyan]Press [white]G[/white] → Consult Gemini[/dim cyan]",
+            "",
+            "",
+        )
+        table.add_row(
+            "",
+            "[dim cyan]Press [white]K[/white] → Assign LLM tasks[/dim cyan]",
+            "",
+            "",
+        )
+        table.add_row(
+            "",
+            "[dim cyan]Press [white]Y[/white] → Request review tasks[/dim cyan]",
+            "",
+            "",
+        )
+        table.add_row(
+            "",
+            "[dim cyan]Press [white]r[/white] → Refresh recommendations[/dim cyan]",
             "",
             "",
         )
@@ -5801,6 +6315,94 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     # ─────────────────────────────────────────────────────────────────────────
     # Memory Vault Actions
     # ─────────────────────────────────────────────────────────────────────────
+
+    def _normalize_memory_note_type(self, raw: str) -> Optional[str]:
+        """Normalize memory note type input."""
+        note_type = raw.strip().lower()
+        aliases = {
+            "knowledge": "knowledge",
+            "project": "projects",
+            "projects": "projects",
+            "session": "sessions",
+            "sessions": "sessions",
+            "fix": "fixes",
+            "fixes": "fixes",
+        }
+        return aliases.get(note_type)
+
+    def action_memory_new_note(self) -> None:
+        """Create a new memory note."""
+        if self.current_view != "memory":
+            self.action_view_memory()
+
+        from .dialogs import MemoryNoteCreateDialog
+
+        dialog = MemoryNoteCreateDialog("New Memory Note")
+        self.push_screen(dialog, callback=self._handle_memory_note_create)
+
+    def _handle_memory_note_create(self, result: Optional[dict[str, str]]) -> None:
+        if not result:
+            return
+
+        note_type_raw = result.get("note_type", "")
+        title = result.get("title", "").strip()
+        summary = result.get("summary", "").strip()
+
+        if not title:
+            self.notify("Note title is required", severity="warning", timeout=2)
+            return
+
+        note_type = self._normalize_memory_note_type(note_type_raw)
+        if not note_type:
+            self.notify(
+                "Invalid note type. Use: knowledge, projects, sessions, fixes",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        from ..memory import memory_remember, memory_project, memory_capture, memory_fix
+
+        try:
+            if note_type == "knowledge":
+                text = summary or "Captured via TUI"
+                exit_code, message = memory_remember(text=text, topic=title)
+            elif note_type == "projects":
+                exit_code, message = memory_project(
+                    name=title,
+                    purpose=summary or None,
+                    path=None,
+                    related=None,
+                    update=False,
+                )
+            elif note_type == "sessions":
+                session_summary = summary or "Session captured via TUI"
+                exit_code, message = memory_capture(
+                    title=title,
+                    summary=session_summary,
+                    quick=True,
+                )
+            else:
+                problem = summary or "Issue documented via TUI"
+                exit_code, message = memory_fix(
+                    title=title,
+                    problem=problem,
+                )
+        except Exception as exc:
+            self.notify(
+                f"Failed to create memory note: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        clean = self._clean_ansi(message)
+        if exit_code == 0:
+            self.notify(clean or "Created memory note", severity="information", timeout=2)
+            self.load_memory_notes()
+            self.update_view()
+        else:
+            self.notify(clean or "Failed to create memory note", severity="error", timeout=3)
 
     def _get_selected_memory_note(self) -> Optional[MemoryNote]:
         """Get the currently selected memory note from the table."""
@@ -8020,6 +8622,487 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         else:
             self.notify("Failed to auto-activate agents", severity="error", timeout=2)
 
+    def action_request_reviews(self) -> None:
+        """Spawn review tasks from AI recommendations."""
+        if not hasattr(self, "intelligent_agent"):
+            self.notify("AI Assistant not initialized", severity="error", timeout=2)
+            return
+
+        self.intelligent_agent.analyze_context()
+        recommendations = self.intelligent_agent.get_recommendations()
+        if not recommendations:
+            self.notify("No recommendations to request", severity="warning", timeout=2)
+            return
+
+        review_recs, _ = self._split_review_recommendations(recommendations)
+        if not review_recs:
+            self.notify("No review recommendations found", severity="warning", timeout=2)
+            return
+
+        review_recs = review_recs[:10]
+        cli_available = shutil.which("claude") is not None
+        output_dir = self._review_output_dir() if cli_available else None
+        context = getattr(self.intelligent_agent, "current_context", None)
+        diff_text = self._get_git_diff()
+        if diff_text and output_dir is not None:
+            try:
+                (output_dir / "diff.txt").write_text(diff_text, encoding="utf-8")
+            except Exception as exc:
+                self.notify(
+                    f"Failed to write diff.txt: {exc}",
+                    severity="warning",
+                    timeout=3,
+                )
+
+        tasks = list(getattr(self, "agent_tasks", []))
+        existing_open = {
+            t.agent_name.lower()
+            for t in tasks
+            if t.category == "review" and t.status in {"pending", "running"}
+        }
+
+        created = 0
+        spawn_specs: List[Tuple[str, str, str, Path]] = []
+        for rec in review_recs:
+            agent_name = rec.agent_name.strip()
+            if not agent_name:
+                continue
+            agent_slug = self._resolve_agent_slug(agent_name)
+            if agent_slug.lower() in existing_open:
+                continue
+
+            if not self._ensure_agent_active(agent_slug):
+                continue
+
+            confidence_pct = int(rec.confidence * 100)
+            description = f"{rec.reason} (confidence {confidence_pct}%)"
+            slug = re.sub(r"[^a-z0-9]+", "-", agent_slug.lower()).strip("-") or "review"
+            output_path = (
+                output_dir / f"{slug}.txt" if output_dir is not None else None
+            )
+            status = "running" if cli_available else "pending"
+            started = time.time() if cli_available else None
+            task_id = self._generate_task_id(f"review-{agent_slug}")
+            tasks.append(
+                AgentTask(
+                    agent_id=task_id,
+                    agent_name=agent_slug,
+                    workstream="reviews",
+                    status=status,
+                    progress=0,
+                    category="review",
+                    started=started,
+                    completed=None,
+                    description=description,
+                    raw_notes=description,
+                    source_path=str(output_path) if output_path is not None else None,
+                )
+            )
+            if cli_available and output_path is not None:
+                prompt = self._build_review_prompt(agent_slug, rec, context, diff_text)
+                spawn_specs.append((task_id, agent_slug, prompt, output_path))
+            existing_open.add(agent_slug.lower())
+            created += 1
+
+        if created == 0:
+            self.notify("Review tasks already requested", severity="information", timeout=2)
+            return
+
+        self._save_tasks(tasks)
+        self.load_agent_tasks()
+        self.update_view()
+        self.status_message = f"Requested {created} review task(s)"
+        self.notify(
+            f"✓ Requested {created} review task(s)",
+            severity="information",
+            timeout=2,
+        )
+
+        if not cli_available:
+            self.notify(
+                "Claude CLI not found. Tasks queued without execution.",
+                severity="warning",
+                timeout=3,
+            )
+            return
+
+        for task_id, agent_name, prompt, output_path in spawn_specs:
+            self._spawn_review_cli_task(
+                task_id=task_id,
+                agent_name=agent_name,
+                prompt=prompt,
+                output_path=output_path,
+            )
+
+    def action_assign_llm_tasks(self) -> None:
+        """Spawn LLM consult tasks for Gemini/OpenAI/Qwen."""
+        self.run_worker(self._assign_llm_tasks_flow(), exclusive=True)
+
+    async def _assign_llm_tasks_flow(self) -> None:
+        purpose = await self._prompt_text(
+            "Assign LLM Tasks",
+            "Purpose (second-opinion | plan | review | delegate)",
+            default="second-opinion",
+            placeholder="second-opinion",
+        )
+        if not purpose:
+            return
+
+        prompt = ""
+        editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "vi"
+        tmp_path: Optional[Path] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".md", mode="w", encoding="utf-8"
+            ) as tmp:
+                tmp_path = Path(tmp.name)
+                tmp.write(
+                    "# LLM Task Prompt\n"
+                    "# Write the prompt below. Lines starting with '#' are ignored.\n\n"
+                )
+            editor_cmd = shlex.split(editor)
+            if not editor_cmd:
+                editor_cmd = ["vi"]
+            try:
+                with self.suspend():
+                    subprocess.run([*editor_cmd, str(tmp_path)], check=False)
+            except SuspendNotSupported:
+                raise RuntimeError("Terminal suspend is not supported") from None
+            raw = tmp_path.read_text(encoding="utf-8")
+            prompt_lines = [
+                line for line in raw.splitlines() if not line.strip().startswith("#")
+            ]
+            prompt = "\n".join(prompt_lines).strip()
+        except Exception as exc:
+            self.notify(
+                f"Failed to open editor: {exc}. Using inline prompt.",
+                severity="warning",
+                timeout=3,
+            )
+            prompt = await self._prompt_text(
+                "Assign LLM Tasks",
+                "Prompt for LLMs",
+                placeholder="What should the other LLMs do?",
+            )
+            if not prompt:
+                return
+        finally:
+            try:
+                if tmp_path and tmp_path.exists():
+                    tmp_path.unlink()
+            except Exception:
+                pass
+
+        if not prompt:
+            use_inline = bool(
+                await self.push_screen(
+                    ConfirmDialog(
+                        "Assign LLM Tasks",
+                        "Prompt is empty. Use inline prompt instead?",
+                    ),
+                    wait_for_dismiss=True,
+                )
+            )
+            if not use_inline:
+                return
+            prompt = await self._prompt_text(
+                "Assign LLM Tasks",
+                "Prompt for LLMs",
+                placeholder="What should the other LLMs do?",
+            )
+            if not prompt:
+                return
+
+        diff_text = self._get_git_diff()
+        include_diff = False
+        if diff_text:
+            include_diff = bool(
+                await self.push_screen(
+                    ConfirmDialog(
+                        "Include git diff?",
+                        "Attach the current git diff to all LLM tasks?",
+                    ),
+                    wait_for_dismiss=True,
+                )
+            )
+
+        self._queue_llm_tasks(
+            purpose.strip(),
+            prompt.strip(),
+            diff_text if include_diff else None,
+        )
+
+    def _queue_llm_tasks(
+        self, purpose: str, prompt: str, diff_text: Optional[str]
+    ) -> None:
+        providers = [
+            ("Gemini", "gemini"),
+            ("OpenAI", "openai"),
+            ("Qwen", "qwen"),
+        ]
+
+        script_path = self._llm_consult_script_path()
+        script_available = script_path is not None
+        output_dir = self._llm_output_dir() if script_available else None
+
+        context_file: Optional[Path] = None
+        if diff_text and output_dir is not None:
+            context_file = output_dir / "diff.txt"
+            try:
+                context_file.write_text(diff_text, encoding="utf-8")
+            except Exception as exc:
+                self.notify(
+                    f"Failed to write diff.txt: {exc}",
+                    severity="warning",
+                    timeout=3,
+                )
+                context_file = None
+
+        tasks = list(getattr(self, "agent_tasks", []))
+        existing_open = {
+            t.agent_name.lower()
+            for t in tasks
+            if t.category == "llm" and t.status in {"pending", "running"}
+        }
+
+        summary = self._summarize_prompt(prompt)
+        description = f"{purpose}: {summary}" if summary else purpose
+
+        created = 0
+        spawn_specs: List[Tuple[str, str, str, str, Path, Optional[Path]]] = []
+        for display_name, provider_key in providers:
+            if display_name.lower() in existing_open:
+                continue
+
+            output_path = (
+                output_dir / f"{provider_key}.txt" if output_dir is not None else None
+            )
+            status = "running" if script_available and output_path is not None else "pending"
+            started = time.time() if status == "running" else None
+            task_id = self._generate_task_id(f"llm-{provider_key}")
+
+            tasks.append(
+                AgentTask(
+                    agent_id=task_id,
+                    agent_name=display_name,
+                    workstream="llm",
+                    status=status,
+                    progress=0,
+                    category="llm",
+                    started=started,
+                    completed=None,
+                    description=description,
+                    raw_notes=prompt,
+                    source_path=str(output_path) if output_path is not None else None,
+                )
+            )
+            if script_available and output_path is not None and script_path is not None:
+                spawn_specs.append(
+                    (
+                        task_id,
+                        provider_key,
+                        purpose,
+                        prompt,
+                        output_path,
+                        context_file,
+                    )
+                )
+            existing_open.add(display_name.lower())
+            created += 1
+
+        if created == 0:
+            self.notify("LLM tasks already requested", severity="information", timeout=2)
+            return
+
+        self._save_tasks(tasks)
+        self.load_agent_tasks()
+        self.update_view()
+        self.status_message = f"Requested {created} LLM task(s)"
+        self.notify(
+            f"✓ Requested {created} LLM task(s)",
+            severity="information",
+            timeout=2,
+        )
+
+        if not script_available or script_path is None:
+            self.notify(
+                "LLM consult script missing. Tasks queued without execution.",
+                severity="warning",
+                timeout=3,
+            )
+            return
+
+        for task_id, provider_key, purpose, prompt, output_path, context_file in spawn_specs:
+            self._spawn_llm_consult_task(
+                task_id=task_id,
+                provider_key=provider_key,
+                purpose=purpose,
+                prompt=prompt,
+                output_path=output_path,
+                script_path=script_path,
+                context_file=context_file,
+            )
+
+    def action_consult_gemini(self) -> None:
+        """Consult Gemini with a user-provided prompt."""
+        self.run_worker(self._consult_gemini_flow(), exclusive=True)
+
+    async def _consult_gemini_flow(self) -> None:
+        purpose = await self._prompt_text(
+            "Gemini Consult",
+            "Purpose (second-opinion | plan | review | delegate)",
+            default="second-opinion",
+            placeholder="second-opinion",
+        )
+        if not purpose:
+            return
+
+        prompt = ""
+        editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "vi"
+        tmp_path: Optional[Path] = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".md", mode="w", encoding="utf-8"
+            ) as tmp:
+                tmp_path = Path(tmp.name)
+                tmp.write(
+                    "# Gemini Consult Prompt\n"
+                    "# Write the prompt below. Lines starting with '#' are ignored.\n\n"
+                )
+            editor_cmd = shlex.split(editor)
+            if not editor_cmd:
+                editor_cmd = ["vi"]
+            try:
+                with self.suspend():
+                    subprocess.run([*editor_cmd, str(tmp_path)], check=False)
+            except SuspendNotSupported:
+                raise RuntimeError("Terminal suspend is not supported") from None
+            raw = tmp_path.read_text(encoding="utf-8")
+            prompt_lines = [
+                line for line in raw.splitlines() if not line.strip().startswith("#")
+            ]
+            prompt = "\n".join(prompt_lines).strip()
+        except Exception as exc:
+            self.notify(
+                f"Failed to open editor: {exc}. Using inline prompt.",
+                severity="warning",
+                timeout=3,
+            )
+            prompt = await self._prompt_text(
+                "Gemini Consult",
+                "Prompt for Gemini",
+                placeholder="What should Gemini evaluate?",
+            )
+            if not prompt:
+                return
+        finally:
+            try:
+                if tmp_path and tmp_path.exists():
+                    tmp_path.unlink()
+            except Exception:
+                pass
+
+        if not prompt:
+            use_inline = bool(
+                await self.push_screen(
+                    ConfirmDialog(
+                        "Gemini Consult",
+                        "Prompt is empty. Use inline prompt instead?",
+                    ),
+                    wait_for_dismiss=True,
+                )
+            )
+            if not use_inline:
+                return
+            prompt = await self._prompt_text(
+                "Gemini Consult",
+                "Prompt for Gemini",
+                placeholder="What should Gemini evaluate?",
+            )
+            if not prompt:
+                return
+
+        diff_text = self._get_git_diff()
+        include_diff = False
+        if diff_text:
+            include_diff = bool(
+                await self.push_screen(
+                    ConfirmDialog(
+                        "Include git diff?",
+                        "Attach the current git diff as context for Gemini?",
+                    ),
+                    wait_for_dismiss=True,
+                )
+            )
+
+        await self._run_gemini_consult(
+            purpose.strip(),
+            prompt.strip(),
+            diff_text if include_diff else None,
+        )
+
+    async def _run_gemini_consult(
+        self, purpose: str, prompt: str, diff_text: Optional[str]
+    ) -> None:
+        script_path = self._llm_consult_script_path()
+        if script_path is None:
+            self.notify(
+                "Gemini consult script missing: skills/multi-llm-consult/scripts/consult_llm.py",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        temp_dir: Optional[tempfile.TemporaryDirectory[str]] = None
+        context_file: Optional[Path] = None
+        if diff_text:
+            temp_dir = tempfile.TemporaryDirectory()
+            context_file = Path(temp_dir.name) / "diff.txt"
+            try:
+                context_file.write_text(diff_text, encoding="utf-8")
+            except Exception as exc:
+                self.notify(f"Failed to write diff context: {exc}", severity="warning", timeout=3)
+                context_file = None
+
+        cmd = [
+            sys.executable,
+            str(script_path),
+            "--provider",
+            "gemini",
+            "--purpose",
+            purpose,
+            "--prompt",
+            prompt,
+        ]
+        if context_file is not None:
+            cmd += ["--context-file", str(context_file)]
+
+        self.notify("Consulting Gemini...", severity="information", timeout=2)
+
+        def runner() -> subprocess.CompletedProcess[str]:
+            return subprocess.run(
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        result = await asyncio.to_thread(runner)
+        if temp_dir is not None:
+            temp_dir.cleanup()
+
+        output = (result.stdout or "").strip()
+        errors = (result.stderr or "").strip()
+        if result.returncode != 0:
+            message = errors or output or "Gemini consult failed"
+            await self._show_text_dialog("Gemini Consult Error", message)
+            self.notify("Gemini consult failed", severity="error", timeout=3)
+            return
+
+        if not output:
+            output = "Gemini returned no output."
+        await self._show_text_dialog("Gemini Consult", output)
+
     def _check_auto_activations(self) -> None:
         """Check for high-confidence auto-activations on startup."""
         if not hasattr(self, "intelligent_agent"):
@@ -8372,6 +9455,59 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                 f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                             )
 
+        elif self.current_view == "prompts":
+            table = self.query_one(DataTable)
+            if table.cursor_row is not None:
+                saved_cursor_row = table.cursor_row
+                index = table.cursor_row
+                if 0 <= index < len(self.prompts):
+                    prompt = self.prompts[index]
+                    try:
+                        from ..core.prompts import prompt_activate, prompt_deactivate
+
+                        if prompt.status == "active":
+                            exit_code, message = prompt_deactivate(prompt.slug)
+                        else:
+                            exit_code, message = prompt_activate(prompt.slug)
+
+                        # Remove ANSI codes
+                        import re
+                        clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
+                        self.status_message = clean_message.split("\n")[0]
+
+                        if exit_code == 0:
+                            if prompt.status == "active":
+                                self.notify(
+                                    f"✓ Deactivated prompt: {prompt.slug}",
+                                    severity="information",
+                                    timeout=2,
+                                )
+                            else:
+                                self.notify(
+                                    f"✓ Activated prompt: {prompt.slug}",
+                                    severity="information",
+                                    timeout=2,
+                                )
+                            self.load_prompts()
+                            self.update_view()
+
+                            # Restore cursor position
+                            table = self.query_one(DataTable)
+                            if table.row_count > 0:
+                                new_cursor_row = min(saved_cursor_row, table.row_count - 1)
+                                table.move_cursor(row=new_cursor_row)
+                        else:
+                            self.notify(
+                                f"✗ {clean_message}",
+                                severity="error",
+                                timeout=5,
+                            )
+                    except Exception as e:
+                        self.status_message = f"Error: {e}"
+                        self.notify(
+                            f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                        )
+
         elif self.current_view == "principles":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
@@ -8523,6 +9659,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.load_rules()
         elif self.current_view == "modes":
             self.load_modes()
+        elif self.current_view == "prompts":
+            self.load_prompts()
         elif self.current_view == "skills":
             self.load_skills()
         elif self.current_view == "commands":

@@ -145,9 +145,9 @@ def main() -> int:
     docs_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate main manpage
-    print("📄 Generating claude-ctx.1...")
-    main_manpage = generate_manpage(parser, "claude-ctx")
-    main_path = docs_dir / "claude-ctx.1"
+    print("📄 Generating cortex.1...")
+    main_manpage = generate_manpage(parser, "cortex")
+    main_path = docs_dir / "cortex.1"
     main_path.write_text(main_manpage)
     print(f"   ✓ {main_path}")
     
@@ -158,19 +158,19 @@ def main() -> int:
     ]
     
     for cmd, description in subcommands:
-        print(f"📄 Generating claude-ctx-{cmd}.1...")
+        print(f"📄 Generating cortex-{cmd}.1...")
         subparser = extract_subparser(parser, cmd)
         if subparser:
-            manpage = generate_manpage(subparser, f"claude-ctx-{cmd}")
+            manpage = generate_manpage(subparser, f"cortex-{cmd}")
         else:
             # Generate minimal manpage if subparser not found
             minimal_parser = argparse.ArgumentParser(
-                prog=f"claude-ctx-{cmd}",
+                prog=f"cortex-{cmd}",
                 description=description
             )
-            manpage = generate_manpage(minimal_parser, f"claude-ctx-{cmd}")
+            manpage = generate_manpage(minimal_parser, f"cortex-{cmd}")
         
-        path = docs_dir / f"claude-ctx-{cmd}.1"
+        path = docs_dir / f"cortex-{cmd}.1"
         path.write_text(manpage)
         print(f"   ✓ {path}")
     

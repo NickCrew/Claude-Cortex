@@ -23,7 +23,7 @@ log_warn() {
 
 # Determine project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="${SCRIPT_DIR}/.."
+PROJECT_ROOT="${SCRIPT_DIR}/../.."
 
 # Target directory
 DOCS_TARGET="${HOME}/.claude/docs"
