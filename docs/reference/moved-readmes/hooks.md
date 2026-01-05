@@ -39,18 +39,24 @@ Inspired by diet103/claude-code-infrastructure-showcase, this hook scans the use
 
 **Install:**
 
-```bash
-cp hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
-chmod +x ~/.claude/hooks/skill_auto_suggester.py
-```
-
-Add to `~/.claude/settings.json` alongside other hooks:
+Add to `hooks/hooks.json` (use `${CLAUDE_PLUGIN_ROOT}` so paths resolve anywhere the plugin is installed):
 
 ```json
 {
   "hooks": {
-    "user-prompt-submit": [
-      {"command": "python3", "args": ["~/.claude/hooks/skill_auto_suggester.py"]}
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/examples/skill_auto_suggester.py"
+            ]
+          }
+        ]
+      }
     ]
   }
 }
@@ -62,27 +68,23 @@ The hook looks for `CLAUDE_HOOK_PROMPT` (set automatically by Claude Code). If y
 
 ### Quick Install
 
-Copy the hook to your Claude configuration:
-
-```bash
-# Copy hook
-cp hooks/examples/implementation-quality-gate.sh ~/.claude/hooks/
-
-# Make executable
-chmod +x ~/.claude/hooks/implementation-quality-gate.sh
-
-# Register in settings.json
-```
-
-Add to `~/.claude/settings.json`:
+Add to `hooks/hooks.json`:
 
 ```json
 {
   "hooks": {
-    "user-prompt-submit": [
+    "UserPromptSubmit": [
       {
-        "command": "bash",
-        "args": ["~/.claude/hooks/implementation-quality-gate.sh"]
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/hooks/examples/implementation-quality-gate.sh"
+            ]
+          }
+        ]
       }
     ]
   }
@@ -100,8 +102,9 @@ claude-ctx agent activate test-automator api-documenter tutorial-engineer \
 
 ```bash
 # Test the hook
-CLAUDE_USER_PROMPT="implement a feature" \
-  bash ~/.claude/hooks/implementation-quality-gate.sh
+CLAUDE_PLUGIN_ROOT="$(pwd)" \
+  CLAUDE_USER_PROMPT="implement a feature" \
+  bash hooks/examples/implementation-quality-gate.sh
 
 # Should show three-phase workflow
 ```
@@ -111,7 +114,7 @@ CLAUDE_USER_PROMPT="implement a feature" \
 Edit the hook file to adjust thresholds:
 
 ```bash
-vim ~/.claude/hooks/implementation-quality-gate.sh
+vim hooks/examples/implementation-quality-gate.sh
 
 # Key configuration:
 COVERAGE_THRESHOLD=85              # Test coverage minimum (%)
@@ -225,15 +228,21 @@ Tell Claude: "disable quality gate for this task"
 
 ### Permanent
 
-Comment out in `~/.claude/settings.json`:
+Comment out in `hooks/hooks.json`:
 
 ```json
 {
   "hooks": {
-    "user-prompt-submit": [
+    "UserPromptSubmit": [
       // {
-      //   "command": "bash",
-      //   "args": ["~/.claude/hooks/implementation-quality-gate.sh"]
+      //   "matcher": "",
+      //   "hooks": [
+      //     {
+      //       "type": "command",
+      //       "command": "bash",
+      //       "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/implementation-quality-gate.sh"]
+      //     }
+      //   ]
       // }
     ]
   }
@@ -258,9 +267,9 @@ ls -l ~/.claude/hooks/implementation-quality-gate.sh
 # Should show -rwxr-xr-x
 ```
 
-**Check 2:** Registered in settings.json
+**Check 2:** Registered in hooks/hooks.json
 ```bash
-cat ~/.claude/settings.json | jq '.hooks'
+cat hooks/hooks.json | jq '.hooks'
 ```
 
 **Check 3:** Prompt contains implementation keywords
@@ -324,23 +333,37 @@ exit 0
 
 ### Available Hook Types
 
-- `user-prompt-submit` - Runs when user submits a prompt
-- `tool-call` - Runs before/after tool execution
-- `session-start` - Runs when Claude Code session starts
-- `session-end` - Runs when Claude Code session ends
+- `PreToolUse` - Before Claude uses any tool
+- `PostToolUse` - After Claude successfully uses any tool
+- `PostToolUseFailure` - After a tool execution fails
+- `PermissionRequest` - When a permission dialog is shown
+- `UserPromptSubmit` - When the user submits a prompt
+- `Notification` - When Claude Code sends notifications
+- `Stop` - When Claude attempts to stop
+- `SubagentStart` - When a subagent is started
+- `SubagentStop` - When a subagent attempts to stop
+- `SessionStart` - At the beginning of sessions
+- `SessionEnd` - At the end of sessions
+- `PreCompact` - Before conversation history is compacted
 
 ### Registration
 
-Add to `~/.claude/settings.json`:
+Add to `hooks/hooks.json`:
 
 ```json
 {
   "hooks": {
-    "user-prompt-submit": [...],
-    "tool-call": [
+    "UserPromptSubmit": [...],
+    "PostToolUse": [
       {
-        "command": "python3",
-        "args": ["/path/to/your-hook.py"]
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/your-hook.py"]
+          }
+        ]
       }
     ]
   }

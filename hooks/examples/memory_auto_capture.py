@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """Auto-capture session summary on session end.
 
-This hook is triggered by Claude Code session-end hook when auto-capture is enabled.
+This hook is triggered by the Claude Code SessionEnd hook when auto-capture is enabled.
 It reads session context and writes a summary to ~/basic-memory/sessions/
 
 Usage:
-    Register this hook in ~/.claude/settings.json:
+    Register this hook in hooks/hooks.json:
 
     {
       "hooks": {
-        "session-end": [
+        "SessionEnd": [
           {
-            "command": "python3",
-            "args": ["~/.claude/hooks/memory_auto_capture.py"]
+            "matcher": "",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "python3",
+                "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/memory_auto_capture.py"]
+              }
+            ]
           }
         ]
       }
