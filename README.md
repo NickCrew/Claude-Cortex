@@ -372,12 +372,13 @@ After installation, the `/plugin` browser will list the bundled commands, and th
 
 ## Installing the CLI
 
-### Quick Install (Recommended)
+### Legacy Installer (Deprecated)
 
-Install the package, shell completions, and manpage with one command:
+The legacy install scripts live under `scripts/deprecated/`. They are still available,
+but new installs should use the CLI flow below.
 
 ```bash
-./scripts/install.sh
+./scripts/deprecated/install.sh
 ```
 
 This will:
@@ -386,21 +387,31 @@ This will:
 - Set up shell completions for your shell (bash/zsh/fish)
 - Install the manpage system-wide
 
-**Options:**
+**Options (legacy):**
 
 ```bash
-./scripts/install.sh --help              # Show all options
-./scripts/install.sh --no-completions    # Skip completions
-./scripts/install.sh --system-install    # Install system-wide (not editable)
-./scripts/install.sh --shell zsh         # Specify shell for completions
+./scripts/deprecated/install.sh --help              # Show all options
+./scripts/deprecated/install.sh --no-completions    # Skip completions
+./scripts/deprecated/install.sh --system-install    # Install system-wide (not editable)
+./scripts/deprecated/install.sh --shell zsh         # Specify shell for completions
 ```
 
-### Using Make
+### CLI Post-Install (after any pip/uv/pipx install)
+
+If you install the package manually, you can finish setup with the CLI:
 
 ```bash
-make install        # Full installation
-make install-dev    # Development installation
-make help           # Show all targets
+cortex install post
+```
+
+This installs shell completions, manpages, and local architecture docs.
+
+### Using Just
+
+```bash
+just install        # Full installation
+just install-dev    # Development installation
+just help           # Show all targets
 ```
 
 ### Manual Installation
@@ -409,6 +420,19 @@ make help           # Show all targets
 python3 -m pip install .
 cortex mode list
 cortex agent graph --export dependency-map.md
+```
+
+Optional post-install steps:
+
+```bash
+cortex install post
+```
+
+You can also install the package via the CLI:
+
+```bash
+cortex install package --manager uv --editable --dev
+cortex install package --manager pipx
 ```
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
@@ -434,7 +458,7 @@ Running the CLI directly will operate on the directories in this repository, whi
 
 ### Shell completion
 
-Shell completions are automatically installed when using `./scripts/install.sh`. For manual setup:
+Shell completions are automatically installed when using the legacy installer (`./scripts/deprecated/install.sh`). For manual setup:
 
 **Automatic (recommended):**
 
@@ -465,7 +489,7 @@ See [Shell Completions Guide](docs/guides/COMPLETIONS.md) for detailed instructi
 
 ### Manual page (manpage)
 
-A comprehensive manual page is available in `docs/reference/cortex.1` and is automatically installed when using `./scripts/install.sh`.
+A comprehensive manual page is available in `docs/reference/cortex.1` and is automatically installed when using the legacy installer (`./scripts/deprecated/install.sh`).
 
 **View locally:**
 
@@ -479,7 +503,7 @@ workflow/scenario orchestration commands (`man cortex-workflow`).
 **Manual installation:**
 
 ```bash
-./scripts/install-manpage.sh
+./scripts/deprecated/install-manpage.sh
 ```
 
 **After installation:**

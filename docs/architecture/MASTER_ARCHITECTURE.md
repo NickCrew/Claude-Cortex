@@ -2924,7 +2924,7 @@ SQLite: INSERT INTO skill_activations
 
 ```
 1. Install CLI
-   $ ./scripts/install.sh
+   $ ./scripts/deprecated/install.sh
    
 2. Verify installation
    $ claude-ctx --version
@@ -3299,7 +3299,7 @@ class CustomIntelligence(IntelligentAgent):
 **1. Script Installation** (Recommended):
 
 ```bash
-$ ./scripts/install.sh
+$ ./scripts/deprecated/install.sh
 # Installs CLI, completions, manpage
 ```
 

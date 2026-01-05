@@ -38,9 +38,6 @@ Manpages for `cortex` are now **automatically generated** from the CLI's argpars
 ### Manual Generation
 
 ```bash
-# Via Make
-make generate-manpages
-
 # Via Just
 just generate-manpages
 
@@ -55,14 +52,13 @@ Manpages are automatically regenerated during:
 1. **Installation**
 
    ```bash
-   make install
-   ./scripts/install.sh
+   just install
+   ./scripts/deprecated/install.sh
    ```
 
 2. **Manpage-only install**
 
    ```bash
-   make install-manpage
    just install-manpage
    ```
 
@@ -87,10 +83,10 @@ Manpages are automatically regenerated during:
 graph LR
     A[Edit cli.py] --> B{Pre-commit hook?}
     B -->|Yes| C[Auto-generate]
-    B -->|No| D[Manual: make generate-manpages]
+    B -->|No| D[Manual: just generate-manpages]
     C --> E[Manpages updated]
     D --> E
-    E --> F[make install]
+    E --> F[just install]
     F --> G[System manpages updated]
 ```
 
@@ -122,7 +118,7 @@ To generate manpages for new subcommands:
 2. Regenerate:
 
    ```bash
-   make generate-manpages
+   just generate-manpages
    ```
 
 ## ✅ Benefits

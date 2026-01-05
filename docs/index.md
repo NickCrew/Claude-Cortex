@@ -583,10 +583,10 @@ claude-cortex/
 
 ```bash
 # Install everything (package, completions, manpage)
-./scripts/install.sh
+./scripts/deprecated/install.sh
 
-# Or use make
-make install
+# Or use just
+just install
 ```
 
 **Manual Installation:**

@@ -4,14 +4,18 @@ help:
     @echo "Cortex Development Justfile"
     @echo ""
     @echo "Available recipes:"
-    @echo "  just install              # Install package, completions, and manpage"
-    @echo "  just install-dev          # Install in development mode with all dependencies"
-    @echo "  just install-manpage      # Install manpage only"
-    @echo "  just install-completions  # Install shell completions only"
+    @echo "  just install              # Legacy installer (deprecated)"
+    @echo "  just install-dev          # Legacy installer with dev deps (deprecated)"
+    @echo "  just install-manpage      # Legacy manpage install (deprecated)"
+    @echo "  just install-completions  # Legacy completions install (deprecated)"
+    @echo "  just generate-manpages    # Generate manpages from CLI definitions"
+    @echo "  just regen-manpages       # Re-generate manpages from CLI definitions"
+    @echo "  just update-completions   # Update cortex/claude-ctx completion scripts"
     @echo "  just uninstall            # Uninstall claude-ctx (manual cleanup may remain)"
     @echo "  just test                 # Run test suite"
     @echo "  just test-cov             # Run tests with coverage report"
     @echo "  just lint                 # Run code format checks"
+    @echo "  just lint-fix             # Auto-format code with black"
     @echo "  just type-check           # Run focused mypy type checking"
     @echo "  just type-check-all       # Run mypy over entire module tree"
     @echo "  just clean                # Remove build artifacts and caches"
@@ -30,19 +34,23 @@ help:
     @echo "  just type-check      # Check types with mypy"
 
 install:
-    @./scripts/install.sh
+    @./scripts/deprecated/install.sh
 
 install-dev:
-    @./scripts/install.sh
+    @./scripts/deprecated/install.sh
 
 generate-manpages:
     @python3 ./scripts/generate-manpages.py
 
+regen-manpages: generate-manpages
+
+update-completions: install-completions
+
 install-manpage: generate-manpages
-    @./scripts/install-manpage.sh
+    @./scripts/deprecated/install-manpage.sh
 
 install-completions:
-    @./scripts/install.sh --no-package --no-manpage
+    @./scripts/deprecated/install.sh --no-package --no-manpage
 
 uninstall:
     @pip uninstall -y claude-ctx-py
