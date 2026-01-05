@@ -32,13 +32,23 @@ After installation, the `/plugin` browser will list the bundled commands, and th
 
 ## Using the bundled CLI
 
-```
-python3 -m pip install .
-claude-ctx mode list
-claude-ctx agent graph --export dependency-map.md
+```bash
+# Install the package (pick one)
+python3 -m pip install -e ".[dev]"
+# or: uv pip install -e ".[dev]"
+# or: pipx install -e .
+
+# Finish setup (completions, manpages, docs)
+cortex install post
+
+# Try it out
+cortex mode list
+cortex agent graph --export dependency-map.md
 ```
 
 Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
+
+> **Note:** `claude-ctx` is still available as a deprecated alias of `cortex`.
 
 ### Init & Migration
 
@@ -79,19 +89,17 @@ claude-ctx setup migrate
 
 ### Shell completion
 
-`claude-ctx` ships with optional [argcomplete](https://github.com/kislyuk/argcomplete) support. Install the project (editable installs work too), then register the completer:
+`cortex` ships with built-in completion scripts for Bash, Zsh, and Fish:
 
-```
-# editable install via pipx
-pipx install --include-deps --editable .
+```bash
+# Auto-detect your shell
+cortex install completions
 
-# one-time registration for the active shell session
-eval "$(~/.local/pipx/venvs/claude-ctx-py/bin/register-python-argcomplete claude-ctx)"
-
-# add the same eval line to ~/.zshrc or ~/.bashrc for persistence
+# Or generate/install manually
+cortex completion zsh --install
 ```
 
-If you install the package with a different toolchain, point `register-python-argcomplete` at the virtual environment where `claude-ctx` lives.
+For system-wide installs or manual scripts, see [Shell Completions](COMPLETIONS.md).
 
 ## Development notes
 

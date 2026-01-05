@@ -579,22 +579,28 @@ claude-cortex/
 
 ### Via Python CLI
 
-**Quick Install (Recommended):**
+**Recommended (pip/uv/pipx + post-install):**
 
 ```bash
-# Install everything (package, completions, manpage)
-./scripts/deprecated/install.sh
+# Install the package (pick one)
+python3 -m pip install -e ".[dev]"
+# or: uv pip install -e ".[dev]"
+# or: pipx install -e .
 
-# Or use just
+# Finish setup (completions, manpages, docs)
+cortex install post
+```
+
+**Legacy installer (deprecated):**
+
+```bash
+./scripts/deprecated/install.sh
 just install
 ```
 
-**Manual Installation:**
+**Manual Usage:**
 
 ```bash
-# Install package (editable installs supported)
-python3 -m pip install -e ".[dev]"
-
 # Verify installation
 cortex --version
 
