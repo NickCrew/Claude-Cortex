@@ -12,8 +12,8 @@ Manpages for `claude-ctx` are **auto-generated** from the CLI argparse definitio
 
 Manpages are automatically regenerated:
 
-1. **During installation** - `make install` or `./scripts/install.sh`
-2. **Manual generation** - `make generate-manpages` or `python3 scripts/generate-manpages.py`
+1. **During installation** - `just install` or `./scripts/deprecated/install.sh`
+2. **Manual generation** - `just generate-manpages` or `python3 scripts/generate-manpages.py`
 3. **Pre-commit hook** - When `claude_ctx_py/cli.py` is modified (optional)
 
 ## 🔧 Setup Pre-commit Hook
@@ -31,7 +31,7 @@ git config core.hooksPath .githooks
 Instead:
 1. Update CLI help text in `claude_ctx_py/cli.py`
 2. Modify the generator in `scripts/generate-manpages.py`
-3. Run `make generate-manpages` to regenerate
+3. Run `just generate-manpages` to regenerate
 
 ## 🧪 Testing
 

@@ -223,8 +223,8 @@ Output: Refactoring plan with priorities
 
 **New Scripts**:
 
-- `scripts/post-install-docs.sh` - Auto-installs documentation
-- Updated `scripts/install.sh` - Calls post-install script
+- `scripts/deprecated/post-install-docs.sh` - Auto-installs documentation
+- Updated `scripts/deprecated/install.sh` - Calls post-install script
 
 **Package Configuration**:
 
@@ -338,9 +338,9 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 vim docs/reference/architecture/architecture-diagrams.md
 
 # Reinstall to update ~/.claude/docs/
-make install
+just install
 # or
-bash scripts/post-install-docs.sh
+bash scripts/deprecated/post-install-docs.sh
 ```
 
 **Adding New Components**:

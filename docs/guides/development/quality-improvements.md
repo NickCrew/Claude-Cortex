@@ -422,10 +422,10 @@ Invalid version format: '1.2.x'
 
 ### Unified Install Script
 
-**`scripts/install.sh`** - One command installs everything:
+**`scripts/deprecated/install.sh`** - One command installs everything:
 
 ```bash
-./scripts/install.sh
+./scripts/deprecated/install.sh
 ```
 
 **What it does:**
@@ -437,11 +437,11 @@ Invalid version format: '1.2.x'
 
 **Options:**
 ```bash
-./scripts/install.sh --help              # Show all options
-./scripts/install.sh --no-completions    # Skip completions
-./scripts/install.sh --no-manpage        # Skip manpage
-./scripts/install.sh --system-install    # System-wide (not editable)
-./scripts/install.sh --shell zsh         # Specify shell
+./scripts/deprecated/install.sh --help              # Show all options
+./scripts/deprecated/install.sh --no-completions    # Skip completions
+./scripts/deprecated/install.sh --no-manpage        # Skip manpage
+./scripts/deprecated/install.sh --system-install    # System-wide (not editable)
+./scripts/deprecated/install.sh --shell zsh         # Specify shell
 ```
 
 ### Shell Completions
@@ -566,10 +566,10 @@ git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-ctx-plugin
 
 # Install with dev dependencies
-./scripts/install.sh
+./scripts/deprecated/install.sh
 
-# Or using make
-make install-dev
+# Or using just
+just install-dev
 ```
 
 ### Development Cycle
@@ -634,9 +634,9 @@ git commit -m "Your changes"
 - `.github/workflows/type-check.yml` - CI/CD
 
 **Installation (3 files):**
-- `scripts/install.sh` - Unified installer
+- `scripts/deprecated/install.sh` - Unified installer
 - `docs/reference/claude-ctx.1` - Manpage
-- `Makefile` - Development targets
+- `justfile` - Development targets
 
 ### Modified Files (12)
 

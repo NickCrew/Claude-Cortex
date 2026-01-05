@@ -45,7 +45,7 @@ Choose your installation method:
 
 ```bash
 cd /path/to/claude-ctx-plugin
-./scripts/install.sh
+./scripts/deprecated/install.sh
 ```
 
 This installs:

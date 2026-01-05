@@ -2,17 +2,27 @@
 
 ## Installation
 
-### Option 0: Install with the installer (recommended)
+### Option 0: Legacy installer (deprecated)
 
 ```bash
-./scripts/install.sh
+./scripts/deprecated/install.sh
 ```
 
-This installs the package, shell completions, and manpages in one step. For a Makefile wrapper:
+This installs the package, shell completions, and manpages in one step. For a Just wrapper:
 
 ```bash
-make install
+just install
 ```
+
+### Option 0.5: Post-install via the CLI
+
+If the package is already installed, finish setup with:
+
+```bash
+cortex install post
+```
+
+This installs shell completions, manpages, and the local architecture docs.
 
 ### Option 1: Install from source (recommended for development)
 
@@ -22,6 +32,18 @@ pipx install -e .
 ```
 
 This installs the package in editable mode, so any changes you make to the code will be immediately available.
+
+Alternative (uv):
+
+```bash
+uv pip install -e .[dev]
+```
+
+If `cortex` is already available, you can also use:
+
+```bash
+cortex install package --manager uv --editable --dev --path .
+```
 
 ### Option 2: Install from source (standard)
 
@@ -34,6 +56,18 @@ Standard installation. You'll need to reinstall after making code changes:
 
 ```bash
 pipx reinstall claude-ctx-py
+```
+
+Alternative (uv):
+
+```bash
+uv pip install .
+```
+
+Or via CLI (requires `cortex` already installed):
+
+```bash
+cortex install package --manager pipx
 ```
 
 ### Option 3: Uninstall and reinstall
