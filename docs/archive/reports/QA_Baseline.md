@@ -1,7 +1,7 @@
 # QA Baseline Report
 
 **Generated**: 2025-11-27
-**Project**: claude-ctx-plugin
+**Project**: cortex-plugin
 **Branch**: main
 **Commit**: b8d4e59 (HEAD -> main)
 
@@ -267,9 +267,9 @@ Priority modules for immediate test development:
 
 **File**: `.github/workflows/` (to be analyzed in WS6)
 
-### Current Makefile Targets
+### Current Justfile Targets
 
-```makefile
+```text
 test          # Run full test suite
 test-cov      # Run with coverage reports
 lint          # black --check

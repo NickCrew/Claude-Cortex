@@ -1,3 +1,3 @@
 # Software Engineering Principles
 
-**Core Directive**: Evidence > assumptions | Code > documentation | Efficiency > verbosity
+**Core Directive**: Evidence > assumptions | Code + documentation > speculation | Efficiency > verbosity

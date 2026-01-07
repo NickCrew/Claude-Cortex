@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The WS5 Quality & Error Handling workstream has completed a comprehensive audit of the claude-ctx-plugin codebase, identifying critical resource management issues and deprecation warnings that require immediate attention.
+The WS5 Quality & Error Handling workstream has completed a comprehensive audit of the cortex-plugin codebase, identifying critical resource management issues and deprecation warnings that require immediate attention.
 
 ### Key Findings
 

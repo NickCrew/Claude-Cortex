@@ -1,20 +1,20 @@
 # Superpowers Skill Mapping (November 7, 2025)
 
-This note captures how we will adapt obra/superpowers (MIT) skills into claude-ctx without duplicating existing assets. Every borrowed skill references the claude-ctx component that will own it so we keep one source of truth.
+This note captures how we will adapt obra/superpowers (MIT) skills into cortex without duplicating existing assets. Every borrowed skill references the cortex component that will own it so we keep one source of truth.
 
 ## Collaboration Core
 
-| Superpowers Skill | claude-ctx source of truth | Notes |
+| Superpowers Skill | cortex source of truth | Notes |
 | --- | --- | --- |
 | `skills/collaboration/brainstorming/SKILL.md` | `modes/Super_Saiyan.md` + `scenarios/ideation/*.md` | Rebrand to `/ctx:brainstorm`; point to Supersaiyan visuals + Task TUI for capturing highlights. |
 | `skills/collaboration/writing-plans/SKILL.md` | `workflows/` + `rules/Planning.md` | `/ctx:plan` enumerates the existing plan template, then autogenerates tasks via the new Task view. |
 | `skills/collaboration/executing-plans/SKILL.md` | Orchestrate view + `tasks/current/` JSON | `/ctx:execute-plan` becomes a wrapper that seeds `active_agents.json`; no separate checklist doc. |
 | `skills/collaboration/requesting-code-review/SKILL.md` | `docs/REVIEW_CHECKLIST.md` (todo) + `commands/review.yaml` | Borrow structure but link back to our review commands/rules so guidance stays centralized. |
-| `skills/collaboration/receiving-code-review/SKILL.md` | `RULES.md` quality section | Reuse advice but reference claude-ctx rollout steps and Supersaiyan QA mode. |
+| `skills/collaboration/receiving-code-review/SKILL.md` | `RULES.md` quality section | Reuse advice but reference cortex rollout steps and Supersaiyan QA mode. |
 
 ## Quality & Testing
 
-| Superpowers Skill | claude-ctx anchor |
+| Superpowers Skill | cortex anchor |
 | --- | --- |
 | `skills/testing/test-driven-development` | `pytest.ini`, `tests/` templates, `commands/testing.yaml` |
 | `skills/debugging/systematic-debugging` | `modes/Diagnostics.md` + TUI performance monitor |
@@ -22,7 +22,7 @@ This note captures how we will adapt obra/superpowers (MIT) skills into claude-c
 
 ## Meta Skills
 
-| Superpowers Skill | claude-ctx anchor |
+| Superpowers Skill | cortex anchor |
 | --- | --- |
 | `skills/meta/writing-skills` | `CONTRIBUTING.md` writing/style section |
 | `skills/meta/sharing-skills` | `docs/COMMUNITY.md` (to create) |

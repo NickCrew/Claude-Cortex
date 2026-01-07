@@ -1,6 +1,6 @@
 # MCP Server Management
 
-Complete guide to managing Model Context Protocol (MCP) servers in claude-ctx.
+Complete guide to managing Model Context Protocol (MCP) servers in cortex.
 
 ## Overview
 
@@ -28,42 +28,42 @@ Cortex observes and assists with MCP servers, not controls them:
 ### View All Servers
 
 ```bash
-claude-ctx mcp list
+cortex mcp list
 ```
 
 ### Get Server Details
 
 ```bash
-claude-ctx mcp show context7
+cortex mcp show context7
 ```
 
 ### View Documentation
 
 ```bash
-claude-ctx mcp docs serena
+cortex mcp docs serena
 ```
 
 ### Test Configuration
 
 ```bash
-claude-ctx mcp test context7
+cortex mcp test context7
 ```
 
 ### Diagnose All Servers
 
 ```bash
-claude-ctx mcp diagnose
+cortex mcp diagnose
 ```
 
 ### Generate Config Snippet
 
 ```bash
-claude-ctx mcp snippet playwright
+cortex mcp snippet playwright
 ```
 
 ## CLI Reference
 
-### `claude-ctx mcp list`
+### `cortex mcp list`
 
 List all configured MCP servers with validation status.
 
@@ -95,7 +95,7 @@ MCP Servers (2 configured):
   Status: Warning ⚠ (No documentation)
 ```
 
-### `claude-ctx mcp show <server>`
+### `cortex mcp show <server>`
 
 Show detailed information about a specific server.
 
@@ -115,10 +115,10 @@ Show detailed information about a specific server.
 **Example:**
 
 ```bash
-claude-ctx mcp show context7
+cortex mcp show context7
 ```
 
-### `claude-ctx mcp docs <server>`
+### `cortex mcp docs <server>`
 
 Display curated documentation for an MCP server.
 
@@ -138,10 +138,10 @@ Display curated documentation for an MCP server.
 **Example:**
 
 ```bash
-claude-ctx mcp docs sequential
+cortex mcp docs sequential
 ```
 
-### `claude-ctx mcp test <server>`
+### `cortex mcp test <server>`
 
 Test server configuration and display diagnostic information.
 
@@ -160,10 +160,10 @@ Test server configuration and display diagnostic information.
 **Example:**
 
 ```bash
-claude-ctx mcp test browser-tools
+cortex mcp test browser-tools
 ```
 
-### `claude-ctx mcp diagnose`
+### `cortex mcp diagnose`
 
 Run comprehensive diagnostics on all configured servers.
 
@@ -178,10 +178,10 @@ Run comprehensive diagnostics on all configured servers.
 **Example:**
 
 ```bash
-claude-ctx mcp diagnose
+cortex mcp diagnose
 ```
 
-### `claude-ctx mcp snippet <server>`
+### `cortex mcp snippet <server>`
 
 Generate a JSON configuration snippet for a server.
 
@@ -198,7 +198,7 @@ Generate a JSON configuration snippet for a server.
 **Example:**
 
 ```bash
-claude-ctx mcp snippet magic
+cortex mcp snippet magic
 # Copy output to claude_desktop_config.json
 ```
 
@@ -206,7 +206,7 @@ claude-ctx mcp snippet magic
 
 ### Accessing MCP View
 
-1. Launch TUI: `claude-ctx tui`
+1. Launch TUI: `cortex tui`
 2. Press `7` to navigate to MCP Servers view
 
 ### MCP View Features
@@ -414,7 +414,7 @@ class MCPServerInfo:
 
 1. Check config file exists at platform-specific location
 2. Add `mcpServers` object to JSON
-3. Run `claude-ctx mcp diagnose` to verify
+3. Run `cortex mcp diagnose` to verify
 
 ### "Server not found: xyz"
 
@@ -422,7 +422,7 @@ class MCPServerInfo:
 
 **Solution:**
 
-1. Run `claude-ctx mcp list` to see available servers
+1. Run `cortex mcp list` to see available servers
 2. Check spelling and case (search is case-insensitive)
 3. Verify server in Claude Desktop config
 
@@ -457,7 +457,7 @@ class MCPServerInfo:
 chmod 644 ~/Library/Application\ Support/Claude/claude_desktop_config.json
 
 # Or run with proper permissions
-sudo claude-ctx mcp list
+sudo cortex mcp list
 ```
 
 ## Best Practices
@@ -468,14 +468,14 @@ Create documentation for all custom MCP servers in `~/.claude/mcp/docs/`.
 
 ### 2. Validate Regularly
 
-Run `claude-ctx mcp diagnose` after config changes.
+Run `cortex mcp diagnose` after config changes.
 
 ### 3. Use Snippets
 
 Generate and review snippets before manual config edits:
 
 ```bash
-claude-ctx mcp snippet myserver > snippet.json
+cortex mcp snippet myserver > snippet.json
 # Review snippet.json before adding to config
 ```
 
@@ -497,7 +497,7 @@ Track `~/.claude/mcp/docs/` in git for team consistency.
 Always test after adding:
 
 ```bash
-claude-ctx mcp test newserver
+cortex mcp test newserver
 ```
 
 ## Integration with /tools:select

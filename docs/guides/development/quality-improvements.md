@@ -6,7 +6,7 @@ nav_order: 9
 
 # Quality Improvements & DevOps
 
-Comprehensive overview of testing infrastructure, code refactoring, error handling, and installation automation added to claude-ctx.
+Comprehensive overview of testing infrastructure, code refactoring, error handling, and installation automation added to cortex.
 
 > **Status:** Production Ready
 > **Grade:** A (95/100) - Improved from B+ (85/100)
@@ -16,7 +16,7 @@ Comprehensive overview of testing infrastructure, code refactoring, error handli
 
 ## Overview
 
-The claude-ctx project underwent major quality improvements addressing all critical and high-priority issues identified in code analysis:
+The cortex project underwent major quality improvements addressing all critical and high-priority issues identified in code analysis:
 
 ✅ **Testing Infrastructure** - 150+ tests with 80% coverage target
 ✅ **Code Refactoring** - core.py split into 9 focused modules
@@ -73,9 +73,9 @@ pytest tests/unit/test_composer.py
 pytest -m unit
 pytest -m integration
 
-# Using make
-make test          # Run all tests
-make test-cov      # Run with coverage
+# Using just
+just test          # Run all tests
+just test-cov      # Run with coverage
 ```
 
 ### Test Examples
@@ -289,9 +289,9 @@ mypy claude_ctx_py/composer.py claude_ctx_py/versioner.py
 # Check all modules (informational)
 mypy claude_ctx_py/
 
-# Using make
-make type-check      # Phase 4 only
-make type-check-all  # All modules
+# Using just
+just type-check      # Phase 4 only
+just type-check-all  # All modules
 ```
 
 ### Type Hints Example
@@ -359,7 +359,7 @@ try:
 except SkillNotFoundError:
     return 1, (
         f"Skill '{skill_name}' not found.\n"
-        "  Run 'claude-ctx skills list' to see available skills."
+        "  Run 'cortex skills list' to see available skills."
     )
 except FileAccessError as exc:
     return 1, (
@@ -394,7 +394,7 @@ format_error_for_cli(exc) -> str
 **SkillNotFoundError:**
 ```
 Skill 'react-hooks' not found in: /home/user/.claude/skills
-  Hint: Run 'claude-ctx skills list' to see available skills
+  Hint: Run 'cortex skills list' to see available skills
 ```
 
 **CircularDependencyError:**
@@ -449,15 +449,15 @@ Invalid version format: '1.2.x'
 Auto-detects your shell and installs completions:
 
 **Bash:**
-- Installs to: `~/.local/share/bash-completion/completions/claude-ctx`
-- Enables: `claude-ctx <TAB>` completion
+- Installs to: `~/.local/share/bash-completion/completions/cortex`
+- Enables: `cortex <TAB>` completion
 
 **Zsh:**
-- Installs to: `~/.local/share/zsh/site-functions/_claude-ctx`
+- Installs to: `~/.local/share/zsh/site-functions/_cortex`
 - Integrates with zsh completion system
 
 **Fish:**
-- Installs to: `~/.config/fish/completions/claude-ctx.fish`
+- Installs to: `~/.config/fish/completions/cortex.fish`
 - Works automatically in new shells
 
 ### Manpage
@@ -466,10 +466,10 @@ Comprehensive manual page documenting all commands:
 
 ```bash
 # View after installation
-man claude-ctx
+man cortex
 
 # Or view locally
-man docs/reference/claude-ctx.1
+man docs/reference/cortex.1
 ```
 
 **Manpage sections:**
@@ -480,20 +480,20 @@ man docs/reference/claude-ctx.1
 - 20+ EXAMPLES
 - Special topics (VERSIONING, ANALYTICS, QUALITY STANDARDS)
 
-### Makefile
+### Justfile
 
-Convenient make targets for development:
+Convenient just targets for development:
 
 ```bash
-make help           # Show all targets
-make install        # Full installation
-make install-dev    # Development mode
-make test           # Run tests
-make test-cov       # Tests with coverage
-make type-check     # Run mypy
-make lint           # Check formatting
-make clean          # Remove artifacts
-make docs           # Start docs server
+just help           # Show all targets
+just install        # Full installation
+just install-dev    # Development mode
+just test           # Run tests
+just test-cov       # Tests with coverage
+just type-check     # Run mypy
+just lint           # Check formatting
+just clean          # Remove artifacts
+just docs           # Start docs server
 ```
 
 ---
@@ -563,7 +563,7 @@ make docs           # Start docs server
 ```bash
 # Clone and install
 git clone https://github.com/NickCrew/claude-cortex.git
-cd claude-ctx-plugin
+cd cortex-plugin
 
 # Install with dev dependencies
 ./scripts/deprecated/install.sh
@@ -588,7 +588,7 @@ mypy claude_ctx_py/some_module.py
 black claude_ctx_py/
 
 # 5. Run full test suite
-make test-cov
+just test-cov
 
 # 6. Commit
 git add .
@@ -602,7 +602,7 @@ git commit -m "Your changes"
 ### Pre-commit Checklist
 
 - [ ] All tests pass: `pytest`
-- [ ] Type checking passes: `make type-check`
+- [ ] Type checking passes: `just type-check`
 - [ ] Coverage ≥ 80%: Check `htmlcov/index.html`
 - [ ] Code formatted: `black claude_ctx_py/`
 - [ ] No linting errors
@@ -635,7 +635,7 @@ git commit -m "Your changes"
 
 **Installation (3 files):**
 - `scripts/deprecated/install.sh` - Unified installer
-- `docs/reference/claude-ctx.1` - Manpage
+- `docs/reference/cortex.1` - Manpage
 - `justfile` - Development targets
 
 ### Modified Files (12)

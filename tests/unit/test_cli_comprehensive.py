@@ -27,7 +27,7 @@ def mock_print():
 @pytest.fixture
 def mock_sys_argv():
     """Reset sys.argv."""
-    with mock.patch.object(sys, "argv", ["claude-ctx"]):
+    with mock.patch.object(sys, "argv", ["cortex"]):
         yield
 
 # --------------------------------------------------------------------------- Main Entry Point
@@ -37,7 +37,7 @@ def test_main_env_setup(mock_core, mock_print):
     with mock.patch.dict(os.environ, {}, clear=True):
         cli.main(["--scope", "global", "--plugin-root", "/tmp/test", "status"])
         assert os.environ["CLAUDE_PLUGIN_ROOT"] == "/tmp/test"
-        assert os.environ["CLAUDE_CTX_SCOPE"] == "global"
+        assert os.environ["CORTEX_SCOPE"] == "global"
 
 def test_main_dispatch_status(mock_core, mock_print):
     """Test dispatching to status command."""

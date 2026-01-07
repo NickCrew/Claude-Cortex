@@ -8,7 +8,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Get script directory (claude-ctx-plugin root)
+# Get script directory (cortex-plugin root)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -84,5 +84,5 @@ echo "  Total: $FLAG_COUNT flag files"
 echo ""
 echo "Next steps:"
 echo "1. Edit .claude/CLAUDE.md to enable/disable flags"
-echo "2. Use claude-ctx tui → Press Ctrl+G for flag manager"
-echo "3. Or use profiles: claude-ctx profile apply <profile>"
+echo "2. Use cortex tui → Press Ctrl+G for flag manager"
+echo "3. Or use profiles: cortex profile apply <profile>"

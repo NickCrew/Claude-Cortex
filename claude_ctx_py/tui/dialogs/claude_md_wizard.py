@@ -365,7 +365,7 @@ class ClaudeMdWizard(ModalScreen[Optional[WizardConfig]]):
 
         if not self.available["prompts"]:
             yield Static(
-                "[dim]No prompts found. Create prompts in ~/.claude/prompts/[/dim]",
+                "[dim]No prompts found. Create prompts in ~/.cortex/prompts/[/dim]",
                 classes="section-desc",
             )
             return

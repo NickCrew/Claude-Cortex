@@ -495,12 +495,12 @@ grep CODE_REVIEW_REQUIRED ~/.claude/hooks/implementation-quality-gate.sh
 ### Agents Not Activating
 **Check:** Agent status
 ```bash
-claude-ctx agent status | grep -E "(quality-engineer|code-reviewer)"
+cortex agent status | grep -E "(quality-engineer|code-reviewer)"
 ```
 
 **Fix:** Activate manually
 ```bash
-claude-ctx agent activate quality-engineer code-reviewer
+cortex agent activate quality-engineer code-reviewer
 ```
 
 ### Too Many Issues Found

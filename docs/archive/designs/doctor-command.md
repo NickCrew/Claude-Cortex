@@ -1,12 +1,12 @@
 # Design: Doctor Command (`/ctx:doctor`)
 
 ## Objective
-Implement a `doctor` command (`claude-ctx doctor`) to diagnose, validate, and optimize the `claude-ctx` environment. This tool acts as a system health check, ensuring the integrity of Claude's context.
+Implement a `doctor` command (`cortex doctor`) to diagnose, validate, and optimize the `cortex` environment. This tool acts as a system health check, ensuring the integrity of Claude's context.
 
 ## Core Responsibilities
 
 1.  **Consistency Verification (Real vs. Expected Context)**
-    *   **Goal:** Ensure `claude-ctx`'s internal state matches the actual file system.
+    *   **Goal:** Ensure `cortex`'s internal state matches the actual file system.
     *   **Checks:**
         *   Verify all entries in `.active-modes`, `.active-rules`, etc., point to existing files.
         *   Verify that all required "Base" agents/modes for the active profile are actually present.
@@ -59,7 +59,7 @@ class Diagnosis:
 
 ## Usage
 ```bash
-claude-ctx doctor
+cortex doctor
 # Output:
 # [ERROR] Consistency: Active mode 'debugging' references missing file 'modes/debugging.md'.
 # [WARN]  Optimization: Agent 'verbose-logger' is 25KB. Consider splitting.
@@ -67,6 +67,6 @@ claude-ctx doctor
 ```
 
 ```bash
-claude-ctx doctor --fix
+cortex doctor --fix
 # Attempts to auto-resolve issues (e.g., removing missing entries from .active-* files).
 ```

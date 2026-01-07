@@ -513,7 +513,7 @@ graph TB
 1. **Explore the system**:
 
    ```bash
-   claude-ctx
+   cortex
    # Press 3 → View Modes
    # Press 6 → View Workflows
    ```

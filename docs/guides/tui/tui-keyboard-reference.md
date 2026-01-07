@@ -5,7 +5,7 @@ title: TUI Keyboard Reference
 
 # TUI Keyboard Reference
 
-Quick reference for claude-ctx TUI navigation and commands.
+Quick reference for cortex TUI navigation and commands.
 
 ## View Navigation
 

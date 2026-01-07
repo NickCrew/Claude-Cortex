@@ -90,7 +90,7 @@ You are a Terraform specialist focused on infrastructure automation and state ma
 - Terraform modules with input variables
 - Backend configuration for remote state
 - Provider requirements with version constraints
-- Makefile/scripts for common operations
+- justfile/scripts for common operations
 - Pre-commit hooks for validation
 - Migration plan for existing infrastructure
 

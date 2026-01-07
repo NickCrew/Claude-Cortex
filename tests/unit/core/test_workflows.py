@@ -10,8 +10,8 @@ from claude_ctx_py.core import workflows
 
 @pytest.fixture
 def temp_claude_dir(tmp_path):
-    """Create a temporary .claude directory structure."""
-    claude_dir = tmp_path / ".claude"
+    """Create a temporary .cortex directory structure."""
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir()
     (claude_dir / "workflows").mkdir()
     (claude_dir / "tasks").mkdir()
@@ -26,11 +26,11 @@ def sample_workflow(temp_claude_dir):
 description: Deploys the current build to production environment
 steps:
   - name: Build
-    command: make build
+    command: just build
   - name: Test
-    command: make test
+    command: just test
   - name: Deploy
-    command: make deploy
+    command: just deploy
 """
     workflow_path.write_text(content, encoding="utf-8")
     return "deploy-prod"
@@ -57,8 +57,8 @@ def test_workflow_list_missing_dir(tmp_path, monkeypatch):
     """Test listing when workflows directory is missing."""
     empty_home = tmp_path / "empty"
     empty_home.mkdir()
-    (empty_home / ".claude").mkdir()
-    monkeypatch.setattr(workflows, "_resolve_claude_dir", lambda h=None: empty_home / ".claude")
+    (empty_home / ".cortex").mkdir()
+    monkeypatch.setattr(workflows, "_resolve_claude_dir", lambda h=None: empty_home / ".cortex")
     
     result = workflows.workflow_list()
     # Returns just header if directory missing

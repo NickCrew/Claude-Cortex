@@ -88,7 +88,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
 Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="doc-grid">
-  <a href="{{ '/presentations/claude-ctx-overview.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/cortex-overview.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Cortex Intro Overview</h3>
     <p>High-level story of the platform: AI intelligence, watch mode, asset manager, visual excellence, and multi-LLM consult. Great for quick introductions.</p>
     <p class="muted"><strong>Topics:</strong> AI Intelligence • Watch Mode • Asset Manager • Visual Excellence • Multi-LLM Consult • Recent Improvements</p>
@@ -99,7 +99,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     </div>
   </a>
 
-  <a href="{{ '/presentations/claude-ctx-technical-deep-dive.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/cortex-technical-deep-dive.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Technical Deep Dive</h3>
     <p>Deep focus on activation, recommendations, intelligence signals, watch mode loops, skill ratings, and plugin/CLI integration.</p>
     <p class="muted"><strong>Topics:</strong> Activation Pipeline • Intelligence Signals • Watch Mode • Skill Ratings • Install Flow • Plugin + CLI</p>
@@ -110,7 +110,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     </div>
   </a>
 
-  <a href="{{ '/presentations/claude-ctx-executive-roadmap.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/cortex-executive-roadmap.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Executive Overview & Roadmap</h3>
     <p>Executive-friendly narrative with capability highlights, recent improvements, adoption plan, and phased roadmap.</p>
     <p class="muted"><strong>Topics:</strong> Business Value • Capability Highlights • Recent Improvements • Roadmap • Adoption • Risks</p>
@@ -633,6 +633,8 @@ cortex agent graph --export dependency-map.md
 
 For more detailed setup guidance (including shell completion and CLI overrides) see [guides/getting-started.md](guides/getting-started.md).
 
+After adding new CLI subcommands, regenerate shell completions so the new options appear.
+
 ---
 
 ## Setup, Init & Migration
@@ -659,7 +661,7 @@ cortex setup migrate
 
 The CLI resolves its workspace using the following precedence:
 
-1. `CLAUDE_CTX_SCOPE` (project/global/plugin)
+1. `CORTEX_SCOPE` (project/global/plugin)
 2. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
 3. `~/.claude`
 
@@ -1222,10 +1224,10 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Adding Commands
 
-1. Choose appropriate namespace under `commands/`
-2. Create markdown file following template structure
-3. Add to namespace README.md
-4. Update command count in this index
+1. Pick a namespace and command name (e.g., `analyze:doctor`)
+2. Create a markdown file in `commands/` (colon replaced with dash, e.g., `commands/analyze-doctor.md`)
+3. Set `name: "analyze:doctor"` in front matter
+4. Update command count in this index if needed
 
 ### Creating Agents
 
@@ -1286,6 +1288,8 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 - [Super Saiyan Mode](features/SUPER_SAIYAN_MODE.html) - Visual excellence framework
 - [Kamehameha Overview](features/KAMEHAMEHA_OVERVIEW.html) - Power levels and activation
+- [Contextual RAG](features/contextual-rag.html) - Enhanced retrieval with situated context
+- [Frontend Aesthetics](features/frontend-aesthetics.html) - Performance-first UI generation
 - [Super Saiyan Integration](guides/features/SUPER_SAIYAN_INTEGRATION.html) - Integration guide
 - [Parallel Orchestration](guides/development/PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
 - [Quality Improvements](guides/development/quality-improvements.html) - Code quality enhancements

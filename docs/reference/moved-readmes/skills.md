@@ -77,13 +77,13 @@ skills:                             # NEW: Skills this agent can activate
 
 ```bash
 # List available skills
-claude-ctx skills list
+cortex skills list
 
 # Show skill details
-claude-ctx skills info api-design-patterns
+cortex skills info api-design-patterns
 
 # Show which agents use a skill
-claude-ctx skills deps api-design-patterns
+cortex skills deps api-design-patterns
 ```
 
 ### Activation Triggers
@@ -142,10 +142,10 @@ skills:
 ### 5. Validate
 ```bash
 # Ensure skill metadata is valid
-claude-ctx skills validate your-skill-name
+cortex skills validate your-skill-name
 
 # Test skill loading
-claude-ctx skills info your-skill-name
+cortex skills info your-skill-name
 ```
 
 ## Existing Skills
@@ -369,7 +369,7 @@ Bad:
 - [ ] No emojis unless explicitly requested
 - [ ] Grammar and spelling checked
 - [ ] Links to official documentation included
-- [ ] Validated with `claude-ctx skills validate`
+- [ ] Validated with `cortex skills validate`
 
 ## Benefits vs. Full Agent Loading
 

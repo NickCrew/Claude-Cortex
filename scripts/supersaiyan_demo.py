@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Super Saiyan TUI Demo for claude-ctx.
+"""Super Saiyan TUI Demo for cortex.
 
 This demo showcases the enhanced TUI components with Super Saiyan styling.
 

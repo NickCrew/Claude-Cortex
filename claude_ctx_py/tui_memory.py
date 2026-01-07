@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+import re
+from typing import Optional, List, Dict, Any
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -21,7 +22,16 @@ from textual.widgets import (
 from textual import on
 
 from .tui_icons import Icons
-from .memory import list_notes, read_note, NoteType, create_note
+from .memory import (
+    list_notes,
+    read_note,
+    NoteType,
+    memory_remember,
+    memory_project,
+    memory_capture,
+    memory_fix,
+)
+from .tui.dialogs import MemoryNoteCreateDialog
 
 
 class MemoryScreen(Screen[None]):
@@ -188,5 +198,76 @@ class MemoryScreen(Screen[None]):
         self.notify("Memory Vault refreshed")
 
     def action_new_note(self) -> None:
-        """Create a new note (placeholder)."""
-        self.notify("New note creation coming soon!", severity="information")
+        """Create a new note."""
+        dialog = MemoryNoteCreateDialog("New Memory Note")
+        self.app.push_screen(dialog, callback=self._handle_new_note_create)
+
+    def _normalize_note_type(self, raw: str) -> Optional[str]:
+        note_type = raw.strip().lower()
+        aliases = {
+            "knowledge": "knowledge",
+            "project": "projects",
+            "projects": "projects",
+            "session": "sessions",
+            "sessions": "sessions",
+            "fix": "fixes",
+            "fixes": "fixes",
+        }
+        return aliases.get(note_type)
+
+    def _handle_new_note_create(self, result: Optional[Dict[str, str]]) -> None:
+        if not result:
+            return
+
+        note_type_raw = result.get("note_type", "")
+        title = result.get("title", "").strip()
+        summary = result.get("summary", "").strip()
+
+        if not title:
+            self.notify("Note title is required", severity="warning", timeout=2)
+            return
+
+        note_type = self._normalize_note_type(note_type_raw)
+        if not note_type:
+            self.notify(
+                "Invalid note type. Use: knowledge, projects, sessions, fixes",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        try:
+            if note_type == "knowledge":
+                text = summary or "Captured via TUI"
+                exit_code, message = memory_remember(text=text, topic=title)
+            elif note_type == "projects":
+                exit_code, message = memory_project(
+                    name=title,
+                    purpose=summary or None,
+                    path=None,
+                    related=None,
+                    update=False,
+                )
+            elif note_type == "sessions":
+                session_summary = summary or "Session captured via TUI"
+                exit_code, message = memory_capture(
+                    title=title,
+                    summary=session_summary,
+                    quick=True,
+                )
+            else:
+                problem = summary or "Issue documented via TUI"
+                exit_code, message = memory_fix(
+                    title=title,
+                    problem=problem,
+                )
+        except Exception as e:
+            self.notify(f"Error creating note: {e}", severity="error")
+            return
+
+        clean = re.sub(r"\x1b\[[0-9;]*m", "", message)
+        if exit_code == 0:
+            self.notify(clean or "Created memory note", severity="information", timeout=2)
+            self.load_notes(self.query_one("#search-input", Input).value)
+        else:
+            self.notify(clean or "Failed to create memory note", severity="error", timeout=3)

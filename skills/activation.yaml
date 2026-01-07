@@ -437,7 +437,7 @@ skills:
 
   context-health:
     keywords:
-      - "claude-ctx doctor"
+      - "cortex doctor"
       - "claude ctx doctor"
       - "context health"
       - "context health check"

@@ -1,4 +1,4 @@
-"""Token counting utilities for claude-ctx.
+"""Token counting utilities for cortex.
 
 This module provides token estimation for markdown files to help users
 understand their context window usage.
@@ -100,7 +100,7 @@ def get_active_context_tokens(
     """Get token counts for all active context components.
 
     Args:
-        claude_dir: Path to .claude directory (auto-detected if None)
+        claude_dir: Path to cortex directory (auto-detected if None)
 
     Returns:
         Tuple of (category_stats, total_stats)

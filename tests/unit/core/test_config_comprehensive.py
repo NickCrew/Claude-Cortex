@@ -139,15 +139,15 @@ class TestConfigPersistence:
 def sample_config():
     """Provide sample configuration data."""
     return {
-        "app_name": "claude-ctx",
+        "app_name": "cortex",
         "version": "0.1.0",
         "settings": {
             "debug": False,
             "log_level": "INFO"
         },
         "paths": {
-            "config": "~/.claude",
-            "cache": "~/.cache/claude-ctx"
+            "config": "~/.cortex",
+            "cache": "~/.cache/cortex"
         }
     }
 
@@ -163,8 +163,8 @@ def config_file(tmp_path):
 def mock_env_vars(monkeypatch):
     """Provide mock environment variables."""
     env_vars = {
-        "CLAUDE_CTX_DEBUG": "true",
-        "CLAUDE_CTX_LOG_LEVEL": "DEBUG"
+        "CORTEX_DEBUG": "true",
+        "CORTEX_LOG_LEVEL": "DEBUG"
     }
     for key, value in env_vars.items():
         monkeypatch.setenv(key, value)

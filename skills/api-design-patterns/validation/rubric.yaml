@@ -1,0 +1,66 @@
+# API Design Patterns Skill Quality Rubric
+version: "1.0.0"
+skill_name: api-design-patterns
+evaluated_date: "2026-01-05"
+
+dimensions:
+  clarity:
+    weight: 25
+    description: "Clear explanation of API patterns with progressive complexity"
+    criteria:
+      - "REST vs GraphQL distinctions are clear"
+      - "Versioning strategies explained with trade-offs"
+      - "Pagination patterns have visual examples"
+      - "Error handling codes are well-organized"
+
+  completeness:
+    weight: 25
+    description: "Comprehensive coverage of API design topics"
+    criteria:
+      - "Covers all major HTTP methods and status codes"
+      - "Includes authentication patterns"
+      - "Has HATEOAS explanation"
+      - "Covers rate limiting and caching"
+
+  accuracy:
+    weight: 30
+    description: "Correct REST/GraphQL conventions and security"
+    criteria:
+      - "Follows HTTP specification correctly"
+      - "Security headers are documented"
+      - "OAuth flows are accurate"
+      - "GraphQL best practices are current"
+
+  usefulness:
+    weight: 20
+    description: "Practical API design guidance"
+    criteria:
+      - "Examples work with common frameworks"
+      - "Includes real-world API examples"
+      - "Migration strategies provided"
+      - "Testing endpoints covered"
+
+passing_criteria:
+  minimum_score: 3.5
+  target_score: 4.0
+  exceptional_score: 4.5
+  required_dimensions:
+    - accuracy
+  blocking_issues:
+    - "Security vulnerabilities in authentication examples"
+    - "Incorrect HTTP status code mappings"
+    - "Deprecated OAuth practices"
+
+scoring_guide:
+  clarity:
+    "1": "API concepts jumbled, no structure"
+    "2": "Some organization but confusing examples"
+    "3": "Adequate structure, understandable"
+    "4": "Well-organized with clear examples"
+    "5": "Exceptional clarity with visual aids"
+  accuracy:
+    "1": "Fundamentally wrong HTTP/REST guidance"
+    "2": "Multiple specification violations"
+    "3": "Mostly correct, minor issues"
+    "4": "Follows specifications correctly"
+    "5": "Authoritative, RFC-compliant"

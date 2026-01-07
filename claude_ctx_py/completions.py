@@ -1,21 +1,21 @@
-"""Shell completion generation for claude-ctx."""
+"""Shell completion generation for cortex."""
 
 from __future__ import annotations
 
 
 def generate_bash_completion() -> str:
     """Generate bash completion script."""
-    return """# Bash completion for claude-ctx
+    return """# Bash completion for cortex
 # Source this file or add it to ~/.bash_completion.d/
 
-_claude_ctx_completion() {
+_cortex_completion() {
     local cur prev opts base
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Top-level commands
-    local commands="mode agent rules principles skills mcp init profile workflow tui version completion install help doctor"
+    local commands="mode agent rules principles skills mcp init profile workflow start claude tui version completion install help doctor setup"
 
     # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -33,7 +33,7 @@ _claude_ctx_completion() {
                 COMPREPLY=($(compgen -W "${mode_cmds}" -- ${cur}))
             elif [[ ${prev} == "activate" ]] || [[ ${prev} == "deactivate" ]]; then
                 # Complete with available modes
-                local modes=$(claude-ctx mode list 2>/dev/null | grep -v "^Available" | grep -v "^  " | awk '{print $1}')
+                local modes=$(cortex mode list 2>/dev/null | grep -v "^Available" | grep -v "^  " | awk '{print $1}')
                 COMPREPLY=($(compgen -W "${modes}" -- ${cur}))
             fi
             ;;
@@ -43,7 +43,7 @@ _claude_ctx_completion() {
                 COMPREPLY=($(compgen -W "${agent_cmds}" -- ${cur}))
             elif [[ ${prev} == "activate" ]] || [[ ${prev} == "deactivate" ]] || [[ ${prev} == "deps" ]]; then
                 # Complete with available agents
-                local agents=$(claude-ctx agent list 2>/dev/null | grep -v "^Available" | sed 's/ .*//' | awk '{print $1}')
+                local agents=$(cortex agent list 2>/dev/null | grep -v "^Available" | sed 's/ .*//' | awk '{print $1}')
                 COMPREPLY=($(compgen -W "${agents}" -- ${cur}))
             fi
             ;;
@@ -77,6 +77,14 @@ _claude_ctx_completion() {
                 COMPREPLY=($(compgen -W "${init_cmds}" -- ${cur}))
             fi
             ;;
+        setup)
+            local setup_cmds="migrate migrate-commands"
+            if [[ ${COMP_CWORD} -eq 2 ]]; then
+                COMPREPLY=($(compgen -W "${setup_cmds}" -- ${cur}))
+            elif [[ ${prev} == "migrate-commands" ]]; then
+                COMPREPLY=($(compgen -W "--dry-run --force" -- ${cur}))
+            fi
+            ;;
         profile)
             local profile_cmds="list apply create edit show"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
@@ -106,16 +114,16 @@ _claude_ctx_completion() {
     return 0
 }
 
-complete -F _claude_ctx_completion claude-ctx
+complete -F _cortex_completion cortex
 """
 
 
 def generate_zsh_completion() -> str:
     """Generate zsh completion script."""
-    return """#compdef claude-ctx
-# Zsh completion for claude-ctx
+    return """#compdef cortex
+# Zsh completion for cortex
 
-_claude_ctx() {
+_cortex() {
     local -a commands
     commands=(
         'mode:Mode management commands'
@@ -125,8 +133,11 @@ _claude_ctx() {
         'skills:Skill management commands'
         'mcp:MCP server management'
         'init:Initialize project configuration'
+        'setup:Setup and migration commands'
         'profile:Profile management'
         'workflow:Workflow management'
+        'start:Launch Claude Code with Cortex configuration'
+        'claude:Alias for start'
         'tui:Launch terminal UI'
         'doctor:Diagnose and fix context issues'
         'version:Show version information'
@@ -216,13 +227,19 @@ _claude_ctx() {
         'package:Install via pip/uv/pipx'
     )
 
+    local -a setup_commands
+    setup_commands=(
+        'migrate:Migrate CLAUDE.md activation to file-based rules/modes'
+        'migrate-commands:Flatten legacy commands layout'
+    )
+
     _arguments -C \
         '1: :->command' \
         '*::arg:->args'
 
     case $state in
         command)
-            _describe -t commands 'claude-ctx command' commands
+            _describe -t commands 'cortex command' commands
             ;;
         args)
             case $words[1] in
@@ -295,6 +312,15 @@ _claude_ctx() {
                             ;;
                     esac
                     ;;
+                setup)
+                    _arguments \
+                        '1: :->setup_command'
+                    case $state in
+                        setup_command)
+                            _describe -t setup_commands 'setup command' setup_commands
+                            ;;
+                    esac
+                    ;;
                 install)
                     _arguments \
                         '1: :->install_command'
@@ -309,94 +335,103 @@ _claude_ctx() {
     esac
 }
 
-_claude_ctx "$@"
+_cortex "$@"
 """
 
 
 def generate_fish_completion() -> str:
     """Generate fish completion script."""
-    return """# Fish completion for claude-ctx
+    return """# Fish completion for cortex
 
 # Top-level commands
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "agent" -d "Agent management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "rules" -d "Rule management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "principles" -d "Principles snippet management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "skills" -d "Skill management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "mcp" -d "MCP server management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "init" -d "Initialize project"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "profile" -d "Profile management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "workflow" -d "Workflow management"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "tui" -d "Launch terminal UI"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "version" -d "Show version"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "completion" -d "Generate completions"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "install" -d "Install integrations"
-complete -c claude-ctx -f -n "__fish_use_subcommand" -a "help" -d "Show help"
+complete -c cortex -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "agent" -d "Agent management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "rules" -d "Rule management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "principles" -d "Principles snippet management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "skills" -d "Skill management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "mcp" -d "MCP server management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "init" -d "Initialize project"
+complete -c cortex -f -n "__fish_use_subcommand" -a "setup" -d "Setup and migration commands"
+complete -c cortex -f -n "__fish_use_subcommand" -a "profile" -d "Profile management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "workflow" -d "Workflow management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "start" -d "Launch Claude Code with Cortex configuration"
+complete -c cortex -f -n "__fish_use_subcommand" -a "claude" -d "Alias for start"
+complete -c cortex -f -n "__fish_use_subcommand" -a "tui" -d "Launch terminal UI"
+complete -c cortex -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
+complete -c cortex -f -n "__fish_use_subcommand" -a "version" -d "Show version"
+complete -c cortex -f -n "__fish_use_subcommand" -a "completion" -d "Generate completions"
+complete -c cortex -f -n "__fish_use_subcommand" -a "install" -d "Install integrations"
+complete -c cortex -f -n "__fish_use_subcommand" -a "help" -d "Show help"
 
 # Doctor subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from doctor" -l "fix" -d "Attempt auto-fix"
+complete -c cortex -f -n "__fish_seen_subcommand_from doctor" -l "fix" -d "Attempt auto-fix"
 
 # Mode subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available modes"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active modes"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate modes"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate modes"
+complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available modes"
+complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active modes"
+complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate modes"
+complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate modes"
 
 # Agent subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "list" -d "List available agents"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "status" -d "Show active agents"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "activate" -d "Activate agents"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deactivate" -d "Deactivate agents"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deps" -d "Show dependencies"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "graph" -d "Display graph"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "validate" -d "Validate metadata"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "list" -d "List available agents"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "status" -d "Show active agents"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "activate" -d "Activate agents"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deactivate" -d "Deactivate agents"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deps" -d "Show dependencies"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "graph" -d "Display graph"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "validate" -d "Validate metadata"
 
 # Agent deactivate flags
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from deactivate" -l "force" -d "Override dependency checks"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from deactivate" -l "force" -d "Override dependency checks"
+
+# Setup subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from setup; and not __fish_seen_subcommand_from migrate migrate-commands" -a "migrate" -d "Migrate CLAUDE.md activation"
+complete -c cortex -f -n "__fish_seen_subcommand_from setup; and not __fish_seen_subcommand_from migrate migrate-commands" -a "migrate-commands" -d "Flatten legacy commands layout"
+complete -c cortex -f -n "__fish_seen_subcommand_from setup; and __fish_seen_subcommand_from migrate-commands" -l "dry-run" -d "Preview changes"
+complete -c cortex -f -n "__fish_seen_subcommand_from setup; and __fish_seen_subcommand_from migrate-commands" -l "force" -d "Overwrite existing targets"
 
 # Rules subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available rules"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active rules"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate rules"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate rules"
+complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available rules"
+complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active rules"
+complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate rules"
+complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate rules"
 
 # Principles subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "list" -d "List available principle snippets"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "status" -d "Show active principle snippets"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "activate" -d "Activate principle snippets"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "deactivate" -d "Deactivate principle snippets"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "build" -d "Build PRINCIPLES.md"
+complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "list" -d "List available principle snippets"
+complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "status" -d "Show active principle snippets"
+complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "activate" -d "Activate principle snippets"
+complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "deactivate" -d "Deactivate principle snippets"
+complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "build" -d "Build PRINCIPLES.md"
 
 # Skills subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "list" -d "List skills"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "info" -d "Show skill details"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "validate" -d "Validate metadata"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "analyze" -d "Analyze text"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "suggest" -d "Suggest skills"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "metrics" -d "Show metrics"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "community" -d "Community skills"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "list" -d "List skills"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "info" -d "Show skill details"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "validate" -d "Validate metadata"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "analyze" -d "Analyze text"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "suggest" -d "Suggest skills"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "metrics" -d "Show metrics"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "community" -d "Community skills"
 
 # MCP subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "list" -d "List servers"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "show" -d "Show server info"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "docs" -d "Show documentation"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "test" -d "Test configuration"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "diagnose" -d "Diagnose issues"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "snippet" -d "Config snippet"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "list" -d "List servers"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "show" -d "Show server info"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "docs" -d "Show documentation"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "test" -d "Test configuration"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "diagnose" -d "Diagnose issues"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "snippet" -d "Config snippet"
 
 # Completion shells
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "bash" -d "Bash completion"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "zsh" -d "Zsh completion"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from completion" -a "fish" -d "Fish completion"
+complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "bash" -d "Bash completion"
+complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "zsh" -d "Zsh completion"
+complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "fish" -d "Fish completion"
 
 # Install subcommands
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "aliases" -d "Install aliases"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "completions" -d "Install shell completions"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "manpage" -d "Install manpages"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "docs" -d "Install architecture docs"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "post" -d "Run all post-install steps"
-complete -c claude-ctx -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "package" -d "Install via pip/uv/pipx"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "aliases" -d "Install aliases"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "completions" -d "Install shell completions"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "manpage" -d "Install manpages"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "docs" -d "Install architecture docs"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "post" -d "Run all post-install steps"
+complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "package" -d "Install via pip/uv/pipx"
 """
 
 
@@ -441,15 +476,15 @@ def get_installation_instructions(shell: str) -> str:
 # Bash Completion Installation
 
 ## Option 1: System-wide (requires sudo)
-sudo claude-ctx completion bash > /etc/bash_completion.d/claude-ctx
+sudo cortex completion bash > /etc/bash_completion.d/cortex
 
 ## Option 2: User-specific
 mkdir -p ~/.bash_completion.d
-claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
+cortex completion bash > ~/.bash_completion.d/cortex
 
 # Then add to ~/.bashrc:
-if [ -f ~/.bash_completion.d/claude-ctx ]; then
-    . ~/.bash_completion.d/claude-ctx
+if [ -f ~/.bash_completion.d/cortex ]; then
+    . ~/.bash_completion.d/cortex
 fi
 
 # Reload your shell:
@@ -465,7 +500,7 @@ source ~/.bashrc
 mkdir -p ~/.zsh/completions
 
 # Generate completion file
-claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
+cortex completion zsh > ~/.zsh/completions/_cortex
 
 # Add to ~/.zshrc (before compinit):
 fpath=(~/.zsh/completions $fpath)
@@ -473,8 +508,8 @@ autoload -Uz compinit
 compinit
 
 ## Option 2: Direct sourcing
-claude-ctx completion zsh > ~/.zsh/_claude-ctx
-echo 'source ~/.zsh/_claude-ctx' >> ~/.zshrc
+cortex completion zsh > ~/.zsh/_cortex
+echo 'source ~/.zsh/_cortex' >> ~/.zshrc
 
 # Reload your shell:
 source ~/.zshrc
@@ -485,11 +520,11 @@ source ~/.zshrc
 # Fish Completion Installation
 
 ## Automatic installation
-claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+cortex completion fish > ~/.config/fish/completions/cortex.fish
 
 # Completions are loaded automatically on next shell start
 # Or reload immediately:
-source ~/.config/fish/completions/claude-ctx.fish
+source ~/.config/fish/completions/cortex.fish
 """
 
     else:

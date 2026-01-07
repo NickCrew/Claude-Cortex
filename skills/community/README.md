@@ -16,7 +16,7 @@ Community skills are specialized knowledge modules contributed by the developer 
 1. **Fork the repository** and create a new branch
 2. **Copy the template**: `cp skills/community/.template/SKILL.md skills/community/your-skill-name/SKILL.md`
 3. **Write your skill** following the template structure
-4. **Test locally**: `claude-ctx skills validate your-skill-name`
+4. **Test locally**: `cortex skills validate your-skill-name`
 5. **Add registry entry**: Update `skills/community/registry.yaml`
 6. **Submit pull request** with your skill and registry entry
 
@@ -59,7 +59,7 @@ All community skills must meet these minimum standards:
 ### Technical Standards
 
 - [ ] **Token budget**: 500-8,000 tokens (split if larger)
-- [ ] **Validated**: Passes `claude-ctx skills validate`
+- [ ] **Validated**: Passes `cortex skills validate`
 - [ ] **No emojis**: Unless explicitly part of domain (e.g., commit message conventions)
 - [ ] **Consistent formatting**: Follows template structure
 - [ ] **Working examples**: All code examples are syntactically correct
@@ -103,13 +103,13 @@ Follow the progressive disclosure pattern:
 
 ```bash
 # Validate skill structure
-claude-ctx skills validate your-skill-name
+cortex skills validate your-skill-name
 
 # Test skill loading
-claude-ctx skills info your-skill-name
+cortex skills info your-skill-name
 
 # Check token count
-claude-ctx skills info your-skill-name --show-tokens
+cortex skills info your-skill-name --show-tokens
 ```
 
 ### 4. Registry Entry
@@ -154,7 +154,7 @@ your-skill-name:
 [List 3-5 specific trigger scenarios]
 
 ## Testing Checklist
-- [ ] Validated with `claude-ctx skills validate`
+- [ ] Validated with `cortex skills validate`
 - [ ] Token count within budget (500-8,000)
 - [ ] All code examples tested and working
 - [ ] No emojis or promotional content
@@ -272,8 +272,8 @@ Promoted skills remain credited to original author.
 
 - **Template**: `skills/community/.template/SKILL.md`
 - **Examples**: See core skills in `skills/*/SKILL.md`
-- **Validation**: `claude-ctx skills validate --help`
-- **Documentation**: [Project docs](https://nickcrew.github.io/claude-ctx-plugin/)
+- **Validation**: `cortex skills validate --help`
+- **Documentation**: [Project docs](https://nickcrew.github.io/cortex-plugin/)
 
 ### Support Channels
 

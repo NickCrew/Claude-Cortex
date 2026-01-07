@@ -290,10 +290,10 @@ Temporarily disable triggers:
 
 ```bash
 # Disable all triggers
-export CLAUDE_CTX_TRIGGERS=false
+export CORTEX_TRIGGERS=false
 
 # Disable specific agent
-export CLAUDE_CTX_NO_SECURITY_AUDITOR=true
+export CORTEX_NO_SECURITY_AUDITOR=true
 ```
 
 ## Debugging Triggers
@@ -301,7 +301,7 @@ export CLAUDE_CTX_NO_SECURITY_AUDITOR=true
 View what triggered an agent:
 
 ```bash
-claude-ctx triggers explain
-claude-ctx triggers list-active
-claude-ctx triggers test "your request text"
+cortex triggers explain
+cortex triggers list-active
+cortex triggers test "your request text"
 ```

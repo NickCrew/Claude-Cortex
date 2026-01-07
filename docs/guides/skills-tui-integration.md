@@ -26,7 +26,7 @@ from .metrics import (
 
 ### Step 2: Add Methods to AgentTUI Class
 
-1. Open `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py`
+1. Open `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py`
 
 2. Find the AgentTUI class (around line 187)
 
@@ -323,7 +323,7 @@ If you get import errors:
 - Verify core/skills.py exports the necessary functions
 
 ### Skills Don't Load
-- Check ~/.claude/skills directory exists
+- Check ~/.cortex/skills directory exists
 - Verify SKILL.md files have valid frontmatter
 - Check console for error messages
 - Try running: `python -c "from claude_ctx_py.core import list_skills; print(list_skills())"`
@@ -334,7 +334,7 @@ If you get import errors:
 - Verify filtered_skills list is not empty
 
 ### Metrics Don't Show
-- Check ~/.claude/.metrics/skills/stats.json exists
+- Check ~/.cortex/.metrics/skills/stats.json exists
 - Verify metrics.py can be imported
 - Try: `python -c "from claude_ctx_py.metrics import get_all_metrics; print(get_all_metrics())"`
 

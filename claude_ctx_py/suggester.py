@@ -353,6 +353,6 @@ def format_suggestions(suggestions: List[str], reason: str) -> str:
     lines.append(f"Total suggestions: {len(suggestions)}")
     lines.append("")
     lines.append("To activate a skill:")
-    lines.append("  \033[0;33mclaude-ctx skills activate <skill_name>\033[0m")
+    lines.append("  \033[0;33mcortex skills activate <skill_name>\033[0m")
 
     return "\n".join(lines)

@@ -8,7 +8,7 @@ This document provides templates and guidance for tracking the 6 parallel workst
 
 ### Board Structure
 
-**Project Name**: `claude-ctx Comprehensive Improvements`
+**Project Name**: `cortex Comprehensive Improvements`
 
 **Views**:
 1. **By Workstream** (Board view with columns)

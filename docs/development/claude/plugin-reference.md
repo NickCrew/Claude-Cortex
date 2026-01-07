@@ -20,6 +20,8 @@ Plugins add custom slash commands that integrate seamlessly with Claude Code's c
 
 **File format**: Markdown files with frontmatter
 
+**Structure**: Place command files directly under `commands/` (no nested subdirectories).
+
 For complete details on plugin command structure, invocation patterns, and features, see [Plugin commands](/en/slash-commands#plugin-commands).
 
 ### Agents
@@ -651,7 +653,7 @@ This shows:
 | Issue                               | Cause                           | Solution                                                                          |
 | :---------------------------------- | :------------------------------ | :-------------------------------------------------------------------------------- |
 | Plugin not loading                  | Invalid `plugin.json`           | Validate JSON syntax with `claude plugin validate` or `/plugin validate`          |
-| Commands not appearing              | Wrong directory structure       | Ensure `commands/` at root, not in `.claude-plugin/`                              |
+| Commands not appearing              | Wrong directory structure       | Ensure `commands/` is at root, and command files are directly under it            |
 | Hooks not firing                    | Script not executable           | Run `chmod +x script.sh`                                                          |
 | MCP server fails                    | Missing `${CLAUDE_PLUGIN_ROOT}` | Use variable for all plugin paths                                                 |
 | Path errors                         | Absolute paths used             | All paths must be relative and start with `./`                                    |

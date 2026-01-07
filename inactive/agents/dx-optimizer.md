@@ -109,7 +109,7 @@ You are a Developer Experience (DX) optimization specialist. Your mission is to 
 - Improved `package.json` scripts
 - Git hooks configuration
 - IDE configuration files
-- Makefile or task runner setup
+- justfile or task runner setup
 - README improvements
 
 ## Success Metrics

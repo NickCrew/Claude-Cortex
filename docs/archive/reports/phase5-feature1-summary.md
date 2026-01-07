@@ -59,7 +59,7 @@ context_patterns (
 
 **File**: `claude_ctx_py/core/skills.py` + `claude_ctx_py/cli.py`
 
-#### `claude-ctx skills recommend`
+#### `cortex skills recommend`
 - Analyzes current directory context (Python files, project structure)
 - Displays recommendations grouped by confidence level:
   - **HIGH** (≥80%): Green with auto-activate indicator
@@ -88,7 +88,7 @@ No skill recommendations at this time.
 (Skills will be suggested based on project patterns)
 ```
 
-#### `claude-ctx skills feedback <skill> <helpful|not-helpful> [--comment]`
+#### `cortex skills feedback <skill> <helpful|not-helpful> [--comment]`
 - Records user feedback on skill recommendations
 - Updates database for future learning
 - Confirmation message with emoji and colored output
@@ -184,8 +184,8 @@ context = SessionContext(
 ## Testing Results ✅
 
 ### CLI Testing
-- ✅ `claude-ctx skills recommend` - Works, displays "No recommendations" for Python project
-- ✅ `claude-ctx skills feedback test-skill helpful --comment "Great!"` - Successfully records feedback
+- ✅ `cortex skills recommend` - Works, displays "No recommendations" for Python project
+- ✅ `cortex skills feedback test-skill helpful --comment "Great!"` - Successfully records feedback
 - ✅ Database persistence verified (SQLite creates `skill_recommendations.db`)
 - ✅ Colored output formatting works correctly
 

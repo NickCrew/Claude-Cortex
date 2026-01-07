@@ -170,7 +170,7 @@ AGENT_SKILL_MAP = {
 
 ```bash
 # Get recommendations for current project
-claude-ctx skills recommend
+cortex skills recommend
 
 # Example output:
 # 🤖 AI Recommendations (confidence ≥ 0.7)
@@ -189,14 +189,14 @@ claude-ctx skills recommend
 #    Used by: 15 similar Python/FastAPI projects
 
 # Auto-activate high-confidence recommendations
-claude-ctx skills recommend --auto-activate
+cortex skills recommend --auto-activate
 
 # Show recommendation reasoning
-claude-ctx skills recommend --explain <skill-name>
+cortex skills recommend --explain <skill-name>
 
 # Provide feedback on recommendation
-claude-ctx skills feedback <skill-name> --helpful
-claude-ctx skills feedback <skill-name> --not-helpful
+cortex skills feedback <skill-name> --helpful
+cortex skills feedback <skill-name> --not-helpful
 ```
 
 ### TUI Integration
@@ -340,11 +340,11 @@ class SkillRatingCollector:
 
 ```bash
 # Rate a skill after using it
-claude-ctx skills rate owasp-top-10 --stars 5 --helpful
-claude-ctx skills rate api-design-patterns --stars 4 --review "Great patterns but needs more examples"
+cortex skills rate owasp-top-10 --stars 5 --helpful
+cortex skills rate api-design-patterns --stars 4 --review "Great patterns but needs more examples"
 
 # View skill ratings
-claude-ctx skills ratings owasp-top-10
+cortex skills ratings owasp-top-10
 # Output:
 # ⭐⭐⭐⭐⭐ 4.8/5.0 (127 ratings)
 #
@@ -358,11 +358,11 @@ claude-ctx skills ratings owasp-top-10
 # ⭐⭐⭐⭐☆ "Good coverage, could be more concise" (1 week ago)
 
 # List top-rated skills
-claude-ctx skills top-rated --category security
-claude-ctx skills top-rated --category python
+cortex skills top-rated --category security
+cortex skills top-rated --category python
 
 # Filter skills by rating
-claude-ctx skills list --min-rating 4.5
+cortex skills list --min-rating 4.5
 ```
 
 ### Auto-Rating Triggers
@@ -503,26 +503,26 @@ categories:
 
 ```bash
 # Full-text search
-claude-ctx skills search "authentication patterns"
-claude-ctx skills search "kubernetes security"
+cortex skills search "authentication patterns"
+cortex skills search "kubernetes security"
 
 # Filter by category
-claude-ctx skills browse --category security
-claude-ctx skills browse --category testing
+cortex skills browse --category security
+cortex skills browse --category testing
 
 # Filter by tags
-claude-ctx skills find --tags python,testing
-claude-ctx skills find --tags kubernetes,security
+cortex skills find --tags python,testing
+cortex skills find --tags kubernetes,security
 
 # Find similar skills
-claude-ctx skills similar owasp-top-10
+cortex skills similar owasp-top-10
 
 # Trending skills
-claude-ctx skills trending --period week
-claude-ctx skills trending --period month
+cortex skills trending --period week
+cortex skills trending --period month
 
 # Advanced search
-claude-ctx skills search "API design" \
+cortex skills search "API design" \
   --category architecture \
   --min-rating 4.0 \
   --tags rest,graphql
@@ -611,7 +611,7 @@ Comprehensive analytics for skill usage and effectiveness:
 #### Personal Analytics
 
 ```bash
-claude-ctx analytics skills --personal
+cortex analytics skills --personal
 
 # Output:
 # 📊 Your Skill Usage (Last 30 Days)
@@ -633,7 +633,7 @@ claude-ctx analytics skills --personal
 #### Project Analytics
 
 ```bash
-claude-ctx analytics skills --project
+cortex analytics skills --project
 
 # Output:
 # 📊 Project Skill Usage
@@ -655,7 +655,7 @@ claude-ctx analytics skills --project
 #### Skill Performance
 
 ```bash
-claude-ctx analytics skill owasp-top-10
+cortex analytics skill owasp-top-10
 
 # Output:
 # 📊 owasp-top-10 Performance
@@ -707,12 +707,12 @@ Analytics View (New - press '9' in TUI):
 
 ```bash
 # Export analytics to various formats
-claude-ctx analytics skills --export json > skills-analytics.json
-claude-ctx analytics skills --export csv > skills-analytics.csv
-claude-ctx analytics skills --export html > skills-report.html
+cortex analytics skills --export json > skills-analytics.json
+cortex analytics skills --export csv > skills-analytics.csv
+cortex analytics skills --export html > skills-report.html
 
 # Share analytics (anonymized)
-claude-ctx analytics skills --share
+cortex analytics skills --share
 # Generates shareable URL with anonymized metrics
 ```
 
@@ -836,21 +836,21 @@ AUTO_BUNDLE = {
 
 ```bash
 # List available bundles
-claude-ctx bundles list
+cortex bundles list
 
 # Show bundle details
-claude-ctx bundles show full-stack-security
+cortex bundles show full-stack-security
 
 # Activate entire bundle
-claude-ctx bundles activate python-backend-essentials
+cortex bundles activate python-backend-essentials
 
 # Create custom bundle
-claude-ctx bundles create my-stack \
+cortex bundles create my-stack \
   --skills "owasp-top-10,api-design-patterns,python-testing-patterns" \
   --description "My custom skill stack"
 
 # Suggest bundles for current project
-claude-ctx bundles suggest
+cortex bundles suggest
 # Output:
 # 🎯 Recommended Bundles for Your Project
 #
@@ -928,7 +928,7 @@ class UserProfile:
 
 ```bash
 # Get personalized learning path
-claude-ctx skills learn --goal "kubernetes expert"
+cortex skills learn --goal "kubernetes expert"
 
 # Output:
 # 🎓 Learning Path: Kubernetes Expert
@@ -1127,19 +1127,19 @@ claude-ctx skills learn --goal "kubernetes expert"
 # After Phase 5 is released:
 
 # Get AI recommendations
-claude-ctx skills recommend
+cortex skills recommend
 
 # Rate a skill
-claude-ctx skills rate <skill-name> --stars 5 --helpful
+cortex skills rate <skill-name> --stars 5 --helpful
 
 # Search skills
-claude-ctx skills search "kubernetes security"
+cortex skills search "kubernetes security"
 
 # View analytics
-claude-ctx analytics skills --personal
+cortex analytics skills --personal
 
 # Activate a bundle
-claude-ctx bundles activate python-backend-essentials
+cortex bundles activate python-backend-essentials
 ```
 
 ### For Contributors

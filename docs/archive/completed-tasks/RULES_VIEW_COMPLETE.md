@@ -76,17 +76,17 @@ elif self.current_view == "rules":
 
 ## File Locations
 
-**Main Implementation**: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_textual.py`
+**Main Implementation**: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_textual.py`
 
 **Related Files**:
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/rules.py` - rules_activate(), rules_deactivate()
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/base.py` - _iter_md_files(), _parse_active_entries()
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/rules.py` - rules_activate(), rules_deactivate()
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/base.py` - _iter_md_files(), _parse_active_entries()
 
 ## Testing Instructions
 
 1. **Launch the TUI**:
    ```bash
-   cd /Users/nferguson/Developer/personal/claude-ctx-plugin
+   cd /Users/nferguson/Developer/personal/cortex-plugin
    python3 -m claude_ctx_py.tui_textual
    ```
 

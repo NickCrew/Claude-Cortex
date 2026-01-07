@@ -15,16 +15,16 @@ You can enable modes in three ways:
 1. **CLI**
 
    ```bash
-   claude-ctx mode list
-   claude-ctx mode status
-   claude-ctx mode activate Architect
-   claude-ctx mode deactivate Architect
+   cortex mode list
+   cortex mode status
+   cortex mode activate Architect
+   cortex mode deactivate Architect
    ```
 
 2. **TUI**
 
    ```bash
-   claude-ctx tui
+   cortex tui
    # Press 3 for Modes, Space to toggle
    ```
 
@@ -32,7 +32,7 @@ You can enable modes in three ways:
 
    Add mode flags to `FLAGS.md` (for example `--brainstorm` or `--token-efficient`) to auto-activate modes on load.
 
-Active state is stored in `.active-modes`, which makes mode activation consistent across CLI, TUI, and export. Use `claude-ctx setup migrate` to move legacy `CLAUDE.md` references into `.active-modes`.
+Active state is stored in `.active-modes`, which makes mode activation consistent across CLI, TUI, and export. Use `cortex setup migrate` to move legacy `CLAUDE.md` references into `.active-modes`.
 
 ## Mode Catalog
 

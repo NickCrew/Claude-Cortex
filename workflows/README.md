@@ -60,16 +60,16 @@ Pre-defined multi-agent sequences for common development tasks.
 
 ```bash
 # Run a workflow
-claude-ctx workflow run feature-development
+cortex workflow run feature-development
 
 # List available workflows
-claude-ctx workflow list
+cortex workflow list
 
 # Check workflow status
-claude-ctx workflow status
+cortex workflow status
 
 # Resume interrupted workflow
-claude-ctx workflow resume
+cortex workflow resume
 ```
 
 ### Via Natural Language

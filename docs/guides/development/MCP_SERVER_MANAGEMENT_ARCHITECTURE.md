@@ -1110,7 +1110,7 @@ class MCPInstallDialog(ModalScreen[Optional[Dict]]):
 **Usage**:
 
 ```bash
-claude-ctx mcp:list
+cortex mcp:list
 ```
 
 **Output Example**:
@@ -1141,7 +1141,7 @@ MCP Servers:
 **Usage**:
 
 ```bash
-claude-ctx mcp:show context7
+cortex mcp:show context7
 ```
 
 **Output Example**:
@@ -1167,7 +1167,7 @@ Status: Valid
 **Usage**:
 
 ```bash
-claude-ctx mcp:docs context7
+cortex mcp:docs context7
 ```
 
 **Output**: Full markdown content of the documentation file.
@@ -1179,7 +1179,7 @@ claude-ctx mcp:docs context7
 **Usage**:
 
 ```bash
-claude-ctx mcp:test context7
+cortex mcp:test context7
 ```
 
 **Output Example**:
@@ -1202,7 +1202,7 @@ Command:
 **Usage**:
 
 ```bash
-claude-ctx mcp:diagnose
+cortex mcp:diagnose
 ```
 
 **Output Example**:
@@ -1231,7 +1231,7 @@ Some servers have errors ✗
 **Usage**:
 
 ```bash
-claude-ctx mcp:snippet context7
+cortex mcp:snippet context7
 ```
 
 **Output Example**:
@@ -1494,16 +1494,16 @@ Common issues and solutions.
 
 ```bash
 # Verify server appears in registry
-claude-ctx mcp:registry
+cortex mcp:registry
 
 # Test installation
-claude-ctx tui
+cortex tui
 # Press 7, browse to server, install
 
 # Verify configuration
-claude-ctx mcp:list
-claude-ctx mcp:show my-awesome-server
-claude-ctx mcp:test my-awesome-server
+cortex mcp:list
+cortex mcp:show my-awesome-server
+cortex mcp:test my-awesome-server
 ```
 
 ### Implementing Custom Server Discovery

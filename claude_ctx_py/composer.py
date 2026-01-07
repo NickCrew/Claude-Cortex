@@ -29,7 +29,7 @@ def load_composition_map(claude_dir: Path) -> Dict[str, List[str]]:
     """Load skill composition map from YAML file.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping skill names to their dependencies

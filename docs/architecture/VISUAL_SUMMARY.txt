@@ -49,7 +49,7 @@ and a rich terminal user interface for Claude Code.
 │             │ • ...and 9 more specialized modules                         │
 ├─────────────┼─────────────────────────────────────────────────────────────┤
 │ Data        │ File-based storage with YAML frontmatter                    │
-│ (files)     │ • ~/.claude/CLAUDE.md: Main configuration                   │
+│ (files)     │ • ~/.cortex/CLAUDE.md: Main configuration                   │
 │             │ • *.md files: Agents, modes, skills, rules                  │
 │             │ • data/: JSON metrics, SQLite ratings DB                    │
 └─────────────┴─────────────────────────────────────────────────────────────┘
@@ -109,7 +109,7 @@ and a rich terminal user interface for Claude Code.
 │ FILE STRUCTURE                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-  claude-ctx-plugin/
+  cortex-plugin/
   │
   ├── claude_ctx_py/              Python package (source code)
   │   ├── cli.py                  CLI entry point (1,200 lines)
@@ -132,7 +132,7 @@ and a rich terminal user interface for Claude Code.
   │
   └── Configuration files (pyproject.toml, pytest.ini, etc.)
 
-  User Configuration (~/.claude/):
+  User Configuration (~/.cortex/):
   │
   ├── CLAUDE.md                   Main config (active components)
   ├── modes/                      Available modes
@@ -261,13 +261,13 @@ and a rich terminal user interface for Claude Code.
   pip install -e ".[dev]"
 
   # Run CLI
-  claude-ctx --help
-  claude-ctx mode activate Brainstorming
-  claude-ctx ai recommend
-  claude-ctx ai watch
+  cortex --help
+  cortex mode activate Brainstorming
+  cortex ai recommend
+  cortex ai watch
 
   # Run TUI
-  claude-ctx tui
+  cortex tui
 
   # Run tests
   pytest

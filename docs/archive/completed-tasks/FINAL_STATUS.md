@@ -24,7 +24,7 @@ All TUI enhancements are properly configured and installed:
 ## 🚀 Launch and Test
 
 ```bash
-uv run claude-ctx tui
+uv run cortex tui
 ```
 
 ### What You Should See:
@@ -238,7 +238,7 @@ Run through these in order:
 
 2. **Launch TUI**:
    ```bash
-   uv run claude-ctx tui
+   uv run cortex tui
    ```
 
 3. **Check Status Bar**:
@@ -301,7 +301,7 @@ You'll know it's working when:
 
 ### On Launch:
 - Status bar shows "Loading..." briefly
-- Then updates to "[View: Agents] Welcome to claude-ctx TUI │ XXM B Y%"
+- Then updates to "[View: Agents] Welcome to cortex TUI │ XXM B Y%"
 - Performance metrics appear immediately
 - Memory value should be ~40-50MB initially
 

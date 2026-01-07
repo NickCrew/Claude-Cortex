@@ -6,18 +6,18 @@
 - Manual invocation to check system health.
 - After significant changes to agents, modes, or rules.
 - During troubleshooting to diagnose unexpected behavior.
-- Regularly as part of maintenance to ensure an optimized `claude-ctx` environment.
+- Regularly as part of maintenance to ensure an optimized `cortex` environment.
 
 ## Usage
 ```bash
-claude-ctx doctor [--fix]
+cortex doctor [--fix]
 ```
 
 ## Arguments
 - `--fix`: Optional. Attempt to automatically resolve identified issues, such as removing references to non-existent files from `.active-*` lists. (Note: Auto-fix capabilities are under active development).
 
 ## Behavioral Flow
-1.  **Resolve Context:** Determines the active `claude-ctx` directory.
+1.  **Resolve Context:** Determines the active `cortex` directory.
 2.  **Run Checks:** Executes a series of diagnostic checks across different categories:
     *   **Consistency Check:** Verifies that all active components (agents, modes, rules) have corresponding files on the filesystem.
     *   **Duplicate Check:** Identifies agent definition files with identical content (using hash comparison).
@@ -27,7 +27,7 @@ claude-ctx doctor [--fix]
 4.  **Apply Fixes (if `--fix`):** (Future) Attempts to automatically resolve minor issues.
 
 ## Key Behaviors
-- Provides a comprehensive overview of the `claude-ctx` environment's health.
+- Provides a comprehensive overview of the `cortex` environment's health.
 - Offers actionable suggestions for resolving identified problems.
 - Supports an optional auto-fix mode for basic issues.
 - Designed to be extensible with new diagnostic checks.
@@ -52,7 +52,7 @@ claude-ctx doctor [--fix]
 - Direct analysis of active component files
 - Simple report generation
 
-**Note**: This is a CLI command (`claude-ctx doctor`) that runs Python code directly, not a slash command that would use Task tool. Personas guide the diagnostic logic and report formatting.
+**Note**: This is a CLI command (`cortex doctor`) that runs Python code directly, not a slash command that would use Task tool. Personas guide the diagnostic logic and report formatting.
 
 ## Tool Coordination
 - **Python pathlib**: File system operations (direct)
@@ -69,7 +69,7 @@ claude-ctx doctor [--fix]
 
 ### Basic Health Check
 ```bash
-claude-ctx doctor
+cortex doctor
 # Example Output:
 # [PASS] Consistency check
 # [WARN] Duplicate check
@@ -83,11 +83,11 @@ claude-ctx doctor
 
 ### Attempt Auto-Fix
 ```bash
-claude-ctx doctor --fix
+cortex doctor --fix
 # Example Output:
 # [FAIL] Consistency check
 #   - Active mode 'debugging' references missing file (modes/debugging.md)
-#     Suggestion: Run 'claude-ctx mode deactivate debugging'
+#     Suggestion: Run 'cortex mode deactivate debugging'
 # [PASS] Duplicate check
 # [PASS] Redundancy check
 # [PASS] Optimization check

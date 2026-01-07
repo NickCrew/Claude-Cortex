@@ -420,7 +420,7 @@ class ExportViewMixin:
         components = collect_context_components(claude_dir)
 
         preview: Dict[str, Any] = {
-            "type": "claude-ctx-export",
+            "type": "cortex-export",
             "format": "json",
             "components": {},
         }
@@ -435,18 +435,18 @@ class ExportViewMixin:
     def _generate_xml_preview(self) -> str:
         """Generate XML preview."""
         return """<?xml version="1.0"?>
-<claude-ctx-export>
+<cortex-export>
   <format>xml</format>
   <components>
     <!-- Component data will be here -->
   </components>
-</claude-ctx-export>"""
+</cortex-export>"""
 
     def _generate_markdown_preview(self) -> str:
         """Generate Markdown preview."""
         return """# Cortex Context Export
 
-Exported from: ~/.claude
+Exported from: ~/.cortex
 
 ---
 
@@ -480,7 +480,7 @@ Exported from: ~/.claude
             import tempfile
 
             output_path = (
-                Path(tempfile.gettempdir()) / f"claude-ctx-export.{self.export_format}"
+                Path(tempfile.gettempdir()) / f"cortex-export.{self.export_format}"
             )
 
             # TODO: Support format parameter in export_context

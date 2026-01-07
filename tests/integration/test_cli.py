@@ -20,7 +20,7 @@ class TestCLIParser:
         parser = cli.build_parser()
 
         assert parser is not None
-        assert parser.prog == "claude-ctx"
+        assert parser.prog == "cortex"
 
     def test_parser_help(self) -> None:
         """Test parser help output."""
@@ -28,7 +28,7 @@ class TestCLIParser:
         
         # This should not raise
         help_text = parser.format_help()
-        assert "claude-ctx" in help_text
+        assert "cortex" in help_text
 
 
 @pytest.mark.integration
@@ -199,7 +199,7 @@ class TestMainFunction:
         """Test main function with argv as None (uses sys.argv)."""
         # Mock sys.argv
         import sys
-        monkeypatch.setattr(sys, "argv", ["claude-ctx", "status"])
+        monkeypatch.setattr(sys, "argv", ["cortex", "status"])
         
         result = cli.main(None)
         

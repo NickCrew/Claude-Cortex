@@ -38,7 +38,7 @@ Data structure to hold rule information with fields: name, status, category, des
 
 ## File Location
 
-`/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_textual.py`
+`/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_textual.py`
 
 ## How to Use
 

@@ -8,7 +8,7 @@ permalink: /tutorials/
 
 # Cortex Tutorials
 
-Hands-on tutorials to help you master claude-ctx from beginner to advanced.
+Hands-on tutorials to help you master cortex from beginner to advanced.
 
 ## 🎓 Learning Path
 
@@ -34,20 +34,20 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 ### Beginner
 
-- **[Getting Started with TUI](getting-started-tui/)** — Your first 30 minutes with claude-ctx
+- **[Getting Started with TUI](getting-started-tui/)** — Your first 30 minutes with cortex
 - *Coming Soon:* **Quick CLI Reference** — Essential commands for power users
 
 ### Intermediate
 
 - *Coming Soon:* **Custom Profiles** — Create project-specific configurations
-- *Coming Soon:* **AI Watch Mode** — Real-time intelligent recommendations
-- *Coming Soon:* **Workflow Orchestration** — Multi-step automation
+- **[AI Watch Mode](ai-watch-mode/)** — Real-time intelligent recommendations
+- **[Workflow Orchestration](workflow-orchestration/)** — Multi-phase scenario management
 
 ### Advanced
 
 - *Coming Soon:* **Custom Workflows** — Build YAML-based automation
-- *Coming Soon:* **Custom Skills** — Create reusable knowledge modules
-- *Coming Soon:* **CI/CD Integration** — Automate context management
+- **[Skill Authoring Cookbook](skill-authoring-cookbook/)** — Create reusable knowledge modules
+- **[CI/CD Integration](ci-cd-integration/)** — Automate context in pipelines
 
 ---
 
@@ -61,8 +61,8 @@ Hands-on tutorials to help you master claude-ctx from beginner to advanced.
 
 ### Reference Materials
 
-- `man claude-ctx` — Complete CLI reference (requires installation)
-- `claude-ctx --help` — Built-in command help
+- `man cortex` — Complete CLI reference (requires installation)
+- `cortex --help` — Built-in command help
 - [GitHub Repository](https://github.com/NickCrew/claude-cortex)
 
 ---

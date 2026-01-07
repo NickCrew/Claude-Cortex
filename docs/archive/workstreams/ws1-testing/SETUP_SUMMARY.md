@@ -171,10 +171,10 @@ pytest --collect-only tests/ -v 2>&1 | grep -A 20 "ERROR"
 **Modules to Analyze**:
 ```bash
 # Priority order
-/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/agents.py
-/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/base.py
-/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/intelligence.py
-/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/config.py (if exists)
+/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/agents.py
+/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/base.py
+/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/intelligence.py
+/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/config.py (if exists)
 ```
 
 **Information to Extract**:

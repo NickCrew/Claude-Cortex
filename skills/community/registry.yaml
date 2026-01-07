@@ -171,7 +171,7 @@ governance:
 
 # Contact
 contact:
-  issues: "https://github.com/NickCrew/claude-ctx-plugin/issues"
-  discussions: "https://github.com/NickCrew/claude-ctx-plugin/discussions"
-  pull_requests: "https://github.com/NickCrew/claude-ctx-plugin/pulls"
+  issues: "https://github.com/NickCrew/cortex-plugin/issues"
+  discussions: "https://github.com/NickCrew/cortex-plugin/discussions"
+  pull_requests: "https://github.com/NickCrew/cortex-plugin/pulls"
   email: "support@example.com"

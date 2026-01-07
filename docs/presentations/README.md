@@ -1,12 +1,12 @@
 # Cortex Presentations
 
-Reveal.js presentation decks for claude-ctx project overview, demos, and enablement sessions.
+Reveal.js presentation decks for cortex project overview, demos, and enablement sessions.
 
 ## 📊 Available Presentations
 
 ### 🚀 Cortex Intro Overview
 
-**File:** `claude-ctx-overview.html`
+**File:** `cortex-overview.html`
 **Topics:** High-level platform overview, AI intelligence, watch mode, asset manager, visual excellence
 
 **What's Covered:**
@@ -22,7 +22,7 @@ Reveal.js presentation decks for claude-ctx project overview, demos, and enablem
 
 ### 🧠 Technical Deep Dive
 
-**File:** `claude-ctx-technical-deep-dive.html`
+**File:** `cortex-technical-deep-dive.html`
 **Topics:** Activation pipeline, intelligence signals, watch mode, skill ratings, plugin + CLI integration
 
 **What's Covered:**
@@ -38,7 +38,7 @@ Reveal.js presentation decks for claude-ctx project overview, demos, and enablem
 
 ### 📈 Executive Overview & Roadmap
 
-**File:** `claude-ctx-executive-roadmap.html`
+**File:** `cortex-executive-roadmap.html`
 **Topics:** Business value, capability highlights, adoption plan, and roadmap
 
 **What's Covered:**
@@ -95,9 +95,9 @@ cd presentations
 python3 -m http.server 8080
 
 # Then open in browser:
-open http://localhost:8080/claude-ctx-overview.html
-open http://localhost:8080/claude-ctx-technical-deep-dive.html
-open http://localhost:8080/claude-ctx-executive-roadmap.html
+open http://localhost:8080/cortex-overview.html
+open http://localhost:8080/cortex-technical-deep-dive.html
+open http://localhost:8080/cortex-executive-roadmap.html
 open http://localhost:8080/tui-showcase.html
 ```
 
@@ -108,18 +108,18 @@ cd presentations
 npx http-server -p 8080
 
 # Then open in browser:
-open http://localhost:8080/claude-ctx-overview.html
-open http://localhost:8080/claude-ctx-technical-deep-dive.html
-open http://localhost:8080/claude-ctx-executive-roadmap.html
+open http://localhost:8080/cortex-overview.html
+open http://localhost:8080/cortex-technical-deep-dive.html
+open http://localhost:8080/cortex-executive-roadmap.html
 open http://localhost:8080/tui-showcase.html
 ```
 
 ### Direct File Opening
 
 ```bash
-open presentations/claude-ctx-overview.html
-open presentations/claude-ctx-technical-deep-dive.html
-open presentations/claude-ctx-executive-roadmap.html
+open presentations/cortex-overview.html
+open presentations/cortex-technical-deep-dive.html
+open presentations/cortex-executive-roadmap.html
 open presentations/tui-showcase.html
 ```
 
@@ -169,7 +169,7 @@ Note: Some features may require a local server due to CORS restrictions.
 
 To create a new presentation following the same style:
 
-1. Copy `claude-ctx-overview.html` as a template
+1. Copy `cortex-overview.html` as a template
 2. Update the `<title>` and metadata
 3. Modify slide content within `<section>` tags
 4. Adjust `data-background` gradients for visual variety
@@ -282,7 +282,7 @@ When updating presentations:
 **Example:**
 
 ```
-http://localhost:8080/claude-ctx-overview.html?print-pdf
+http://localhost:8080/cortex-overview.html?print-pdf
 ```
 
 ---

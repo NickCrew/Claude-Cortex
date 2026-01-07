@@ -19,7 +19,7 @@
 
 ## Executive Summary
 
-**Super Saiyan Mode** is an enhanced visual experience layer for the claude-ctx TUI that provides beautiful, animated, and accessible UI components. Named after the transformation in Dragon Ball Z, it represents a "power-up" of the standard Textual framework components with smooth animations, rich styling, and delightful user interactions while maintaining **accessibility first, performance always** principles.
+**Super Saiyan Mode** is an enhanced visual experience layer for the cortex TUI that provides beautiful, animated, and accessible UI components. Named after the transformation in Dragon Ball Z, it represents a "power-up" of the standard Textual framework components with smooth animations, rich styling, and delightful user interactions while maintaining **accessibility first, performance always** principles.
 
 ### Key Features
 

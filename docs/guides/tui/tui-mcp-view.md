@@ -1,6 +1,6 @@
 # TUI MCP Server Management View
 
-The MCP View provides a comprehensive interface for managing MCP (Model Context Protocol) servers within the claude-ctx TUI. Press `7` from the main TUI to open it (or use the command palette).
+The MCP View provides a comprehensive interface for managing MCP (Model Context Protocol) servers within the cortex TUI. Press `7` from the main TUI to open it (or use the command palette).
 
 ## Features
 
@@ -192,7 +192,7 @@ The status bar shows real-time feedback:
 - `Docs only: <server>` - Documentation exists but MCP server isn’t installed
 - `Error: <message>` - For any errors encountered
 
-When documentation lives in `~/.claude/mcp/docs` but the Claude Desktop config lacks a matching `mcpServers` entry, the TUI now surfaces a “Docs only” row. This makes gaps obvious (for example, `BrowserTools` will appear with a yellow warning until you add it via “Add MCP” or `claude-ctx mcp add browser-tools`).
+When documentation lives in `~/.claude/mcp/docs` but the Claude Desktop config lacks a matching `mcpServers` entry, the TUI now surfaces a “Docs only” row. This makes gaps obvious (for example, `BrowserTools` will appear with a yellow warning until you add it via “Add MCP” or `cortex mcp add browser-tools`).
 
 ## Future Enhancements
 

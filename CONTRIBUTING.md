@@ -42,14 +42,14 @@ Unacceptable behavior includes harassment, discrimination, trolling, or personal
 2. Clone your fork locally:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/claude-ctx-plugin.git
-   cd claude-ctx-plugin
+   git clone https://github.com/YOUR_USERNAME/cortex-plugin.git
+   cd cortex-plugin
    ```
 
 3. Add upstream remote:
 
    ```bash
-   git remote add upstream https://github.com/NickCrew/claude-ctx-plugin.git
+   git remote add upstream https://github.com/NickCrew/cortex-plugin.git
    ```
 
 ### Install Development Dependencies
@@ -62,17 +62,17 @@ python3 -m pip install -e .
 python3 -m pip install -r requirements-dev.txt
 
 # Verify installation
-claude-ctx --version
+cortex --version
 ```
 
 ### Set Up Environment
 
 ```bash
-# Point the claude-ctx CLI to your local development copy
+# Point the cortex CLI to your local development copy
 export CLAUDE_PLUGIN_ROOT="$(pwd)"
 
 # Add to your shell config for persistence
-echo 'export CLAUDE_PLUGIN_ROOT="/path/to/your/claude-ctx-plugin"' >> ~/.zshrc
+echo 'export CLAUDE_PLUGIN_ROOT="/path/to/your/cortex-plugin"' >> ~/.zshrc
 ```
 
 ## Types of Contributions
@@ -145,15 +145,15 @@ Branch naming conventions:
 
 ```bash
 # Run validation
-claude-ctx skills validate your-skill-name
+cortex skills validate your-skill-name
 
 # Run tests (if available)
 python -m pytest tests/
 
 # Test CLI commands
-claude-ctx --help
-claude-ctx skills list
-claude-ctx skills info your-skill-name
+cortex --help
+cortex skills list
+cortex skills info your-skill-name
 ```
 
 ### 4. Commit Your Changes
@@ -222,7 +222,7 @@ Community skills are the most common contribution type. See [skills/community/RE
 4. **Validate**:
 
    ```bash
-   claude-ctx skills validate your-skill-name
+   cortex skills validate your-skill-name
    ```
 
 5. **Add registry entry** in `skills/community/registry.yaml`:
@@ -261,7 +261,7 @@ Community skills are the most common contribution type. See [skills/community/RE
 - [ ] No emojis (unless domain-specific)
 - [ ] Grammar and spelling checked
 - [ ] Token count: 500-8,000 tokens
-- [ ] Passes `claude-ctx skills validate`
+- [ ] Passes `cortex skills validate`
 - [ ] Registry entry added
 - [ ] Author contact information complete
 
@@ -381,7 +381,7 @@ Why this change is needed
 
 ## Testing
 How changes were tested:
-- [ ] Validated with claude-ctx commands
+- [ ] Validated with cortex commands
 - [ ] Added/updated tests
 - [ ] Tested locally
 - [ ] Documentation reviewed
@@ -480,13 +480,13 @@ x = 5
 
 ```bash
 # Validate single skill
-claude-ctx skills validate your-skill-name
+cortex skills validate your-skill-name
 
 # Validate all skills
-claude-ctx skills validate --all
+cortex skills validate --all
 
 # Check token count
-claude-ctx skills info your-skill-name --show-tokens
+cortex skills info your-skill-name --show-tokens
 ```
 
 ### Manual Testing
@@ -507,9 +507,9 @@ Document how to test your changes in PR description:
 ## Testing Steps
 
 1. Install package: `pip install -e .`
-2. Run command: `claude-ctx skills info your-skill-name`
+2. Run command: `cortex skills info your-skill-name`
 3. Verify output matches expected result
-4. Test error case: `claude-ctx skills info nonexistent`
+4. Test error case: `cortex skills info nonexistent`
 5. Confirm error message is clear
 ```
 
@@ -517,16 +517,16 @@ Document how to test your changes in PR description:
 
 ### Resources
 
-- **Documentation**: [Project docs](https://nickcrew.github.io/claude-ctx-plugin/)
+- **Documentation**: [Project docs](https://nickcrew.github.io/cortex-plugin/)
 - **Skills guide**: [skills/README.md](skills/README.md)
 - **Community guide**: [skills/community/README.md](skills/community/README.md)
 - **Template**: [skills/community/.template/SKILL.md](skills/community/.template/SKILL.md)
 
 ### Support Channels
 
-- **Questions**: [GitHub Discussions](https://github.com/NickCrew/claude-ctx-plugin/discussions)
-- **Bug reports**: [GitHub Issues](https://github.com/NickCrew/claude-ctx-plugin/issues)
-- **Feature requests**: [GitHub Issues](https://github.com/NickCrew/claude-ctx-plugin/issues) with `enhancement` label
+- **Questions**: [GitHub Discussions](https://github.com/NickCrew/cortex-plugin/discussions)
+- **Bug reports**: [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues)
+- **Feature requests**: [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues) with `enhancement` label
 - **PR help**: Comment on your pull request
 
 ### Tips for New Contributors
@@ -556,9 +556,9 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 If you have questions not covered here:
 
-1. Check existing [documentation](https://nickcrew.github.io/claude-ctx-plugin/)
-2. Search [GitHub Issues](https://github.com/NickCrew/claude-ctx-plugin/issues)
-3. Ask in [GitHub Discussions](https://github.com/NickCrew/claude-ctx-plugin/discussions)
+1. Check existing [documentation](https://nickcrew.github.io/cortex-plugin/)
+2. Search [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues)
+3. Ask in [GitHub Discussions](https://github.com/NickCrew/cortex-plugin/discussions)
 4. Open a new issue with the `question` label
 
 We're here to help make your contribution successful!

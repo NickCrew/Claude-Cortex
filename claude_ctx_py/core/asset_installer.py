@@ -1,7 +1,7 @@
 """Asset installer for plugin resources.
 
 Handles installation, uninstallation, and updating of assets
-in .claude directories.
+in cortex directories.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from .asset_discovery import Asset, AssetCategory
-from .base import _update_with_backup
+from .base import _update_with_backup, _extract_front_matter
 
 
 # Color codes for output
@@ -78,11 +78,11 @@ def install_asset(
     target_dir: Path,
     activate: bool = True,
 ) -> Tuple[int, str]:
-    """Install an asset to a .claude directory.
+    """Install an asset to a cortex directory.
 
     Args:
         asset: Asset to install
-        target_dir: Target .claude directory
+        target_dir: Target cortex directory
         activate: For agents/modes, whether to install as active
 
     Returns:
@@ -306,12 +306,12 @@ def uninstall_asset(
     name: str,
     target_dir: Path,
 ) -> Tuple[int, str]:
-    """Uninstall an asset from a .claude directory.
+    """Uninstall an asset from a cortex directory.
 
     Args:
         category: Asset category (hooks, commands, agents, skills, modes, workflows)
         name: Asset name (for commands, use namespace:name format)
-        target_dir: Target .claude directory
+        target_dir: Target cortex directory
 
     Returns:
         Tuple of (exit_code, message)
@@ -375,18 +375,58 @@ def _uninstall_command(name: str, target_dir: Path) -> Tuple[int, str]:
     """Uninstall a command."""
     commands_dir = target_dir / "commands"
 
-    # Check if namespaced
-    if ":" in name:
-        namespace, cmd_name = name.split(":", 1)
-        cmd_path = commands_dir / namespace / f"{cmd_name}.md"
-    else:
-        cmd_path = commands_dir / f"{name}.md"
-
-    if not cmd_path.exists():
+    cmd_path = _resolve_command_path(commands_dir, name)
+    if cmd_path is None or not cmd_path.exists():
         return 1, _color(f"Command not installed: {name}", YELLOW)
 
     cmd_path.unlink()
     return 0, _color(f"Uninstalled command: {name}", GREEN)
+
+
+def _extract_command_name(path: Path) -> Optional[str]:
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+    front_matter = _extract_front_matter(content)
+    if not front_matter:
+        return None
+
+    for line in front_matter.splitlines():
+        if not line.strip().startswith("name:"):
+            continue
+        value = line.split(":", 1)[1].strip()
+        if not value:
+            return None
+        if value[0] in ("'", '"') and value[-1:] == value[0]:
+            value = value[1:-1]
+        return value
+    return None
+
+
+def _resolve_command_path(commands_dir: Path, name: str) -> Optional[Path]:
+    """Resolve command path by name across legacy and flattened layouts."""
+    if ":" in name:
+        namespace, cmd_name = name.split(":", 1)
+        legacy = commands_dir / namespace / f"{cmd_name}.md"
+        if legacy.exists():
+            return legacy
+        normalized = commands_dir / f"{name.replace(':', '-')}.md"
+        if normalized.exists():
+            return normalized
+
+    direct = commands_dir / f"{name}.md"
+    if direct.exists():
+        return direct
+
+    for cmd_file in commands_dir.rglob("*.md"):
+        if cmd_file.name == "README.md":
+            continue
+        declared = _extract_command_name(cmd_file)
+        if declared == name:
+            return cmd_file
+    return None
 
 
 def _uninstall_agent(name: str, target_dir: Path) -> Tuple[int, str]:
@@ -510,7 +550,7 @@ def get_asset_diff(
 
     Args:
         asset: Asset to compare
-        target_dir: Target .claude directory
+        target_dir: Target cortex directory
 
     Returns:
         Diff string or None if not installed/identical
@@ -570,7 +610,7 @@ def bulk_install(
 
     Args:
         assets: List of assets to install
-        target_dir: Target .claude directory
+        target_dir: Target cortex directory
         activate: For agents/modes, whether to install as active
 
     Returns:
@@ -659,7 +699,7 @@ def get_installed_path(
 
     Args:
         asset: Asset to find
-        target_dir: Target .claude directory
+        target_dir: Target cortex directory
 
     Returns:
         Path to installed asset or None if not installed

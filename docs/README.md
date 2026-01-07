@@ -11,12 +11,12 @@ Comprehensive documentation for the cortex context management framework.
 - **[Visual Summary](reference/architecture/VISUAL_SUMMARY.txt)** - Beautiful ASCII art diagram for terminal viewing
 - **[Diagrams Guide](reference/architecture/DIAGRAMS_README.md)** - How to use, read, and maintain all diagrams
 
-**After installation**: These docs are available at `~/.claude/docs/`
+**After installation**: These docs are available at `~/.cortex/docs/`
 
 **Quick view**:
 
 ```bash
-cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
+cat ~/.cortex/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 /docs:diagrams                               # View via command
 ```
 

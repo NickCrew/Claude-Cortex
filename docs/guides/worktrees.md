@@ -12,34 +12,34 @@ Cortex includes a Git worktree manager in both the CLI and TUI. It supports list
 
 ```bash
 # List worktrees and base directory
-claude-ctx worktree list
+cortex worktree list
 
 # Add a new worktree
-claude-ctx worktree add my-branch --path ../worktrees/my-branch
+cortex worktree add my-branch --path ../worktrees/my-branch
 
 # Remove a worktree (path or branch)
-claude-ctx worktree remove my-branch
+cortex worktree remove my-branch
 
 # Prune stale worktrees
-claude-ctx worktree prune --dry-run
+cortex worktree prune --dry-run
 
 # Set or clear the base directory (stored in git config)
-claude-ctx worktree dir ../worktrees
-claude-ctx worktree dir --clear
+cortex worktree dir ../worktrees
+cortex worktree dir --clear
 ```
 
 ### Base Directory Behavior
 
 The worktree base directory is resolved in this order:
 
-1. `claude-ctx.worktreeDir` (git config)
+1. `cortex.worktreeDir` (git config)
 2. `.worktrees/` in the repo root
 3. `worktrees/` in the repo root
 
 ## TUI View
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'C' for Worktrees
 ```
 

@@ -6,11 +6,11 @@ nav_order: 6
 
 # Model Optimization Strategy
 
-Strategic model assignment (Opus vs Haiku) for optimal performance and cost efficiency across claude-ctx agents.
+Strategic model assignment (Opus vs Haiku) for optimal performance and cost efficiency across cortex agents.
 
 ## Overview
 
-claude-ctx uses an **Opus-first hybrid model strategy**:
+cortex uses an **Opus-first hybrid model strategy**:
 - **Opus 4.5** (Daily Driver): State-of-the-art coding, complex reasoning, agentic tasks, architecture
 - **Haiku 4** (Speed Tier): Fast execution, deterministic tasks, pattern application
 
@@ -201,7 +201,7 @@ These agents switch between Opus and Haiku based on task complexity:
 
 Continuous feedback keeps the model strategy aligned with real-world behaviour:
 
-- **Ratings as Signals** – Every `claude-ctx skills rate <skill>` call feeds the rating database (`skill-ratings.db`). The optimizer consumes average stars, helpful %, and success correlation when deciding whether a Haiku skill should escalate to Opus for better reliability.
+- **Ratings as Signals** – Every `cortex skills rate <skill>` call feeds the rating database (`skill-ratings.db`). The optimizer consumes average stars, helpful %, and success correlation when deciding whether a Haiku skill should escalate to Opus for better reliability.
 - **Auto-Prompt Collection** – The TUI now surfaces rating prompts after a skill has been activated multiple times in the last 12 hours. That keeps recency high without relying on CLI usage.
 - **Activation Telemetry** – `metrics.record_activation` logs agent/task context for each invocation; `SkillRatingPromptManager` uses the shared `activations.json` file to detect hot skills, and the orchestrator reuses the same data when rebalancing Opus vs Haiku allocations.
 - **Analytics Hooks** – `skills ratings`, `skills top-rated`, and `skills export-ratings` expose the same metrics so humans can audit routing decisions, while the auto-router automatically penalizes chronically low-rated skills until they're retrained or escalated to `effort: high` permanently.

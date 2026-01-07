@@ -1,4 +1,4 @@
-"""Error handling utilities for claude-ctx-plugin.
+"""Error handling utilities for cortex-plugin.
 
 This module provides reusable error handling functions that wrap common
 operations and provide consistent, actionable error messages.

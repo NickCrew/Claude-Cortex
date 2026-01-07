@@ -31,7 +31,7 @@ recursive-include tests *.py
 
 # Configuration examples
 include pyproject.toml
-include Makefile
+include justfile
 
 # Exclude build artifacts
 global-exclude *.pyc
@@ -64,7 +64,6 @@ global-exclude coverage.xml
 global-exclude AGENTS.md GEMINI.md CLAUDE.md 
 global-exclude .claudeignore
 global-exclude .codannaignore
-global-exclude justfile
 global-exclude *.ini
 
 # Exclude virtual environments

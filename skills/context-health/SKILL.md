@@ -1,20 +1,20 @@
 ---
 name: context-health
-description: Use when validating or diagnosing the claude-ctx environment (consistency, duplicates, redundancy, optimization) - provides a diagnostic workflow and reporting structure for context health checks.
+description: Use when validating or diagnosing the cortex environment (consistency, duplicates, redundancy, optimization) - provides a diagnostic workflow and reporting structure for context health checks.
 ---
 
 # Context Health
 
 ## Overview
-Provide a consistent diagnostic workflow for claude-ctx environments: verify config integrity, detect duplicates, surface redundancies, and report actionable issues.
+Provide a consistent diagnostic workflow for cortex environments: verify config integrity, detect duplicates, surface redundancies, and report actionable issues.
 
 ## When to Use
 - Checking system health after changes to agents, modes, or rules
-- Troubleshooting unexpected claude-ctx behavior
+- Troubleshooting unexpected cortex behavior
 - Performing periodic maintenance checks
 
 Avoid when:
-- The task is unrelated to claude-ctx configuration or context
+- The task is unrelated to cortex configuration or context
 
 ## Quick Reference
 

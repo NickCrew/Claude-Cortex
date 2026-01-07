@@ -1,0 +1,67 @@
+# React Performance Optimization Skill Quality Rubric
+version: "1.0.0"
+skill_name: react-performance-optimization
+evaluated_date: "2026-01-05"
+
+dimensions:
+  clarity:
+    weight: 25
+    description: "Clear React performance concepts"
+    criteria:
+      - "Re-render causes are clearly explained"
+      - "Memoization strategies are visual"
+      - "Bundle optimization steps are clear"
+      - "Profiler usage is step-by-step"
+
+  completeness:
+    weight: 25
+    description: "Comprehensive React performance coverage"
+    criteria:
+      - "Covers React.memo, useMemo, useCallback"
+      - "Includes code splitting/lazy loading"
+      - "Has virtualization for large lists"
+      - "Covers state management perf"
+
+  accuracy:
+    weight: 30
+    description: "Correct React 18+ patterns"
+    criteria:
+      - "Follows React 18 best practices"
+      - "Concurrent features correctly used"
+      - "No deprecated patterns (componentWillMount)"
+      - "Hooks rules followed"
+
+  usefulness:
+    weight: 20
+    description: "Practical React optimization"
+    criteria:
+      - "Before/after performance comparisons"
+      - "Lighthouse metrics explained"
+      - "Real-world optimization examples"
+      - "Debugging slow components"
+
+passing_criteria:
+  minimum_score: 3.5
+  target_score: 4.0
+  exceptional_score: 4.5
+  required_dimensions:
+    - accuracy
+  blocking_issues:
+    - "Uses deprecated lifecycle methods"
+    - "Incorrect hooks usage"
+    - "Anti-pattern examples without warning"
+    - "Class components without functional alternatives"
+
+scoring_guide:
+  clarity:
+    "1": "Performance concepts jumbled"
+    "2": "Confusing optimization advice"
+    "3": "Understandable basics"
+    "4": "Clear with profiler examples"
+    "5": "Exceptional visual comparisons"
+  accuracy:
+    "1": "Outdated React patterns"
+    "2": "Class component focus"
+    "3": "Mostly modern patterns"
+    "4": "React 18+ best practices"
+    "5": "Cutting-edge, future-proof"

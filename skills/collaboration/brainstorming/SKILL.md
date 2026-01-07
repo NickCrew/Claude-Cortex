@@ -1,13 +1,13 @@
 ---
 name: ctx-brainstorming
-description: Rapid ideation skill adapted from obra/superpowers to kick off claude-ctx sessions. Use when defining scope, aligning on goals, or exploring solution space before coding.
+description: Rapid ideation skill adapted from obra/superpowers to kick off cortex sessions. Use when defining scope, aligning on goals, or exploring solution space before coding.
 license: MIT (obra/superpowers)
 command: /ctx:brainstorm
 ---
 
 # `/ctx:brainstorm`
 
-Ported from obra/superpowers (MIT). Optimized for claude-ctx so brainstorming outputs flow directly into Supersaiyan visuals and the Task TUI.
+Ported from obra/superpowers (MIT). Optimized for cortex so brainstorming outputs flow directly into Supersaiyan visuals and the Task TUI.
 
 ## When to run
 

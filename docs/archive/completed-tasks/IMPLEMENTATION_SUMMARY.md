@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully implemented three new views for the claude-ctx TUI application:
+Successfully implemented three new views for the cortex TUI application:
 
 1. **Profile View (View #8)** - Profile management and switching  
 2. **Export View (View #9)** - Context export with format selection and preview

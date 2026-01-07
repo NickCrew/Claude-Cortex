@@ -15,7 +15,7 @@
 
 ### 🎨 Quick TUI Theme Overrides
 
-- Add a custom `.tcss` file via `cortex tui --theme`, `CLAUDE_CTX_TUI_THEME`, or `~/.claude/tui/theme.tcss`.
+- Add a custom `.tcss` file via `cortex tui --theme`, `CORTEX_TUI_THEME`, or `~/.cortex/tui/theme.tcss`.
 - Overrides load after the default theme, so palette variables can be swapped without code changes.
 
 ### 🧩 Principles Snippets (Option A)
@@ -156,14 +156,14 @@ Comprehensive visual documentation ships with the plugin:
 
 **Installation**:
 
-- Automatically installs to `~/.claude/docs/`
+- Automatically installs to `~/.cortex/docs/`
 - Included in package distribution
 - View via `/docs:diagrams` command
 
 **Quick View**:
 
 ```bash
-cat ~/.claude/docs/VISUAL_SUMMARY.txt
+cat ~/.cortex/docs/VISUAL_SUMMARY.txt
 ```
 
 ### 🏗️ System Architecture
@@ -216,10 +216,10 @@ Output: Refactoring plan with priorities
 
 **New Files Installed**:
 
-- `~/.claude/docs/architecture-diagrams.md`
-- `~/.claude/docs/quick-reference.md`
-- `~/.claude/docs/VISUAL_SUMMARY.txt`
-- `~/.claude/docs/DIAGRAMS_README.md`
+- `~/.cortex/docs/architecture-diagrams.md`
+- `~/.cortex/docs/quick-reference.md`
+- `~/.cortex/docs/VISUAL_SUMMARY.txt`
+- `~/.cortex/docs/DIAGRAMS_README.md`
 
 **New Scripts**:
 
@@ -258,7 +258,7 @@ docs/
 
 ```bash
 # ASCII art overview
-cat ~/.claude/docs/VISUAL_SUMMARY.txt
+cat ~/.cortex/docs/VISUAL_SUMMARY.txt
 
 # Via command
 /docs:diagrams
@@ -337,7 +337,7 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt
 # Edit source files
 vim docs/reference/architecture/architecture-diagrams.md
 
-# Reinstall to update ~/.claude/docs/
+# Reinstall to update ~/.cortex/docs/
 just install
 # or
 bash scripts/deprecated/post-install-docs.sh

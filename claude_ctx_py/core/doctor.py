@@ -98,7 +98,7 @@ def check_consistency(claude_dir: Path) -> List[Diagnosis]:
                     level="ERROR",
                     message=f"Active mode '{mode}' references missing file",
                     resource=str(mode_path),
-                    suggestion=f"Run 'claude-ctx mode deactivate {mode}'"
+                    suggestion=f"Run 'cortex mode deactivate {mode}'"
                 ))
 
     # Active Rules
@@ -113,7 +113,7 @@ def check_consistency(claude_dir: Path) -> List[Diagnosis]:
                     level="ERROR",
                     message=f"Active rule '{rule}' references missing file",
                     resource=str(rule_path),
-                    suggestion=f"Run 'claude-ctx rules deactivate {rule}'"
+                    suggestion=f"Run 'cortex rules deactivate {rule}'"
                 ))
 
     return diagnoses

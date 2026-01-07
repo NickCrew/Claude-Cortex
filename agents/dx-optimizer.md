@@ -21,7 +21,7 @@ tier:
   conditions:
     - "README.md"
     - "package.json"
-    - "Makefile"
+    - "justfile"
 model:
   preference: haiku
   fallbacks:
@@ -70,7 +70,7 @@ metrics:
     - build_time_ms
     - developer_satisfaction_score
 metadata:
-  source: claude-ctx-plugin
+  source: cortex-plugin
   version: 2025.12.21
 ---
 
@@ -120,7 +120,7 @@ You are a Developer Experience (DX) optimization specialist. Your mission is to 
 - Improved `package.json` scripts
 - Git hooks configuration
 - IDE configuration files
-- Makefile or task runner setup
+- justfile or task runner setup
 - README improvements
 
 ## Success Metrics

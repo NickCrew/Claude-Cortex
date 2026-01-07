@@ -20,7 +20,7 @@ from claude_ctx_py.core import base
 
 @pytest.fixture(autouse=True)
 def _tmp_claude_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    claude_dir = tmp_path / ".claude"
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
     return claude_dir
@@ -40,7 +40,7 @@ def test_resolve_claude_dir_falls_back_to_home(tmp_path: Path, monkeypatch: pyte
     monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
     home_override = tmp_path / "home"
     result = base._resolve_claude_dir(home_override)
-    assert result == home_override / ".claude"
+    assert result == home_override / ".cortex"
 
 
 
@@ -48,9 +48,9 @@ def test_resolve_claude_dir_scope_global_ignores_plugin_root(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     home_override = tmp_path / "home"
-    monkeypatch.setenv("CLAUDE_CTX_SCOPE", "global")
+    monkeypatch.setenv("CORTEX_SCOPE", "global")
     result = base._resolve_claude_dir(home_override)
-    assert result == home_override / ".claude"
+    assert result == home_override / ".cortex"
 
 
 def test_resolve_claude_dir_scope_project_uses_nearest(
@@ -61,7 +61,7 @@ def test_resolve_claude_dir_scope_project_uses_nearest(
     (project / ".claude").mkdir()
     child = project / "child"
     child.mkdir()
-    monkeypatch.setenv("CLAUDE_CTX_SCOPE", "project")
+    monkeypatch.setenv("CORTEX_SCOPE", "project")
     result = base._resolve_claude_dir(cwd=child)
     assert result == project / ".claude"
 
@@ -79,7 +79,7 @@ def test_init_slug_for_path_generates_stable_slug(tmp_path: Path):
 
 
 def test_inactive_helpers_produce_aliases(tmp_path: Path):
-    claude_dir = tmp_path / ".claude"
+    claude_dir = tmp_path / ".cortex"
     canonical = base._inactive_category_dir(claude_dir, "agents")
     candidates = base._inactive_dir_candidates(claude_dir, "agents")
     assert canonical in candidates

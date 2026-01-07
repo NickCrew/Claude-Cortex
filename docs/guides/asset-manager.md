@@ -21,7 +21,7 @@ The Asset Manager lets you install, diff, and update plugin assets directly from
 ## Launch
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 'A' for Asset Manager
 ```
 

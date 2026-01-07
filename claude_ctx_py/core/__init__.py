@@ -34,6 +34,7 @@ from .base import (
 # Export all functions from base
 from .base import (
     _color,
+    _resolve_cortex_root,
     _resolve_claude_dir,
     _resolve_init_dirs,
     _ensure_claude_structure,
@@ -177,6 +178,17 @@ from .principles import (
     principles_activate,
     principles_deactivate,
     principles_build,
+)
+
+# Export all functions from prompts
+from .prompts import (
+    PromptInfo,
+    discover_prompts,
+    prompt_activate,
+    prompt_deactivate,
+    list_prompts,
+    prompt_status,
+    get_prompt_by_slug,
 )
 
 # Export all functions from workflows
@@ -457,6 +469,14 @@ __all__ = [
     "principles_activate",
     "principles_deactivate",
     "principles_build",
+    # Prompts functions
+    "PromptInfo",
+    "discover_prompts",
+    "prompt_activate",
+    "prompt_deactivate",
+    "list_prompts",
+    "prompt_status",
+    "get_prompt_by_slug",
     # Workflow functions
     "workflow_run",
     "workflow_list",

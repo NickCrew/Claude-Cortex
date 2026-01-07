@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the claude-ctx manpage to the system
+# Install the cortex manpage to the system
 
 set -euo pipefail
 
@@ -188,4 +188,4 @@ elif command -v makewhatis &> /dev/null; then
 fi
 
 echo "✓ Installed ${#MANPAGE_SOURCES[@]} manpage(s) into ${MAN_DIR}"
-echo "  Primary entry point: man claude-ctx"
+echo "  Primary entry point: man cortex"

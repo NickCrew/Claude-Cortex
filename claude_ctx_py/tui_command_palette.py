@@ -303,6 +303,11 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Show Assets", "Asset manager", "view_assets", "utilities"),
     ("Show Memory", "Memory vault", "view_memory", "context"),
     ("Galaxy View", "Visualize agent constellations", "view_galaxy", "viz"),
+    ("Request Reviews", "Spawn review tasks from recommendations", "request_reviews", "ai"),
+    ("Consult Gemini", "Ask Gemini for a second opinion", "consult_gemini", "ai"),
+    ("Assign LLM Tasks", "Dispatch tasks to Gemini/OpenAI/Qwen", "assign_llm_tasks", "ai"),
+    ("Design UI", "Generate distinctive UI components", "action_design_ui", "design"),
+    ("RAG Ingest", "Ingest documents with context", "action_rag_ingest", "ops"),
     # Actions
     ("Toggle Selected", "Toggle current item", "toggle", "action"),
     ("Refresh", "Refresh current view", "refresh", "action"),

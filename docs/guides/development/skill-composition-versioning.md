@@ -45,7 +45,7 @@ depends_on:
 
 ```bash
 # View dependency tree
-claude-ctx skills compose full-stack-api-design
+cortex skills compose full-stack-api-design
 
 # Output:
 # full-stack-api-design
@@ -55,10 +55,10 @@ claude-ctx skills compose full-stack-api-design
 #     └── microservices-patterns@1.2.1
 
 # Validate composition (check for circular deps)
-claude-ctx skills validate full-stack-api-design
+cortex skills validate full-stack-api-design
 
 # List all composite skills
-claude-ctx skills list --composite-only
+cortex skills list --composite-only
 ```
 
 ### Configuration
@@ -173,7 +173,7 @@ api-design-patterns:
 
 ```bash
 # Show available versions
-claude-ctx skills versions api-design-patterns
+cortex skills versions api-design-patterns
 
 # Output:
 # api-design-patterns versions:
@@ -182,10 +182,10 @@ claude-ctx skills versions api-design-patterns
 # - 1.0.0 - 2025-09-01 - Initial release
 
 # Show which agents use a skill version
-claude-ctx skills deps api-design-patterns@1.2.0
+cortex skills deps api-design-patterns@1.2.0
 
 # Check for version conflicts
-claude-ctx skills validate --check-versions
+cortex skills validate --check-versions
 ```
 
 ### Version Resolution
@@ -200,7 +200,7 @@ When multiple versions are requested, the system:
 
 ```bash
 # Show outdated skills
-claude-ctx skills outdated
+cortex skills outdated
 
 # Output:
 # Outdated Skills:
@@ -208,10 +208,10 @@ claude-ctx skills outdated
 # - python-testing-patterns: 2.1.0 → 3.0.0 (BREAKING CHANGE)
 
 # Upgrade to latest compatible versions
-claude-ctx skills upgrade --all
+cortex skills upgrade --all
 
 # Upgrade specific skill (interactive if breaking)
-claude-ctx skills upgrade api-design-patterns
+cortex skills upgrade api-design-patterns
 ```
 
 ### Benefits

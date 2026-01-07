@@ -524,7 +524,7 @@ Update weekly with CI coverage reports:
 
 ## Quick Start: Creating Issues
 
-1. Go to: https://github.com/yourusername/claude-ctx-plugin/issues/new
+1. Go to: https://github.com/yourusername/cortex-plugin/issues/new
 2. Copy the Title, Labels, and Body from each issue above
 3. Create the issues in priority order (#1-#5 first)
 4. Create the META tracking issue (#11) last

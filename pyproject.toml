@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-cortex"
-version = "0.1.1"
+version = "1.0.0"
 description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = {text = "MIT"}
@@ -16,6 +16,8 @@ dependencies = [
     "textual>=0.47.0",
     "PyYAML>=6.0.0",
     "psutil>=5.9.0",
+    "jsonplate>=0.0.1",
+    "jsonschema>=4.25.1",
 ]
 
 [project.optional-dependencies]
@@ -53,7 +55,7 @@ Homepage = "https://github.com/NickCrew/claude-cortex"
 [project.scripts]
 cortex = "claude_ctx_py.cli:main"
 cortex-ui = "claude_ctx_py.tui.cli:main"
-claude-ctx = "claude_ctx_py.cli:main"  # Deprecated entry point
+cortex = "claude_ctx_py.cli:main"  # Deprecated entry point
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -64,9 +66,9 @@ include = ["claude_ctx_py*"]
 
 [tool.setuptools.data-files]
 "share/man/man1" = [
-    "docs/reference/claude-ctx.1",
-    "docs/reference/claude-ctx-tui.1",
-    "docs/reference/claude-ctx-workflow.1",
+    "docs/reference/cortex.1",
+    "docs/reference/cortex-tui.1",
+    "docs/reference/cortex-workflow.1",
 ]
 "share/claude-cortex/docs" = [
     "docs/reference/architecture/architecture-diagrams.md",
@@ -244,3 +246,8 @@ ignore_token_for_push = false
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]

@@ -147,7 +147,7 @@ cp workflows/*.yaml ~/.claude/workflows/
 
 2. Run TUI:
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 3. Press `6` to view workflows
@@ -158,13 +158,13 @@ claude-ctx tui
 
 ## Files Modified
 
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py` - Main TUI file with new views
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py` - Main TUI file with new views
 
 ## Files Created
 
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_workflows_orchest.py` - Temporary file with new methods
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/IMPLEMENTATION_SUMMARY.md` - Detailed implementation documentation
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/tui_workflows_integration.md` - This integration guide
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_workflows_orchest.py` - Temporary file with new methods
+- `/Users/nferguson/Developer/personal/cortex-plugin/IMPLEMENTATION_SUMMARY.md` - Detailed implementation documentation
+- `/Users/nferguson/Developer/personal/cortex-plugin/tui_workflows_integration.md` - This integration guide
 
 ## Clean up
 

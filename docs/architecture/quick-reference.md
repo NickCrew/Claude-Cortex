@@ -7,7 +7,7 @@
 ```bash
 # Clone repository
 git clone https://github.com/NickCrew/claude-cortex.git
-cd claude-ctx-plugin
+cd cortex-plugin
 
 # Create virtual environment
 python3 -m venv .venv
@@ -17,10 +17,10 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 
 # Run CLI
-claude-ctx --help
+cortex --help
 
 # Run TUI
-claude-ctx tui
+cortex tui
 ```
 
 ### Running Tests
@@ -78,41 +78,41 @@ claude_ctx_py/
 
 ```bash
 # Mode management
-claude-ctx mode list
-claude-ctx mode status
-claude-ctx mode activate Brainstorming
-claude-ctx mode deactivate Brainstorming
+cortex mode list
+cortex mode status
+cortex mode activate Brainstorming
+cortex mode deactivate Brainstorming
 
 # Agent management
-claude-ctx agent list
-claude-ctx agent status
-claude-ctx agent activate code-reviewer
-claude-ctx agent deps code-reviewer
-claude-ctx agent graph
+cortex agent list
+cortex agent status
+cortex agent activate code-reviewer
+cortex agent deps code-reviewer
+cortex agent graph
 
 # Skill management
-claude-ctx skills list
-claude-ctx skills info api-design-patterns
-claude-ctx skills rate owasp-top-10 --stars 5
-claude-ctx skills ratings owasp-top-10
-claude-ctx skills trending
+cortex skills list
+cortex skills info api-design-patterns
+cortex skills rate owasp-top-10 --stars 5
+cortex skills ratings owasp-top-10
+cortex skills trending
 
 # AI automation
-claude-ctx ai recommend
-claude-ctx ai auto-activate
-claude-ctx ai watch
+cortex ai recommend
+cortex ai auto-activate
+cortex ai watch
 
 # MCP servers
-claude-ctx mcp list
-claude-ctx mcp show context7
-claude-ctx mcp docs sequential
+cortex mcp list
+cortex mcp show context7
+cortex mcp docs sequential
 
 # Workflows
-claude-ctx workflow list
-claude-ctx workflow run workflow-name
+cortex workflow list
+cortex workflow run workflow-name
 
 # TUI
-claude-ctx tui
+cortex tui
 ```
 
 ### TUI Key Bindings
@@ -346,10 +346,10 @@ async def test_agent_view():
 
 ```bash
 # Set environment variable
-export CLAUDE_CTX_DEBUG=1
+export CORTEX_DEBUG=1
 
 # Run command
-claude-ctx ai recommend
+cortex ai recommend
 ```
 
 ### TUI Debugging
@@ -359,7 +359,7 @@ claude-ctx ai recommend
 self.log("Debug message", severity="debug")
 
 # View logs
-tail -f ~/.textual/claude-ctx.log
+tail -f ~/.textual/cortex.log
 ```
 
 ### Intelligence Debugging
@@ -378,8 +378,8 @@ recommendations = learner.recommend_agents(context)
 
 ```bash
 CLAUDE_PLUGIN_ROOT=...           # Plugin context directory (optional; set by Claude Code)
-CLAUDE_CTX_DEBUG=1               # Enable debug logging
-CLAUDE_CTX_NO_COLOR=1            # Disable color output
+CORTEX_DEBUG=1               # Enable debug logging
+CORTEX_NO_COLOR=1            # Disable color output
 ```
 
 ### Config File Locations
@@ -426,12 +426,12 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 
 **Issue**: Agent activation fails with dependency errors
 
-- **Solution**: Check dependency graph: `claude-ctx agent graph`
-- **Activate dependencies**: `claude-ctx agent deps <agent-name>`
+- **Solution**: Check dependency graph: `cortex agent graph`
+- **Activate dependencies**: `cortex agent deps <agent-name>`
 
 **Issue**: Intelligence recommendations not working
 
-- **Solution**: Record some sessions: `claude-ctx ai record-success`
+- **Solution**: Record some sessions: `cortex ai record-success`
 - **Check**: Session data exists: `ls ~/.claude/data/sessions/`
 
 **Issue**: MCP servers not detected
@@ -445,4 +445,4 @@ CLAUDE_CTX_NO_COLOR=1            # Disable color output
 - [AI Intelligence Guide](../guides/development/AI_INTELLIGENCE_GUIDE.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
 - [GitHub Repository](https://github.com/NickCrew/claude-cortex)
-- [Documentation Site](https://nickcrew.github.io/claude-ctx-plugin/)
+- [Documentation Site](https://nickcrew.github.io/cortex-plugin/)

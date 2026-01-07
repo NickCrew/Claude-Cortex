@@ -4,10 +4,10 @@ The MCP (Model Context Protocol) module provides utilities for managing MCP serv
 
 ## Installation
 
-The MCP module is part of the `claude-ctx-py` package:
+The MCP module is part of the `cortex-py` package:
 
 ```bash
-pip install claude-ctx-py
+pip install cortex-py
 ```
 
 ## Basic Usage
@@ -379,4 +379,4 @@ To add new functionality to the MCP module:
 
 ## License
 
-Part of the claude-ctx-py project. See main README for license information.
+Part of the cortex-py project. See main README for license information.

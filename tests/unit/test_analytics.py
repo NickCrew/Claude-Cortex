@@ -13,8 +13,8 @@ from claude_ctx_py.exceptions import ExportError
 
 @pytest.fixture
 def mock_claude_dir(tmp_path):
-    """Create a mock .claude directory with metrics."""
-    claude_dir = tmp_path / ".claude"
+    """Create a mock .cortex directory with metrics."""
+    claude_dir = tmp_path / ".cortex"
     metrics_dir = claude_dir / ".metrics" / "skills"
     metrics_dir.mkdir(parents=True, exist_ok=True)
     return claude_dir

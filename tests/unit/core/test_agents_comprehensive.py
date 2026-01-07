@@ -15,8 +15,8 @@ from claude_ctx_py.core import agents as agents_mod
 # ---- Helpers -----------------------------------------------------------------
 
 def _make_claude_dir(tmp_path: Path) -> Path:
-    """Create a minimal .claude directory with active/inactive/schema roots."""
-    claude_dir = tmp_path / ".claude"
+    """Create a minimal .cortex directory with active/inactive/schema roots."""
+    claude_dir = tmp_path / ".cortex"
     (claude_dir / "agents").mkdir(parents=True, exist_ok=True)
     (claude_dir / "inactive" / "agents").mkdir(parents=True, exist_ok=True)
     (claude_dir / "schema").mkdir(parents=True, exist_ok=True)
@@ -90,7 +90,7 @@ def claude_dir(tmp_path: Path) -> Path:
 
 @pytest.fixture(autouse=True)
 def _isolate_claude_home(monkeypatch: pytest.MonkeyPatch, claude_dir: Path) -> None:
-    """Force claude-ctx to operate inside the temporary .claude directory."""
+    """Force cortex to operate inside the temporary .cortex directory."""
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
 
 

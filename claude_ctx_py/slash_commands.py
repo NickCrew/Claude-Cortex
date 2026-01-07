@@ -13,6 +13,7 @@ from .core.base import (
     _extract_values_from_paths,
     _is_disabled,
     _tokenize_front_matter,
+    _resolve_claude_dir,
 )
 
 COMMAND_PATTERN = re.compile(r"/([a-z0-9_-]+):([a-z0-9_-]+)", re.IGNORECASE)
@@ -41,7 +42,7 @@ def scan_slash_commands(
     """Scan a commands directory and return parsed slash command metadata."""
 
     if home_dir is None:
-        home_dir = Path.home() / ".claude"
+        home_dir = _resolve_claude_dir()
 
     if not commands_dir.is_dir():
         return []

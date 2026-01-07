@@ -48,7 +48,7 @@ Skill composition enables skills to reference and load other skills as dependenc
 
 3. **Dependency Visualization**
    ```bash
-   claude-ctx skills compose full-stack-api-design
+   cortex skills compose full-stack-api-design
 
    # Output:
    # full-stack-api-design
@@ -124,13 +124,13 @@ def optimize_load_order(skills: List[str]) -> List[str]:
 
 ```bash
 # Show skill composition tree
-claude-ctx skills compose full-stack-api-design
+cortex skills compose full-stack-api-design
 
 # Validate composition (check circular deps)
-claude-ctx skills validate full-stack-api-design
+cortex skills validate full-stack-api-design
 
 # List all composite skills
-claude-ctx skills list --composite-only
+cortex skills list --composite-only
 ```
 
 ### Benefits
@@ -287,13 +287,13 @@ def check_compatibility(required: str, available: str) -> bool:
 
 ```bash
 # Show available versions
-claude-ctx skills versions api-design-patterns
+cortex skills versions api-design-patterns
 
 # Validate version specification
-claude-ctx skills validate api-design-patterns@^1.2.0
+cortex skills validate api-design-patterns@^1.2.0
 
 # Show version compatibility
-claude-ctx skills info api-design-patterns@^1.0.0
+cortex skills info api-design-patterns@^1.0.0
 ```
 
 ### Agent Integration
@@ -399,25 +399,25 @@ skills:
 
 ```bash
 # List community skills
-claude-ctx skills community list
+cortex skills community list
 
 # Search by tag
-claude-ctx skills community list --tag python
+cortex skills community list --tag python
 
 # Filter verified skills only
-claude-ctx skills community list --verified
+cortex skills community list --verified
 
 # Search by keyword
-claude-ctx skills community search "pdf generation"
+cortex skills community search "pdf generation"
 
 # Install community skill
-claude-ctx skills community install pdf-generation
+cortex skills community install pdf-generation
 
 # Rate a skill
-claude-ctx skills community rate pdf-generation --rating 5
+cortex skills community rate pdf-generation --rating 5
 
 # Validate before installation
-claude-ctx skills community validate pdf-generation
+cortex skills community validate pdf-generation
 ```
 
 ### Publishing Process
@@ -443,7 +443,7 @@ repository: https://github.com/your-username/my-skill
 EOF
 
 # 3. Validate skill
-claude-ctx skills validate my-skill
+cortex skills validate my-skill
 
 # 4. Submit to community registry
 # (Future: automated submission via CLI or web interface)
@@ -576,30 +576,30 @@ Comprehensive analytics system for tracking skill usage, effectiveness, ROI, and
 
 ```bash
 # View all metrics
-claude-ctx skills metrics
+cortex skills metrics
 
 # View specific skill
-claude-ctx skills metrics api-design-patterns
+cortex skills metrics api-design-patterns
 
 # Analytics by metric type
-claude-ctx skills analytics --metric effectiveness
-claude-ctx skills analytics --metric roi
-claude-ctx skills analytics --metric trending
-claude-ctx skills analytics --metric tokens
-claude-ctx skills analytics --metric activations
-claude-ctx skills analytics --metric success_rate
+cortex skills analytics --metric effectiveness
+cortex skills analytics --metric roi
+cortex skills analytics --metric trending
+cortex skills analytics --metric tokens
+cortex skills analytics --metric activations
+cortex skills analytics --metric success_rate
 
 # Generate comprehensive report
-claude-ctx skills report --format text
-claude-ctx skills report --format json
-claude-ctx skills report --format csv
+cortex skills report --format text
+cortex skills report --format json
+cortex skills report --format csv
 
 # Trending analysis
-claude-ctx skills trending --days 7
-claude-ctx skills trending --days 30
+cortex skills trending --days 7
+cortex skills trending --days 30
 
 # Reset metrics
-claude-ctx skills metrics --reset
+cortex skills metrics --reset
 ```
 
 ### Effectiveness Score Algorithm
@@ -874,7 +874,7 @@ RECOMMENDATIONS
    done
 
    # Create versions.yaml
-   claude-ctx skills versions --initialize
+   cortex skills versions --initialize
    ```
 
 2. **Update Agent References**
@@ -892,16 +892,16 @@ RECOMMENDATIONS
    ```bash
    # Metrics are automatically enabled in Phase 4
    # View initial metrics after first activations
-   claude-ctx skills metrics
+   cortex skills metrics
    ```
 
 4. **Explore Community Skills**
    ```bash
    # Browse available community skills
-   claude-ctx skills community list
+   cortex skills community list
 
    # Install useful community skills
-   claude-ctx skills community install pdf-generation
+   cortex skills community install pdf-generation
    ```
 
 ---

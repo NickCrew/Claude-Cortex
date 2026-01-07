@@ -5,7 +5,7 @@ title: TUI Navigation Summary
 
 # TUI Navigation Summary
 
-This page summarizes how to move through the claude-ctx TUI and where each major system lives.
+This page summarizes how to move through the cortex TUI and where each major system lives.
 
 ## Primary Views (1–9, 0)
 

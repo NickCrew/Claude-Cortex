@@ -22,7 +22,7 @@ The **Memory Keeper** (`memory-keeper`) is a specialized agent designed to manag
 
 Activate it with:
 ```bash
-claude-ctx agent activate memory-keeper
+cortex agent activate memory-keeper
 ```
 Or just ask it: "Remember that..." or "What was the fix for...?"
 
@@ -36,28 +36,28 @@ The memory system includes robust **Path Validation** to ensure that all read/wr
 
 ```bash
 # List all notes
-claude-ctx memory list
+cortex memory list
 
 # List notes by type
-claude-ctx memory list knowledge
-claude-ctx memory list fixes --recent 5
+cortex memory list knowledge
+cortex memory list fixes --recent 5
 
 # Remember domain knowledge
-claude-ctx memory remember "Python asyncio uses a single thread"
+cortex memory remember "Python asyncio uses a single thread"
 
 # Capture session summary
-claude-ctx memory capture "Implemented auth feature"
+cortex memory capture "Implemented auth feature"
 
 # Document a bug fix
-claude-ctx memory fix "Fixed memory leak in stream processor"
+cortex memory fix "Fixed memory leak in stream processor"
 
 # Search notes
-claude-ctx memory search "asyncio"
+cortex memory search "asyncio"
 
 # Check auto-capture status
-claude-ctx memory auto status
-claude-ctx memory auto on
-claude-ctx memory auto off
+cortex memory auto status
+cortex memory auto on
+cortex memory auto off
 ```
 
 ### Slash Commands
@@ -77,7 +77,7 @@ Use these commands within Claude Code:
 
 Access the Memory Vault in the TUI:
 
-1. Launch TUI: `claude-ctx tui`
+1. Launch TUI: `cortex tui`
 2. Press `m` or select "Memory" from the view menu
 3. Browse notes organized by type
 4. View modification times and tags
@@ -108,9 +108,9 @@ Set a custom vault path:
 
 ```bash
 # Via environment variable
-export CLAUDE_CTX_MEMORY_VAULT=~/my-notes
+export CORTEX_MEMORY_VAULT=~/my-notes
 
-# Or in ~/.claude/memory-config.json
+# Or in ~/.cortex/memory-config.json
 {
   "vault_path": "~/my-notes"
 }
@@ -121,10 +121,10 @@ export CLAUDE_CTX_MEMORY_VAULT=~/my-notes
 Enable automatic session capture on exit:
 
 ```bash
-claude-ctx memory auto on
+cortex memory auto on
 ```
 
-Configuration in `~/.claude/memory-config.json`:
+Configuration in `~/.cortex/memory-config.json`:
 
 ```json
 {
@@ -177,7 +177,7 @@ Use the memory auto-capture hook for automatic session persistence:
 
 ```bash
 # Install the hook
-claude-ctx asset install hooks memory_auto_capture
+cortex asset install hooks memory_auto_capture
 ```
 
 See `hooks/examples/memory_auto_capture.py` for implementation details.
@@ -197,11 +197,11 @@ See `hooks/examples/memory_auto_capture.py` for implementation details.
 If the Memory view shows "No notes found":
 
 1. Check vault exists: `ls ~/basic-memory/`
-2. Verify notes are present: `claude-ctx memory list`
+2. Verify notes are present: `cortex memory list`
 3. Refresh the TUI view: press `r`
 
 ### Auto-capture not working
 
-1. Check if enabled: `claude-ctx memory auto status`
+1. Check if enabled: `cortex memory auto status`
 2. Verify session length meets minimum threshold
 3. Check exclude patterns aren't matching your sessions

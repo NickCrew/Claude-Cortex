@@ -312,7 +312,7 @@ class TestGetServerDocsPath:
 
     def test_found_exact_match(self, tmp_path: Path):
         """Test finding docs with exact name match."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         docs_dir = claude_dir / "mcp" / "docs"
         docs_dir.mkdir(parents=True)
 
@@ -325,7 +325,7 @@ class TestGetServerDocsPath:
 
     def test_found_case_insensitive(self, tmp_path: Path):
         """Test finding docs with case-insensitive match."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         docs_dir = claude_dir / "mcp" / "docs"
         docs_dir.mkdir(parents=True)
 
@@ -340,13 +340,13 @@ class TestGetServerDocsPath:
 
     def test_not_found(self, tmp_path: Path):
         """Test when docs don't exist."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         path = get_server_docs_path("nonexistent", claude_dir)
         assert path is None
 
     def test_no_docs_dir(self, tmp_path: Path):
         """Test when docs directory doesn't exist."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         path = get_server_docs_path("test", claude_dir)
         assert path is None
 

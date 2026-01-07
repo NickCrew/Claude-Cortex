@@ -97,7 +97,7 @@ def skill_info(skill: str, home: Path | None = None) -> Tuple[int, str]:
     skills_dir = claude_dir / "skills"
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills info <skill_name>"
+        return 1, _color("Usage:", RED) + " cortex skills info <skill_name>"
 
     skill_path = skills_dir / skill / "SKILL.md"
 
@@ -158,7 +158,7 @@ def skill_versions(skill: str, home: Path | None = None) -> Tuple[int, str]:
     skills_dir = claude_dir / "skills"
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills versions <skill_name>"
+        return 1, _color("Usage:", RED) + " cortex skills versions <skill_name>"
 
     skill_path = skills_dir / skill / "SKILL.md"
 
@@ -365,7 +365,7 @@ def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
     claude_dir = _resolve_claude_dir(home)
 
     if not text or not text.strip():
-        return 1, _color("Usage:", RED) + " claude-ctx skills analyze <text>"
+        return 1, _color("Usage:", RED) + " cortex skills analyze <text>"
 
     try:
         result = activator.suggest_skills(text, claude_dir)
@@ -383,7 +383,7 @@ def skill_deps(skill: str, home: Path | None = None) -> Tuple[int, str]:
     deps_file = skills_dir / "dependencies.map"
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills deps <skill_name>"
+        return 1, _color("Usage:", RED) + " cortex skills deps <skill_name>"
 
     if not deps_file.is_file():
         return 1, _color("Dependencies map not found at:", RED) + f" {deps_file}"
@@ -512,7 +512,7 @@ def skill_suggest(project_dir_str: str, home: Path | None = None) -> Tuple[int, 
                 _color(f"Total suggestions: {len(suggestions)}", YELLOW),
                 "",
                 "To activate a skill:",
-                f"  {_color('claude-ctx skills activate <skill_name>', YELLOW)}",
+                f"  {_color('cortex skills activate <skill_name>', YELLOW)}",
             ]
         )
 
@@ -785,7 +785,7 @@ def skill_compose(skill: str, home: Path | None = None) -> Tuple[int, str]:
 
     Args:
         skill: Name of the skill to analyze
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message)
@@ -796,7 +796,7 @@ def skill_compose(skill: str, home: Path | None = None) -> Tuple[int, str]:
     skills_dir = claude_dir / "skills"
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills compose <skill_name>"
+        return 1, _color("Usage:", RED) + " cortex skills compose <skill_name>"
 
     # Check if skill exists
     skill_path = skills_dir / skill / "SKILL.md"
@@ -880,7 +880,7 @@ def skill_community_list(
         search: Optional search query to filter by name/description
         verified: If True, only show verified community skills
         sort_by: Sort field - "name", "rating", or "author" (default: "name")
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message) where exit_code is 0 for success, 1 for error
@@ -1016,7 +1016,7 @@ def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, 
 
     Args:
         skill: Name of the skill to install (without .md extension)
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message) where exit_code is 0 for success, 1 for error
@@ -1031,7 +1031,7 @@ def skill_community_install(skill: str, home: Path | None = None) -> Tuple[int, 
     if not skill:
         return (
             1,
-            _color("Usage:", RED) + " claude-ctx skills community install <skill_name>",
+            _color("Usage:", RED) + " cortex skills community install <skill_name>",
         )
 
     # Check if skill is already installed
@@ -1082,7 +1082,7 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
 
     Args:
         skill: Name of the skill to validate (without .md extension)
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message) where exit_code is 0 for valid, 1 for invalid
@@ -1098,7 +1098,7 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
         return (
             1,
             _color("Usage:", RED)
-            + " claude-ctx skills community validate <skill_name>",
+            + " cortex skills community validate <skill_name>",
         )
 
     # Check community skills directory
@@ -1165,7 +1165,7 @@ def skill_community_rate(
     Args:
         skill: Name of the skill to rate (without .md extension)
         rating: Rating value from 1-5 stars
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message) where exit_code is 0 for success, 1 for error
@@ -1182,7 +1182,7 @@ def skill_community_rate(
         return (
             1,
             _color("Usage:", RED)
-            + " claude-ctx skills community rate <skill_name> <rating>",
+            + " cortex skills community rate <skill_name> <rating>",
         )
 
     # Validate rating
@@ -1232,7 +1232,7 @@ def skill_community_search(
     Args:
         query: Search query string (searches name and description)
         tags: Optional list of tags to filter by
-        home: Optional path to .claude directory
+        home: Optional path to cortex directory
 
     Returns:
         Tuple of (exit_code, message) where exit_code is 0 for success, 1 for error
@@ -1249,7 +1249,7 @@ def skill_community_search(
         return (
             1,
             _color("Usage:", RED)
-            + " claude-ctx skills community search <query> [--tags tag1,tag2]",
+            + " cortex skills community search <query> [--tags tag1,tag2]",
         )
 
     # Perform search
@@ -1433,7 +1433,7 @@ def skill_recommend(home: Path | None = None) -> Tuple[int, str]:
             [
                 "",
                 _color("Tip:", BLUE)
-                + " Use 'claude-ctx skills feedback <skill_name> <helpful|not-helpful>' to improve recommendations",
+                + " Use 'cortex skills feedback <skill_name> <helpful|not-helpful>' to improve recommendations",
             ]
         )
 
@@ -1460,7 +1460,7 @@ def skill_feedback(
     from .. import skill_recommender
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills feedback <skill_name> <helpful|not-helpful> [comment]"
+        return 1, _color("Usage:", RED) + " cortex skills feedback <skill_name> <helpful|not-helpful> [comment]"
 
     # Validate rating
     rating_lower = rating.lower()
@@ -1540,7 +1540,7 @@ def skill_rate(
     from ..skill_rating_prompts import SkillRatingPromptManager
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills rate <skill_name> --stars <1-5> [--review 'text']"
+        return 1, _color("Usage:", RED) + " cortex skills rate <skill_name> --stars <1-5> [--review 'text']"
 
     try:
         # Initialize rating collector
@@ -1589,7 +1589,7 @@ def skill_rate(
             "",
             _color("Thank you for rating this skill!", GREEN),
             "",
-            _color("View skill ratings with:", BLUE) + " claude-ctx skills ratings <skill_name>",
+            _color("View skill ratings with:", BLUE) + " cortex skills ratings <skill_name>",
         ])
 
         try:
@@ -1624,7 +1624,7 @@ def skill_ratings(
     from .. import skill_rating
 
     if not skill:
-        return 1, _color("Usage:", RED) + " claude-ctx skills ratings <skill_name>"
+        return 1, _color("Usage:", RED) + " cortex skills ratings <skill_name>"
 
     try:
         # Initialize rating collector
@@ -1761,7 +1761,7 @@ def skill_top_rated(
 
         output_lines.extend([
             "",
-            _color("View details with:", BLUE) + " claude-ctx skills ratings <skill_name>",
+            _color("View details with:", BLUE) + " cortex skills ratings <skill_name>",
         ])
 
         return 0, "\n".join(output_lines)

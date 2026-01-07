@@ -1,4 +1,4 @@
-"""Pytest configuration and shared fixtures for claude-ctx-plugin tests."""
+"""Pytest configuration and shared fixtures for cortex-plugin tests."""
 
 import json
 import tempfile
@@ -10,12 +10,12 @@ import pytest
 
 @pytest.fixture
 def temp_claude_dir(tmp_path):
-    """Create a temporary .claude directory structure.
+    """Create a temporary cortex directory structure.
 
     Returns:
-        Path to temporary .claude directory with standard structure
+        Path to temporary cortex directory with standard structure
     """
-    claude_dir = tmp_path / ".claude"
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir(exist_ok=True)
 
     # Create standard subdirectories
@@ -100,7 +100,7 @@ def sample_skill_file(temp_claude_dir, sample_skill_metadata):
     """Create a sample skill file with valid frontmatter.
 
     Args:
-        temp_claude_dir: Temporary .claude directory
+        temp_claude_dir: Temporary cortex directory
         sample_skill_metadata: Skill metadata for frontmatter
 
     Returns:
@@ -177,7 +177,7 @@ def metrics_file(temp_claude_dir, sample_metrics):
     """Create a metrics file with sample data.
 
     Args:
-        temp_claude_dir: Temporary .claude directory
+        temp_claude_dir: Temporary cortex directory
         sample_metrics: Sample metrics data
 
     Returns:
@@ -250,7 +250,7 @@ def activations_file(temp_claude_dir, sample_activations):
     """Create an activations file with sample data.
 
     Args:
-        temp_claude_dir: Temporary .claude directory
+        temp_claude_dir: Temporary cortex directory
         sample_activations: Sample activations data
 
     Returns:
@@ -268,7 +268,7 @@ def mock_yaml_file(temp_claude_dir, monkeypatch):
     """Create a mock YAML file and return a function to write content to it.
 
     Args:
-        temp_claude_dir: Temporary .claude directory
+        temp_claude_dir: Temporary cortex directory
         monkeypatch: Pytest monkeypatch fixture
 
     Returns:
@@ -293,7 +293,7 @@ def skill_versions_dir(temp_claude_dir):
         - pdf@2.1.0
 
     Args:
-        temp_claude_dir: Temporary .claude directory
+        temp_claude_dir: Temporary cortex directory
 
     Returns:
         List of created skill version directories
@@ -322,9 +322,9 @@ def tmp_claude_dir(tmp_path):
     """Alias for temp_claude_dir for compatibility with existing tests.
 
     Returns:
-        Path to temporary .claude directory
+        Path to temporary cortex directory
     """
-    claude_dir = tmp_path / ".claude"
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir(exist_ok=True)
 
     # Create standard subdirectories
@@ -342,11 +342,11 @@ def mock_claude_home(tmp_claude_dir, monkeypatch):
     """Mock the Claude plugin root environment variable.
 
     Args:
-        tmp_claude_dir: Temporary .claude directory
+        tmp_claude_dir: Temporary cortex directory
         monkeypatch: Pytest monkeypatch fixture
 
     Returns:
-        Path to temporary .claude directory
+        Path to temporary cortex directory
     """
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(tmp_claude_dir))
     return tmp_claude_dir
@@ -355,5 +355,6 @@ def mock_claude_home(tmp_claude_dir, monkeypatch):
 @pytest.fixture(autouse=True)
 def clean_claude_env(monkeypatch):
     """Ensure a clean environment for each test."""
-    monkeypatch.delenv("CLAUDE_CTX_SCOPE", raising=False)
+    monkeypatch.delenv("CORTEX_SCOPE", raising=False)
     monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
+    monkeypatch.delenv("CORTEX_ROOT", raising=False)

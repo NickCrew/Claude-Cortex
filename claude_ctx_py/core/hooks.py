@@ -47,7 +47,7 @@ class InstalledHook:
 
 
 def get_settings_path() -> Path:
-    """Get path to Claude Code settings.json."""
+    """Get path to cortex settings.json."""
     claude_dir = _resolve_claude_dir()
     return claude_dir / "settings.json"
 
@@ -253,7 +253,7 @@ def install_hook(
 
     Args:
         hook: Hook definition to install
-        target_dir: Target directory for hooks. Defaults to ~/.claude/hooks/
+        target_dir: Target directory for hooks. Defaults to ~/.cortex/hooks/
 
     Returns:
         Tuple of (success, message)
@@ -349,7 +349,7 @@ def create_hook_template(name: str, event: str, target_dir: Optional[Path] = Non
     Args:
         name: Hook name (without .py extension)
         event: Hook event type
-        target_dir: Target directory. Defaults to ~/.claude/hooks/
+        target_dir: Target directory. Defaults to ~/.cortex/hooks/
 
     Returns:
         Tuple of (success, message, path)
@@ -378,7 +378,7 @@ Usage:
             "hooks": [
               {{
                 "type": "command",
-                "command": "python3 ~/.claude/hooks/{name}.py"
+                "command": "python3 ~/.cortex/hooks/{name}.py"
               }}
             ]
           }}

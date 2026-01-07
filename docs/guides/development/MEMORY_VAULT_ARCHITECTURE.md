@@ -89,7 +89,7 @@ The vault prioritizes **quick capture** over perfect formatting, **powerful sear
 │ Storage Layer                                           │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  ~/basic-memory/  (or $CLAUDE_CTX_MEMORY_VAULT)        │
+│  ~/basic-memory/  (or $CORTEX_MEMORY_VAULT)        │
 │  ├─ knowledge/    → Domain knowledge notes             │
 │  ├─ projects/     → Project context                    │
 │  ├─ sessions/     → Session summaries                  │
@@ -102,7 +102,7 @@ The vault prioritizes **quick capture** over perfect formatting, **powerful sear
 
 ```
 1. User Input
-   └─ CLI: claude-ctx memory remember "FastAPI uses starlette"
+   └─ CLI: cortex memory remember "FastAPI uses starlette"
       TUI: Key M → New Note → Enter details
 
 2. Capture Module (capture.py)
@@ -214,13 +214,13 @@ updated: 2025-12-05
 **CLI Usage**:
 ```bash
 # Quick capture (auto-extracts topic)
-claude-ctx memory remember "FastAPI uses Starlette under the hood"
+cortex memory remember "FastAPI uses Starlette under the hood"
 
 # Explicit topic
-claude-ctx memory remember "Uses ASGI" --topic "fastapi"
+cortex memory remember "Uses ASGI" --topic "fastapi"
 
 # With tags
-claude-ctx memory remember "Supports async/await" --topic "python-async" --tags "python,async"
+cortex memory remember "Supports async/await" --topic "python-async" --tags "python,async"
 ```
 
 **Update Behavior**: If note exists, appends to Details section
@@ -262,10 +262,10 @@ captured: 2025-12-05
 **CLI Usage**:
 ```bash
 # Minimal
-claude-ctx memory project "my-api" --purpose "REST API for users"
+cortex memory project "my-api" --purpose "REST API for users"
 
 # Full context
-claude-ctx memory project "my-api" \
+cortex memory project "my-api" \
   --path "/Users/me/projects/my-api" \
   --purpose "REST API for user management" \
   --related "auth-service,user-db"
@@ -308,10 +308,10 @@ captured: 2025-12-05
 **CLI Usage**:
 ```bash
 # Quick capture
-claude-ctx memory capture "Added auth" --summary "Built JWT authentication"
+cortex memory capture "Added auth" --summary "Built JWT authentication"
 
 # Detailed
-claude-ctx memory capture "API Refactor" \
+cortex memory capture "API Refactor" \
   --summary "Refactored API endpoints" \
   --decisions "Use dependency injection|Add caching layer" \
   --implementations "Refactored auth|Added Redis cache" \
@@ -356,13 +356,13 @@ captured: 2025-12-05
 **CLI Usage**:
 ```bash
 # Minimal
-claude-ctx memory fix "Token expired too fast" \
+cortex memory fix "Token expired too fast" \
   --problem "Tokens expiring in 1 minute" \
   --cause "Wrong TTL constant" \
   --solution "Changed TTL to 3600 seconds"
 
 # With files
-claude-ctx memory fix "Auth bug" \
+cortex memory fix "Auth bug" \
   --problem "Users logged out randomly" \
   --cause "Token validation race condition" \
   --solution "Added mutex lock" \
@@ -378,25 +378,25 @@ claude-ctx memory fix "Auth bug" \
 
 **remember** - Quick knowledge capture
 ```bash
-claude-ctx memory remember TEXT [--topic TOPIC] [--tags TAGS]
+cortex memory remember TEXT [--topic TOPIC] [--tags TAGS]
 
 # Examples:
-claude-ctx memory remember "Redis is single-threaded"
-claude-ctx memory remember "Handles 100k ops/sec" --topic "redis-performance"
+cortex memory remember "Redis is single-threaded"
+cortex memory remember "Handles 100k ops/sec" --topic "redis-performance"
 ```
 
 **project** - Project context
 ```bash
-claude-ctx memory project NAME [--path PATH] [--purpose PURPOSE] [--related PROJECTS]
+cortex memory project NAME [--path PATH] [--purpose PURPOSE] [--related PROJECTS]
 
 # Examples:
-claude-ctx memory project "api-gateway" --purpose "Route all API traffic"
-claude-ctx memory project "auth-service" --path "~/services/auth" --related "user-db,redis"
+cortex memory project "api-gateway" --purpose "Route all API traffic"
+cortex memory project "auth-service" --path "~/services/auth" --related "user-db,redis"
 ```
 
 **capture** - Session summary
 ```bash
-claude-ctx memory capture [TITLE] [OPTIONS]
+cortex memory capture [TITLE] [OPTIONS]
 
 Options:
   --summary SUMMARY          What we worked on
@@ -406,15 +406,15 @@ Options:
   --project PROJECT         Related project
 
 # Examples:
-claude-ctx memory capture "Auth work" --summary "Built login flow"
-claude-ctx memory capture "Refactor" \
+cortex memory capture "Auth work" --summary "Built login flow"
+cortex memory capture "Refactor" \
   --decisions "Use FastAPI|Add Redis" \
   --implementations "Auth endpoints|Cache layer"
 ```
 
 **fix** - Bug fix documentation
 ```bash
-claude-ctx memory fix TITLE [OPTIONS]
+cortex memory fix TITLE [OPTIONS]
 
 Options:
   --problem PROBLEM     What was broken
@@ -424,7 +424,7 @@ Options:
   --project PROJECT     Related project
 
 # Examples:
-claude-ctx memory fix "Login timeout" \
+cortex memory fix "Login timeout" \
   --problem "Users timing out" \
   --cause "DB connection pool exhausted" \
   --solution "Increased pool size to 20"
@@ -432,38 +432,38 @@ claude-ctx memory fix "Login timeout" \
 
 **auto** - Auto-capture toggle
 ```bash
-claude-ctx memory auto [on|off|status]
+cortex memory auto [on|off|status]
 
 # Examples:
-claude-ctx memory auto on      # Enable auto-capture
-claude-ctx memory auto off     # Disable auto-capture
-claude-ctx memory auto status  # Check status
+cortex memory auto on      # Enable auto-capture
+cortex memory auto off     # Disable auto-capture
+cortex memory auto status  # Check status
 ```
 
 **list** - List notes
 ```bash
-claude-ctx memory list [TYPE] [--recent N] [--tags TAGS]
+cortex memory list [TYPE] [--recent N] [--tags TAGS]
 
 # Examples:
-claude-ctx memory list                           # All notes
-claude-ctx memory list knowledge                 # Knowledge notes only
-claude-ctx memory list --recent 10               # 10 most recent
-claude-ctx memory list sessions --tags "my-api"  # Tagged notes
+cortex memory list                           # All notes
+cortex memory list knowledge                 # Knowledge notes only
+cortex memory list --recent 10               # 10 most recent
+cortex memory list sessions --tags "my-api"  # Tagged notes
 ```
 
 **search** - Search notes
 ```bash
-claude-ctx memory search QUERY [--type TYPE] [--limit N]
+cortex memory search QUERY [--type TYPE] [--limit N]
 
 # Examples:
-claude-ctx memory search "redis"              # Search all notes
-claude-ctx memory search "authentication" --type knowledge
-claude-ctx memory search "bug" --limit 5      # Top 5 results
+cortex memory search "redis"              # Search all notes
+cortex memory search "authentication" --type knowledge
+cortex memory search "bug" --limit 5      # Top 5 results
 ```
 
 **stats** - Vault statistics
 ```bash
-claude-ctx memory stats
+cortex memory stats
 
 # Output:
 Vault: /Users/me/basic-memory
@@ -620,7 +620,7 @@ bonuses:
 
 **Example**:
 ```bash
-$ claude-ctx memory search "authentication"
+$ cortex memory search "authentication"
 
 Found 3 result(s) for 'authentication':
 
@@ -647,7 +647,7 @@ Auth Service Refactor (sessions)
 
 **Example**:
 ```bash
-$ claude-ctx memory list --tags "python,fastapi"
+$ cortex memory list --tags "python,fastapi"
 
 # Returns notes tagged with EITHER python OR fastapi
 ```
@@ -819,15 +819,15 @@ def execute_skill(skill_name, context):
 ### Vault Path Resolution
 
 **Priority Order**:
-1. `CLAUDE_CTX_MEMORY_VAULT` environment variable
+1. `CORTEX_MEMORY_VAULT` environment variable
 2. Config file (`~/.claude/memory-config.json` → `vault_path`)
 3. Default: `~/basic-memory`
 
 **Example**:
 ```bash
 # Override vault path
-export CLAUDE_CTX_MEMORY_VAULT="$HOME/my-knowledge-base"
-claude-ctx memory remember "Custom vault location"
+export CORTEX_MEMORY_VAULT="$HOME/my-knowledge-base"
+cortex memory remember "Custom vault location"
 ```
 
 ### Directory Structure
@@ -989,7 +989,7 @@ def test_memory_remember(tmp_path):
 
 **1. Check vault path**:
 ```bash
-$ claude-ctx memory stats
+$ cortex memory stats
 Vault: /Users/me/basic-memory
 ```
 

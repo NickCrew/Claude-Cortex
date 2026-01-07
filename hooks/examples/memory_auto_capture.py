@@ -26,7 +26,7 @@ Usage:
 
 Environment Variables:
     CLAUDE_SESSION_CONTEXT: Session context (if available)
-    CLAUDE_CTX_MEMORY_VAULT: Override vault path (optional)
+    CORTEX_MEMORY_VAULT: Override vault path (optional)
 
 The hook checks ~/.claude/memory-config.json for auto-capture enabled state.
 """
@@ -68,8 +68,8 @@ def is_auto_capture_enabled() -> bool:
 
 def get_vault_path() -> Path:
     """Get the vault path."""
-    if "CLAUDE_CTX_MEMORY_VAULT" in os.environ:
-        return Path(os.environ["CLAUDE_CTX_MEMORY_VAULT"]).expanduser()
+    if "CORTEX_MEMORY_VAULT" in os.environ:
+        return Path(os.environ["CORTEX_MEMORY_VAULT"]).expanduser()
     config = get_config()
     return Path(config.get("vault_path", "~/basic-memory")).expanduser()
 

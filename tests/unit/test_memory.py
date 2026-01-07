@@ -300,7 +300,7 @@ class TestCapture:
     """Test capture CLI functions."""
 
     def test_memory_remember(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         exit_code, message = capture.memory_remember(
             text="Python is great for scripting",
@@ -312,7 +312,7 @@ class TestCapture:
         assert (tmp_path / "knowledge" / "python.md").exists()
 
     def test_memory_project(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         exit_code, message = capture.memory_project(
             name="test-project",
@@ -325,7 +325,7 @@ class TestCapture:
         assert (tmp_path / "projects" / "test-project.md").exists()
 
     def test_memory_capture(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         exit_code, message = capture.memory_capture(
             title="Test Session",
@@ -341,7 +341,7 @@ class TestCapture:
         assert len(sessions) == 1
 
     def test_memory_fix(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         exit_code, message = capture.memory_fix(
             title="Fixed null pointer",
@@ -373,7 +373,7 @@ class TestCapture:
         assert "disabled" in message
 
     def test_memory_list(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         # Create some notes
         capture.memory_remember(text="Test fact", topic="test")
@@ -384,7 +384,7 @@ class TestCapture:
         # May be "No notes" or list output
 
     def test_memory_search(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         # Create a note
         capture.memory_remember(text="Python is great", topic="python")
@@ -394,7 +394,7 @@ class TestCapture:
         assert exit_code == 0
 
     def test_get_vault_stats(self, tmp_path, monkeypatch):
-        monkeypatch.setenv("CLAUDE_CTX_MEMORY_VAULT", str(tmp_path))
+        monkeypatch.setenv("CORTEX_MEMORY_VAULT", str(tmp_path))
 
         # Create some notes
         capture.memory_remember(text="Fact 1", topic="topic1")

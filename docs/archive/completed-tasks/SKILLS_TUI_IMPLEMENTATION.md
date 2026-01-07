@@ -1,7 +1,7 @@
 # Skills TUI View Implementation Summary
 
 ## Overview
-Added Skills management view to the TUI at `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py`.
+Added Skills management view to the TUI at `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py`.
 
 ## Changes Made
 
@@ -55,7 +55,7 @@ Updated AgentTUI.__init__:
 self.state = TUIState(
     agents=[],
     skills=[],  # Initialize empty skills list
-    status_message="Welcome to claude-ctx TUI",
+    status_message="Welcome to cortex TUI",
     show_help=False,
 )
 ```
@@ -173,7 +173,7 @@ elif key == "c":
 
 ## Files Modified
 
-1. `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py`
+1. `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py`
    - Added imports for skills and metrics functions
    - Added SkillInfo dataclass
    - Modified TUIState to include skills list

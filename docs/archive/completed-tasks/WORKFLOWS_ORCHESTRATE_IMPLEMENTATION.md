@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully implemented **Workflows (View #6)** and **Orchestrate (View #7)** views for the claude-ctx TUI.
+Successfully implemented **Workflows (View #6)** and **Orchestrate (View #7)** views for the cortex TUI.
 
 ## Files Created
 
@@ -147,7 +147,7 @@ Example `active_agents.json`:
 Run the patch script:
 
 ```bash
-cd /Users/nferguson/Developer/personal/claude-ctx-plugin
+cd /Users/nferguson/Developer/personal/cortex-plugin
 python3 workflows_orchestrate_patch.py
 ```
 
@@ -182,7 +182,7 @@ mkdir -p ~/.claude/workflows
 cp workflows/*.yaml ~/.claude/workflows/
 
 # Run TUI
-claude-ctx tui
+cortex tui
 
 # Press '6' to view workflows
 # Use j/k to navigate
@@ -223,7 +223,7 @@ cat > ~/.claude/tasks/current/active_agents.json <<'EOF'
 EOF
 
 # Run TUI
-claude-ctx tui
+cortex tui
 
 # Press '7' to view orchestration dashboard
 # Watch real-time updates
@@ -233,10 +233,10 @@ claude-ctx tui
 
 ```bash
 # Start a workflow (creates state files)
-claude-ctx workflow run bug-fix
+cortex workflow run bug-fix
 
 # Run TUI
-claude-ctx tui
+cortex tui
 
 # Press '6' to see the running workflow
 # Check progress and status
@@ -380,7 +380,7 @@ All dependencies are already in `tui.py`:
 ## File Structure
 
 ```
-claude-ctx-plugin/
+cortex-plugin/
 ├── claude_ctx_py/
 │   ├── tui.py (modified)
 │   ├── tui_workflows_orchest.py (new - temporary)
@@ -472,7 +472,7 @@ For issues or questions:
 
 ## Conclusion
 
-The Workflows and Orchestrate views are fully implemented and ready for integration into the claude-ctx TUI. All methods are complete, documented, and tested. The automated patch script handles all integration steps, with a manual fallback guide available if needed.
+The Workflows and Orchestrate views are fully implemented and ready for integration into the cortex TUI. All methods are complete, documented, and tested. The automated patch script handles all integration steps, with a manual fallback guide available if needed.
 
 **Total Implementation**:
 - 7 new methods (384 lines of code)

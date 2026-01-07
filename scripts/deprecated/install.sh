@@ -388,7 +388,7 @@ verify_installation() {
     # Check command
     if command -v cortex &> /dev/null; then
         log_success "cortex command available"
-        cortex --help > /dev/null 2>&1 && log_success "claude-ctx runs correctly"
+        cortex --help > /dev/null 2>&1 && log_success "cortex runs correctly"
     else
         log_error "cortex command not found"
         all_good=false

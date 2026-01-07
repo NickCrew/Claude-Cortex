@@ -195,9 +195,9 @@ After completing the pending additions:
 
 ## File Locations
 
-- Main file: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_textual.py`
-- Core rules functions: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/rules.py`
-- Base utilities: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/base.py`
+- Main file: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_textual.py`
+- Core rules functions: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/rules.py`
+- Base utilities: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/base.py`
 
 ## Pattern Consistency
 
