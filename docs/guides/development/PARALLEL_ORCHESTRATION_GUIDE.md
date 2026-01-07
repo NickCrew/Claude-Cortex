@@ -185,16 +185,16 @@ All quality gates passed! Implementation ready for deployment.
 ### Check Active Configuration:
 ```bash
 # View status
-claude-ctx status
+cortex status
 
 # List active modes
-claude-ctx mode status
+cortex mode status
 
 # List active agents
-claude-ctx agent status
+cortex agent status
 
 # Export current context
-claude-ctx export context my-config.md
+cortex export context my-config.md
 ```
 
 ### View Documentation:

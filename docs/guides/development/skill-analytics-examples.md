@@ -27,7 +27,7 @@ The skill analytics system provides deep insights into skill usage, effectivenes
 ### Example 1: View All Skill Metrics
 
 ```bash
-claude-ctx skills metrics
+cortex skills metrics
 
 # Output:
 # Skill Metrics Summary
@@ -50,7 +50,7 @@ claude-ctx skills metrics
 ### Example 2: View Specific Skill Metrics
 
 ```bash
-claude-ctx skills metrics api-design-patterns
+cortex skills metrics api-design-patterns
 
 # Output:
 # Skill: api-design-patterns
@@ -78,7 +78,7 @@ claude-ctx skills metrics api-design-patterns
 ### Example 3: Generate Comprehensive Report
 
 ```bash
-claude-ctx skills report --format text
+cortex skills report --format text
 
 # Output:
 # ════════════════════════════════════════════════════════════════════════════════
@@ -111,7 +111,7 @@ claude-ctx skills report --format text
 
 ```bash
 # Method 1: Use effectiveness metric
-claude-ctx skills analytics --metric effectiveness
+cortex skills analytics --metric effectiveness
 
 # Output:
 # Effectiveness Score
@@ -124,7 +124,7 @@ claude-ctx skills analytics --metric effectiveness
 # ...
 
 # Method 2: Use ROI metric
-claude-ctx skills analytics --metric roi
+cortex skills analytics --metric roi
 
 # Output shows skills ranked by cost savings and efficiency
 ```
@@ -140,7 +140,7 @@ claude-ctx skills analytics --metric roi
 
 ```bash
 # View trending skills over last 30 days
-claude-ctx skills trending --days 30
+cortex skills trending --days 30
 
 # Output:
 # Trending Skills (Last 30 Days)
@@ -168,7 +168,7 @@ claude-ctx skills trending --days 30
 
 ```bash
 # View skills by token usage
-claude-ctx skills analytics --metric tokens
+cortex skills analytics --metric tokens
 
 # Output:
 # Tokens Saved
@@ -180,7 +180,7 @@ claude-ctx skills analytics --metric tokens
 # ...
 
 # Calculate total efficiency
-claude-ctx skills report --format json | jq '.summary.total_tokens_saved'
+cortex skills report --format json | jq '.summary.total_tokens_saved'
 # Output: 652800
 ```
 
@@ -195,7 +195,7 @@ claude-ctx skills report --format json | jq '.summary.total_tokens_saved'
 
 ```bash
 # Generate correlation matrix
-claude-ctx skills analytics --metric correlations
+cortex skills analytics --metric correlations
 
 # Output:
 # Skill Correlations
@@ -223,7 +223,7 @@ claude-ctx skills analytics --metric correlations
 
 ```bash
 # View success rates
-claude-ctx skills analytics --metric success_rate
+cortex skills analytics --metric success_rate
 
 # Output:
 # Success Rate (%)
@@ -236,7 +236,7 @@ claude-ctx skills analytics --metric success_rate
 # ...
 
 # Get recommendations
-claude-ctx skills report --format text | grep -A 5 "RECOMMENDATIONS"
+cortex skills report --format text | grep -A 5 "RECOMMENDATIONS"
 
 # Output:
 # RECOMMENDATIONS
@@ -262,8 +262,8 @@ claude-ctx skills report --format text | grep -A 5 "RECOMMENDATIONS"
 
 ```bash
 # Track metrics for both versions
-claude-ctx skills metrics api-design-patterns@1.2.0
-claude-ctx skills metrics api-design-patterns@2.0.0
+cortex skills metrics api-design-patterns@1.2.0
+cortex skills metrics api-design-patterns@2.0.0
 
 # Compare effectiveness
 # v1.2.0: Effectiveness 84.2/100, Success Rate: 92.1%
@@ -278,7 +278,7 @@ claude-ctx skills metrics api-design-patterns@2.0.0
 
 ```bash
 # Calculate total ROI
-claude-ctx skills report --format json | \
+cortex skills report --format json | \
   jq '.summary | {
     total_skills,
     total_activations,
@@ -309,7 +309,7 @@ claude-ctx skills report --format json | \
 
 ```bash
 # Export detailed analytics
-claude-ctx skills report --format json > analytics.json
+cortex skills report --format json > analytics.json
 
 # Analyze lifecycle stages
 cat analytics.json | jq -r '.skills | to_entries[] |
@@ -339,7 +339,7 @@ cat analytics.json | jq -r '.skills | to_entries[] |
 
 ```bash
 # Calculate optimization priority score
-claude-ctx skills report --format json | \
+cortex skills report --format json | \
   jq -r '.skills | to_entries[] |
   {
     skill: .key,
@@ -381,7 +381,7 @@ High score = High usage + Room for improvement
 
 ```bash
 # Export all metrics to CSV
-claude-ctx skills report --format csv
+cortex skills report --format csv
 
 # Output file: ~/.claude/.metrics/exports/analytics_20251017_153000.csv
 # Import into Excel/Google Sheets for custom analysis
@@ -399,7 +399,7 @@ microservices-patterns,38,97600,2568,92.10%,2025-10-17 13:45:22,$0.2928,84.70
 
 ```bash
 # Export to JSON
-claude-ctx skills report --format json > analytics.json
+cortex skills report --format json > analytics.json
 
 # Example: Find skills with effectiveness > 85
 cat analytics.json | jq -r '
@@ -422,7 +422,7 @@ cat << 'EOF' > /tmp/skill_metrics.sh
 #!/bin/bash
 # Generate Prometheus metrics from skill analytics
 
-claude-ctx skills report --format json | jq -r '
+cortex skills report --format json | jq -r '
   .skills | to_entries[] |
   "# TYPE skill_activations gauge\n" +
   "skill_activations{skill=\"\(.key)\"} \(.value.basic_metrics.activation_count)\n" +
@@ -449,7 +449,7 @@ cat << 'EOF' > /usr/local/bin/skill-analytics-report
 
 REPORT_FILE="/tmp/skill_report_$(date +%Y%m%d).txt"
 
-claude-ctx skills report --format text > "$REPORT_FILE"
+cortex skills report --format text > "$REPORT_FILE"
 
 # Email report
 mail -s "Daily Skill Analytics Report - $(date +%Y-%m-%d)" \
@@ -473,7 +473,7 @@ chmod +x /usr/local/bin/skill-analytics-report
 
 ```bash
 # Visualize activation counts
-claude-ctx skills analytics --metric activations
+cortex skills analytics --metric activations
 
 # Output:
 # Skill Activations
@@ -493,7 +493,7 @@ claude-ctx skills analytics --metric activations
 
 ```bash
 # Show 7-day trends
-claude-ctx skills trending --days 7
+cortex skills trending --days 7
 
 # Output with trend indicators:
 # Trending Skills (Last 7 Days)
@@ -513,7 +513,7 @@ claude-ctx skills trending --days 7
 ### Issue 1: No Metrics Available
 
 ```bash
-claude-ctx skills metrics
+cortex skills metrics
 
 # Output:
 # No metrics available. Use skills to generate analytics.
@@ -537,7 +537,7 @@ cp ~/.claude/.metrics/skills/metrics.json.backup \
 
 ```bash
 # Validate metrics file
-claude-ctx skills metrics --validate
+cortex skills metrics --validate
 
 # Output shows any corrupted or missing data
 # Rebuild metrics from activation logs if needed
@@ -551,19 +551,19 @@ claude-ctx skills metrics --validate
 
 1. **Weekly Review**
    ```bash
-   claude-ctx skills trending --days 7
-   claude-ctx skills analytics --metric effectiveness
+   cortex skills trending --days 7
+   cortex skills analytics --metric effectiveness
    ```
 
 2. **Monthly Analysis**
    ```bash
-   claude-ctx skills report --format text > monthly_report.txt
+   cortex skills report --format text > monthly_report.txt
    # Review and act on recommendations
    ```
 
 3. **Quarterly Deep Dive**
    ```bash
-   claude-ctx skills report --format csv
+   cortex skills report --format csv
    # Import into spreadsheet for detailed analysis
    # Plan skill improvements for next quarter
    ```

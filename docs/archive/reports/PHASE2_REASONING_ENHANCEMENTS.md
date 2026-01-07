@@ -351,7 +351,7 @@ Unlike OpenAI o1's hidden reasoning, visible thinking traces:
 
 ### vs OpenAI o1
 
-| Feature | claude-ctx | OpenAI o1 |
+| Feature | cortex | OpenAI o1 |
 |---------|-----------|-----------|
 | **Cost (128K)** | $0.384/request | $1.920/request (**5x more**) |
 | **Thinking Visibility** | 3 levels (markers/steps/full) | Hidden (no access) |

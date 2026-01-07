@@ -2,7 +2,7 @@
 
 ## Overview
 
-The AI Intelligence System is a **learning, predictive automation layer** that makes the claude-ctx framework **think for you**. It analyzes your context, learns from successful patterns, and automatically recommends or activates the right agents—keeping you in the Claude Code flow without manual management.
+The AI Intelligence System is a **learning, predictive automation layer** that makes the cortex framework **think for you**. It analyzes your context, learns from successful patterns, and automatically recommends or activates the right agents—keeping you in the Claude Code flow without manual management.
 
 ## 🎯 Core Philosophy
 
@@ -50,7 +50,7 @@ Predicts optimal workflows:
 ### Launch TUI with AI Assistant
 
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 Then press **`8`** to open the AI Assistant view.
@@ -59,16 +59,16 @@ Then press **`8`** to open the AI Assistant view.
 
 ```bash
 # Get AI recommendations
-claude-ctx ai recommend
+cortex ai recommend
 
 # Auto-activate recommended agents
-claude-ctx ai auto-activate
+cortex ai auto-activate
 
 # Export recommendations to JSON
-claude-ctx ai export --output recommendations.json
+cortex ai export --output recommendations.json
 
 # Record successful session for learning
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 ```
 
 ## 📺 TUI AI Assistant View (Key 8)
@@ -296,7 +296,7 @@ intelligence/
 ### Get Recommendations
 
 ```bash
-$ claude-ctx ai recommend
+$ cortex ai recommend
 
 🤖 AI RECOMMENDATIONS
 ══════════════════════════════════════════════════════════════════════
@@ -336,7 +336,7 @@ Agent Sequence:
 ### Auto-Activate Agents
 
 ```bash
-$ claude-ctx ai auto-activate
+$ cortex ai auto-activate
 
 🤖 Auto-activating 2 agents...
 
@@ -349,7 +349,7 @@ $ claude-ctx ai auto-activate
 ### Export to JSON
 
 ```bash
-$ claude-ctx ai export --output my-recommendations.json
+$ cortex ai export --output my-recommendations.json
 
 ✓ Exported AI recommendations to my-recommendations.json
   2 agent recommendations
@@ -359,7 +359,7 @@ $ claude-ctx ai export --output my-recommendations.json
 ### Record Success
 
 ```bash
-$ claude-ctx ai record-success --outcome "feature complete"
+$ cortex ai record-success --outcome "feature complete"
 
 ✓ Recorded successful session for learning
   Context: 8 files changed
@@ -459,7 +459,7 @@ cat ~/.claude/intelligence/session_history.json | jq '.patterns | to_entries | m
 ### 1. Record Successful Sessions
 ```bash
 # After completing work successfully
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 ```
 
 ### 2. Review Recommendations

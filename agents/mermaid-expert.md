@@ -66,7 +66,7 @@ metrics:
     - iteration_count
     - stakeholder_feedback_score
 metadata:
-  source: claude-ctx-plugin
+  source: cortex-plugin
   version: 2025.12.21
 ---
 

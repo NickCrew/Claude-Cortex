@@ -68,7 +68,7 @@ metrics:
     - review_latency_ms
     - risk_level
 metadata:
-  source: claude-ctx-core
+  source: cortex-core
   version: 2025.10.14
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 ---

@@ -1,4 +1,4 @@
-# Sequential Execution Plan for claude-ctx-plugin Improvements
+# Sequential Execution Plan for cortex-plugin Improvements
 
 **Status**: Ready to execute
 **Context**: Day 1 complete (coverage 10.83% → 21.85%, all warnings eliminated)
@@ -432,7 +432,7 @@ cat > docs/guides/testing-conventions.md << 'EOF'
 # Testing Conventions
 
 ## Overview
-This guide documents testing patterns and conventions for claude-ctx-plugin.
+This guide documents testing patterns and conventions for cortex-plugin.
 
 ## Test Organization
 [Structure and file organization]
@@ -1182,7 +1182,7 @@ class EmbeddingStrategy(ILearningStrategy):
 #### Step 13.4: Add Feature Flag (1 hour)
 ```python
 # Enable with flag
-USE_EMBEDDINGS = os.getenv("CLAUDE_CTX_USE_EMBEDDINGS", "false").lower() == "true"
+USE_EMBEDDINGS = os.getenv("CORTEX_USE_EMBEDDINGS", "false").lower() == "true"
 ```
 
 #### Step 13.5: Write Tests (4-6 hours)
@@ -1360,10 +1360,10 @@ Ensure performance regressions caught
 pytest --cov=claude_ctx_py --cov-report=term-missing
 
 # Formatting
-make lint
+just lint
 
 # Type checking
-make type-check
+just type-check
 
 # Security scan
 bandit -r claude_ctx_py/
@@ -1394,8 +1394,8 @@ pytest --cov=claude_ctx_py --cov-report=html
 python -m claude_ctx_py.tui.app
 
 # CLI testing
-claude-ctx --help
-claude-ctx agent list
+cortex --help
+cortex agent list
 ```
 
 ### Output Deliverables
@@ -1425,11 +1425,11 @@ pytest --cov=claude_ctx_py --cov-report=html -v
 # TUI components: ≥70%
 
 # 3. Verify quality gates
-make verify
+just verify
 
 # 4. Manual testing
 python -m claude_ctx_py.tui.app
-claude-ctx agent list
+cortex agent list
 
 # 5. Generate final report
 pytest --cov=claude_ctx_py --cov-report=html

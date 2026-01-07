@@ -111,7 +111,7 @@ System prioritizes **aggregate community wisdom**, **measured outcomes** over su
 ```
 1. User Action
    └─ TUI: Press Ctrl+R on selected skill
-      CLI: claude-ctx skills rate <skill> --stars 5
+      CLI: cortex skills rate <skill> --stars 5
 
 2. Collect Rating Data
    └─ Stars (1-5)
@@ -806,7 +806,7 @@ def _get_user_hash(self) -> str:
 ### Rate a Skill
 
 ```bash
-$ claude-ctx skills rate python-testing-patterns --stars 5 --helpful --succeeded
+$ cortex skills rate python-testing-patterns --stars 5 --helpful --succeeded
 
 ✅ Recorded rating for python-testing-patterns
    Stars: ⭐⭐⭐⭐⭐
@@ -817,7 +817,7 @@ $ claude-ctx skills rate python-testing-patterns --stars 5 --helpful --succeeded
 ### View Top-Rated
 
 ```bash
-$ claude-ctx skills top-rated --limit 10
+$ cortex skills top-rated --limit 10
 
 TOP RATED SKILLS (min 3 ratings)
 
@@ -837,7 +837,7 @@ TOP RATED SKILLS (min 3 ratings)
 ### Export Ratings
 
 ```bash
-$ claude-ctx skills export-ratings --skill python-testing-patterns
+$ cortex skills export-ratings --skill python-testing-patterns
 
 ✅ Exported ratings to ratings-export.json
    18 ratings

@@ -1,6 +1,6 @@
 # Cortex TUI Entity Relationship Guide
 
-Understand how the TUI slices the Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`claude-ctx tui`) but the concepts match the CLI and context bundle.
+Understand how the TUI slices the Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (`cortex tui`) but the concepts match the CLI and context bundle.
 
 ## Quick Reference Map
 
@@ -8,7 +8,7 @@ Understand how the TUI slices the Cortex plugin into manageable pieces so you ca
 |------------|-----------------|--------------|-----------------|-------------------|
 | Agents     | Individual specialists with triggers, dependencies, and skills | `agents/*.md`, `inactive/agents/` | View `2` (Agents) | Form the workforce that workflows/scenarios schedule |
 | Modes      | Behavioral overlays that rewrite execution rules (e.g., `Architect`, `Token_Efficiency`) | `modes/*.md`, `.active-modes` | View `3` (Modes) | Change how every active agent executes tasks |
-| Rules      | Instruction blocks (workflow, quality, efficiency) loaded into `CLAUDE.md` | `rules/*.md` | View `4` (Rules) | Provide guardrails that profiles/modes rely on |
+| Rules      | Instruction blocks (workflow, quality, efficiency) loaded into `CLAUDE.md` | `rules/*.md`, `inactive/rules/` | View `4` (Rules) | Provide guardrails that profiles/modes rely on; active when the file is in `rules/` |
 | Principles | Engineering principles snippets | `principles/*.md`, `.active-principles` | View `p` (Principles) | Shapes the baseline reasoning framework |
 | Skills     | Discrete capabilities/commands surfaced in the palette | `skills/**/SKILL.md` | View `5` (Skills) | Extend what agents can automate |
 | Profiles   | Bundles of agents + modes + rules + resource limits | `profiles/**.profile` | View `8` (Profiles) | One tap switches the entire operating posture |
@@ -31,7 +31,7 @@ Use modes when you need a targeted behavior tweak (e.g., temporarily enabling `S
 |--------|-----------|-----------|
 | Format | Simple YAML with `steps`, `trigger`, and `success_criteria` (see `workflows/feature-development.yaml`) | Rich YAML with `phases`, `monitoring`, `alerts`, and `rollback` (see `scenarios/product-launch.yaml`) |
 | TUI access | View `6` (press `6` or pick “Show Workflows”) | Press `S` (or use the command palette → “Show Scenarios”) |
-| Actions | View live status/progress, detect paused/running workflows, and read steps. (Run/resume via CLI `claude-ctx workflow run ...`.) | Preview (`P`), auto-run (`R`), schema-validate (`V`), and inspect status history (`H`) directly inside the TUI.
+| Actions | View live status/progress, detect paused/running workflows, and read steps. (Run/resume via CLI `cortex workflow run ...`.) | Preview (`P`), auto-run (`R`), schema-validate (`V`), and inspect status history (`H`) directly inside the TUI.
 | Scope | Linear, execution-focused (e.g., Feature Development) | Event/incident playbooks that stitch profiles + agents per phase, include monitoring + rollback |
 
 Workflows are ideal for predictable, repeatable sequences (feature work, bug fixes). Highlight one in the Workflows view and press `Shift+R` to run it or `s` to stop it without leaving the dashboard. Scenarios add orchestration metadata for messy or long-lived events: highlight a scenario in the Scenarios view and press `Shift+R` to auto-run it (use `s` to clear the lock if you need to abort). The `product-launch` scenario, for instance, wires four named phases, assigns profiles (`quality`, `meta`), and lists success criteria and monitoring thresholds.

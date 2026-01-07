@@ -180,7 +180,7 @@ def integrate_tui_views():
     tui_file.write_text(content)
     print(f"\n✓ Successfully integrated new TUI views into {tui_file}")
     print("\nNext steps:")
-    print("1. Test the TUI: claude-ctx tui")
+    print("1. Test the TUI: cortex tui")
     print("2. Press '8' for profile view")
     print("3. Press '9' for export view")
     print("4. Press 'i' for init wizard")

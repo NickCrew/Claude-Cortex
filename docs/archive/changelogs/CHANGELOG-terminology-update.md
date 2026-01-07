@@ -1,7 +1,7 @@
 # Terminology Update Changelog
 
 **Date**: 2025-11-24
-**Scope**: Clarify relationship between claude-ctx system and Claude Code execution
+**Scope**: Clarify relationship between cortex system and Claude Code execution
 
 ## Summary
 

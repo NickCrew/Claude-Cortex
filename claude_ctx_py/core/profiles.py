@@ -770,7 +770,7 @@ def init_minimal(home: Path | None = None) -> Tuple[int, str]:
         lines.append(_color(f"Created {len(created)} directories/files", GREEN))
     if message:
         lines.append(message)
-    lines.append(_color("Initialized minimal claude-ctx configuration", GREEN))
+    lines.append(_color("Initialized minimal cortex configuration", GREEN))
 
     return 0, "\n".join(lines)
 
@@ -787,7 +787,7 @@ def init_profile(
 
     if not profile_name:
         message = _color("init_profile requires a profile name", RED)
-        hint = "Use 'claude-ctx profile list' to view available presets."
+        hint = "Use 'cortex profile list' to view available presets."
         return 1, f"{message}\n{hint}"
 
     loaders = {
@@ -818,7 +818,7 @@ def init_profile(
         lines.append(profile_message)
     lines.append(
         _color(
-            f"Initialized claude-ctx with profile '{profile_name}'",
+            f"Initialized cortex with profile '{profile_name}'",
             GREEN,
         )
     )

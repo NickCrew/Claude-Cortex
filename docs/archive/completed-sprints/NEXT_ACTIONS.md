@@ -137,8 +137,8 @@ pytest tests/unit/test_intelligence_comprehensive.py --cov=claude_ctx_py/intelli
 
 **Sections**:
 1. Development setup (venv, dependencies)
-2. Running tests (`make test`, `make test-cov`)
-3. Code style (`make lint`, `make type-check`)
+2. Running tests (`just test`, `just test-cov`)
+3. Code style (`just lint`, `just type-check`)
 4. Git workflow (branch, commit, PR)
 5. Code review process
 6. Testing conventions
@@ -295,13 +295,13 @@ pytest -W error::ResourceWarning
 ### Check Code Quality
 ```bash
 # Format code
-make lint-fix
+just lint-fix
 
 # Type checking
-make type-check
+just type-check
 
 # Full quality check
-make lint && make type-check && make test-cov
+just lint && just type-check && just test-cov
 ```
 
 ### Coverage Reports

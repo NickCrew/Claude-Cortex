@@ -335,7 +335,7 @@ AI features work out-of-the-box:
 The CLI uses Python's `argparse` for command routing with a hierarchical subcommand structure:
 
 ```
-claude-ctx
+cortex
 ├── mode (subcommand)
 │   ├── list
 │   ├── activate <name>
@@ -424,12 +424,12 @@ The CLI includes built-in shell completion generation:
 
 ```bash
 # Generate completions
-claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
-claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
-claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+cortex completion bash > ~/.bash_completion.d/cortex
+cortex completion zsh > ~/.zsh/completions/_cortex
+cortex completion fish > ~/.config/fish/completions/cortex.fish
 
 # Show installation instructions
-claude-ctx completion bash --install
+cortex completion bash --install
 ```
 
 **Implementation**:
@@ -686,7 +686,7 @@ StatusBar {
 
 **Location**: `claude_ctx_py/intelligence.py`
 
-The Intelligence System is the **brain** of claude-ctx—it analyzes context, learns patterns, and makes recommendations.
+The Intelligence System is the **brain** of cortex—it analyzes context, learns patterns, and makes recommendations.
 
 #### Core Components
 
@@ -2358,13 +2358,13 @@ def component_deactivate(
 
 ```bash
 # Activate a mode
-$ claude-ctx mode activate Brainstorming
+$ cortex mode activate Brainstorming
 
 # Deactivate a rule
-$ claude-ctx rules deactivate quality-gate-rules
+$ cortex rules deactivate quality-gate-rules
 
 # List active/inactive
-$ claude-ctx mode list
+$ cortex mode list
 ```
 
 **Programmatic Usage**:
@@ -2393,7 +2393,7 @@ print(f"Inactive: {inactive}")
 
 **Location**: `claude_ctx_py/core/doctor.py`
 
-The Doctor Diagnostic System provides **system health checks and validation** for the claude-ctx environment.
+The Doctor Diagnostic System provides **system health checks and validation** for the cortex environment.
 
 #### Architecture
 
@@ -2440,7 +2440,7 @@ def check_consistency(claude_dir: Path) -> List[Diagnosis]:
                     level="ERROR",
                     message=f"Active mode '{mode}' references missing file",
                     resource=str(mode_path),
-                    suggestion=f"Run 'claude-ctx mode deactivate {mode}'"
+                    suggestion=f"Run 'cortex mode deactivate {mode}'"
                 ))
     
     # Active Rules
@@ -2455,7 +2455,7 @@ def check_consistency(claude_dir: Path) -> List[Diagnosis]:
                     level="ERROR",
                     message=f"Active rule '{rule}' references missing file",
                     resource=str(rule_path),
-                    suggestion=f"Run 'claude-ctx rules deactivate {rule}'"
+                    suggestion=f"Run 'cortex rules deactivate {rule}'"
                 ))
     
     return diagnoses
@@ -2535,7 +2535,7 @@ class Diagnosis:
 
 ```bash
 # Full diagnostic report
-$ claude-ctx doctor
+$ cortex doctor
 
 [PASS] Consistency check
 [WARN] Duplicate check
@@ -2551,7 +2551,7 @@ $ claude-ctx doctor
 
 ```bash
 # Attempt automatic fixes
-$ claude-ctx doctor --fix
+$ cortex doctor --fix
 
 [PASS] Consistency check
 [FIX] Duplicate check
@@ -2568,7 +2568,7 @@ $ claude-ctx doctor --fix
 #!/bin/bash
 # .git/hooks/pre-commit
 
-claude-ctx doctor
+cortex doctor
 if [ $? -ne 0 ]; then
     echo "❌ Doctor diagnostics failed. Fix issues before committing."
     exit 1
@@ -2580,9 +2580,9 @@ fi
 ```yaml
 # .github/workflows/quality.yml
 steps:
-  - name: Run claude-ctx diagnostics
+  - name: Run cortex diagnostics
     run: |
-      claude-ctx doctor
+      cortex doctor
       if [ $? -ne 0 ]; then
         echo "::error::Context health checks failed"
         exit 1
@@ -2927,20 +2927,20 @@ SQLite: INSERT INTO skill_activations
    $ ./scripts/deprecated/install.sh
    
 2. Verify installation
-   $ claude-ctx --version
-   $ claude-ctx mode list
+   $ cortex --version
+   $ cortex mode list
    
 3. (Optional) Set up shell completion
-   $ claude-ctx completion bash --install
+   $ cortex completion bash --install
    
 4. Launch TUI to explore
-   $ claude-ctx tui
+   $ cortex tui
    
 5. Activate first agent
    TUI: Press '0' → Select 'code-reviewer' → Press Enter
    
 6. (Optional) Enable AI intelligence
-   $ claude-ctx ai recommend
+   $ cortex ai recommend
 ```
 
 ### 7.2 Daily Development Workflow
@@ -2948,7 +2948,7 @@ SQLite: INSERT INTO skill_activations
 ```
 # Morning: Start watch mode
 Terminal 1:
-$ claude-ctx ai watch
+$ cortex ai watch
 
 # Code as normal
 Terminal 2:
@@ -2957,9 +2957,9 @@ $ vim src/auth/security.py
 
 # Review recommendations
 Terminal 2:
-$ claude-ctx ai recommend
+$ cortex ai recommend
 # or
-$ claude-ctx tui
+$ cortex tui
 [Press '8' for AI Assistant view]
 
 # Commit changes
@@ -2968,30 +2968,30 @@ $ git commit -m "feat: add 2FA support"
 [Watch mode detects new commit, analyzes changes]
 
 # End of day: Capture session
-$ claude-ctx memory capture "Implemented 2FA authentication"
+$ cortex memory capture "Implemented 2FA authentication"
 ```
 
 ### 7.3 Security Audit Workflow
 
 ```
 # 1. Activate security profile
-$ claude-ctx profile load security-audit
+$ cortex profile load security-audit
 
 # 2. Review active agents
-$ claude-ctx agent list --active
+$ cortex agent list --active
 # Activated: security-auditor, compliance-auditor, penetration-tester
 
 # 3. Run workflow
-$ claude-ctx workflow run security-comprehensive
+$ cortex workflow run security-comprehensive
 
 # 4. Review findings
 [Agents provide security findings in Claude Code]
 
 # 5. Document issues
-$ claude-ctx memory fix "Found SQL injection in /api/users endpoint"
+$ cortex memory fix "Found SQL injection in /api/users endpoint"
 
 # 6. Deactivate profile
-$ claude-ctx profile unload
+$ cortex profile unload
 ```
 
 ---
@@ -3183,7 +3183,7 @@ dependencies: []
 1. Activate via CLI or TUI:
 
 ```bash
-claude-ctx agent activate my-custom-agent
+cortex agent activate my-custom-agent
 ```
 
 1. Agent is auto-discovered, no code changes needed.
@@ -3307,15 +3307,15 @@ $ ./scripts/deprecated/install.sh
 
 ```bash
 python3 -m pip install .
-claude-ctx completion bash --install
-sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
+cortex completion bash --install
+sudo cp docs/reference/cortex.1 /usr/local/share/man/man1/
 ```
 
 **3. Claude Code Plugin**:
 
 ```bash
 # From Claude Code
-/plugin install claude-ctx@marketplace-name
+/plugin install cortex@marketplace-name
 ```
 
 ### 12.2 Directory Structure (Post-Install)
@@ -3353,8 +3353,8 @@ sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `CLAUDE_PLUGIN_ROOT` | Plugin sandbox (set by Claude Code) | - |
-| `CLAUDE_CTX_MEMORY_VAULT` | Memory vault location | `~/basic-memory` |
-| `CLAUDE_CTX_DEBUG` | Enable debug logging | `false` |
+| `CORTEX_MEMORY_VAULT` | Memory vault location | `~/basic-memory` |
+| `CORTEX_DEBUG` | Enable debug logging | `false` |
 
 ### 12.4 Multi-User / Team Setup
 
@@ -3362,7 +3362,7 @@ sudo cp docs/reference/claude-ctx.1 /usr/local/share/man/man1/
 
 ```bash
 # Team repo
-team-claude-ctx/
+team-cortex/
 ├── agents/             # Team-specific agents
 ├── modes/              # Team modes
 ├── rules/              # Team rules
@@ -3370,8 +3370,8 @@ team-claude-ctx/
 └── profiles/           # Team profiles
 
 # Each developer
-export CLAUDE_PLUGIN_ROOT=/path/to/team-claude-ctx
-claude-ctx mode list  # Sees team modes
+export CLAUDE_PLUGIN_ROOT=/path/to/team-cortex
+cortex mode list  # Sees team modes
 ```
 
 **Personal Overrides**:
@@ -3392,7 +3392,7 @@ claude-ctx mode list  # Sees team modes
 
 #### Issue: "Agent not found"
 
-**Symptoms**: `claude-ctx agent activate X` fails with "Agent 'X' not found"
+**Symptoms**: `cortex agent activate X` fails with "Agent 'X' not found"
 
 **Diagnosis**:
 
@@ -3413,7 +3413,7 @@ $ echo $CLAUDE_PLUGIN_ROOT
 
 #### Issue: TUI not loading
 
-**Symptoms**: `claude-ctx tui` crashes or shows blank screen
+**Symptoms**: `cortex tui` crashes or shows blank screen
 
 **Diagnosis**:
 
@@ -3422,7 +3422,7 @@ $ echo $CLAUDE_PLUGIN_ROOT
 $ python3 -m pip show textual
 
 # Run with debug mode
-$ TEXTUAL_LOG=1 claude-ctx tui
+$ TEXTUAL_LOG=1 cortex tui
 ```
 
 **Resolution**:
@@ -3433,7 +3433,7 @@ $ TEXTUAL_LOG=1 claude-ctx tui
 
 #### Issue: Watch mode not detecting changes
 
-**Symptoms**: `claude-ctx ai watch` runs but doesn't show recommendations
+**Symptoms**: `cortex ai watch` runs but doesn't show recommendations
 
 **Diagnosis**:
 
@@ -3442,10 +3442,10 @@ $ TEXTUAL_LOG=1 claude-ctx tui
 $ git status
 
 # Check watch interval
-$ claude-ctx ai watch --interval 1.0  # Faster polling
+$ cortex ai watch --interval 1.0  # Faster polling
 
 # Check if auto-activate is disabled
-$ claude-ctx ai watch --no-auto-activate
+$ cortex ai watch --no-auto-activate
 ```
 
 **Resolution**:
@@ -3478,7 +3478,7 @@ $ sqlite3 ~/.claude/data/skill-ratings.db \
 - Ensure data directory exists: `mkdir -p ~/.claude/data`
 - Check disk space: `df -h ~`
 - Check SQLite is not locked: `lsof ~/.claude/data/skill-ratings.db`
-- Rebuild database: `rm ~/.claude/data/skill-ratings.db && claude-ctx tui`
+- Rebuild database: `rm ~/.claude/data/skill-ratings.db && cortex tui`
 
 ### 13.2 Performance Issues
 
@@ -3494,14 +3494,14 @@ $ find ~/.claude/agents -name "*.md" | wc -l
 $ find ~/.claude/skills -name "*.md" | wc -l
 
 # Check system resources
-$ top -p $(pgrep -f "claude-ctx tui")
+$ top -p $(pgrep -f "cortex tui")
 ```
 
 **Resolution**:
 
 - Move unused agents to `inactive/`
 - Reduce skill count (archive old skills)
-- Increase Python heap: `PYTHONMALLOC=malloc claude-ctx tui`
+- Increase Python heap: `PYTHONMALLOC=malloc cortex tui`
 - Use faster terminal emulator
 
 #### Issue: High CPU usage in watch mode
@@ -3512,15 +3512,15 @@ $ top -p $(pgrep -f "claude-ctx tui")
 
 ```bash
 # Check polling interval
-$ ps aux | grep "claude-ctx ai watch"
+$ ps aux | grep "cortex ai watch"
 
 # Monitor git operations
-$ strace -p $(pgrep -f "claude-ctx ai watch") 2>&1 | grep git
+$ strace -p $(pgrep -f "cortex ai watch") 2>&1 | grep git
 ```
 
 **Resolution**:
 
-- Increase check interval: `claude-ctx ai watch --interval 5.0`
+- Increase check interval: `cortex ai watch --interval 5.0`
 - Reduce repository size (if very large)
 - Disable watch mode, use manual recommendations instead
 
@@ -3547,7 +3547,7 @@ $ ls -t ~/.claude/*.bak | head -1
 $ cp ~/.claude/CLAUDE.md.bak ~/.claude/CLAUDE.md
 
 # Or regenerate from scratch
-$ claude-ctx doctor --fix-claude-md
+$ cortex doctor --fix-claude-md
 ```
 
 ---

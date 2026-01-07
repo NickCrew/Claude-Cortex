@@ -1,91 +1,47 @@
 # Cortex Command Namespaces
 
-Organized command library for efficient development workflows.
+This repository ships slash command definitions in `commands/`. Each file maps to a Claude Code
+slash command (`/namespace:command`). For plugin discovery, command files are flattened as
+`commands/<namespace>-<command>.md`; supporting notes and templates live under `commands/<namespace>/`.
 
-## Namespace Organization
+## Namespace Overview (current)
 
-Commands are organized by domain for better discoverability and logical grouping.
+- `/analyze`: `code`, `doctor`, `estimate`, `explain`, `security-scan`, `troubleshoot`
+- `/cleanup`: `archive-sprint`, `code-cleanup`, `deps-cleanup`, `docs-cleanup`, `test-cleanup`
+- `/collaboration`: `assumption-buster`, `concept-forge`, `idea-lab`, `mashup`, `pre-mortem`
+- `/ctx`: `brainstorm`, `plan`, `execute-plan`
+- `/deploy`: `prepare-release`
+- `/design`: `system`, `ui`, `workflow`
+- `/dev`: `build`, `code-review`, `dx`, `git`, `implement`, `test`
+- `/docs`: `diagrams`, `generate`, `index`, `teacher`, `tutorials`
+- `/orchestrate`: `brainstorm`, `spawn`, `task`
+- `/quality`: `cleanup`, `improve`
+- `/reasoning`: `adjust`, `budget`, `metrics`
+- `/session`: `load`, `reflect`, `save`
+- `/test`: `generate-tests`
+- `/tools`: `select`
 
-### 📦 /dev - Development Commands
+## Visual Mode Commands (no namespace)
 
-Core development tasks and code management.
-
-**Available Commands:**
-
-- `code-review` - Comprehensive code quality review
-
-**Usage:**
-
-```bash
-/dev:code-review [path] [--focus quality|security|performance|all]
-```
-
----
-
-### 🧪 /test - Testing Commands
-
-Test generation, execution, and quality assurance.
-
-**Available Commands:**
-
-- `generate-tests` - Generate comprehensive test suite
-
-**Usage:**
-
-```bash
-/test:generate-tests [path] [--type unit|integration|e2e|all] [--coverage-target 80]
-```
-
----
-
-### 🚀 /deploy - Deployment Commands
-
-Release preparation and deployment automation.
-
-**Available Commands:**
-
-- `prepare-release` - Prepare application for production deployment
-
-**Usage:**
-
-```bash
-/deploy:prepare-release [version] [--type major|minor|patch]
-```
-
----
-
-### 🔍 /analyze - Analysis Commands
-
-Code analysis, security scanning, and optimization.
-
-**Available Commands:**
-
-- `security-scan` - Comprehensive security vulnerability assessment
-
-**Usage:**
-
-```bash
-/analyze:security-scan [path] [--standard OWASP|GDPR|SOC2|HIPAA]
-```
-
----
+- `/supersaiyan` - Base visual excellence mode
+- `/kamehameha` - Enhanced visual polish
+- `/over9000` - Maximum visual polish
 
 ## Using Commands
 
 ### Via Claude Code Chat
 
-Simply type the command in the chat:
-
 ```
-/dev:code-review src/components
+/dev:implement auth flow
 ```
 
-### Via CLI (Future)
+### Via CLI (if enabled)
 
-```bash
-claude-ctx cmd dev:code-review src/components
-claude-ctx cmd test:generate-tests --coverage-target 90
 ```
+cortex cmd dev:implement "auth flow"
+```
+
+Note: `cortex` is deprecated but remains as a compatible alias for now.
 
 ## Command Structure
 
@@ -93,39 +49,17 @@ Each command file includes:
 
 ```yaml
 ---
-name: command-name
+name: namespace:command
 description: What the command does
-category: namespace
+category: workflow|utility|analysis
 personas: [thinking, modes]           # Conceptual guidance
-subagents: [claude, code, workers]   # Task tool delegation targets
-mcp-servers: [external, integrations] # Optional MCP integrations
+subagents: [general-purpose, ...]     # Task tool delegation targets
+mcp-servers: [context7, ...]          # Optional MCP integrations
 ---
 
 # Command Documentation
 ...
 ```
-
-## Creating Custom Commands
-
-1. Choose the appropriate namespace:
-   - `/dev` - Development and code tasks
-   - `/test` - Testing operations
-   - `/deploy` - Deployment and release
-   - `/analyze` - Analysis and auditing
-
-2. Create a markdown file:
-
-   ```bash
-   touch ~/.claude/commands/[namespace]/[command-name].md
-   ```
-
-3. Follow the template structure:
-   - YAML frontmatter with metadata
-   - Purpose and triggers
-   - Usage instructions
-   - Detailed process steps
-   - Output format
-   - Examples
 
 ## Execution Architecture
 
@@ -141,40 +75,18 @@ Conceptual roles that guide Claude's perspective and decision-making:
 - `security` - Security-first mindset
 - `qa-specialist` - Quality standards
 
-*Personas influence HOW Claude thinks, not WHAT tools are used.*
+*Personas influence how Claude thinks, not what tools are used.*
 
 ### Subagents (Workers via Task Tool)
 
-Specialized agents launched via Claude Code's Task tool for complex work:
-
-**Development Subagents:**
-
-- `general-purpose` - Versatile implementation work
-- `code-reviewer` - Code quality and security analysis
-- `typescript-pro` / `python-pro` - Language specialists
-
-**Testing Subagents:**
-
-- `test-automator` - Test generation and execution
-- `quality-engineer` - Quality assurance
-
-**Deployment Subagents:**
-
-- `deployment-engineer` - Release preparation
-- `devops-architect` - Infrastructure
-
-**Analysis Subagents:**
-
-- `Explore` - Codebase exploration and discovery
-- `security-auditor` - Security assessment
-- `performance-engineer` - Performance analysis
+Specialized agents launched via Claude Code's Task tool for complex work.
 
 **When commands delegate** (use Task tool to launch subagents):
 
-- ✅ Complex operations (>3 files, >5 steps)
-- ✅ Multi-domain work (code + tests + docs)
-- ✅ Parallel workstreams possible
-- ✅ User needs progress visibility
+- Complex operations (>3 files, >5 steps)
+- Multi-domain work (code + tests + docs)
+- Parallel workstreams possible
+- User needs progress visibility
 
 **When commands use direct tools**:
 
@@ -182,7 +94,7 @@ Specialized agents launched via Claude Code's Task tool for complex work:
 - Quick reads/searches
 - Atomic changes
 
-See: [`docs/architecture/terminology.md`](../docs/architecture/terminology.md) for complete architecture explanation.
+See: `docs/reference/architecture/terminology.md` for complete architecture explanation.
 
 ## Best Practices
 
@@ -191,12 +103,3 @@ See: [`docs/architecture/terminology.md`](../docs/architecture/terminology.md) f
 3. **Consistent Structure** - Follow the template format
 4. **Agent Composition** - Leverage multiple agents when needed
 5. **Documentation** - Provide clear usage examples
-
-## Future Namespaces
-
-Planned additions:
-
-- `/docs` - Documentation generation
-- `/optimize` - Performance optimization
-- `/refactor` - Code refactoring
-- `/monitor` - Application monitoring

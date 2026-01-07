@@ -64,7 +64,7 @@ metrics:
     - completion_rate
     - learner_feedback
 metadata:
-  source: claude-ctx-plugin
+  source: cortex-plugin
   version: 2025.12.21
 ---
 

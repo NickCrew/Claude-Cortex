@@ -1,12 +1,12 @@
 # MCP Server Management Implementation Summary
 
-Complete implementation of MCP (Model Context Protocol) server management for claude-ctx.
+Complete implementation of MCP (Model Context Protocol) server management for cortex.
 
 ## Overview
 
 Successfully implemented a comprehensive, read-only MCP server management system with three interfaces:
 1. **Core Module** - Python API (`claude_ctx_py/core/mcp.py`)
-2. **CLI Commands** - Terminal interface (`claude-ctx mcp`)
+2. **CLI Commands** - Terminal interface (`cortex mcp`)
 3. **TUI View** - Visual dashboard (Press `7` in TUI)
 
 ## Implementation Philosophy
@@ -125,12 +125,12 @@ Successfully implemented a comprehensive, read-only MCP server management system
 - ✅ Full type hints
 
 ### CLI Features
-- ✅ `claude-ctx mcp list` - List servers
-- ✅ `claude-ctx mcp show <server>` - Server details
-- ✅ `claude-ctx mcp docs <server>` - Documentation
-- ✅ `claude-ctx mcp test <server>` - Test config
-- ✅ `claude-ctx mcp diagnose` - Diagnose all
-- ✅ `claude-ctx mcp snippet <server>` - Generate JSON
+- ✅ `cortex mcp list` - List servers
+- ✅ `cortex mcp show <server>` - Server details
+- ✅ `cortex mcp docs <server>` - Documentation
+- ✅ `cortex mcp test <server>` - Test config
+- ✅ `cortex mcp diagnose` - Diagnose all
+- ✅ `cortex mcp snippet <server>` - Generate JSON
 - ✅ Help text for all commands
 - ✅ Consistent error handling
 - ✅ Works with no servers configured
@@ -255,27 +255,27 @@ class MCPViewMixin:
 ### CLI Usage
 ```bash
 # List all servers
-claude-ctx mcp list
+cortex mcp list
 
 # Show server details
-claude-ctx mcp show context7
+cortex mcp show context7
 
 # View documentation
-claude-ctx mcp docs sequential
+cortex mcp docs sequential
 
 # Test configuration
-claude-ctx mcp test playwright
+cortex mcp test playwright
 
 # Diagnose all servers
-claude-ctx mcp diagnose
+cortex mcp diagnose
 
 # Generate config snippet
-claude-ctx mcp snippet magic
+cortex mcp snippet magic
 ```
 
 ### TUI Usage
 ```
-1. Launch TUI: claude-ctx tui
+1. Launch TUI: cortex tui
 2. Press 7: Navigate to MCP view
 3. j/k: Navigate servers
 4. Enter: Show details
@@ -422,7 +422,7 @@ Successfully implemented a complete MCP server management system that:
 - Provides visibility into Claude Desktop MCP configuration
 - Offers curated documentation for popular servers
 - Enables quick diagnostics and troubleshooting
-- Integrates seamlessly with existing claude-ctx architecture
+- Integrates seamlessly with existing cortex architecture
 - Maintains read-only philosophy (no config editing)
 - Delivers excellent user experience across CLI, TUI, and API
 

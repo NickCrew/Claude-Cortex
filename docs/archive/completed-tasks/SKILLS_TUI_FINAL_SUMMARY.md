@@ -1,7 +1,7 @@
 # Skills TUI Implementation - Final Summary
 
 ## Overview
-Successfully added Skills management view infrastructure to the TUI at `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py`.
+Successfully added Skills management view infrastructure to the TUI at `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py`.
 
 ## Files Created
 
@@ -220,7 +220,7 @@ if self.state.current_view == "skills":
 ### To apply changes:
 ```bash
 # 1. Review the methods in skills_tui_methods.py
-cat /Users/nferguson/Developer/personal/claude-ctx-plugin/skills_tui_methods.py
+cat /Users/nferguson/Developer/personal/cortex-plugin/skills_tui_methods.py
 
 # 2. Add methods to AgentTUI class in tui.py
 # Copy/paste methods after existing methods
@@ -246,10 +246,10 @@ python -m claude_ctx_py.tui
 
 ## Related Files
 
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py` (modified)
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/core/skills.py` (used)
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/metrics.py` (used)
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/skills_tui_methods.py` (new)
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py` (modified)
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/core/skills.py` (used)
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/metrics.py` (used)
+- `/Users/nferguson/Developer/personal/cortex-plugin/skills_tui_methods.py` (new)
 
 ## Issues Encountered
 

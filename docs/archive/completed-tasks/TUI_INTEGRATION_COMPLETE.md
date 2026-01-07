@@ -55,24 +55,24 @@ All issues have been resolved and the TUI now compiles without errors.
    - Contains: CLAUDE.md, FLAGS.md, RULES.md, modes/, rules/, agents/, etc.
    - Purpose: Claude's behavioral configuration
 
-2. **~/Developer/personal/claude-ctx-plugin/** is the project directory
-   - Contains: Python source code for the claude-ctx tool
+2. **~/Developer/personal/cortex-plugin/** is the project directory
+   - Contains: Python source code for the cortex tool
    - Purpose: The actual application code
 
-The TUI changes are **source code** changes to the `claude-ctx` package, not configuration changes. They belong in the project directory, not in `~/.claude`.
+The TUI changes are **source code** changes to the `cortex` package, not configuration changes. They belong in the project directory, not in `~/.claude`.
 
 ## How to Use the TUI
 
 To launch the integrated TUI:
 
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 **Note**: You may need to reinstall the package for the changes to take effect:
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 pip install -e .
 ```
 
@@ -97,7 +97,7 @@ Once launched, navigate between views using number keys:
 
 ## Next Steps
 
-1. **Test the TUI**: Run `claude-ctx tui` and test all 9 views
+1. **Test the TUI**: Run `cortex tui` and test all 9 views
 2. **Report Issues**: If any views don't work, create an issue
 3. **Quality Improvements**: Address code review findings (code duplication, input validation, etc.)
 

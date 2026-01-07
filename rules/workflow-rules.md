@@ -1,30 +1,27 @@
-  # Workflow Rules
+# Workflow Rules
 
-  ## Task Pattern & Planning
-  - **Task Pattern**: Understand → Plan → TodoWrite(3+ tasks) → Execute → Track → Validate
-  - **Quality Checks**: Run lint/typecheck before marking tasks complete
-  - **Evidence-Based**: All claims must be verifiable
+## Task Flow
+- Understand -> Plan -> TodoWrite (3+ tasks) -> Execute -> Track -> Validate.
+- Claims must be supported by tests, logs, or docs.
 
-  ## Execution Efficiency (canonical)
-  - **Best Tool Selection**: Use the strongest available tool for the task; default to AGENTS tooling guidance.
-  - **Parallel Everything**: Run independent operations in parallel; prefer Task agents for multi-step or multi-file work.
-  - **Batch Operations**: Use MultiEdit for multi-file edits instead of serial single edits.
-  - **Agent Delegation**: Delegate complex workstreams to Task agents when visibility or concurrency is needed.
+## Execution Efficiency
+- Use the strongest available tool; batch independent reads/edits in parallel.
+- Use Task agents for multi-step or multi-file workstreams.
 
-  ## Workspace Hygiene
-  - **Clean After Operations**: Remove temporary files when done.
-  - **No Artifact Pollution**: Delete build artifacts, logs, and debugging outputs.
-  - **Professional Workspace**: Keep project structure tidy.
+## Workspace Hygiene
+- Remove temporary files and debug artifacts.
+- Keep changes scoped to the request.
 
-  ## Git Workflow
-  - **Always Check Status First**: Start every session with `git status` and `git branch`
-  - **Feature Branches Only**: Create feature branches for ALL work, never work on main/master
-  - **Incremental Commits**: Commit frequently with meaningful messages
-  - **Verify Before Commit**: Always `git diff` to review changes before staging
-  - **Critical**: See @rules/git-rules.md for commit standards and AI attribution PROHIBITION
+## Documentation Placement
+- How-to guides: `docs/guides/`
+- Tutorials: `docs/tutorials/`
+- Reference + manpages + API: `docs/reference/`
+- Development + contributor docs: `docs/development/`
+- Architecture: `docs/architecture/`
+- Diagrams: `docs/diagrams/` (or a local `diagrams/` next to the doc)
+- Archive: `docs/archive/`
 
-  ## Implementation Completeness
-  - **No Partial Features**: If you start implementing, you MUST complete to working state
-  - **No TODO Comments**: Never leave TODO for core functionality
-  - **Real Code Only**: All generated code must be production-ready
-
+## Git Workflow
+- Use feature branches or worktrees for parallel work.
+- Start with `git status` and review `git diff` before staging.
+- Follow @rules/git-rules.md for commit standards and attribution.

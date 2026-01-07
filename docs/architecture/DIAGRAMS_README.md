@@ -63,7 +63,7 @@ This document provides visual representations of the Cortex architecture to help
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Data Layer                                │
 │                                                                  │
-│  File System (~/.claude/)          Runtime Data                 │
+│  File System (~/.cortex/)          Runtime Data                 │
 │  ┌─────────────────────┐           ┌──────────────────────┐    │
 │  │ CLAUDE.md           │           │ data/metrics/        │    │
 │  │ modes/*.md          │           │ data/sessions/       │    │
@@ -109,7 +109,7 @@ This document provides visual representations of the Cortex architecture to help
                     ▼
             ┌───────────────┐
             │  File System  │
-            │  (~/.claude)  │
+            │  (~/.cortex)  │
             └───────────────┘
 ```
 
@@ -350,7 +350,7 @@ Key Bindings:
 ```
 User                 Watch Process         Intelligence        File System
  │                         │                     │                  │
- │ claude-ctx ai watch     │                     │                  │
+ │ cortex ai watch     │                     │                  │
  ├────────────────────────►│                     │                  │
  │                         │                     │                  │
  │                         │ Start monitoring    │                  │
@@ -475,7 +475,7 @@ Special states:
 ## Directory Structure Diagram
 
 ```
-claude-ctx-plugin/
+cortex-plugin/
 │
 ├── claude_ctx_py/              # Python package
 │   ├── cli.py                  # CLI entry point

@@ -1,8 +1,8 @@
-# Parallel Improvement Plan for claude-ctx-plugin
+# Parallel Improvement Plan for cortex-plugin
 
 ## Executive Summary
 
-This plan addresses comprehensive feedback on the claude-ctx-plugin project through **6 concurrent workstreams** that maximize parallel execution while maintaining quality gates. Total estimated timeline: **10 weeks** with proper parallelization vs. 15+ weeks sequential.
+This plan addresses comprehensive feedback on the cortex-plugin project through **6 concurrent workstreams** that maximize parallel execution while maintaining quality gates. Total estimated timeline: **10 weeks** with proper parallelization vs. 15+ weeks sequential.
 
 ## Workstream Architecture
 
@@ -506,7 +506,7 @@ This plan addresses comprehensive feedback on the claude-ctx-plugin project thro
 ### Tasks:
 
 1. **Baseline Metrics Capture** (Day 1)
-   - [ ] Run `make install-dev && pytest -m "unit and not slow"`
+   - [ ] Run `just install-dev && pytest -m "unit and not slow"`
    - [ ] Export `coverage.xml` and generate HTML report
    - [ ] Document current state:
      - Coverage percentage per module

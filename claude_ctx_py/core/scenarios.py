@@ -243,7 +243,7 @@ def scenario_list(home: Path | None = None) -> str:
         entries.append((metadata.name, description, metadata.priority))
 
     if not entries:
-        return "No scenarios defined. Add YAML files under ~/.claude/scenarios/."
+        return "No scenarios defined. Add YAML files under ~/.cortex/scenarios/."
 
     lines: List[str] = ["Available scenarios:\n"]
     for name, desc, priority in entries:
@@ -499,7 +499,7 @@ def scenario_run(
     lock_file = lock_dir / f"{lock_name}.lock"
     if lock_file.exists():
         return 1, _color(
-            f"Scenario '{metadata.name}' already running (lock present). Use 'claude-ctx orchestrate stop {metadata.name}' if the previous run is stuck.",
+            f"Scenario '{metadata.name}' already running (lock present). Use 'cortex orchestrate stop {metadata.name}' if the previous run is stuck.",
             RED,
         )
 

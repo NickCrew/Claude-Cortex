@@ -4,13 +4,13 @@ title: Architecture
 nav_order: 3
 ---
 
-# claude-ctx Architecture & Design
+# cortex Architecture & Design
 
-Comprehensive architecture documentation for the claude-ctx context management framework.
+Comprehensive architecture documentation for the cortex context management framework.
 
 ## Overview
 
-claude-ctx is a sophisticated context orchestration framework for Claude Code that provides:
+cortex is a sophisticated context orchestration framework for Claude Code that provides:
 
 - **On-Demand Loading**: Agents, modes, and skills load only when needed
 - **Dependency Management**: Automatic resolution of agent dependencies
@@ -47,7 +47,7 @@ Auto-detect project type, language, and framework to activate relevant agents an
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                   claude-ctx CLI                             │
+│                   cortex CLI                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │  Agent Mgmt  │  │  Skill Mgmt  │  │  Init System │      │
 │  │              │  │              │  │              │      │
@@ -296,7 +296,7 @@ RULES="workflow-rules quality-rules"
 
 ### Init System
 
-**Purpose**: Auto-detect project context and configure claude-ctx appropriately.
+**Purpose**: Auto-detect project context and configure cortex appropriately.
 
 **Workflow:**
 ```
@@ -336,7 +336,7 @@ RULES="workflow-rules quality-rules"
 
 ### No Redundancy - Clear Separation
 
-The claude-ctx components form a **well-layered architecture** with no redundancy. Each component serves a distinct purpose:
+The cortex components form a **well-layered architecture** with no redundancy. Each component serves a distinct purpose:
 
 | Component | Purpose | Analogy |
 |-----------|---------|---------|
@@ -637,7 +637,7 @@ Benefit: Discoverability, automation, scripting
 1. **Research**: Identify clear responsibility and activation criteria
 2. **Design**: Define dependencies, workflows, metrics
 3. **Implement**: Create agent .md with complete frontmatter
-4. **Validate**: `claude-ctx agent validate agent-name`
+4. **Validate**: `cortex agent validate agent-name`
 5. **Test**: Activate and verify behavior
 6. **Document**: Add to guides/agents.md catalog
 7. **Optimize**: Assign appropriate model (Haiku/Sonnet)
@@ -648,7 +648,7 @@ Benefit: Discoverability, automation, scripting
 2. **Extract**: Create skill/ directory with SKILL.md
 3. **Structure**: Frontmatter + progressive tiers
 4. **Link**: Add skill to agent frontmatter
-5. **Validate**: `claude-ctx skills validate skill-name`
+5. **Validate**: `cortex skills validate skill-name`
 6. **Document**: Update skills/README.md
 
 ### Custom Workflows

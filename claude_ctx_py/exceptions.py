@@ -1,4 +1,4 @@
-"""Custom exceptions for claude-ctx-plugin.
+"""Custom exceptions for cortex-plugin.
 
 This module defines a hierarchy of exceptions used throughout the plugin
 to provide specific, actionable error messages with recovery suggestions.
@@ -13,10 +13,10 @@ PathLike = Union[str, Path]
 
 
 class ClaudeCtxError(Exception):
-    """Base exception for all claude-ctx errors.
+    """Base exception for all cortex errors.
 
     All custom exceptions inherit from this base class, allowing users
-    to catch all claude-ctx specific errors with a single except clause.
+    to catch all cortex specific errors with a single except clause.
     """
 
     def __init__(self, message: str, recovery_hint: str = ""):
@@ -57,7 +57,7 @@ class SkillNotFoundError(FileOperationError):
             paths = ", ".join(str(p) for p in search_paths)
             message += f" in: {paths}"
 
-        recovery_hint = "Run 'claude-ctx skills list' to see available skills"
+        recovery_hint = "Run 'cortex skills list' to see available skills"
         super().__init__(message, recovery_hint)
         self.skill_name = skill_name
         self.search_paths = list(search_paths) if search_paths else None
@@ -161,7 +161,7 @@ class MissingDependencyError(DependencyError):
         if required_by:
             message += f" (required by '{required_by}')"
 
-        recovery_hint = f"Install with: claude-ctx skills install {dependency_name}"
+        recovery_hint = f"Install with: cortex skills install {dependency_name}"
         super().__init__(message, recovery_hint)
         self.dependency_name = dependency_name
         self.required_by = required_by

@@ -8,7 +8,7 @@ permalink: /tutorials/getting-started-tui/
 
 # Getting Started with Cortex
 
-Welcome! This tutorial will help you master the **claude-ctx TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, workflows, and more.
+Welcome! This tutorial will help you master the **cortex TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, workflows, and more.
 
 ## 📋 What You'll Learn
 
@@ -37,34 +37,34 @@ You'll set up a working Cortex environment and learn to:
 
 ## Part 1: Installation & First Launch
 
-### Step 1: Install claude-ctx
+### Step 1: Install cortex
 
 Choose your installation method:
 
 **Quick Install (Recommended):**
 
 ```bash
-cd /path/to/claude-ctx-plugin
+cd /path/to/cortex-plugin
 ./scripts/deprecated/install.sh
 ```
 
 This installs:
 
-- ✅ The `claude-ctx` CLI tool
+- ✅ The `cortex` CLI tool
 - ✅ Shell completions (bash/zsh/fish)
 - ✅ Man pages for documentation
 
 **Manual Installation:**
 
 ```bash
-cd /path/to/claude-ctx-plugin
+cd /path/to/cortex-plugin
 python3 -m pip install -e .
 ```
 
 **Verify Installation:**
 
 ```bash
-claude-ctx --help
+cortex --help
 ```
 
 You should see a list of available commands.
@@ -72,14 +72,14 @@ You should see a list of available commands.
 ### Step 2: Launch the TUI
 
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 **What You Should See:**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ claude-ctx TUI                                    [View: Overview] │
+│ cortex TUI                                    [View: Overview] │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │ System Overview                                             │
@@ -91,7 +91,7 @@ claude-ctx tui
 │ ⏳ Workflows   2 available                                  │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ [View: Agents] Welcome to claude-ctx TUI │ 25MB 0%        │
+│ [View: Agents] Welcome to cortex TUI │ 25MB 0%        │
 ├─────────────────────────────────────────────────────────────┤
 │ 1 Overview  2 Agents  3 Modes  4 Rules  5 Skills  6 Workflows │
 │ 7 MCP  8 Profiles  9 Export  0 AI  ? Help  Q Quit          │
@@ -103,6 +103,9 @@ claude-ctx tui
 - System overview cards in the center
 - Status bar showing memory/CPU at bottom (above footer)
 - Footer with keyboard shortcuts at very bottom
+
+**📝 Rules Note:** Rules are file-based. Active rules live in `rules/`; toggling
+them in the TUI moves files to `inactive/rules/` and regenerates `CLAUDE.md`.
 
 **🚨 Troubleshooting:**
 
@@ -236,16 +239,16 @@ While the TUI is best for exploration, some operations are faster via CLI:
 
 ```bash
 # List all agents (CLI-only: shows raw list)
-claude-ctx agent list
+cortex agent list
 
 # Activate multiple agents at once (CLI-only: batch operation)
-claude-ctx agent activate security-auditor test-engineer api-documenter
+cortex agent activate security-auditor test-engineer api-documenter
 
 # View dependencies (CLI-only: detailed tree)
-claude-ctx agent deps security-auditor
+cortex agent deps security-auditor
 
 # Generate dependency graph (CLI-only: export to file)
-claude-ctx agent graph --export agent-deps.md
+cortex agent graph --export agent-deps.md
 ```
 
 **When to use CLI:**
@@ -357,32 +360,32 @@ Some skill operations are CLI-only:
 
 ```bash
 # Show detailed skill info (CLI-only: structured output)
-claude-ctx skills info owasp-top-10
+cortex skills info owasp-top-10
 
 # Show which agents use a skill (CLI-only: dependency mapping)
-claude-ctx skills agents owasp-top-10
+cortex skills agents owasp-top-10
 
 # Show skill dependency tree (CLI-only: hierarchical view)
-claude-ctx skills compose owasp-top-10
+cortex skills compose owasp-top-10
 
 # Analytics dashboard (CLI-only: comprehensive report)
-claude-ctx skills analytics --metric trending
+cortex skills analytics --metric trending
 
 # Generate full report (CLI-only: export to CSV/JSON)
-claude-ctx skills report --format csv > skills-report.csv
+cortex skills report --format csv > skills-report.csv
 ```
 
 **Community Features (CLI-only):**
 
 ```bash
 # Search community skill registry
-claude-ctx skills community search "kubernetes"
+cortex skills community search "kubernetes"
 
 # Install community skill
-claude-ctx skills community install awesome-k8s
+cortex skills community install awesome-k8s
 
 # Rate community skill
-claude-ctx skills community rate awesome-k8s --stars 5
+cortex skills community rate awesome-k8s --stars 5
 ```
 
 ---
@@ -464,19 +467,19 @@ If you need to cancel:
 
 ```bash
 # List workflows (CLI-only: shows all metadata)
-claude-ctx workflow list
+cortex workflow list
 
 # Run workflow from command line (CLI-only: scripting)
-claude-ctx workflow run code-review
+cortex workflow run code-review
 
 # Check workflow status (CLI-only: JSON output)
-claude-ctx workflow status
+cortex workflow status
 
 # Resume paused workflow (CLI-only: state management)
-claude-ctx workflow resume
+cortex workflow resume
 
 # Stop specific workflow (CLI-only: by name)
-claude-ctx workflow stop code-review
+cortex workflow stop code-review
 ```
 
 ---
@@ -608,23 +611,23 @@ Press `x` → Export copied to clipboard directly
 
 ```bash
 # List exportable components (CLI-only)
-claude-ctx export list
+cortex export list
 
 # Export to file (CLI-only: advanced filtering)
-claude-ctx export context ~/my-export.md \
+cortex export context ~/my-export.md \
   --exclude workflows \
   --exclude-file some-agent.md
 
 # Include only specific categories
-claude-ctx export context ~/my-export.md \
+cortex export context ~/my-export.md \
   --include rules \
   --include core
 
 # Export to stdout (CLI-only: pipe to other tools)
-claude-ctx export context - | less
+cortex export context - | less
 
 # Different format (CLI-only)
-claude-ctx export context ~/export.md --no-agent-generic
+cortex export context ~/export.md --no-agent-generic
 ```
 
 ---
@@ -682,25 +685,25 @@ The AI system has powerful CLI-only features:
 
 ```bash
 # Get recommendations (CLI-only: structured output)
-claude-ctx ai recommend
+cortex ai recommend
 
 # Auto-activate high-confidence agents (CLI-only: scripting)
-claude-ctx ai auto-activate
+cortex ai auto-activate
 
 # Watch mode - real-time monitoring (CLI-only)
-claude-ctx ai watch
+cortex ai watch
 
 # Record successful session for learning (CLI-only)
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 
 # Export recommendations to JSON (CLI-only)
-claude-ctx ai export --output recommendations.json
+cortex ai export --output recommendations.json
 ```
 
 **Watch Mode Example (CLI-only):**
 
 ```bash
-claude-ctx ai watch
+cortex ai watch
 ```
 
 **Output:**
@@ -899,13 +902,13 @@ pip install psutil
 - `docs/guides/tui/tui-keyboard-reference.md` — Complete shortcut list
 - `docs/guides/tui-quick-start.md` — New features guide
 - `docs/guides/tui.md` — Architecture and implementation
-- `man claude-ctx-tui` — Man page (if installed)
+- `man cortex-tui` — Man page (if installed)
 
 **CLI Reference:**
 
-- `man claude-ctx` — Complete command reference
-- `claude-ctx --help` — Built-in help
-- `claude-ctx <command> --help` — Command-specific help
+- `man cortex` — Complete command reference
+- `cortex --help` — Built-in help
+- `cortex <command> --help` — Command-specific help
 
 **Advanced Topics:**
 
@@ -920,28 +923,28 @@ pip install psutil
 
 ```bash
 # Install shell aliases
-claude-ctx install aliases
+cortex install aliases
 
 # View available aliases
-claude-ctx install aliases --show
+cortex install aliases --show
 ```
 
 **Completions:**
 
 ```bash
 # Generate completions
-claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
-claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
-claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+cortex completion bash > ~/.bash_completion.d/cortex
+cortex completion zsh > ~/.zsh/completions/_cortex
+cortex completion fish > ~/.config/fish/completions/cortex.fish
 ```
 
 **Man Pages:**
 
 ```bash
 # View documentation
-man claude-ctx        # Main reference
-man claude-ctx-tui    # TUI guide
-man claude-ctx-workflow  # Workflow orchestration
+man cortex        # Main reference
+man cortex-tui    # TUI guide
+man cortex-workflow  # Workflow orchestration
 ```
 
 ### 💡 Pro Workflow
@@ -951,7 +954,7 @@ man claude-ctx-workflow  # Workflow orchestration
 1. **Morning Setup:**
 
    ```bash
-   claude-ctx tui
+   cortex tui
    ```
 
    - Press `8` → Apply project profile
@@ -961,16 +964,16 @@ man claude-ctx-workflow  # Workflow orchestration
 
    ```bash
    # Terminal 1: AI Watch Mode (CLI-only)
-   claude-ctx ai watch
+   cortex ai watch
    
    # Terminal 2: TUI for quick adjustments
-   claude-ctx tui
+   cortex tui
    ```
 
 3. **Before Commits:**
 
    ```bash
-   claude-ctx tui
+   cortex tui
    ```
 
    - Press `6` → Run "pre-commit" workflow
@@ -980,12 +983,12 @@ man claude-ctx-workflow  # Workflow orchestration
 
    ```bash
    # Quick clipboard export (TUI)
-   claude-ctx tui
+   cortex tui
    # Press 9, then x (clipboard)
    
    # Or CLI for automation
-   claude-ctx export context - | pbcopy  # macOS
-   claude-ctx export context - | xclip   # Linux
+   cortex export context - | pbcopy  # macOS
+   cortex export context - | xclip   # Linux
    ```
 
 ---
@@ -1008,13 +1011,13 @@ You've completed the getting started tutorial! You now know how to:
 
 | Task | TUI | CLI |
 |------|-----|-----|
-| Launch interface | `claude-ctx tui` | N/A |
-| Activate agent | Press `2`, `Space` | `claude-ctx agent activate <name>` |
-| Run workflow | Press `6`, `Shift+R` | `claude-ctx workflow run <name>` |
-| Export context | Press `9`, `e` | `claude-ctx export context <path>` |
-| AI recommendations | Press `0` | `claude-ctx ai recommend` |
-| Watch mode | N/A (CLI-only) | `claude-ctx ai watch` |
-| Batch operations | N/A (CLI better) | `claude-ctx agent activate a b c` |
+| Launch interface | `cortex tui` | N/A |
+| Activate agent | Press `2`, `Space` | `cortex agent activate <name>` |
+| Run workflow | Press `6`, `Shift+R` | `cortex workflow run <name>` |
+| Export context | Press `9`, `e` | `cortex export context <path>` |
+| AI recommendations | Press `0` | `cortex ai recommend` |
+| Watch mode | N/A (CLI-only) | `cortex ai watch` |
+| Batch operations | N/A (CLI better) | `cortex agent activate a b c` |
 
 ### When to Use TUI vs CLI
 
@@ -1049,7 +1052,7 @@ You've completed the getting started tutorial! You now know how to:
 
 3. **Advanced Challenge:**
    - Create a custom workflow (YAML)
-   - Integrate claude-ctx into your CI pipeline
+   - Integrate cortex into your CI pipeline
    - Build a shell script that auto-configures based on project type
 
 ---
@@ -1060,7 +1063,7 @@ You've completed the getting started tutorial! You now know how to:
 
 ```bash
 # Launch
-claude-ctx tui
+cortex tui
 
 # Views: 1=Overview, 2=Agents, 3=Modes, 4=Rules, 5=Skills
 #        6=Workflows, 7=MCP, 8=Profiles, 9=Export, 0=AI
@@ -1073,44 +1076,44 @@ claude-ctx tui
 
 ```bash
 # Status
-claude-ctx status                    # System overview
+cortex status                    # System overview
 
 # Agents
-claude-ctx agent list                # List available
-claude-ctx agent status              # Show active
-claude-ctx agent activate <name>     # Enable agent
-claude-ctx agent graph --export map.md  # Dependency graph
+cortex agent list                # List available
+cortex agent status              # Show active
+cortex agent activate <name>     # Enable agent
+cortex agent graph --export map.md  # Dependency graph
 
 # Skills
-claude-ctx skills list               # List all skills
-claude-ctx skills info <skill>       # Show details
-claude-ctx skills validate --all     # Validate all
+cortex skills list               # List all skills
+cortex skills info <skill>       # Show details
+cortex skills validate --all     # Validate all
 
 # Workflows
-claude-ctx workflow list             # Available workflows
-claude-ctx workflow run <name>       # Execute workflow
-claude-ctx workflow status           # Check progress
+cortex workflow list             # Available workflows
+cortex workflow run <name>       # Execute workflow
+cortex workflow status           # Check progress
 
 # AI Assistant
-claude-ctx ai recommend              # Get recommendations
-claude-ctx ai watch                  # Real-time monitoring
-claude-ctx ai auto-activate          # Auto-enable agents
+cortex ai recommend              # Get recommendations
+cortex ai watch                  # Real-time monitoring
+cortex ai auto-activate          # Auto-enable agents
 
 # Export
-claude-ctx export context <file>     # Create bundle
-claude-ctx export context - | pbcopy # To clipboard (macOS)
+cortex export context <file>     # Create bundle
+cortex export context - | pbcopy # To clipboard (macOS)
 
 # MCP
-claude-ctx mcp list                  # List servers
-claude-ctx mcp diagnose              # Check all servers
+cortex mcp list                  # List servers
+cortex mcp diagnose              # Check all servers
 ```
 
 ---
 
-**🚀 Ready to become a claude-ctx power user? Start with the TUI, explore the views, and gradually incorporate CLI commands for advanced workflows. Happy coding!**
+**🚀 Ready to become a cortex power user? Start with the TUI, explore the views, and gradually incorporate CLI commands for advanced workflows. Happy coding!**
 
 ---
 
 *Last Updated: 2025-11-15*  
 *Tutorial Version: 1.0*  
-*Target: claude-ctx v1.0+*
+*Target: cortex v1.0+*

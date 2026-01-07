@@ -108,6 +108,7 @@ REVERSE     - Selected rows
 
 - Execution rules with categories
 - Toggle activation
+- Enabled rules live in `rules/`; disabling moves them to `inactive/rules/`
 - Details panel
 
 ### Skills (5)
@@ -339,9 +340,9 @@ redefine variables like `$primary`, `$accent`, `$surface`, etc.
 
 **Options (highest priority first):**
 
-1. `claude-ctx tui --theme /path/to/theme.tcss`
-2. `CLAUDE_CTX_TUI_THEME=/path/to/theme.tcss`
-3. `~/.claude/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
+1. `cortex tui --theme /path/to/theme.tcss`
+2. `CORTEX_TUI_THEME=/path/to/theme.tcss`
+3. `~/.cortex/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
 
 **Example override:**
 

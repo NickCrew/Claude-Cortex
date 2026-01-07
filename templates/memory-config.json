@@ -1,0 +1,17 @@
+{
+  "vault_path": "~/.cortex/memory-vault",
+  "auto_capture": {
+    "enabled": true,
+    "min_session_length": 5,
+    "exclude_patterns": [
+      "explain",
+      "what is",
+      "how do"
+    ],
+    "last_capture": "2025-12-22T03:50:28.291182"
+  },
+  "defaults": {
+    "tags": [],
+    "project": null
+  }
+}

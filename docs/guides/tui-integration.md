@@ -2,7 +2,7 @@
 
 ## Summary
 
-This document describes the implementation of three new views for the claude-ctx TUI:
+This document describes the implementation of three new views for the cortex TUI:
 1. **Profile View** (View #8) - Profile management
 2. **Export View** (View #9) - Context export with format selection
 3. **Init Wizard** (accessible via 'i' key) - Interactive project initialization
@@ -202,7 +202,7 @@ After integration, test the following:
 
 1. **Profile View**:
    ```bash
-   claude-ctx tui
+   cortex tui
    # Press 8 to switch to profile view
    # Press ↑/↓ to navigate profiles
    # Press Enter to apply a profile
@@ -211,7 +211,7 @@ After integration, test the following:
 
 2. **Export View**:
    ```bash
-   claude-ctx tui
+   cortex tui
    # Press 9 to switch to export view
    # Press Space to toggle options
    # Press f to change format
@@ -221,7 +221,7 @@ After integration, test the following:
 
 3. **Init Wizard**:
    ```bash
-   claude-ctx tui
+   cortex tui
    # Press i to start wizard
    # Press Enter to proceed through steps
    # Press Backspace to go back

@@ -15,7 +15,7 @@ from claude_ctx_py.intelligence import SessionContext
 @pytest.fixture
 def mock_home(tmp_path):
     """Create a temporary home directory with necessary structure."""
-    home = tmp_path / ".claude"
+    home = tmp_path / ".cortex"
     home.mkdir()
     (home / "data").mkdir()
     (home / "skills").mkdir()

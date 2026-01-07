@@ -24,20 +24,20 @@ The rating system collects community feedback on skill quality, usefulness, and 
 **CLI:**
 ```bash
 # Rate a skill (1-5 stars)
-claude-ctx skills rate owasp-top-10 --stars 5
+cortex skills rate owasp-top-10 --stars 5
 
 # Add a review
-claude-ctx skills rate owasp-top-10 --stars 5 \
+cortex skills rate owasp-top-10 --stars 5 \
   --review "Still the best security checklist"
 
 # Mark as helpful/not helpful
-claude-ctx skills feedback owasp-top-10 --helpful
-claude-ctx skills feedback owasp-top-10 --not-helpful
+cortex skills feedback owasp-top-10 --helpful
+cortex skills feedback owasp-top-10 --not-helpful
 ```
 
 **TUI:**
 ```bash
-claude-ctx tui
+cortex tui
 # Press 5 for Skills view
 # Select a skill
 # Press Ctrl+R to rate
@@ -83,7 +83,7 @@ The TUI automatically prompts for ratings after you've used a skill multiple tim
 
 ```bash
 # Show ratings for a skill
-claude-ctx skills ratings owasp-top-10
+cortex skills ratings owasp-top-10
 
 # Output:
 # owasp-top-10 Ratings
@@ -103,11 +103,11 @@ claude-ctx skills ratings owasp-top-10
 # Token Efficiency: -15.2K avg (high efficiency)
 
 # Show top-rated skills
-claude-ctx skills top-rated --limit 10
+cortex skills top-rated --limit 10
 
 # Export ratings data
-claude-ctx skills export-ratings --format csv > ratings.csv
-claude-ctx skills export-ratings --format json > ratings.json
+cortex skills export-ratings --format csv > ratings.csv
+cortex skills export-ratings --format json > ratings.json
 ```
 
 ### Rating Data
@@ -150,7 +150,7 @@ Analytics track skill performance metrics: usage frequency, token efficiency, su
 
 ```bash
 # Show usage metrics for a skill
-claude-ctx skills metrics owasp-top-10
+cortex skills metrics owasp-top-10
 
 # Output:
 # owasp-top-10 Metrics
@@ -171,20 +171,20 @@ claude-ctx skills metrics owasp-top-10
 #   ↗️ api-security-patterns (32%)
 
 # Reset all metrics (development only)
-claude-ctx skills metrics --reset
+cortex skills metrics --reset
 ```
 
 ### Analytics Dashboard
 
 ```bash
 # Show comprehensive analytics
-claude-ctx skills analytics
+cortex skills analytics
 
 # Filter by metric type
-claude-ctx skills analytics --metric trending
-claude-ctx skills analytics --metric roi
-claude-ctx skills analytics --metric effectiveness
-claude-ctx skills analytics --metric tokens
+cortex skills analytics --metric trending
+cortex skills analytics --metric roi
+cortex skills analytics --metric effectiveness
+cortex skills analytics --metric tokens
 ```
 
 **Example Output:**
@@ -217,7 +217,7 @@ claude-ctx skills analytics --metric tokens
 
 ```bash
 # Show trending skills (usage growth)
-claude-ctx skills trending --days 30
+cortex skills trending --days 30
 
 # Output:
 # Trending Skills (Last 30 Days)
@@ -239,10 +239,10 @@ claude-ctx skills trending --days 30
 
 ```bash
 # Generate comprehensive report
-claude-ctx skills report --format text
-claude-ctx skills report --format json > report.json
-claude-ctx skills report --format csv > report.csv
-claude-ctx skills report --format html > report.html
+cortex skills report --format text
+cortex skills report --format json > report.json
+cortex skills report --format csv > report.csv
+cortex skills report --format html > report.html
 
 # Example HTML report includes:
 # - Executive summary with key metrics
@@ -259,10 +259,10 @@ Track which skills correlate with successful outcomes:
 
 ```bash
 # Record successful session
-claude-ctx ai record-success --outcome "feature complete"
+cortex ai record-success --outcome "feature complete"
 
 # View success correlations
-claude-ctx skills analytics --metric success_rate
+cortex skills analytics --metric success_rate
 
 # Output:
 # Skills with Highest Success Correlation
@@ -278,7 +278,7 @@ Measure how much token usage skills save/add:
 
 ```bash
 # Skills ranked by token efficiency
-claude-ctx skills analytics --metric tokens
+cortex skills analytics --metric tokens
 
 # Output:
 # Token Efficiency Rankings
@@ -328,7 +328,7 @@ The recommendation engine suggests skills based on:
 
 ```bash
 # Get AI recommendations
-claude-ctx skills recommend
+cortex skills recommend
 
 # Output:
 # 🤖 AI Skill Recommendations
@@ -348,19 +348,19 @@ claude-ctx skills recommend
 #    Rating: ⭐⭐⭐⭐ 4.7 (78 ratings)
 
 # Auto-activate high-confidence skills (≥80%)
-claude-ctx skills recommend --auto-activate
+cortex skills recommend --auto-activate
 
 # Explain recommendation reasoning
-claude-ctx skills recommend --explain owasp-top-10
+cortex skills recommend --explain owasp-top-10
 
 # Provide feedback
-claude-ctx skills feedback owasp-top-10 --helpful
+cortex skills feedback owasp-top-10 --helpful
 ```
 
 ### TUI Integration
 
 ```bash
-claude-ctx tui
+cortex tui
 # Press 5 for Skills view
 # Recommendations appear at top with confidence scores
 # Press Space on recommendation to activate

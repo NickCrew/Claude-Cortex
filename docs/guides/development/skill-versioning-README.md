@@ -196,7 +196,7 @@ skills:
 
 ```bash
 # Show all versions for a skill
-claude-ctx skills versions api-design-patterns
+cortex skills versions api-design-patterns
 
 # Output:
 # api-design-patterns versions:
@@ -209,7 +209,7 @@ claude-ctx skills versions api-design-patterns
 
 ```bash
 # Validate a version requirement
-claude-ctx skills validate api-design-patterns@^1.2.0
+cortex skills validate api-design-patterns@^1.2.0
 
 # Output:
 # ✓ Version specification is valid
@@ -220,7 +220,7 @@ claude-ctx skills validate api-design-patterns@^1.2.0
 
 ```bash
 # Check if a version requirement can be satisfied
-claude-ctx skills info api-design-patterns@^1.0.0
+cortex skills info api-design-patterns@^1.0.0
 
 # Output:
 # Skill: api-design-patterns@^1.0.0
@@ -233,7 +233,7 @@ claude-ctx skills info api-design-patterns@^1.0.0
 
 ```bash
 # Show detailed version history
-claude-ctx skills versions api-design-patterns --detailed
+cortex skills versions api-design-patterns --detailed
 
 # Output:
 # api-design-patterns version history:
@@ -377,10 +377,10 @@ cp "skills/${SKILL_NAME}@1.1.0/SKILL.md" \
 # Add compatibility entry
 
 # 6. Validate
-claude-ctx skills validate "${SKILL_NAME}@${NEW_VERSION}"
+cortex skills validate "${SKILL_NAME}@${NEW_VERSION}"
 
 # 7. Test
-claude-ctx skills info "${SKILL_NAME}@${NEW_VERSION}"
+cortex skills info "${SKILL_NAME}@${NEW_VERSION}"
 ```
 
 ---
@@ -449,13 +449,13 @@ skills:
 
 ```bash
 # Test with specific version
-claude-ctx skills info api-design-patterns@2.0.0
+cortex skills info api-design-patterns@2.0.0
 
 # Test version resolution
-claude-ctx skills info api-design-patterns@^1.0.0
+cortex skills info api-design-patterns@^1.0.0
 
 # Validate agent with version constraints
-claude-ctx agent validate backend-architect
+cortex agent validate backend-architect
 ```
 
 ### Migration Guides
@@ -506,7 +506,7 @@ Replace `fields` parameter with `select`.
 
 ```bash
 # Show which versions are actively used
-claude-ctx skills analytics --metric versions
+cortex skills analytics --metric versions
 
 # Output:
 # Version Usage Statistics:
@@ -521,7 +521,7 @@ claude-ctx skills analytics --metric versions
 
 ```bash
 # Check impact before deprecating
-claude-ctx skills deps api-design-patterns@1.0.0
+cortex skills deps api-design-patterns@1.0.0
 
 # Output:
 # Skills depending on api-design-patterns@1.0.0:
@@ -539,13 +539,13 @@ claude-ctx skills deps api-design-patterns@1.0.0
 
 ```bash
 # Install specific version
-claude-ctx skills community install pdf-generation@1.2.0
+cortex skills community install pdf-generation@1.2.0
 
 # Install with version constraint
-claude-ctx skills community install pdf-generation@^1.0.0
+cortex skills community install pdf-generation@^1.0.0
 
 # Install latest
-claude-ctx skills community install pdf-generation
+cortex skills community install pdf-generation
 ```
 
 ### Publishing Versioned Skills
@@ -569,7 +569,7 @@ tags:
 
 ```bash
 # Check compatibility before installing
-claude-ctx skills community validate pdf-generation@^1.2.0
+cortex skills community validate pdf-generation@^1.2.0
 
 # Output:
 # ✓ Version 1.3.5 satisfies constraint ^1.2.0
@@ -631,21 +631,21 @@ claude-ctx skills community validate pdf-generation@^1.2.0
 
 ```bash
 # Error: Version 1.5.0 not found
-claude-ctx skills info api-design-patterns@1.5.0
+cortex skills info api-design-patterns@1.5.0
 
 # Solution: Check available versions
-claude-ctx skills versions api-design-patterns
+cortex skills versions api-design-patterns
 ```
 
 ### Incompatible Version
 
 ```bash
 # Error: No compatible version found for ^2.0.0
-claude-ctx skills info api-design-patterns@^2.0.0
+cortex skills info api-design-patterns@^2.0.0
 
 # Solution: Check available versions
 # Latest version might be 1.x.x
-claude-ctx skills versions api-design-patterns
+cortex skills versions api-design-patterns
 ```
 
 ### Version Conflicts
@@ -752,7 +752,7 @@ cp skills/api-design-patterns@1.2.0/SKILL.md \
 # Add 1.3.0 to versions list and compatibility info
 
 # 6. Validate
-claude-ctx skills validate api-design-patterns@1.3.0
+cortex skills validate api-design-patterns@1.3.0
 ```
 
 ### Example 2: Upgrading Agent to New Major Version
@@ -773,7 +773,7 @@ skills:
 ---
 
 # Test before committing
-# claude-ctx agent validate backend-architect
+# cortex agent validate backend-architect
 ```
 
 ### Example 3: Supporting Multiple Versions

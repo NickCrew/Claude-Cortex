@@ -166,7 +166,7 @@ This means:
 
 ### Viewing Deactivation Suggestions
 
-1. Open the TUI: `claude-ctx tui`
+1. Open the TUI: `cortex tui`
 2. Navigate to "AI Assistant" view (press `a` or use navigation)
 3. Scroll to "⚠ Deactivation Suggestions" section
 

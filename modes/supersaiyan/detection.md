@@ -298,9 +298,9 @@ except DetectionError:
 
 ```bash
 # Test detection on various projects
-claude-ctx supersaiyan detect ~/project1  # React app
-claude-ctx supersaiyan detect ~/project2  # Python TUI
-claude-ctx supersaiyan detect ~/project3  # Go CLI
+cortex supersaiyan detect ~/project1  # React app
+cortex supersaiyan detect ~/project2  # Python TUI
+cortex supersaiyan detect ~/project3  # Go CLI
 
 # Output:
 # Detected: WEB (React + Next.js)

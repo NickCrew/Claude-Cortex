@@ -1,4 +1,4 @@
-"""Community contribution functions for claude-ctx.
+"""Community contribution functions for cortex.
 
 This module provides functions for validating, installing, rating, and searching
 community-contributed skills. It handles skill metadata validation, community
@@ -203,7 +203,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict[str, Any]]:
     author, description, tags, and installation status.
 
     Args:
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         List of dictionaries containing skill metadata. Each dictionary has:
@@ -218,7 +218,7 @@ def get_community_skills(claude_dir: Path) -> List[Dict[str, Any]]:
         - rating: Average rating (if available)
 
     Example:
-        >>> skills = get_community_skills(Path.home() / ".claude")
+        >>> skills = get_community_skills(Path.home() / ".cortex")
         >>> for skill in skills:
         ...     print(f"{skill['name']} v{skill['version']} by {skill['author']}")
     """
@@ -297,7 +297,7 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
 
     Args:
         skill_name: Name of the skill to install (without .md extension)
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         True if installation was successful, False otherwise
@@ -308,7 +308,7 @@ def install_community_skill(skill_name: str, claude_dir: Path) -> bool:
         SkillInstallationError: If installation fails
 
     Example:
-        >>> if install_community_skill("react-hooks", Path.home() / ".claude"):
+        >>> if install_community_skill("react-hooks", Path.home() / ".cortex"):
         ...     print("Skill installed successfully")
     """
     community_dir = claude_dir / "community" / "skills"
@@ -351,7 +351,7 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
     Args:
         skill_name: Name of the skill to rate (without .md extension)
         rating: Rating value (1-5 stars)
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         True if rating was recorded successfully, False otherwise
@@ -360,7 +360,7 @@ def rate_skill(skill_name: str, rating: int, claude_dir: Path) -> bool:
         RatingError: If rating value is invalid or save fails
 
     Example:
-        >>> if rate_skill("react-hooks", 5, Path.home() / ".claude"):
+        >>> if rate_skill("react-hooks", 5, Path.home() / ".cortex"):
         ...     print("Rating recorded")
     """
     # Validate rating value
@@ -418,13 +418,13 @@ def search_skills(
     Args:
         query: Search query string (searches name and description)
         tags: List of tags to filter by (empty list for no tag filtering)
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         List of matching skill metadata dictionaries, sorted by relevance
 
     Example:
-        >>> results = search_skills("react", ["frontend", "hooks"], Path.home() / ".claude")
+        >>> results = search_skills("react", ["frontend", "hooks"], Path.home() / ".cortex")
         >>> for skill in results:
         ...     print(f"Found: {skill['name']}")
     """

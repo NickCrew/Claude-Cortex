@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes improvements to claude-ctx's reasoning system inspired by [just-every/code](https://github.com/just-every/code).
+This document describes improvements to cortex's reasoning system inspired by [just-every/code](https://github.com/just-every/code).
 
 ## New Features
 
@@ -108,7 +108,7 @@ Transparency markers automatically activated during maximum depth analysis.
 
 ## Comparison with just-every/code
 
-| Feature | just-every/code | claude-ctx |
+| Feature | just-every/code | cortex |
 |---------|----------------|------------|
 | Runtime depth control | `/reasoning low\|medium\|high` | `/reasoning:adjust low\|medium\|high\|ultra --scope current\|remaining` |
 | Summary control | `model_reasoning_summary = 'detailed'` | `--summary brief\|detailed\|comprehensive` |

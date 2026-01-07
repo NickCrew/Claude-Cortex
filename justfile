@@ -10,8 +10,8 @@ help:
     @echo "  just install-completions  # Legacy completions install (deprecated)"
     @echo "  just generate-manpages    # Generate manpages from CLI definitions"
     @echo "  just regen-manpages       # Re-generate manpages from CLI definitions"
-    @echo "  just update-completions   # Update cortex/claude-ctx completion scripts"
-    @echo "  just uninstall            # Uninstall claude-ctx (manual cleanup may remain)"
+    @echo "  just update-completions   # Update cortex/cortex completion scripts"
+    @echo "  just uninstall            # Uninstall cortex (manual cleanup may remain)"
     @echo "  just test                 # Run test suite"
     @echo "  just test-cov             # Run tests with coverage report"
     @echo "  just lint                 # Run code format checks"
@@ -53,12 +53,12 @@ install-completions:
     @./scripts/deprecated/install.sh --no-package --no-manpage
 
 uninstall:
-    @pip uninstall -y claude-ctx-py
+    @pip uninstall -y cortex-py
     @echo "Note: Manpage and completions must be removed manually"
-    @echo "  Manpage: sudo rm /usr/local/share/man/man1/claude-ctx.1"
-    @echo "  Bash: rm ~/.local/share/bash-completion/completions/claude-ctx"
-    @echo "  Zsh: rm ~/.local/share/zsh/site-functions/_claude-ctx"
-    @echo "  Fish: rm ~/.config/fish/completions/claude-ctx.fish"
+    @echo "  Manpage: sudo rm /usr/local/share/man/man1/cortex.1"
+    @echo "  Bash: rm ~/.local/share/bash-completion/completions/cortex"
+    @echo "  Zsh: rm ~/.local/share/zsh/site-functions/_cortex"
+    @echo "  Fish: rm ~/.config/fish/completions/cortex.fish"
 
 test:
     @.venv/bin/pytest
@@ -123,9 +123,9 @@ docs-build-gh:
 
 verify:
     @echo "=== Verifying Installation ==="
-    @command -v claude-ctx >/dev/null 2>&1 && echo "✓ claude-ctx command found" || echo "✗ claude-ctx not found"
-    @man -w claude-ctx >/dev/null 2>&1 && echo "✓ manpage installed" || echo "✗ manpage not found"
+    @command -v cortex >/dev/null 2>&1 && echo "✓ cortex command found" || echo "✗ cortex not found"
+    @man -w cortex >/dev/null 2>&1 && echo "✓ manpage installed" || echo "✗ manpage not found"
     @python3 -c "import argcomplete" 2>/dev/null && echo "✓ argcomplete available" || echo "✗ argcomplete not found"
     @echo ""
     @echo "Cortex version:"
-    @claude-ctx --help | head -1 || true
+    @cortex --help | head -1 || true

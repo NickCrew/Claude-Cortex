@@ -33,7 +33,7 @@ The TUI implementation consists of two distinct approaches working in parallel:
 ```
 ┌─────────────────────────────────────┐
 │          HEADER (size=5)            │
-│  "claude-ctx: [ViewName]"           │
+│  "cortex: [ViewName]"           │
 │  "Press 1-9 for views, ? for help"  │
 ├─────────────────────────────────────┤
 │                                     │

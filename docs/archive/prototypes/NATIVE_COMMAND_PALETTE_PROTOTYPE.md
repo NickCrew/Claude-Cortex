@@ -30,7 +30,7 @@ class CtxTUI(App):
 
     # Existing reactive variables
     current_view: reactive[str] = reactive("agents")
-    status_message: reactive[str] = reactive("Welcome to claude-ctx TUI")
+    status_message: reactive[str] = reactive("Welcome to cortex TUI")
 
     # NEW: Navigation stack for back/forward support
     navigation_stack: list[str] = []
@@ -243,7 +243,7 @@ def action_native_command_palette(self) -> None:
 
 ```bash
 # Run the TUI
-claude-ctx tui
+cortex tui
 
 # Press Ctrl+P (or Ctrl+Shift+P if using Option B)
 # You should see Textual's native command palette

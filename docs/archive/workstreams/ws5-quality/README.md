@@ -7,7 +7,7 @@
 
 ## Overview
 
-This workstream focuses on improving code quality, error handling patterns, and resource management across the claude-ctx-plugin codebase. The primary objectives are to eliminate technical debt, standardize error handling, and ensure proper resource cleanup.
+This workstream focuses on improving code quality, error handling patterns, and resource management across the cortex-plugin codebase. The primary objectives are to eliminate technical debt, standardize error handling, and ensure proper resource cleanup.
 
 ## Key Objectives
 

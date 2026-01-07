@@ -142,30 +142,30 @@ Jump to [Troubleshooting](LLM_INTELLIGENCE_GUIDE.md#troubleshooting) in main gui
 
 ### Minimum (Conservative)
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
-claude-ctx config set ai.use_llm true
-claude-ctx config set ai.llm_threshold 0.2  # Only use LLM if very uncertain
+cortex config set ai.use_llm true
+cortex config set ai.llm_threshold 0.2  # Only use LLM if very uncertain
 ```
 
 ### Recommended (Balanced)
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
-claude-ctx config set ai.use_llm true
-claude-ctx config set ai.llm_threshold 0.5    # Default
-claude-ctx config set ai.use_llm_in_watch_mode false  # Avoid watch surprises
-claude-ctx config set ai.llm_budget_limit 10.00  # Monthly budget
+cortex config set ai.use_llm true
+cortex config set ai.llm_threshold 0.5    # Default
+cortex config set ai.use_llm_in_watch_mode false  # Avoid watch surprises
+cortex config set ai.llm_budget_limit 10.00  # Monthly budget
 ```
 
 ### Maximum (Quality-Focused)
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
-claude-ctx config set ai.use_llm true
-claude-ctx config set ai.llm_threshold 0.8    # Use LLM more often
-claude-ctx config set ai.llm_model claude-opus-4-1  # Best quality
-claude-ctx config set ai.llm_temperature 0.0  # Deterministic
+cortex config set ai.use_llm true
+cortex config set ai.llm_threshold 0.8    # Use LLM more often
+cortex config set ai.llm_model claude-opus-4-1  # Best quality
+cortex config set ai.llm_temperature 0.0  # Deterministic
 ```
 
 ## Common Tasks
@@ -233,7 +233,7 @@ With smart thresholds:
 A: No. With defaults, only ~15% of recommendations use LLM. That's ~$0.30/month for 30 sessions/day.
 
 **Q: What if I don't want to pay?**
-A: Disable LLM: `claude-ctx config set ai.use_llm false`. Semantic matching (free) still works.
+A: Disable LLM: `cortex config set ai.use_llm false`. Semantic matching (free) still works.
 
 **Q: Can I limit the cost?**
 A: Yes! Set `llm_budget_limit` and increase `llm_threshold`.
@@ -302,4 +302,4 @@ Found an issue or want to improve docs?
 
 ## License
 
-MIT - Same as claude-ctx-plugin
+MIT - Same as cortex-plugin

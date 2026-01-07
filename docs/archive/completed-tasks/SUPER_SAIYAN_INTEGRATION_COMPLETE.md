@@ -1,6 +1,6 @@
 # Super Saiyan Integration Complete! 🔥✨
 
-**Status**: ✅ FULLY INTEGRATED into claude-ctx-plugin
+**Status**: ✅ FULLY INTEGRATED into cortex-plugin
 
 ## What Was Integrated
 
@@ -73,7 +73,7 @@
 ## File Tree
 
 ```
-claude-ctx-plugin/
+cortex-plugin/
 ├── modes/
 │   ├── Super_Saiyan.md                       ✅ NEW
 │   ├── SUPER_SAIYAN_UNIVERSAL.md             ✅ NEW
@@ -151,7 +151,7 @@ def compose(self) -> ComposeResult:
 ### 3. Running the Demo
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 python examples/supersaiyan_demo.py
 ```
 
@@ -400,7 +400,7 @@ card = SuperSaiyanCard(
 
 ## Summary
 
-**Super Saiyan mode is now fully integrated into claude-ctx-plugin!** 🎉
+**Super Saiyan mode is now fully integrated into cortex-plugin!** 🎉
 
 - ✅ Universal framework (works on any platform)
 - ✅ Auto-detection (smart platform selection)

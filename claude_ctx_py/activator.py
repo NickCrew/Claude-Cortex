@@ -9,7 +9,7 @@ def load_activation_map(claude_dir: Path) -> Dict[str, List[str]]:
     """Load skill activation keywords from activation.yaml.
 
     Args:
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         Dictionary mapping skill names to their keyword lists
@@ -43,7 +43,7 @@ def analyze_text(text: str, claude_dir: Path) -> List[str]:
 
     Args:
         text: Input text to analyze for skill keywords
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         List of skill names that match keywords in the text
@@ -79,7 +79,7 @@ def suggest_skills(text: str, claude_dir: Path) -> str:
 
     Args:
         text: Input text to analyze for skill keywords
-        claude_dir: Path to the .claude directory
+        claude_dir: Path to the cortex directory
 
     Returns:
         Formatted string with skill suggestions
@@ -95,6 +95,6 @@ def suggest_skills(text: str, claude_dir: Path) -> str:
     for skill in matching_skills:
         lines.append(f"  - {skill}")
 
-    lines.append("\nTo view skill details, run: claude-ctx skills info <skill-name>")
+    lines.append("\nTo view skill details, run: cortex skills info <skill-name>")
 
     return "\n".join(lines)

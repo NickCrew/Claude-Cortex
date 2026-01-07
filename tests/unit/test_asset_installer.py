@@ -13,8 +13,8 @@ from claude_ctx_py.core import asset_installer
 
 @pytest.fixture
 def temp_claude_dir(tmp_path):
-    """Create a temporary .claude directory structure."""
-    claude_dir = tmp_path / ".claude"
+    """Create a temporary .cortex directory structure."""
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir()
     # Create required files
     (claude_dir / "CLAUDE.md").touch()

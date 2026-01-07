@@ -1,7 +1,7 @@
 # TUI Modes and Rules Views Implementation Summary
 
 ## Overview
-Successfully added Modes and Rules management views to the claude-ctx TUI at `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py`.
+Successfully added Modes and Rules management views to the cortex TUI at `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py`.
 
 ## Changes Made
 
@@ -116,7 +116,7 @@ All views support the same consistent controls:
 
 1. **Basic Functionality**:
    ```bash
-   claude-ctx tui
+   cortex tui
    # Press 3 for modes, 4 for rules
    # Test navigation with j/k
    # Test toggle with Space
@@ -153,7 +153,7 @@ Potential improvements:
 
 ## Files Modified
 
-- `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui.py` (main changes)
+- `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui.py` (main changes)
 
 ## Lines Added
 

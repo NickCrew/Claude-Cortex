@@ -4,26 +4,26 @@
 
 ```bash
 # 1. Install
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 
 # 2. Add API key
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # 3. Enable
-claude-ctx config set ai.use_llm true
+cortex config set ai.use_llm true
 ```
 
 ## Common Configuration
 
 | Use Case | Command |
 |----------|---------|
-| **Conservative** (low cost) | `claude-ctx config set ai.llm_threshold 0.2` |
-| **Balanced** (default) | `claude-ctx config set ai.llm_threshold 0.5` |
-| **Aggressive** (high quality) | `claude-ctx config set ai.llm_threshold 0.8` |
-| **Low cost model** | `claude-ctx config set ai.llm_model claude-haiku-3-5` |
-| **Best quality** | `claude-ctx config set ai.llm_model claude-opus-4-1` |
-| **Disable watch mode** | `claude-ctx config set ai.use_llm_in_watch_mode false` |
-| **Set budget** | `claude-ctx config set ai.llm_budget_limit 5.00` |
+| **Conservative** (low cost) | `cortex config set ai.llm_threshold 0.2` |
+| **Balanced** (default) | `cortex config set ai.llm_threshold 0.5` |
+| **Aggressive** (high quality) | `cortex config set ai.llm_threshold 0.8` |
+| **Low cost model** | `cortex config set ai.llm_model claude-haiku-3-5` |
+| **Best quality** | `cortex config set ai.llm_model claude-opus-4-1` |
+| **Disable watch mode** | `cortex config set ai.use_llm_in_watch_mode false` |
+| **Set budget** | `cortex config set ai.llm_budget_limit 5.00` |
 
 ## Pricing Quick Facts
 
@@ -40,20 +40,20 @@ With defaults (~15% LLM call rate):
 
 ```bash
 # Get recommendations with LLM analysis
-claude-ctx ai recommend
+cortex ai recommend
 
 # Check stats
-claude-ctx stats --by agent --source llm
+cortex stats --by agent --source llm
 
 # View last week's recommendations
-claude-ctx session list --since "7 days ago" | grep llm
+cortex session list --since "7 days ago" | grep llm
 ```
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "LLM not available" | `pip install claude-ctx-py[llm]` then restart |
+| "LLM not available" | `pip install cortex-py[llm]` then restart |
 | "Invalid API key" | Check https://console.anthropic.com/account/api-keys |
 | "Rate limited" | Increase `llm_threshold` to 0.2 |
 | "Model not found" | Use `claude-sonnet-4-20250514` (default valid model) |
@@ -102,26 +102,26 @@ ai:
 
 ```bash
 # Fastest & cheapest
-claude-ctx config set ai.llm_model claude-haiku-3-5
+cortex config set ai.llm_model claude-haiku-3-5
 
 # Balanced (default)
-claude-ctx config set ai.llm_model claude-sonnet-4-20250514
+cortex config set ai.llm_model claude-sonnet-4-20250514
 
 # Best quality
-claude-ctx config set ai.llm_model claude-opus-4-1
+cortex config set ai.llm_model claude-opus-4-1
 ```
 
 ## Advanced: Temperature (0.0-1.0)
 
 ```bash
 # Very deterministic (recommended for agent selection)
-claude-ctx config set ai.llm_temperature 0.0
+cortex config set ai.llm_temperature 0.0
 
 # Default (mostly deterministic)
-claude-ctx config set ai.llm_temperature 0.3
+cortex config set ai.llm_temperature 0.3
 
 # Creative (not recommended for task selection)
-claude-ctx config set ai.llm_temperature 0.7
+cortex config set ai.llm_temperature 0.7
 ```
 
 ## Environment Variables
@@ -131,10 +131,10 @@ claude-ctx config set ai.llm_temperature 0.7
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Optional
-export CLAUDE_CTX_LLM_MODEL=claude-sonnet-4-20250514
-export CLAUDE_CTX_LLM_THRESHOLD=0.5
-export CLAUDE_CTX_LLM_TEMPERATURE=0.3
-export CLAUDE_CTX_LLM_MAX_TOKENS=1024
+export CORTEX_LLM_MODEL=claude-sonnet-4-20250514
+export CORTEX_LLM_THRESHOLD=0.5
+export CORTEX_LLM_TEMPERATURE=0.3
+export CORTEX_LLM_MAX_TOKENS=1024
 ```
 
 ## Recommendation Confidence Scale

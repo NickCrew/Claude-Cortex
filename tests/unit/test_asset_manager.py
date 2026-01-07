@@ -95,7 +95,7 @@ class TestClaudeDir:
     def test_claude_dir_creation(self):
         """Test ClaudeDir dataclass creation."""
         claude_dir = ClaudeDir(
-            path=Path("/test/.claude"),
+            path=Path("/test/.cortex"),
             scope="project",
             installed_assets={"agents": ["test"]},
         )
@@ -211,10 +211,10 @@ class TestAssetDiscovery:
 
 
 class TestClaudeDirectoryDiscovery:
-    """Tests for .claude directory discovery."""
+    """Tests for cortex directory discovery."""
 
     def test_find_claude_directories(self):
-        """Test finding .claude directories."""
+        """Test finding cortex directories."""
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             # Create a project .claude directory
@@ -223,7 +223,7 @@ class TestClaudeDirectoryDiscovery:
 
             dirs = find_claude_directories(tmp_path)
             assert isinstance(dirs, list)
-            # Should find at least the global ~/.claude (if exists) or project dir
+            # Should find at least the global ~/.cortex (if exists) or project dir
 
     def test_get_installed_assets(self):
         """Test getting installed assets from a directory."""

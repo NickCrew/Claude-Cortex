@@ -219,9 +219,9 @@ main() {
     log_info "Change type detected: $change_type"
 
     # Check if test-automator agent is active
-    if ! claude-ctx agent status | grep -q "test-automator (active)"; then
+    if ! cortex agent status | grep -q "test-automator (active)"; then
         log_warning "test-automator agent not active, activating..."
-        claude-ctx agent activate test-automator >&2 || true
+        cortex agent activate test-automator >&2 || true
     fi
 
     # Check if documentation agents are active
@@ -233,27 +233,27 @@ main() {
     fi
 
     for agent in "${doc_agents[@]}"; do
-        if ! claude-ctx agent status | grep -q "$agent (active)"; then
+        if ! cortex agent status | grep -q "$agent (active)"; then
             log_warning "$agent agent not active, activating..."
-            claude-ctx agent activate "$agent" >&2 || true
+            cortex agent activate "$agent" >&2 || true
         fi
     done
 
     # Always check docs-architect
-    if ! claude-ctx agent status | grep -q "docs-architect (active)"; then
+    if ! cortex agent status | grep -q "docs-architect (active)"; then
         log_warning "docs-architect agent not active, activating..."
-        claude-ctx agent activate docs-architect >&2 || true
+        cortex agent activate docs-architect >&2 || true
     fi
 
     # Check if code review agents are active
     if [[ "$CODE_REVIEW_REQUIRED" == "true" ]]; then
-        if ! claude-ctx agent status | grep -q "quality-engineer (active)"; then
+        if ! cortex agent status | grep -q "quality-engineer (active)"; then
             log_warning "quality-engineer agent not active, activating..."
-            claude-ctx agent activate quality-engineer >&2 || true
+            cortex agent activate quality-engineer >&2 || true
         fi
-        if ! claude-ctx agent status | grep -q "code-reviewer (active)"; then
+        if ! cortex agent status | grep -q "code-reviewer (active)"; then
             log_warning "code-reviewer agent not active, activating..."
-            claude-ctx agent activate code-reviewer >&2 || true
+            cortex agent activate code-reviewer >&2 || true
         fi
     fi
 

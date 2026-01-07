@@ -1,6 +1,6 @@
 # Architecture Terminology Guide
 
-**Purpose**: Clarify the relationship between claude-ctx system concepts and Claude Code's execution mechanisms.
+**Purpose**: Clarify the relationship between cortex system concepts and Claude Code's execution mechanisms.
 
 ## The Three Layers
 
@@ -8,7 +8,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │ LAYER 1: Cortex System (Your Framework)                │
 ├─────────────────────────────────────────────────────────────┤
-│ - Modes: Behavioral states (Parallel_Orchestration, etc.)  │
+│ - Modes: Behavioral states (Token_Efficiency, etc.)        │
 │ - Rules: Mandatory behaviors (quality-gate-rules.md)       │
 │ - Slash Commands: User workflows (/dev:implement)          │
 │ - Personas: Conceptual roles (architect, frontend, etc.)   │
@@ -33,6 +33,31 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## Mental Model: Flags vs Commands vs Skills
+
+Use this as the default mental model when deciding what to reach for:
+
+- **Commands** are explicit workflows. They set personas, may delegate to subagents, and often
+  instruct which skills to load. Use them when you want a guided, repeatable process.
+- **Skills** are on-demand knowledge modules. They are loaded when a command calls them,
+  when keywords match, or when you explicitly invoke `/ctx:skill <name>`. Use them for
+  depth in a specific domain without committing to a whole workflow.
+- **Flags** are background behavior toggles. They are enabled via `FLAGS.md`, profiles, or
+  the TUI, and shape how Claude behaves across all interactions.
+
+### Activation Sources (current)
+
+1. **Explicit command** (e.g., `/dev:implement`) → loads referenced skills
+2. **Explicit skill invocation** (e.g., `/ctx:skill api-design-patterns`)
+3. **Auto-suggestion / auto-activation**
+   - `skills/activation.yaml` maps keywords → skills
+   - `skills/skill-rules.json` maps keywords → command suggestions (hooks/recommender)
+4. **Flags** apply continuously as defaults
+
+### Naming Note
+
+The CLI binary is `cortex`. `cortex` remains as a deprecated alias.
+
 ## Key Terms
 
 ### Cortex System Terms
@@ -40,22 +65,22 @@
 **Mode**
 
 - What: Behavioral state that modifies Claude's approach
-- Example: `Parallel_Orchestration` enforces parallel execution
-- Location: `~/.claude/modes/` or project `modes/`
-- Activation: `claude-ctx mode activate [name]`
+- Example: `Token_Efficiency` optimizes for concise output
+- Location: `~/.cortex/modes/` or project `.claude/modes/`
+- Activation: `cortex mode activate [name]`
 
 **Rule**
 
 - What: Mandatory behavior Claude must follow
-- Example: `quality-gate-rules.md` requires tests+review+docs
-- Location: `~/.claude/rules/` or project `rules/`
-- Enforcement: Always active, cannot be disabled
+- Example: `quality-gate-rules.md` requires review + tests + docs
+- Location: `~/.cortex/rules/` or project `.claude/rules/`
+- Activation: active when the file is in `rules/`; move to `inactive/rules/` (or use `cortex rules deactivate`) to disable
 
 **Slash Command**
 
 - What: User-triggered workflow that expands to prompt
 - Example: `/dev:implement` → Full implementation workflow prompt
-- Location: `~/.claude/commands/` or project `commands/`
+- Location: `~/.cortex/commands/` or project `.claude/commands/`
 - Usage: Type in Claude Code chat
 
 **Persona** (Conceptual Role)
@@ -103,7 +128,7 @@
 - What: Specialized agent launched via Task tool
 - Types: `general-purpose`, `code-reviewer`, `test-automator`, `Explore`, etc.
 - Characteristics: Works independently, returns results, visible to user
-- Confusion: In claude-ctx, we historically called these "agents" (imprecise!)
+- Confusion: In cortex, we historically called these "agents" (imprecise!)
 
 **Direct Tool**
 

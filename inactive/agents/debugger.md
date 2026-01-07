@@ -66,7 +66,7 @@ metrics:
     - attempts
     - regression_risk
 metadata:
-  source: claude-ctx-core
+  source: cortex-core
   version: 2025.10.13
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 ---

@@ -2,7 +2,7 @@
 
 ## Launch the TUI
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 ## 🎯 What You Should See
@@ -12,7 +12,7 @@ claude-ctx tui
 
 **What it shows**:
 ```
-[View: Agents] Welcome to claude-ctx TUI │ 25MB 0%
+[View: Agents] Welcome to cortex TUI │ 25MB 0%
 ```
 
 - **Left**: Current view and status message
@@ -118,7 +118,7 @@ Every view now has:
 ## 🧪 Testing the Features
 
 ### Test 1: Status Bar
-1. Launch TUI: `claude-ctx tui`
+1. Launch TUI: `cortex tui`
 2. Look at **very bottom** of screen
 3. Should see: `[View: ...] ... │ <memory> <cpu>`
 4. Wait 1 second - numbers should update
@@ -230,7 +230,7 @@ Workflow: workflow-1 | running | 75 | 1699123456
 
 ## ✅ Success Checklist
 
-After launching `claude-ctx tui`, verify:
+After launching `cortex tui`, verify:
 - [ ] Status bar shows memory and CPU at bottom
 - [ ] Ctrl+P opens command palette in center
 - [ ] Typing in command palette filters results

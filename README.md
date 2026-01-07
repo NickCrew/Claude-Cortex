@@ -5,8 +5,13 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 
 **Note:** The `cortex` command  has been deprecated but will remain available for a while.  
 
-> 📚 **Docs:** <https://nickcrew.github.io/claude-cortex/>
-> 🎬 **Presentations:** [Intro Overview](docs/presentations/claude-ctx-overview.html) • [Technical Deep Dive](docs/presentations/claude-ctx-technical-deep-dive.html) • [Executive Roadmap](docs/presentations/claude-ctx-executive-roadmap.html) • [Feature Catalog](docs/presentations/tui-showcase.html)
+ 📚 **Docs:** <https://cortex.atlascrew.dev/>
+
+ 🎬 **Presentations:** 
+* [Intro Overview](docs/presentations/cortex-overview.html) 
+* [Technical Deep Dive](docs/presentations/cortex-technical-deep-dive.html) 
+* [Executive Roadmap](docs/presentations/cortex-executive-roadmap.html) 
+* [Feature Catalog](docs/presentations/tui-showcase.html)
 
 ## What's inside
 
@@ -17,7 +22,7 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 - `flags/` – modular context packs toggled via `FLAGS.md`
 - `hooks/` – optional automation hooks for command workflows
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
-- `claude_ctx_py/` and `claude-ctx-py` – Python CLI entrypoint mirroring the original `cortex`
+- `claude_ctx_py/` and `cortex-py` – Python CLI entrypoint mirroring the original `cortex`
 - `schema/` and `scripts/` – validation schemas and helper scripts
 
 ### 🆕 Latest Updates
@@ -194,7 +199,7 @@ See [AI Intelligence Guide](docs/guides/development/AI_INTELLIGENCE_GUIDE.md) an
 
 **Phase 5** introduces a first-class feedback engine so skills can improve themselves:
 
-- **Ratings & Reviews** – `cortex skills rate <skill>` stores star ratings, helpful/not-helpful votes, and optional text feedback in `~/.claude/data/skill-ratings.db`.
+- **Ratings & Reviews** – `cortex skills rate <skill>` stores star ratings, helpful/not-helpful votes, and optional text feedback in `~/.cortex/data/skill-ratings.db`.
 - **Quality Metrics** – `cortex skills ratings <skill>` shows averages, distributions, success correlation, and token efficiency; `skills top-rated`, `skills export-ratings`, and `skills analytics` expose the aggregate view.
 - **TUI Surfacing** – The Skills table now includes a **Rating** column (press `5`). Select a skill and press `Ctrl+R` to launch an inline rating dialog without leaving the terminal.
 - **Auto Prompts** – Recent skill activations trigger modal prompts shortly after the TUI launches. The prompt explains why the skill was selected (usage count, task types, success rate) and offers to collect feedback on the spot. Dismiss once to snooze for 24 h; rating it clears future prompts until another burst of usage.
@@ -356,7 +361,9 @@ Summary 6/22 active                       930/3380 Saving 72% tokens (2450 token
 Controls: ↑↓ Select    Space Toggle    Changes saved to FLAGS.md
 ```
 
-**Location:** Flag files live in `~/.claude/flags/` and are referenced in `~/.claude/FLAGS.md` (which is included by `CLAUDE.md`)
+**Location:** Flag files live in `~/.cortex/flags/` and are referenced in `~/.cortex/FLAGS.md` (which is included by `CLAUDE.md`).
+
+**Rules:** Source rules live in `~/.cortex/rules/` and are symlinked into `~/.claude/rules/cortex/` on launch so Claude Code loads them. The launcher also adds `rules/cortex/` to `~/.claude/.gitignore`.
 
 See [Flag Management Guide](docs/guides/FLAGS_MANAGEMENT.md) for complete documentation.
 
@@ -383,7 +390,7 @@ but new installs should use the CLI flow below.
 
 This will:
 
-- Install `claude-ctx-py` in editable mode with dev dependencies
+- Install `cortex-py` in editable mode with dev dependencies
 - Set up shell completions for your shell (bash/zsh/fish)
 - Install the manpage system-wide
 
@@ -422,6 +429,20 @@ cortex mode list
 cortex agent graph --export dependency-map.md
 ```
 
+Launch Claude Code with Cortex configuration:
+
+```bash
+cortex start
+```
+
+This reads `~/.cortex/cortex-config.json` (created on first run) and `FLAGS.md`
+to select active flags, rules, modes, and principles, then starts Claude Code
+with those settings and plugin assets.
+
+Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
+
+Alias: `cortex claude`
+
 Optional post-install steps:
 
 ```bash
@@ -435,9 +456,9 @@ cortex install package --manager uv --editable --dev
 cortex install package --manager pipx
 ```
 
-Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.claude`.
+Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.cortex`.
 
-> **Tip:** The CLI resolves its data folder in this order: `CLAUDE_CTX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `~/.claude`. To point the standalone CLI at the plugin cache (or a local checkout), set:
+> **Tip:** The CLI resolves its data folder in this order: `CORTEX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `CORTEX_ROOT` (default `~/.cortex`). To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash
 > export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
@@ -471,6 +492,8 @@ cortex completion fish > ~/.config/fish/completions/cortex.fish
 # Show installation instructions
 cortex completion bash --install
 ```
+
+After adding or updating CLI subcommands (for example, `setup migrate-commands`), regenerate completions so the new options appear.
 
 **Using argcomplete (legacy method):**
 

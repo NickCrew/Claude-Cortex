@@ -67,7 +67,7 @@ docs/archive/
 
 **Other:**
 - `modes_implementation.patch` - Implementation patch
-- `launch_tui.sh` - TUI launcher (superseded by `claude-ctx tui`)
+- `launch_tui.sh` - TUI launcher (superseded by `cortex tui`)
 
 #### Reports (3 files → `docs/archive/reports/`)
 
@@ -132,7 +132,7 @@ docs/archive/
 ## Structure After Cleanup
 
 ```
-claude-ctx-plugin/
+cortex-plugin/
 ├── README.md                          [ACTIVE] Main documentation
 ├── CONTRIBUTING.md                    [ACTIVE] Contribution guide
 ├── CLAUDE.md                          [ACTIVE] Framework entry point
@@ -293,7 +293,7 @@ git commit -m "docs: archive completed task documentation and temporary scripts
 - Archive 29 completed task documents and implementation summaries
 - Archive 3 historical reports and 1 deprecated doc
 - Archive 6 temporary integration scripts and 1 patch file
-- Archive TUI launcher script (superseded by 'claude-ctx tui')
+- Archive TUI launcher script (superseded by 'cortex tui')
 - Reduce root markdown files by 59% (37 → 15)
 - Improve discoverability by keeping only active documentation
 

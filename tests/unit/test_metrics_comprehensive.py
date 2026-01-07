@@ -16,14 +16,14 @@ class TestGetMetricsPath:
     """Tests for get_metrics_path function."""
 
     def test_get_metrics_path_default(self, tmp_path, monkeypatch):
-        """Test getting default metrics path (~/.claude/.metrics/skills/)."""
+        """Test getting default metrics path (~/.cortex/.metrics/skills/)."""
         # Mock home directory
         monkeypatch.setenv("HOME", str(tmp_path))
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
 
         path = metrics.get_metrics_path()
 
-        expected = tmp_path / ".claude" / ".metrics" / "skills"
+        expected = tmp_path / ".cortex" / ".metrics" / "skills"
         assert path == expected
         assert path.exists()  # Should create directory
 
@@ -45,7 +45,7 @@ class TestGetMetricsPath:
         monkeypatch.delenv("CLAUDE_PLUGIN_ROOT", raising=False)
 
         # Ensure directory doesn't exist
-        metrics_dir = tmp_path / ".claude" / ".metrics" / "skills"
+        metrics_dir = tmp_path / ".cortex" / ".metrics" / "skills"
         assert not metrics_dir.exists()
 
         path = metrics.get_metrics_path()

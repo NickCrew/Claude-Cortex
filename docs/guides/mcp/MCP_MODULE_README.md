@@ -245,7 +245,7 @@ To contribute to the MCP module:
 
 ## License
 
-Part of the claude-ctx-py project. See main project README for license information.
+Part of the cortex-py project. See main project README for license information.
 
 ---
 

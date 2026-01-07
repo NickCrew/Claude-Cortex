@@ -1,6 +1,6 @@
-# Test Suite for claude-ctx-plugin
+# Test Suite for cortex-plugin
 
-This directory contains the test suite for the claude-ctx-plugin project.
+This directory contains the test suite for the cortex-plugin project.
 
 ## Structure
 
@@ -67,7 +67,7 @@ pytest -m "not slow"     # Skip slow tests
 
 Common fixtures are defined in `conftest.py`:
 
-- `tmp_claude_dir` - Temporary .claude directory with standard structure
+- `tmp_claude_dir` - Temporary .cortex directory with standard structure
 - `mock_claude_home` - Sets CLAUDE_PLUGIN_ROOT to temporary directory
 - `sample_skill_metadata` - Sample skill metadata for testing
 - `sample_metrics` - Sample metrics data
@@ -108,7 +108,7 @@ class TestFeature:
 ```python
 @pytest.mark.unit
 def test_with_fixture(tmp_claude_dir: Path) -> None:
-    """Test using temporary .claude directory."""
+    """Test using temporary .cortex directory."""
     # tmp_claude_dir is automatically created and cleaned up
     skill_dir = tmp_claude_dir / "skills" / "test-skill"
     skill_dir.mkdir(parents=True)

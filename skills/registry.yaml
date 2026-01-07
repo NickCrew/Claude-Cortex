@@ -1,0 +1,1146 @@
+# Unified Skills Registry
+# Consolidates activation, versioning, composition, and metadata for all skills
+#
+# Schema: registry.schema.json
+# Authors: authors.yaml
+#
+# This file is the single source of truth for skill discovery, activation, and dependencies.
+# Legacy files (activation.yaml, versions.yaml, composition.yaml) remain for backward compatibility.
+
+schema_version: "1.0.0"
+last_updated: "2026-01-05"
+
+# Category Definitions
+categories:
+  architecture:
+    name: Architecture & Design
+    description: System design, API patterns, and architectural decisions
+    icon: "\U0001F3D7"  # building construction emoji
+  development:
+    name: Development
+    description: Language-specific patterns and coding practices
+    icon: "\U0001F4BB"  # laptop emoji
+  infrastructure:
+    name: Infrastructure
+    description: Kubernetes, Terraform, and cloud infrastructure
+    icon: "\U0001F527"  # wrench emoji
+  security:
+    name: Security
+    description: Security practices, threat modeling, and vulnerability management
+    icon: "\U0001F512"  # lock emoji
+  devops:
+    name: DevOps
+    description: CI/CD, GitOps, and deployment workflows
+    icon: "\U0001F680"  # rocket emoji
+  testing:
+    name: Testing
+    description: Test patterns, TDD, and quality assurance
+    icon: "\U0001F9EA"  # test tube emoji
+  workflow:
+    name: Workflow
+    description: Development workflows and process patterns
+    icon: "\U0001F504"  # sync emoji
+  meta:
+    name: Meta
+    description: Skills about skills, tooling, and framework usage
+    icon: "\U0001F4A1"  # light bulb emoji
+  experimental:
+    name: Experimental
+    description: Experimental and community-contributed skills
+    icon: "\U0001F52C"  # microscope emoji
+
+# Skills Registry
+skills:
+  # ============================================================================
+  # ARCHITECTURE & DESIGN
+  # ============================================================================
+
+  api-design-patterns:
+    title: REST and GraphQL API Design Patterns
+    description: Comprehensive REST and GraphQL API design patterns with versioning, pagination, error handling, and HATEOAS principles
+    path: api-design-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+    tags:
+      - rest
+      - graphql
+      - api
+      - versioning
+      - pagination
+      - hateoas
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - REST API design patterns
+            - GraphQL patterns
+            - API versioning strategies
+            - Error handling conventions
+    activation:
+      keywords:
+        - REST API
+        - GraphQL
+        - API design
+        - endpoint design
+        - service contract
+        - API versioning
+        - pagination
+        - HATEOAS
+        - OpenAPI
+        - error handling
+    dependencies: []
+    status: active
+    license: MIT
+
+  microservices-patterns:
+    title: Microservices Architecture Patterns
+    description: Comprehensive microservices architecture patterns covering service decomposition, communication, data management, and resilience strategies
+    path: microservices-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+    tags:
+      - microservices
+      - distributed-systems
+      - service-mesh
+      - circuit-breaker
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Service decomposition patterns
+            - Inter-service communication
+            - Data consistency strategies
+            - Circuit breaker patterns
+    activation:
+      keywords:
+        - microservices
+        - service mesh
+        - distributed system
+        - service-to-service
+        - circuit breaker
+        - service discovery
+        - API gateway
+        - saga pattern
+        - service decomposition
+        - inter-service communication
+    dependencies:
+      - api-design-patterns
+      - event-driven-architecture
+    status: active
+    license: MIT
+
+  event-driven-architecture:
+    title: Event-Driven Architecture Patterns
+    description: Event-driven architecture patterns with event sourcing, CQRS, and message-driven communication
+    path: event-driven-architecture/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+    tags:
+      - event-sourcing
+      - cqrs
+      - kafka
+      - rabbitmq
+      - message-queue
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Event sourcing patterns
+            - Message broker integration
+            - Event schema design
+            - Saga patterns
+    activation:
+      keywords:
+        - event sourcing
+        - CQRS
+        - event-driven
+        - message broker
+        - Kafka
+        - RabbitMQ
+        - event bus
+        - eventual consistency
+        - domain event
+        - message queue
+    dependencies: []
+    status: active
+    license: MIT
+
+  database-design-patterns:
+    title: Database Design Patterns
+    description: Database schema design patterns and optimization strategies for relational and NoSQL databases
+    path: database-design-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+      - development
+    tags:
+      - database
+      - schema
+      - normalization
+      - indexing
+      - nosql
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Normalization strategies
+            - Indexing patterns
+            - Sharding and partitioning
+            - Connection pooling
+    activation:
+      keywords:
+        - database design
+        - normalization
+        - denormalization
+        - indexing
+        - schema design
+        - data modeling
+        - foreign key
+        - database patterns
+        - relational database
+        - NoSQL design
+    dependencies: []
+    status: active
+    license: MIT
+
+  cqrs-event-sourcing:
+    title: CQRS and Event Sourcing
+    description: CQRS and Event Sourcing patterns for scalable, auditable systems with separated read/write models
+    path: cqrs-event-sourcing/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+    tags:
+      - cqrs
+      - event-sourcing
+      - read-model
+      - write-model
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Command-Query separation
+            - Event store patterns
+            - Read model projections
+            - Eventual consistency handling
+    activation:
+      keywords:
+        - CQRS
+        - event sourcing
+        - command query
+        - aggregate root
+        - event store
+        - read model
+        - write model
+        - projection
+        - domain event
+        - event stream
+    dependencies:
+      - event-driven-architecture
+    status: active
+    license: MIT
+
+  api-gateway-patterns:
+    title: API Gateway Patterns
+    description: API Gateway patterns for routing, authentication, rate limiting, and service composition in microservices architectures
+    path: api-gateway-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - architecture
+      - infrastructure
+    tags:
+      - api-gateway
+      - kong
+      - nginx
+      - rate-limiting
+      - bff
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Gateway routing strategies
+            - Rate limiting patterns
+            - Authentication/authorization
+            - Request aggregation
+    activation:
+      keywords:
+        - API gateway
+        - Kong
+        - Nginx
+        - rate limiting
+        - request routing
+        - backend for frontend
+        - BFF
+        - gateway pattern
+        - reverse proxy
+        - load balancing
+    dependencies:
+      - api-design-patterns
+    status: active
+    license: MIT
+
+  # ============================================================================
+  # INFRASTRUCTURE
+  # ============================================================================
+
+  kubernetes-deployment-patterns:
+    title: Kubernetes Deployment Patterns
+    description: Kubernetes deployment strategies and workload patterns for production-grade applications
+    path: kubernetes-deployment-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - infrastructure
+      - devops
+    tags:
+      - kubernetes
+      - k8s
+      - deployment
+      - rolling-update
+      - canary
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Deployment strategies
+            - Rolling updates
+            - Blue-green deployments
+            - Canary releases
+    activation:
+      keywords:
+        - kubernetes
+        - k8s
+        - deployment strategy
+        - rolling update
+        - blue-green deployment
+        - canary deployment
+        - StatefulSet
+        - DaemonSet
+        - pod
+        - helm
+    dependencies:
+      - helm-chart-patterns
+    status: active
+    license: MIT
+
+  kubernetes-security-policies:
+    title: Kubernetes Security Policies
+    description: Kubernetes security policies, RBAC, and Pod Security Standards for hardened cluster deployments
+    path: kubernetes-security-policies/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - infrastructure
+      - security
+    tags:
+      - kubernetes
+      - rbac
+      - pod-security
+      - network-policy
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Pod security policies
+            - Network policies
+            - RBAC configurations
+            - Secret management
+    activation:
+      keywords:
+        - kubernetes security
+        - pod security
+        - RBAC
+        - network policy
+        - security context
+        - admission controller
+        - OPA
+        - policy enforcement
+        - k8s security
+        - container security
+    dependencies: []
+    status: active
+    license: MIT
+
+  helm-chart-patterns:
+    title: Helm Chart Patterns
+    description: Helm chart development patterns for packaging and deploying Kubernetes applications
+    path: helm-chart-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - infrastructure
+      - devops
+    tags:
+      - helm
+      - kubernetes
+      - chart
+      - templating
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Chart structure best practices
+            - Template patterns
+            - Values configuration
+            - Dependency management
+    activation:
+      keywords:
+        - Helm
+        - Helm chart
+        - chart template
+        - values.yaml
+        - Helm release
+        - chart repository
+        - Helm deployment
+        - chart packaging
+        - Helm upgrade
+        - chart hooks
+    dependencies: []
+    status: active
+    license: MIT
+
+  terraform-best-practices:
+    title: Terraform Best Practices
+    description: Terraform infrastructure as code best practices for module organization, state management, and provider configuration
+    path: terraform-best-practices/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - infrastructure
+      - devops
+    tags:
+      - terraform
+      - iac
+      - infrastructure
+      - hcl
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Module organization
+            - State management
+            - Variable patterns
+            - Provider configuration
+    activation:
+      keywords:
+        - terraform
+        - infrastructure as code
+        - IaC
+        - terraform module
+        - state management
+        - remote state
+        - terraform workspace
+        - HCL
+        - terragrunt
+        - infrastructure automation
+    dependencies: []
+    status: active
+    license: MIT
+
+  # ============================================================================
+  # DEVOPS
+  # ============================================================================
+
+  gitops-workflows:
+    title: GitOps Workflows
+    description: GitOps workflows and patterns using ArgoCD and Flux for declarative Kubernetes deployments
+    path: gitops-workflows/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - devops
+    tags:
+      - gitops
+      - argocd
+      - flux
+      - cd
+      - kubernetes
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - GitOps principles
+            - ArgoCD/Flux patterns
+            - Repository structure
+            - Sync strategies
+    activation:
+      keywords:
+        - GitOps
+        - Flux
+        - ArgoCD
+        - declarative deployment
+        - git-based deployment
+        - continuous deployment
+        - infrastructure as code
+        - GitOps automation
+        - deployment workflow
+        - reconciliation
+    dependencies:
+      - kubernetes-deployment-patterns
+      - helm-chart-patterns
+    status: active
+    license: MIT
+
+  # ============================================================================
+  # SECURITY
+  # ============================================================================
+
+  owasp-top-10:
+    title: OWASP Top 10
+    description: OWASP Top 10 security vulnerabilities with detection and remediation patterns
+    path: owasp-top-10/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - security
+    tags:
+      - owasp
+      - security
+      - vulnerabilities
+      - web-security
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - OWASP Top 10 vulnerabilities
+            - Mitigation strategies
+            - Security testing approaches
+            - Vulnerability assessment
+    activation:
+      keywords:
+        - OWASP
+        - security vulnerability
+        - injection
+        - XSS
+        - CSRF
+        - broken access control
+        - cryptographic failure
+        - security audit
+        - SQL injection
+        - authentication failure
+    dependencies: []
+    status: active
+    license: MIT
+
+  secure-coding-practices:
+    title: Secure Coding Practices
+    description: Secure coding practices and defensive programming patterns for building security-first applications
+    path: secure-coding-practices/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - security
+      - development
+    tags:
+      - security
+      - coding
+      - input-validation
+      - defense-in-depth
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Input validation patterns
+            - Authentication best practices
+            - Encryption standards
+            - Secure data handling
+    activation:
+      keywords:
+        - secure coding
+        - code security
+        - input validation
+        - output encoding
+        - sanitization
+        - security hardening
+        - least privilege
+        - defense in depth
+        - secure by design
+        - threat modeling
+    dependencies: []
+    status: active
+    license: MIT
+
+  threat-modeling-techniques:
+    title: Threat Modeling Techniques
+    description: Threat modeling methodologies including STRIDE, attack trees, and risk assessment
+    path: threat-modeling-techniques/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - security
+    tags:
+      - threat-modeling
+      - stride
+      - risk-assessment
+      - attack-tree
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - STRIDE methodology
+            - Attack tree analysis
+            - Risk assessment
+            - Threat identification
+    activation:
+      keywords:
+        - threat modeling
+        - STRIDE
+        - attack tree
+        - threat analysis
+        - security architecture
+        - risk assessment
+        - attack surface
+        - threat landscape
+        - security design
+        - vulnerability analysis
+    dependencies:
+      - owasp-top-10
+    status: active
+    license: MIT
+
+  security-testing-patterns:
+    title: Security Testing Patterns
+    description: Security testing patterns including SAST, DAST, penetration testing, and vulnerability assessment techniques
+    path: security-testing-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - security
+      - testing
+    tags:
+      - security-testing
+      - sast
+      - dast
+      - pentest
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Penetration testing patterns
+            - Security scanning automation
+            - Vulnerability testing
+            - Security regression tests
+    activation:
+      keywords:
+        - security testing
+        - penetration testing
+        - pen test
+        - vulnerability scanning
+        - SAST
+        - DAST
+        - security assessment
+        - fuzz testing
+        - security automation
+        - threat detection
+    dependencies:
+      - owasp-top-10
+      - secure-coding-practices
+    status: active
+    license: MIT
+
+  # ============================================================================
+  # DEVELOPMENT
+  # ============================================================================
+
+  async-python-patterns:
+    title: Async Python Patterns
+    description: Python asyncio and concurrent programming patterns for high-performance applications
+    path: async-python-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - development
+    tags:
+      - python
+      - asyncio
+      - async
+      - concurrency
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - asyncio patterns
+            - Concurrent execution
+            - Event loop management
+            - Async context managers
+    activation:
+      keywords:
+        - asyncio
+        - async await
+        - async/await
+        - event loop
+        - coroutine
+        - non-blocking
+        - concurrent python
+        - async python
+        - aiohttp
+        - FastAPI async
+    dependencies: []
+    status: active
+    license: MIT
+
+  python-testing-patterns:
+    title: Python Testing Patterns
+    description: Python testing patterns and best practices using pytest, mocking, and property-based testing
+    path: python-testing-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - development
+      - testing
+    tags:
+      - python
+      - pytest
+      - testing
+      - mocking
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - pytest patterns
+            - Fixture design
+            - Mock strategies
+            - Test organization
+    activation:
+      keywords:
+        - pytest
+        - unit test
+        - integration test
+        - test-driven development
+        - TDD
+        - mocking
+        - test fixture
+        - test coverage
+        - parametrize
+        - hypothesis testing
+    dependencies: []
+    status: active
+    license: MIT
+
+  python-performance-optimization:
+    title: Python Performance Optimization
+    description: Python performance optimization patterns using profiling, algorithmic improvements, and acceleration techniques
+    path: python-performance-optimization/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - development
+    tags:
+      - python
+      - performance
+      - profiling
+      - optimization
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Profiling techniques
+            - Memory optimization
+            - CPU-bound optimizations
+            - Caching strategies
+    activation:
+      keywords:
+        - Python performance
+        - profiling
+        - optimization
+        - cProfile
+        - memory profiling
+        - NumPy
+        - vectorization
+        - Cython
+        - multiprocessing
+        - performance tuning
+    dependencies: []
+    status: active
+    license: MIT
+
+  typescript-advanced-patterns:
+    title: TypeScript Advanced Patterns
+    description: Advanced TypeScript patterns including conditional types, mapped types, and type inference strategies
+    path: typescript-advanced-patterns/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - development
+    tags:
+      - typescript
+      - types
+      - generics
+      - advanced-types
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Advanced type patterns
+            - Generic constraints
+            - Conditional types
+            - Type inference
+    activation:
+      keywords:
+        - TypeScript
+        - conditional types
+        - mapped types
+        - template literal types
+        - type guard
+        - discriminated union
+        - branded types
+        - advanced types
+        - type inference
+        - generic constraints
+    dependencies: []
+    status: active
+    license: MIT
+
+  react-performance-optimization:
+    title: React Performance Optimization
+    description: React performance optimization patterns using memoization, code splitting, and efficient rendering strategies
+    path: react-performance-optimization/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - development
+    tags:
+      - react
+      - performance
+      - optimization
+      - memoization
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-10-17"
+          notes: Initial versioned release
+          changes:
+            - Memoization strategies
+            - Virtual DOM optimization
+            - Code splitting
+            - Lazy loading patterns
+    activation:
+      keywords:
+        - React performance
+        - React.memo
+        - useMemo
+        - useCallback
+        - code splitting
+        - lazy loading
+        - virtualization
+        - React optimization
+        - re-render
+        - bundle size
+    dependencies: []
+    status: active
+    license: MIT
+
+  # ============================================================================
+  # WORKFLOW & META
+  # ============================================================================
+
+  skill-creator:
+    title: Skill Creator
+    description: Guide for creating effective skills that extend Claude's capabilities with specialized knowledge and workflows
+    path: skill-creator/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - meta
+    tags:
+      - skill
+      - authoring
+      - meta
+    version:
+      current: "1.0.0"
+    activation:
+      keywords:
+        - create skill
+        - new skill
+        - skill development
+        - skill authoring
+    dependencies: []
+    status: active
+    license: MIT
+
+  multi-llm-consult:
+    title: Multi-LLM Consultation
+    description: Consult external LLMs (Gemini, OpenAI/Codex, Qwen) for second opinions, alternative plans, or delegated tasks
+    path: multi-llm-consult/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-12-30"
+    updated: "2025-12-30"
+    categories:
+      - meta
+      - workflow
+    tags:
+      - llm
+      - ai
+      - multi-model
+      - consultation
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2025-12-30"
+          notes: Initial release
+          changes:
+            - Consult Gemini, OpenAI/Codex, and Qwen via script
+            - Store provider keys in settings.json (TUI configuration)
+    activation:
+      keywords:
+        - second opinion
+        - external model
+        - compare models
+        - another LLM
+        - cross-check
+        - delegate to model
+        - Gemini
+        - Qwen
+        - Codex
+    dependencies: []
+    status: active
+    license: MIT
+
+  context-health:
+    title: Context Health Check
+    description: Diagnose and optimize the cortex environment for consistency, duplicates, and redundancy
+    path: context-health/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - meta
+      - workflow
+    tags:
+      - diagnostics
+      - health-check
+      - optimization
+    version:
+      current: "1.0.0"
+    activation:
+      keywords:
+        - cortex doctor
+        - claude ctx doctor
+        - context health
+        - context health check
+        - context diagnostic
+        - environment check
+        - consistency check
+        - duplicate agents
+        - redundancy check
+        - claude ctx health
+    dependencies: []
+    status: active
+    license: MIT
+
+  git-ops:
+    title: Git Operations
+    description: Safe git workflow guidance, validation checks, and conventional commit formatting
+    path: git-ops/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - workflow
+      - devops
+    tags:
+      - git
+      - version-control
+      - commits
+    version:
+      current: "1.0.0"
+    activation:
+      keywords:
+        - git status
+        - git commit
+        - git push
+        - git pull
+        - git branch
+        - merge conflict
+        - rebase
+        - smart commit
+        - conventional commit
+    dependencies: []
+    status: active
+    license: MIT
+
+  test-driven-development:
+    title: Test-Driven Development
+    description: TDD methodology with red-green-refactor cycle and testing best practices
+    path: test-driven-development/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - testing
+      - workflow
+    tags:
+      - tdd
+      - testing
+      - red-green-refactor
+    version:
+      current: "1.0.0"
+    activation:
+      keywords:
+        - TDD
+        - test driven
+        - unit test
+        - integration test
+        - red green refactor
+    dependencies: []
+    status: active
+    license: MIT
+
+  systematic-debugging:
+    title: Systematic Debugging
+    description: Four-phase debugging framework for root cause investigation, pattern analysis, hypothesis testing, and implementation
+    path: systematic-debugging/SKILL.md
+    authors:
+      - nferguson
+    created: "2025-10-17"
+    updated: "2025-10-17"
+    categories:
+      - workflow
+      - development
+    tags:
+      - debugging
+      - troubleshooting
+      - problem-solving
+    version:
+      current: "1.0.0"
+    activation:
+      keywords:
+        - systematic debug
+        - debug process
+        - troubleshoot
+        - bug fix strategy
+    dependencies: []
+    status: active
+    license: MIT
+
+# Registry Statistics (auto-calculated)
+statistics:
+  total_skills: 26
+  active_skills: 26
+  deprecated_skills: 0
+  archived_skills: 0
+  total_authors: 2
+  by_category:
+    architecture: 6
+    development: 6
+    infrastructure: 4
+    security: 5
+    devops: 2
+    testing: 3
+    workflow: 4
+    meta: 3
+    experimental: 0

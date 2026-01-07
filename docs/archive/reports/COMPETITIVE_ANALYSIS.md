@@ -6,7 +6,7 @@
 **Competitive Advantage:** Systematic framework wrapping Claude Code's extended thinking with explicit budgets, profiles, and metrics
 **Target Market:** Professional developers and teams requiring structured, measurable AI-assisted development
 
-**Key Differentiator:** claude-ctx transforms Claude Code's ad-hoc reasoning keywords (`--think`, `--ultrathink`) into a production-grade framework with budget controls, domain profiles, skill integration, and cost analytics.
+**Key Differentiator:** cortex transforms Claude Code's ad-hoc reasoning keywords (`--think`, `--ultrathink`) into a production-grade framework with budget controls, domain profiles, skill integration, and cost analytics.
 
 ---
 
@@ -18,7 +18,7 @@
 - `--think-hard`: Deep reasoning (~10K tokens)
 - `--ultrathink`: Maximum reasoning (~32K tokens)
 
-**What claude-ctx adds:** Structure, measurement, and optimization on top of these native features.
+**What cortex adds:** Structure, measurement, and optimization on top of these native features.
 
 ---
 
@@ -60,7 +60,7 @@
 
 **What Claude Code Provides Out-of-Box:**
 
-| Feature | Native Claude Code | claude-ctx Enhancement |
+| Feature | Native Claude Code | cortex Enhancement |
 |---------|-------------------|------------------------|
 | **Extended Thinking** | ✅ Keywords (`--think`, `--ultrathink`) | ✅ **Explicit budget levels (4K/10K/32K/128K)** |
 | **Cost Visibility** | ❌ No per-request costs shown | ✅ **Real-time cost tracking** |
@@ -71,7 +71,7 @@
 | **Auto-Escalation** | ❌ Manual depth adjustment | ✅ **4 trigger modes (confidence, errors, complexity, adaptive)** |
 | **MCP Coordination** | ❌ Ad-hoc | ✅ **Depth-based orchestration (Sequential, Context7, Serena)** |
 
-**Verdict:** claude-ctx wraps native thinking with **systematic controls, measurement, and optimization**
+**Verdict:** cortex wraps native thinking with **systematic controls, measurement, and optimization**
 
 ---
 
@@ -79,7 +79,7 @@
 
 **Example: "Compound Engineering" (Every Market)**
 
-| Feature | Compound Eng. | claude-ctx |
+| Feature | Compound Eng. | cortex |
 |---------|---------------|------------|
 | Commands | ~15 | **37** |
 | Agents | 3-5 | **11 active, 78 total** |
@@ -88,7 +88,7 @@
 | Metrics Dashboard | ❌ | ✅ **Full analytics** |
 | Documentation | Basic | **Comprehensive + GH Pages** |
 
-**Verdict:** claude-ctx is **2.5x larger** with **unique reasoning management layer**
+**Verdict:** cortex is **2.5x larger** with **unique reasoning management layer**
 
 ---
 
@@ -96,7 +96,7 @@
 
 **Example: Claude Code Plugins Plus (227 plugins)**
 
-| Aspect | Plugin Hub | claude-ctx |
+| Aspect | Plugin Hub | cortex |
 |--------|------------|------------|
 | Approach | Aggregator | **Integrated system** |
 | Commands | 227 across all | **37 curated** |
@@ -106,7 +106,7 @@
 | Cost Analytics | ❌ | ✅ **Budget management** |
 | Specialization | General purpose | **Reasoning + workflows** |
 
-**Verdict:** Plugin Hub is breadth, claude-ctx is **depth + integration**
+**Verdict:** Plugin Hub is breadth, cortex is **depth + integration**
 
 ---
 
@@ -114,7 +114,7 @@
 
 **Comparison: IDE vs Terminal Assistant**
 
-| Feature | Cursor IDE | Claude Code + claude-ctx |
+| Feature | Cursor IDE | Claude Code + cortex |
 |---------|-----------|--------------------------|
 | **Environment** | IDE (VS Code fork) | Terminal/CLI |
 | **Use Case** | In-flow coding | **Architecture + reasoning** |
@@ -128,7 +128,7 @@
 **Verdict:** Complementary tools. **Best practice: Use both together**
 
 - Cursor: Hands-on coding partner
-- claude-ctx: Architect/mentor with structured reasoning
+- cortex: Architect/mentor with structured reasoning
 
 ---
 
@@ -143,22 +143,22 @@
 | **Transparency** | ❌ Hidden reasoning | ✅ **Visible in API response** |
 | **Performance (SWE-bench)** | ~50% | **62.3% (Claude 3.7)** |
 
-**claude-ctx adds on top of Claude API:**
+**cortex adds on top of Claude API:**
 
 - Budget controls (4 levels)
 - Domain profiles (6 specialized)
 - Metrics dashboard
 - Auto-escalation
 
-**Note:** Cost comparison applies to direct API usage. Within Claude Code subscription, extended thinking is included—claude-ctx adds visibility and control.
+**Note:** Cost comparison applies to direct API usage. Within Claude Code subscription, extended thinking is included—cortex adds visibility and control.
 
-**Verdict:** For API users, **Claude 3.7 + claude-ctx is 5x cheaper** than o1 with better code performance. For Claude Code users, **claude-ctx adds structure to built-in thinking.**
+**Verdict:** For API users, **Claude 3.7 + cortex is 5x cheaper** than o1 with better code performance. For Claude Code users, **cortex adds structure to built-in thinking.**
 
 ---
 
 ### 6. Aider (CLI Coding Assistant)
 
-| Feature | Aider | claude-ctx |
+| Feature | Aider | cortex |
 |---------|-------|------------|
 | **Approach** | Git-aware coding | **Framework + reasoning** |
 | **Models** | Multi-model (GPT-4, Claude) | Claude-native |
@@ -168,7 +168,7 @@
 | **Metrics** | ❌ | ✅ **Full analytics** |
 | **Enterprise** | Individual dev | **Team-focused** |
 
-**Verdict:** Aider is lightweight, claude-ctx is **enterprise-grade framework**
+**Verdict:** Aider is lightweight, cortex is **enterprise-grade framework**
 
 ---
 
@@ -176,7 +176,7 @@
 
 ### Core Capabilities
 
-| Feature | claude-ctx | Native Claude Code | Cursor | o1 (API) | Aider |
+| Feature | cortex | Native Claude Code | Cursor | o1 (API) | Aider |
 |---------|-----------|-------------------|--------|----------|-------|
 | **Commands** | 37 | Built-in | N/A | N/A | 10 |
 | **Reasoning Depth** | 128K explicit | 32K keywords | Basic | 128K | Basic |
@@ -190,18 +190,18 @@
 
 ---
 
-## What claude-ctx Actually Provides
+## What cortex Actually Provides
 
 ### 1. **Systematic Budget Management**
 
 **Native:** Keywords like `--ultrathink` (implicit depth)
-**claude-ctx:** Explicit budget levels with cost transparency
+**cortex:** Explicit budget levels with cost transparency
 
 ```bash
 # Native Claude Code
 --ultrathink  # Implied ~32K tokens, no cost visibility
 
-# claude-ctx
+# cortex
 /reasoning:budget 128000 --show-usage
 # Explicit: 128K tokens = $0.384 per request
 # Real-time usage monitoring
@@ -214,14 +214,14 @@
 ### 2. **Domain-Specific Reasoning Profiles**
 
 **Native:** Generic analysis regardless of domain
-**claude-ctx:** 6 specialized profiles with skill activation
+**cortex:** 6 specialized profiles with skill activation
 
 ```bash
 # Native Claude Code
 /analyze:code src/auth
 # Generic analysis
 
-# claude-ctx
+# cortex
 /analyze:code src/auth --reasoning-profile security
 # Activates: owasp-top-10, secure-coding-practices skills
 # Focuses: CVE correlation, threat modeling, input validation
@@ -234,7 +234,7 @@
 ### 3. **Reasoning Effectiveness Metrics**
 
 **Native:** No analytics on reasoning performance
-**claude-ctx:** Comprehensive dashboard
+**cortex:** Comprehensive dashboard
 
 ```bash
 /reasoning:metrics --command analyze:code --export json
@@ -253,7 +253,7 @@
 ### 4. **Intelligent Auto-Escalation**
 
 **Native:** Manual depth adjustment
-**claude-ctx:** Automatic depth increase based on triggers
+**cortex:** Automatic depth increase based on triggers
 
 ```bash
 # Native: Manual escalation
@@ -261,7 +261,7 @@
 --think-hard  # User manually adjusts
 --ultrathink  # Finally succeeds
 
-# claude-ctx: Automatic
+# cortex: Automatic
 --think --auto-escalate adaptive
 # Starts at 4K, detects complexity, auto-escalates to 10K
 # Prevents wasted attempts, optimizes cost vs quality
@@ -274,7 +274,7 @@
 ### 5. **Skill-Based Knowledge System**
 
 **Native:** General Claude knowledge
-**claude-ctx:** 20 curated skills with dependency composition
+**cortex:** 20 curated skills with dependency composition
 
 Skills include:
 
@@ -296,7 +296,7 @@ Skills include:
 ### 6. **MCP Server Orchestration**
 
 **Native:** MCP servers available but ad-hoc activation
-**claude-ctx:** Depth-based coordination
+**cortex:** Depth-based coordination
 
 | Depth | MCP Servers Activated |
 |-------|-----------------------|
@@ -311,7 +311,7 @@ Skills include:
 
 ## Honest Strengths
 
-### ✅ **What claude-ctx Does Well**
+### ✅ **What cortex Does Well**
 
 1. **Structured Framework**
    - Transforms ad-hoc keywords into explicit budgets
@@ -399,13 +399,13 @@ Skills include:
 
 **For professional developers and teams using Claude Code,**
 
-**claude-ctx is a systematic reasoning management framework**
+**cortex is a systematic reasoning management framework**
 
 **that transforms built-in extended thinking into explicit budgets, domain profiles, and metrics**
 
 **Unlike ad-hoc keyword flags or generic plugins,**
 
-**claude-ctx provides cost transparency, skill composition, and data-driven optimization**
+**cortex provides cost transparency, skill composition, and data-driven optimization**
 
 **for teams requiring reproducible, measurable AI-assisted development workflows.**
 
@@ -437,7 +437,7 @@ Skills include:
 **vs Cursor IDE:**
 
 - Position as complementary ("Use both together")
-- Cursor for typing, claude-ctx for thinking
+- Cursor for typing, cortex for thinking
 - Different use cases, not competitors
 
 **vs Other Plugins:**
@@ -484,7 +484,7 @@ Skills include:
 
 ## Competitive Gaps
 
-### What claude-ctx Lacks (vs Competitors)
+### What cortex Lacks (vs Competitors)
 
 1. **IDE Integration** (Cursor has)
    - **Impact:** Medium
@@ -553,7 +553,7 @@ Skills include:
 
 ### Honest Verdict
 
-**claude-ctx is the most comprehensive reasoning management plugin for Claude Code.**
+**cortex is the most comprehensive reasoning management plugin for Claude Code.**
 
 **What it uniquely offers:**
 

@@ -1,6 +1,6 @@
-"""Context export functionality for claude-ctx.
+"""Context export functionality for cortex.
 
-This module provides functionality for exporting the current claude-ctx context
+This module provides functionality for exporting the current cortex context
 as a single markdown file with optional component selection.
 """
 
@@ -13,7 +13,6 @@ from typing import Dict, List, Set, Tuple
 from .base import (
     _resolve_claude_dir,
     _iter_md_files,
-    _parse_active_entries,
     _color,
     GREEN,
     YELLOW,
@@ -40,7 +39,7 @@ def _get_core_framework_files(claude_dir: Path) -> Dict[str, Path]:
     """Get core framework files (FLAGS.md, PRINCIPLES.md, RULES.md).
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping file names to their paths
@@ -62,7 +61,7 @@ def _get_active_rules(claude_dir: Path) -> Dict[str, Path]:
     """Get active rule files from rules/ directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping rule names to their paths
@@ -71,26 +70,9 @@ def _get_active_rules(claude_dir: Path) -> Dict[str, Path]:
     if not rules_dir.exists():
         return {}
 
-    # Parse CLAUDE.md to find active rules
-    claude_md = claude_dir / "CLAUDE.md"
-    active_rules = set()
-
-    directives_seen = False
-    if claude_md.exists():
-        content = claude_md.read_text(encoding="utf-8")
-        for line in content.splitlines():
-            line = line.strip()
-            if "@rules/" in line:
-                directives_seen = True
-            if line.startswith("@rules/") and line.endswith(".md"):
-                rule_name = line[7:]  # Remove "@rules/"
-                active_rules.add(rule_name)
-
-    # Get all rule files
     rule_files = {}
-    for rule_file in rules_dir.glob("*.md"):
-        if rule_file.name in active_rules or (not active_rules and not directives_seen):
-            rule_files[f"rules/{rule_file.name}"] = rule_file
+    for rule_file in _iter_md_files(rules_dir):
+        rule_files[f"rules/{rule_file.name}"] = rule_file
 
     return rule_files
 
@@ -99,7 +81,7 @@ def _get_active_modes(claude_dir: Path) -> Dict[str, Path]:
     """Get active mode files from modes/ directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping mode names to their paths
@@ -141,7 +123,7 @@ def _get_active_agents(claude_dir: Path) -> Dict[str, Path]:
     """Get active agent files from agents/ directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping agent names to their paths
@@ -161,7 +143,7 @@ def _get_mcp_docs(claude_dir: Path) -> Dict[str, Path]:
     """Get MCP documentation files from mcp/docs/ directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping MCP doc names to their paths
@@ -198,7 +180,7 @@ def _get_skills(claude_dir: Path) -> Dict[str, Path]:
     """Get skill files from skills/ directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dictionary mapping skill names to their paths
@@ -220,7 +202,7 @@ def collect_context_components(
     """Collect all context components organized by category.
 
     Args:
-        claude_dir: Path to .claude directory (auto-detected if None)
+        claude_dir: Path to cortex directory (auto-detected if None)
 
     Returns:
         Dictionary mapping category names to dictionaries of component files
@@ -248,14 +230,14 @@ def export_context(
     claude_dir: Path | None = None,
     agent_generic: bool = True,
 ) -> Tuple[int, str]:
-    """Export current claude-ctx context to a markdown file or stdout.
+    """Export current cortex context to a markdown file or stdout.
 
     Args:
         output_path: Path where to write the exported context, or "-" for stdout
         exclude_categories: Set of category names to exclude (core, rules, modes, agents, mcp_docs, skills)
         include_categories: Set of category names to include (if empty, include all)
         exclude_files: Set of specific file paths to exclude (e.g., "rules/quality-rules.md")
-        claude_dir: Path to .claude directory (auto-detected if None)
+        claude_dir: Path to cortex directory (auto-detected if None)
         agent_generic: If True, use agent-generic format (default: True)
 
     Returns:
@@ -390,7 +372,7 @@ def list_context_components(claude_dir: Path | None = None) -> str:
     """List all available context components.
 
     Args:
-        claude_dir: Path to .claude directory (auto-detected if None)
+        claude_dir: Path to cortex directory (auto-detected if None)
 
     Returns:
         Formatted string listing all components

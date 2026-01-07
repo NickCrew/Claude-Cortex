@@ -17,7 +17,7 @@ from .error_utils import safe_load_json, safe_save_json, ensure_directory
 
 
 def get_metrics_path() -> Path:
-    """Get metrics storage path (~/.claude/.metrics/skills/).
+    """Get metrics storage path (~/.cortex/.metrics/skills/).
 
     Raises:
         MetricsFileError: If metrics directory cannot be created
@@ -330,9 +330,8 @@ def get_impact_report(skill_name: str) -> Dict[str, Any]:
         Dictionary containing comprehensive impact metrics
     """
     from . import analytics
-    from pathlib import Path
 
-    claude_dir = Path.home() / ".claude"
+    claude_dir = _resolve_claude_dir()
     return analytics.get_impact_report(skill_name, claude_dir)
 
 
@@ -346,9 +345,8 @@ def generate_analytics_report(output_format: str = "text") -> str:
         Formatted report string
     """
     from . import analytics
-    from pathlib import Path
 
-    claude_dir = Path.home() / ".claude"
+    claude_dir = _resolve_claude_dir()
     return analytics.generate_analytics_report(output_format, claude_dir)
 
 

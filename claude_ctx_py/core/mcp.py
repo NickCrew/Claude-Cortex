@@ -332,11 +332,11 @@ def get_server_docs_path(
 ) -> Optional[Path]:
     """Find documentation for an MCP server.
 
-    Looks for documentation in ~/.claude/mcp/docs/{name}.md
+    Looks for documentation in ~/.cortex/mcp/docs/{name}.md
 
     Args:
         name: Server name
-        claude_dir: Optional Claude directory (uses ~/.claude if None)
+        claude_dir: Optional Cortex directory (uses ~/.cortex if None)
 
     Returns:
         Path to documentation if found, None otherwise
@@ -347,7 +347,7 @@ def get_server_docs_path(
         ...     content = docs_path.read_text()
     """
     if claude_dir is None:
-        claude_dir = Path.home() / ".claude"
+        claude_dir = _resolve_claude_dir()
 
     # Check mcp/docs directory
     docs_dir = claude_dir / "mcp" / "docs"
@@ -401,7 +401,7 @@ def validate_server_config(
         return False, [f"Server '{name}' not found"], []
 
     # When a config file path is provided, prefer documentation inside the
-    # surrounding Claude directory instead of the user's global ~/.claude. This
+    # surrounding Claude directory instead of the user's global ~/.cortex. This
     # keeps validation deterministic in tests and for portable configs.
     if config_path is not None:
         override_docs = get_server_docs_path(name, config_path.parent)

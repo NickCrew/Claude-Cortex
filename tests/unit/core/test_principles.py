@@ -11,7 +11,7 @@ from claude_ctx_py.core import principles
 
 @pytest.fixture
 def claude_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    claude_dir = tmp_path / ".claude"
+    claude_dir = tmp_path / ".cortex"
     claude_dir.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))
     return claude_dir

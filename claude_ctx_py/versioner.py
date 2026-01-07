@@ -152,7 +152,7 @@ def get_skill_versions(skill_name: str, claude_dir: Path) -> List[str]:
         List of version strings found, sorted by semantic version (newest first)
 
     Examples:
-        >>> get_skill_versions("pdf", Path("/home/user/.claude"))
+        >>> get_skill_versions("pdf", Path("/home/user/.cortex"))
         ["2.1.0", "2.0.0", "1.5.3"]
     """
     skills_dir = claude_dir / "skills"
@@ -196,7 +196,7 @@ def get_latest_version(skill_name: str, claude_dir: Path) -> str:
         Latest version string, or "latest" if no versions found
 
     Examples:
-        >>> get_latest_version("pdf", Path("/home/user/.claude"))
+        >>> get_latest_version("pdf", Path("/home/user/.cortex"))
         "2.1.0"
     """
     versions = get_skill_versions(skill_name, claude_dir)
@@ -349,9 +349,9 @@ def resolve_version(
         The resolved version string, or None if no compatible version found
 
     Examples:
-        >>> resolve_version("pdf", "^1.2.0", Path("/home/user/.claude"))
+        >>> resolve_version("pdf", "^1.2.0", Path("/home/user/.cortex"))
         "1.5.3"
-        >>> resolve_version("pdf", "latest", Path("/home/user/.claude"))
+        >>> resolve_version("pdf", "latest", Path("/home/user/.cortex"))
         "2.1.0"
     """
     # Handle 'latest' requirement
@@ -382,7 +382,7 @@ def load_skill_metadata(skill_dir: Path) -> Dict[str, Any]:
         Dictionary containing skill metadata, or empty dict if not found/invalid
 
     Examples:
-        >>> load_skill_metadata(Path("/home/user/.claude/skills/pdf@1.2.3"))
+        >>> load_skill_metadata(Path("/home/user/.cortex/skills/pdf@1.2.3"))
         {"name": "pdf", "version": "1.2.3", "description": "..."}
     """
     yaml_files = list(skill_dir.glob("*.yaml")) + list(skill_dir.glob("*.yml"))

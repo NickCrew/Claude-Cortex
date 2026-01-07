@@ -117,6 +117,39 @@ When asked to generate test cases for a prompt:
 3.  **Generate Scenarios**: Create diverse inputs (e.g., happy path, edge case, adversarial input).
 4.  **Format**: Output the test cases as JSON or XML blocks ready for evaluation.
 
+## Metaprompting (Prompt Optimization)
+
+When asked to **optimize** a prompt or "apply the metaprompt", use this robust structure:
+
+1.  **Analyze the Task**: Understand the goal and inputs.
+2.  **Identify Variables**: Extract inputs as `{$VARIABLE}` (e.g., `{$FAQ}`, `{$USER_QUERY}`).
+3.  **Draft Instructions**:
+    *   Start with a clear role/persona.
+    *   Separate **Inputs** from **Instructions**.
+    *   Use **Chain of Thought (CoT)**: Instruct the model to `<thinking>` before `<answer>`.
+    *   Use **XML Tags**: Structure the output (e.g., `<response>`, `<analysis>`).
+    *   Include **Examples**: Provide 1-2 few-shot examples if complex.
+
+**Structure Template:**
+```markdown
+<Inputs>
+{$VARIABLE_1}
+{$VARIABLE_2}
+</Inputs>
+
+<Instructions>
+You are acting as [Role]. Your goal is to [Task].
+
+First, analyze the input in <thinking> tags. Consider [Criteria].
+
+Then, provide your response in <answer> tags.
+
+[Constraints/Rules]
+- Rule 1
+- Rule 2
+</Instructions>
+```
+
 ## Required Output Format
 
 When creating any prompt, you MUST include:

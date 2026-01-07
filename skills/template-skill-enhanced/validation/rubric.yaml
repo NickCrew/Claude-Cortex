@@ -1,0 +1,321 @@
+# Skill Quality Validation Rubric
+# Use this rubric to evaluate skill outputs and implementations
+#
+# Scoring: Each dimension is scored 1-5
+# - 1: Unacceptable - Does not meet minimum requirements
+# - 2: Needs Improvement - Below expectations, significant gaps
+# - 3: Acceptable - Meets basic requirements, room for improvement
+# - 4: Good - Exceeds basic requirements, minor improvements possible
+# - 5: Excellent - Exemplary, sets the standard
+
+rubric:
+  name: skill-quality-rubric
+  version: 1.0.0
+  description: Quality assessment rubric for skill outputs and implementations
+
+  dimensions:
+    clarity:
+      weight: 0.25
+      description: How clear and understandable is the output?
+      criteria:
+        1:
+          label: Unacceptable
+          description: |
+            - Output is confusing or contradictory
+            - Technical terms used without explanation
+            - Structure is disorganized or missing
+            - Reader cannot understand the intent
+          indicators:
+            - Multiple readings required to understand
+            - Key concepts are unclear
+            - No logical flow between sections
+
+        2:
+          label: Needs Improvement
+          description: |
+            - Some sections are unclear
+            - Technical terms occasionally undefined
+            - Structure present but inconsistent
+            - Intent is partially discernible
+          indicators:
+            - Some sections require re-reading
+            - Occasional jargon without context
+            - Logical gaps between sections
+
+        3:
+          label: Acceptable
+          description: |
+            - Generally clear communication
+            - Most technical terms explained
+            - Reasonable structure throughout
+            - Intent is clear on first read
+          indicators:
+            - Understandable on first read
+            - Technical terms mostly explained
+            - Logical progression present
+
+        4:
+          label: Good
+          description: |
+            - Clear and precise language
+            - All technical terms properly defined
+            - Well-organized structure
+            - Intent immediately obvious
+          indicators:
+            - No confusion on any section
+            - Technical glossary or definitions included
+            - Clear hierarchical organization
+
+        5:
+          label: Excellent
+          description: |
+            - Exceptionally clear writing
+            - Technical concepts explained with examples
+            - Perfect structure supporting comprehension
+            - Intent clear even to non-experts
+          indicators:
+            - Could be used as teaching material
+            - Examples illuminate every concept
+            - Structure enhances understanding
+
+    completeness:
+      weight: 0.25
+      description: Does the output cover all required aspects?
+      criteria:
+        1:
+          label: Unacceptable
+          description: |
+            - Major sections missing
+            - Critical information omitted
+            - Requirements not addressed
+            - Output is fragmentary
+          indicators:
+            - More than 50% of requirements unmet
+            - Core functionality not covered
+            - Essential examples missing
+
+        2:
+          label: Needs Improvement
+          description: |
+            - Some required sections missing
+            - Important information gaps
+            - Partial requirement coverage
+            - Key areas underdeveloped
+          indicators:
+            - 25-50% of requirements unmet
+            - Some important topics skipped
+            - Examples incomplete
+
+        3:
+          label: Acceptable
+          description: |
+            - All required sections present
+            - Core information included
+            - Basic requirements met
+            - Sufficient for intended use
+          indicators:
+            - Less than 25% gaps in coverage
+            - Main topics addressed
+            - Basic examples provided
+
+        4:
+          label: Good
+          description: |
+            - All sections well-developed
+            - Comprehensive information
+            - Requirements exceeded in places
+            - Additional helpful content
+          indicators:
+            - All requirements fully met
+            - Edge cases considered
+            - Multiple examples per concept
+
+        5:
+          label: Excellent
+          description: |
+            - Exhaustive coverage of all aspects
+            - Information exceeds requirements
+            - All edge cases addressed
+            - Bonus content adds significant value
+          indicators:
+            - Could serve as authoritative reference
+            - Anticipates user questions
+            - Comprehensive example library
+
+    accuracy:
+      weight: 0.30
+      description: Is the output technically correct and factually accurate?
+      criteria:
+        1:
+          label: Unacceptable
+          description: |
+            - Contains factual errors
+            - Technical inaccuracies present
+            - Examples do not work
+            - Could lead to incorrect implementations
+          indicators:
+            - Code examples have bugs
+            - Best practices violated
+            - Misinformation present
+
+        2:
+          label: Needs Improvement
+          description: |
+            - Minor factual errors
+            - Some technical imprecision
+            - Examples partially work
+            - May cause confusion
+          indicators:
+            - Some code needs fixes to work
+            - Terminology occasionally misused
+            - Some outdated information
+
+        3:
+          label: Acceptable
+          description: |
+            - Factually correct
+            - Technically sound
+            - Examples work as written
+            - Safe to follow guidance
+          indicators:
+            - All code examples execute correctly
+            - Technical terms used properly
+            - Information is current
+
+        4:
+          label: Good
+          description: |
+            - Highly accurate
+            - Technically precise
+            - Examples are production-quality
+            - Follows current best practices
+          indicators:
+            - Code follows style guides
+            - Security considerations addressed
+            - Performance implications noted
+
+        5:
+          label: Excellent
+          description: |
+            - Authoritative accuracy
+            - Cutting-edge technical precision
+            - Examples are exemplary code
+            - Sets best practice standards
+          indicators:
+            - Could be cited as reference material
+            - Demonstrates expert-level knowledge
+            - Anticipates future considerations
+
+    usefulness:
+      weight: 0.20
+      description: How practical and applicable is the output?
+      criteria:
+        1:
+          label: Unacceptable
+          description: |
+            - Not applicable to real scenarios
+            - Too abstract to implement
+            - No actionable guidance
+            - Theoretical without practical value
+          indicators:
+            - Cannot be applied directly
+            - Missing implementation steps
+            - No real-world context
+
+        2:
+          label: Needs Improvement
+          description: |
+            - Limited practical application
+            - Significant adaptation required
+            - Partial actionable content
+            - Gap between theory and practice
+          indicators:
+            - Substantial work needed to apply
+            - Some steps unclear or missing
+            - Limited real-world examples
+
+        3:
+          label: Acceptable
+          description: |
+            - Applicable to common scenarios
+            - Reasonable adaptation for use
+            - Clear actionable steps
+            - Practical orientation
+          indicators:
+            - Can be applied with minor changes
+            - Main steps are clear
+            - Common scenarios covered
+
+        4:
+          label: Good
+          description: |
+            - Highly applicable
+            - Minimal adaptation needed
+            - Immediately actionable
+            - Strong practical focus
+          indicators:
+            - Can be applied directly
+            - Copy-paste ready where appropriate
+            - Multiple scenarios addressed
+
+        5:
+          label: Excellent
+          description: |
+            - Universally applicable
+            - Production-ready guidance
+            - Comprehensive action plan
+            - Practical excellence
+          indicators:
+            - Saves significant implementation time
+            - Addresses edge cases proactively
+            - Includes troubleshooting guidance
+
+  scoring:
+    calculation: weighted_average
+    minimum_passing: 3.0
+    target_score: 4.0
+    exceptional_score: 4.5
+
+  evaluation_template: |
+    ## Skill Output Evaluation
+
+    ### Scores
+    - Clarity: X/5
+    - Completeness: X/5
+    - Accuracy: X/5
+    - Usefulness: X/5
+
+    ### Weighted Score: X.XX/5
+
+    ### Strengths
+    - [Identified strength 1]
+    - [Identified strength 2]
+
+    ### Areas for Improvement
+    - [Improvement area 1]
+    - [Improvement area 2]
+
+    ### Recommendations
+    - [Specific recommendation 1]
+    - [Specific recommendation 2]
+
+  validation_checklist:
+    required:
+      - All code examples execute without errors
+      - Technical terminology is accurate
+      - Best practices are followed
+      - Security considerations addressed
+      - No factual errors or outdated information
+
+    recommended:
+      - Multiple examples per concept
+      - Edge cases covered
+      - Troubleshooting guidance included
+      - Related resources linked
+      - Progressive disclosure structure used
+
+    optional:
+      - Video or interactive content linked
+      - Community contributions acknowledged
+      - Alternative approaches discussed
+      - Performance benchmarks included

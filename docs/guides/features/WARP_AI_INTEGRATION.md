@@ -1,13 +1,13 @@
 # Warp AI Integration
 
-This guide shows how to integrate `claude-ctx` with Warp AI and other terminal AI tools.
+This guide shows how to integrate `cortex` with Warp AI and other terminal AI tools.
 
 ## Quick Start
 
 Install the context export aliases:
 
 ```bash
-claude-ctx install aliases
+cortex install aliases
 ```
 
 Then reload your shell:
@@ -121,27 +121,27 @@ ctx-copy
 
 ### Custom Exports
 
-Use the full `claude-ctx export` command for fine-grained control:
+Use the full `cortex export` command for fine-grained control:
 
 ```bash
 # Exclude multiple categories
-claude-ctx export context - \
+cortex export context - \
   --exclude skills \
   --exclude mcp_docs \
   --exclude agents
 
 # Include only specific categories
-claude-ctx export context - \
+cortex export context - \
   --include rules \
   --include core
 
 # Exclude specific files
-claude-ctx export context - \
+cortex export context - \
   --exclude-file rules/quality-rules.md \
   --exclude-file modes/Super_Saiyan.md
 
 # Export to file instead of stdout
-claude-ctx export context ~/my-context.md
+cortex export context ~/my-context.md
 ```
 
 ### Shell-Specific Installation
@@ -150,13 +150,13 @@ Specify target shell explicitly:
 
 ```bash
 # Install for bash
-claude-ctx install aliases --shell bash
+cortex install aliases --shell bash
 
 # Install for zsh
-claude-ctx install aliases --shell zsh
+cortex install aliases --shell zsh
 
 # Install for fish
-claude-ctx install aliases --shell fish
+cortex install aliases --shell fish
 ```
 
 ### Custom RC File
@@ -164,7 +164,7 @@ claude-ctx install aliases --shell fish
 Specify a custom RC file location:
 
 ```bash
-claude-ctx install aliases --rc-file ~/.bash_aliases
+cortex install aliases --rc-file ~/.bash_aliases
 ```
 
 ### Dry Run
@@ -172,7 +172,7 @@ claude-ctx install aliases --rc-file ~/.bash_aliases
 Preview what will be installed without making changes:
 
 ```bash
-claude-ctx install aliases --dry-run
+cortex install aliases --dry-run
 ```
 
 ### Force Reinstall
@@ -180,7 +180,7 @@ claude-ctx install aliases --dry-run
 Reinstall aliases even if already installed:
 
 ```bash
-claude-ctx install aliases --force
+cortex install aliases --force
 ```
 
 ### Uninstall
@@ -188,7 +188,7 @@ claude-ctx install aliases --force
 Remove installed aliases:
 
 ```bash
-claude-ctx install aliases --uninstall
+cortex install aliases --uninstall
 ```
 
 ## Integration with Other Terminal AI Tools
@@ -207,7 +207,7 @@ These aliases work with any terminal AI tool that can access command output cont
 
 1. Verify installation:
    ```bash
-   grep "claude-ctx aliases" ~/.zshrc  # or ~/.bashrc, ~/.config/fish/config.fish
+   grep "cortex aliases" ~/.zshrc  # or ~/.bashrc, ~/.config/fish/config.fish
    ```
 
 2. Reload your shell:
@@ -215,9 +215,9 @@ These aliases work with any terminal AI tool that can access command output cont
    source ~/.zshrc  # or appropriate RC file
    ```
 
-3. Check that claude-ctx is in your PATH:
+3. Check that cortex is in your PATH:
    ```bash
-   which claude-ctx
+   which cortex
    ```
 
 ### Context too large
@@ -245,13 +245,13 @@ sudo apt-get install xclip  # Ubuntu/Debian
 sudo yum install xclip      # Fedora/RHEL
 
 # Add to your RC file
-alias ctx-copy='claude-ctx export context - 2>/dev/null | xclip -selection clipboard && echo "✓ Context copied to clipboard"'
+alias ctx-copy='cortex export context - 2>/dev/null | xclip -selection clipboard && echo "✓ Context copied to clipboard"'
 ```
 
 Or use `wl-copy` for Wayland:
 
 ```bash
-alias ctx-copy='claude-ctx export context - 2>/dev/null | wl-copy && echo "✓ Context copied to clipboard"'
+alias ctx-copy='cortex export context - 2>/dev/null | wl-copy && echo "✓ Context copied to clipboard"'
 ```
 
 ## Best Practices
@@ -271,7 +271,7 @@ alias ctx-copy='claude-ctx export context - 2>/dev/null | wl-copy && echo "✓ C
 To see all available aliases without installing:
 
 ```bash
-claude-ctx install aliases --show
+cortex install aliases --show
 ```
 
 ## Examples
@@ -319,11 +319,11 @@ ctx-copy
 
 ## Related Commands
 
-- `claude-ctx export list` - List all available components
-- `claude-ctx agent list` - List available agents
-- `claude-ctx mode list` - List available modes
-- `claude-ctx tui` - Launch interactive TUI
-- `claude-ctx completion bash` - Generate shell completions
+- `cortex export list` - List all available components
+- `cortex agent list` - List available agents
+- `cortex mode list` - List available modes
+- `cortex tui` - Launch interactive TUI
+- `cortex completion bash` - Generate shell completions
 
 ## Further Reading
 

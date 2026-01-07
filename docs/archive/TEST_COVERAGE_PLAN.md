@@ -1,6 +1,6 @@
 # Test Coverage Plan - Reach 80% Coverage
 
-Complete plan for achieving 80% test coverage across claude-ctx-plugin.
+Complete plan for achieving 80% test coverage across cortex-plugin.
 
 ## Executive Summary
 

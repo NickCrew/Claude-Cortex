@@ -1,7 +1,7 @@
 """Asset discovery for plugin resources.
 
 Discovers available assets from the plugin and installed assets
-in .claude directories. Supports:
+in cortex directories. Supports:
 - Hooks
 - Commands (slash commands)
 - Agents
@@ -26,7 +26,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from .base import _extract_front_matter
+from .base import _extract_front_matter, _resolve_claude_dir
 
 
 _SETTINGS_RELATIVE_PATHS = [
@@ -90,7 +90,7 @@ class Asset:
 
     @property
     def install_target(self) -> str:
-        """Get the relative install path within .claude directory."""
+        """Get the relative install path within the cortex directory."""
         if self.category == AssetCategory.HOOKS:
             return f"hooks/{self.source_path.name}"
         elif self.category == AssetCategory.COMMANDS:
@@ -122,7 +122,7 @@ class Asset:
 
 @dataclass
 class ClaudeDir:
-    """Represents a discovered .claude directory."""
+    """Represents a discovered cortex directory."""
 
     path: Path
     scope: str  # "project", "parent", "global"
@@ -132,7 +132,9 @@ class ClaudeDir:
     def display_name(self) -> str:
         """Get display name for the directory."""
         if self.scope == "global":
-            return f"~/.claude (global)"
+            return "~/.cortex (global)"
+        elif self.scope == "legacy":
+            return "~/.claude (legacy)"
         elif self.scope == "project":
             return f"./.claude (project)"
         else:
@@ -278,20 +280,42 @@ def _discover_commands(plugin_root: Path) -> List[Asset]:
     return sorted(commands, key=lambda a: a.display_name)
 
 
+def _parse_command_front_matter(content: str) -> Dict[str, Any]:
+    """Parse command front matter into a dict (best-effort)."""
+    front_matter_str = _extract_front_matter(content)
+    if not front_matter_str:
+        return {}
+    try:
+        import yaml
+        return yaml.safe_load(front_matter_str) or {}
+    except Exception:
+        return {}
+
+
+def _resolve_command_name(
+    path: Path,
+    namespace: Optional[str],
+    front_matter: Dict[str, Any],
+) -> tuple[str, Optional[str]]:
+    """Resolve command name + namespace, honoring front matter when present."""
+    name = path.stem
+    resolved_namespace = namespace
+    raw_name = front_matter.get("name")
+    if isinstance(raw_name, str):
+        cleaned = raw_name.strip()
+        if cleaned:
+            if ":" in cleaned:
+                return cleaned, None
+            name = cleaned
+    return name, resolved_namespace
+
+
 def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]:
     """Parse a command markdown file."""
     try:
         content = path.read_text(encoding="utf-8")
-        front_matter_str = _extract_front_matter(content)
-
-        # Parse YAML front matter
-        front_matter: Dict[str, Any] = {}
-        if front_matter_str:
-            try:
-                import yaml
-                front_matter = yaml.safe_load(front_matter_str) or {}
-            except Exception:
-                pass
+        front_matter = _parse_command_front_matter(content)
+        name, resolved_namespace = _resolve_command_name(path, namespace, front_matter)
 
         description = front_matter.get("description", "")
         if not description:
@@ -305,11 +329,11 @@ def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]
                     break
 
         return Asset(
-            name=path.stem,
+            name=name,
             category=AssetCategory.COMMANDS,
             source_path=path,
             description=description[:100] + "..." if len(description) > 100 else description,
-            namespace=namespace,
+            namespace=resolved_namespace,
             metadata=front_matter,
         )
     except OSError:
@@ -717,7 +741,7 @@ def _discover_tasks(plugin_root: Path) -> List[Asset]:
 
 
 def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir]:
-    """Find all .claude directories from start_path up to root and home.
+    """Find all cortex directories from start_path up to root and home.
 
     Args:
         start_path: Starting directory (defaults to cwd)
@@ -759,25 +783,36 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
         current = current.parent
         depth += 1
 
-    # Always include ~/.claude if it exists and not already found
-    global_claude = home / ".claude"
-    if global_claude.exists() and str(global_claude) not in seen_paths:
-        installed = get_installed_assets(global_claude)
+    # Always include ~/.cortex (or CORTEX_ROOT) as global target
+    global_root = _resolve_claude_dir(home, scope="global")
+    if str(global_root) not in seen_paths:
+        installed = get_installed_assets(global_root)
         claude_dirs.append(ClaudeDir(
-            path=global_claude,
+            path=global_root,
             scope="global",
             installed_assets=installed,
         ))
-        seen_paths.add(str(global_claude))
+        seen_paths.add(str(global_root))
+
+    # If a legacy ~/.claude exists, surface it as a secondary option
+    legacy_root = home / ".claude"
+    if legacy_root.exists() and str(legacy_root) not in seen_paths:
+        installed = get_installed_assets(legacy_root)
+        claude_dirs.append(ClaudeDir(
+            path=legacy_root,
+            scope="legacy",
+            installed_assets=installed,
+        ))
+        seen_paths.add(str(legacy_root))
 
     return claude_dirs
 
 
 def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
-    """Get list of installed assets in a .claude directory.
+    """Get list of installed assets in a cortex directory.
 
     Args:
-        claude_dir: Path to .claude directory
+        claude_dir: Path to cortex directory
 
     Returns:
         Dict mapping category names to lists of asset names
@@ -813,10 +848,30 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
                 ns = item.name
                 for cmd in item.glob("*.md"):
                     if cmd.name != "README.md":
-                        installed["commands"].append(f"{ns}:{cmd.stem}")
+                        try:
+                            content = cmd.read_text(encoding="utf-8")
+                        except OSError:
+                            installed["commands"].append(f"{ns}:{cmd.stem}")
+                            continue
+                        front_matter = _parse_command_front_matter(content)
+                        name, resolved_ns = _resolve_command_name(cmd, ns, front_matter)
+                        if resolved_ns:
+                            installed["commands"].append(f"{resolved_ns}:{name}")
+                        else:
+                            installed["commands"].append(name)
             elif item.is_file() and item.suffix == ".md":
                 if item.name != "README.md":
-                    installed["commands"].append(item.stem)
+                    try:
+                        content = item.read_text(encoding="utf-8")
+                    except OSError:
+                        installed["commands"].append(item.stem)
+                        continue
+                    front_matter = _parse_command_front_matter(content)
+                    name, resolved_ns = _resolve_command_name(item, None, front_matter)
+                    if resolved_ns:
+                        installed["commands"].append(f"{resolved_ns}:{name}")
+                    else:
+                        installed["commands"].append(name)
 
     # Agents (both active and inactive)
     for agent_dir in [claude_dir / "agents", claude_dir / "inactive" / "agents"]:
@@ -899,7 +954,7 @@ def check_installation_status(
 
     Args:
         asset: Asset to check
-        claude_dir: Target .claude directory
+        claude_dir: Target cortex directory
 
     Returns:
         InstallStatus enum value

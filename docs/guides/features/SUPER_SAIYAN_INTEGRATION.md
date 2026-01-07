@@ -1,10 +1,10 @@
 # Super Saiyan Integration Guide 🔥
 
-**Universal Visual Excellence for claude-ctx-plugin**
+**Universal Visual Excellence for cortex-plugin**
 
 ## Overview
 
-Super Saiyan mode is now fully integrated into claude-ctx-plugin, providing:
+Super Saiyan mode is now fully integrated into cortex-plugin, providing:
 - ✨ Enhanced Textual TUI components
 - 🎨 Beautiful terminal styling
 - ⚡ Smooth animations and transitions
@@ -61,7 +61,7 @@ New module: `claude_ctx_py/tui_supersaiyan.py`
 ### Running the Demo
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 python examples/supersaiyan_demo.py
 ```
 

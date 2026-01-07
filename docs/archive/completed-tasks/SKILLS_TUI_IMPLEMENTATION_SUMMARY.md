@@ -6,7 +6,7 @@ Successfully implemented a READ-ONLY Skills view for the Textual-based TUI in `c
 ## Implementation Details
 
 ### File Modified
-- **Path**: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_textual.py`
+- **Path**: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_textual.py`
 
 ### Methods Added
 
@@ -156,7 +156,7 @@ Skills are sorted first by category, then alphabetically by name for organized d
 - Error: "Error loading skills: {error_message}"
 
 ## File Locations
-- **Main implementation**: `/Users/nferguson/Developer/personal/claude-ctx-plugin/claude_ctx_py/tui_textual.py`
+- **Main implementation**: `/Users/nferguson/Developer/personal/cortex-plugin/claude_ctx_py/tui_textual.py`
 - **Skills directory**: `~/.claude/skills/` (user) or `<project>/.claude/skills/` (project)
 - **Skill files**: `<skills_dir>/<skill_name>/SKILL.md`
 

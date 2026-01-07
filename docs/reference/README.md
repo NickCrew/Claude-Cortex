@@ -1,12 +1,12 @@
 # Manpage Generation
 
-Manpages for `claude-ctx` are **auto-generated** from the CLI argparse definitions.
+Manpages for `cortex` are **auto-generated** from the CLI argparse definitions.
 
 ## 📄 Generated Files
 
-- `claude-ctx.1` - Main command reference
-- `claude-ctx-tui.1` - TUI subcommand reference  
-- `claude-ctx-workflow.1` - Workflow subcommand reference
+- `cortex.1` - Main command reference
+- `cortex-tui.1` - TUI subcommand reference  
+- `cortex-workflow.1` - Workflow subcommand reference
 
 ## 🔄 Regeneration
 
@@ -39,10 +39,10 @@ View generated manpages:
 
 ```bash
 # After generation
-man docs/reference/claude-ctx.1
+man docs/reference/cortex.1
 
 # After installation
-man claude-ctx
+man cortex
 ```
 
 ## 📅 Version & Date

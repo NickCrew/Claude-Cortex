@@ -2,7 +2,7 @@
 
 ## What Was Built
 
-A **hybrid AI intelligence system** for claude-ctx that combines three approaches to make smart agent recommendations:
+A **hybrid AI intelligence system** for cortex that combines three approaches to make smart agent recommendations:
 
 ### 1. Semantic Matching (NEW) ✨
 
@@ -91,11 +91,11 @@ from claude_ctx_py.intelligence import PatternLearner
 learner = PatternLearner(history_file, enable_semantic=False)
 
 # Level 2: + Semantic matching (with fastembed)
-pip install claude-ctx-py[ai]
+pip install cortex-py[ai]
 learner = PatternLearner(history_file, enable_semantic=True)
 
 # Level 3: + LLM analysis (with anthropic)
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=...
 ```
 
@@ -146,13 +146,13 @@ Recommendations
 ### Base Install (Rule-Based Only)
 
 ```bash
-pip install claude-ctx-py
+pip install cortex-py
 ```
 
 ### Semantic Intelligence (Recommended)
 
 ```bash
-pip install claude-ctx-py[ai]
+pip install cortex-py[ai]
 ```
 
 Adds:
@@ -162,7 +162,7 @@ Adds:
 ### LLM Intelligence (Optional)
 
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 export ANTHROPIC_API_KEY=your_key
 ```
 
@@ -172,7 +172,7 @@ Adds:
 ### All Features
 
 ```bash
-pip install claude-ctx-py[all]
+pip install cortex-py[all]
 ```
 
 ## Usage Examples
@@ -236,7 +236,7 @@ for session, similarity in similar:
 ```python
 from claude_ctx_py.intelligence.semantic import LLMIntelligence
 
-# Requires: pip install claude-ctx-py[llm]
+# Requires: pip install cortex-py[llm]
 # And: export ANTHROPIC_API_KEY=...
 
 llm = LLMIntelligence(available_agents)
@@ -381,7 +381,7 @@ No migration needed! The system:
 - [ ] Active learning (feedback loop)
 
 ### Long-term
-- [ ] Fine-tune custom embedding model on claude-ctx data
+- [ ] Fine-tune custom embedding model on cortex data
 - [ ] Agent combination learning (which agents work well together)
 - [ ] Workflow prediction (predict entire sequences)
 - [ ] Anomaly detection (unusual patterns = potential issues)

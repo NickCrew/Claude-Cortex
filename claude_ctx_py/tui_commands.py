@@ -182,6 +182,24 @@ class AgentCommandProvider(Provider):
                 CATEGORY_VIEW,
             ),
             (
+                f"[bright_magenta]📝[/] [bold]Request Reviews[/bold] [dim bright_magenta]⚑[/dim bright_magenta]",
+                f"[dim]Spawn review tasks from recommendations [dim white]│[/dim white] Hotkey: [yellow]Y[/yellow][/dim]",
+                "request_reviews",
+                CATEGORY_VIEW,
+            ),
+            (
+                f"[bright_magenta]✨[/] [bold]Consult Gemini[/bold] [dim bright_magenta]◆[/dim bright_magenta]",
+                f"[dim]Ask Gemini for a second opinion [dim white]│[/dim white] Hotkey: [yellow]G[/yellow][/dim]",
+                "consult_gemini",
+                CATEGORY_VIEW,
+            ),
+            (
+                f"[bright_magenta]🧠[/] [bold]Assign LLM Tasks[/bold] [dim bright_magenta]◆[/dim bright_magenta]",
+                f"[dim]Dispatch tasks to Gemini/OpenAI/Qwen [dim white]│[/dim white] Hotkey: [yellow]K[/yellow][/dim]",
+                "assign_llm_tasks",
+                CATEGORY_VIEW,
+            ),
+            (
                 f"[cyan]👁️[/] [bold]Watch Mode[/bold] [dim cyan]🔍[/dim cyan]",
                 f"[dim]Monitor repo changes [dim white]│[/dim white] Hotkey: [yellow]w[/yellow][/dim]",
                 "show_watch_mode",
@@ -369,6 +387,15 @@ class AgentCommandProvider(Provider):
         elif action == "show_ai_assistant":
             app.current_view = "ai_assistant"
             app.update_view()
+        elif action == "request_reviews":
+            if hasattr(app, "action_request_reviews"):
+                getattr(app, "action_request_reviews")()
+        elif action == "consult_gemini":
+            if hasattr(app, "action_consult_gemini"):
+                getattr(app, "action_consult_gemini")()
+        elif action == "assign_llm_tasks":
+            if hasattr(app, "action_assign_llm_tasks"):
+                getattr(app, "action_assign_llm_tasks")()
         elif action == "show_watch_mode":
             app.current_view = "watch_mode"
             app.update_view()

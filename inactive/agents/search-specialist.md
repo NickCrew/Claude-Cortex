@@ -68,7 +68,7 @@ metrics:
     - confidence_score
     - turnaround_minutes
 metadata:
-  source: claude-ctx-core
+  source: cortex-core
   version: 2025.10.14
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 ---

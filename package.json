@@ -1,0 +1,28 @@
+{
+  "name": "claude-cortex",
+  "version": "1.0.0",
+  "description": "Intelligent and AI agent management framework with a first-class TUI ",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "pytest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github-personal:NickCrew/claude-cortex.git"
+  },
+  "keywords": [
+    "ai",
+    "ai-agent",
+    "ai-assisted-development",
+    "claude",
+    "development",
+    "engineering",
+    "context"
+  ],
+  "author": "Nicholas Ferguson",
+  "license": "MIT"
+}

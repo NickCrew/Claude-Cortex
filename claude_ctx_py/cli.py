@@ -1,4 +1,4 @@
-"""Command-line interface for claude-ctx-py."""
+"""Command-line interface for cortex-py."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Iterable, List, cast, Dict, Any, Callable
 
 from . import core
-from .core.migration import migrate_to_file_activation
+from .core.migration import migrate_to_file_activation, migrate_commands_layout
 
 
 def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
@@ -129,12 +129,45 @@ def _build_principles_parser(subparsers: argparse._SubParsersAction[Any]) -> Non
     )
 
 
+def _build_prompts_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    prompts_parser = subparsers.add_parser("prompts", help="Prompt library commands")
+    prompts_sub = prompts_parser.add_subparsers(dest="prompts_command")
+    prompts_sub.add_parser("list", help="List available prompts")
+    prompts_sub.add_parser("status", help="Show active prompts")
+    prompts_activate = prompts_sub.add_parser(
+        "activate", help="Activate one or more prompts"
+    )
+    prompts_activate.add_argument(
+        "slugs", nargs="+", help="Prompt slug(s) in category/name format"
+    )
+    prompts_deactivate = prompts_sub.add_parser(
+        "deactivate", help="Deactivate one or more prompts"
+    )
+    prompts_deactivate.add_argument(
+        "slugs", nargs="+", help="Prompt slug(s) in category/name format"
+    )
+
+
 def _build_setup_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     setup_parser = subparsers.add_parser("setup", help="Setup and migration commands")
     setup_sub = setup_parser.add_subparsers(dest="setup_command")
     setup_sub.add_parser(
         "migrate",
         help="Migrate CLAUDE.md comment-based activation to file-based rules/modes",
+    )
+    migrate_cmds = setup_sub.add_parser(
+        "migrate-commands",
+        help="Flatten legacy commands/ namespaces into a single directory",
+    )
+    migrate_cmds.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show planned moves without changing files",
+    )
+    migrate_cmds.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing targets (backs up overwritten files)",
     )
 
 
@@ -869,7 +902,7 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
 
     # Install architecture docs
     docs_parser = install_sub.add_parser(
-        "docs", help="Install architecture docs to ~/.claude/docs"
+        "docs", help="Install architecture docs to ~/.cortex/docs"
     )
     docs_parser.add_argument(
         "--target",
@@ -977,15 +1010,52 @@ def _build_statusline_parser(
     statusline.add_statusline_arguments(statusline_parser)
 
 
+def _add_start_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        help="Path to cortex-config.json (default: ~/.cortex/cortex-config.json)",
+    )
+    parser.add_argument(
+        "--plugin-dir",
+        type=Path,
+        help="Path to Cortex plugin assets (commands, agents, skills, hooks)",
+    )
+    parser.add_argument(
+        "--claude-bin",
+        default="claude",
+        help="Claude Code binary to execute (default: claude)",
+    )
+    parser.add_argument(
+        "--settings",
+        type=Path,
+        help="Claude settings.json path (overrides config)",
+    )
+    parser.add_argument(
+        "--modes",
+        help="Comma-separated list of modes to append for this launch",
+    )
+    parser.add_argument(
+        "--flags",
+        help="Comma-separated list of flags to append for this launch",
+    )
+    parser.add_argument(
+        "claude_args",
+        nargs=argparse.REMAINDER,
+        help="Arguments passed through to Claude Code",
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="claude-ctx",
-        description="Python implementation of claude-ctx list and status commands",
+        prog="cortex",
+        description="Python implementation of cortex list and status commands",
     )
     parser.add_argument(
         "--scope",
         choices=["auto", "project", "global", "plugin"],
-        help="Select which .claude scope to use (default: auto)",
+        help="Select which scope to use (default: auto)",
     )
     parser.add_argument(
         "--plugin-root",
@@ -999,6 +1069,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_agent_parser(subparsers)
     _build_rules_parser(subparsers)
     _build_principles_parser(subparsers)
+    _build_prompts_parser(subparsers)
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_init_parser(subparsers)
@@ -1008,6 +1079,14 @@ def build_parser() -> argparse.ArgumentParser:
     _build_orchestrate_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
+    start_parser = subparsers.add_parser(
+        "start", help="Launch Claude Code with Cortex configuration"
+    )
+    _add_start_arguments(start_parser)
+    claude_parser = subparsers.add_parser(
+        "claude", help="Alias for 'start'"
+    )
+    _add_start_arguments(claude_parser)
     tui_parser = subparsers.add_parser(
         "tui", help="Launch interactive TUI for agent management"
     )
@@ -1154,6 +1233,61 @@ def _handle_principles_command(args: argparse.Namespace) -> int:
         exit_code, message = core.principles_build()
         _print(message)
         return exit_code
+    return 1
+
+
+def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> int:
+    from .launcher import DEFAULT_CONFIG_PATH, start_claude
+
+    config_path = getattr(args, "config", None) or DEFAULT_CONFIG_PATH
+    claude_args = list(getattr(args, "claude_args", []) or [])
+    if extra_args:
+        claude_args.extend(extra_args)
+    if claude_args and claude_args[0] == "--":
+        claude_args = claude_args[1:]
+
+    try:
+        return start_claude(
+            config_path=config_path,
+            plugin_dir=getattr(args, "plugin_dir", None) or getattr(args, "plugin_root", None),
+            claude_bin=getattr(args, "claude_bin", "claude"),
+            settings_path=getattr(args, "settings", None),
+            modes_override=getattr(args, "modes", None),
+            flags_override=getattr(args, "flags", None),
+            extra_args=claude_args,
+        )
+    except RuntimeError as exc:
+        _print(str(exc))
+        return 1
+
+
+def _handle_prompts_command(args: argparse.Namespace) -> int:
+    if args.prompts_command == "list":
+        _print(core.list_prompts())
+        return 0
+    if args.prompts_command == "status":
+        _print(core.prompt_status())
+        return 0
+    if args.prompts_command == "activate":
+        messages = []
+        final_exit_code = 0
+        for slug in args.slugs:
+            exit_code, message = core.prompt_activate(slug)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
+    if args.prompts_command == "deactivate":
+        messages = []
+        final_exit_code = 0
+        for slug in args.slugs:
+            exit_code, message = core.prompt_deactivate(slug)
+            messages.append(message)
+            if exit_code != 0:
+                final_exit_code = exit_code
+        _print("\n".join(messages))
+        return final_exit_code
     return 1
 
 
@@ -1596,7 +1730,7 @@ def _handle_ai_command(args: argparse.Namespace) -> int:
             interval=args.interval,
             )
     else:
-        _print("AI command required. Use 'claude-ctx ai --help' for options.")
+        _print("AI command required. Use 'cortex ai --help' for options.")
         return 1
 
 
@@ -1739,7 +1873,7 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
     else:
-        _print("Install subcommand required. Use 'claude-ctx install --help'")
+        _print("Install subcommand required. Use 'cortex install --help'")
         return 1
 
 
@@ -1922,6 +2056,13 @@ def _handle_setup_command(args: argparse.Namespace) -> int:
         exit_code, message = migrate_to_file_activation()
         _print(message)
         return exit_code
+    if args.setup_command == "migrate-commands":
+        exit_code, message = migrate_commands_layout(
+            dry_run=getattr(args, "dry_run", False),
+            force=getattr(args, "force", False),
+        )
+        _print(message)
+        return exit_code
     return 1
 
 
@@ -2034,25 +2175,26 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print("\n".join(lines))
         return 0
 
-    _print("Memory command required. Use 'claude-ctx memory --help' for options.")
+    _print("Memory command required. Use 'cortex memory --help' for options.")
     return 1
 
 
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     _enable_argcomplete(parser)
-    args = parser.parse_args(list(argv) if argv is not None else None)
+    args, extra_args = parser.parse_known_args(list(argv) if argv is not None else None)
 
     if getattr(args, "plugin_root", None):
         os.environ["CLAUDE_PLUGIN_ROOT"] = str(args.plugin_root)
     if getattr(args, "scope", None):
-        os.environ["CLAUDE_CTX_SCOPE"] = str(args.scope)
+        os.environ["CORTEX_SCOPE"] = str(args.scope)
 
     handlers: Dict[str, Callable[[argparse.Namespace], int]] = {
         "mode": _handle_mode_command,
         "agent": _handle_agent_command,
         "rules": _handle_rules_command,
         "principles": _handle_principles_command,
+        "prompts": _handle_prompts_command,
         "skills": _handle_skills_command,
         "mcp": _handle_mcp_command,
         "init": _handle_init_command,
@@ -2078,6 +2220,12 @@ def main(argv: Iterable[str] | None = None) -> int:
     if args.command == "tui":
         from .tui.main import main as tui_main
         return tui_main(theme_path=getattr(args, "theme", None))
+
+    if args.command in ("start", "claude"):
+        return _handle_start_command(args, extra_args)
+
+    if extra_args:
+        parser.error(f"unrecognized arguments: {' '.join(extra_args)}")
 
     handler = handlers.get(args.command)
     if handler:

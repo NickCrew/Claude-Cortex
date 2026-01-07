@@ -1,13 +1,13 @@
 ---
 name: ctx-plan-writing
-description: Structured plan-writing skill adapted from obra/superpowers. Produces actionable plans that map directly to claude-ctx workflows and tasks.
+description: Structured plan-writing skill adapted from obra/superpowers. Produces actionable plans that map directly to cortex workflows and tasks.
 license: MIT (obra/superpowers)
 command: /ctx:plan
 ---
 
 # `/ctx:plan`
 
-Transforms brainstorm output into a concrete execution plan that claude-ctx can enforce.
+Transforms brainstorm output into a concrete execution plan that cortex can enforce.
 
 ## Inputs
 

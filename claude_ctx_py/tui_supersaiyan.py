@@ -1,4 +1,4 @@
-"""Super Saiyan enhanced TUI components for claude-ctx.
+"""Super Saiyan enhanced TUI components for cortex.
 
 This module provides visually enhanced Textual widgets following Super Saiyan
 design principles: accessibility first, performance always, delight users.

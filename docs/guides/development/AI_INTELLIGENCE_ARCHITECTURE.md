@@ -807,7 +807,7 @@ An agent is auto-activated if **ALL** of the following are true:
 
 ```bash
 # Analyze context and auto-activate high-confidence recommendations
-$ claude-ctx ai auto-activate
+$ cortex ai auto-activate
 
 🤖 Auto-activating 2 agents...
 
@@ -963,7 +963,7 @@ The system improves over time:
 Show AI recommendations for current context:
 
 ```bash
-$ claude-ctx ai recommend
+$ cortex ai recommend
 
 🤖 AI RECOMMENDATIONS
 
@@ -1017,7 +1017,7 @@ Detected: Backend, API, Auth
 Auto-activate high-confidence recommendations:
 
 ```bash
-$ claude-ctx ai auto-activate
+$ cortex ai auto-activate
 
 🤖 Auto-activating 2 agents...
 
@@ -1032,7 +1032,7 @@ $ claude-ctx ai auto-activate
 Record successful session for learning:
 
 ```bash
-$ claude-ctx ai record-success "all tests passing"
+$ cortex ai record-success "all tests passing"
 
 ✓ Recorded successful session for learning
   Context: 7 files changed
@@ -1047,7 +1047,7 @@ $ claude-ctx ai record-success "all tests passing"
 Export recommendations to JSON:
 
 ```bash
-$ claude-ctx ai export --output recommendations.json
+$ cortex ai export --output recommendations.json
 
 ✓ Exported AI recommendations to recommendations.json
   3 agent recommendations

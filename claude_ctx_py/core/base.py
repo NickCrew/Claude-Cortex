@@ -1,4 +1,4 @@
-"""Base utility functions for claude-ctx."""
+"""Base utility functions for cortex."""
 
 from __future__ import annotations
 
@@ -36,7 +36,8 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore[assignment]
 
 
-_CLAUDE_CTX_SCOPE_ENV = "CLAUDE_CTX_SCOPE"
+_CORTEX_SCOPE_ENV = "CORTEX_SCOPE"
+_CORTEX_ROOT_ENV = "CORTEX_ROOT"
 
 
 def _find_project_claude_dir(start: Path) -> Path | None:
@@ -52,46 +53,58 @@ def _find_project_claude_dir(start: Path) -> Path | None:
     return None
 
 
+def _resolve_cortex_root(home: Path | None = None) -> Path:
+    """Resolve the global Cortex root directory.
+
+    Preference order:
+
+    1. Explicit ``CORTEX_ROOT`` environment variable
+    2. Caller-provided ``home`` argument
+    3. ``$HOME/.cortex`` fallback
+    """
+    env_root = os.environ.get(_CORTEX_ROOT_ENV)
+    if env_root:
+        return Path(env_root).expanduser().resolve()
+
+    base = Path(home) if home is not None else Path(os.environ.get("HOME", str(Path.home())))
+    return base / ".cortex"
+
+
 def _resolve_claude_dir(
     home: Path | None = None,
     scope: str | None = None,
     cwd: Path | None = None,
 ) -> Path:
-    """Resolve the working Claude directory.
+    """Resolve the working Cortex directory.
 
     Preference order:
 
-    1. Explicit scope selection via ``CLAUDE_CTX_SCOPE`` / ``scope`` argument
+    1. Explicit scope selection via ``CORTEX_SCOPE`` / ``scope`` argument
     2. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
        commands execute inside a plugin sandbox)
     3. Caller-provided ``home`` argument
-    4. ``$HOME/.claude`` fallback
+    4. ``$CORTEX_ROOT`` / ``$HOME/.cortex`` fallback
     """
 
-    scope_value = (scope or os.environ.get(_CLAUDE_CTX_SCOPE_ENV) or "").strip().lower()
+    scope_value = (scope or os.environ.get(_CORTEX_SCOPE_ENV) or "").strip().lower()
     if scope_value:
         if scope_value in ("project", "local"):
             base = cwd or Path.cwd()
             found = _find_project_claude_dir(base)
             return found if found is not None else base / ".claude"
         if scope_value in ("global", "home"):
-            if home is not None:
-                base = Path(home)
-            else:
-                base = Path(os.environ.get("HOME", str(Path.home())))
-            return base / ".claude"
+            return _resolve_cortex_root(home)
         if scope_value in ("plugin", "plugin_root"):
             override = os.environ.get("CLAUDE_PLUGIN_ROOT")
             if override:
                 path = Path(override).expanduser().resolve()
                 if path.exists():
                     return path
-            if home is not None:
-                base = Path(home)
-            else:
-                base = Path(os.environ.get("HOME", str(Path.home())))
-            return base / ".claude"
+            return _resolve_cortex_root(home)
         # Treat unknown scope as auto.
+
+    if os.environ.get(_CORTEX_ROOT_ENV):
+        return _resolve_cortex_root(home)
 
     override = os.environ.get("CLAUDE_PLUGIN_ROOT")
     if override:
@@ -99,11 +112,7 @@ def _resolve_claude_dir(
         if path.exists():
             return path
 
-    if home is not None:
-        base = Path(home)
-    else:
-        base = Path(os.environ.get("HOME", str(Path.home())))
-    return base / ".claude"
+    return _resolve_cortex_root(home)
 
 
 def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
@@ -120,7 +129,7 @@ def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
 
 
 def _ensure_claude_structure(claude_dir: Path) -> List[str]:
-    """Ensure all required directories and files exist for claude-ctx.
+    """Ensure all required directories and files exist for cortex.
 
     Creates the standard directory structure and activation tracking files.
     Returns a list of created paths for logging.
@@ -652,9 +661,9 @@ def _refresh_claude_md(claude_dir: Path) -> None:
     rules_dir = claude_dir / "rules"
     modes_dir = claude_dir / "modes"
 
-    active_rules = set(_parse_active_entries(claude_dir / ".active-rules"))
+    active_rules: List[str] = []
     if rules_dir.is_dir():
-        active_rules.update(p.stem for p in rules_dir.glob("*.md"))
+        active_rules = sorted(p.stem for p in rules_dir.glob("*.md"))
 
     # Modes use reference-based activation - only .active-modes determines what's active
     active_modes = set(_parse_active_entries(claude_dir / ".active-modes"))
@@ -672,23 +681,15 @@ def _refresh_claude_md(claude_dir: Path) -> None:
                 "@FLAGS.md",
                 "@PRINCIPLES.md",
                 "@RULES.md",
-                "",
-                "# Always-On Rules",
-                "@rules/workflow-rules.md",
-                "@rules/parallel-execution-rules.md",
-                "@rules/quality-gate-rules.md",
             ]
         )
     )
 
-    # Optional Rules
-    optional_rule_lines: List[str] = ["", "# Optional Rules"]
-    for rule in sorted(active_rules):
-        if rule in {"workflow-rules", "parallel-execution-rules", "quality-gate-rules"}:
-            continue
-        optional_rule_lines.append(f"@rules/{rule}.md")
-    optional_rule_lines.append("")
-    sections.append(_render_section(optional_rule_lines))
+    rule_lines: List[str] = ["# Rules"]
+    for rule in active_rules:
+        rule_lines.append(f"@rules/{rule}.md")
+    rule_lines.append("")
+    sections.append(_render_section(rule_lines))
 
     mode_lines: List[str] = ["# Behavioral Modes"]
     for mode in sorted(active_modes):
@@ -703,6 +704,15 @@ def _refresh_claude_md(claude_dir: Path) -> None:
         mcp_lines.append(f"@mcp/docs/{doc}.md")
     mcp_lines.append("")
     sections.append(_render_section(mcp_lines))
+
+    # Prompts use reference-based activation - only .active-prompts determines what's active
+    active_prompts = set(_parse_active_entries(claude_dir / ".active-prompts"))
+    if active_prompts:
+        prompt_lines: List[str] = ["# Prompt Library"]
+        for prompt_slug in sorted(active_prompts):
+            prompt_lines.append(f"@prompts/{prompt_slug}.md")
+        prompt_lines.append("")
+        sections.append(_render_section(prompt_lines))
 
     claude_md.write_text("".join(sections), encoding="utf-8")
 

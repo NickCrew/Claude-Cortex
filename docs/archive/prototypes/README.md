@@ -2,7 +2,7 @@
 
 **Status:** ✅ Prototype Complete
 **Created:** 2025-12-11
-**Purpose:** Add browser-like navigation to claude-ctx TUI using Textual's native command palette
+**Purpose:** Add browser-like navigation to cortex TUI using Textual's native command palette
 
 ---
 
@@ -66,7 +66,7 @@ Open `claude_ctx_py/tui/main.py` and apply changes from `main_py_navigation_patc
 
 ```bash
 # Run the TUI
-claude-ctx tui
+cortex tui
 
 # Test navigation:
 # 1. Press 2 (agents) → 5 (skills) → 6 (workflows)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Terminal User Interface (TUI) dashboard has been implemented for claude-ctx using the Rich library. The TUI provides an interactive, keyboard-driven interface for managing agents, similar to tools like lazygit and lazydocker.
+A Terminal User Interface (TUI) dashboard has been implemented for cortex using the Rich library. The TUI provides an interactive, keyboard-driven interface for managing agents, similar to tools like lazygit and lazydocker.
 
 ## Implementation Details
 
@@ -128,12 +128,12 @@ Agents are parsed from YAML front matter with:
 ### Launch the TUI
 
 ```bash
-claude-ctx tui
+cortex tui
 ```
 
 ### Basic Workflow
 
-1. Launch TUI with `claude-ctx tui`
+1. Launch TUI with `cortex tui`
 2. Navigate with `j`/`k` or arrow keys
 3. Press `Space` to activate/deactivate agents
 4. Press `Enter` to see details
@@ -164,7 +164,7 @@ Sample render:
 
 ```
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│ claude-ctx Agent Manager                                                     │
+│ cortex Agent Manager                                                     │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─────────────────────────────────── Agents ───────────────────────────────────╮
 │ ┏┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓ │
@@ -227,6 +227,6 @@ Sample render:
 
 ## Conclusion
 
-The TUI implementation provides a modern, keyboard-driven interface for managing claude-ctx agents. It follows the design principles of tools like lazygit, offering an intuitive and efficient workflow for developers who prefer terminal-based tools.
+The TUI implementation provides a modern, keyboard-driven interface for managing cortex agents. It follows the design principles of tools like lazygit, offering an intuitive and efficient workflow for developers who prefer terminal-based tools.
 
 The implementation is clean, extensible, and ready for production use. The modular design makes it easy to add new features and views in the future.

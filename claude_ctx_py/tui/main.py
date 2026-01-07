@@ -1,4 +1,4 @@
-"""Textual-based Terminal User Interface for claude-ctx."""
+"""Textual-based Terminal User Interface for cortex."""
 
 from __future__ import annotations
 
@@ -61,6 +61,7 @@ from ..core import (
     agent_deactivate,
     AgentGraphNode,
     _resolve_claude_dir,
+    _resolve_cortex_root,
     _iter_all_files,
     _is_disabled,
     _extract_agent_name,
@@ -223,7 +224,7 @@ import threading
 
 
 class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
-    """Textual TUI for claude-ctx management."""
+    """Textual TUI for cortex management."""
 
     CATEGORY_PALETTE = {
         "orchestration": "cyan",
@@ -325,7 +326,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if theme_path is not None:
             return theme_path
 
-        env_path = os.environ.get("CLAUDE_CTX_TUI_THEME") or os.environ.get(
+        env_path = os.environ.get("CORTEX_TUI_THEME") or os.environ.get(
             "CLAUDE_TUI_THEME"
         )
         if env_path:
@@ -441,7 +442,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     COMMANDS = {AgentCommandProvider}
 
     current_view: reactive[str] = reactive("agents")
-    status_message: reactive[str] = reactive("Welcome to claude-ctx TUI")
+    status_message: reactive[str] = reactive("Welcome to cortex TUI")
 
     def compose(self) -> ComposeResult:
         """Create child widgets."""
@@ -1415,8 +1416,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             category = _extract_scalar_from_paths(tokens, (("category",),)) or "general"
 
             # Determine location (user vs project)
-            # If skill is in user's home .claude dir, it's a user skill
-            home_claude = Path.home() / ".claude"
+            # If skill is in user's home cortex dir, it's a user skill
+            home_claude = _resolve_cortex_root()
             if home_claude in skill_file.parents:
                 location = "user"
             else:
@@ -1875,8 +1876,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Best-effort default export path."""
         desktop = Path.home() / "Desktop"
         if desktop.exists():
-            return desktop / "claude-ctx-export.md"
-        return Path.cwd() / "claude-ctx-export.md"
+            return desktop / "cortex-export.md"
+        return Path.cwd() / "cortex-export.md"
 
     def load_agent_tasks(self) -> None:
         """Load active agent tasks for orchestration view."""
@@ -2625,7 +2626,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
             # Set default target dir (respect explicit scope overrides)
             if self.selected_target_dir is None:
-                explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
+                explicit_scope = os.environ.get("CORTEX_SCOPE")
                 explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
                 preferred = _resolve_claude_dir() if (explicit_scope or explicit_root) else None
                 if preferred is not None:
@@ -3283,7 +3284,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 "",
                 "",
                 "",
-                "[dim]Create prompts in ~/.claude/prompts/[/dim]",
+                "[dim]Create prompts in ~/.cortex/prompts/[/dim]",
             )
             return
 
@@ -3428,7 +3429,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         Preference order:
         1) Explicit override via CLAUDE_TASKS_HOME (if set)
-        2) Primary resolved Claude directory (plugin or ~/.claude)
+        2) Primary resolved Claude directory (plugin or ~/.cortex)
         3) Project-local .claude next to the current working directory
 
         The newest directory that already exists and contains any task files
@@ -4114,7 +4115,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if not scenarios:
             table.add_row("[dim]No scenarios found[/dim]", "", "", "", "", "", "")
             table.add_row(
-                "[dim]Add YAML files under ~/.claude/scenarios[/dim]",
+                "[dim]Add YAML files under ~/.cortex/scenarios[/dim]",
                 "",
                 "",
                 "",
@@ -5819,10 +5820,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if self.selected_target_dir and self.selected_target_dir.exists():
             return self.selected_target_dir
         explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-        explicit_scope = os.environ.get("CLAUDE_CTX_SCOPE")
+        explicit_scope = os.environ.get("CORTEX_SCOPE")
         if explicit_root or explicit_scope:
             return _resolve_claude_dir()
-        return Path.home() / ".claude"
+        return _resolve_cortex_root()
 
     def _load_flag_files_metadata(self) -> List[Dict[str, Any]]:
         """Load metadata about all flag files and their active status."""
@@ -6217,7 +6218,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return
 
         if not self.claude_directories:
-            self.notify("No .claude directories found", severity="warning", timeout=2)
+            self.notify("No cortex directories found", severity="warning", timeout=2)
             return
 
         dialog = TargetSelectorDialog(self.claude_directories, self.selected_target_dir)
@@ -8498,7 +8499,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.action_view_export()
 
         exclude = self._export_exclude_categories()
-        tmp_path = Path(tempfile.gettempdir()) / "claude-ctx-export.md"
+        tmp_path = Path(tempfile.gettempdir()) / "cortex-export.md"
         exit_code, message = export_context(
             output_path=tmp_path,
             exclude_categories=exclude,
@@ -8848,6 +8849,57 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.update_view()
         else:
             self.notify("Failed to auto-activate agents", severity="error", timeout=2)
+
+    async def action_design_ui(self) -> None:
+        """Trigger the Design UI flow."""
+        prompt = await self._prompt_text(
+            "Design UI", 
+            "Describe the UI component you want to build:",
+            placeholder="e.g. A Solarpunk renewable energy dashboard"
+        )
+        if not prompt:
+            return
+
+        # Activate the skill and trigger the command
+        # In a real implementation, this might spawn a task or just notify the user
+        self.notify(f"🎨 Designing UI: {prompt}", severity="information", timeout=3)
+        # Note: In the TUI we don't have a direct 'chat' to send /design:ui to,
+        # but we can log the intent or spawn an LLM task.
+        await self.action_assign_llm_tasks(
+            purpose=f"Design UI: {prompt}",
+            prompt=f"Use /design:ui {prompt}",
+            diff_text=None
+        )
+
+    async def action_rag_ingest(self) -> None:
+        """Trigger the RAG Ingestion flow."""
+        path_str = await self._prompt_text(
+            "RAG Ingest", 
+            "Enter file or directory path to ingest:",
+            default="."
+        )
+        if not path_str:
+            return
+
+        self.notify(f"📂 Ingesting {path_str} with contextual awareness...", severity="information")
+        
+        # We'll run this in a thread to avoid blocking the TUI
+        def do_ingest():
+            try:
+                from ..core import rag
+                ingester = rag.ContextualIngester()
+                path = Path(path_str)
+                if path.is_file():
+                    ingester.ingest_file(path)
+                elif path.is_dir():
+                    for file_path in path.rglob("*"):
+                        if file_path.is_file() and file_path.suffix in [".md", ".txt", ".py", ".js", ".ts"]:
+                            ingester.ingest_file(file_path)
+                self.call_from_thread(self.notify, "✓ Ingestion complete", severity="information")
+            except Exception as e:
+                self.call_from_thread(self.notify, f"✗ Ingestion failed: {e}", severity="error")
+
+        threading.Thread(target=do_ingest, daemon=True).start()
 
     def action_request_reviews(self) -> None:
         """Spawn review tasks from AI recommendations."""

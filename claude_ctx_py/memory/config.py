@@ -127,7 +127,7 @@ def get_vault_path(config: Optional[MemoryConfig] = None) -> Path:
     """Get the resolved vault path.
 
     Checks:
-    1. CLAUDE_CTX_MEMORY_VAULT environment variable
+    1. CORTEX_MEMORY_VAULT environment variable
     2. Config file setting
     3. Default ~/basic-memory
 
@@ -138,8 +138,8 @@ def get_vault_path(config: Optional[MemoryConfig] = None) -> Path:
         Resolved Path to vault directory
     """
     # Environment override
-    if "CLAUDE_CTX_MEMORY_VAULT" in os.environ:
-        return Path(os.environ["CLAUDE_CTX_MEMORY_VAULT"]).expanduser()
+    if "CORTEX_MEMORY_VAULT" in os.environ:
+        return Path(os.environ["CORTEX_MEMORY_VAULT"]).expanduser()
 
     # Config file
     if config is None:

@@ -13,6 +13,7 @@ from typing import List, Optional, Tuple
 
 from . import completions
 from . import shell_integration
+from .core.base import _resolve_cortex_root
 
 PACKAGE_NAME = "claude-cortex"
 DOC_FILES = [
@@ -63,21 +64,21 @@ def _default_completion_path(shell: str, system: bool) -> Path:
     home = Path.home()
     if shell == "bash":
         return (
-            Path("/etc/bash_completion.d/claude-ctx")
+            Path("/etc/bash_completion.d/cortex")
             if system
-            else home / ".bash_completion.d" / "claude-ctx"
+            else home / ".bash_completion.d" / "cortex"
         )
     if shell == "zsh":
         return (
-            Path("/usr/local/share/zsh/site-functions/_claude-ctx")
+            Path("/usr/local/share/zsh/site-functions/_cortex")
             if system
-            else home / ".zsh" / "completions" / "_claude-ctx"
+            else home / ".zsh" / "completions" / "_cortex"
         )
     if shell == "fish":
         return (
-            Path("/usr/local/share/fish/vendor_completions.d/claude-ctx.fish")
+            Path("/usr/local/share/fish/vendor_completions.d/cortex.fish")
             if system
-            else home / ".config" / "fish" / "completions" / "claude-ctx.fish"
+            else home / ".config" / "fish" / "completions" / "cortex.fish"
         )
     raise ValueError(f"Unsupported shell: {shell}")
 
@@ -120,7 +121,7 @@ def install_completions(
     force: bool = False,
     dry_run: bool = False,
 ) -> Tuple[int, str]:
-    """Install shell completion script for claude-ctx."""
+    """Install shell completion script for cortex."""
     try:
         if shell is None:
             shell, _ = shell_integration.detect_shell()
@@ -205,12 +206,12 @@ def install_manpages(
 def install_docs(
     target_dir: Optional[Path] = None, dry_run: bool = False
 ) -> Tuple[int, str]:
-    """Install architecture docs to ~/.claude/docs (or target)."""
+    """Install architecture docs to ~/.cortex/docs (or target)."""
     source_dir = _find_docs_source()
     if source_dir is None:
         return 1, "Architecture docs source not found."
 
-    target = target_dir or (Path.home() / ".claude" / "docs")
+    target = target_dir or (_resolve_cortex_root() / "docs")
     available_files = [name for name in DOC_FILES if (source_dir / name).exists()]
     if not available_files:
         return 1, f"No architecture docs found in {source_dir}"

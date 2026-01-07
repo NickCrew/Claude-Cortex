@@ -48,7 +48,7 @@ class TestProfileViewMixin:
     @patch("claude_ctx_py.tui_extensions._resolve_claude_dir")
     @patch("claude_ctx_py.tui_extensions._get_current_active_state")
     def test_load_profiles(self, mock_active_state, mock_resolve_dir, mock_app):
-        mock_resolve_dir.return_value = Path("/tmp/.claude")
+        mock_resolve_dir.return_value = Path("/tmp/.cortex")
         mock_active_state.return_value = (set(), set(), set())
         
         profiles = mock_app.load_profiles()
@@ -360,4 +360,3 @@ class TestWizardViewMixin:
         mock_app.wizard_step = 4
         panel = mock_app.render_wizard_view()
         assert "Step 5/5" in panel.renderable.plain # type: ignore
-

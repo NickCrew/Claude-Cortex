@@ -25,7 +25,7 @@
 
 ### Purpose
 
-The TUI (Terminal User Interface) provides an **interactive, keyboard-driven interface** for managing and exploring the claude-ctx framework. It's built on the Textual framework and follows a modern reactive architecture.
+The TUI (Terminal User Interface) provides an **interactive, keyboard-driven interface** for managing and exploring the cortex framework. It's built on the Textual framework and follows a modern reactive architecture.
 
 ### Key Characteristics
 
@@ -199,7 +199,7 @@ The central application class that orchestrates all views and state:
 
 ```python
 class ClaudeCtxApp(App):
-    \"\"\"Main TUI application for claude-ctx management.\"\"\"
+    \"\"\"Main TUI application for cortex management.\"\"\"
     
     CSS_PATH = "styles.tcss"
     TITLE = "Cortex Manager"
@@ -849,7 +849,7 @@ def compose(self) -> ComposeResult:
 ```bash
 $ textual console
 # In another terminal
-$ claude-ctx tui
+$ cortex tui
 ```
 
 **2. Add Debug Logging**:

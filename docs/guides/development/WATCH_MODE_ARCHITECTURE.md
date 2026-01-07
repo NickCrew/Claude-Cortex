@@ -577,7 +577,7 @@ while self.running:
 
 **Process Priority**:
 - Runs at normal priority (not background)
-- Can be nice'd down: `nice -n 10 claude-ctx watch`
+- Can be nice'd down: `nice -n 10 cortex watch`
 - Suitable for long-running background monitoring
 
 ### Signal Handling
@@ -685,7 +685,7 @@ recent_notifications = list(self.notification_history)[-10:]
 
 ```bash
 # Start watch mode with defaults
-$ claude-ctx watch
+$ cortex watch
 
 🤖 AI WATCH MODE - Real-time Intelligence
 ══════════════════════════════════════════════════════════════════
@@ -743,16 +743,16 @@ $ claude-ctx watch
 
 ```bash
 # Disable auto-activation
-$ claude-ctx watch --no-auto
+$ cortex watch --no-auto
 
 # Set custom threshold (50% confidence)
-$ claude-ctx watch --threshold 0.5
+$ cortex watch --threshold 0.5
 
 # Custom check interval (5 seconds)
-$ claude-ctx watch --interval 5
+$ cortex watch --interval 5
 
 # Combine options
-$ claude-ctx watch --no-auto --threshold 0.8 --interval 1
+$ cortex watch --no-auto --threshold 0.8 --interval 1
 ```
 
 ### CLI Parameters
@@ -900,7 +900,7 @@ def test_recommendation_change_detection():
 
 **1. Dry-run mode (no auto-activation)**:
 ```bash
-$ claude-ctx watch --no-auto --threshold 0.5
+$ cortex watch --no-auto --threshold 0.5
 ```
 
 **2. Verbose logging**:
@@ -916,7 +916,7 @@ def _check_for_changes(self) -> None:
 **3. Monitor in separate terminal**:
 ```bash
 # Terminal 1: Watch mode
-$ claude-ctx watch
+$ cortex watch
 
 # Terminal 2: Make changes and observe
 $ vim src/file.py
@@ -933,19 +933,19 @@ $ git commit -m "test"
 **1. Reduce Poll Interval**:
 ```bash
 # Lower interval for more responsive monitoring
-$ claude-ctx watch --interval 1.0
+$ cortex watch --interval 1.0
 
 # Higher interval for lower resource usage
-$ claude-ctx watch --interval 5.0
+$ cortex watch --interval 5.0
 ```
 
 **2. Threshold Tuning**:
 ```bash
 # Higher threshold = fewer notifications
-$ claude-ctx watch --threshold 0.9
+$ cortex watch --threshold 0.9
 
 # Lower threshold = more notifications
-$ claude-ctx watch --threshold 0.5
+$ cortex watch --threshold 0.5
 ```
 
 **3. Git Optimization**:
@@ -1002,8 +1002,8 @@ if watch_mode_stopping:
 
 ```bash
 # Can run watch mode in background while TUI is active
-$ claude-ctx watch &
-$ claude-ctx tui
+$ cortex watch &
+$ cortex tui
 
 # Watch mode provides notifications
 # TUI provides interactive control

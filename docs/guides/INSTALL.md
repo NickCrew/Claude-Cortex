@@ -27,7 +27,7 @@ This installs shell completions, manpages, and the local architecture docs.
 ### Option 1: Install from source (recommended for development)
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 pipx install -e .
 ```
 
@@ -48,14 +48,14 @@ cortex install package --manager uv --editable --dev --path .
 ### Option 2: Install from source (standard)
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 pipx install .
 ```
 
 Standard installation. You'll need to reinstall after making code changes:
 
 ```bash
-pipx reinstall claude-ctx-py
+pipx reinstall cortex-py
 ```
 
 Alternative (uv):
@@ -75,8 +75,8 @@ cortex install package --manager pipx
 If you need to completely remove and reinstall:
 
 ```bash
-pipx uninstall claude-ctx-py
-pipx install ~/Developer/personal/claude-ctx-plugin
+pipx uninstall cortex-py
+pipx install ~/Developer/personal/cortex-plugin
 ```
 
 ## Usage
@@ -86,8 +86,22 @@ pipx install ~/Developer/personal/claude-ctx-plugin
 Launch the interactive TUI:
 
 ```bash
-claude-ctx tui
+cortex tui
 ```
+
+### Launch Claude Code with Cortex
+
+```bash
+cortex start
+```
+
+The launcher creates `~/.cortex/cortex-config.json` on first run and uses it
+along with `FLAGS.md` to select active flags, rules, modes, and principles. Override the Claude binary with
+`--claude-bin` or pass extra Claude arguments after `--`.
+
+Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
+
+Alias: `cortex claude`
 
 #### TUI Navigation
 
@@ -129,86 +143,100 @@ claude-ctx tui
 
 #### Agents
 ```bash
-claude-ctx agent list                    # List all agents
-claude-ctx agent activate <name>         # Activate agent
-claude-ctx agent deactivate <name>       # Deactivate agent
-claude-ctx agent info <name>             # Show agent details
+cortex agent list                    # List all agents
+cortex agent activate <name>         # Activate agent
+cortex agent deactivate <name>       # Deactivate agent
+cortex agent info <name>             # Show agent details
 ```
 
 #### Modes
 ```bash
-claude-ctx mode list                     # List all modes
-claude-ctx mode activate <name>          # Activate mode
-claude-ctx mode deactivate <name>        # Deactivate mode
+cortex mode list                     # List all modes
+cortex mode activate <name>          # Activate mode
+cortex mode deactivate <name>        # Deactivate mode
 ```
 
 #### Rules
 ```bash
-claude-ctx rules list                    # List all rules
-claude-ctx rules activate <name>         # Activate rule
-claude-ctx rules deactivate <name>       # Deactivate rule
+cortex rules list                    # List all rules
+cortex rules activate <name>         # Activate rule
+cortex rules deactivate <name>       # Deactivate rule
 ```
+
+Rules are file-based: active rules live in `rules/`, inactive rules live in
+`inactive/rules/`. The CLI/TUI toggles rules by moving files between those
+folders and regenerating `CLAUDE.md`.
 
 #### Skills
 ```bash
-claude-ctx skills list                   # List local skills
-claude-ctx skills info <name>            # Show skill details
-claude-ctx skills validate <name>        # Validate skill
-claude-ctx skills community list         # Browse community skills
-claude-ctx skills community search <term># Search community skills
+cortex skills list                   # List local skills
+cortex skills info <name>            # Show skill details
+cortex skills validate <name>        # Validate skill
+cortex skills community list         # Browse community skills
+cortex skills community search <term># Search community skills
 ```
 
 #### Worktrees
 ```bash
-claude-ctx worktree list                 # List git worktrees
-claude-ctx worktree add <branch>         # Add a worktree
-claude-ctx worktree remove <target>      # Remove a worktree
-claude-ctx worktree prune --dry-run      # Prune stale worktrees
-claude-ctx worktree dir <path>           # Set base directory
+cortex worktree list                 # List git worktrees
+cortex worktree add <branch>         # Add a worktree
+cortex worktree remove <target>      # Remove a worktree
+cortex worktree prune --dry-run      # Prune stale worktrees
+cortex worktree dir <path>           # Set base directory
 ```
 
 #### Init & Migration
 ```bash
-claude-ctx init detect                   # Detect project type
-claude-ctx init profile backend          # Apply a profile
-claude-ctx init status                   # Show init status
-claude-ctx setup migrate                 # Migrate to .active-* activation
+cortex init detect                   # Detect project type
+cortex init profile backend          # Apply a profile
+cortex init status                   # Show init status
+cortex setup migrate                 # Migrate to .active-* activation
+cortex setup migrate-commands --dry-run   # Preview command layout migration
+cortex setup migrate-commands --force     # Overwrite conflicts (backups created)
 ```
+
+If you add or update CLI subcommands, regenerate shell completions so the new options appear.
 
 #### Status
 ```bash
-claude-ctx status                        # Show system overview
+cortex status                        # Show system overview
 ```
 
 ## Configuration
 
-Configuration files live in the active Claude directory (default `~/.claude/`).
+Configuration files live in the active Cortex directory (default `~/.cortex/`).
 The same layout applies to project-local `.claude/` when you use `--scope project`
-or set `CLAUDE_CTX_SCOPE=project`.
+or set `CORTEX_SCOPE=project`.
 
 ### Core Framework Files
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
 | `CLAUDE.md` | Main manifest with `@` references | Primary entry point for context assembly |
-| `FLAGS.md` | Flag activation list (`@flags/*.md`) | Updated by TUI Flag Manager |
+| `FLAGS.md` | Flag activation list (`@flags/*.md`) | Updated by TUI Flag Manager; used by `cortex start` |
 | `PRINCIPLES.md` | Engineering principles | Generated from `principles/*.md` |
 | `RULES.md` | Core rules | Included by `CLAUDE.md` |
+
+### Launcher Configuration
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `cortex-config.json` | Launcher settings for `cortex start` | Controls active rules/modes/principles and settings path (flags come from `FLAGS.md` unless overridden) |
 
 ### Principles Snippets
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
-| `principles/*.md` | Principles snippets | Concatenated by `claude-ctx principles build` |
+| `principles/*.md` | Principles snippets | Concatenated by `cortex principles build` |
 
 ### Activation State Files
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
 | `.active-modes` | Active mode list | Reference-based activation |
-| `.active-rules` | Active rules list | Reference-based activation |
+| `.active-rules` | Active rules list | Legacy tracking for profiles/wizard; rules are active by file location |
 | `.active-mcp` | Active MCP docs list | Reference-based activation |
-| `.active-principles` | Active principles snippet list | Used by `claude-ctx principles build` (order is filename-sorted) |
+| `.active-principles` | Active principles snippet list | Used by `cortex principles build` (order is filename-sorted) |
 
 ### Agent and Skill Settings
 
@@ -277,42 +305,42 @@ Claude Desktop config is outside `.claude` but is read for MCP server setup:
 ### TUI not updating after code changes
 
 ```bash
-pipx reinstall claude-ctx-py
+pipx reinstall cortex-py
 ```
 
 ### Missing dependency errors
 
 ```bash
-pipx inject claude-ctx-py <package-name>
+pipx inject cortex-py <package-name>
 ```
 
 Example for PyYAML:
 ```bash
-pipx inject claude-ctx-py PyYAML
+pipx inject cortex-py PyYAML
 ```
 
 ### Clear Python cache
 
 ```bash
-cd ~/Developer/personal/claude-ctx-plugin
+cd ~/Developer/personal/cortex-plugin
 find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 ```
 
 ### Complete reinstall
 
 ```bash
-pipx uninstall claude-ctx-py
-cd ~/Developer/personal/claude-ctx-plugin
+pipx uninstall cortex-py
+cd ~/Developer/personal/cortex-plugin
 find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 pipx install .
 ```
 
 ## Development Workflow
 
-1. Make code changes in `~/Developer/personal/claude-ctx-plugin/`
+1. Make code changes in `~/Developer/personal/cortex-plugin/`
 2. Clear cache: `find . -type d -name __pycache__ -exec rm -rf {} +`
-3. Reinstall: `pipx reinstall claude-ctx-py`
-4. Test: `claude-ctx tui`
+3. Reinstall: `pipx reinstall cortex-py`
+4. Test: `cortex tui`
 
 ## Features
 
@@ -335,13 +363,13 @@ pipx install .
 
 1. Install the package:
    ```bash
-   cd ~/Developer/personal/claude-ctx-plugin
+   cd ~/Developer/personal/cortex-plugin
    pipx install .
    ```
 
 2. Launch the TUI:
    ```bash
-   claude-ctx tui
+   cortex tui
    ```
 
 3. Navigate with number keys (1-9) and arrow keys
@@ -353,6 +381,6 @@ pipx install .
 ## Getting Help
 
 - In TUI: Press `?` for keyboard shortcuts
-- CLI help: `claude-ctx --help`
-- Command help: `claude-ctx <command> --help`
+- CLI help: `cortex --help`
+- Command help: `cortex <command> --help`
 - Report issues: https://github.com/NickCrew/claude-cortex/issues

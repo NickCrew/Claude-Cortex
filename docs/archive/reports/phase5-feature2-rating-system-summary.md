@@ -83,7 +83,7 @@ export_ratings(skill=None) -> Dict
 
 **File**: `claude_ctx_py/core/skills.py` + `claude_ctx_py/cli.py`
 
-#### `claude-ctx skills rate <skill> --stars <1-5> [options]`
+#### `cortex skills rate <skill> --stars <1-5> [options]`
 
 Rate a skill with stars and optional review.
 
@@ -97,7 +97,7 @@ Rate a skill with stars and optional review.
 
 **Example**:
 ```bash
-claude-ctx skills rate owasp-top-10 --stars 5 --review "Essential for security reviews"
+cortex skills rate owasp-top-10 --stars 5 --review "Essential for security reviews"
 ```
 
 **Output**:
@@ -113,10 +113,10 @@ Your Review:
 
 Thank you for rating this skill!
 
-View skill ratings with: claude-ctx skills ratings <skill_name>
+View skill ratings with: cortex skills ratings <skill_name>
 ```
 
-#### `claude-ctx skills ratings <skill>`
+#### `cortex skills ratings <skill>`
 
 Show ratings, reviews, and quality metrics for a skill.
 
@@ -149,7 +149,7 @@ Recent Reviews:
     Good coverage, could be more concise
 ```
 
-#### `claude-ctx skills top-rated [--category <cat>] [--limit <n>]`
+#### `cortex skills top-rated [--category <cat>] [--limit <n>]`
 
 Show top-rated skills (requires ≥3 ratings per skill).
 
@@ -170,7 +170,7 @@ Rank   Skill                               Rating          Ratings    Success
 3      python-testing-patterns             ⭐⭐⭐⭐ 4.4/5   82         92%
 ```
 
-#### `claude-ctx skills export-ratings [--skill <name>] [--format <json|csv>]`
+#### `cortex skills export-ratings [--skill <name>] [--format <json|csv>]`
 
 Export rating data for analysis.
 
@@ -426,14 +426,14 @@ owasp-top-10,5,2025-11-14T20:05:33.800139+00:00,python-fastapi,Essential for sec
 ### Rating a Skill (CLI)
 ```bash
 # Simple rating
-claude-ctx skills rate python-testing-patterns --stars 4
+cortex skills rate python-testing-patterns --stars 4
 
 # Rating with review
-claude-ctx skills rate owasp-top-10 --stars 5 \
+cortex skills rate owasp-top-10 --stars 5 \
   --review "Comprehensive security checklist"
 
 # Rating a failed task
-claude-ctx skills rate deployment-guide --stars 2 \
+cortex skills rate deployment-guide --stars 2 \
   --failed --not-helpful \
   --review "Instructions outdated for Kubernetes 1.28"
 ```

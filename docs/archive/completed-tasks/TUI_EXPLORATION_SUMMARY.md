@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The claude-ctx project features a **Rich library-based Terminal User Interface** with 9 different views covering agents, modes, rules, skills, workflows, orchestration, profiles, and export functionality. The current implementation uses a clean layout system with consistent color styling, helpful keyboard navigation, and status indicators. While production-ready, there are significant opportunities for visual enhancement through theming, advanced visualizations, and interactive improvements.
+The cortex project features a **Rich library-based Terminal User Interface** with 9 different views covering agents, modes, rules, skills, workflows, orchestration, profiles, and export functionality. The current implementation uses a clean layout system with consistent color styling, helpful keyboard navigation, and status indicators. While production-ready, there are significant opportunities for visual enhancement through theming, advanced visualizations, and interactive improvements.
 
 ---
 
@@ -40,7 +40,7 @@ The TUI uses a consistent 6-color palette:
 
 ```
 Header (5 lines)
-├─ Title: "claude-ctx: [ViewName]"
+├─ Title: "cortex: [ViewName]"
 ├─ Subtitle: "Press 1-9 for views, ? for help"
 │
 Body (flexible, view-dependent)
@@ -388,7 +388,7 @@ render_wizard_view()             # Setup wizard
 
 ## Conclusion
 
-The claude-ctx TUI is a solid, feature-rich terminal interface with a clean layout hierarchy and consistent styling. The Rich library provides excellent rendering capabilities, and the modular view system is well-organized. The primary opportunity lies in decoupling styling from code through a theme system, which would unlock user customization, dark/light mode support, and accessibility improvements without major architectural changes.
+The cortex TUI is a solid, feature-rich terminal interface with a clean layout hierarchy and consistent styling. The Rich library provides excellent rendering capabilities, and the modular view system is well-organized. The primary opportunity lies in decoupling styling from code through a theme system, which would unlock user customization, dark/light mode support, and accessibility improvements without major architectural changes.
 
 With relatively modest effort in Phase 1 (theme system), the TUI could be dramatically improved in terms of user experience, accessibility, and customization. Subsequent phases offer opportunities for advanced visualizations and interactive features that would set it apart from typical terminal applications.
 

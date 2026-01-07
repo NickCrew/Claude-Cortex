@@ -24,7 +24,7 @@ class WorktreeInfo:
     prune_reason: Optional[str] = None
 
 
-_WORKTREE_DIR_KEY = "claude-ctx.worktreeDir"
+_WORKTREE_DIR_KEY = "cortex.worktreeDir"
 
 
 def _run_git(args: List[str], cwd: Path) -> Tuple[int, str, str]:

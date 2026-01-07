@@ -1,4 +1,4 @@
-"""Init command implementations for claude-ctx."""
+"""Init command implementations for cortex."""
 
 from __future__ import annotations
 
@@ -280,7 +280,7 @@ def init_detect(
         "",
         analysis_output,
         "",
-        f"Apply this configuration with: claude-ctx init profile {recommended_profile}",
+        f"Apply this configuration with: cortex init profile {recommended_profile}",
     ]
 
     return 0, "\n".join(output_lines)

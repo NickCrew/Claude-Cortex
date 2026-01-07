@@ -51,7 +51,7 @@ The Cortex is a comprehensive context management system for Claude Code, providi
 │                         Data Layer                               │
 ├─────────────────────────────────────────────────────────────────┤
 │  File System:                                                    │
-│  - ~/.claude/ (user config)                                     │
+│  - ~/.cortex/ (user config)                                     │
 │  - modes/, agents/, rules/, skills/ (markdown files)            │
 │  - inactive/ (disabled components)                              │
 │  - data/ (metrics, sessions, ratings)                           │
@@ -82,13 +82,13 @@ The Cortex is a comprehensive context management system for Claude Code, providi
 **Command Structure**:
 
 ```
-claude-ctx <command> <subcommand> [options]
+cortex <command> <subcommand> [options]
 
 Examples:
-  claude-ctx mode activate Brainstorming
-  claude-ctx agent list --active
-  claude-ctx ai recommend
-  claude-ctx tui
+  cortex mode activate Brainstorming
+  cortex agent list --active
+  cortex ai recommend
+  cortex tui
 ```
 
 #### TUI (`claude_ctx_py/tui/main.py`)
@@ -239,7 +239,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 #### File System Structure
 
 ```
-~/.claude/
+~/.cortex/
 ├── CLAUDE.md              # Main config (active components)
 ├── modes/                 # Available modes
 │   ├── Brainstorming.md

@@ -376,7 +376,7 @@ Add new flag categories (remove lines later to disable):
 ### 3. Enable Flags Based on Your Work
 Use the TUI Flag Manager:
 ```bash
-claude-ctx tui
+cortex tui
 # Press Ctrl+G
 # Toggle flags on/off (updates FLAGS.md)
 ```
@@ -385,7 +385,7 @@ Or create custom profiles:
 ```bash
 # Backend + Security profile
 # Enables: backend, performance, security, database
-claude-ctx profile save backend-secure
+cortex profile save backend-secure
 ```
 
 ### 4. Update Profiles (Optional)

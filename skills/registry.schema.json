@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NickCrew/cortex-plugin/skills/registry.schema.json",
+  "title": "Skill Registry Schema",
+  "description": "JSON Schema for validating the unified skills registry",
+  "type": "object",
+  "required": ["schema_version", "last_updated", "skills"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Semantic version of the registry schema",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the registry was last updated (YYYY-MM-DD)"
+    },
+    "skills": {
+      "type": "object",
+      "description": "Map of skill IDs to skill metadata",
+      "additionalProperties": {
+        "$ref": "#/definitions/skill"
+      }
+    },
+    "categories": {
+      "type": "object",
+      "description": "Category definitions and hierarchy",
+      "additionalProperties": {
+        "$ref": "#/definitions/category"
+      }
+    },
+    "statistics": {
+      "$ref": "#/definitions/statistics"
+    }
+  },
+  "definitions": {
+    "skill": {
+      "type": "object",
+      "required": ["title", "description", "path", "status"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Human-readable skill title",
+          "minLength": 3,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the skill's purpose",
+          "minLength": 10,
+          "maxLength": 500
+        },
+        "path": {
+          "type": "string",
+          "description": "Relative path to the skill file from skills directory",
+          "pattern": "^[a-zA-Z0-9/_-]+/SKILL\\.md$"
+        },
+        "authors": {
+          "type": "array",
+          "description": "List of author identifiers (reference authors.yaml)",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "created": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the skill was first created"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the skill was last updated"
+        },
+        "categories": {
+          "type": "array",
+          "description": "List of category slugs this skill belongs to",
+          "items": {
+            "type": "string",
+            "enum": [
+              "architecture",
+              "development",
+              "infrastructure",
+              "security",
+              "devops",
+              "testing",
+              "workflow",
+              "meta",
+              "experimental"
+            ]
+          },
+          "minItems": 1
+        },
+        "tags": {
+          "type": "array",
+          "description": "Freeform tags for discovery and search",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          }
+        },
+        "version": {
+          "type": "object",
+          "description": "Version tracking information",
+          "required": ["current"],
+          "properties": {
+            "current": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "description": "Current semantic version"
+            },
+            "history": {
+              "type": "array",
+              "description": "List of previous versions",
+              "items": {
+                "$ref": "#/definitions/version_entry"
+              }
+            }
+          }
+        },
+        "activation": {
+          "type": "object",
+          "description": "Automatic activation configuration",
+          "properties": {
+            "keywords": {
+              "type": "array",
+              "description": "Keywords that trigger skill activation",
+              "items": {
+                "type": "string"
+              }
+            },
+            "patterns": {
+              "type": "array",
+              "description": "Regex patterns for activation",
+              "items": {
+                "type": "string"
+              }
+            },
+            "context": {
+              "type": "array",
+              "description": "Context clues for activation",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "List of skill IDs this skill depends on",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bundle": {
+          "type": "object",
+          "description": "Bundle configuration for grouping related skills",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Bundle name"
+            },
+            "includes": {
+              "type": "array",
+              "description": "Skills included in this bundle",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "Current lifecycle status",
+          "enum": ["active", "maintenance", "deprecated", "archived"]
+        },
+        "deprecation": {
+          "type": "object",
+          "description": "Deprecation information (required if status is deprecated)",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "Why the skill is deprecated"
+            },
+            "replacement": {
+              "type": "string",
+              "description": "Recommended replacement skill ID"
+            },
+            "sunset_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Date when skill will be archived"
+            }
+          }
+        },
+        "license": {
+          "type": "string",
+          "description": "SPDX license identifier",
+          "enum": ["MIT", "Apache-2.0", "BSD-3-Clause", "GPL-3.0", "MPL-2.0", "Unlicense"]
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Usage and quality metrics",
+          "properties": {
+            "downloads": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "activations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rating": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "token_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Approximate token count of the skill content"
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "status": { "const": "deprecated" }
+        }
+      },
+      "then": {
+        "required": ["deprecation"]
+      }
+    },
+    "version_entry": {
+      "type": "object",
+      "required": ["version", "date"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "category": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable category name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Category description"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Optional icon or emoji for the category"
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent category slug for hierarchy"
+        }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Aggregate registry statistics",
+      "properties": {
+        "total_skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "active_skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deprecated_skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "archived_skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_authors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "by_category": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -56,12 +56,12 @@
 
 ### Test 1: Status Bar
 ```bash
-uv run claude-ctx tui
+uv run cortex tui
 ```
 
 **Look for**: A line above the footer (key bindings) that shows:
 ```
-[View: Agents] Welcome to claude-ctx TUI │ 25MB 0%
+[View: Agents] Welcome to cortex TUI │ 25MB 0%
 ```
 
 - Should be between the main table and footer
@@ -77,7 +77,7 @@ uv run claude-ctx tui
 
 ### Test 2: Command Palette Search
 ```bash
-uv run claude-ctx tui
+uv run cortex tui
 ```
 
 1. Press **Ctrl+P**

@@ -9,7 +9,7 @@ The LLM Intelligence feature uses Claude API to provide advanced reasoning about
 ### 1. Installation
 
 ```bash
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 ```
 
 This installs the Anthropic SDK for Claude API access.
@@ -32,14 +32,14 @@ source ~/.zshrc
 ### 3. Enable LLM Features
 
 ```bash
-claude-ctx config set ai.use_llm true
+cortex config set ai.use_llm true
 ```
 
 ### 4. Start Using
 
 ```bash
 # Get recommendations with LLM analysis
-claude-ctx ai recommend
+cortex ai recommend
 ```
 
 ## How It Works
@@ -79,23 +79,23 @@ This means:
 
 ```bash
 # Enable/disable LLM analysis
-claude-ctx config set ai.use_llm true
+cortex config set ai.use_llm true
 
 # Confidence threshold for calling LLM (0.0-1.0)
 # Default: 0.5 (call LLM if semantic confidence < 50%)
 # Lower value = more LLM calls (higher cost, better quality)
 # Higher value = fewer LLM calls (lower cost, lower quality)
-claude-ctx config set ai.llm_threshold 0.5
+cortex config set ai.llm_threshold 0.5
 
 # Budget limit (USD per month)
-claude-ctx config set ai.llm_budget_limit 10.00
+cortex config set ai.llm_budget_limit 10.00
 
 # Auto-activate high-confidence recommendations
-claude-ctx config set ai.auto_activate true
+cortex config set ai.auto_activate true
 
 # Confidence threshold for auto-activation (0.0-1.0)
 # Default: 0.8 (auto-activate if confidence > 80%)
-claude-ctx config set ai.auto_activate_threshold 0.8
+cortex config set ai.auto_activate_threshold 0.8
 ```
 
 ### Advanced Settings
@@ -105,19 +105,19 @@ claude-ctx config set ai.auto_activate_threshold 0.8
 # claude-opus-4-1 (most capable, highest cost)
 # claude-sonnet-4-20250514 (balanced, default)
 # claude-haiku-3-5 (fast, lowest cost)
-claude-ctx config set ai.llm_model claude-sonnet-4-20250514
+cortex config set ai.llm_model claude-sonnet-4-20250514
 
 # Max tokens for LLM response (affects cost)
 # Default: 1024
-claude-ctx config set ai.llm_max_tokens 1024
+cortex config set ai.llm_max_tokens 1024
 
 # Temperature (affects reasoning creativity, 0.0-1.0)
 # 0.0 = deterministic, 1.0 = creative
 # Default: 0.3 (mostly deterministic)
-claude-ctx config set ai.llm_temperature 0.3
+cortex config set ai.llm_temperature 0.3
 
 # Disable LLM for watch mode (prevents surprise costs)
-claude-ctx config set ai.use_llm_in_watch_mode false
+cortex config set ai.use_llm_in_watch_mode false
 ```
 
 ## Pricing & Costs
@@ -204,11 +204,11 @@ With default settings (50% LLM call rate):
 Disable LLM initially while tuning thresholds:
 
 ```bash
-claude-ctx config set ai.use_llm false
+cortex config set ai.use_llm false
 
 # After a week, enable with high threshold
-claude-ctx config set ai.use_llm true
-claude-ctx config set ai.llm_threshold 0.3  # Only use LLM if semantic confidence very low
+cortex config set ai.use_llm true
+cortex config set ai.llm_threshold 0.3  # Only use LLM if semantic confidence very low
 ```
 
 ### 2. Monitor Costs
@@ -217,7 +217,7 @@ Check your Anthropic usage periodically:
 
 ```bash
 # View last week's recommendations
-claude-ctx session list --since "7 days ago" | grep llm
+cortex session list --since "7 days ago" | grep llm
 
 # Check your API usage
 # Visit https://console.anthropic.com/account/billing
@@ -229,13 +229,13 @@ Higher threshold = fewer LLM calls = lower cost:
 
 ```bash
 # Conservative (minimum API calls)
-claude-ctx config set ai.llm_threshold 0.2  # Only use LLM if < 20% confident
+cortex config set ai.llm_threshold 0.2  # Only use LLM if < 20% confident
 
 # Balanced (default)
-claude-ctx config set ai.llm_threshold 0.5  # Use LLM if < 50% confident
+cortex config set ai.llm_threshold 0.5  # Use LLM if < 50% confident
 
 # Aggressive (better quality, higher cost)
-claude-ctx config set ai.llm_threshold 0.8  # Use LLM if < 80% confident
+cortex config set ai.llm_threshold 0.8  # Use LLM if < 80% confident
 ```
 
 ### 4. Use Budget Controls
@@ -244,21 +244,21 @@ Set a monthly budget limit:
 
 ```bash
 # Limit to $5/month
-claude-ctx config set ai.llm_budget_limit 5.00
+cortex config set ai.llm_budget_limit 5.00
 
 # Check current spending
-claude-ctx stats --period month
+cortex stats --period month
 ```
 
 ### 5. Review Recommendations Regularly
 
 ```bash
 # See what LLM recommended last week
-claude-ctx session list --since "7 days ago" \
+cortex session list --since "7 days ago" \
   | grep -A 5 "llm_recommendations"
 
 # Track which agents LLM recommends most
-claude-ctx stats --by agent --source llm
+cortex stats --by agent --source llm
 ```
 
 ## Troubleshooting
@@ -270,13 +270,13 @@ claude-ctx stats --by agent --source llm
 **Solution**:
 ```bash
 # Install package
-pip install claude-ctx-py[llm]
+pip install cortex-py[llm]
 
 # Set API key
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Verify
-claude-ctx config get ai
+cortex config get ai
 ```
 
 ### "API key invalid" or "Authentication failed"
@@ -295,10 +295,10 @@ claude-ctx config get ai
 **Solution**:
 ```bash
 # Increase threshold to reduce API calls
-claude-ctx config set ai.llm_threshold 0.2
+cortex config set ai.llm_threshold 0.2
 
 # Disable LLM temporarily
-claude-ctx config set ai.use_llm false
+cortex config set ai.use_llm false
 ```
 
 ### "Model not found" or "Invalid model"
@@ -308,7 +308,7 @@ claude-ctx config set ai.use_llm false
 **Solution**:
 ```bash
 # Use a valid model
-claude-ctx config set ai.llm_model claude-sonnet-4-20250514
+cortex config set ai.llm_model claude-sonnet-4-20250514
 
 # Check available models at:
 # https://docs.anthropic.com/claude/reference/getting-started-with-the-api
@@ -330,10 +330,10 @@ claude-ctx config set ai.llm_model claude-sonnet-4-20250514
 **Solution**:
 ```bash
 # Set conservative budget
-claude-ctx config set ai.llm_budget_limit 1.00
+cortex config set ai.llm_budget_limit 1.00
 
 # Increase confidence threshold (fewer API calls)
-claude-ctx config set ai.llm_threshold 0.2
+cortex config set ai.llm_threshold 0.2
 ```
 
 ## Advanced Usage
@@ -344,13 +344,13 @@ Choose based on your needs:
 
 ```bash
 # For maximum accuracy (slower, more expensive)
-claude-ctx config set ai.llm_model claude-opus-4-1
+cortex config set ai.llm_model claude-opus-4-1
 
 # For balanced performance (default, recommended)
-claude-ctx config set ai.llm_model claude-sonnet-4-20250514
+cortex config set ai.llm_model claude-sonnet-4-20250514
 
 # For speed and cost (faster, cheaper)
-claude-ctx config set ai.llm_model claude-haiku-3-5
+cortex config set ai.llm_model claude-haiku-3-5
 ```
 
 ### Temperature Tuning
@@ -359,13 +359,13 @@ Adjust reasoning creativity:
 
 ```bash
 # Very deterministic (recommended for agent selection)
-claude-ctx config set ai.llm_temperature 0.0
+cortex config set ai.llm_temperature 0.0
 
 # Slightly creative (good default)
-claude-ctx config set ai.llm_temperature 0.3
+cortex config set ai.llm_temperature 0.3
 
 # Very creative (not recommended for structured tasks)
-claude-ctx config set ai.llm_temperature 0.7
+cortex config set ai.llm_temperature 0.7
 ```
 
 ### Token Limits
@@ -374,13 +374,13 @@ Adjust response verbosity (higher = longer, more tokens):
 
 ```bash
 # Minimal response (saves cost)
-claude-ctx config set ai.llm_max_tokens 512
+cortex config set ai.llm_max_tokens 512
 
 # Balanced response (default)
-claude-ctx config set ai.llm_max_tokens 1024
+cortex config set ai.llm_max_tokens 1024
 
 # Detailed response (higher cost)
-claude-ctx config set ai.llm_max_tokens 2048
+cortex config set ai.llm_max_tokens 2048
 ```
 
 ### Disable for Specific Modes
@@ -389,10 +389,10 @@ Prevent unexpected costs:
 
 ```bash
 # Don't use LLM in watch mode (frequent checks)
-claude-ctx config set ai.use_llm_in_watch_mode false
+cortex config set ai.use_llm_in_watch_mode false
 
 # Don't use LLM for batch operations
-claude-ctx config set ai.use_llm_in_batch false
+cortex config set ai.use_llm_in_batch false
 ```
 
 ## API Reference
@@ -450,10 +450,10 @@ for rec in recommendations:
 ANTHROPIC_API_KEY=sk-ant-...
 
 # Optional overrides
-CLAUDE_CTX_LLM_MODEL=claude-sonnet-4-20250514
-CLAUDE_CTX_LLM_THRESHOLD=0.5
-CLAUDE_CTX_LLM_TEMPERATURE=0.3
-CLAUDE_CTX_LLM_MAX_TOKENS=1024
+CORTEX_LLM_MODEL=claude-sonnet-4-20250514
+CORTEX_LLM_THRESHOLD=0.5
+CORTEX_LLM_TEMPERATURE=0.3
+CORTEX_LLM_MAX_TOKENS=1024
 ```
 
 ## Integration with Other Features
@@ -486,10 +486,10 @@ Context Analysis
 
 ```bash
 # Disable LLM in watch mode (run frequently)
-claude-ctx config set ai.use_llm_in_watch_mode false
+cortex config set ai.use_llm_in_watch_mode false
 
 # Watch mode will still use pattern + semantic matching
-claude-ctx watch
+cortex watch
 ```
 
 ## Monitoring & Analytics
@@ -498,13 +498,13 @@ claude-ctx watch
 
 ```bash
 # Sessions using LLM
-claude-ctx stats --by source | grep llm
+cortex stats --by source | grep llm
 
 # Agents recommended by LLM
-claude-ctx stats --agent --source llm
+cortex stats --agent --source llm
 
 # Cost tracking
-claude-ctx stats --cost --by week
+cortex stats --cost --by week
 ```
 
 ### Cost Tracking
@@ -512,7 +512,7 @@ claude-ctx stats --cost --by week
 Your usage is tracked locally:
 
 ```
-~/.local/share/claude-ctx/
+~/.local/share/cortex/
 ├── session_history.json
 └── llm_analytics.json  # Cost and usage tracking
 ```
@@ -521,7 +521,7 @@ Your usage is tracked locally:
 
 ```bash
 # Export usage data
-claude-ctx session export --format json > usage.json
+cortex session export --format json > usage.json
 
 # Analyze with your tools
 jq '.[] | select(.llm_used) | {date, cost, agent}' usage.json

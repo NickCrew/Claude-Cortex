@@ -1,16 +1,16 @@
 # Warp AI & Terminal AI Integration
 
-Integrate `claude-ctx` with Warp AI and other terminal AI tools using convenient shell aliases.
+Integrate `cortex` with Warp AI and other terminal AI tools using convenient shell aliases.
 
 ```bash
 # Install context export aliases for your shell
-claude-ctx install aliases
+cortex install aliases
 
 # Preview what will be installed
-claude-ctx install aliases --dry-run
+cortex install aliases --dry-run
 
 # Show all available aliases
-claude-ctx install aliases --show
+cortex install aliases --show
 ```
 
 **Available aliases:**

@@ -421,9 +421,9 @@ def agent(
     [bold cyan]Manage Claude agents[/bold cyan]
 
     [yellow]Examples:[/yellow]
-      $ claude-ctx agent list
-      $ claude-ctx agent activate code-reviewer
-      $ claude-ctx agent deactivate test-automator
+      $ cortex agent list
+      $ cortex agent activate code-reviewer
+      $ cortex agent deactivate test-automator
     """
 
     if action == "list":

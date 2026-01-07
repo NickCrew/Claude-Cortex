@@ -195,7 +195,7 @@ triggers:
     file_patterns:
       - "**/README.md"
       - "**/package.json"
-      - "**/Makefile"
+      - "**/justfile"
       - "**/scripts/**"
     auto: true
     priority: medium
@@ -292,6 +292,352 @@ triggers:
       - "**/*.tf"
       - "**/k8s/**"
       - "**/infrastructure/**"
+    auto: true
+    priority: medium
+
+  # Language Specialist Agents
+  bash-expert:
+    keywords:
+      - "bash"
+      - "shell"
+      - "script"
+      - "shellcheck"
+      - "bats"
+    file_patterns:
+      - "**/*.sh"
+      - "**/*.bash"
+      - "**/*.zsh"
+      - "**/scripts/**"
+    auto: true
+    priority: medium
+
+  nodejs-expert:
+    keywords:
+      - "node"
+      - "nodejs"
+      - "express"
+      - "fastify"
+      - "nestjs"
+    file_patterns:
+      - "**/*.js"
+      - "**/*.ts"
+      - "package.json"
+    auto: false
+    priority: medium
+
+  flask-expert:
+    keywords:
+      - "flask"
+      - "jinja"
+      - "werkzeug"
+      - "wsgi"
+    file_patterns:
+      - "**/app.py"
+      - "**/wsgi.py"
+      - "**/flask/**"
+      - "requirements.txt"
+      - "pyproject.toml"
+    auto: false
+    priority: medium
+
+  tailwind-expert:
+    keywords:
+      - "tailwind"
+      - "tailwindcss"
+      - "utility classes"
+      - "postcss"
+    file_patterns:
+      - "**/tailwind.config.*"
+      - "**/postcss.config.*"
+      - "**/*.css"
+      - "**/*.scss"
+    auto: false
+    priority: medium
+
+  # API & Integration Agents
+  rest-expert:
+    keywords:
+      - "rest"
+      - "restful"
+      - "http api"
+      - "endpoint"
+      - "status code"
+    file_patterns:
+      - "**/routes/**"
+      - "**/controllers/**"
+      - "**/*openapi*.{yml,yaml,json}"
+    auto: true
+    priority: medium
+
+  graphql-expert:
+    keywords:
+      - "graphql"
+      - "gql"
+      - "resolver"
+      - "apollo"
+      - "schema"
+    file_patterns:
+      - "**/*.graphql"
+      - "**/*.gql"
+      - "**/schema.graphql"
+      - "**/schema.gql"
+    auto: true
+    priority: high
+
+  grpc-expert:
+    keywords:
+      - "grpc"
+      - "protobuf"
+      - "proto"
+      - "rpc"
+    file_patterns:
+      - "**/*.proto"
+      - "**/protobuf/**"
+    auto: true
+    priority: high
+
+  openapi-expert:
+    keywords:
+      - "openapi"
+      - "swagger"
+      - "oas"
+      - "api spec"
+    file_patterns:
+      - "**/*openapi*.{yml,yaml,json}"
+      - "**/*swagger*.{yml,yaml,json}"
+    auto: true
+    priority: medium
+
+  openai-api-expert:
+    keywords:
+      - "openai"
+      - "responses api"
+      - "chat completions"
+      - "embeddings"
+      - "function calling"
+      - "tools"
+    file_patterns:
+      - "**/*openai*.*"
+      - "**/ai/**"
+      - "**/llm/**"
+    auto: false
+    priority: medium
+
+  # Security & Auth Agents
+  jwt-expert:
+    keywords:
+      - "jwt"
+      - "json web token"
+      - "token"
+      - "jws"
+      - "jwe"
+    file_patterns:
+      - "**/auth/**"
+      - "**/*jwt*.*"
+      - "**/*token*.*"
+    auto: true
+    priority: high
+
+  oauth-oidc-expert:
+    keywords:
+      - "oauth"
+      - "oidc"
+      - "openid"
+      - "pkce"
+      - "authorization code"
+      - "sso"
+    file_patterns:
+      - "**/auth/**"
+      - "**/*oauth*.*"
+      - "**/*oidc*.*"
+    auto: true
+    priority: high
+
+  owasp-top10-expert:
+    keywords:
+      - "owasp"
+      - "top 10"
+      - "vulnerability"
+      - "xss"
+      - "sqli"
+      - "csrf"
+    file_patterns:
+      - "**/auth/**"
+      - "**/security/**"
+      - "**/*security*.{js,ts,py}"
+    auto: true
+    priority: critical
+
+  # Data & ML Agents
+  mongodb-expert:
+    keywords:
+      - "mongodb"
+      - "mongo"
+      - "mongoose"
+      - "nosql"
+      - "bson"
+    file_patterns:
+      - "**/*mongo*.*"
+      - "**/mongodb/**"
+      - "**/mongo/**"
+    auto: true
+    priority: medium
+
+  postgres-expert:
+    keywords:
+      - "postgres"
+      - "postgresql"
+      - "psql"
+      - "sql"
+      - "index"
+    file_patterns:
+      - "**/*.sql"
+      - "**/migrations/**"
+      - "**/schema.sql"
+    auto: true
+    priority: high
+
+  kafka-expert:
+    keywords:
+      - "kafka"
+      - "event streaming"
+      - "producer"
+      - "consumer"
+      - "topic"
+    file_patterns:
+      - "**/*kafka*.*"
+      - "**/streams/**"
+      - "**/kafka/**"
+    auto: true
+    priority: high
+
+  pytorch-expert:
+    keywords:
+      - "pytorch"
+      - "torch"
+      - "nn"
+      - "tensor"
+      - "deep learning"
+    file_patterns:
+      - "**/torch/**"
+      - "**/models/**"
+      - "**/*.pt"
+      - "**/*.pth"
+    auto: false
+    priority: medium
+
+  scikit-learn-expert:
+    keywords:
+      - "scikit-learn"
+      - "sklearn"
+      - "pipeline"
+      - "model selection"
+      - "feature"
+    file_patterns:
+      - "**/sklearn/**"
+      - "**/models/**"
+      - "**/*model*.py"
+    auto: false
+    priority: medium
+
+  # Observability Agents
+  grafana-expert:
+    keywords:
+      - "grafana"
+      - "dashboard"
+      - "alert"
+      - "alerting"
+      - "observability"
+    file_patterns:
+      - "**/grafana/**"
+      - "**/dashboards/**"
+      - "**/*grafana*.{json,yaml,yml}"
+    auto: true
+    priority: medium
+
+  prometheus-expert:
+    keywords:
+      - "prometheus"
+      - "promql"
+      - "scrape"
+      - "alertmanager"
+      - "metrics"
+    file_patterns:
+      - "**/prometheus*.yml"
+      - "**/prometheus*.yaml"
+      - "**/alertmanager*.yml"
+      - "**/alertmanager*.yaml"
+      - "**/rules/**"
+    auto: true
+    priority: high
+
+  loki-expert:
+    keywords:
+      - "loki"
+      - "logql"
+      - "logs"
+      - "logging"
+      - "promtail"
+    file_patterns:
+      - "**/loki*.yml"
+      - "**/loki*.yaml"
+      - "**/promtail*.yml"
+      - "**/promtail*.yaml"
+    auto: true
+    priority: medium
+
+  # Infrastructure & CI/CD Agents
+  docker-expert:
+    keywords:
+      - "docker"
+      - "container"
+      - "dockerfile"
+      - "compose"
+      - "image"
+    file_patterns:
+      - "**/Dockerfile"
+      - "**/docker-compose*.yml"
+      - "**/docker-compose*.yaml"
+      - "**/.dockerignore"
+    auto: true
+    priority: high
+
+  github-actions-expert:
+    keywords:
+      - "github actions"
+      - "workflow"
+      - "ci"
+      - "ci/cd"
+      - "actions"
+    file_patterns:
+      - "**/.github/workflows/**"
+    auto: true
+    priority: high
+
+  # Testing Agents
+  playwright-expert:
+    keywords:
+      - "playwright"
+      - "e2e"
+      - "end-to-end"
+      - "browser test"
+    file_patterns:
+      - "**/playwright.config.*"
+      - "**/e2e/**"
+      - "**/tests/**"
+    auto: true
+    priority: medium
+
+  vitest-expert:
+    keywords:
+      - "vitest"
+      - "vite test"
+      - "unit test"
+      - "testing"
+    file_patterns:
+      - "**/*.test.{ts,tsx,js,jsx}"
+      - "**/*.spec.{ts,tsx,js,jsx}"
+      - "vitest.config.*"
     auto: true
     priority: medium
 

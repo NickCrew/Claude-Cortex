@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Mapping, TextIO, cast
 
+from .core.base import _resolve_claude_dir
+
 try:
     import yaml
 
@@ -56,7 +58,7 @@ class C:
 # =========================================================================
 # Config
 # =========================================================================
-CONFIG_PATH = Path.home() / ".claude" / "statusline.yaml"
+CONFIG_PATH = _resolve_claude_dir() / "statusline.yaml"
 
 ConfigDict = Dict[str, Any]
 IconMap = Dict[str, str]

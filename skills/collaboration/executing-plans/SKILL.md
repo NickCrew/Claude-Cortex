@@ -7,7 +7,7 @@ command: /ctx:execute-plan
 
 # `/ctx:execute-plan`
 
-Locks in the plan and drives it through claude-ctx’s orchestration + verification stack.
+Locks in the plan and drives it through cortex’s orchestration + verification stack.
 
 ## Prereqs
 

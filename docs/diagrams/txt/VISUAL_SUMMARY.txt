@@ -98,8 +98,8 @@ STATISTICS
 
 DOCUMENTATION
 
-  ~/.claude/docs/architecture-diagrams.md  - Comprehensive diagrams
-  ~/.claude/docs/quick-reference.md        - One-page cheat sheet
-  ~/.claude/docs/DIAGRAMS_README.md        - This summary
+  ~/.cortex/docs/architecture-diagrams.md  - Comprehensive diagrams
+  ~/.cortex/docs/quick-reference.md        - One-page cheat sheet
+  ~/.cortex/docs/DIAGRAMS_README.md        - This summary
 
 ═══════════════════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
 # Claude Code Hooks
 
-This directory contains example hooks for Claude Code that work with the claude-ctx plugin.
+This directory contains example hooks for Claude Code that work with the cortex plugin.
 
 ## What Are Hooks?
 
@@ -94,7 +94,7 @@ Add to `hooks/hooks.json`:
 ### Activate Required Agents
 
 ```bash
-claude-ctx agent activate test-automator api-documenter tutorial-engineer \
+cortex agent activate test-automator api-documenter tutorial-engineer \
   technical-writer docs-architect quality-engineer code-reviewer
 ```
 
@@ -263,7 +263,7 @@ CODE_REVIEW_REQUIRED=false
 
 **Check 1:** File is executable
 ```bash
-ls -l ~/.claude/hooks/implementation-quality-gate.sh
+ls -l ~/.cortex/hooks/implementation-quality-gate.sh
 # Should show -rwxr-xr-x
 ```
 
@@ -282,12 +282,12 @@ cat hooks/hooks.json | jq '.hooks'
 
 **Check status:**
 ```bash
-claude-ctx agent status | grep -E "(test-automator|api-documenter|quality-engineer|code-reviewer)"
+cortex agent status | grep -E "(test-automator|api-documenter|quality-engineer|code-reviewer)"
 ```
 
 **Activate all:**
 ```bash
-claude-ctx agent activate test-automator api-documenter \
+cortex agent activate test-automator api-documenter \
   tutorial-engineer technical-writer docs-architect \
   quality-engineer code-reviewer
 ```
@@ -387,4 +387,4 @@ Have a useful hook? Submit a PR!
 
 ## License
 
-MIT - Same as claude-ctx plugin
+MIT - Same as cortex plugin

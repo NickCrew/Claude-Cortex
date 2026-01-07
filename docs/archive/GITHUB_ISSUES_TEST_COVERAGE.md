@@ -1,6 +1,6 @@
 # GitHub Issues for Test Coverage (80% Target)
 
-Issues to create for reaching 80% test coverage across claude-ctx-plugin.
+Issues to create for reaching 80% test coverage across cortex-plugin.
 
 ## Priority 1: Core Modules (No Tests)
 

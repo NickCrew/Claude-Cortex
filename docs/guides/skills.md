@@ -42,7 +42,7 @@ For a complete list of available skills, please refer to the `skills/` directory
 
 To get information about a specific skill, use the following command:
 ```bash
-claude-ctx skills info <skill-name>
+cortex skills info <skill-name>
 ```
 
 ---
@@ -68,7 +68,7 @@ claude-ctx skills info <skill-name>
    ↓ Add skill to agent frontmatter
 
 6. Validate
-   ↓ claude-ctx skills validate skill-name
+   ↓ cortex skills validate skill-name
 
 7. Document
    ↓ Update skills/README.md and this guide
@@ -334,35 +334,35 @@ Project type: FastAPI microservices
 
 ```bash
 # List all available skills
-claude-ctx skills list
+cortex skills list
 
 # Show skill details
-claude-ctx skills info api-design-patterns
+cortex skills info api-design-patterns
 
 # Validate skill metadata
-claude-ctx skills validate api-design-patterns
+cortex skills validate api-design-patterns
 
 # Validate all skills
-claude-ctx skills validate --all
+cortex skills validate --all
 
 # Show which agents use a skill
-claude-ctx skills deps api-design-patterns
+cortex skills deps api-design-patterns
 ```
 
 ### AI-Powered Recommendations
 
 ```bash
 # Get AI-recommended skills for your project
-claude-ctx skills recommend
+cortex skills recommend
 
 # Get recommendations for a specific project type
-claude-ctx skills recommend --project-type python-fastapi
+cortex skills recommend --project-type python-fastapi
 
 # Specify task context for better recommendations
-claude-ctx skills recommend --task "building REST API with authentication"
+cortex skills recommend --task "building REST API with authentication"
 
 # Limit number of recommendations (default: 5)
-claude-ctx skills recommend --limit 10
+cortex skills recommend --limit 10
 ```
 
 **How it works:**
@@ -407,30 +407,30 @@ Rate skills to help improve recommendations and track quality:
 
 ```bash
 # Rate a skill (1-5 stars)
-claude-ctx skills rate owasp-top-10 --stars 5
+cortex skills rate owasp-top-10 --stars 5
 
 # Add a review
-claude-ctx skills rate python-testing-patterns --stars 4 \
+cortex skills rate python-testing-patterns --stars 4 \
   --review "Great patterns, very helpful for pytest"
 
 # Mark as helpful/not helpful
-claude-ctx skills rate api-design-patterns --stars 5 --helpful
+cortex skills rate api-design-patterns --stars 5 --helpful
 
 # Mark if task succeeded/failed
-claude-ctx skills rate microservices-patterns --stars 3 --failed
+cortex skills rate microservices-patterns --stars 3 --failed
 
 # View skill ratings and reviews
-claude-ctx skills ratings owasp-top-10
+cortex skills ratings owasp-top-10
 
 # See top-rated skills
-claude-ctx skills top-rated
+cortex skills top-rated
 
 # Filter by category (future)
-claude-ctx skills top-rated --category security
+cortex skills top-rated --category security
 
 # Export ratings for analysis
-claude-ctx skills export-ratings --format json
-claude-ctx skills export-ratings --skill owasp-top-10 --format csv
+cortex skills export-ratings --format json
+cortex skills export-ratings --skill owasp-top-10 --format csv
 ```
 
 **Example rating display:**
@@ -465,7 +465,7 @@ Recent Reviews:
 **Privacy:**
 - Ratings are anonymous (SHA-256 hash of machine ID + username)
 - No personal data collected
-- Stored locally in `~/.claude/data/skill-ratings.db`
+- Stored locally in `~/.cortex/data/skill-ratings.db`
 
 ---
 
@@ -482,7 +482,7 @@ Before committing a new skill, verify:
 - [ ] No emojis (unless explicitly requested)
 - [ ] Grammar and spelling checked
 - [ ] Links to official documentation
-- [ ] Validates with `claude-ctx skills validate`
+- [ ] Validates with `cortex skills validate`
 - [ ] Token count within budget (< 8K)
 - [ ] Linked to relevant agent(s) in frontmatter
 
@@ -531,7 +531,7 @@ Track skill activation frequency to prioritize future skills:
 
 ### For Skill Users
 
-1. **Check Available Skills**: `claude-ctx skills list` before creating agents
+1. **Check Available Skills**: `cortex skills list` before creating agents
 2. **Link Skills**: Add relevant skills to agent frontmatter
 3. **Monitor Usage**: Track which skills activate most frequently
 4. **Provide Feedback**: Report skill effectiveness to maintainers

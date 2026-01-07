@@ -12,7 +12,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_valid_file(self, tmp_path):
         """Test loading valid activation.yaml file."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -42,7 +42,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_file_not_found(self, tmp_path):
         """Test loading when activation.yaml doesn't exist."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         claude_dir.mkdir(parents=True)
 
         with pytest.raises(FileNotFoundError, match="Activation file not found"):
@@ -50,7 +50,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_empty_file(self, tmp_path):
         """Test loading empty activation.yaml returns empty dict."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -63,7 +63,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_no_skills_key(self, tmp_path):
         """Test loading file without 'skills' key returns empty dict."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -78,7 +78,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_skills_without_keywords(self, tmp_path):
         """Test loading skills that don't have keywords are skipped."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -102,7 +102,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_invalid_yaml(self, tmp_path):
         """Test loading malformed YAML raises yaml.YAMLError."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -115,7 +115,7 @@ class TestLoadActivationMap:
 
     def test_load_activation_map_case_normalization(self, tmp_path):
         """Test that keywords are normalized to lowercase."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -141,7 +141,7 @@ class TestAnalyzeText:
     @pytest.fixture
     def setup_activation_map(self, tmp_path):
         """Setup activation.yaml for tests."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -212,7 +212,7 @@ class TestAnalyzeText:
 
     def test_analyze_text_missing_activation_file(self, tmp_path):
         """Test analyzing text when activation.yaml doesn't exist."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         claude_dir.mkdir(parents=True)
 
         # Should return empty list (no exception)
@@ -244,7 +244,7 @@ class TestSuggestSkills:
     @pytest.fixture
     def setup_activation_map(self, tmp_path):
         """Setup activation.yaml for tests."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True)
 
@@ -274,7 +274,7 @@ class TestSuggestSkills:
         assert "xlsx" in result
 
         # Should contain help text
-        assert "claude-ctx skills info" in result
+        assert "cortex skills info" in result
 
     def test_suggest_skills_single_match(self, setup_activation_map):
         """Test suggesting skills with single match."""
@@ -290,7 +290,7 @@ class TestSuggestSkills:
         result = activator.suggest_skills(text, setup_activation_map)
 
         assert "No matching skills found" in result
-        assert "claude-ctx skills info" not in result
+        assert "cortex skills info" not in result
 
     def test_suggest_skills_formatting(self, setup_activation_map):
         """Test that output is properly formatted with bullets."""
@@ -312,7 +312,7 @@ class TestSuggestSkills:
 
     def test_suggest_skills_missing_activation_file(self, tmp_path):
         """Test suggesting skills when activation file doesn't exist."""
-        claude_dir = tmp_path / ".claude"
+        claude_dir = tmp_path / ".cortex"
         claude_dir.mkdir(parents=True)
 
         result = activator.suggest_skills("test text", claude_dir)

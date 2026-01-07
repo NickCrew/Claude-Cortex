@@ -149,7 +149,7 @@ pytest tests/unit/test_intelligence_comprehensive.py \
 ### Key Features
 
 **Accurate Information**:
-- ✅ Real Makefile commands (verified against actual file)
+- ✅ Real Justfile commands (verified against actual file)
 - ✅ Correct coverage requirements (80% core, 70% TUI)
 - ✅ All pytest markers (unit, integration, slow, fast, cli, tui, etc.)
 - ✅ Actual project structure from architecture docs

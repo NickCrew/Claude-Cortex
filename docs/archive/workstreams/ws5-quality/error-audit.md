@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-The claude-ctx-plugin project demonstrates **strong error handling foundations** with a well-designed exception hierarchy and comprehensive utility functions. However, there are **critical resource management issues** in SQLite operations and **deprecation warnings** from datetime usage that require immediate attention.
+The cortex-plugin project demonstrates **strong error handling foundations** with a well-designed exception hierarchy and comprehensive utility functions. However, there are **critical resource management issues** in SQLite operations and **deprecation warnings** from datetime usage that require immediate attention.
 
 ### Key Findings
 
@@ -602,6 +602,6 @@ def rate_skill(skill: str, stars: int) -> None:
 
 ## Conclusion
 
-The claude-ctx-plugin project has a **strong error handling foundation** with well-designed infrastructure. The immediate priority is to address **resource management issues** (SQLite) and **deprecation warnings** (datetime), both of which are straightforward to fix and will significantly improve code quality.
+The cortex-plugin project has a **strong error handling foundation** with well-designed infrastructure. The immediate priority is to address **resource management issues** (SQLite) and **deprecation warnings** (datetime), both of which are straightforward to fix and will significantly improve code quality.
 
 The proposed standards and actions will ensure **consistent, maintainable error handling** across the entire codebase while preserving the existing strong patterns.

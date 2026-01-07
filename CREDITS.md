@@ -7,7 +7,7 @@ This project builds upon ideas, patterns, and content from several excellent ope
 ### Superpowers
 **Repository:** [obra/superpowers](https://github.com/obra/superpowers)
 **License:** MIT License
-**Attribution:** Significant portions of claude-ctx's skills, logic patterns, and intelligent activation system were directly copied and adapted from obra/superpowers.
+**Attribution:** Significant portions of cortex's skills, logic patterns, and intelligent activation system were directly copied and adapted from obra/superpowers.
 
 **Skills Adapted (from 54 total skills):**
 At least 10+ skills in the `skills/` directory are derived from Superpowers, including:
@@ -36,7 +36,7 @@ At least 10+ skills in the `skills/` directory are derived from Superpowers, inc
 **Commands & Modes Influenced:**
 Many of our slash commands and behavioral modes are heavily influenced by Superpowers' workflow patterns and execution discipline.
 
-These skills and logic patterns have been adapted and modified to fit the claude-ctx framework while maintaining the original MIT License. See `skills/LICENSE.superpowers` for full license text and proper attribution.
+These skills and logic patterns have been adapted and modified to fit the cortex framework while maintaining the original MIT License. See `skills/LICENSE.superpowers` for full license text and proper attribution.
 
 ### SuperClaude Framework
 **Repository:** [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
@@ -96,7 +96,7 @@ These skills are used under Anthropic's Terms of Service and are subject to rest
 
 ## Inspirations & Architectural Patterns
 
-The following projects inspired architectural decisions, design patterns, and workflow concepts in claude-ctx (no direct code copying):
+The following projects inspired architectural decisions, design patterns, and workflow concepts in cortex (no direct code copying):
 
 ### Code CLI
 **Repository:** [just-every/code](https://github.com/just-every/code)
@@ -130,7 +130,7 @@ YAML parsing for agents, modes, commands, and configuration files.
 ### Python Click
 **Project:** [pallets/click](https://github.com/pallets/click)
 **License:** BSD-3-Clause License
-Command-line interface framework providing the foundation for `claude-ctx` CLI.
+Command-line interface framework providing the foundation for `cortex` CLI.
 
 ## Documentation & Design
 

@@ -60,7 +60,7 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
         """Initialize target selector.
 
         Args:
-            directories: List of available .claude directories
+            directories: List of available cortex directories
             current: Currently selected directory
         """
         super().__init__()

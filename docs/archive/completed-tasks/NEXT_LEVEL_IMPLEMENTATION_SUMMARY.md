@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document summarizes the advanced visual enhancements implemented to take the claude-ctx TUI to the next level with professional, slick, and surprising features.
+This document summarizes the advanced visual enhancements implemented to take the cortex TUI to the next level with professional, slick, and surprising features.
 
 ## Implementation Date
 

@@ -8,7 +8,7 @@
 
 ```bash
 # Terminal 1: Start watch mode
-claude-ctx ai watch
+cortex ai watch
 
 # Terminal 2: Code normally
 # Watch mode will monitor and notify you
@@ -102,40 +102,40 @@ That's it! Watch mode will:
 ### Basic Usage
 ```bash
 # Default: auto-activate ON, 70% threshold, 2s interval
-claude-ctx ai watch
+cortex ai watch
 ```
 
 ### Disable Auto-Activation
 ```bash
 # Just show recommendations, don't activate
-claude-ctx ai watch --no-auto-activate
+cortex ai watch --no-auto-activate
 ```
 
 ### Adjust Threshold
 ```bash
 # Only show 80%+ confidence recommendations
-claude-ctx ai watch --threshold 0.8
+cortex ai watch --threshold 0.8
 
 # Show all recommendations (50%+)
-claude-ctx ai watch --threshold 0.5
+cortex ai watch --threshold 0.5
 ```
 
 ### Change Check Interval
 ```bash
 # Check every 5 seconds (less CPU)
-claude-ctx ai watch --interval 5.0
+cortex ai watch --interval 5.0
 
 # Check every second (more responsive)
-claude-ctx ai watch --interval 1.0
+cortex ai watch --interval 1.0
 ```
 
 ### Combined Options
 ```bash
 # Conservative: manual activation, high threshold, slow checks
-claude-ctx ai watch --no-auto-activate --threshold 0.9 --interval 5.0
+cortex ai watch --no-auto-activate --threshold 0.9 --interval 5.0
 
 # Aggressive: auto-activate, low threshold, fast checks
-claude-ctx ai watch --threshold 0.6 --interval 1.0
+cortex ai watch --threshold 0.6 --interval 1.0
 ```
 
 ## 🎯 What It Monitors
@@ -194,7 +194,7 @@ Agents are **automatically activated** when:
 
 ```bash
 # Terminal 1: Start watch mode
-claude-ctx ai watch
+cortex ai watch
 
 # Terminal 2: Edit auth code
 vim src/auth/security.py
@@ -217,7 +217,7 @@ vim src/auth/security.py
 
 ```bash
 # Start watch mode with lower threshold
-claude-ctx ai watch --threshold 0.6
+cortex ai watch --threshold 0.6
 
 # Refactor 15 files
 
@@ -244,7 +244,7 @@ claude-ctx ai watch --threshold 0.6
 
 ```bash
 # Start watch with manual control
-claude-ctx ai watch --no-auto-activate
+cortex ai watch --no-auto-activate
 
 # Add new API endpoint
 
@@ -259,7 +259,7 @@ claude-ctx ai watch --no-auto-activate
         85% - API documentation needed
 
 # Review recommendations, then manually:
-# claude-ctx agent activate api-documenter
+# cortex agent activate api-documenter
 ```
 
 ## 🎓 Learning Integration
@@ -269,10 +269,10 @@ Watch mode works WITH the learning system:
 ### Recording Sessions
 ```bash
 # Terminal 1: Watch mode running
-claude-ctx ai watch
+cortex ai watch
 
 # Terminal 2: After successful work
-claude-ctx ai record-success --outcome "API feature complete"
+cortex ai record-success --outcome "API feature complete"
 
 # Watch mode learns:
 # - You used backend-architect + api-documenter
@@ -297,10 +297,10 @@ After 3-5 successful sessions:
 ### With TUI
 ```bash
 # Terminal 1: Watch mode
-claude-ctx ai watch
+cortex ai watch
 
 # Terminal 2: TUI for manual control
-claude-ctx tui
+cortex tui
 
 # Both work together:
 # - Watch mode monitors and auto-activates
@@ -311,7 +311,7 @@ claude-ctx tui
 ### With Git Hooks (Future)
 ```bash
 # Install git hooks
-claude-ctx ai install-hooks
+cortex ai install-hooks
 
 # Watch mode + pre-commit hook:
 # - Watch mode monitors during development
@@ -340,10 +340,10 @@ View anytime: Press `Ctrl+C` to stop and see stats
 ### Optimization Tips
 ```bash
 # Reduce CPU usage
-claude-ctx ai watch --interval 5.0  # Check every 5s
+cortex ai watch --interval 5.0  # Check every 5s
 
 # Reduce responsiveness for battery savings
-claude-ctx ai watch --interval 10.0  # Check every 10s
+cortex ai watch --interval 10.0  # Check every 10s
 ```
 
 ## 🐛 Troubleshooting
@@ -360,13 +360,13 @@ claude-ctx ai watch --interval 10.0  # Check every 10s
 **Solutions**:
 ```bash
 # Lower threshold
-claude-ctx ai watch --threshold 0.5
+cortex ai watch --threshold 0.5
 
 # Check git status
 git status
 
 # Check interval
-claude-ctx ai watch --interval 1.0
+cortex ai watch --interval 1.0
 ```
 
 ### Too Many Notifications
@@ -376,13 +376,13 @@ claude-ctx ai watch --interval 1.0
 **Solutions**:
 ```bash
 # Raise threshold
-claude-ctx ai watch --threshold 0.9
+cortex ai watch --threshold 0.9
 
 # Slower checking
-claude-ctx ai watch --interval 5.0
+cortex ai watch --interval 5.0
 
 # Disable auto-activation
-claude-ctx ai watch --no-auto-activate
+cortex ai watch --no-auto-activate
 ```
 
 ### Auto-Activation Not Working
@@ -396,13 +396,13 @@ claude-ctx ai watch --no-auto-activate
 **Solutions**:
 ```bash
 # Check if enabled
-claude-ctx ai watch  # Should show "Auto-activate: ON"
+cortex ai watch  # Should show "Auto-activate: ON"
 
 # Lower confidence threshold won't help
 # (auto-activation is hardcoded at 80%+)
 
 # Review recommendations manually:
-claude-ctx ai recommend
+cortex ai recommend
 ```
 
 ## 💡 Tips & Tricks
@@ -410,7 +410,7 @@ claude-ctx ai recommend
 ### 1. **Start Watch Mode at Beginning of Day**
 ```bash
 # Open terminal, start watch mode
-claude-ctx ai watch
+cortex ai watch
 
 # Keep it running all day
 # Monitors all your work sessions
@@ -422,7 +422,7 @@ claude-ctx ai watch
 tmux new -s claude-watch
 
 # Start watch mode
-claude-ctx ai watch
+cortex ai watch
 
 # Detach: Ctrl+b, d
 # Reattach anytime: tmux attach -t claude-watch
@@ -431,23 +431,23 @@ claude-ctx ai watch
 ### 3. **Project-Specific Settings**
 ```bash
 # Security-sensitive project
-alias watch-secure='claude-ctx ai watch --threshold 0.95'
+alias watch-secure='cortex ai watch --threshold 0.95'
 
 # Exploratory project
-alias watch-explore='claude-ctx ai watch --no-auto-activate --threshold 0.5'
+alias watch-explore='cortex ai watch --no-auto-activate --threshold 0.5'
 ```
 
 ### 4. **Combine with Workflow**
 ```bash
 # Start watch mode when entering project
-cd ~/project && claude-ctx ai watch &
+cd ~/project && cortex ai watch &
 
 # Or add to .zshrc/.bashrc:
 cd() {
   builtin cd "$@"
   if [ -d ".git" ]; then
     # Start watch mode in background
-    (claude-ctx ai watch > /tmp/claude-watch.log 2>&1 &)
+    (cortex ai watch > /tmp/claude-watch.log 2>&1 &)
   fi
 }
 ```
@@ -455,7 +455,7 @@ cd() {
 ### 5. **Log Output**
 ```bash
 # Save watch mode output
-claude-ctx ai watch 2>&1 | tee claude-watch.log
+cortex ai watch 2>&1 | tee claude-watch.log
 
 # Review later
 less claude-watch.log
@@ -477,17 +477,17 @@ Planned features:
 
 ```bash
 # Get AI recommendations (one-time)
-claude-ctx ai recommend
+cortex ai recommend
 
 # Auto-activate agents (one-time)
-claude-ctx ai auto-activate
+cortex ai auto-activate
 
 # View in TUI
-claude-ctx tui
+cortex tui
 # Press '0' for AI assistant view
 
 # Record successful session
-claude-ctx ai record-success
+cortex ai record-success
 ```
 
 ## 🎯 When to Use Watch Mode
@@ -511,7 +511,7 @@ claude-ctx ai record-success
 
 ```bash
 # Start once
-claude-ctx ai watch
+cortex ai watch
 
 # Code normally
 # AI monitors and manages framework

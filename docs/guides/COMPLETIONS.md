@@ -1,6 +1,6 @@
-# Shell Completions for claude-ctx
+# Shell Completions for cortex
 
-The `claude-ctx` CLI provides shell completion support for Bash, Zsh, and Fish shells.
+The `cortex` CLI provides shell completion support for Bash, Zsh, and Fish shells.
 
 ## Quick Start
 
@@ -10,10 +10,10 @@ Generate and install completions for your shell:
 
 ```bash
 # Generate completion script
-claude-ctx completion bash > ~/.bash_completion.d/claude-ctx
+cortex completion bash > ~/.bash_completion.d/cortex
 
 # Add to ~/.bashrc
-echo 'source ~/.bash_completion.d/claude-ctx' >> ~/.bashrc
+echo 'source ~/.bash_completion.d/cortex' >> ~/.bashrc
 
 # Reload shell
 source ~/.bashrc
@@ -24,7 +24,7 @@ source ~/.bashrc
 ```bash
 # Generate completion script
 mkdir -p ~/.zsh/completions
-claude-ctx completion zsh > ~/.zsh/completions/_claude-ctx
+cortex completion zsh > ~/.zsh/completions/_cortex
 
 # Add to ~/.zshrc (before compinit)
 echo 'fpath=(~/.zsh/completions $fpath)' >> ~/.zshrc
@@ -39,11 +39,11 @@ source ~/.zshrc
 
 ```bash
 # Generate completion script
-claude-ctx completion fish > ~/.config/fish/completions/claude-ctx.fish
+cortex completion fish > ~/.config/fish/completions/cortex.fish
 
 # Completions are loaded automatically on next shell start
 # Or reload immediately:
-source ~/.config/fish/completions/claude-ctx.fish
+source ~/.config/fish/completions/cortex.fish
 ```
 
 ## Usage
@@ -52,10 +52,10 @@ The `completion` command generates shell-specific completion scripts:
 
 ```bash
 # Generate completion script
-claude-ctx completion <shell>
+cortex completion <shell>
 
 # Show installation instructions
-claude-ctx completion <shell> --install
+cortex completion <shell> --install
 ```
 
 Where `<shell>` is one of: `bash`, `zsh`, `fish`
@@ -69,16 +69,18 @@ Shell completions provide:
 - **Flag completion**: Complete command-line flags and options
 - **Dynamic completion**: Complete agent names, mode names, etc. from your configuration
 
+If you update the CLI (for example, adding `setup migrate-commands`), regenerate the completion script so the new subcommands and flags appear.
+
 ## Examples
 
 ```bash
 # Type and press Tab:
-claude-ctx ag[Tab]          # Completes to: claude-ctx agent
-claude-ctx agent act[Tab]   # Completes to: claude-ctx agent activate
-claude-ctx agent deps [Tab] # Shows available agents
+cortex ag[Tab]          # Completes to: cortex agent
+cortex agent act[Tab]   # Completes to: cortex agent activate
+cortex agent deps [Tab] # Shows available agents
 
 # With flags:
-claude-ctx agent deactivate --[Tab]  # Shows: --force
+cortex agent deactivate --[Tab]  # Shows: --force
 ```
 
 ## Installation Instructions
@@ -86,9 +88,9 @@ claude-ctx agent deactivate --[Tab]  # Shows: --force
 To see detailed installation instructions for your shell:
 
 ```bash
-claude-ctx completion bash --install
-claude-ctx completion zsh --install
-claude-ctx completion fish --install
+cortex completion bash --install
+cortex completion zsh --install
+cortex completion fish --install
 ```
 
 ## System-Wide Installation
@@ -97,7 +99,7 @@ For system-wide completions (requires sudo):
 
 ### Bash
 ```bash
-sudo claude-ctx completion bash > /etc/bash_completion.d/claude-ctx
+sudo cortex completion bash > /etc/bash_completion.d/cortex
 ```
 
 ### Zsh
@@ -105,12 +107,12 @@ sudo claude-ctx completion bash > /etc/bash_completion.d/claude-ctx
 # Location varies by system:
 # macOS: /usr/local/share/zsh/site-functions
 # Linux: /usr/share/zsh/site-functions
-sudo claude-ctx completion zsh > /usr/local/share/zsh/site-functions/_claude-ctx
+sudo cortex completion zsh > /usr/local/share/zsh/site-functions/_cortex
 ```
 
 ### Fish
 ```bash
-sudo claude-ctx completion fish > /usr/share/fish/vendor_completions.d/claude-ctx.fish
+sudo cortex completion fish > /usr/share/fish/vendor_completions.d/cortex.fish
 ```
 
 ## Troubleshooting
@@ -153,12 +155,12 @@ sudo claude-ctx completion fish > /usr/share/fish/vendor_completions.d/claude-ct
 
 1. Verify the completion file exists:
    ```bash
-   ls ~/.config/fish/completions/claude-ctx.fish
+   ls ~/.config/fish/completions/cortex.fish
    ```
 
 2. Fish loads completions automatically on startup. Start a new shell or source manually:
    ```fish
-   source ~/.config/fish/completions/claude-ctx.fish
+   source ~/.config/fish/completions/cortex.fish
    ```
 
 ## Development
