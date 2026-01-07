@@ -1,0 +1,66 @@
+# Microservices Patterns Skill Quality Rubric
+version: "1.0.0"
+skill_name: microservices-patterns
+evaluated_date: "2026-01-05"
+
+dimensions:
+  clarity:
+    weight: 25
+    description: "Clear explanation of distributed system concepts"
+    criteria:
+      - "Service decomposition strategies are clear"
+      - "Communication patterns explained with diagrams"
+      - "Saga patterns have step-by-step examples"
+      - "Circuit breaker logic is visual"
+
+  completeness:
+    weight: 25
+    description: "Comprehensive microservices coverage"
+    criteria:
+      - "Covers all communication patterns (sync/async)"
+      - "Includes service discovery"
+      - "Has data management strategies"
+      - "Covers observability (logging, tracing, metrics)"
+
+  accuracy:
+    weight: 30
+    description: "Correct distributed systems guidance"
+    criteria:
+      - "CAP theorem correctly applied"
+      - "Event sourcing patterns are accurate"
+      - "Saga compensation logic is correct"
+      - "Security between services is sound"
+
+  usefulness:
+    weight: 20
+    description: "Practical microservices implementation"
+    criteria:
+      - "Framework-specific examples (Spring, Go, Node)"
+      - "Docker/Kubernetes integration"
+      - "Testing distributed systems"
+      - "Migration from monolith covered"
+
+passing_criteria:
+  minimum_score: 3.5
+  target_score: 4.0
+  exceptional_score: 4.5
+  required_dimensions:
+    - accuracy
+  blocking_issues:
+    - "Incorrect CAP theorem application"
+    - "Missing compensation in saga examples"
+    - "Insecure service-to-service auth"
+
+scoring_guide:
+  clarity:
+    "1": "Distributed concepts confusing"
+    "2": "Hard to follow service interactions"
+    "3": "Understandable with effort"
+    "4": "Clear with good diagrams"
+    "5": "Exceptional visual explanations"
+  accuracy:
+    "1": "Fundamentally wrong distributed advice"
+    "2": "CAP/consistency issues"
+    "3": "Mostly correct patterns"
+    "4": "Accurate, battle-tested patterns"
+    "5": "Production-proven, comprehensive"

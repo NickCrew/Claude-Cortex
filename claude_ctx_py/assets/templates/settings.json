@@ -1,0 +1,30 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "cortex statusline --color",
+    "padding": 0
+  },
+  "includeCoAuthoredBy": false,
+  "enabledPlugins": {},
+  "extraKnownMarketplaces": {},
+  "outputStyle": "Default",
+  "spinnerTipsEnabled": false,
+  "alwaysThinkingEnabled": true,
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "codanna": {
+      "command": "codanna",
+      "args": [
+        "serve",
+        "--watch"
+      ]
+    }
+  }
+}

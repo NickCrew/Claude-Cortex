@@ -1,0 +1,12 @@
+version: 1.0
+required:
+  - name
+  - description
+  - phases
+fields:
+  type:
+    enum: [operational, crisis, maintenance, development, audit]
+  priority:
+    enum: [low, normal, high, critical]
+  condition:
+    enum: [manual, automatic, on_success, on_failure]

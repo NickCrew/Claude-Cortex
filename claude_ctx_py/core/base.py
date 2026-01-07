@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import sysconfig
 import time
 import unicodedata
 from dataclasses import dataclass
@@ -38,6 +39,7 @@ except ImportError:  # pragma: no cover
 
 _CORTEX_SCOPE_ENV = "CORTEX_SCOPE"
 _CORTEX_ROOT_ENV = "CORTEX_ROOT"
+_CORTEX_ASSETS_ENV = "CORTEX_ASSETS_ROOT"
 
 
 def _find_project_claude_dir(start: Path) -> Path | None:
@@ -68,6 +70,46 @@ def _resolve_cortex_root(home: Path | None = None) -> Path:
 
     base = Path(home) if home is not None else Path(os.environ.get("HOME", str(Path.home())))
     return base / ".cortex"
+
+
+def _resolve_bundled_assets_root() -> Path | None:
+    """Resolve the bundled assets root shipped with the Python package."""
+    env_root = os.environ.get(_CORTEX_ASSETS_ENV)
+    if env_root:
+        path = Path(env_root).expanduser().resolve()
+        if path.exists():
+            return path
+
+    module_root = Path(__file__).resolve().parents[1]
+    candidate = module_root / "assets"
+    if candidate.is_dir():
+        return candidate
+
+    data_root = Path(sysconfig.get_path("data")) / "share" / "claude-cortex" / "assets"
+    if data_root.is_dir():
+        return data_root
+
+    return None
+
+
+def _resolve_plugin_assets_root() -> Path:
+    """Resolve the root directory containing bundled plugin assets."""
+    env_root = os.environ.get("CLAUDE_PLUGIN_ROOT") or os.environ.get("CORTEX_PLUGIN_ROOT")
+    if env_root:
+        path = Path(env_root).expanduser().resolve()
+        if path.exists():
+            return path
+
+    this_file = Path(__file__).resolve()
+    repo_root = this_file.parent.parent.parent
+    if (repo_root / "agents").is_dir() and (repo_root / "commands").is_dir():
+        return repo_root
+
+    bundled = _resolve_bundled_assets_root()
+    if bundled is not None:
+        return bundled
+
+    return repo_root
 
 
 def _resolve_claude_dir(
@@ -172,8 +214,7 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
 
 def _get_builtin_templates_dir() -> Path:
     """Get the bundled templates directory shipped with the plugin."""
-    this_file = Path(__file__).resolve()
-    return this_file.parent.parent.parent / "templates"
+    return _resolve_plugin_assets_root() / "templates"
 
 
 def _list_template_files(template_dir: Path) -> List[Path]:

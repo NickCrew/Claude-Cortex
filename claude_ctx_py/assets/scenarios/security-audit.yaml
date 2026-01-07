@@ -1,0 +1,67 @@
+version: 1.0
+name: security-audit
+description: Run a full security assessment combining automated scanning, manual review, and compliance reporting.
+type: audit
+priority: high
+triggers:
+  keywords:
+    - audit
+    - security-review
+    - pen-test
+  files:
+    - security-checklist.md
+    - audit-plan.md
+phases:
+  - name: scope-alignment
+    description: Confirm scope, assets, and success criteria with stakeholders.
+    condition: manual
+    agents:
+      - architect-review
+      - compliance-auditor
+      - legal-advisor
+      - product-manager
+    success_criteria:
+      - scope_locked
+      - constraints_documented
+  - name: automated-scanning
+    description: Execute static and dynamic scans with toolchain coverage.
+    condition: automatic
+    agents:
+      - security-auditor
+      - penetration-tester
+      - tooling-engineer
+      - task-distributor
+    success_criteria:
+      - scans_completed
+      - findings_queued
+  - name: manual-verification
+    description: Deep dive on critical findings and review sensitive flows.
+    condition: on_success
+    agents:
+      - penetration-tester
+      - system-architect
+      - devops-troubleshooter
+      - docs-architect
+    success_criteria:
+      - critical_findings_verified
+      - remediation_plan_drafted
+  - name: report-and-signoff
+    description: Summarize findings, generate remediation plan, collect approvals.
+    condition: on_success
+    agents:
+      - compliance-auditor
+      - legal-advisor
+      - product-manager
+      - content-marketer
+    success_criteria:
+      - report_delivered
+      - approvals_recorded
+monitoring:
+  metrics:
+    - open_findings
+    - completion_rate
+  alerts:
+    - open_findings > 0 at signoff
+rollback:
+  strategy: manual
+  enabled: false

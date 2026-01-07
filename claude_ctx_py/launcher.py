@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
 
-from .core.base import _resolve_cortex_root
+from .core.base import _resolve_bundled_assets_root, _resolve_cortex_root
 
 
 DEFAULT_CONFIG_PATH = _resolve_cortex_root() / "cortex-config.json"
@@ -138,6 +138,10 @@ def _resolve_plugin_root(
     repo_root = _repo_root_from_module()
     if repo_root is not None:
         return repo_root
+
+    bundled_root = _resolve_bundled_assets_root()
+    if bundled_root is not None and bundled_root.exists():
+        return bundled_root
 
     plugin_id = config.get("plugin_id")
     plugin_id_str = plugin_id if isinstance(plugin_id, str) else None

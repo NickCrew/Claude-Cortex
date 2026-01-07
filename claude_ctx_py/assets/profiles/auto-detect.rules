@@ -1,0 +1,41 @@
+# Auto-detection rules for profile suggestions
+# Format: PATTERN:PROFILE_NAME:CONFIDENCE
+
+# Web applications
+package.json+react:web-app:high
+package.json+vue:web-app:high
+package.json+angular:web-app:high
+package.json+next:web-app:high
+src/components/:web-app:medium
+
+# Backend services
+requirements.txt+flask:backend:high
+requirements.txt+django:backend:high
+requirements.txt+fastapi:backend:high
+go.mod:backend:medium
+Cargo.toml:backend:medium
+
+# Data & ML
+requirements.txt+pandas:data-pipeline:high
+requirements.txt+spark:data-pipeline:high
+requirements.txt+airflow:data-pipeline:high
+.ipynb:data-pipeline:medium
+data/:data-pipeline:low
+
+# DevOps & Infrastructure
+docker-compose.yml:devops:high
+Dockerfile:devops:medium
+kubernetes/:devops:high
+terraform/:devops:high
+.github/workflows/:devops:medium
+
+# Crisis indicators
+logs/error:incident-response:high
+crashlytics:incident-response:medium
+alerts/:incident-response:medium
+
+# Legacy modernization
+legacy:modernization:medium
+deprecated:modernization:medium
+technical-debt:modernization:low
+refactor:modernization:medium

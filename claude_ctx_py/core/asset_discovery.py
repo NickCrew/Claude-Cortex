@@ -26,7 +26,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from .base import _extract_front_matter, _resolve_claude_dir
+from .base import _extract_front_matter, _resolve_claude_dir, _resolve_plugin_assets_root
 
 
 _SETTINGS_RELATIVE_PATHS = [
@@ -152,15 +152,7 @@ def get_plugin_root() -> Path:
     Returns:
         Path to the plugin root directory
     """
-    # Try environment variable first
-    if "CLAUDE_PLUGIN_ROOT" in os.environ:
-        return Path(os.environ["CLAUDE_PLUGIN_ROOT"])
-
-    # Otherwise, find relative to this file
-    # This file is at: plugin/claude_ctx_py/core/asset_discovery.py
-    # Plugin root is: plugin/
-    this_file = Path(__file__)
-    return this_file.parent.parent.parent
+    return _resolve_plugin_assets_root()
 
 
 def discover_plugin_assets() -> Dict[str, List[Asset]]:

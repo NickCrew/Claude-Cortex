@@ -1,0 +1,82 @@
+version: 1.0
+name: incident-response
+description: Coordinate rapid incident response across detection, diagnosis, mitigation, and recovery teams.
+type: crisis
+priority: critical
+triggers:
+  keywords:
+    - incident
+    - outage
+    - emergency
+    - sev-1
+  files:
+    - incident.md
+    - postmortem.md
+  events:
+    - alert_triggered
+    - pagerduty_page
+phases:
+  - name: triage
+    description: Establish command center, gather telemetry, and classify severity.
+    condition: automatic
+    parallel: true
+    profiles:
+      - meta
+      - developer-experience
+    agents:
+      - incident-responder
+      - error-coordinator
+      - performance-monitor
+      - multi-agent-coordinator
+    success_criteria:
+      - incident_acknowledged
+      - severity_assigned
+  - name: root-cause-analysis
+    description: Identify impact radius and isolate failing components.
+    condition: on_success
+    profiles:
+      - data-ai
+    agents:
+      - root-cause-analyst
+      - devops-troubleshooter
+      - system-architect
+      - context-manager
+    success_criteria:
+      - hypothesis_documented
+      - blast_radius_mapped
+  - name: mitigation
+    description: Deploy fixes, rollbacks, or workarounds with governance.
+    condition: manual
+    profiles:
+      - devops
+    agents:
+      - deployment-engineer
+      - kubernetes-architect
+      - build-engineer
+      - security-auditor
+    success_criteria:
+      - mitigation_live
+      - monitoring_green
+  - name: recovery
+    description: Validate resolution, capture learnings, and communicate outcome.
+    condition: on_success
+    agents:
+      - test-automator
+      - docs-architect
+      - product-manager
+      - content-marketer
+    success_criteria:
+      - regression_suite_passed
+      - stakeholders_notified
+      - postmortem_draft_ready
+monitoring:
+  metrics:
+    - error_rate
+    - availability
+    - p99_latency
+  alerts:
+    - error_rate > 1.0
+    - availability < 99.5
+rollback:
+  strategy: immediate
+  enabled: true

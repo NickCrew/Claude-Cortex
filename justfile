@@ -27,6 +27,7 @@ help:
     @echo "  just build                # Build sdist/wheel with python -m build"
     @echo "  just publish              # Build and publish to PyPI via twine"
     @echo "  just verify               # Verify CLI, manpage, and dependencies"
+    @echo "  just bundle-assets        # Sync bundled assets into claude_ctx_py/assets"
     @echo ""
     @echo "Examples:"
     @echo "  just install         # Full installation"
@@ -98,6 +99,9 @@ clean:
     @find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
     @find . -type f -name "*.pyc" -delete
     @echo "✓ Cleaned build artifacts"
+
+bundle-assets:
+    @python3 ./scripts/sync_bundled_assets.py
 
 build:
     @python -m build

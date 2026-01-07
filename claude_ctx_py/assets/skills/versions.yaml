@@ -1,0 +1,324 @@
+# Skills Version Tracking
+# This file maintains version history and compatibility information for all skills
+# Version format: MAJOR.MINOR.PATCH (follows semantic versioning)
+# - MAJOR: Breaking changes to skill interface or behavior
+# - MINOR: New features or significant enhancements
+# - PATCH: Bug fixes and minor improvements
+
+skills:
+  # Architecture & Design Patterns
+  api-design-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "REST API design patterns"
+          - "GraphQL patterns"
+          - "API versioning strategies"
+          - "Error handling conventions"
+
+  microservices-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Service decomposition patterns"
+          - "Inter-service communication"
+          - "Data consistency strategies"
+          - "Circuit breaker patterns"
+
+  event-driven-architecture:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Event sourcing patterns"
+          - "Message broker integration"
+          - "Event schema design"
+          - "Saga patterns"
+
+  database-design-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Normalization strategies"
+          - "Indexing patterns"
+          - "Sharding and partitioning"
+          - "Connection pooling"
+
+  cqrs-event-sourcing:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Command-Query separation"
+          - "Event store patterns"
+          - "Read model projections"
+          - "Eventual consistency handling"
+
+  api-gateway-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Gateway routing strategies"
+          - "Rate limiting patterns"
+          - "Authentication/authorization"
+          - "Request aggregation"
+
+  # Kubernetes & Container Orchestration
+  kubernetes-deployment-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Deployment strategies"
+          - "Rolling updates"
+          - "Blue-green deployments"
+          - "Canary releases"
+
+  kubernetes-security-policies:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Pod security policies"
+          - "Network policies"
+          - "RBAC configurations"
+          - "Secret management"
+
+  helm-chart-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Chart structure best practices"
+          - "Template patterns"
+          - "Values configuration"
+          - "Dependency management"
+
+  # DevOps & Infrastructure
+  gitops-workflows:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "GitOps principles"
+          - "ArgoCD/Flux patterns"
+          - "Repository structure"
+          - "Sync strategies"
+
+  terraform-best-practices:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Module organization"
+          - "State management"
+          - "Variable patterns"
+          - "Provider configuration"
+
+  # Python Development
+  async-python-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "asyncio patterns"
+          - "Concurrent execution"
+          - "Event loop management"
+          - "Async context managers"
+
+  python-testing-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "pytest patterns"
+          - "Fixture design"
+          - "Mock strategies"
+          - "Test organization"
+
+  python-performance-optimization:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Profiling techniques"
+          - "Memory optimization"
+          - "CPU-bound optimizations"
+          - "Caching strategies"
+
+  # TypeScript & React
+  typescript-advanced-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Advanced type patterns"
+          - "Generic constraints"
+          - "Conditional types"
+          - "Type inference"
+
+  react-performance-optimization:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Memoization strategies"
+          - "Virtual DOM optimization"
+          - "Code splitting"
+          - "Lazy loading patterns"
+
+  # Security
+  owasp-top-10:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "OWASP Top 10 vulnerabilities"
+          - "Mitigation strategies"
+          - "Security testing approaches"
+          - "Vulnerability assessment"
+
+  secure-coding-practices:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Input validation patterns"
+          - "Authentication best practices"
+          - "Encryption standards"
+          - "Secure data handling"
+
+  threat-modeling-techniques:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "STRIDE methodology"
+          - "Attack tree analysis"
+          - "Risk assessment"
+          - "Threat identification"
+
+  security-testing-patterns:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-10-17"
+        notes: "Initial versioned release"
+        changes:
+          - "Penetration testing patterns"
+          - "Security scanning automation"
+          - "Vulnerability testing"
+          - "Security regression tests"
+
+  multi-llm-consult:
+    current: "1.0.0"
+    versions:
+      - "1.0.0"
+    compatibility:
+      "1.0.0":
+        release_date: "2025-12-30"
+        notes: "Initial release"
+        changes:
+          - "Consult Gemini, OpenAI/Codex, and Qwen via script"
+          - "Store provider keys in settings.json (TUI configuration)"
+
+# Version Management Guidelines
+#
+# When to increment versions:
+# - MAJOR (X.0.0): Breaking changes to skill behavior, interface changes, major rewrites
+# - MINOR (x.X.0): New patterns added, significant enhancements, new examples
+# - PATCH (x.x.X): Bug fixes, typo corrections, minor clarifications
+#
+# Compatibility tracking:
+# - Each version entry should include release_date, notes, and key changes
+# - Maintain historical versions for rollback capability
+# - Document breaking changes clearly in notes
+#
+# Example version progression:
+# versions:
+#   - "1.0.0"  # Initial release
+#   - "1.1.0"  # Added new patterns
+#   - "1.1.1"  # Fixed typos
+#   - "2.0.0"  # Breaking changes to interface

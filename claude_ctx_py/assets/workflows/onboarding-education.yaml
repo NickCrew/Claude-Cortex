@@ -1,0 +1,59 @@
+name: Onboarding and Education Workflow
+description: Interactive workflow for onboarding new developers or learning new parts of the codebase
+version: 1.0
+
+trigger:
+  keywords: ["onboarding", "learn repo", "tutorial", "explain project"]
+  manual: true
+
+steps:
+  - name: Repository Overview
+    agent: system-architect
+    description: High-level explanation of project structure and core technologies
+    outputs:
+      - project_map
+      - tech_stack_summary
+      - key_directories_list
+
+  - name: Concept Deep Dive
+    mode: Teacher
+    description: Detailed explanation of complex subsystems
+    inputs: ["key_directories_list"]
+    interactive: true
+    topics:
+      - core_logic
+      - data_flow
+      - design_patterns_used
+
+  - name: Environment Setup
+    agent: devops-engineer
+    description: Guide through local development environment setup
+    checks:
+      - dependencies_installed
+      - environment_variables_set
+      - database_connected
+
+  - name: Guided Tour
+    mode: Teacher
+    description: Walkthrough of critical code paths
+    inputs: ["project_map"]
+    walkthroughs:
+      - request_lifecycle
+      - authentication_flow
+      - main_loop
+
+  - name: First Contribution
+    mode: Task_Management
+    description: Execute a "Good First Issue" with guidance
+    support_level: high
+    task_type: bug_fix_or_minor_feature
+
+  - name: Code Review Simulation
+    agent: code-reviewer
+    description: Review the contribution with educational feedback
+    focus: learning_and_best_practices
+
+success_criteria:
+  - environment_running
+  - key_concepts_understood
+  - first_pr_ready

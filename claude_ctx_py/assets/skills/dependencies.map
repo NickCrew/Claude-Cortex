@@ -1,0 +1,99 @@
+# Skill Dependencies Map
+# Generated: 2025-10-17T07:35:00
+# Shows which agents use which skills
+
+## Agent → Skills
+
+backend-architect:
+  - api-design-patterns
+  - microservices-patterns
+  - event-driven-architecture
+  - database-design-patterns
+  - api-gateway-patterns
+  - cqrs-event-sourcing
+
+python-pro:
+  - async-python-patterns
+  - python-testing-patterns
+  - python-performance-optimization
+
+typescript-pro:
+  - typescript-advanced-patterns
+  - react-performance-optimization
+
+kubernetes-architect:
+  - kubernetes-deployment-patterns
+  - kubernetes-security-policies
+  - helm-chart-patterns
+  - gitops-workflows
+
+terraform-specialist:
+  - terraform-best-practices
+
+security-auditor:
+  - owasp-top-10
+  - secure-coding-practices
+  - threat-modeling-techniques
+  - security-testing-patterns
+
+## Skill → Agents (Reverse Lookup)
+
+api-design-patterns:
+  - backend-architect
+
+api-gateway-patterns:
+  - backend-architect
+
+async-python-patterns:
+  - python-pro
+
+cqrs-event-sourcing:
+  - backend-architect
+
+database-design-patterns:
+  - backend-architect
+
+event-driven-architecture:
+  - backend-architect
+
+gitops-workflows:
+  - kubernetes-architect
+
+helm-chart-patterns:
+  - kubernetes-architect
+
+kubernetes-deployment-patterns:
+  - kubernetes-architect
+
+kubernetes-security-policies:
+  - kubernetes-architect
+
+microservices-patterns:
+  - backend-architect
+
+owasp-top-10:
+  - security-auditor
+
+python-performance-optimization:
+  - python-pro
+
+python-testing-patterns:
+  - python-pro
+
+react-performance-optimization:
+  - typescript-pro
+
+secure-coding-practices:
+  - security-auditor
+
+security-testing-patterns:
+  - security-auditor
+
+terraform-best-practices:
+  - terraform-specialist
+
+threat-modeling-techniques:
+  - security-auditor
+
+typescript-advanced-patterns:
+  - typescript-pro

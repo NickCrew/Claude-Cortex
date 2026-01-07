@@ -1,0 +1,66 @@
+# Python Testing Patterns Skill Quality Rubric
+version: "1.0.0"
+skill_name: python-testing-patterns
+evaluated_date: "2026-01-05"
+
+dimensions:
+  clarity:
+    weight: 25
+    description: "Clear testing concepts and pytest usage"
+    criteria:
+      - "Test structure (AAA pattern) is clear"
+      - "Fixture usage explained progressively"
+      - "Mocking strategies are well-organized"
+      - "Parametrization syntax is clear"
+
+  completeness:
+    weight: 25
+    description: "Comprehensive Python testing coverage"
+    criteria:
+      - "Covers unit, integration, and e2e tests"
+      - "Includes pytest fixtures and markers"
+      - "Has mocking with unittest.mock"
+      - "Covers property-based testing (hypothesis)"
+
+  accuracy:
+    weight: 30
+    description: "Correct pytest patterns and practices"
+    criteria:
+      - "Fixture scopes are correctly explained"
+      - "Mock usage follows best practices"
+      - "Async testing is accurate"
+      - "Coverage configuration is correct"
+
+  usefulness:
+    weight: 20
+    description: "Practical Python testing guidance"
+    criteria:
+      - "Examples run with pytest directly"
+      - "Common testing patterns included"
+      - "CI/CD integration examples"
+      - "Debugging failed tests covered"
+
+passing_criteria:
+  minimum_score: 3.5
+  target_score: 4.0
+  exceptional_score: 4.5
+  required_dimensions:
+    - accuracy
+  blocking_issues:
+    - "Incorrect fixture scope behavior"
+    - "Mock examples that don't patch correctly"
+    - "Tests that always pass (false positives)"
+
+scoring_guide:
+  clarity:
+    "1": "Test concepts jumbled"
+    "2": "Confusing fixture examples"
+    "3": "Understandable basics"
+    "4": "Clear with runnable examples"
+    "5": "Exceptional pytest mastery"
+  accuracy:
+    "1": "Fundamentally wrong test patterns"
+    "2": "Mock/fixture errors"
+    "3": "Mostly correct pytest usage"
+    "4": "Follows pytest best practices"
+    "5": "Expert-level, comprehensive"
