@@ -1,0 +1,215 @@
+# Agent Profile Schema v2.0
+#
+# Purpose
+#   Defines the canonical metadata contract for Claude-CTX agents.
+#   Downstream tooling (profiles, orchestrators, sync/import scripts) MUST
+#   read and write agent descriptors that conform to this schema before any
+#   higher-level features are implemented.
+#
+# Compatibility
+#   - Backwards compatible with existing front matter: fields from v1 remain
+#     valid. Parsers should merge overlapping keys.
+#   - Any agent declaring `version: 2.0` MUST satisfy the required fields
+#     defined below.
+
+version: 2.0
+
+required:
+  - name
+  - description
+  - category
+  - tier.id
+  - model.preference
+  - tools.catalog
+
+fields:
+  name:
+    type: string
+    example: "typescript-pro"
+    description: Canonical agent identifier matching its filename.
+
+  alias:
+    type: array[string]
+    optional: true
+    example: ["ts-expert", "frontend-typescript"]
+    description: Alternative invocation names surfaced in CLI search.
+
+  description:
+    type: string
+    format: markdown
+    example: |
+      TypeScript specialist covering modern frontend build systems, linting,
+      testing, and DX improvements.
+    description: Multi-line summary shown in discovery UIs.
+
+  summary:
+    type: string
+    optional: true
+    description: Short, single-sentence elevator pitch.
+
+  category:
+    type: string
+    enum:
+      - core-development
+      - language-specialists
+      - infrastructure
+      - quality-security
+      - data-ai
+      - developer-experience
+      - specialized-domains
+      - business-product
+      - meta-orchestration
+      - research-analysis
+    description: Aligns with the 10-category taxonomy synced from
+      awesome-claude-code-subagents.
+
+  tags:
+    type: array[string]
+    optional: true
+    example: ["typescript", "frontend", "linting"]
+    description: Free-form facets to refine search and recommendations.
+
+  tier:
+    type: object
+    properties:
+      id:
+        type: string
+        enum: ["core", "extended", "specialist"]
+        description: Default activation tier within category profiles.
+      activation_strategy:
+        type: string
+        enum: ["sequential", "parallel", "tiered"]
+        default: "tiered"
+        description: Preferred orchestration pattern when the agent is
+          grouped with dependencies.
+      conditions:
+        type: array[string]
+        optional: true
+        example: ["*.ts", "package.json"]
+        description: File glob or signal conditions that auto-activate the
+          agent (consumed by suggestion engine).
+
+  model:
+    type: object
+    properties:
+      preference:
+        type: string
+        example: "sonnet"
+        description: Primary Claude model to request.
+      fallbacks:
+        type: array[string]
+        optional: true
+        example: ["haiku"]
+        description: Ordered fallback models when preference unavailable.
+      temperature:
+        type: number
+        optional: true
+        description: Optional override for creative agents.
+
+  tools:
+    type: object
+    properties:
+      catalog:
+        type: array[string]
+        example: ["Read", "Write", "MultiEdit", "Git", "Search"]
+        description: Explicit MCP tools required for baseline operation.
+      tiers:
+        type: object
+        optional: true
+        properties:
+          core:
+            type: array[string]
+            optional: true
+          enhanced:
+            type: array[string]
+            optional: true
+          specialist:
+            type: array[string]
+            optional: true
+        description: Tiered tool groupings ported from awesome-claude-code-
+          subagents (Tier 1/2/3 mapping to core/enhanced/specialist).
+
+  activation:
+    type: object
+    optional: true
+    properties:
+      keywords:
+        type: array[string]
+        optional: true
+      events:
+        type: array[string]
+        optional: true
+      auto:
+        type: boolean
+        default: false
+      priority:
+        type: string
+        enum: ["low", "normal", "high", "critical"]
+    description: Trigger metadata consumed by the agent suggestion engine.
+
+  dependencies:
+    type: object
+    optional: true
+    properties:
+      requires:
+        type: array[string]
+        optional: true
+      recommends:
+        type: array[string]
+        optional: true
+      conflicts:
+        type: array[string]
+        optional: true
+    description: Dependency graph entries consumed by the resolver.
+
+  workflows:
+    type: object
+    optional: true
+    properties:
+      default:
+        type: string
+        optional: true
+      phases:
+        type: array[object]
+        optional: true
+        items:
+          name: string
+          responsibilities: array[string]
+          success_metrics: array[string]
+    description: Workflow hooks used when auto-generating orchestration.
+
+  metrics:
+    type: object
+    optional: true
+    properties:
+      tracked:
+        type: array[string]
+        optional: true
+        example: ["latency_ms", "cost_per_token"]
+      sla:
+        type: object
+        optional: true
+        description: Key thresholds to enforce via quality gates.
+
+  metadata:
+    type: object
+    optional: true
+    properties:
+      source:
+        type: string
+        example: "awesome-claude-code-subagents"
+      version:
+        type: string
+        example: "2025.10.12"
+      last_synced:
+        type: string
+        format: iso8601
+      repository_url:
+        type: string
+    description: Provenance fields used by sync/update tooling.
+
+# Validation Strategy
+#   - YAML schema to be translated into JSON Schema for automated checks.
+#   - Interim tooling: `cortex agent validate <file>` should enforce the
+#     required keys and surface descriptive errors.
+

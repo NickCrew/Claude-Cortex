@@ -1,0 +1,136 @@
+name: Performance Optimization Workflow
+description: Systematic performance analysis and optimization workflow
+version: 1.0
+
+trigger:
+  keywords: ["slow", "performance", "optimize", "speed up", "bottleneck"]
+  manual: true
+  threshold:
+    response_time: ">500ms"
+    memory_usage: ">500MB"
+    cpu_usage: ">80%"
+
+steps:
+  - name: Performance Baseline
+    agent: performance-engineer
+    description: Establish current performance metrics
+    measurements:
+      - response_times
+      - memory_usage
+      - cpu_utilization
+      - database_query_times
+      - bundle_sizes
+      - render_performance
+    outputs:
+      - baseline_metrics
+      - performance_report
+
+  - name: Bottleneck Identification
+    agent: performance-engineer
+    description: Identify performance bottlenecks
+    analysis:
+      - profiling_analysis
+      - query_analysis
+      - bundle_analysis
+      - network_analysis
+    outputs:
+      - bottleneck_list
+      - priority_ranking
+
+  - name: Optimization Planning
+    agent: requirements-analyst
+    description: Plan optimization approach
+    inputs: ["bottleneck_list", "baseline_metrics"]
+    outputs:
+      - optimization_tasks
+      - expected_improvements
+      - implementation_order
+
+  - name: Database Optimization
+    agent: database-optimizer
+    description: Optimize database performance
+    tasks:
+      - query_optimization
+      - index_creation
+      - cache_strategy
+      - connection_pooling
+
+  - name: Code Optimization
+    agent: performance-engineer
+    description: Optimize application code
+    focus:
+      - algorithm_efficiency
+      - memory_management
+      - async_operations
+      - caching_strategy
+
+  - name: Frontend Optimization
+    agent: performance-engineer
+    description: Optimize client-side performance
+    optimizations:
+      - bundle_size_reduction
+      - code_splitting
+      - lazy_loading
+      - asset_optimization
+      - render_optimization
+
+  - name: Infrastructure Optimization
+    agent: devops-architect
+    description: Optimize infrastructure
+    areas:
+      - scaling_strategy
+      - caching_layers
+      - cdn_configuration
+      - load_balancing
+
+  - name: Performance Validation
+    agent: performance-engineer
+    description: Measure optimization impact
+    blocking: true
+    requirements:
+      - response_time: "<200ms"
+      - memory_usage: "<200MB"
+      - bundle_size: "<500KB"
+
+  - name: Load Testing
+    agent: performance-engineer
+    description: Validate under load
+    scenarios:
+      - normal_load
+      - peak_load
+      - stress_test
+    duration: 30min
+
+  - name: Monitoring Setup
+    agent: devops-architect
+    description: Set up ongoing performance monitoring
+    tools:
+      - performance_dashboards
+      - alerting_rules
+      - automated_profiling
+
+  - name: Documentation
+    agent: technical-writer
+    description: Document optimizations
+    outputs:
+      - optimization_report
+      - before_after_metrics
+      - best_practices_guide
+
+success_criteria:
+  - performance_targets_met
+  - load_tests_pass
+  - monitoring_in_place
+  - documentation_complete
+
+targets:
+  response_time_improvement: 50%
+  memory_reduction: 30%
+  cost_reduction: 20%
+
+monitoring:
+  duration: ongoing
+  alerts:
+    - response_time_degradation
+    - memory_leaks
+    - error_rate_spike

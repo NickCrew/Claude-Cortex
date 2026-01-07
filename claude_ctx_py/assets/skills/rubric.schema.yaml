@@ -1,0 +1,293 @@
+# Skill Quality Rubric Schema
+# Defines the structure for skill validation rubrics
+# Version: 1.0.0
+
+$schema: "http://json-schema.org/draft-07/schema#"
+$id: "https://cortex.dev/schemas/rubric.schema.yaml"
+title: Skill Quality Rubric
+description: Schema for defining skill quality assessment rubrics
+
+type: object
+required:
+  - version
+  - dimensions
+  - passing_criteria
+
+properties:
+  version:
+    type: string
+    description: Schema version (semver)
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+    examples: ["1.0.0"]
+
+  skill_name:
+    type: string
+    description: Name of the skill being evaluated
+
+  evaluated_date:
+    type: string
+    format: date
+    description: Date of last evaluation
+
+  dimensions:
+    type: object
+    description: Quality dimensions with weights (must sum to 100)
+    required:
+      - clarity
+      - completeness
+      - accuracy
+      - usefulness
+    properties:
+      clarity:
+        $ref: "#/$defs/dimension"
+        description: How clear and understandable is the skill content?
+      completeness:
+        $ref: "#/$defs/dimension"
+        description: Does the skill cover all necessary aspects?
+      accuracy:
+        $ref: "#/$defs/dimension"
+        description: Is the information factually correct and up-to-date?
+      usefulness:
+        $ref: "#/$defs/dimension"
+        description: How applicable is this skill to real-world scenarios?
+    additionalProperties:
+      $ref: "#/$defs/dimension"
+
+  passing_criteria:
+    type: object
+    required:
+      - minimum_score
+      - required_dimensions
+    properties:
+      minimum_score:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: Minimum weighted average score to pass
+        default: 3.0
+      target_score:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: Target score for good quality
+        default: 4.0
+      exceptional_score:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: Score threshold for exceptional quality
+        default: 4.5
+      required_dimensions:
+        type: array
+        items:
+          type: string
+        description: Dimensions that must meet minimum score individually
+        default: ["accuracy"]
+      blocking_issues:
+        type: array
+        items:
+          type: string
+        description: Issues that automatically fail the audit
+        examples:
+          - "Contains outdated or deprecated patterns"
+          - "Missing required sections"
+          - "Security vulnerabilities in examples"
+
+  checklist:
+    type: object
+    description: Binary pass/fail checks
+    properties:
+      structure:
+        $ref: "#/$defs/checklist_category"
+      content:
+        $ref: "#/$defs/checklist_category"
+      examples:
+        $ref: "#/$defs/checklist_category"
+      metadata:
+        $ref: "#/$defs/checklist_category"
+
+  scoring_guide:
+    type: object
+    description: Detailed scoring criteria per dimension
+    additionalProperties:
+      type: object
+      properties:
+        "1":
+          type: string
+          description: Unacceptable - Criteria for score 1
+        "2":
+          type: string
+          description: Needs Improvement - Criteria for score 2
+        "3":
+          type: string
+          description: Acceptable - Criteria for score 3
+        "4":
+          type: string
+          description: Good - Criteria for score 4
+        "5":
+          type: string
+          description: Excellent - Criteria for score 5
+
+  audit_results:
+    type: object
+    description: Results from the most recent audit
+    properties:
+      scores:
+        type: object
+        additionalProperties:
+          type: number
+          minimum: 1
+          maximum: 5
+      weighted_average:
+        type: number
+        minimum: 1
+        maximum: 5
+      status:
+        type: string
+        enum: [pass, fail, needs_review]
+      issues:
+        type: array
+        items:
+          $ref: "#/$defs/issue"
+      recommendations:
+        type: array
+        items:
+          type: string
+      auditor:
+        type: string
+        description: Who performed the audit (human or agent)
+      audit_date:
+        type: string
+        format: date-time
+
+$defs:
+  dimension:
+    type: object
+    required:
+      - weight
+      - description
+    properties:
+      weight:
+        type: integer
+        minimum: 0
+        maximum: 100
+        description: Weight as percentage (all dimensions must sum to 100)
+      description:
+        type: string
+        description: What this dimension measures
+      criteria:
+        type: array
+        items:
+          type: string
+        description: Specific criteria for evaluation
+      score:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: Current score (1-5)
+      notes:
+        type: string
+        description: Auditor notes for this dimension
+
+  checklist_category:
+    type: object
+    additionalProperties:
+      type: object
+      properties:
+        required:
+          type: boolean
+          default: true
+        passed:
+          type: boolean
+        notes:
+          type: string
+
+  issue:
+    type: object
+    required:
+      - severity
+      - description
+    properties:
+      severity:
+        type: string
+        enum: [critical, major, minor, suggestion]
+      description:
+        type: string
+      location:
+        type: string
+        description: File path or section reference
+      recommendation:
+        type: string
+        description: How to fix the issue
+
+# Default rubric template
+examples:
+  - version: "1.0.0"
+    dimensions:
+      clarity:
+        weight: 25
+        description: "Clear, understandable content with good structure"
+        criteria:
+          - "Well-organized sections with logical flow"
+          - "Concise explanations without jargon overload"
+          - "Code examples are readable and well-commented"
+          - "Progressive disclosure from simple to complex"
+      completeness:
+        weight: 25
+        description: "Comprehensive coverage of the topic"
+        criteria:
+          - "Covers core concepts thoroughly"
+          - "Includes edge cases and error handling"
+          - "Provides both do's and don'ts (anti-patterns)"
+          - "Has working examples for main use cases"
+      accuracy:
+        weight: 30
+        description: "Factually correct and current information"
+        criteria:
+          - "Code examples compile/run without errors"
+          - "Follows current best practices (not deprecated)"
+          - "Security considerations are correct"
+          - "Performance claims are verifiable"
+      usefulness:
+        weight: 20
+        description: "Practical applicability to real projects"
+        criteria:
+          - "Examples solve real-world problems"
+          - "Can be applied immediately"
+          - "Scales to production use cases"
+          - "Includes troubleshooting guidance"
+    passing_criteria:
+      minimum_score: 3.0
+      target_score: 4.0
+      exceptional_score: 4.5
+      required_dimensions:
+        - accuracy
+      blocking_issues:
+        - "Security vulnerabilities in example code"
+        - "Fundamentally incorrect technical guidance"
+        - "Missing required SKILL.md sections"
+    scoring_guide:
+      clarity:
+        "1": "Incomprehensible, no structure, full of jargon"
+        "2": "Hard to follow, poor organization, unclear examples"
+        "3": "Understandable with effort, adequate structure"
+        "4": "Clear and well-organized, good examples"
+        "5": "Exceptionally clear, perfect flow, exemplary code"
+      completeness:
+        "1": "Missing most content, fragmentary"
+        "2": "Major gaps, missing key sections"
+        "3": "Covers basics, some gaps in advanced topics"
+        "4": "Comprehensive, minor omissions only"
+        "5": "Exhaustive coverage, includes edge cases"
+      accuracy:
+        "1": "Factually wrong, dangerous advice"
+        "2": "Multiple errors, outdated patterns"
+        "3": "Mostly correct, minor inaccuracies"
+        "4": "Accurate, follows best practices"
+        "5": "Authoritative, verified, production-ready"
+      usefulness:
+        "1": "Not applicable to real scenarios"
+        "2": "Limited applicability, toy examples"
+        "3": "Usable for simple cases"
+        "4": "Applicable to most real projects"
+        "5": "Production-ready, battle-tested patterns"

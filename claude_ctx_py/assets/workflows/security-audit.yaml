@@ -1,0 +1,108 @@
+name: Security Audit Workflow
+description: Comprehensive security assessment and remediation workflow
+version: 1.0
+
+trigger:
+  keywords: ["security", "vulnerability", "audit", "penetration test"]
+  manual: true
+  scheduled: monthly
+
+steps:
+  - name: Threat Assessment
+    agent: security-auditor
+    description: Identify potential security threats
+    scope:
+      - authentication
+      - authorization
+      - data_protection
+      - api_security
+      - dependency_vulnerabilities
+    outputs:
+      - threat_model
+      - risk_assessment
+      - priority_list
+
+  - name: Vulnerability Scanning
+    agent: security-auditor
+    description: Automated security scanning
+    tools:
+      - dependency_check
+      - static_analysis
+      - secret_scanning
+    outputs:
+      - vulnerability_report
+      - severity_ratings
+
+  - name: Code Security Review
+    agent: security-auditor
+    description: Manual code review for security issues
+    focus_areas:
+      - input_validation
+      - output_encoding
+      - authentication_logic
+      - authorization_checks
+      - cryptography_usage
+      - session_management
+
+  - name: Penetration Testing
+    agent: security-auditor
+    description: Simulate attacks to find weaknesses
+    tests:
+      - sql_injection
+      - xss_attacks
+      - csrf_attacks
+      - authentication_bypass
+      - privilege_escalation
+
+  - name: Remediation Planning
+    agent: requirements-analyst
+    description: Create fix plan for vulnerabilities
+    inputs: ["vulnerability_report", "priority_list"]
+    outputs:
+      - remediation_tasks
+      - timeline
+      - resource_allocation
+
+  - name: Fix Implementation
+    mode: Task_Management
+    description: Implement security fixes
+    inputs: ["remediation_tasks"]
+    validation: mandatory
+
+  - name: Security Validation
+    agent: security-auditor
+    description: Verify all vulnerabilities are fixed
+    blocking: true
+    retest:
+      - all_identified_vulnerabilities
+      - regression_checks
+
+  - name: Security Documentation
+    agent: technical-writer
+    description: Document security improvements
+    outputs:
+      - security_audit_report
+      - compliance_documentation
+      - security_best_practices
+
+  - name: Compliance Check
+    agent: security-auditor
+    description: Verify regulatory compliance
+    standards:
+      - OWASP_Top_10
+      - GDPR
+      - SOC2
+      - HIPAA
+
+success_criteria:
+  - all_critical_vulnerabilities_fixed
+  - all_high_vulnerabilities_fixed
+  - compliance_requirements_met
+  - security_tests_pass
+
+reporting:
+  frequency: monthly
+  recipients:
+    - security_team
+    - engineering_leads
+    - compliance_officer

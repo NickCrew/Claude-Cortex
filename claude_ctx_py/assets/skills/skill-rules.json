@@ -1,0 +1,251 @@
+{
+  "version": "2025-12-14",
+  "rules": [
+    {
+      "name": "brainstorm",
+      "command": "/ctx:brainstorm",
+      "description": "Kick off Supersaiyan ideation before coding",
+      "keywords": [
+        "brainstorm",
+        "idea",
+        "ideation",
+        "scope",
+        "plan?",
+        "where to start",
+        "options"
+      ]
+    },
+    {
+      "name": "idea-lab",
+      "command": "/collaboration:idea-lab",
+      "description": "Timeboxed divergent sprint; 5–7 options + top 3 experiments",
+      "keywords": [
+        "quick ideas",
+        "options",
+        "divergent",
+        "timebox",
+        "experiment",
+        "wow factor",
+        "feasible",
+        "low effort"
+      ]
+    },
+    {
+      "name": "assumption-buster",
+      "command": "/collaboration:assumption-buster",
+      "description": "Invert or remove assumptions to find fresh angles",
+      "keywords": [
+        "assumption",
+        "assumptions",
+        "opposite",
+        "invert",
+        "zero",
+        "10x",
+        "constraints feel wrong",
+        "stuck thinking"
+      ]
+    },
+    {
+      "name": "mashup",
+      "command": "/collaboration:mashup",
+      "description": "Cross-pollinate domains (fintech, gaming, etc.) for novel UX/GT angles",
+      "keywords": [
+        "mashup",
+        "combine",
+        "other domains",
+        "pattern",
+        "loyalty",
+        "streak",
+        "ritual",
+        "marketplace",
+        "inspiration"
+      ]
+    },
+    {
+      "name": "pre-mortem",
+      "command": "/collaboration:pre-mortem",
+      "description": "Imagine failure first; surface guardrails and feature mitigations",
+      "keywords": [
+        "premortem",
+        "pre-mortem",
+        "failure",
+        "risk",
+        "what could go wrong",
+        "guardrail",
+        "mitigation",
+        "horizon"
+      ]
+    },
+    {
+      "name": "concept-forge",
+      "command": "/collaboration:concept-forge",
+      "description": "Ranked concept cards scored on impact/delight/effort with 1-day spikes",
+      "keywords": [
+        "rank ideas",
+        "score ideas",
+        "impact",
+        "delight",
+        "effort",
+        "spike",
+        "concept card",
+        "prioritize ideas"
+      ]
+    },
+    {
+      "name": "plan-writing",
+      "command": "/ctx:plan",
+      "description": "Structure workstreams and seed the Task TUI",
+      "keywords": ["plan", "approach", "workstream", "how do we do this"]
+    },
+    {
+      "name": "execute-plan",
+      "command": "/ctx:execute-plan",
+      "description": "Drive the plan through tasks + verification",
+      "keywords": ["execute plan", "start implementing", "follow plan"]
+    },
+    {
+      "name": "testing",
+      "command": "/dev:test",
+      "description": "Run project test suites / coverage gates",
+      "keywords": ["test", "unit", "coverage", "pytest", "npm test"]
+    },
+    {
+      "name": "review",
+      "command": "/dev:code-review",
+      "description": "Trigger docs/code review agents before merge",
+      "keywords": ["review", "quality", "ready to merge", "needs feedback"]
+    },
+    {
+      "name": "canvas-design",
+      "command": "/ctx:skill canvas-design",
+      "description": "Create visual art and designs.",
+      "keywords": ["canvas", "design", "art", "visual", "poster"]
+    },
+    {
+      "name": "internal-comms",
+      "command": "/ctx:skill internal-comms",
+      "description": "Generate internal communications.",
+      "keywords": ["internal comms", "status report", "newsletter", "FAQ"]
+    },
+    {
+      "name": "skill-creator",
+      "command": "/ctx:skill skill-creator",
+      "description": "Guide for creating new skills.",
+      "keywords": ["create skill", "new skill", "skill development"]
+    },
+    {
+      "name": "template-skill",
+      "command": "/ctx:skill template-skill",
+      "description": "Template for new skills.",
+      "keywords": ["skill template", "boilerplate"]
+    },
+    {
+      "name": "webapp-testing",
+      "command": "/ctx:skill webapp-testing",
+      "description": "Test web applications with Playwright.",
+      "keywords": ["webapp testing", "playwright", "frontend test"]
+    },
+    {
+      "name": "condition-based-waiting",
+      "command": "/ctx:skill condition-based-waiting",
+      "description": "Handle asynchronous operations with conditions.",
+      "keywords": ["condition", "wait", "polling", "asynchronous"]
+    },
+    {
+      "name": "defense-in-depth",
+      "command": "/ctx:skill defense-in-depth",
+      "description": "Implement layered security strategies.",
+      "keywords": ["defense in depth", "layered security", "security strategy"]
+    },
+    {
+      "name": "dispatching-parallel-agents",
+      "command": "/ctx:skill dispatching-parallel-agents",
+      "description": "Orchestrate parallel agent tasks.",
+      "keywords": ["parallel agents", "multi-agent", "orchestration"]
+    },
+    {
+      "name": "finishing-a-development-branch",
+      "command": "/ctx:skill finishing-a-development-branch",
+      "description": "Guide for completing development branches.",
+      "keywords": ["finish branch", "merge branch", "pull request"]
+    },
+    {
+      "name": "receiving-code-review",
+      "command": "/ctx:skill receiving-code-review",
+      "description": "Address feedback from code reviews.",
+      "keywords": ["receive review", "code review feedback"]
+    },
+    {
+      "name": "requesting-code-review",
+      "command": "/ctx:skill requesting-code-review",
+      "description": "Submit code for review.",
+      "keywords": ["request review", "submit code", "pull request"]
+    },
+    {
+      "name": "root-cause-tracing",
+      "command": "/ctx:skill root-cause-tracing",
+      "description": "Trace and identify root causes of issues.",
+      "keywords": ["root cause", "debugging", "troubleshooting"]
+    },
+    {
+      "name": "sharing-skills",
+      "command": "/ctx:skill sharing-skills",
+      "description": "Share and distribute skills.",
+      "keywords": ["share skill", "export skill", "skill distribution"]
+    },
+    {
+      "name": "subagent-driven-development",
+      "command": "/ctx:skill subagent-driven-development",
+      "description": "Develop using modular subagents.",
+      "keywords": ["subagent", "agent development", "modular agent"]
+    },
+    {
+      "name": "systematic-debugging",
+      "command": "/ctx:skill systematic-debugging",
+      "description": "Apply systematic debugging techniques.",
+      "keywords": ["systematic debug", "debug process", "bug fix"]
+    },
+    {
+      "name": "test-driven-development",
+      "command": "/ctx:skill test-driven-development",
+      "description": "Practice Test-Driven Development.",
+      "keywords": ["TDD", "test driven", "unit test"]
+    },
+    {
+      "name": "testing-anti-patterns",
+      "command": "/ctx:skill testing-anti-patterns",
+      "description": "Identify and avoid testing anti-patterns.",
+      "keywords": ["testing anti-patterns", "bad tests", "test smells"]
+    },
+    {
+      "name": "testing-skills-with-subagents",
+      "command": "/ctx:skill testing-skills-with-subagents",
+      "description": "Test skills using subagents.",
+      "keywords": ["test skills", "subagent testing", "skill validation"]
+    },
+    {
+      "name": "using-git-worktrees",
+      "command": "/ctx:skill using-git-worktrees",
+      "description": "Manage multiple Git branches with worktrees.",
+      "keywords": ["git worktree", "multiple branches", "git workflow"]
+    },
+    {
+      "name": "using-superpowers",
+      "command": "/ctx:skill using-superpowers",
+      "description": "Leverage the Superpowers framework.",
+      "keywords": ["superpowers", "framework usage", "agent capabilities"]
+    },
+    {
+      "name": "verification-before-completion",
+      "command": "/ctx:skill verification-before-completion",
+      "description": "Perform verification steps before task completion.",
+      "keywords": ["verify", "pre-completion check", "validation step"]
+    },
+    {
+      "name": "writing-skills",
+      "command": "/ctx:skill writing-skills",
+      "description": "Guide for writing effective skills.",
+      "keywords": ["write skill", "create skill", "skill authoring"]
+    }
+  ]
+}

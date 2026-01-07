@@ -1,0 +1,114 @@
+# Authors Registry
+# Centralized author metadata for all skills in the registry
+#
+# Format:
+# author-id:
+#   name: Full Name
+#   email: email@example.com (optional)
+#   github: github-username (optional)
+#   website: https://example.com (optional)
+#   role: core-team | contributor | community
+#   joined: YYYY-MM-DD
+#   skills: list of skill IDs authored
+#
+# Schema Version: 1.0.0
+# Last Updated: 2026-01-05
+
+schema_version: "1.0.0"
+last_updated: "2026-01-05"
+
+# Core Team Authors
+authors:
+  # Core maintainers
+  nferguson:
+    name: Nick Ferguson
+    github: NickCrew
+    role: core-team
+    joined: "2024-10-01"
+    skills:
+      - api-design-patterns
+      - async-python-patterns
+      - microservices-patterns
+      - terraform-best-practices
+      - owasp-top-10
+      - event-driven-architecture
+      - kubernetes-deployment-patterns
+      - python-testing-patterns
+      - api-gateway-patterns
+      - secure-coding-practices
+      - kubernetes-security-policies
+      - database-design-patterns
+      - typescript-advanced-patterns
+      - react-performance-optimization
+      - python-performance-optimization
+      - security-testing-patterns
+      - threat-modeling-techniques
+      - cqrs-event-sourcing
+      - helm-chart-patterns
+      - gitops-workflows
+      - multi-llm-consult
+      - canvas-design
+      - internal-comms
+      - skill-creator
+      - webapp-testing
+      - condition-based-waiting
+      - defense-in-depth
+      - dispatching-parallel-agents
+      - finishing-a-development-branch
+      - receiving-code-review
+      - requesting-code-review
+      - root-cause-tracing
+      - sharing-skills
+      - subagent-driven-development
+      - systematic-debugging
+      - test-driven-development
+      - testing-anti-patterns
+      - testing-skills-with-subagents
+      - using-git-worktrees
+      - using-superpowers
+      - verification-before-completion
+      - writing-skills
+      - context-health
+      - code-explanation
+      - system-design
+      - git-ops
+      - test-generation
+      - task-orchestration
+      - reasoning-controls
+      - session-management
+      - tool-selection
+      - visual-modes
+      - dev-workflows
+      - development-estimation
+      - documentation-production
+      - feature-implementation
+      - implementation-workflow
+      - release-prep
+      - repo-cleanup
+      - code-quality-workflow
+
+  cortex-team:
+    name: Cortex Team
+    github: claudectx
+    role: core-team
+    joined: "2024-10-17"
+    skills:
+      - template-skill
+
+# Contributor Authors (add community contributors below)
+# Example:
+#   jane-developer:
+#     name: Jane Developer
+#     github: janedev
+#     email: jane@example.com
+#     role: contributor
+#     joined: "2024-11-01"
+#     skills:
+#       - custom-skill-name
+
+# Statistics
+statistics:
+  total_authors: 2
+  core_team: 2
+  contributors: 0
+  community: 0

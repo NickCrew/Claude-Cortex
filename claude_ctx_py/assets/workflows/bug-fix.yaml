@@ -1,0 +1,88 @@
+name: Bug Fix Workflow
+description: Systematic approach to identifying, fixing, and validating bug fixes
+version: 1.0
+
+trigger:
+  keywords: ["bug", "fix", "error", "issue", "broken"]
+  manual: true
+
+steps:
+  - name: Root Cause Analysis
+    agent: root-cause-analyst
+    description: Systematically identify the underlying cause
+    methods:
+      - error_trace_analysis
+      - log_investigation
+      - state_inspection
+    outputs:
+      - root_cause
+      - affected_components
+      - impact_assessment
+
+  - name: Fix Implementation
+    mode: Task_Management
+    description: Implement the bug fix
+    inputs: ["root_cause", "affected_components"]
+    constraints:
+      - minimal_scope
+      - backward_compatible
+      - well_tested
+
+  - name: Code Review
+    agent: code-reviewer
+    description: Review the fix for quality and safety
+    focus:
+      - fix_correctness
+      - side_effects
+      - edge_cases
+
+  - name: Regression Testing
+    agent: test-automator
+    description: Create tests to prevent regression
+    test_types:
+      - regression_test
+      - edge_case_test
+      - integration_test
+
+  - name: Security Check
+    agent: security-auditor
+    description: Ensure fix doesn't introduce vulnerabilities
+    blocking: true
+
+  - name: Validation
+    agent: quality-engineer
+    description: Verify the fix resolves the issue
+    checklist:
+      - original_issue_resolved
+      - no_new_issues
+      - all_tests_pass
+
+  - name: Documentation Update
+    agent: technical-writer
+    description: Document the fix and lessons learned
+    outputs:
+      - changelog_entry
+      - incident_report
+      - prevention_guide
+
+  - name: Deployment
+    agent: deployment-engineer
+    description: Deploy the fix
+    strategy: hotfix
+    monitoring:
+      - error_rate
+      - performance_metrics
+      - user_reports
+
+success_criteria:
+  - bug_verified_fixed
+  - regression_tests_added
+  - no_side_effects
+  - documentation_updated
+
+monitoring:
+  duration: 24h
+  metrics:
+    - error_count
+    - affected_users
+    - system_stability

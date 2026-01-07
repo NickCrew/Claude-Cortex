@@ -1,0 +1,71 @@
+version: 1.0
+name: performance-crisis
+description: Restore service performance during a critical latency or throughput regression.
+type: crisis
+priority: high
+triggers:
+  keywords:
+    - latency
+    - slowdown
+    - performance
+  events:
+    - latency_spike
+    - throughput_drop
+phases:
+  - name: stabilization
+    description: Capture snapshots, freeze risky deploys, and enable safe-guards.
+    condition: automatic
+    profiles:
+      - meta
+    agents:
+      - performance-monitor
+      - workflow-orchestrator
+      - incident-responder
+      - task-distributor
+    success_criteria:
+      - guardrails_enabled
+      - baseline_metrics_captured
+  - name: diagnosis
+    description: Compare healthy vs degraded timelines and isolate regressions.
+    condition: on_success
+    agents:
+      - performance-engineer
+      - system-architect
+      - data-engineer
+      - context-manager
+    success_criteria:
+      - regression_source_identified
+      - rollback_option_defined
+  - name: remediation
+    description: Apply patches, scale infrastructure, or roll back releases.
+    condition: manual
+    agents:
+      - devops-troubleshooter
+      - kubernetes-architect
+      - deployment-engineer
+      - cloud-architect
+    success_criteria:
+      - latency_within_sla
+      - errors_back_to_baseline
+  - name: verification
+    description: Validate fix effectiveness and update playbooks.
+    condition: on_success
+    agents:
+      - quality-engineer
+      - docs-architect
+      - product-manager
+      - content-marketer
+    success_criteria:
+      - regression_tests_passed
+      - post_event_updates_published
+monitoring:
+  metrics:
+    - p95_latency
+    - throughput
+    - cpu_usage
+  alerts:
+    - p95_latency > sla_limit
+    - throughput < baseline
+rollback:
+  strategy: immediate
+  enabled: true

@@ -1,0 +1,70 @@
+version: 1.0
+name: migration
+description: Orchestrate phased service migration to new infrastructure with minimal downtime.
+type: development
+priority: high
+triggers:
+  keywords:
+    - migration
+    - replatform
+    - rehost
+  files:
+    - migration-plan.md
+    - cutover-checklist.md
+phases:
+  - name: planning
+    description: Confirm architecture, dependencies, and change windows.
+    condition: manual
+    agents:
+      - system-architect
+      - cloud-architect
+      - data-engineer
+      - product-manager
+    success_criteria:
+      - architecture_signed_off
+      - migration_map_completed
+  - name: dry-run
+    description: Exercise migration tooling in a non-production environment.
+    condition: on_success
+    agents:
+      - tooling-engineer
+      - devops-troubleshooter
+      - workflow-orchestrator
+      - quality-engineer
+    success_criteria:
+      - dry_run_passed
+      - rollback_plan_validated
+  - name: cutover
+    description: Execute phased cutover with real-time monitoring and guardrails.
+    condition: manual
+    parallel: true
+    agents:
+      - workflow-orchestrator
+      - task-distributor
+      - git-workflow-manager
+      - kubernetes-architect
+    success_criteria:
+      - services_cutover
+      - monitoring_stable
+  - name: validation-and-handover
+    description: Validate functionality, update documentation, and hand off operations.
+    condition: on_success
+    agents:
+      - docs-architect
+      - compliance-auditor
+      - product-manager
+      - context-manager
+    success_criteria:
+      - validation_complete
+      - handover_signed
+monitoring:
+  metrics:
+    - error_rate
+    - replication_lag
+    - availability
+  alerts:
+    - error_rate > baseline
+    - replication_lag > threshold
+rollback:
+  strategy: phased
+  enabled: true

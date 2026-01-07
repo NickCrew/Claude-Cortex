@@ -1,0 +1,177 @@
+# Community Skills Registry
+#
+# This file tracks all community-contributed skills for the Cortex.
+# Each skill entry includes metadata about the author, version, status, and usage.
+#
+# Entry Format:
+# skill-name:
+#   author: Author Name
+#   email: author@example.com
+#   github: githubusername
+#   website: https://authorsite.com (optional)
+#   version: 1.0.0
+#   status: active|maintenance|deprecated|archived
+#   license: MIT|Apache-2.0|BSD-3-Clause|etc
+#   created: YYYY-MM-DD
+#   updated: YYYY-MM-DD
+#   downloads: 0
+#   activations: 0
+#   rating: 0.0 (calculated from user feedback)
+#   tags:
+#     - category1
+#     - category2
+#     - category3
+#   related_skills:
+#     - related-skill-1
+#     - related-skill-2
+#   dependencies: []
+#   deprecation:
+#     reason: "Explanation why deprecated"
+#     replacement: "recommended-alternative-skill"
+#     sunset_date: YYYY-MM-DD
+#   notes: "Optional notes about the skill"
+
+# Example Entry (remove this when first community skill is added)
+example-skill-template:
+  author: Cortex Team
+  email: support@example.com
+  github: claudectx
+  version: 1.0.0
+  status: archived
+  license: MIT
+  created: 2024-10-17
+  updated: 2024-10-17
+  downloads: 0
+  activations: 0
+  rating: 0.0
+  tags:
+    - example
+    - template
+  related_skills: []
+  dependencies: []
+  notes: "Template entry showing registry structure. Remove when first real skill is added."
+
+# Add community skills below this line
+# Sort alphabetically by skill name for easy navigation
+
+# ------------------------------------------------------------------------------
+# ARCHITECTURE & DESIGN
+# ------------------------------------------------------------------------------
+
+# Example structure:
+# microservice-patterns-advanced:
+#   author: Jane Developer
+#   email: jane@example.com
+#   github: janedev
+#   version: 1.2.0
+#   status: active
+#   license: MIT
+#   created: 2024-10-01
+#   updated: 2024-10-15
+#   downloads: 234
+#   activations: 1567
+#   rating: 4.7
+#   tags:
+#     - architecture
+#     - microservices
+#     - distributed-systems
+#   related_skills:
+#     - microservices-patterns
+#     - event-driven-architecture
+#   dependencies: []
+
+# ------------------------------------------------------------------------------
+# DEVELOPMENT
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# INFRASTRUCTURE
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# SECURITY
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# DEVOPS
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# DOMAIN-SPECIFIC
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# EXPERIMENTAL
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# MAINTENANCE MODE (Stable but minimal updates)
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# DEPRECATED (90-day sunset period before archival)
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# ARCHIVED (No longer maintained, kept for reference)
+# ------------------------------------------------------------------------------
+
+# Registry Metadata
+registry_version: 1.0.0
+last_updated: 2024-10-17
+total_skills: 1
+active_skills: 0
+deprecated_skills: 0
+archived_skills: 1
+
+# Registry Statistics
+statistics:
+  total_authors: 1
+  total_downloads: 0
+  total_activations: 0
+  average_rating: 0.0
+  most_popular:
+    by_downloads: []
+    by_activations: []
+    by_rating: []
+
+  by_category:
+    architecture: 0
+    development: 0
+    infrastructure: 0
+    security: 0
+    devops: 0
+    domain_specific: 0
+    experimental: 0
+
+# Governance
+governance:
+  review_process: "Community peer review + maintainer approval"
+  review_sla_days: 7
+  author_response_sla_days: 14
+  deprecation_notice_days: 90
+  inactive_author_adoption_days: 30
+
+  quality_standards:
+    min_token_count: 500
+    max_token_count: 8000
+    required_sections:
+      - "When to Use This Skill"
+      - "Core Concepts" or "Common Patterns"
+      - "Best Practices Summary"
+    code_examples_required: true
+    attribution_required: true
+
+  promotion_to_core_criteria:
+    min_unique_users: 100
+    min_rating: 4.5
+    min_activations: 1000
+    maintainer_approval_required: true
+    author_consent_required: true
+
+# Contact
+contact:
+  issues: "https://github.com/NickCrew/cortex-plugin/issues"
+  discussions: "https://github.com/NickCrew/cortex-plugin/discussions"
+  pull_requests: "https://github.com/NickCrew/cortex-plugin/pulls"
+  email: "support@example.com"

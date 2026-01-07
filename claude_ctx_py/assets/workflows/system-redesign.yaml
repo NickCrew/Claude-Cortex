@@ -1,0 +1,74 @@
+name: System Redesign Workflow
+description: Structured workflow for major architectural changes and system refactoring
+version: 1.0
+
+trigger:
+  keywords: ["redesign", "refactor system", "migration", "architecture change"]
+  manual: true
+
+steps:
+  - name: Current State Analysis
+    agent: system-architect
+    description: Analyze existing system structure and limitations
+    outputs:
+      - current_architecture_diagram
+      - pain_points_list
+      - technical_debt_report
+
+  - name: Requirement Gathering
+    agent: requirements-analyst
+    description: Define goals for the new architecture
+    inputs: ["pain_points_list"]
+    outputs:
+      - non_functional_requirements
+      - scalability_goals
+      - functional_parity_checklist
+
+  - name: Architecture Design
+    mode: Architect
+    description: Create the new system design
+    inputs: ["current_architecture_diagram", "non_functional_requirements"]
+    outputs:
+      - target_architecture_diagram
+      - adr_documents
+      - component_specifications
+
+  - name: Migration Planning
+    agent: project-manager
+    description: Plan the transition from old to new
+    inputs: ["current_architecture_diagram", "target_architecture_diagram"]
+    outputs:
+      - migration_strategy (strangler_fig|big_bang)
+      - phase_breakdown
+      - rollback_strategy
+
+  - name: Proof of Concept
+    mode: Amphetamine
+    description: Rapidly prototype critical components to validate design
+    inputs: ["component_specifications"]
+    time_boxed: true
+
+  - name: Design Review
+    agent: security-auditor
+    description: Review proposed design for security and risks
+    checks:
+      - attack_surface_analysis
+      - data_flow_security
+      - access_control_design
+
+  - name: Implementation Phase
+    mode: Task_Management
+    description: Execute the redesign phases
+    inputs: ["phase_breakdown"]
+    parallel: true
+
+  - name: Verification
+    agent: quality-assurance
+    description: Verify functional parity and performance
+    inputs: ["functional_parity_checklist", "scalability_goals"]
+
+success_criteria:
+  - design_approved
+  - poc_validated
+  - functionality_preserved
+  - performance_targets_met

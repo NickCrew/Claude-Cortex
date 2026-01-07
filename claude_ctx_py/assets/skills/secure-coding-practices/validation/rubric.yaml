@@ -1,0 +1,68 @@
+# Secure Coding Practices Skill Quality Rubric
+version: "1.0.0"
+skill_name: secure-coding-practices
+evaluated_date: "2026-01-05"
+
+dimensions:
+  clarity:
+    weight: 20
+    description: "Clear security concepts and threat models"
+    criteria:
+      - "OWASP Top 10 clearly explained"
+      - "Attack vectors have visual examples"
+      - "Defense strategies are step-by-step"
+      - "Secure vs insecure code side-by-side"
+
+  completeness:
+    weight: 25
+    description: "Comprehensive security coverage"
+    criteria:
+      - "Covers injection prevention"
+      - "Includes authentication/authorization"
+      - "Has cryptography basics"
+      - "Covers secure dependencies"
+
+  accuracy:
+    weight: 35
+    description: "Correct security guidance (CRITICAL)"
+    criteria:
+      - "Crypto recommendations are current"
+      - "Auth patterns follow standards (OAuth, OIDC)"
+      - "Input validation is complete"
+      - "No deprecated security practices"
+
+  usefulness:
+    weight: 20
+    description: "Actionable security implementation"
+    criteria:
+      - "Language-specific examples"
+      - "Security testing tools covered"
+      - "Incident response guidance"
+      - "Secure defaults provided"
+
+passing_criteria:
+  minimum_score: 4.0  # Higher bar for security
+  target_score: 4.5
+  exceptional_score: 4.8
+  required_dimensions:
+    - accuracy  # MUST be accurate for security
+  blocking_issues:
+    - "Recommends deprecated crypto (MD5, SHA1 for passwords)"
+    - "SQL injection in examples"
+    - "Hardcoded credentials"
+    - "Missing input validation"
+    - "Insecure random number generation"
+
+scoring_guide:
+  clarity:
+    "1": "Security concepts confusing"
+    "2": "Hard to understand threats"
+    "3": "Adequate explanations"
+    "4": "Clear with visual examples"
+    "5": "Exceptional threat modeling"
+  accuracy:
+    "1": "Dangerous security advice"
+    "2": "Outdated or weak practices"
+    "3": "Mostly secure, minor gaps"
+    "4": "Follows security standards"
+    "5": "Expert-level, OWASP-aligned"

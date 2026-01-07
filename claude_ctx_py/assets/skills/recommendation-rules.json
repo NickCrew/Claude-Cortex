@@ -1,0 +1,757 @@
+{
+  "version": "2025-12-28.1",
+  "rules": [
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/auth/**",
+          "**/security/**",
+          "**/*secret*.py",
+          "**/*secret*.ts"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "owasp-top-10",
+          "confidence": 0.9,
+          "reason": "Auth/security code touched; apply OWASP checks"
+        },
+        {
+          "skill": "secure-coding-practices",
+          "confidence": 0.87,
+          "reason": "Security-sensitive paths modified"
+        },
+        {
+          "skill": "threat-modeling-techniques",
+          "confidence": 0.82,
+          "reason": "Plan threat models for auth/security surfaces"
+        },
+        {
+          "skill": "security-testing-patterns",
+          "confidence": 0.8,
+          "reason": "Add security-focused tests for new surfaces"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/tests/**/*.py",
+          "**/*_test.py",
+          "**/test_*.py"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "test-generation",
+          "confidence": 0.78,
+          "reason": "Test edits may need structured test generation guidance"
+        },
+        {
+          "skill": "python-testing-patterns",
+          "confidence": 0.85,
+          "reason": "Python tests edited; apply proven patterns"
+        },
+        {
+          "skill": "testing-anti-patterns",
+          "confidence": 0.82,
+          "reason": "Avoid flaky/slow test pitfalls"
+        },
+        {
+          "skill": "test-driven-development",
+          "confidence": 0.8,
+          "reason": "Lean on TDD guidance for new coverage"
+        },
+        {
+          "skill": "systematic-debugging",
+          "confidence": 0.75,
+          "reason": "Structure repro and debugging paths for failing tests"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/*.py",
+          "**/requirements.txt",
+          "**/pyproject.toml"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "python-performance-optimization",
+          "confidence": 0.75,
+          "reason": "Python code updated; perf review may help"
+        },
+        {
+          "skill": "async-python-patterns",
+          "confidence": 0.7,
+          "reason": "Async patterns can improve Python services"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/*.ts",
+          "**/*.tsx",
+          "**/package.json",
+          "**/tsconfig.json"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "typescript-advanced-patterns",
+          "confidence": 0.78,
+          "reason": "TS code touched; advanced typing patterns may help"
+        },
+        {
+          "skill": "react-performance-optimization",
+          "confidence": 0.76,
+          "reason": "TSX/React likely; check render and memo patterns"
+        },
+        {
+          "skill": "condition-based-waiting",
+          "confidence": 0.68,
+          "reason": "Async UI flows benefit from robust waiting patterns"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/*.spec.ts",
+          "**/*.test.ts",
+          "**/*.test.tsx",
+          "**/tests/**/*.ts",
+          "**/tests/**/*.tsx"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "test-generation",
+          "confidence": 0.76,
+          "reason": "Frontend tests benefit from structured test generation"
+        },
+        {
+          "skill": "webapp-testing",
+          "confidence": 0.83,
+          "reason": "Frontend tests edited; use Playwright/webapp testing flows"
+        },
+        {
+          "skill": "testing-anti-patterns",
+          "confidence": 0.8,
+          "reason": "Keep JS/TS tests reliable and fast"
+        },
+        {
+          "skill": "react-performance-optimization",
+          "confidence": 0.76,
+          "reason": "Perf fixes often pair with UI test changes"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/*.tf",
+          "**/terraform/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "terraform-best-practices",
+          "confidence": 0.9,
+          "reason": "Terraform detected; apply proven IaC practices"
+        },
+        {
+          "skill": "gitops-workflows",
+          "confidence": 0.78,
+          "reason": "Consider GitOps flow for infra changes"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/k8s/**",
+          "**/kubernetes/**",
+          "**/charts/**",
+          "**/helm/**",
+          "**/*deployment*.yaml"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "kubernetes-deployment-patterns",
+          "confidence": 0.9,
+          "reason": "Kubernetes manifests detected; use deployment patterns"
+        },
+        {
+          "skill": "helm-chart-patterns",
+          "confidence": 0.86,
+          "reason": "Helm detected; apply chart structure best practices"
+        },
+        {
+          "skill": "kubernetes-security-policies",
+          "confidence": 0.84,
+          "reason": "Add/verify security policies for workloads"
+        },
+        {
+          "skill": "gitops-workflows",
+          "confidence": 0.8,
+          "reason": "Consider GitOps/CD for K8s changes"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/openapi.*",
+          "**/swagger.*",
+          "**/api/**",
+          "**/*.http"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "api-design-patterns",
+          "confidence": 0.86,
+          "reason": "API artifacts detected; design patterns can help"
+        },
+        {
+          "skill": "api-gateway-patterns",
+          "confidence": 0.8,
+          "reason": "Gateway/routing strategies often needed for APIs"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/eventsourcing/**",
+          "**/event-sourcing/**",
+          "**/cqrs/**",
+          "**/*event_bus*.*"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "cqrs-event-sourcing",
+          "confidence": 0.9,
+          "reason": "Event sourcing/CQRS files present"
+        },
+        {
+          "skill": "event-driven-architecture",
+          "confidence": 0.84,
+          "reason": "Broader event architecture guidance may help"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/migrations/**",
+          "**/schema/**",
+          "**/database/**",
+          "**/*ddl*.*"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "database-design-patterns",
+          "confidence": 0.86,
+          "reason": "DB schema/migration work detected"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/services/**",
+          "**/service/**/handlers/**",
+          "**/microservice/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "microservices-patterns",
+          "confidence": 0.84,
+          "reason": "Service-oriented structure detected"
+        },
+        {
+          "skill": "api-gateway-patterns",
+          "confidence": 0.78,
+          "reason": "Gateways often required for microservices"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          ".github/workflows/*.yml",
+          "**/.gitlab-ci.yml",
+          "**/ci/**",
+          "**/cd/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "gitops-workflows",
+          "confidence": 0.82,
+          "reason": "CI/CD pipelines updated; consider GitOps alignment"
+        },
+        {
+          "skill": "verification-before-completion",
+          "confidence": 0.78,
+          "reason": "Ensure verification gates before deploy/merge"
+        },
+        {
+          "skill": "dev-workflows",
+          "confidence": 0.7,
+          "reason": "CI/CD changes often require build/test workflow guidance"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/Dockerfile",
+          "**/docker-compose*.yml"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "defense-in-depth",
+          "confidence": 0.8,
+          "reason": "Container boundaries benefit from layered security"
+        },
+        {
+          "skill": "security-testing-patterns",
+          "confidence": 0.76,
+          "reason": "Harden images with dedicated tests"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/docs/**",
+          "**/guides/**",
+          "**/README*",
+          "**/CONTRIBUTING*",
+          "**/CODE_OF_CONDUCT*"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "documentation-production",
+          "confidence": 0.86,
+          "reason": "Docs or guides updated; use structured documentation workflows"
+        },
+        {
+          "skill": "code-explanation",
+          "confidence": 0.72,
+          "reason": "Explanations often accompany documentation updates"
+        },
+        {
+          "skill": "internal-comms",
+          "confidence": 0.64,
+          "reason": "Docs changes may need stakeholder communication"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/docs/plans/**",
+          "**/scenarios/**",
+          "**/planning/**",
+          "**/notes/**",
+          "**/TODO.md",
+          "**/todo.md"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "ctx-brainstorming",
+          "confidence": 0.84,
+          "reason": "Planning artifacts benefit from structured brainstorming"
+        },
+        {
+          "skill": "idea-lab",
+          "confidence": 0.78,
+          "reason": "Divergent ideation helps generate viable plan options"
+        },
+        {
+          "skill": "ctx-plan-writing",
+          "confidence": 0.86,
+          "reason": "Use structured plan-writing for actionable workstreams"
+        },
+        {
+          "skill": "ctx-plan-execution",
+          "confidence": 0.82,
+          "reason": "Ensure plans translate into tracked execution"
+        },
+        {
+          "skill": "implementation-workflow",
+          "confidence": 0.74,
+          "reason": "Translate specs into implementation workflows"
+        },
+        {
+          "skill": "development-estimation",
+          "confidence": 0.7,
+          "reason": "Add scoped estimates and risks to planning"
+        },
+        {
+          "skill": "assumption-buster",
+          "confidence": 0.74,
+          "reason": "Challenge hidden assumptions in planning docs"
+        },
+        {
+          "skill": "mashup",
+          "confidence": 0.72,
+          "reason": "Cross-domain mashups can unlock new angles"
+        },
+        {
+          "skill": "concept-forge",
+          "confidence": 0.72,
+          "reason": "Score and rank concepts before committing"
+        },
+        {
+          "skill": "pre-mortem",
+          "confidence": 0.7,
+          "reason": "Anticipate failure modes and mitigations"
+        },
+        {
+          "skill": "task-orchestration",
+          "confidence": 0.66,
+          "reason": "Orchestrate multi-stream planning work"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/.git/worktrees/**",
+          "**/worktrees/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "using-git-worktrees",
+          "confidence": 0.85,
+          "reason": "Worktree usage detected; optimize workflow"
+        },
+        {
+          "skill": "finishing-a-development-branch",
+          "confidence": 0.76,
+          "reason": "Ensure branches complete cleanly with worktrees"
+        },
+        {
+          "skill": "git-ops",
+          "confidence": 0.72,
+          "reason": "Worktree operations benefit from git workflow guidance"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/bugs/**",
+          "**/issues/**",
+          "**/debug/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "root-cause-tracing",
+          "confidence": 0.82,
+          "reason": "Debug artifacts present; trace causes systematically"
+        },
+        {
+          "skill": "systematic-debugging",
+          "confidence": 0.8,
+          "reason": "Follow structured debugging steps"
+        },
+        {
+          "skill": "dispatching-parallel-agents",
+          "confidence": 0.72,
+          "reason": "Parallel agent debugging can speed triage"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/CODE_REVIEW.md",
+          "**/pull_request_template*",
+          "**/.github/pull_request*"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "code-quality-workflow",
+          "confidence": 0.8,
+          "reason": "Review templates align with quality and review workflows"
+        },
+        {
+          "skill": "requesting-code-review",
+          "confidence": 0.82,
+          "reason": "PR templates touched; prep for reviews"
+        },
+        {
+          "skill": "receiving-code-review",
+          "confidence": 0.78,
+          "reason": "Guidance for handling incoming review feedback"
+        },
+        {
+          "skill": "verification-before-completion",
+          "confidence": 0.74,
+          "reason": "Ensure verification steps are part of PR flow"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/agents/**",
+          "**/modes/**",
+          "**/workflows/**",
+          "**/rules/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "context-health",
+          "confidence": 0.78,
+          "reason": "Core context changes should trigger health checks"
+        },
+        {
+          "skill": "subagent-driven-development",
+          "confidence": 0.84,
+          "reason": "Agent/mode changes benefit from modular subagent guidance"
+        },
+        {
+          "skill": "dispatching-parallel-agents",
+          "confidence": 0.8,
+          "reason": "Parallel agents can accelerate this kind of work"
+        },
+        {
+          "skill": "using-superpowers",
+          "confidence": 0.76,
+          "reason": "Reference superpowers patterns for agent orchestration"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/skills/**",
+          "**/skill-rules.json",
+          "**/recommendation-rules.json"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "skill-creator",
+          "confidence": 0.85,
+          "reason": "Skill files touched; use creation guide"
+        },
+        {
+          "skill": "template-skill",
+          "confidence": 0.8,
+          "reason": "Start from the template to stay consistent"
+        },
+        {
+          "skill": "sharing-skills",
+          "confidence": 0.76,
+          "reason": "Prep skills for distribution after edits"
+        },
+        {
+          "skill": "writing-skills",
+          "confidence": 0.82,
+          "reason": "Skill edits benefit from writing-skill guidance"
+        },
+        {
+          "skill": "testing-skills-with-subagents",
+          "confidence": 0.78,
+          "reason": "Verify skills under pressure before deployment"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/design/**",
+          "**/canvas/**",
+          "**/figma/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "canvas-design",
+          "confidence": 0.82,
+          "reason": "Design assets updated; use canvas design patterns"
+        },
+        {
+          "skill": "internal-comms",
+          "confidence": 0.7,
+          "reason": "Share design updates with stakeholders"
+        },
+        {
+          "skill": "visual-modes",
+          "confidence": 0.72,
+          "reason": "Design assets may need visual showcase modes"
+        },
+        {
+          "skill": "system-design",
+          "confidence": 0.68,
+          "reason": "Design files often pair with system design context"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/community/**",
+          "**/announcement/**",
+          "**/changelog/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "release-prep",
+          "confidence": 0.78,
+          "reason": "Changelog or announcements often align with release prep"
+        },
+        {
+          "skill": "internal-comms",
+          "confidence": 0.74,
+          "reason": "Prepare internal/external comms for updates"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/CHANGELOG*",
+          "**/RELEASE*",
+          "**/releases/**",
+          "**/release/**",
+          "**/.github/workflows/*release*.yml"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "release-prep",
+          "confidence": 0.86,
+          "reason": "Release artifacts detected; follow release prep workflow"
+        },
+        {
+          "skill": "verification-before-completion",
+          "confidence": 0.74,
+          "reason": "Releases should include verification gates"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/cleanup/**",
+          "**/archive/**",
+          "**/deprecated/**",
+          "**/legacy/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "repo-cleanup",
+          "confidence": 0.82,
+          "reason": "Cleanup or archive paths detected; use repo cleanup workflow"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/features/**",
+          "**/feature/**",
+          "**/components/**",
+          "**/services/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "feature-implementation",
+          "confidence": 0.8,
+          "reason": "Feature or component changes benefit from structured implementation"
+        },
+        {
+          "skill": "code-quality-workflow",
+          "confidence": 0.72,
+          "reason": "Feature work should include quality validation"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/architecture/**",
+          "**/design/system/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "system-design",
+          "confidence": 0.8,
+          "reason": "Architecture files indicate system design work"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/reasoning/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "reasoning-controls",
+          "confidence": 0.8,
+          "reason": "Reasoning configuration files detected"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/sessions/**",
+          "**/tasks/**",
+          "**/.claude/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "session-management",
+          "confidence": 0.72,
+          "reason": "Session or task artifacts detected; manage lifecycle and reflection"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
+          "**/mcp/**",
+          "**/tools/**"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "tool-selection",
+          "confidence": 0.72,
+          "reason": "MCP/tooling files touched; use structured tool selection"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,744 @@
+# Agent Trigger Configuration
+# Defines when agents should be automatically suggested or activated
+
+version: 1.0
+
+triggers:
+  # Code Quality Agents
+  code-reviewer:
+    keywords:
+      - "review"
+      - "check code"
+      - "PR"
+      - "pull request"
+      - "code quality"
+      - "refactor"
+    file_patterns:
+      - "**/*.{js,ts,jsx,tsx,py,go,rs,java}"
+    events:
+      - post-commit
+      - pre-push
+    auto: true
+    priority: high
+
+  # Security Agents
+  security-auditor:
+    keywords:
+      - "security"
+      - "vulnerability"
+      - "auth"
+      - "password"
+      - "token"
+      - "credential"
+      - "SQL injection"
+      - "XSS"
+    file_patterns:
+      - "**/auth/**"
+      - "**/security/**"
+      - "**/*auth*.{js,ts,py}"
+      - "**/*security*.{js,ts,py}"
+    events:
+      - pre-deploy
+    auto: true
+    priority: critical
+
+  # Testing Agents
+  test-automator:
+    keywords:
+      - "test"
+      - "coverage"
+      - "unit test"
+      - "integration test"
+      - "e2e"
+    file_patterns:
+      - "**/*.test.{js,ts,py}"
+      - "**/*.spec.{js,ts,py}"
+      - "**/tests/**"
+      - "**/__tests__/**"
+    events:
+      - pre-commit
+    auto: true
+    priority: medium
+
+  # Performance Agents
+  performance-engineer:
+    keywords:
+      - "slow"
+      - "performance"
+      - "optimize"
+      - "speed up"
+      - "bottleneck"
+      - "memory leak"
+    file_patterns:
+      - "**/api/**"
+      - "**/db/**"
+      - "**/*query*.{js,ts,py}"
+    threshold:
+      response_time: ">500ms"
+      memory_usage: ">500MB"
+      cpu_usage: ">80%"
+    auto: true
+    priority: high
+
+  # Debugging Agents
+  debugger:
+    keywords:
+      - "debug"
+      - "bug"
+      - "error"
+      - "stack trace"
+      - "exception"
+      - "crash"
+      - "traceback"
+    file_patterns:
+      - "**/logs/**"
+      - "**/*.log"
+      - "**/crash/**"
+    auto: true
+    priority: medium
+
+  # Database Agents
+  database-optimizer:
+    keywords:
+      - "database"
+      - "query"
+      - "migration"
+      - "schema"
+      - "index"
+      - "slow query"
+    file_patterns:
+      - "**/migrations/**"
+      - "**/models/**"
+      - "**/*model*.{js,ts,py}"
+      - "**/*schema*.{js,ts,py}"
+    auto: true
+    priority: medium
+
+  # Deployment Agents
+  deployment-engineer:
+    keywords:
+      - "deploy"
+      - "release"
+      - "production"
+      - "build"
+      - "ci/cd"
+    file_patterns:
+      - "**/Dockerfile"
+      - "**/docker-compose*.yml"
+      - "**/*.yaml"
+      - "**/k8s/**"
+      - "**/.github/workflows/**"
+    events:
+      - pre-deploy
+    auto: true
+    priority: high
+
+  # Cloud & Infrastructure Agents
+  cloud-architect:
+    keywords:
+      - "cloud architecture"
+      - "cloud"
+      - "aws"
+      - "gcp"
+      - "azure"
+      - "migration"
+      - "scalability"
+      - "cost"
+    file_patterns:
+      - "**/*.tf"
+      - "**/infra/**"
+      - "**/infrastructure/**"
+      - "**/cloud/**"
+      - "**/k8s/**"
+    auto: true
+    priority: medium
+
+  terraform-specialist:
+    keywords:
+      - "terraform"
+      - "iac"
+      - "infrastructure as code"
+      - "terraform plan"
+      - "terraform apply"
+    file_patterns:
+      - "**/*.tf"
+      - "**/*.tfvars"
+      - "**/terraform/**"
+    auto: true
+    priority: medium
+
+  kubernetes-architect:
+    keywords:
+      - "kubernetes"
+      - "k8s"
+      - "helm"
+      - "cluster"
+      - "ingress"
+      - "service mesh"
+    file_patterns:
+      - "**/k8s/**"
+      - "**/helm/**"
+      - "**/*.yaml"
+      - "**/*.yml"
+    auto: true
+    priority: medium
+
+  # Developer Experience Agents
+  dx-optimizer:
+    keywords:
+      - "dx"
+      - "developer experience"
+      - "onboarding"
+      - "tooling"
+      - "workflow"
+      - "automation"
+    file_patterns:
+      - "**/README.md"
+      - "**/package.json"
+      - "**/justfile"
+      - "**/scripts/**"
+    auto: true
+    priority: medium
+
+  # Language-Specific Agents
+  typescript-pro:
+    keywords:
+      - "typescript"
+      - "type"
+      - "interface"
+      - "generic"
+    file_patterns:
+      - "**/*.ts"
+      - "**/*.tsx"
+    auto: true
+    priority: low
+
+  python-pro:
+    keywords:
+      - "python"
+      - "django"
+      - "flask"
+      - "fastapi"
+    file_patterns:
+      - "**/*.py"
+    auto: true
+    priority: low
+
+  # Documentation & Learning Agents
+  learning-guide:
+    keywords:
+      - "teach"
+      - "explain"
+      - "learning"
+      - "lesson"
+      - "eli5"
+      - "concept"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: low
+
+  mermaid-expert:
+    keywords:
+      - "mermaid"
+      - "diagram"
+      - "flowchart"
+      - "sequence"
+      - "erd"
+      - "gantt"
+      - "architecture diagram"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: medium
+
+  tutorial-engineer:
+    keywords:
+      - "tutorial"
+      - "workshop"
+      - "guide"
+      - "walkthrough"
+      - "hands-on"
+      - "lab"
+    file_patterns:
+      - "**/*.md"
+      - "**/docs/**"
+    auto: true
+    priority: medium
+
+  # Architecture Agents
+  system-architect:
+    keywords:
+      - "architecture"
+      - "design"
+      - "system design"
+      - "microservice"
+      - "api design"
+    auto: true
+    priority: medium
+
+  # DevOps Agents
+  devops-architect:
+    keywords:
+      - "infrastructure"
+      - "kubernetes"
+      - "terraform"
+      - "aws"
+      - "azure"
+      - "gcp"
+    file_patterns:
+      - "**/*.tf"
+      - "**/k8s/**"
+      - "**/infrastructure/**"
+    auto: true
+    priority: medium
+
+  # Language Specialist Agents
+  bash-expert:
+    keywords:
+      - "bash"
+      - "shell"
+      - "script"
+      - "shellcheck"
+      - "bats"
+    file_patterns:
+      - "**/*.sh"
+      - "**/*.bash"
+      - "**/*.zsh"
+      - "**/scripts/**"
+    auto: true
+    priority: medium
+
+  nodejs-expert:
+    keywords:
+      - "node"
+      - "nodejs"
+      - "express"
+      - "fastify"
+      - "nestjs"
+    file_patterns:
+      - "**/*.js"
+      - "**/*.ts"
+      - "package.json"
+    auto: false
+    priority: medium
+
+  flask-expert:
+    keywords:
+      - "flask"
+      - "jinja"
+      - "werkzeug"
+      - "wsgi"
+    file_patterns:
+      - "**/app.py"
+      - "**/wsgi.py"
+      - "**/flask/**"
+      - "requirements.txt"
+      - "pyproject.toml"
+    auto: false
+    priority: medium
+
+  tailwind-expert:
+    keywords:
+      - "tailwind"
+      - "tailwindcss"
+      - "utility classes"
+      - "postcss"
+    file_patterns:
+      - "**/tailwind.config.*"
+      - "**/postcss.config.*"
+      - "**/*.css"
+      - "**/*.scss"
+    auto: false
+    priority: medium
+
+  # API & Integration Agents
+  rest-expert:
+    keywords:
+      - "rest"
+      - "restful"
+      - "http api"
+      - "endpoint"
+      - "status code"
+    file_patterns:
+      - "**/routes/**"
+      - "**/controllers/**"
+      - "**/*openapi*.{yml,yaml,json}"
+    auto: true
+    priority: medium
+
+  graphql-expert:
+    keywords:
+      - "graphql"
+      - "gql"
+      - "resolver"
+      - "apollo"
+      - "schema"
+    file_patterns:
+      - "**/*.graphql"
+      - "**/*.gql"
+      - "**/schema.graphql"
+      - "**/schema.gql"
+    auto: true
+    priority: high
+
+  grpc-expert:
+    keywords:
+      - "grpc"
+      - "protobuf"
+      - "proto"
+      - "rpc"
+    file_patterns:
+      - "**/*.proto"
+      - "**/protobuf/**"
+    auto: true
+    priority: high
+
+  openapi-expert:
+    keywords:
+      - "openapi"
+      - "swagger"
+      - "oas"
+      - "api spec"
+    file_patterns:
+      - "**/*openapi*.{yml,yaml,json}"
+      - "**/*swagger*.{yml,yaml,json}"
+    auto: true
+    priority: medium
+
+  openai-api-expert:
+    keywords:
+      - "openai"
+      - "responses api"
+      - "chat completions"
+      - "embeddings"
+      - "function calling"
+      - "tools"
+    file_patterns:
+      - "**/*openai*.*"
+      - "**/ai/**"
+      - "**/llm/**"
+    auto: false
+    priority: medium
+
+  # Security & Auth Agents
+  jwt-expert:
+    keywords:
+      - "jwt"
+      - "json web token"
+      - "token"
+      - "jws"
+      - "jwe"
+    file_patterns:
+      - "**/auth/**"
+      - "**/*jwt*.*"
+      - "**/*token*.*"
+    auto: true
+    priority: high
+
+  oauth-oidc-expert:
+    keywords:
+      - "oauth"
+      - "oidc"
+      - "openid"
+      - "pkce"
+      - "authorization code"
+      - "sso"
+    file_patterns:
+      - "**/auth/**"
+      - "**/*oauth*.*"
+      - "**/*oidc*.*"
+    auto: true
+    priority: high
+
+  owasp-top10-expert:
+    keywords:
+      - "owasp"
+      - "top 10"
+      - "vulnerability"
+      - "xss"
+      - "sqli"
+      - "csrf"
+    file_patterns:
+      - "**/auth/**"
+      - "**/security/**"
+      - "**/*security*.{js,ts,py}"
+    auto: true
+    priority: critical
+
+  # Data & ML Agents
+  mongodb-expert:
+    keywords:
+      - "mongodb"
+      - "mongo"
+      - "mongoose"
+      - "nosql"
+      - "bson"
+    file_patterns:
+      - "**/*mongo*.*"
+      - "**/mongodb/**"
+      - "**/mongo/**"
+    auto: true
+    priority: medium
+
+  postgres-expert:
+    keywords:
+      - "postgres"
+      - "postgresql"
+      - "psql"
+      - "sql"
+      - "index"
+    file_patterns:
+      - "**/*.sql"
+      - "**/migrations/**"
+      - "**/schema.sql"
+    auto: true
+    priority: high
+
+  kafka-expert:
+    keywords:
+      - "kafka"
+      - "event streaming"
+      - "producer"
+      - "consumer"
+      - "topic"
+    file_patterns:
+      - "**/*kafka*.*"
+      - "**/streams/**"
+      - "**/kafka/**"
+    auto: true
+    priority: high
+
+  pytorch-expert:
+    keywords:
+      - "pytorch"
+      - "torch"
+      - "nn"
+      - "tensor"
+      - "deep learning"
+    file_patterns:
+      - "**/torch/**"
+      - "**/models/**"
+      - "**/*.pt"
+      - "**/*.pth"
+    auto: false
+    priority: medium
+
+  scikit-learn-expert:
+    keywords:
+      - "scikit-learn"
+      - "sklearn"
+      - "pipeline"
+      - "model selection"
+      - "feature"
+    file_patterns:
+      - "**/sklearn/**"
+      - "**/models/**"
+      - "**/*model*.py"
+    auto: false
+    priority: medium
+
+  # Observability Agents
+  grafana-expert:
+    keywords:
+      - "grafana"
+      - "dashboard"
+      - "alert"
+      - "alerting"
+      - "observability"
+    file_patterns:
+      - "**/grafana/**"
+      - "**/dashboards/**"
+      - "**/*grafana*.{json,yaml,yml}"
+    auto: true
+    priority: medium
+
+  prometheus-expert:
+    keywords:
+      - "prometheus"
+      - "promql"
+      - "scrape"
+      - "alertmanager"
+      - "metrics"
+    file_patterns:
+      - "**/prometheus*.yml"
+      - "**/prometheus*.yaml"
+      - "**/alertmanager*.yml"
+      - "**/alertmanager*.yaml"
+      - "**/rules/**"
+    auto: true
+    priority: high
+
+  loki-expert:
+    keywords:
+      - "loki"
+      - "logql"
+      - "logs"
+      - "logging"
+      - "promtail"
+    file_patterns:
+      - "**/loki*.yml"
+      - "**/loki*.yaml"
+      - "**/promtail*.yml"
+      - "**/promtail*.yaml"
+    auto: true
+    priority: medium
+
+  # Infrastructure & CI/CD Agents
+  docker-expert:
+    keywords:
+      - "docker"
+      - "container"
+      - "dockerfile"
+      - "compose"
+      - "image"
+    file_patterns:
+      - "**/Dockerfile"
+      - "**/docker-compose*.yml"
+      - "**/docker-compose*.yaml"
+      - "**/.dockerignore"
+    auto: true
+    priority: high
+
+  github-actions-expert:
+    keywords:
+      - "github actions"
+      - "workflow"
+      - "ci"
+      - "ci/cd"
+      - "actions"
+    file_patterns:
+      - "**/.github/workflows/**"
+    auto: true
+    priority: high
+
+  # Testing Agents
+  playwright-expert:
+    keywords:
+      - "playwright"
+      - "e2e"
+      - "end-to-end"
+      - "browser test"
+    file_patterns:
+      - "**/playwright.config.*"
+      - "**/e2e/**"
+      - "**/tests/**"
+    auto: true
+    priority: medium
+
+  vitest-expert:
+    keywords:
+      - "vitest"
+      - "vite test"
+      - "unit test"
+      - "testing"
+    file_patterns:
+      - "**/*.test.{ts,tsx,js,jsx}"
+      - "**/*.spec.{ts,tsx,js,jsx}"
+      - "vitest.config.*"
+    auto: true
+    priority: medium
+
+# Trigger Rules
+rules:
+  # Auto-activation rules
+  auto_activate:
+    - when: "keywords_match >= 2"
+      and: "auto == true"
+      action: activate_agent
+
+    - when: "file_pattern_match"
+      and: "priority == critical"
+      action: suggest_agent
+
+  # Suggestion rules
+  suggest:
+    - when: "keywords_match == 1"
+      action: suggest_agent
+
+    - when: "file_pattern_match"
+      and: "priority >= medium"
+      action: suggest_agent
+
+  # Priority-based activation
+  priority_order:
+    - critical
+    - high
+    - medium
+    - low
+
+# Agent Combinations
+combinations:
+  code_review_suite:
+    agents:
+      - code-reviewer
+      - security-auditor
+      - test-automator
+    trigger_keywords:
+      - "full review"
+      - "comprehensive review"
+      - "pr review"
+
+  security_audit_suite:
+    agents:
+      - security-auditor
+      - code-reviewer
+    trigger_keywords:
+      - "security audit"
+      - "security review"
+
+  performance_suite:
+    agents:
+      - performance-engineer
+      - database-optimizer
+    trigger_keywords:
+      - "performance audit"
+      - "optimize performance"
+
+  deployment_suite:
+    agents:
+      - deployment-engineer
+      - security-auditor
+      - test-automator
+    trigger_keywords:
+      - "prepare release"
+      - "production deploy"
+
+# Event Configuration
+events:
+  pre-commit:
+    enabled: true
+    agents:
+      - test-automator
+      - code-reviewer
+
+  post-commit:
+    enabled: true
+    agents:
+      - code-reviewer
+
+  pre-push:
+    enabled: true
+    agents:
+      - code-reviewer
+      - test-automator
+
+  pre-deploy:
+    enabled: true
+    agents:
+      - security-auditor
+      - deployment-engineer
+
+# Context-Aware Triggers
+context:
+  git_status:
+    modified_files: track
+    branch_name: check
+    commit_message: analyze
+
+  environment:
+    development: relaxed_triggers
+    staging: moderate_triggers
+    production: strict_triggers

@@ -1,0 +1,625 @@
+# Skill Activation Keywords
+# Maps keywords/phrases to skills for automatic activation
+
+skills:
+  api-design-patterns:
+    keywords:
+      - "REST API"
+      - "GraphQL"
+      - "API design"
+      - "endpoint design"
+      - "service contract"
+      - "API versioning"
+      - "pagination"
+      - "HATEOAS"
+      - "OpenAPI"
+      - "error handling"
+
+  async-python-patterns:
+    keywords:
+      - "asyncio"
+      - "async await"
+      - "async/await"
+      - "event loop"
+      - "coroutine"
+      - "non-blocking"
+      - "concurrent python"
+      - "async python"
+      - "aiohttp"
+      - "FastAPI async"
+
+  microservices-patterns:
+    keywords:
+      - "microservices"
+      - "service mesh"
+      - "distributed system"
+      - "service-to-service"
+      - "circuit breaker"
+      - "service discovery"
+      - "API gateway"
+      - "saga pattern"
+      - "service decomposition"
+      - "inter-service communication"
+
+  terraform-best-practices:
+    keywords:
+      - "terraform"
+      - "infrastructure as code"
+      - "IaC"
+      - "terraform module"
+      - "state management"
+      - "remote state"
+      - "terraform workspace"
+      - "HCL"
+      - "terragrunt"
+      - "infrastructure automation"
+
+  owasp-top-10:
+    keywords:
+      - "OWASP"
+      - "security vulnerability"
+      - "injection"
+      - "XSS"
+      - "CSRF"
+      - "broken access control"
+      - "cryptographic failure"
+      - "security audit"
+      - "SQL injection"
+      - "authentication failure"
+
+  event-driven-architecture:
+    keywords:
+      - "event sourcing"
+      - "CQRS"
+      - "event-driven"
+      - "message broker"
+      - "Kafka"
+      - "RabbitMQ"
+      - "event bus"
+      - "eventual consistency"
+      - "domain event"
+      - "message queue"
+
+  kubernetes-deployment-patterns:
+    keywords:
+      - "kubernetes"
+      - "k8s"
+      - "deployment strategy"
+      - "rolling update"
+      - "blue-green deployment"
+      - "canary deployment"
+      - "StatefulSet"
+      - "DaemonSet"
+      - "pod"
+      - "helm"
+
+  python-testing-patterns:
+    keywords:
+      - "pytest"
+      - "unit test"
+      - "integration test"
+      - "test-driven development"
+      - "TDD"
+      - "mocking"
+      - "test fixture"
+      - "test coverage"
+      - "parametrize"
+      - "hypothesis testing"
+
+  api-gateway-patterns:
+    keywords:
+      - "API gateway"
+      - "Kong"
+      - "Nginx"
+      - "rate limiting"
+      - "request routing"
+      - "backend for frontend"
+      - "BFF"
+      - "gateway pattern"
+      - "reverse proxy"
+      - "load balancing"
+
+  secure-coding-practices:
+    keywords:
+      - "secure coding"
+      - "code security"
+      - "input validation"
+      - "output encoding"
+      - "sanitization"
+      - "security hardening"
+      - "least privilege"
+      - "defense in depth"
+      - "secure by design"
+      - "threat modeling"
+
+  kubernetes-security-policies:
+    keywords:
+      - "kubernetes security"
+      - "pod security"
+      - "RBAC"
+      - "network policy"
+      - "security context"
+      - "admission controller"
+      - "OPA"
+      - "policy enforcement"
+      - "k8s security"
+      - "container security"
+
+  database-design-patterns:
+    keywords:
+      - "database design"
+      - "normalization"
+      - "denormalization"
+      - "indexing"
+      - "schema design"
+      - "data modeling"
+      - "foreign key"
+      - "database patterns"
+      - "relational database"
+      - "NoSQL design"
+
+  multi-llm-consult:
+    keywords:
+      - "second opinion"
+      - "external model"
+      - "compare models"
+      - "another LLM"
+      - "cross-check"
+      - "delegate to model"
+      - "Gemini"
+      - "Qwen"
+      - "Codex"
+
+  typescript-advanced-patterns:
+    keywords:
+      - "TypeScript"
+      - "conditional types"
+      - "mapped types"
+      - "template literal types"
+      - "type guard"
+      - "discriminated union"
+      - "branded types"
+      - "advanced types"
+      - "type inference"
+      - "generic constraints"
+
+  react-performance-optimization:
+    keywords:
+      - "React performance"
+      - "React.memo"
+      - "useMemo"
+      - "useCallback"
+      - "code splitting"
+      - "lazy loading"
+      - "virtualization"
+      - "React optimization"
+      - "re-render"
+      - "bundle size"
+
+  python-performance-optimization:
+    keywords:
+      - "Python performance"
+      - "profiling"
+      - "optimization"
+      - "cProfile"
+      - "memory profiling"
+      - "NumPy"
+      - "vectorization"
+      - "Cython"
+      - "multiprocessing"
+      - "performance tuning"
+
+  security-testing-patterns:
+    keywords:
+      - "security testing"
+      - "penetration testing"
+      - "pen test"
+      - "vulnerability scanning"
+      - "SAST"
+      - "DAST"
+      - "security assessment"
+      - "fuzz testing"
+      - "security automation"
+      - "threat detection"
+
+  threat-modeling-techniques:
+    keywords:
+      - "threat modeling"
+      - "STRIDE"
+      - "attack tree"
+      - "threat analysis"
+      - "security architecture"
+      - "risk assessment"
+      - "attack surface"
+      - "threat landscape"
+      - "security design"
+      - "vulnerability analysis"
+
+  cqrs-event-sourcing:
+    keywords:
+      - "CQRS"
+      - "event sourcing"
+      - "command query"
+      - "aggregate root"
+      - "event store"
+      - "read model"
+      - "write model"
+      - "projection"
+      - "domain event"
+      - "event stream"
+
+  helm-chart-patterns:
+    keywords:
+      - "Helm"
+      - "Helm chart"
+      - "chart template"
+      - "values.yaml"
+      - "Helm release"
+      - "chart repository"
+      - "Helm deployment"
+      - "chart packaging"
+      - "Helm upgrade"
+      - "chart hooks"
+
+  gitops-workflows:
+    keywords:
+      - "GitOps"
+      - "Flux"
+      - "ArgoCD"
+      - "declarative deployment"
+      - "git-based deployment"
+      - "continuous deployment"
+      - "infrastructure as code"
+      - "GitOps automation"
+      - "deployment workflow"
+      - "reconciliation"
+
+  canvas-design:
+    keywords:
+      - "canvas design"
+      - "visual art"
+      - "poster"
+      - "design philosophy"
+      - "graphic design"
+
+  internal-comms:
+    keywords:
+      - "internal communications"
+      - "status report"
+      - "leadership update"
+      - "company newsletter"
+      - "FAQ"
+      - "incident report"
+
+  skill-creator:
+    keywords:
+      - "create skill"
+      - "new skill"
+      - "skill development"
+      - "skill authoring"
+
+  template-skill:
+    keywords:
+      - "skill template"
+      - "new skill template"
+      - "skill boilerplate"
+
+  webapp-testing:
+    keywords:
+      - "webapp testing"
+      - "playwright"
+      - "frontend testing"
+      - "UI testing"
+      - "browser automation"
+
+  condition-based-waiting:
+    keywords:
+      - "condition"
+      - "wait"
+      - "polling"
+      - "event-driven"
+      - "asynchronous"
+
+  defense-in-depth:
+    keywords:
+      - "defense in depth"
+      - "layered security"
+      - "security strategy"
+      - "multi-layered defense"
+
+  dispatching-parallel-agents:
+    keywords:
+      - "parallel agents"
+      - "concurrent tasks"
+      - "multi-agent"
+      - "dispatch"
+      - "orchestration"
+
+  finishing-a-development-branch:
+    keywords:
+      - "finish branch"
+      - "merge branch"
+      - "code review"
+      - "pull request"
+      - "cleanup branch"
+
+  receiving-code-review:
+    keywords:
+      - "receive review"
+      - "address feedback"
+      - "code changes"
+      - "review comments"
+
+  requesting-code-review:
+    keywords:
+      - "request review"
+      - "submit code"
+      - "code review process"
+      - "pull request"
+
+  root-cause-tracing:
+    keywords:
+      - "root cause"
+      - "debugging"
+      - "troubleshooting"
+      - "incident analysis"
+      - "post-mortem"
+
+  sharing-skills:
+    keywords:
+      - "share skill"
+      - "export skill"
+      - "skill distribution"
+      - "skill collaboration"
+
+  subagent-driven-development:
+    keywords:
+      - "subagent"
+      - "agent development"
+      - "modular agent"
+      - "agent orchestration"
+
+  systematic-debugging:
+    keywords:
+      - "systematic debug"
+      - "debug process"
+      - "troubleshoot"
+      - "bug fix strategy"
+
+  test-driven-development:
+    keywords:
+      - "TDD"
+      - "test driven"
+      - "unit test"
+      - "integration test"
+      - "red green refactor"
+
+  testing-anti-patterns:
+    keywords:
+      - "testing anti-patterns"
+      - "bad tests"
+      - "ineffective tests"
+      - "test smells"
+
+  testing-skills-with-subagents:
+    keywords:
+      - "test skills"
+      - "subagent testing"
+      - "skill validation"
+      - "agent testing"
+
+  using-git-worktrees:
+    keywords:
+      - "git worktree"
+      - "multiple branches"
+      - "git workflow"
+      - "parallel development"
+
+  using-superpowers:
+    keywords:
+      - "superpowers"
+      - "agent capabilities"
+      - "framework usage"
+
+  verification-before-completion:
+    keywords:
+      - "verify"
+      - "check before complete"
+      - "validation step"
+      - "pre-completion check"
+
+  writing-skills:
+    keywords:
+      - "write skill"
+      - "create skill"
+      - "skill development"
+      - "skill authoring"
+
+  context-health:
+    keywords:
+      - "cortex doctor"
+      - "claude ctx doctor"
+      - "context health"
+      - "context health check"
+      - "context diagnostic"
+      - "environment check"
+      - "consistency check"
+      - "duplicate agents"
+      - "redundancy check"
+      - "claude ctx health"
+
+  code-explanation:
+    keywords:
+      - "explain code"
+      - "explain this code"
+      - "code explanation"
+      - "explain function"
+      - "explain architecture"
+      - "walkthrough"
+      - "how does this work"
+      - "teach code"
+
+  system-design:
+    keywords:
+      - "system design"
+      - "system architecture"
+      - "architecture design"
+      - "architecture diagram"
+      - "component design"
+      - "API specification"
+      - "interface design"
+      - "data model"
+      - "schema design"
+      - "design doc"
+
+  git-ops:
+    keywords:
+      - "git status"
+      - "git commit"
+      - "git push"
+      - "git pull"
+      - "git branch"
+      - "merge conflict"
+      - "rebase"
+      - "smart commit"
+      - "conventional commit"
+
+  test-generation:
+    keywords:
+      - "generate tests"
+      - "test generation"
+      - "write tests"
+      - "increase coverage"
+      - "coverage target"
+      - "test suite"
+      - "regression tests"
+
+  task-orchestration:
+    keywords:
+      - "orchestrate"
+      - "orchestration"
+      - "parallel tasks"
+      - "multi-agent"
+      - "task management"
+      - "workflow execution"
+
+  reasoning-controls:
+    keywords:
+      - "reasoning budget"
+      - "reasoning metrics"
+      - "reasoning depth"
+      - "adjust reasoning"
+      - "think hard"
+      - "ultrathink"
+      - "token budget"
+
+  session-management:
+    keywords:
+      - "session load"
+      - "session save"
+      - "checkpoint restore"
+      - "checkpoint save"
+      - "restore session"
+      - "session context"
+      - "reflect on session"
+      - "save context"
+
+  tool-selection:
+    keywords:
+      - "tool selection"
+      - "mcp tool selection"
+      - "tool routing"
+      - "codanna"
+      - "morphllm"
+      - "capability matching"
+
+  visual-modes:
+    keywords:
+      - "supersaiyan"
+      - "kamehameha"
+      - "over9000"
+      - "over 9000"
+      - "visual mode"
+      - "visual effects"
+      - "showcase UI"
+
+  dev-workflows:
+    keywords:
+      - "build error"
+      - "build failure"
+      - "run build"
+      - "run tests"
+      - "test run"
+      - "test failure"
+      - "developer experience"
+      - "DX"
+      - "tooling improvement"
+      - "onboarding"
+
+  development-estimation:
+    keywords:
+      - "effort estimate"
+      - "time estimate"
+      - "complexity estimate"
+      - "estimate effort"
+      - "t-shirt size"
+      - "scoping"
+
+  documentation-production:
+    keywords:
+      - "documentation"
+      - "generate docs"
+      - "doc index"
+      - "mermaid diagram"
+      - "sequence diagram"
+      - "tutorial"
+      - "learning path"
+
+  feature-implementation:
+    keywords:
+      - "implement feature"
+      - "build feature"
+      - "add feature"
+      - "implement component"
+      - "implement API"
+      - "feature work"
+
+  implementation-workflow:
+    keywords:
+      - "implementation plan"
+      - "implementation workflow"
+      - "workflow plan"
+      - "task breakdown"
+      - "PRD"
+      - "feature spec"
+      - "plan implementation"
+
+  release-prep:
+    keywords:
+      - "prepare release"
+      - "release prep"
+      - "release checklist"
+      - "release candidate"
+      - "version bump"
+      - "changelog"
+      - "deploy prep"
+
+  repo-cleanup:
+    keywords:
+      - "cleanup repo"
+      - "dead code"
+      - "unused dependencies"
+      - "remove artifacts"
+      - "repo cleanup"
+      - "docs cleanup"
+      - "test cleanup"
+      - "archive sprint"
+
+  code-quality-workflow:
+    keywords:
+      - "code quality"
+      - "code review"
+      - "quality review"
+      - "refactor"
+      - "maintainability"
+      - "quality improvement"

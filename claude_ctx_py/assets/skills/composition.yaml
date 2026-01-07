@@ -1,0 +1,90 @@
+# Skill Composition Map
+# Defines dependencies between skills - when a skill is loaded, its dependencies are loaded automatically
+# Format: skill_name: [list of required skills]
+#
+# Rules:
+# - Dependencies are transitive (A requires B, B requires C → load all three)
+# - Circular dependencies are not allowed and will be detected
+# - Dependencies should represent true knowledge requirements, not just related topics
+#
+# Generated: 2025-11-08T00:00:00 (Updated by Gemini CLI)
+# Version: 1.0.0
+
+# Architecture & Design Skills
+microservices-patterns:
+  - api-design-patterns
+  - event-driven-architecture
+
+cqrs-event-sourcing:
+  - event-driven-architecture
+
+api-gateway-patterns:
+  - api-design-patterns
+
+# Infrastructure Skills
+kubernetes-deployment-patterns:
+  - helm-chart-patterns
+
+gitops-workflows:
+  - kubernetes-deployment-patterns
+  - helm-chart-patterns
+
+# Security Skills
+security-testing-patterns:
+  - owasp-top-10
+  - secure-coding-practices
+
+threat-modeling-techniques:
+  - owasp-top-10
+
+# Development Skills - no dependencies currently defined
+# These are foundational skills that don't depend on others:
+# - api-design-patterns (foundational)
+# - event-driven-architecture (foundational)
+# - database-design-patterns (foundational)
+# - helm-chart-patterns (foundational)
+# - terraform-best-practices (foundational)
+# - async-python-patterns (foundational)
+# - python-testing-patterns (foundational)
+# - python-performance-optimization (foundational)
+# - typescript-advanced-patterns (foundational)
+# - react-performance-optimization (foundational)
+# - owasp-top-10 (foundational)
+# - secure-coding-practices (foundational)
+# - kubernetes-security-policies (foundational)
+
+# Superpowers Skills
+finishing-a-development-branch:
+  - requesting-code-review
+
+subagent-driven-development:
+  - writing-skills
+  - test-driven-development
+
+testing-anti-patterns:
+  - test-driven-development
+
+testing-skills-with-subagents:
+  - subagent-driven-development
+  - test-driven-development
+
+writing-skills:
+  - skill-creator
+
+# Foundational Skills (no direct dependencies)
+canvas-design: []
+internal-comms: []
+skill-creator: []
+template-skill: []
+webapp-testing: []
+condition-based-waiting: []
+defense-in-depth: []
+dispatching-parallel-agents: []
+receiving-code-review: []
+requesting-code-review: []
+root-cause-tracing: []
+sharing-skills: []
+systematic-debugging: []
+using-git-worktrees: []
+using-superpowers: []
+verification-before-completion: []
