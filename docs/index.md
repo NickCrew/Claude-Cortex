@@ -7,7 +7,7 @@ permalink: /
 
 # Cortex - Documentation Index
 
-> Version 1.2.0 · Last updated December 31, 2025
+> Version 2.0.0 · Last updated January 8, 2026
 
 <div class="hero">
   <div class="hero__copy">
@@ -1303,6 +1303,13 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ---
 
 ## Version History
+
+### 2.0.0 (2026-01-08)
+
+- Renamed claude-ctx to cortex across the CLI/TUI, env vars, and docs
+- Introduced `CORTEX_ROOT` with a default `~/.cortex` layout and rules sync to `~/.claude/rules/cortex`
+- Bundled all plugin assets into the Python package for self-contained installs
+- Updated launcher/config flow to prefer `~/.cortex` and bundled asset discovery
 
 ### 1.2.0 (2025-12-21)
 

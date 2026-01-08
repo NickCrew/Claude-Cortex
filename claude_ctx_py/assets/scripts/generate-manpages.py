@@ -26,7 +26,7 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         The generated manpage content
     """
     today = datetime.now().strftime("%Y-%m-%d")
-    version = "1.1.0"  # TODO: Extract from pyproject.toml
+    version = "2.0.0"  # TODO: Extract from pyproject.toml
     
     lines = [
         f'.TH {name.upper()} {section} "{today}" "{name} {version}" "User Commands"',
