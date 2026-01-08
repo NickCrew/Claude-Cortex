@@ -7,7 +7,7 @@ name = "claude-cortex"
 version = "1.0.0"
 description = "Python CLI/TUI and intelligent framework for managing Claude and other AI agents"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
-license = {text = "MIT"}
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -55,7 +55,6 @@ Homepage = "https://github.com/NickCrew/claude-cortex"
 [project.scripts]
 cortex = "claude_ctx_py.cli:main"
 cortex-ui = "claude_ctx_py.tui.cli:main"
-cortex = "claude_ctx_py.cli:main"  # Deprecated entry point
 
 [tool.setuptools.packages.find]
 where = ["."]
