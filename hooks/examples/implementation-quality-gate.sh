@@ -245,6 +245,10 @@ main() {
         cortex agent activate docs-architect >&2 || true
     fi
 
+    # Run AI Auto-Activation to bring in specialized reviewers (Multi-Reviewer Activation)
+    log_info "Running AI analysis to detect specialized reviewers..."
+    cortex ai auto-activate >&2 || true
+
     # Check if code review agents are active
     if [[ "$CODE_REVIEW_REQUIRED" == "true" ]]; then
         if ! cortex agent status | grep -q "quality-engineer (active)"; then
@@ -320,23 +324,31 @@ INSTRUCTIONS
    - If score <7.5, you MUST revise documentation
    - Criteria: Clarity, completeness, accuracy, examples, formatting
 
-## Phase 3: Code Review
+## Phase 3: Parallel Code Review & Remediation
 
-6. **Request Code Review (quality-engineer AND code-reviewer)**
-   - quality-engineer: Assess code quality, maintainability, best practices
-   - code-reviewer: Review for bugs, edge cases, performance, security
-   - Both agents provide feedback with priority levels
+6. **Parallel Code Review (Mandatory Concurrency)**
+   - **Concurrency Model:** All assigned agents (quality-engineer, code-reviewer, +AI specialists) MUST conduct reviews SIMULTANEOUSLY.
+   - **Action:** Launch all review agents in a single turn/batch.
+   - **Synchronization:** Wait for ALL review reports to be submitted before proceeding to remediation planning.
 
-7. **Resolve Issues by Priority**
-   - **HIGH priority:** MUST fix immediately (blocking issues)
-   - **MEDIUM priority:** MUST fix (quality/maintainability issues)
-   - **LOW priority:** Nice to have (user may decline)
-   - To skip HIGH/MEDIUM issues: ASK USER PERMISSION FIRST
+7. **Parallel Remediation Protocol**
+   - **Scope Enforcement:**
+     - **P0 (Critical) / P1 (High) / P2 (Medium):** MANDATORY FIX.
+     - **P3 (Low):** Optional (fix if time permits).
+   - **Execution Strategy:**
+     - Identify independent remediation tasks.
+     - **Concurrency:** Execute all independent fixes IN PARALLEL.
+     - **Dependency Resolution:** Serial execution ONLY for tasks with explicit blocking dependencies (e.g., Task A modifies a signature used by Task B).
+   - **Validation:**
+     - MUST validate each fix post-execution (verify tests pass, linters clear).
 
-8. **Re-review if Needed**
-   - After fixing HIGH/MEDIUM issues, request re-review
-   - Ensure all critical feedback addressed
-   - LOW priority items: ask user if they want to address
+8. **Deferral & Documentation**
+   - **Protocol:** Any mandatory task that CANNOT be fixed (due to blockers/constraints) must be explicitly deferred.
+   - **Documentation:** Log all deferred tasks in a `DEFERRED.md` or issue tracker with reasoning.
+
+9. **Final Verification**
+   - Ensure all P0-P2 issues are resolved or documented.
+   - Confirm all validations passed.
 
 ## Validation Checklist
 
@@ -379,6 +391,7 @@ INSTRUCTIONS
         echo "- code-reviewer (code review for bugs/security)"
     fi
 
+    echo "- Plus any specialized reviewers activated by AI (e.g., security-auditor, react-specialist)"
     echo ""
 
     exit 0

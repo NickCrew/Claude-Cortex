@@ -440,6 +440,8 @@ to select active flags, rules, modes, and principles, then starts Claude Code
 with those settings and plugin assets.
 
 Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
+Use `claude_args` in `cortex-config.json` to pass persistent Claude arguments
+on every `cortex start`.
 
 Alias: `cortex claude`
 
