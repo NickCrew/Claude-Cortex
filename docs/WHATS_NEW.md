@@ -1,5 +1,22 @@
 # What's New in Cortex
 
+## 2026-01-08: Cortex 2.0.0 Release
+
+### 🏷️ Rebrand to Cortex
+
+- Renamed claude-ctx to cortex across the CLI/TUI, docs, and plugin assets.
+- Environment variables now use the `CORTEX_` prefix for non-plugin configuration.
+
+### 🗂 New Default Home: `~/.cortex`
+
+- Introduced `CORTEX_ROOT` with a default layout under `~/.cortex`.
+- Rules are synced into `~/.claude/rules/cortex` for Claude Code recursive loading.
+
+### 📦 Self-Contained Python Package
+
+- Bundled all plugin assets into the Python package for self-contained installs.
+- Launcher and asset discovery now prefer bundled assets when no repo root is present.
+
 ## 2025-12-28: Multi-Reviewer Auto-Activation & TUI Review Grouping
 
 ### ✅ Multi-Reviewer Auto-Activation
