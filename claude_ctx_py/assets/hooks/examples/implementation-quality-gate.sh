@@ -245,6 +245,10 @@ main() {
         cortex agent activate docs-architect >&2 || true
     fi
 
+    # Run AI Auto-Activation to bring in specialized reviewers (Multi-Reviewer Activation)
+    log_info "Running AI analysis to detect specialized reviewers..."
+    cortex ai auto-activate >&2 || true
+
     # Check if code review agents are active
     if [[ "$CODE_REVIEW_REQUIRED" == "true" ]]; then
         if ! cortex agent status | grep -q "quality-engineer (active)"; then
@@ -379,6 +383,7 @@ INSTRUCTIONS
         echo "- code-reviewer (code review for bugs/security)"
     fi
 
+    echo "- Plus any specialized reviewers activated by AI (e.g., security-auditor, react-specialist)"
     echo ""
 
     exit 0

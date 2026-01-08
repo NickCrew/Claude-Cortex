@@ -1,4 +1,8 @@
 {
+  "companyAnnouncements": [
+    "💥 Claude is supercharged with Cortex! 🧠 Read the docs at https://cortex.atlascrew.dev",
+    "💡 Cortex Tip! Run `cortex ai watch` in another terminal to get intelligent auto-activations while you work."
+  ],
   "statusLine": {
     "type": "command",
     "command": "cortex statusline --color",
@@ -9,22 +13,6 @@
   "extraKnownMarketplaces": {},
   "outputStyle": "Default",
   "spinnerTipsEnabled": false,
-  "alwaysThinkingEnabled": true,
-  "mcpServers": {
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "codanna": {
-      "command": "codanna",
-      "args": [
-        "serve",
-        "--watch"
-      ]
-    }
-  }
+  "alwaysThinkingEnabled": true
+    
 }

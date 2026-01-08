@@ -100,6 +100,8 @@ along with `FLAGS.md` to select active flags, rules, modes, and principles. Over
 `--claude-bin` or pass extra Claude arguments after `--`.
 
 Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
+Add a `claude_args` array to `cortex-config.json` to pass persistent arguments
+to Claude on every `cortex start`.
 
 Alias: `cortex claude`
 
@@ -221,7 +223,7 @@ or set `CORTEX_SCOPE=project`.
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
-| `cortex-config.json` | Launcher settings for `cortex start` | Controls active rules/modes/principles and settings path (flags come from `FLAGS.md` unless overridden) |
+| `cortex-config.json` | Launcher settings for `cortex start` | Controls active rules/modes/principles, settings path, and `claude_args` (flags come from `FLAGS.md` unless overridden) |
 
 ### Principles Snippets
 

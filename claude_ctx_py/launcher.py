@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,6 +29,7 @@ class LauncherConfig:
     flags: List[str]
     modes: List[str]
     principles: List[str]
+    claude_args: List[str]
 
 
 def _read_json(path: Path) -> Tuple[Dict[str, object], List[str]]:
@@ -230,6 +232,10 @@ def _ensure_default_config(
             config["principles"] = _list_dir_stems(principles_dir)
         updated = True
 
+    if "claude_args" not in config:
+        config["claude_args"] = []
+        updated = True
+
     if "settings_path" not in config:
         settings_path = source_root / "templates" / "settings.json"
         if not settings_path.exists() and plugin_root is not None:
@@ -258,6 +264,20 @@ def _normalize_name_list(values: Iterable[str]) -> List[str]:
             if cleaned:
                 items.append(cleaned)
     return items
+
+
+def _normalize_claude_args(value: object, warnings: List[str]) -> List[str]:
+    if isinstance(value, list):
+        return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+    if isinstance(value, str) and value.strip():
+        warnings.append(
+            "Config 'claude_args' should be a JSON array of strings; parsing string value."
+        )
+        try:
+            return shlex.split(value)
+        except ValueError as exc:
+            warnings.append(f"Failed to parse 'claude_args' string: {exc}")
+    return []
 
 
 def _ensure_symlink(source: Path, target: Path) -> Optional[str]:
@@ -436,7 +456,12 @@ def load_launcher_config(
     modes = _normalize_name_list(modes_override.split(",")) if modes_override else (
         _normalize_name_list(config.get("modes", [])) if isinstance(config.get("modes"), list) else []
     )
-    principles = _normalize_name_list(config.get("principles", [])) if isinstance(config.get("principles"), list) else []
+    principles = (
+        _normalize_name_list(config.get("principles", []))
+        if isinstance(config.get("principles"), list)
+        else []
+    )
+    claude_args = _normalize_claude_args(config.get("claude_args"), warnings)
 
     settings_path = None
     settings_raw = config.get("settings_path")
@@ -451,6 +476,7 @@ def load_launcher_config(
             flags=flags,
             modes=modes,
             principles=principles,
+            claude_args=claude_args,
         ),
         warnings,
     )
@@ -510,6 +536,9 @@ def start_claude(
 
     if prompt:
         cmd.extend(["--append-system-prompt", prompt])
+
+    if config.claude_args:
+        cmd.extend(config.claude_args)
 
     if extra_args:
         cmd.extend(extra_args)
