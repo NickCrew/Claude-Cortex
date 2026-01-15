@@ -172,6 +172,12 @@ class AgentCommandProvider(Provider):
                 "show_tasks",
                 CATEGORY_VIEW,
             ),
+            (
+                f"[bright_blue]📚[/] [bold]Show Documentation[/bold] [dim bright_blue]📖[/dim bright_blue]",
+                f"[dim]Browse Cortex documentation [dim white]│[/dim white] Hotkey: [yellow]9[/yellow][/dim]",
+                "show_docs",
+                CATEGORY_VIEW,
+            ),
             # ═══════════════════════════════════════════════════════
             # AI & INTELLIGENCE
             # ═══════════════════════════════════════════════════════
@@ -384,6 +390,13 @@ class AgentCommandProvider(Provider):
         elif action == "show_tasks":
             app.current_view = "tasks"
             app.update_view()
+        elif action == "show_docs":
+            if hasattr(app, "push_screen"):
+                try:
+                    from .screens.docs import DocsScreen
+                    getattr(app, "push_screen")(DocsScreen())
+                except Exception as e:
+                    app.status_message = f"Error opening docs: {e}"
         elif action == "show_ai_assistant":
             app.current_view = "ai_assistant"
             app.update_view()

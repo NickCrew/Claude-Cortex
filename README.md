@@ -27,6 +27,9 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 
 ### 🆕 Latest Updates
 
+- **Hook logging** – Hook failures now write to `~/.cortex/logs/hooks.log` (override via `CORTEX_HOOK_LOG_PATH`).
+- **Extra plugin dirs** – `cortex-config.json` supports `extra_plugin_dirs` to pass multiple `--plugin-dir` entries.
+- **Watch daemon mode** – `cortex ai watch --daemon` runs watch mode in the background with status/stop controls.
 - **Template guardrails** – The TUI detects missing `templates/` files in the active `CLAUDE_PLUGIN_ROOT` and offers to initialize them or run the setup wizard.
 - **Multi-LLM consult skill** – Ask Gemini, OpenAI (Codex), or Qwen for a second opinion; configure provider API keys via the TUI Command Palette -> "Configure LLM Providers".
 - **Asset Manager reliability** – “Update All” and “Install All in Category” now behave consistently with clearer prompts.
@@ -442,6 +445,7 @@ with those settings and plugin assets.
 Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
 Use `claude_args` in `cortex-config.json` to pass persistent Claude arguments
 on every `cortex start`.
+See `docs/guides/INSTALL.md` for the full `cortex-config.json` field reference.
 
 Alias: `cortex claude`
 

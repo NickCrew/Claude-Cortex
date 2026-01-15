@@ -14,7 +14,7 @@ Hooks are shell commands that execute in response to Claude Code events. They en
 
 ### Implementation Quality Gate
 
-**File:** `examples/implementation-quality-gate.sh`
+**File:** `hooks/implementation-quality-gate.sh`
 
 A comprehensive three-phase quality gate that enforces professional development standards:
 
@@ -29,11 +29,11 @@ A comprehensive three-phase quality gate that enforces professional development 
 - ✅ Priority-based issue resolution
 - ✅ Multi-agent orchestration (7 agents)
 
-**Documentation:** See `examples/HOOK_DOCUMENTATION.md` for complete details.
+**Documentation:** See `archive/implementation-reports/HOOK_DOCUMENTATION.md` for complete details.
 
-### Skill Auto-Suggester (New)
+### Skill Auto-Suggester
 
-**File:** `examples/skill_auto_suggester.py`
+**File:** `hooks/skill_auto_suggester.py`
 
 Inspired by diet103/claude-code-infrastructure-showcase, this hook scans the user prompt (and optionally changed files) and surfaces relevant `/ctx:*` skills. It reads rules from `skills/skill-rules.json`, so adding new skills only requires updating that JSON.
 
@@ -50,10 +50,7 @@ Add to `hooks/hooks.json` (use `${CLAUDE_PLUGIN_ROOT}` so paths resolve anywhere
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": [
-              "${CLAUDE_PLUGIN_ROOT}/hooks/examples/skill_auto_suggester.py"
-            ]
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py\""
           }
         ]
       }
@@ -63,6 +60,43 @@ Add to `hooks/hooks.json` (use `${CLAUDE_PLUGIN_ROOT}` so paths resolve anywhere
 ```
 
 The hook looks for `CLAUDE_HOOK_PROMPT` (set automatically by Claude Code). If you also export `CLAUDE_CHANGED_FILES`, it factors filenames into the keyword matching.
+
+### Parallel Workflow Enforcer
+
+**File:** `hooks/parallel-workflow-enforcer.sh`
+
+A strict supervisor hook that enforces parallel planning/implementation/testing/review and blocks "intent-only" delivery. See `hooks/PARALLEL_WORKFLOW_README.md` for full details.
+
+**Install:**
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/parallel-workflow-enforcer.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Other Included Hooks
+
+These hooks ship in `hooks/` and are referenced by the default config in `hooks/hooks.json`:
+
+- `hooks/safety_pre_tool_guard.py` — blocks destructive tool calls and unsafe file ops. (PreToolUse)
+- `hooks/secret_scan.py` — scans changed files for common secrets. (PostToolUse)
+- `hooks/large_file_gate.py` — warns/blocks oversized files in changes. (PostToolUse)
+- `hooks/context_pack_injector.py` — suggests or applies context profiles from prompts. (UserPromptSubmit)
+- `hooks/memory_auto_capture.py` — captures memory on session end. (SessionEnd)
+- `hooks/changelog_gate.py` — requires CHANGELOG updates for release-like changes. (SessionEnd)
 
 ## Installation
 
@@ -79,10 +113,7 @@ Add to `hooks/hooks.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "bash",
-            "args": [
-              "${CLAUDE_PLUGIN_ROOT}/hooks/examples/implementation-quality-gate.sh"
-            ]
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/implementation-quality-gate.sh\""
           }
         ]
       }
@@ -90,6 +121,10 @@ Add to `hooks/hooks.json`:
   }
 }
 ```
+
+## Hook Logging
+
+Hook failures are captured in `~/.cortex/logs/hooks.log`. To override the log location, set `CORTEX_HOOK_LOG_PATH` (or `CLAUDE_HOOK_LOG_PATH`) before running Claude Code.
 
 ### Activate Required Agents
 
@@ -103,8 +138,8 @@ cortex agent activate test-automator api-documenter tutorial-engineer \
 ```bash
 # Test the hook
 CLAUDE_PLUGIN_ROOT="$(pwd)" \
-  CLAUDE_USER_PROMPT="implement a feature" \
-  bash hooks/examples/implementation-quality-gate.sh
+  CLAUDE_HOOK_PROMPT="implement a feature" \
+  bash hooks/implementation-quality-gate.sh
 
 # Should show three-phase workflow
 ```
@@ -114,7 +149,7 @@ CLAUDE_PLUGIN_ROOT="$(pwd)" \
 Edit the hook file to adjust thresholds:
 
 ```bash
-vim hooks/examples/implementation-quality-gate.sh
+vim hooks/implementation-quality-gate.sh
 
 # Key configuration:
 COVERAGE_THRESHOLD=85              # Test coverage minimum (%)
@@ -240,7 +275,7 @@ Comment out in `hooks/hooks.json`:
       //     {
       //       "type": "command",
       //       "command": "bash",
-      //       "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/implementation-quality-gate.sh"]
+      //       "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/implementation-quality-gate.sh"]
       //     }
       //   ]
       // }
@@ -320,7 +355,8 @@ set -euo pipefail
 
 # Your hook logic here
 # Access environment variables:
-# - CLAUDE_USER_PROMPT: User's input
+# - CLAUDE_HOOK_PROMPT: User's input
+# - CLAUDE_USER_PROMPT: Legacy alias (fallback)
 # - CLAUDE_TOOL_NAME: Tool being called (for tool hooks)
 # - CLAUDE_FILE_PATH: File path (for file operation hooks)
 
@@ -360,8 +396,7 @@ Add to `hooks/hooks.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/your-hook.py"]
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/your-hook.py\""
           }
         ]
       }
@@ -372,7 +407,7 @@ Add to `hooks/hooks.json`:
 
 ## Resources
 
-- **Hook Documentation:** `examples/HOOK_DOCUMENTATION.md`
+- **Hook Documentation:** `archive/implementation-reports/HOOK_DOCUMENTATION.md`
 - **Plugin Documentation:** `../docs/`
 - **Claude Code Hooks Docs:** https://docs.claude.com/claude-code/hooks
 
@@ -380,7 +415,7 @@ Add to `hooks/hooks.json`:
 
 Have a useful hook? Submit a PR!
 
-1. Add hook to `hooks/examples/`
+1. Add hook to `hooks/`
 2. Include documentation
 3. Add to this README
 4. Test thoroughly

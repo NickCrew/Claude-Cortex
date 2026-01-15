@@ -180,7 +180,7 @@ Use the memory auto-capture hook for automatic session persistence:
 cortex asset install hooks memory_auto_capture
 ```
 
-See `hooks/examples/memory_auto_capture.py` for implementation details.
+See `hooks/memory_auto_capture.py` for implementation details.
 
 ## Best Practices
 

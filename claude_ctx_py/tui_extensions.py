@@ -639,6 +639,8 @@ class WizardViewMixin:
                 rules_activate(rule)
 
             self.state.status_message = "Configuration applied successfully!"
+            if hasattr(self, "_show_restart_required"):
+                self._show_restart_required()
         except Exception as e:
             self.state.status_message = f"Error applying configuration: {e}"
 

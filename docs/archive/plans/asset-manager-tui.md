@@ -21,7 +21,7 @@ Add an Asset Manager view to the TUI that allows users to:
 
 | Category | Count | Location | Install Target |
 |----------|-------|----------|----------------|
-| Hooks | 3 | `hooks/examples/` | `~/.claude/hooks/` |
+| Hooks | 3 | `hooks/` | `~/.claude/hooks/` |
 | Commands | 49 | `commands/` | `~/.claude/commands/` |
 | Agents | 9 | `agents/` | `~/.claude/agents/` |
 | Skills | 50+ | `skills/` | `~/.claude/skills/` |

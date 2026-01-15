@@ -39,6 +39,6 @@ Next step: add `skills/collaboration/brainstorming`, `skills/collaboration/writi
 
 ## Hook + Rule Integration
 
-- Added `hooks/examples/skill_auto_suggester.py`, a Python hook that reads `skills/skill-rules.json` (keyword → command mapping) and emits suggested skills after each prompt. Pattern borrowed from diet103/claude-code-infrastructure-showcase.
+- Added `hooks/skill_auto_suggester.py`, a Python hook that reads `skills/skill-rules.json` (keyword → command mapping) and emits suggested skills after each prompt. Pattern borrowed from diet103/claude-code-infrastructure-showcase.
 - `skills/skill-rules.json` ships with entries for `/ctx:brainstorm`, `/ctx:plan`, `/ctx:execute-plan`, `/dev:test`, and `/dev:code-review`. Updating the JSON automatically updates the hook output.
 - Documented installation steps in `hooks/README.md` so users can activate the hook alongside the existing quality gate.

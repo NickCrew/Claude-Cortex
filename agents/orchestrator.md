@@ -10,6 +10,7 @@ description: |
   A specialized agent that implements the Orchestrator-Workers pattern. It analyzes complex requests,
   breaks them down into atomic tasks, delegates them to the most appropriate specialist agents or tools,
   and synthesizes the results. Use this agent for "vague" or multi-step requests.
+  For durable team design and capacity planning, use `agent-organizer` instead.
 category: meta-orchestration
 tags:
   - planning
@@ -41,7 +42,7 @@ tools:
       - Search
       - Write
 activation:
-  keywords: ["plan", "orchestrate", "coordinate", "break down", "manage"]
+  keywords: ["plan", "orchestrate", "coordinate", "break down", "delegate"]
   auto: true
   priority: high
 dependencies:
@@ -101,6 +102,10 @@ For any complex user request:
 *   **Refining**: Delegate to `refiner` for polish.
 *   **Security**: Delegate to `security-auditor`.
 *   **Architecture**: Delegate to `cloud-architect`.
+
+## When to Use Another Agent
+
+*   **Team design & capacity planning**: Use `agent-organizer` for long-lived team structure, roles, and handoffs.
 
 ## Interaction Example
 

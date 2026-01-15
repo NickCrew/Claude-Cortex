@@ -74,6 +74,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
   <a href="guides/asset-manager.html">Asset Manager</a>
   <a href="guides/worktrees.html">Worktree Manager</a>
   <a href="guides/FLAGS_MANAGEMENT.html">Flags Management</a>
+  <a href="guides/DOCUMENTATION_VIEWER.html">Docs Viewer</a>
   <a href="#presentations">▶ Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
@@ -345,14 +346,14 @@ cortex tui
   </div>
   <div class="feature-card">
     <h3>Skill Auto-Suggester Hook</h3>
-    <p>`hooks/examples/skill_auto_suggester.py` reads <code>skills/skill-rules.json</code> and surfaces relevant skills after each prompt.</p>
+    <p>`hooks/skill_auto_suggester.py` reads <code>skills/skill-rules.json</code> and surfaces relevant skills after each prompt.</p>
   </div>
 </div>
 
 ### Install the skill auto-suggester hook
 
 ```bash
-cp hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
+cp hooks/skill_auto_suggester.py ~/.claude/hooks/
 chmod +x ~/.claude/hooks/skill_auto_suggester.py
 
 # settings.json snippet
@@ -1270,6 +1271,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Modes Guide](guides/modes.html) - Behavioral modes and activation
 - [Asset Manager Guide](guides/asset-manager.html) - Install, diff, and update assets
 - [Worktree Manager Guide](guides/worktrees.html) - Git worktree workflows
+- [Docs Viewer Guide](guides/DOCUMENTATION_VIEWER.html) - Browse docs from CLI/TUI
 - [Command Palette Guide](guides/COMMAND_PALETTE_GUIDE.html) - Interactive command palette
 - [TUI Guide](guides/tui.html) - Terminal user interface
 - [TUI Quick Start](guides/tui-quick-start.html) - Get started with TUI in 5 minutes
@@ -1292,6 +1294,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Frontend Aesthetics](features/frontend-aesthetics.html) - Performance-first UI generation
 - [Super Saiyan Integration](guides/features/SUPER_SAIYAN_INTEGRATION.html) - Integration guide
 - [Parallel Orchestration](guides/development/PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
+- [Parallel Workflow Enforcer](guides/development/PARALLEL_WORKFLOW_ENFORCER.html) - Strict parallel execution hook
 - [Quality Improvements](guides/development/quality-improvements.html) - Code quality enhancements
 
 ### External Resources

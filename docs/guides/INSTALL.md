@@ -225,6 +225,45 @@ or set `CORTEX_SCOPE=project`.
 | --- | --- | --- |
 | `cortex-config.json` | Launcher settings for `cortex start` | Controls active rules/modes/principles, settings path, and `claude_args` (flags come from `FLAGS.md` unless overridden) |
 
+#### `cortex-config.json` Fields
+
+```json
+{
+  "plugin_dir": "/path/to/claude-cortex",
+  "plugin_id": "cortex",
+  "extra_plugin_dirs": ["/path/to/other-plugin"],
+  "rules": ["workflow-rules", "quality-rules"],
+  "flags": ["performance-optimization", "security-hardening"],
+  "modes": ["Deep_Analysis", "Quality_Focus"],
+  "principles": ["00-core-directive", "10-philosophy"],
+  "settings_path": "~/.claude/settings.json",
+  "claude_args": ["--model", "claude-3.5-sonnet", "--dangerously-skip-permissions"],
+  "watch": {
+    "directories": ["~/repo1", "~/repo2"],
+    "auto_activate": true,
+    "threshold": 0.7,
+    "interval": 2.0
+  }
+}
+```
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `plugin_dir` | string | auto-detected | Explicit plugin root path. Overrides auto-discovery. |
+| `plugin_id` | string | auto-detected | Plugin ID used to resolve install path from `~/.claude/plugins/installed_plugins.json` if `plugin_dir` is not set. |
+| `extra_plugin_dirs` | string[] | `[]` | Additional plugin directories passed to Claude via repeated `--plugin-dir`. |
+| `rules` | string[] | all rules in `rules/` | Rule slugs (without `.md`) to symlink into `~/.claude/rules/cortex`. |
+| `flags` | string[] | from `FLAGS.md` | Fallback list if `FLAGS.md` is missing. Use `--flags` to override per launch. |
+| `modes` | string[] | `[]` | Mode slugs (without `.md`) appended to the system prompt. |
+| `principles` | string[] | all principles snippets | Principles snippet filenames (without `.md`) appended to the system prompt. |
+| `settings_path` | string | template `settings.json` if present | Optional path passed to Claude via `--settings`. |
+| `claude_args` | string[] | `[]` | Extra args always passed to `claude` before any per-run `--` args. |
+| `watch` | object | unset | Default watch-mode settings (directories, auto-activate, threshold, interval). |
+
+Notes:
+- `flags` are read from `FLAGS.md` when present, so `flags` in config only applies if `FLAGS.md` is missing.
+- `claude_args` should be a JSON array of strings. If you provide a single string, it is parsed with shell-style splitting.
+
 ### Principles Snippets
 
 | Path | Purpose | Notes |

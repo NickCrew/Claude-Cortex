@@ -10,6 +10,7 @@ recursive-include docs *.md *.txt *.1
 recursive-include docs/reference/architecture *
 recursive-include docs/diagrams *.png *.txt
 recursive-include claude_ctx_py/assets *
+recursive-include claude_ctx_py/docs *
 
 global-exclude *PLAN*.md *SUMMARY*.md *IMPLEMENTATION*.md *REPORT*.md *COMPLETE*.md *ANALYSIS*.md *ACTIONS*.md Gemfile*
 
