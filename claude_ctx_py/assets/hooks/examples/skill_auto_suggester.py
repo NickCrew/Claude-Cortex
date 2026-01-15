@@ -5,7 +5,7 @@ Suggest relevant /ctx:* skills based on the user's prompt and changed files.
 Hook event: UserPromptSubmit
 Register in hooks/hooks.json with:
   "command": "python3",
-  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/skill_auto_suggester.py"]
+  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py"]
 Environment:
   CLAUDE_HOOK_PROMPT     The user prompt text (provided by Claude Code)
   CLAUDE_CHANGED_FILES   Optional colon-separated list of changed files

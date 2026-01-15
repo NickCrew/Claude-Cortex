@@ -5,7 +5,7 @@ Suggest relevant /ctx:* skills based on the user's prompt and changed files.
 Hook event: UserPromptSubmit
 Register in hooks/hooks.json with:
   "command": "python3",
-  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/skill_auto_suggester.py"]
+  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py"]
 Environment:
   CLAUDE_HOOK_PROMPT     The user prompt text (provided by Claude Code)
   CLAUDE_CHANGED_FILES   Optional colon-separated list of changed files
@@ -20,8 +20,31 @@ from __future__ import annotations
 import json
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable, List, Tuple
+
+
+HOOK_LOG_ENV = ("CORTEX_HOOK_LOG_PATH", "CLAUDE_HOOK_LOG_PATH")
+
+
+def _hook_log_path() -> Path:
+    for name in HOOK_LOG_ENV:
+        value = os.getenv(name, "").strip()
+        if value:
+            return Path(value).expanduser()
+    return Path.home() / ".cortex" / "logs" / "hooks.log"
+
+
+def _log_hook(message: str) -> None:
+    try:
+        path = _hook_log_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(f"{timestamp} [{Path(__file__).name}] {message}\n")
+    except Exception:
+        return
 
 
 def candidate_rule_paths() -> List[Path]:
@@ -112,4 +135,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except Exception as exc:
+        _log_hook(f"Unhandled error: {exc}")
+        raise

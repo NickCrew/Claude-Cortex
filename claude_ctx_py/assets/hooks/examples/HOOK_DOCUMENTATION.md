@@ -368,7 +368,7 @@ User must either:
 
 ### Test 1: API Implementation (All Phases)
 ```bash
-CLAUDE_USER_PROMPT="implement REST API for users" \
+CLAUDE_HOOK_PROMPT="implement REST API for users" \
   bash ~/.claude/hooks/implementation-quality-gate.sh
 
 Expected:
@@ -379,7 +379,7 @@ Expected:
 
 ### Test 2: UI Implementation (All Phases)
 ```bash
-CLAUDE_USER_PROMPT="implement user dashboard UI" \
+CLAUDE_HOOK_PROMPT="implement user dashboard UI" \
   bash ~/.claude/hooks/implementation-quality-gate.sh
 
 Expected:
@@ -391,7 +391,7 @@ Expected:
 ### Test 3: Code Review Disabled
 ```bash
 # Edit hook: CODE_REVIEW_REQUIRED=false
-CLAUDE_USER_PROMPT="implement feature" \
+CLAUDE_HOOK_PROMPT="implement feature" \
   bash ~/.claude/hooks/implementation-quality-gate.sh
 
 Expected:
