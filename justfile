@@ -24,6 +24,7 @@ help:
     @echo "  just docs-serve-gh        # Serve docs with GitHub Pages config"
     @echo "  just docs-build           # Build docs site to docs/_site"
     @echo "  just docs-build-gh        # Build docs with GitHub Pages config"
+    @echo "  just docs-sync            # Sync docs into bundled directory"
     @echo "  just build                # Build sdist/wheel with python -m build"
     @echo "  just publish              # Build and publish to PyPI via twine"
     @echo "  just verify               # Verify CLI, manpage, and dependencies"
@@ -102,6 +103,7 @@ clean:
 
 bundle-assets:
     @python3 ./scripts/sync_bundled_assets.py
+    @just docs-sync
 
 build:
     @python -m build
@@ -124,6 +126,12 @@ docs-build:
 
 docs-build-gh:
     @cd docs && bundle exec jekyll build --config _config.yml,_config_ghpages.yml -d _site
+
+docs-sync:
+    @mkdir -p claude_ctx_py/docs
+    @cp README.md CHANGELOG.md CREDITS.md claude_ctx_py/docs/
+    @rsync -av --exclude='vendor' --exclude='_site' --exclude='.bundle' --exclude='.jekyll-cache' docs/ claude_ctx_py/docs/
+    @echo "✓ Documentation synced to claude_ctx_py/docs/"
 
 verify:
     @echo "=== Verifying Installation ==="

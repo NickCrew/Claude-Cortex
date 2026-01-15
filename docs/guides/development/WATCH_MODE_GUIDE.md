@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Watch Mode** is the "stay in flow" feature—it monitors your work in real-time and automatically manages the framework for you. No daemons, no system services, just an opt-in foreground process that watches while you code.
+**Watch Mode** is the "stay in flow" feature—it monitors your work in real-time and automatically manages the framework for you. It runs in the foreground by default, with an optional daemon mode when you want it in the background.
 
 ## 🚀 Quick Start
 
@@ -99,11 +99,49 @@ That's it! Watch mode will:
 
 ## ⚙️ Options
 
+### Config Defaults
+Persist watch defaults in `~/.cortex/cortex-config.json`:
+
+```json
+{
+  "watch": {
+    "directories": ["~/repo1", "~/repo2"],
+    "auto_activate": true,
+    "threshold": 0.7,
+    "interval": 2.0
+  }
+}
+```
+
+CLI flags always override config.
+
+### Daemon Mode (Optional)
+Run watch mode in the background (logs default to `~/.cortex/logs/watch.log`):
+
+```bash
+cortex ai watch --daemon
+cortex ai watch --status
+cortex ai watch --stop
+
+# Override log path
+cortex ai watch --daemon --log ~/.cortex/logs/my-watch.log
+```
+
 ### Basic Usage
 ```bash
 # Default: auto-activate ON, 70% threshold, 2s interval
 cortex ai watch
 ```
+
+### Watch Multiple Directories
+```bash
+cortex ai watch --dir ~/repo1 --dir ~/repo2
+
+# or
+cortex ai watch --dir "~/repo1,~/repo2"
+```
+
+Recommendations and auto-activation are based on the combined changes across all watched directories (one shared context).
 
 ### Disable Auto-Activation
 ```bash

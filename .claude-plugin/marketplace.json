@@ -1,0 +1,81 @@
+{
+  "name": "claude-cortex-internal",
+  "owner": {
+    "name": "Cortex Marketplace",
+    "email": "nick@atlascrew.dev"
+  },
+  "metadata": {
+    "description": "Private marketplace exposing the claude-cortex plugin bundle."
+  },
+  "plugins": [
+    {
+      "name": "claude-cortex",
+      "description": "Context orchestration toolkit with curated commands, agents, modes, and CLI utilities.",
+      "version": "2.0.0",
+      "source": {
+        "source": "github",
+        "repo": "NickCrew/claude-cortex"
+      },
+      "tags": [
+        "internal",
+        "context",
+        "claude"
+      ]
+    },
+    {
+      "name": "accessibility-expert",
+      "description": "Accessibility-focused command + agent bundle.",
+      "source": "./plugins/accessibility-expert",
+      "strict": false,
+      "commands": "./plugins/accessibility-expert/commands",
+      "agents": "./plugins/accessibility-expert/agents",
+      "tags": [
+        "a11y",
+        "accessibility",
+        "quality"
+      ]
+    },
+    {
+      "name": "cognitive-orchestration",
+      "description": "Orchestration helpers with commands, agents, and output styles.",
+      "source": "./plugins/cognitive-orchestration",
+      "strict": false,
+      "commands": "./plugins/cognitive-orchestration/commands",
+      "agents": "./plugins/cognitive-orchestration/agents",
+      "outputStyles": "./plugins/cognitive-orchestration/output-styles",
+      "tags": [
+        "orchestration",
+        "workflow",
+        "output-style"
+      ]
+    },
+    {
+      "name": "frontend-excellence",
+      "description": "Frontend-focused agents, commands, and skills.",
+      "source": "./plugins/frontend-excellence",
+      "strict": false,
+      "commands": "./plugins/frontend-excellence/commands",
+      "agents": "./plugins/frontend-excellence/agents",
+      "skills": "./plugins/frontend-excellence/skills",
+      "tags": [
+        "frontend",
+        "design",
+        "ui"
+      ]
+    },
+    {
+      "name": "ux-product",
+      "description": "UX/product command, agent, and skill bundle.",
+      "source": "./plugins/ux-product",
+      "strict": false,
+      "commands": "./plugins/ux-product/commands",
+      "agents": "./plugins/ux-product/agents",
+      "skills": "./plugins/ux-product/skills",
+      "tags": [
+        "ux",
+        "product",
+        "research"
+      ]
+    }
+  ]
+}

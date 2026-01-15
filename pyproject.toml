@@ -61,7 +61,7 @@ where = ["."]
 include = ["claude_ctx_py*"]
 
 [tool.setuptools.package-data]
-"claude_ctx_py" = ["assets/**"]
+"claude_ctx_py" = ["assets/**", "docs/**"]
 "*" = ["docs/reference/architecture/*"]
 
 [tool.setuptools.data-files]

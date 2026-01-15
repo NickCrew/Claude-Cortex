@@ -30,7 +30,7 @@ Keep hook configuration in `hooks/hooks.json` at the plugin root (not in `settin
             "type": "command",
             "command": "python3",
             "args": [
-              "${CLAUDE_PLUGIN_ROOT}/hooks/examples/skill_auto_suggester.py"
+              "${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py"
             ]
           }
         ]

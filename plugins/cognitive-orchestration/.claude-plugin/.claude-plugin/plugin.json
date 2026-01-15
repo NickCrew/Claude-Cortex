@@ -1,0 +1,32 @@
+{
+      "name": "cognitive-orchestration",
+      "source": "./plugins/cognitive-orchestration",
+      "description": "Multi-perspective problem-solving with dynamic expert team assembly, structured disagreement protocols, and cognitive harmonics optimization",
+      "version": "1.0.0",
+      "author": {
+    "name": "Nicholas Ferguson",
+    "email": "ncf423@gmail.com",
+    "url": "https://github.com/NickCrew/claude-cortex"
+  },
+  "repository": "https://github.com/NickCrew/claude-cortex",
+  "homepage": "https://github.com/NickCrew/claude-cortex",
+      "license": "MIT",
+      "keywords": [
+        "orchestration",
+        "multi-perspective",
+        "expert-team",
+        "cognitive",
+        "synthesis",
+        "dissent"
+      ],
+      "category": "ai-ml",
+      "strict": false,
+      "commands": [
+        "./commands/orchestrate.md",
+        "./commands/constructive-dissent.md"
+      ],
+      "agents": [
+        "./agents/master-orchestrator.md"
+      ]
+    }
+
