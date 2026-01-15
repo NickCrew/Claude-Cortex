@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>LLM Intelligence Quick Reference | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="LLM Intelligence Quick Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/ai/LLM_QUICK_REFERENCE.html" />
+<meta property="og:url" content="http://localhost:4000/guides/ai/LLM_QUICK_REFERENCE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="LLM Intelligence Quick Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"LLM Intelligence Quick Reference","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/ai/LLM_QUICK_REFERENCE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">LLM Intelligence Quick Reference</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="llm-intelligence-quick-reference">LLM Intelligence Quick Reference</h1>
+
+<h2 id="setup-2-minutes">Setup (2 minutes)</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. Install</span>
+pip <span class="nb">install </span>claude-ctx-py[llm]
+
+<span class="c"># 2. Add API key</span>
+<span class="nb">export </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+
+<span class="c"># 3. Enable</span>
+claude-ctx config <span class="nb">set </span>ai.use_llm <span class="nb">true</span>
+</code></pre></div></div>
+
+<h2 id="common-configuration">Common Configuration</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Use Case</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Conservative</strong> (low cost)</td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_threshold 0.2</code></td>
+    </tr>
+    <tr>
+      <td><strong>Balanced</strong> (default)</td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_threshold 0.5</code></td>
+    </tr>
+    <tr>
+      <td><strong>Aggressive</strong> (high quality)</td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_threshold 0.8</code></td>
+    </tr>
+    <tr>
+      <td><strong>Low cost model</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_model claude-haiku-3-5</code></td>
+    </tr>
+    <tr>
+      <td><strong>Best quality</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_model claude-opus-4-1</code></td>
+    </tr>
+    <tr>
+      <td><strong>Disable watch mode</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.use_llm_in_watch_mode false</code></td>
+    </tr>
+    <tr>
+      <td><strong>Set budget</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">claude-ctx config set ai.llm_budget_limit 5.00</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pricing-quick-facts">Pricing Quick Facts</h2>
+
+<ul>
+  <li><strong>Haiku</strong>: $0.00056 per analysis (cheapest)</li>
+  <li><strong>Sonnet</strong> (default): $0.006 per analysis (balanced)</li>
+  <li><strong>Opus</strong>: $0.0345 per analysis (best quality)</li>
+</ul>
+
+<p>With defaults (~15% LLM call rate):</p>
+<ul>
+  <li>10 sessions/day ≈ $0.10/month</li>
+  <li>30 sessions/day ≈ $0.30/month</li>
+  <li>100 sessions/day ≈ $1.00/month</li>
+</ul>
+
+<h2 id="usage">Usage</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Get recommendations with LLM analysis</span>
+claude-ctx ai recommend
+
+<span class="c"># Check stats</span>
+claude-ctx stats <span class="nt">--by</span> agent <span class="nt">--source</span> llm
+
+<span class="c"># View last week's recommendations</span>
+claude-ctx session list <span class="nt">--since</span> <span class="s2">"7 days ago"</span> | <span class="nb">grep </span>llm
+</code></pre></div></div>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Issue</th>
+      <th>Solution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>“LLM not available”</td>
+      <td><code class="language-plaintext highlighter-rouge">pip install claude-ctx-py[llm]</code> then restart</td>
+    </tr>
+    <tr>
+      <td>“Invalid API key”</td>
+      <td>Check https://console.anthropic.com/account/api-keys</td>
+    </tr>
+    <tr>
+      <td>“Rate limited”</td>
+      <td>Increase <code class="language-plaintext highlighter-rouge">llm_threshold</code> to 0.2</td>
+    </tr>
+    <tr>
+      <td>“Model not found”</td>
+      <td>Use <code class="language-plaintext highlighter-rouge">claude-sonnet-4-20250514</code> (default valid model)</td>
+    </tr>
+    <tr>
+      <td>“High costs”</td>
+      <td>Increase <code class="language-plaintext highlighter-rouge">llm_threshold</code>, disable for watch mode</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="configuration-file">Configuration File</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ~/.claude/config.yml</span>
+<span class="na">ai</span><span class="pi">:</span>
+  <span class="na">use_llm</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">llm_threshold</span><span class="pi">:</span> <span class="m">0.5</span>              <span class="c1"># Call LLM if confidence &lt; 50%</span>
+  <span class="na">llm_model</span><span class="pi">:</span> <span class="s">claude-sonnet-4-20250514</span>
+  <span class="na">llm_temperature</span><span class="pi">:</span> <span class="m">0.3</span>            <span class="c1"># Lower = more deterministic</span>
+  <span class="na">llm_max_tokens</span><span class="pi">:</span> <span class="m">1024</span>
+  <span class="na">use_llm_in_watch_mode</span><span class="pi">:</span> <span class="no">false</span>    <span class="c1"># Avoid surprise costs</span>
+  <span class="na">llm_budget_limit</span><span class="pi">:</span> <span class="m">10.00</span>         <span class="c1"># Monthly limit</span>
+</code></pre></div></div>
+
+<h2 id="what-gets-sent-to-api">What Gets Sent to API</h2>
+
+<p>✅ <strong>Safe to send</strong>:</p>
+<ul>
+  <li>File names: <code class="language-plaintext highlighter-rouge">auth.py</code>, <code class="language-plaintext highlighter-rouge">api_routes.ts</code></li>
+  <li>File types: <code class="language-plaintext highlighter-rouge">.py</code>, <code class="language-plaintext highlighter-rouge">.ts</code>, <code class="language-plaintext highlighter-rouge">.rs</code></li>
+  <li>Directory names: <code class="language-plaintext highlighter-rouge">src/auth</code>, <code class="language-plaintext highlighter-rouge">api/handlers</code></li>
+  <li>Context signals: <code class="language-plaintext highlighter-rouge">has_auth: true</code>, <code class="language-plaintext highlighter-rouge">has_tests: false</code></li>
+  <li>File counts: <code class="language-plaintext highlighter-rouge">3 files changed</code></li>
+</ul>
+
+<p>❌ <strong>Never sent</strong>:</p>
+<ul>
+  <li>Actual code content</li>
+  <li>Variable/function names</li>
+  <li>Commit messages</li>
+  <li>Secrets or API keys</li>
+</ul>
+
+<h2 id="key-metrics">Key Metrics</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Response time</td>
+      <td>1-3 seconds</td>
+    </tr>
+    <tr>
+      <td>Model</td>
+      <td>Claude Sonnet 4 (default)</td>
+    </tr>
+    <tr>
+      <td>Input tokens</td>
+      <td>~500 typical</td>
+    </tr>
+    <tr>
+      <td>Output tokens</td>
+      <td>~300 typical</td>
+    </tr>
+    <tr>
+      <td>Cost per call</td>
+      <td>~$0.006 (Sonnet)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="advanced-models">Advanced: Models</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Fastest &amp; cheapest</span>
+claude-ctx config <span class="nb">set </span>ai.llm_model claude-haiku-3-5
+
+<span class="c"># Balanced (default)</span>
+claude-ctx config <span class="nb">set </span>ai.llm_model claude-sonnet-4-20250514
+
+<span class="c"># Best quality</span>
+claude-ctx config <span class="nb">set </span>ai.llm_model claude-opus-4-1
+</code></pre></div></div>
+
+<h2 id="advanced-temperature-00-10">Advanced: Temperature (0.0-1.0)</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Very deterministic (recommended for agent selection)</span>
+claude-ctx config <span class="nb">set </span>ai.llm_temperature 0.0
+
+<span class="c"># Default (mostly deterministic)</span>
+claude-ctx config <span class="nb">set </span>ai.llm_temperature 0.3
+
+<span class="c"># Creative (not recommended for task selection)</span>
+claude-ctx config <span class="nb">set </span>ai.llm_temperature 0.7
+</code></pre></div></div>
+
+<h2 id="environment-variables">Environment Variables</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Required</span>
+<span class="nb">export </span><span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+
+<span class="c"># Optional</span>
+<span class="nb">export </span><span class="nv">CLAUDE_CTX_LLM_MODEL</span><span class="o">=</span>claude-sonnet-4-20250514
+<span class="nb">export </span><span class="nv">CLAUDE_CTX_LLM_THRESHOLD</span><span class="o">=</span>0.5
+<span class="nb">export </span><span class="nv">CLAUDE_CTX_LLM_TEMPERATURE</span><span class="o">=</span>0.3
+<span class="nb">export </span><span class="nv">CLAUDE_CTX_LLM_MAX_TOKENS</span><span class="o">=</span>1024
+</code></pre></div></div>
+
+<h2 id="recommendation-confidence-scale">Recommendation Confidence Scale</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Score</th>
+      <th>Interpretation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0.90-1.00</td>
+      <td>Very certain</td>
+    </tr>
+    <tr>
+      <td>0.70-0.90</td>
+      <td>Quite confident</td>
+    </tr>
+    <tr>
+      <td>0.50-0.70</td>
+      <td>Moderately confident</td>
+    </tr>
+    <tr>
+      <td>0.30-0.50</td>
+      <td>Somewhat uncertain</td>
+    </tr>
+    <tr>
+      <td>0.00-0.30</td>
+      <td>Unlikely</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="when-to-use-llm">When to Use LLM</h2>
+
+<h3 id="-use-when">✅ Use When:</h3>
+<ul>
+  <li>Complex multi-domain refactoring</li>
+  <li>Unusual context patterns</li>
+  <li>High-value work where quality &gt; cost</li>
+  <li>New projects with limited history</li>
+</ul>
+
+<h3 id="-skip-when">❌ Skip When:</h3>
+<ul>
+  <li>Simple auth changes (pattern matching sufficient)</li>
+  <li>High-volume batch operations</li>
+  <li>Cost-sensitive deployments</li>
+  <li>Frequently repeated tasks</li>
+</ul>
+
+<h2 id="full-guide">Full Guide</h2>
+
+<p>📖 <a href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM_INTELLIGENCE_GUIDE.md</a> — Comprehensive documentation</p>
+
+<h2 id="system-architecture">System Architecture</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Session → Semantic Matching (free, 50ms)
+            ↓
+         Confidence &gt; threshold (0.5)?
+            ├─ YES → Return recommendations
+            └─ NO → Call Claude API (1-3s, ~$0.006)
+                     ↓
+                  Return LLM recommendations
+</code></pre></div></div>
+
+<h2 id="cost-optimization">Cost Optimization</h2>
+
+<p><strong>To minimize costs:</strong></p>
+<ol>
+  <li>Set <code class="language-plaintext highlighter-rouge">llm_threshold</code> high (0.2-0.3)</li>
+  <li>Disable in watch mode</li>
+  <li>Use Haiku model for cost-sensitive work</li>
+  <li>Set budget limit</li>
+</ol>
+
+<p><strong>Result</strong>: 80-90% of checks use free semantic matching, only 10-20% call API</p>
+
+<h2 id="see-also">See Also</h2>
+
+<ul>
+  <li>Full guide: <a href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM_INTELLIGENCE_GUIDE.md</a></li>
+  <li>Overview: <a href="../AI_INTELLIGENCE.md">../AI_INTELLIGENCE.md</a></li>
+  <li>Implementation: <a href="../AI_IMPLEMENTATION_SUMMARY.md">../AI_IMPLEMENTATION_SUMMARY.md</a></li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

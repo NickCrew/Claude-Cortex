@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Claude Code Hooks | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Claude Code Hooks" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/reference/moved-readmes/hooks.html" />
+<meta property="og:url" content="http://localhost:4000/reference/moved-readmes/hooks.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Claude Code Hooks" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Claude Code Hooks","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/reference/moved-readmes/hooks.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Claude Code Hooks</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="claude-code-hooks">Claude Code Hooks</h1>
+
+<p>This directory contains example hooks for Claude Code that work with the claude-ctx plugin.</p>
+
+<h2 id="what-are-hooks">What Are Hooks?</h2>
+
+<p>Hooks are shell commands that execute in response to Claude Code events. They enable:</p>
+<ul>
+  <li>Quality gates and validation</li>
+  <li>Automated workflows</li>
+  <li>Policy enforcement</li>
+  <li>Custom integrations</li>
+</ul>
+
+<h2 id="available-hooks">Available Hooks</h2>
+
+<h3 id="implementation-quality-gate">Implementation Quality Gate</h3>
+
+<p><strong>File:</strong> <code class="language-plaintext highlighter-rouge">examples/implementation-quality-gate.sh</code></p>
+
+<p>A comprehensive three-phase quality gate that enforces professional development standards:</p>
+
+<ol>
+  <li><strong>Phase 1: Testing</strong> - test-automator, ≥85% coverage</li>
+  <li><strong>Phase 2: Documentation</strong> - Intelligent routing, ≥7.5/10 review</li>
+  <li><strong>Phase 3: Code Review</strong> - quality-engineer + code-reviewer, HIGH/MEDIUM issues resolved</li>
+</ol>
+
+<p><strong>Features:</strong></p>
+<ul>
+  <li>✅ Automatic test generation and validation</li>
+  <li>✅ Intelligent documentation routing (user-facing vs API)</li>
+  <li>✅ Code quality and security review</li>
+  <li>✅ Priority-based issue resolution</li>
+  <li>✅ Multi-agent orchestration (7 agents)</li>
+</ul>
+
+<p><strong>Documentation:</strong> See <code class="language-plaintext highlighter-rouge">examples/HOOK_DOCUMENTATION.md</code> for complete details.</p>
+
+<h3 id="skill-auto-suggester-new">Skill Auto-Suggester (New)</h3>
+
+<p><strong>File:</strong> <code class="language-plaintext highlighter-rouge">examples/skill_auto_suggester.py</code></p>
+
+<p>Inspired by diet103/claude-code-infrastructure-showcase, this hook scans the user prompt (and optionally changed files) and surfaces relevant <code class="language-plaintext highlighter-rouge">/ctx:*</code> skills. It reads rules from <code class="language-plaintext highlighter-rouge">skills/skill-rules.json</code>, so adding new skills only requires updating that JSON.</p>
+
+<p><strong>Install:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cp </span>hooks/examples/skill_auto_suggester.py ~/.claude/hooks/
+<span class="nb">chmod</span> +x ~/.claude/hooks/skill_auto_suggester.py
+</code></pre></div></div>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">~/.claude/settings.json</code> alongside other hooks:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"user-prompt-submit"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python3"</span><span class="p">,</span><span class="w"> </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"~/.claude/hooks/skill_auto_suggester.py"</span><span class="p">]}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The hook looks for <code class="language-plaintext highlighter-rouge">CLAUDE_HOOK_PROMPT</code> (set automatically by Claude Code). If you also export <code class="language-plaintext highlighter-rouge">CLAUDE_CHANGED_FILES</code>, it factors filenames into the keyword matching.</p>
+
+<h2 id="installation">Installation</h2>
+
+<h3 id="quick-install">Quick Install</h3>
+
+<p>Copy the hook to your Claude configuration:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Copy hook</span>
+<span class="nb">cp </span>hooks/examples/implementation-quality-gate.sh ~/.claude/hooks/
+
+<span class="c"># Make executable</span>
+<span class="nb">chmod</span> +x ~/.claude/hooks/implementation-quality-gate.sh
+
+<span class="c"># Register in settings.json</span>
+</code></pre></div></div>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">~/.claude/settings.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"user-prompt-submit"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bash"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"~/.claude/hooks/implementation-quality-gate.sh"</span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="activate-required-agents">Activate Required Agents</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx agent activate test-automator api-documenter tutorial-engineer <span class="se">\</span>
+  technical-writer docs-architect quality-engineer code-reviewer
+</code></pre></div></div>
+
+<h3 id="verify-installation">Verify Installation</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Test the hook</span>
+<span class="nv">CLAUDE_USER_PROMPT</span><span class="o">=</span><span class="s2">"implement a feature"</span> <span class="se">\</span>
+  bash ~/.claude/hooks/implementation-quality-gate.sh
+
+<span class="c"># Should show three-phase workflow</span>
+</code></pre></div></div>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Edit the hook file to adjust thresholds:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim ~/.claude/hooks/implementation-quality-gate.sh
+
+<span class="c"># Key configuration:</span>
+<span class="nv">COVERAGE_THRESHOLD</span><span class="o">=</span>85              <span class="c"># Test coverage minimum (%)</span>
+<span class="nv">DOCS_REVIEW_THRESHOLD</span><span class="o">=</span>7.5          <span class="c"># Documentation review minimum (0-10)</span>
+<span class="nv">CODE_REVIEW_REQUIRED</span><span class="o">=</span><span class="nb">true</span>          <span class="c"># Enable code review phase</span>
+</code></pre></div></div>
+
+<h3 id="recommended-settings-by-project-type">Recommended Settings by Project Type</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Project Type</th>
+      <th>Coverage</th>
+      <th>Docs Review</th>
+      <th>Code Review</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Production API</td>
+      <td>90%</td>
+      <td>8.5</td>
+      <td>Required</td>
+    </tr>
+    <tr>
+      <td>Internal Tool</td>
+      <td>80%</td>
+      <td>7.0</td>
+      <td>Required</td>
+    </tr>
+    <tr>
+      <td>Prototype</td>
+      <td>70%</td>
+      <td>6.5</td>
+      <td>Optional</td>
+    </tr>
+    <tr>
+      <td>Open Source</td>
+      <td>85%</td>
+      <td>8.0</td>
+      <td>Required</td>
+    </tr>
+    <tr>
+      <td>Enterprise</td>
+      <td>95%</td>
+      <td>9.0</td>
+      <td>Required</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="how-it-works">How It Works</h2>
+
+<h3 id="workflow">Workflow</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User submits implementation prompt
+         ↓
+Hook detects implementation keywords
+         ↓
+Activates appropriate agents
+         ↓
+Injects quality gate instructions
+         ↓
+Claude follows three-phase workflow:
+  1. Testing (test-automator)
+  2. Documentation (intelligent routing)
+  3. Code Review (quality-engineer + code-reviewer)
+         ↓
+Implementation complete only when all phases pass
+</code></pre></div></div>
+
+<h3 id="change-type-detection">Change Type Detection</h3>
+
+<p><strong>User-Facing Changes:</strong></p>
+<ul>
+  <li>Keywords: “UI”, “UX”, “frontend”, “user interface”, “tutorial”</li>
+  <li>Agents: tutorial-engineer + technical-writer</li>
+  <li>Output: User guides, tutorials, walkthroughs</li>
+</ul>
+
+<p><strong>API/Library Changes:</strong></p>
+<ul>
+  <li>Keywords: “API”, “endpoint”, “function”, “class”, “library”</li>
+  <li>Agents: api-documenter</li>
+  <li>Output: API reference, docstrings, developer docs</li>
+</ul>
+
+<h3 id="priority-system-code-review">Priority System (Code Review)</h3>
+
+<ul>
+  <li><strong>HIGH:</strong> Must fix immediately (security, critical bugs)</li>
+  <li><strong>MEDIUM:</strong> Must fix (quality, maintainability)</li>
+  <li><strong>LOW:</strong> Nice to have (ask user)</li>
+</ul>
+
+<p>Claude cannot skip HIGH/MEDIUM issues without explicit user permission.</p>
+
+<h2 id="example-usage">Example Usage</h2>
+
+<h3 id="simple-api-implementation">Simple API Implementation</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>You: "implement user authentication API"
+
+Claude:
+Phase 1: Testing
+✅ test-automator generates auth tests
+✅ Coverage: 92%
+
+Phase 2: Documentation
+✅ api-documenter creates API docs
+✅ docs-architect review: 8.0/10
+
+Phase 3: Code Review
+✅ quality-engineer: 2 MEDIUM issues found
+✅ code-reviewer: 1 HIGH issue (hardcoded secret)
+✅ All issues fixed
+
+Implementation complete!
+</code></pre></div></div>
+
+<h3 id="user-interface-feature">User Interface Feature</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>You: "implement user profile settings UI"
+
+Claude:
+Phase 1: Testing
+✅ test-automator generates component tests
+✅ Coverage: 88%
+
+Phase 2: Documentation
+✅ tutorial-engineer creates step-by-step guide
+✅ technical-writer documents feature
+✅ docs-architect review: 8.5/10
+
+Phase 3: Code Review
+✅ quality-engineer: Code quality good
+✅ code-reviewer: 1 MEDIUM issue (accessibility)
+✅ Issue fixed
+
+Implementation complete!
+</code></pre></div></div>
+
+<h2 id="disabling-the-hook">Disabling the Hook</h2>
+
+<h3 id="temporary-per-request">Temporary (Per Request)</h3>
+
+<p>Tell Claude: “disable quality gate for this task”</p>
+
+<h3 id="permanent">Permanent</h3>
+
+<p>Comment out in <code class="language-plaintext highlighter-rouge">~/.claude/settings.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"user-prompt-submit"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="err">//</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="err">//</span><span class="w">   </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bash"</span><span class="p">,</span><span class="w">
+      </span><span class="err">//</span><span class="w">   </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"~/.claude/hooks/implementation-quality-gate.sh"</span><span class="p">]</span><span class="w">
+      </span><span class="err">//</span><span class="w"> </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="disable-code-review-only">Disable Code Review Only</h3>
+
+<p>Edit the hook:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">CODE_REVIEW_REQUIRED</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div></div>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="hook-not-triggering">Hook Not Triggering</h3>
+
+<p><strong>Check 1:</strong> File is executable</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">ls</span> <span class="nt">-l</span> ~/.claude/hooks/implementation-quality-gate.sh
+<span class="c"># Should show -rwxr-xr-x</span>
+</code></pre></div></div>
+
+<p><strong>Check 2:</strong> Registered in settings.json</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> ~/.claude/settings.json | jq <span class="s1">'.hooks'</span>
+</code></pre></div></div>
+
+<p><strong>Check 3:</strong> Prompt contains implementation keywords</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># These trigger: "implement", "add feature", "create function", "build"</span>
+<span class="c"># These don't: "explain", "analyze", "debug"</span>
+</code></pre></div></div>
+
+<h3 id="agents-not-activating">Agents Not Activating</h3>
+
+<p><strong>Check status:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx agent status | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s2">"(test-automator|api-documenter|quality-engineer|code-reviewer)"</span>
+</code></pre></div></div>
+
+<p><strong>Activate all:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx agent activate test-automator api-documenter <span class="se">\</span>
+  tutorial-engineer technical-writer docs-architect <span class="se">\</span>
+  quality-engineer code-reviewer
+</code></pre></div></div>
+
+<h3 id="too-strict">Too Strict</h3>
+
+<p>Lower thresholds in hook:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">COVERAGE_THRESHOLD</span><span class="o">=</span>70          <span class="c"># From 85</span>
+<span class="nv">DOCS_REVIEW_THRESHOLD</span><span class="o">=</span>6.5      <span class="c"># From 7.5</span>
+<span class="nv">CODE_REVIEW_REQUIRED</span><span class="o">=</span><span class="nb">false</span>     <span class="c"># Disable Phase 3</span>
+</code></pre></div></div>
+
+<h3 id="false-positives">False Positives</h3>
+
+<p>Hook triggers on non-implementation prompts. Update keyword detection in hook:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Edit is_implementation_task() function</span>
+<span class="c"># Add exclusion keywords or adjust detection logic</span>
+</code></pre></div></div>
+
+<h2 id="creating-custom-hooks">Creating Custom Hooks</h2>
+
+<h3 id="hook-template">Hook Template</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+
+<span class="c"># Your hook logic here</span>
+<span class="c"># Access environment variables:</span>
+<span class="c"># - CLAUDE_USER_PROMPT: User's input</span>
+<span class="c"># - CLAUDE_TOOL_NAME: Tool being called (for tool-call hooks)</span>
+<span class="c"># - CLAUDE_FILE_PATH: File path (for file operation hooks)</span>
+
+<span class="c"># Exit codes:</span>
+<span class="c"># 0 = success/proceed</span>
+<span class="c"># non-zero = block operation</span>
+
+<span class="nb">exit </span>0
+</code></pre></div></div>
+
+<h3 id="available-hook-types">Available Hook Types</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">user-prompt-submit</code> - Runs when user submits a prompt</li>
+  <li><code class="language-plaintext highlighter-rouge">tool-call</code> - Runs before/after tool execution</li>
+  <li><code class="language-plaintext highlighter-rouge">session-start</code> - Runs when Claude Code session starts</li>
+  <li><code class="language-plaintext highlighter-rouge">session-end</code> - Runs when Claude Code session ends</li>
+</ul>
+
+<h3 id="registration">Registration</h3>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">~/.claude/settings.json</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"hooks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"user-prompt-submit"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span><span class="w">
+    </span><span class="nl">"tool-call"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python3"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"/path/to/your-hook.py"</span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="resources">Resources</h2>
+
+<ul>
+  <li><strong>Hook Documentation:</strong> <code class="language-plaintext highlighter-rouge">examples/HOOK_DOCUMENTATION.md</code></li>
+  <li><strong>Plugin Documentation:</strong> <code class="language-plaintext highlighter-rouge">../docs/</code></li>
+  <li><strong>Claude Code Hooks Docs:</strong> https://docs.claude.com/claude-code/hooks</li>
+</ul>
+
+<h2 id="contributing">Contributing</h2>
+
+<p>Have a useful hook? Submit a PR!</p>
+
+<ol>
+  <li>Add hook to <code class="language-plaintext highlighter-rouge">hooks/examples/</code></li>
+  <li>Include documentation</li>
+  <li>Add to this README</li>
+  <li>Test thoroughly</li>
+</ol>
+
+<h2 id="license">License</h2>
+
+<p>MIT - Same as claude-ctx plugin</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

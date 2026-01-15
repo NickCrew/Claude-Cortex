@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Cortex Quick Reference | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Cortex Quick Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/reference/architecture/quick-reference.html" />
+<meta property="og:url" content="http://localhost:4000/reference/architecture/quick-reference.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Cortex Quick Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Cortex Quick Reference","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/reference/architecture/quick-reference.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Cortex Quick Reference</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="cortex-quick-reference">Cortex Quick Reference</h1>
+
+<p><strong>One-page guide to the three-layer automation system</strong></p>
+
+<hr />
+
+<h2 id="the-three-layers">The Three Layers</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────┐
+│  🎯 Layer 1: USER COMMANDS (What to do)                  │
+│  43 slash commands across 16 namespaces                  │
+│  Examples: /refactor:analyze, /workflow:run, /mode:activate │
+└──────────────────────────────────────────────────────────┘
+                            ↓
+┌──────────────────────────────────────────────────────────┐
+│  🎨 Layer 2: BEHAVIORAL MODES (How to do it)             │
+│  8 modes that change Claude's operation style            │
+│  Examples: Brainstorm, Deep_Analysis, Quality_Focus     │
+└──────────────────────────────────────────────────────────┘
+                            ↓
+┌──────────────────────────────────────────────────────────┐
+│  🔄 Layer 3: WORKFLOWS (Step-by-step execution)          │
+│  9 multi-step processes with agent coordination         │
+│  Examples: feature-development, refactoring, api-design │
+└──────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="quick-lookup">Quick Lookup</h2>
+
+<h3 id="-common-commands">🎯 Common Commands</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Purpose</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/refactor:analyze src/</code></td>
+      <td>Find refactoring opportunities</td>
+      <td>2-3 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/refactor:execute plan.md</code></td>
+      <td>Execute refactoring safely</td>
+      <td>10-30 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/workflow:run feature-development</code></td>
+      <td>Build new feature end-to-end</td>
+      <td>30-60 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/workflow:run api-design</code></td>
+      <td>Design and implement API</td>
+      <td>45-90 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/mode:activate Deep_Analysis</code></td>
+      <td>Enable maximum reasoning</td>
+      <td>Instant</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/dev:code-review src/</code></td>
+      <td>Review code quality</td>
+      <td>3-5 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/test:generate-tests src/</code></td>
+      <td>Generate test suite</td>
+      <td>5-10 min</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/docs:generate src/</code></td>
+      <td>Generate documentation</td>
+      <td>5-10 min</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="-behavioral-modes">🎨 Behavioral Modes</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mode</th>
+      <th>When to Use</th>
+      <th>Key Features</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Brainstorm</strong></td>
+      <td>Unclear requirements</td>
+      <td>Socratic questions, options, collaboration</td>
+    </tr>
+    <tr>
+      <td><strong>Deep_Analysis</strong></td>
+      <td>Complex problems</td>
+      <td>Max reasoning (~32K tokens), hypothesis testing</td>
+    </tr>
+    <tr>
+      <td><strong>Quality_Focus</strong></td>
+      <td>Production code</td>
+      <td>8/10 review, 90% coverage, strict standards</td>
+    </tr>
+    <tr>
+      <td><strong>Token_Efficient</strong></td>
+      <td>Large operations</td>
+      <td>30-50% reduction, symbol communication</td>
+    </tr>
+    <tr>
+      <td><strong>Parallel_Orchestration</strong></td>
+      <td>Multi-file work</td>
+      <td>Parallel agents, quality gates</td>
+    </tr>
+    <tr>
+      <td><strong>Super_Saiyan</strong></td>
+      <td>UI/UX work</td>
+      <td>Visual excellence, animations, polish</td>
+    </tr>
+    <tr>
+      <td><strong>Task_Management</strong></td>
+      <td>Complex tasks</td>
+      <td>Hierarchical tracking, progress monitoring</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="-workflows">🔄 Workflows</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Workflow</th>
+      <th>Use Case</th>
+      <th>Duration</th>
+      <th>Key Modes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>feature-development</strong></td>
+      <td>New features</td>
+      <td>30-60 min</td>
+      <td>Task_Management, Parallel_Orchestration</td>
+    </tr>
+    <tr>
+      <td><strong>bug-fix</strong></td>
+      <td>Fix bugs</td>
+      <td>15-30 min</td>
+      <td>Deep_Analysis</td>
+    </tr>
+    <tr>
+      <td><strong>refactoring</strong></td>
+      <td>Clean code</td>
+      <td>20-45 min</td>
+      <td>Deep_Analysis, Quality_Focus</td>
+    </tr>
+    <tr>
+      <td><strong>api-design</strong></td>
+      <td>Design APIs</td>
+      <td>45-90 min</td>
+      <td>Brainstorm, Parallel_Orchestration</td>
+    </tr>
+    <tr>
+      <td><strong>technical-debt</strong></td>
+      <td>Quarterly cleanup</td>
+      <td>2-4 hours</td>
+      <td>Deep_Analysis, Quality_Focus</td>
+    </tr>
+    <tr>
+      <td><strong>architecture-review</strong></td>
+      <td>Quarterly review</td>
+      <td>3-5 hours</td>
+      <td>Deep_Analysis</td>
+    </tr>
+    <tr>
+      <td><strong>onboarding</strong></td>
+      <td>New developer</td>
+      <td>4 weeks</td>
+      <td>Brainstorm, Task_Management</td>
+    </tr>
+    <tr>
+      <td><strong>security-audit</strong></td>
+      <td>Monthly security</td>
+      <td>1-2 hours</td>
+      <td>Deep_Analysis</td>
+    </tr>
+    <tr>
+      <td><strong>performance-optimize</strong></td>
+      <td>Speed issues</td>
+      <td>30-60 min</td>
+      <td>Deep_Analysis</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="decision-guide">Decision Guide</h2>
+
+<h3 id="which-command-should-i-use">“Which command should I use?”</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Need to DO something specific?
+└─ Use a COMMAND
+   Examples: /refactor:analyze, /test:generate-tests
+
+Need Claude to THINK differently?
+└─ Use a MODE
+   Examples: /mode:activate Deep_Analysis
+
+Need to EXECUTE a process?
+└─ Use a WORKFLOW
+   Examples: /workflow:run feature-development
+</code></pre></div></div>
+
+<h3 id="how-do-they-work-together">“How do they work together?”</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Command → Activates Mode(s) → Triggers Workflow → Coordinates Agents
+</code></pre></div></div>
+
+<p><strong>Example Flow</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User: /refactor:analyze src/auth
+  ↓
+Activates: Deep_Analysis + Quality_Focus modes
+  ↓
+Triggers: Refactoring workflow (steps 1-3)
+  ↓
+Uses: code-reviewer agent + Codanna MCP
+  ↓
+Produces: Refactoring plan with priorities
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="integration-patterns">Integration Patterns</h2>
+
+<h3 id="pattern-1-quick-action">Pattern 1: Quick Action</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/refactor:analyze src/auth
+<span class="c"># Fast, focused analysis</span>
+</code></pre></div></div>
+
+<h3 id="pattern-2-workflow-with-modes">Pattern 2: Workflow with Modes</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/workflow:run feature-development
+<span class="c"># Auto-activates: Task_Management, Parallel_Orchestration</span>
+<span class="c"># Executes: 9-step process with multiple agents</span>
+</code></pre></div></div>
+
+<h3 id="pattern-3-manual-mode-control">Pattern 3: Manual Mode Control</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/mode:activate Brainstorm
+<span class="c"># Then discuss requirements</span>
+<span class="c"># Mode influences all subsequent interactions</span>
+</code></pre></div></div>
+
+<h3 id="pattern-4-chained-commands">Pattern 4: Chained Commands</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/refactor:analyze src/
+<span class="c"># Review the plan</span>
+/refactor:execute refactor-plan.md
+<span class="c"># Executes with Parallel_Orchestration + Quality_Focus</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="command-namespaces">Command Namespaces</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Namespace</th>
+      <th>Purpose</th>
+      <th>Commands</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/refactor:*</code></td>
+      <td>Code refactoring</td>
+      <td>analyze, execute</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/workflow:*</code></td>
+      <td>Workflow execution</td>
+      <td>run, status, resume</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/mode:*</code></td>
+      <td>Mode management</td>
+      <td>activate, deactivate, list</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/dev:*</code></td>
+      <td>Development</td>
+      <td>code-review, git, build, implement</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/test:*</code></td>
+      <td>Testing</td>
+      <td>generate-tests</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/deploy:*</code></td>
+      <td>Deployment</td>
+      <td>prepare-release</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/analyze:*</code></td>
+      <td>Analysis</td>
+      <td>code, explain, security-scan, troubleshoot</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/docs:*</code></td>
+      <td>Documentation</td>
+      <td>generate, index</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/quality:*</code></td>
+      <td>Quality</td>
+      <td>cleanup, improve</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/design:*</code></td>
+      <td>Design</td>
+      <td>system, workflow</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/collaboration:*</code></td>
+      <td>Collaboration</td>
+      <td>brainstorm, plan, execute-plan</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/orchestrate:*</code></td>
+      <td>Orchestration</td>
+      <td>task, spawn, brainstorm</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/session:*</code></td>
+      <td>Session mgmt</td>
+      <td>save, load, reflect</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/reasoning:*</code></td>
+      <td>Analysis control</td>
+      <td>budget, adjust, metrics</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/cleanup:*</code></td>
+      <td>Cleanup</td>
+      <td>test, code, deps, docs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/tools:*</code></td>
+      <td>Tool selection</td>
+      <td>select</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="keyboard-shortcuts-in-tui">Keyboard Shortcuts (in TUI)</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1  →  Overview
+2  →  Agents
+3  →  Modes       ← View your 8 modes
+4  →  Rules
+5  →  Skills
+6  →  Workflows   ← View your 9 workflows
+7  →  MCP
+8  →  Profiles
+9  →  Export
+0  →  AI Assistant
+
+S  →  Scenarios
+o  →  Orchestrate
+g  →  Galaxy
+t  →  Tasks
+r  →  Refresh
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="typical-workflows">Typical Workflows</h2>
+
+<h3 id="starting-a-new-feature">Starting a New Feature</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. /collaboration:brainstorm [feature idea]
+   ↓ Clarify requirements
+2. /workflow:run feature-development
+   ↓ Full development cycle
+3. /dev:code-review src/
+   ↓ Final quality check
+</code></pre></div></div>
+
+<h3 id="refactoring-code">Refactoring Code</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. /refactor:analyze src/module
+   ↓ Get refactoring plan
+2. Review priorities
+3. /refactor:execute refactor-plan.md
+   ↓ Safe incremental execution
+4. /test:generate-tests src/module
+   ↓ Ensure coverage
+</code></pre></div></div>
+
+<h3 id="designing-an-api">Designing an API</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. /workflow:run api-design --input api-params.yaml
+   ↓ Full API design process
+   ↓ Produces: OpenAPI spec, mock server, implementation
+2. /test:generate-tests api/
+3. /docs:generate api/
+</code></pre></div></div>
+
+<h3 id="monthly-maintenance">Monthly Maintenance</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. /workflow:run security-audit
+   ↓ Security check
+2. /workflow:run performance-optimize
+   ↓ Performance tuning
+3. /quality:improve src/
+   ↓ Code quality
+</code></pre></div></div>
+
+<h3 id="quarterly-cleanup">Quarterly Cleanup</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. /workflow:run technical-debt
+   ↓ 13-step debt reduction
+2. /workflow:run architecture-review
+   ↓ 15-step architecture assessment
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="quality-gates">Quality Gates</h2>
+
+<p>All workflows enforce quality standards:</p>
+
+<ul>
+  <li>✅ <strong>Code Review</strong>: Score ≥ 7/10 (8/10 in Quality_Focus mode)</li>
+  <li>✅ <strong>Test Coverage</strong>: ≥ 85% (90% in Quality_Focus mode)</li>
+  <li>✅ <strong>Security Scan</strong>: No critical/high vulnerabilities</li>
+  <li>✅ <strong>Performance</strong>: No regression &gt; 10%</li>
+  <li>✅ <strong>Documentation</strong>: Complete for public APIs</li>
+</ul>
+
+<hr />
+
+<h2 id="tips--best-practices">Tips &amp; Best Practices</h2>
+
+<h3 id="-efficiency-tips">💡 Efficiency Tips</h3>
+
+<ul>
+  <li>Use <code class="language-plaintext highlighter-rouge">/workflow:run</code> for multi-step processes</li>
+  <li>Activate modes at session start for persistent behavior</li>
+  <li>Use <code class="language-plaintext highlighter-rouge">--dry-run</code> to preview workflows</li>
+  <li>Check <code class="language-plaintext highlighter-rouge">/workflow:status</code> to monitor progress</li>
+</ul>
+
+<h3 id="-quality-tips">🎯 Quality Tips</h3>
+
+<ul>
+  <li>Always use Quality_Focus mode for production code</li>
+  <li>Let workflows handle quality gates automatically</li>
+  <li>Review refactoring plans before executing</li>
+  <li>Run security audits monthly</li>
+</ul>
+
+<h3 id="-speed-tips">🚀 Speed Tips</h3>
+
+<ul>
+  <li>Use Parallel_Orchestration for independent tasks</li>
+  <li>Leverage <code class="language-plaintext highlighter-rouge">--parallel</code> flag in workflows</li>
+  <li>Batch similar commands together</li>
+  <li>Use Token_Efficient mode for large codebases</li>
+</ul>
+
+<h3 id="️-safety-tips">🛡️ Safety Tips</h3>
+
+<ul>
+  <li>Workflows auto-checkpoint for resume capability</li>
+  <li>Refactoring uses incremental execution with rollback</li>
+  <li>Quality gates block on failures</li>
+  <li>All changes are validated before merging</li>
+</ul>
+
+<hr />
+
+<h2 id="getting-help">Getting Help</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># In TUI</span>
+?  →  Help
+
+<span class="c"># View detailed diagrams</span>
+<span class="nb">cat</span> ~/.claude/docs/architecture-diagrams.md
+
+<span class="c"># List all commands</span>
+<span class="nb">ls</span> ~/.claude/commands/<span class="k">*</span>/
+
+<span class="c"># List all modes</span>
+<span class="nb">ls</span> ~/.claude/modes/
+
+<span class="c"># List all workflows</span>
+<span class="nb">ls</span> ~/.claude/workflows/
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="system-stats">System Stats</h2>
+
+<ul>
+  <li><strong>43</strong> Slash Commands</li>
+  <li><strong>16</strong> Command Namespaces</li>
+  <li><strong>8</strong> Behavioral Modes</li>
+  <li><strong>9</strong> Multi-step Workflows</li>
+  <li><strong>25+</strong> Specialized Agents</li>
+  <li><strong>3</strong> MCP Servers (Codanna, Context7, Sequential)</li>
+</ul>
+
+<p><strong>Coverage</strong>: Feature development, bug fixing, refactoring, API design, security, performance, testing, documentation, onboarding, architecture, technical debt</p>
+
+<hr />
+
+<p><em>Last Updated: 2025-11-11</em></p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

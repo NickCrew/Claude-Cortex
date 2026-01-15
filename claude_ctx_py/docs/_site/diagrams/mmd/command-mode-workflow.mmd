@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant U as 👤 User
+    participant C as /slash:command
+    participant M as 🎨 Mode
+    participant W as 🔄 Workflow
+    participant A as 🤖 Agents
+    participant T as 📋 TodoWrite
+
+    U->>C: /refactor:analyze src/auth
+
+    Note over C: Parse command<br/>Load configuration
+
+    C->>M: Activate Deep_Analysis
+    C->>M: Activate Quality_Focus
+
+    Note over M: Set behavior:<br/>- Max reasoning depth<br/>- Quality threshold 8/10<br/>- Coverage target 90%
+
+    M->>W: Trigger refactoring workflow
+
+    Note over W: Load workflow steps<br/>Initialize state
+
+    W->>T: Create progress tracking
+    T-->>U: Show task list
+
+    W->>A: Execute Step 1: Code Analysis
+    A->>A: code-reviewer agent
+    A-->>W: quality_report, refactoring_candidates
+
+    W->>T: Update: Step 1 ✅
+    T-->>U: Progress: 1/10 (10%)
+
+    W->>A: Execute Step 2: Impact Assessment
+    A->>A: Codanna MCP (analyze_impact)
+    A-->>W: dependency_graph, risk_assessment
+
+    W->>T: Update: Step 2 ✅
+    T-->>U: Progress: 2/10 (20%)
+
+    W->>A: Execute Step 3: Refactoring Plan
+    A->>A: Planning with Deep_Analysis
+    A-->>W: refactoring_plan, safety_checkpoints
+
+    W->>T: Update: Step 3 ✅
+
+    Note over W: Continue through<br/>remaining steps...
+
+    W-->>U: ✅ Workflow Complete<br/>📄 Refactoring plan generated

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Terminology Update Changelog | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Terminology Update Changelog" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/changelogs/CHANGELOG-terminology-update.html" />
+<meta property="og:url" content="http://localhost:4000/archive/changelogs/CHANGELOG-terminology-update.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Terminology Update Changelog" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Terminology Update Changelog","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/changelogs/CHANGELOG-terminology-update.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Terminology Update Changelog</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="terminology-update-changelog">Terminology Update Changelog</h1>
+
+<p><strong>Date</strong>: 2025-11-24
+<strong>Scope</strong>: Clarify relationship between claude-ctx system and Claude Code execution</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>Updated slash command documentation to clarify the distinction between:</p>
+<ul>
+  <li><strong>Personas</strong> (conceptual thinking modes)</li>
+  <li><strong>Subagents</strong> (Claude Code workers launched via Task tool)</li>
+  <li><strong>Task tool</strong> (delegation mechanism)</li>
+</ul>
+
+<h2 id="summary-statistics">Summary Statistics</h2>
+
+<p><strong>Commands Updated</strong>: 39 total</p>
+<ul>
+  <li>Core orchestration: 3 (orchestrate:task, orchestrate:spawn, dev:implement)</li>
+  <li>High priority: 4 (test:generate-tests, dev:code-review, analyze:security-scan, docs:generate)</li>
+  <li>Medium priority: 4 (analyze:code, docs:index, collaboration:execute-plan, quality:improve)</li>
+  <li>Collaboration: 2 (brainstorm, plan)</li>
+  <li>Design: 2 (system, workflow)</li>
+  <li>Dev utilities: 2 (build, test)</li>
+  <li>Analyze utilities: 2 (troubleshoot, explain)</li>
+</ul>
+
+<p><strong>New Documentation</strong>: 2 files
+<strong>Updated Docs</strong>: 1 file (commands/README.md)</p>
+
+<h2 id="files-changed">Files Changed</h2>
+
+<h3 id="1-new-documentation">1. New Documentation</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">docs/architecture/terminology.md</code></strong> (NEW)</p>
+<ul>
+  <li>Comprehensive guide explaining the three-layer architecture</li>
+  <li>Clear definitions of all terms (Mode, Rule, Persona, Subagent, Task tool)</li>
+  <li>Decision flow diagrams</li>
+  <li>Practical examples</li>
+  <li>Common confusion resolutions</li>
+</ul>
+
+<h3 id="2-command-updates">2. Command Updates</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/orchestrate/task.md</code></strong></p>
+<ul>
+  <li>Added <code class="language-plaintext highlighter-rouge">subagents:</code> frontmatter field</li>
+  <li>Added “Personas (Thinking Modes)” section explaining conceptual roles</li>
+  <li>Added “Delegation Protocol” section with:
+    <ul>
+      <li>When to delegate (use Task tool)</li>
+      <li>Available subagents with descriptions</li>
+      <li>How to launch (XML example)</li>
+      <li>When NOT to delegate</li>
+    </ul>
+  </li>
+  <li>Updated “Tool Coordination” to clarify Task tool is delegation mechanism</li>
+  <li>Updated “Key Patterns” to change “Multi-Agent” → “Subagent Coordination”</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/orchestrate/spawn.md</code></strong></p>
+<ul>
+  <li>Added <code class="language-plaintext highlighter-rouge">personas:</code> and <code class="language-plaintext highlighter-rouge">subagents:</code> frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” section emphasizing spawn ALWAYS delegates</li>
+  <li>Updated “Tool Coordination” to list Task tool as PRIMARY mechanism</li>
+  <li>Provided detailed XML example of typical subagent spawning pattern</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/dev/implement.md</code></strong></p>
+<ul>
+  <li>Added <code class="language-plaintext highlighter-rouge">subagents:</code> frontmatter field</li>
+  <li>Added “Personas (Thinking Modes)” section with domain expertise descriptions</li>
+  <li>Added “Delegation Protocol” section with:
+    <ul>
+      <li>Complexity triggers for delegation</li>
+      <li>Available subagents</li>
+      <li>Delegation strategy with XML example</li>
+      <li>Clear when NOT to delegate criteria</li>
+    </ul>
+  </li>
+  <li>Updated “Tool Coordination” to clarify Task tool role</li>
+</ul>
+
+<h3 id="3-additional-command-updates-batch-2">3. Additional Command Updates (Batch 2)</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/test/generate-tests.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” (always delegates for test generation)</li>
+  <li>XML examples for test-automator + quality-engineer parallel execution</li>
+  <li>Clarified tool coordination with Task tool primary</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/dev/code-review.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” (always delegates for reviews)</li>
+  <li>Multiple delegation strategies (general quality vs security-focused)</li>
+  <li>Parallel code-reviewer + security-auditor when needed</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/analyze/security-scan.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” (always delegates for security)</li>
+  <li>Single and multi-component delegation strategies</li>
+  <li>Comprehensive security assessment via security-auditor</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/docs/generate.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” with complexity triggers</li>
+  <li>Separate strategies for API docs vs user guides</li>
+  <li>Conditional delegation (complex=subagent, simple=direct)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/analyze/code.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for deep analysis</li>
+  <li>Multi-domain parallel delegation (Explore + code-reviewer + security-auditor)</li>
+  <li>Depth-based delegation (quick=direct, deep=subagents)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/docs/index.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter (already had personas)</li>
+  <li>Added “Personas (Thinking Modes)” clarification</li>
+  <li>Added “Delegation Protocol” for comprehensive docs</li>
+  <li>Three-subagent strategy (Explore + api-documenter + technical-writer)</li>
+  <li>Project size-based delegation triggers</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/collaboration/execute-plan.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for plan execution</li>
+  <li>Parallel task execution strategy</li>
+  <li>Quality verification integration (–verify flag)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/quality/improve.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” clarification</li>
+  <li>Added “Delegation Protocol” for systematic improvements</li>
+  <li>Three-phase delegation (Explore → improve → validate)</li>
+  <li>Multi-domain improvement coordination</li>
+</ul>
+
+<h3 id="4-additional-command-updates-batch-3">4. Additional Command Updates (Batch 3)</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/collaboration/brainstorm.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for codebase exploration</li>
+  <li>Conditional delegation (large codebase or technical feasibility)</li>
+  <li>Explore subagent for asset discovery</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/collaboration/plan.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for complex planning</li>
+  <li>Two-subagent strategy (Explore + general-purpose)</li>
+  <li>Complexity-based delegation (&gt;5 workstreams)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/design/system.md</code></strong></p>
+<ul>
+  <li>Added MCP servers, personas, and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for complex designs</li>
+  <li>Two-subagent strategy (Explore + general-purpose)</li>
+  <li>Size-based delegation (&gt;10 components)</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/design/workflow.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” with 7 domain experts</li>
+  <li>Added “Delegation Protocol” (usually delegates)</li>
+  <li>Three-subagent PRD workflow (Explore + general-purpose + code-reviewer)</li>
+  <li>Comprehensive validation workflow</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/dev/build.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for build failures</li>
+  <li>Conditional delegation (complex errors, optimization)</li>
+  <li>Error analysis and optimization strategies</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/dev/test.md</code></strong></p>
+<ul>
+  <li>Added personas and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” section</li>
+  <li>Added “Delegation Protocol” for test issues</li>
+  <li>Dual strategies (failure analysis + coverage gap filling)</li>
+  <li>Test-automator integration for coverage</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/analyze/troubleshoot.md</code></strong></p>
+<ul>
+  <li>Added MCP, personas, and subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” with debugging expertise</li>
+  <li>Added “Delegation Protocol” for complex issues</li>
+  <li>Two-subagent investigation (Explore + general-purpose)</li>
+  <li>Sequential MCP for structured debugging</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/analyze/explain.md</code></strong></p>
+<ul>
+  <li>Added subagents to frontmatter</li>
+  <li>Added “Personas (Thinking Modes)” clarification</li>
+  <li>Added “Delegation Protocol” for comprehensive explanations</li>
+  <li>Two-subagent strategy (Explore + general-purpose)</li>
+  <li>Context7 and Sequential MCP integration</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/README.md</code></strong></p>
+<ul>
+  <li>Renamed “Agent Integration” → “Execution Architecture”</li>
+  <li>Split into two subsections:
+    <ul>
+      <li>“Personas (Thinking Modes)” - conceptual guidance</li>
+      <li>“Subagents (Workers via Task Tool)” - actual workers</li>
+    </ul>
+  </li>
+  <li>Added delegation triggers and criteria</li>
+  <li>Updated command structure template to show personas/subagents/mcp-servers</li>
+  <li>Added reference link to terminology.md</li>
+</ul>
+
+<h2 id="key-changes">Key Changes</h2>
+
+<h3 id="before-confusing">Before (Confusing)</h3>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">agents</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">code-reviewer</span><span class="pi">,</span> <span class="nv">test-automator</span><span class="pi">]</span>  <span class="c1"># What are these?</span>
+</code></pre></div></div>
+<blockquote>
+  <p>“Multi-agent coordination and delegation”</p>
+</blockquote>
+
+<h3 id="after-clear">After (Clear)</h3>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">personas</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">frontend</span><span class="pi">,</span> <span class="nv">backend</span><span class="pi">]</span>              <span class="c1"># Thinking modes</span>
+<span class="na">subagents</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">code-reviewer</span><span class="pi">,</span> <span class="nv">test-automator</span><span class="pi">]</span> <span class="c1"># Task tool workers</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>“Launch multiple subagents via Task tool in parallel”</p>
+</blockquote>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;invoke</span> <span class="na">name=</span><span class="s">"Task"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;subagent_type&gt;</span>general-purpose<span class="nt">&lt;/subagent_type&gt;</span>
+  ...
+<span class="nt">&lt;/invoke&gt;</span>
+</code></pre></div></div>
+
+<h2 id="impact">Impact</h2>
+
+<h3 id="for-command-authors">For Command Authors</h3>
+<ul>
+  <li>Clear template for when to use Task tool delegation</li>
+  <li>Understand difference between personas (guidance) and subagents (workers)</li>
+  <li>Consistent structure across all commands</li>
+</ul>
+
+<h3 id="for-claude-ai">For Claude (AI)</h3>
+<ul>
+  <li>Unambiguous instructions on when and how to delegate</li>
+  <li>Clear understanding of persona vs subagent distinction</li>
+  <li>Explicit Task tool usage patterns with XML examples</li>
+</ul>
+
+<h3 id="for-users">For Users</h3>
+<ul>
+  <li>Better transparency about what’s happening</li>
+  <li>Understand when work is delegated to subagents</li>
+  <li>See progress of parallel subagent execution</li>
+</ul>
+
+<h2 id="migration-guide">Migration Guide</h2>
+
+<h3 id="for-existing-commands">For Existing Commands</h3>
+
+<ol>
+  <li><strong>Add frontmatter fields</strong>:
+    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">personas</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">relevant</span><span class="pi">,</span> <span class="nv">thinking</span><span class="pi">,</span> <span class="nv">modes</span><span class="pi">]</span>
+<span class="na">subagents</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">task</span><span class="pi">,</span> <span class="nv">tool</span><span class="pi">,</span> <span class="nv">workers</span><span class="pi">]</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Add “Personas” section</strong>:
+    <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gu">## Personas (Thinking Modes)</span>
+<span class="p">-</span> <span class="gs">**persona-name**</span>: What perspective this provides
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Add “Delegation Protocol” section</strong>:
+```markdown
+    <h2 id="delegation-protocol">Delegation Protocol</h2>
+  </li>
+</ol>
+
+<p><strong>When to delegate</strong>:</p>
+<ul>
+  <li>Complexity triggers</li>
+</ul>
+
+<p><strong>Available subagents</strong>:</p>
+<ul>
+  <li>Listed with descriptions</li>
+</ul>
+
+<p><strong>How to delegate</strong>:</p>
+<ul>
+  <li>XML example with Task tool
+```</li>
+</ul>
+
+<ol>
+  <li><strong>Update “Tool Coordination”</strong>:
+    <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">-</span> <span class="gs">**Task tool**</span>: Claude Code's delegation mechanism
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="testing">Testing</h2>
+
+<p>Commands should now make it clear:</p>
+<ul>
+  <li>✅ When Task tool will be used (complexity triggers)</li>
+  <li>✅ Which subagents will be launched</li>
+  <li>✅ How parallel execution will work</li>
+  <li>✅ What personas are thinking about</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/reasoning/metrics.md</code></strong></p>
+<ul>
+  <li>Added personas: data-analyst, performance-engineer, cost-optimizer</li>
+  <li>Marked as “does NOT delegate” - direct data presentation</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/reasoning/adjust.md</code></strong></p>
+<ul>
+  <li>Added personas: performance-engineer, architect, cost-optimizer</li>
+  <li>Marked as “does NOT delegate” - configuration change</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/reasoning/budget.md</code></strong></p>
+<ul>
+  <li>Added personas: cost-optimizer, performance-engineer, architect</li>
+  <li>Marked as “does NOT delegate” - configuration setting</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/tools/select.md</code></strong></p>
+<ul>
+  <li>Added personas: architect, performance-engineer, tool-specialist</li>
+  <li>Marked as “does NOT delegate” - direct analysis and decision</li>
+  <li>Uses Codanna/Morphllm MCP for capability queries</li>
+</ul>
+
+<p><strong><code class="language-plaintext highlighter-rouge">commands/quality/cleanup.md</code></strong></p>
+<ul>
+  <li>Already had personas, added subagents</li>
+  <li>Marked as “CONDITIONALLY delegates” - based on scope and complexity</li>
+  <li>Three-subagent strategy: Explore + general-purpose + code-reviewer</li>
+</ul>
+
+<h2 id="final-statistics">Final Statistics</h2>
+
+<p><strong>Total Commands Updated</strong>: 39
+<strong>New Documentation Files</strong>: 2</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">docs/architecture/terminology.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">docs/CHANGELOG-terminology-update.md</code></li>
+</ul>
+
+<p><strong>Updated Documentation</strong>: 1</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">commands/README.md</code></li>
+</ul>
+
+<p><strong>Delegation Patterns Established</strong>:</p>
+<ul>
+  <li><strong>Always Delegates</strong> (5): test-generation, code-review, security-scan, spawn, prepare-release</li>
+  <li><strong>Usually Delegates</strong> (3): implement, docs-generation, workflow-design</li>
+  <li><strong>Conditionally Delegates</strong> (8): code-analysis, estimate, build, test, troubleshoot, explain, quality-cleanup, plan</li>
+  <li><strong>Never Delegates</strong> (23): git, doctor, visual commands (3), cleanup commands (5), session commands (3), reasoning commands (3), tools-select, and others</li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<p>Optional improvements:</p>
+<ol>
+  <li>Update remaining commands in other namespaces</li>
+  <li>Add delegation metrics/logging</li>
+  <li>Create command template generator</li>
+  <li>Add validation that checks for Delegation Protocol section</li>
+</ol>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li>Main architecture doc: <code class="language-plaintext highlighter-rouge">docs/architecture/terminology.md</code></li>
+  <li>Example commands:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/orchestrate:task</code> - Multi-domain coordination</li>
+      <li><code class="language-plaintext highlighter-rouge">/orchestrate:spawn</code> - Always-delegate pattern</li>
+      <li><code class="language-plaintext highlighter-rouge">/dev:implement</code> - Conditional delegation</li>
+    </ul>
+  </li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

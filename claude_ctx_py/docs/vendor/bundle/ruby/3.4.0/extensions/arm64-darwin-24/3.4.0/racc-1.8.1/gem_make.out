@@ -1,0 +1,18 @@
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+/opt/homebrew/opt/ruby/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251230-77627-mmzpw sitelibdir\=./.gem.20251230-77627-mmzpw clean
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251230-77627-mmzpw sitelibdir\=./.gem.20251230-77627-mmzpw
+compiling cparse.c
+linking shared-object racc/cparse.bundle
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251230-77627-mmzpw sitelibdir\=./.gem.20251230-77627-mmzpw install
+/usr/bin/install -c -m 0755 cparse.bundle ./.gem.20251230-77627-mmzpw/racc
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251230-77627-mmzpw sitelibdir\=./.gem.20251230-77627-mmzpw clean

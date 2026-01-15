@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Model Optimization | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Model Optimization" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/development/model-optimization.html" />
+<meta property="og:url" content="http://localhost:4000/guides/development/model-optimization.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Model Optimization" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Model Optimization","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/development/model-optimization.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="model-optimization-strategy">Model Optimization Strategy</h1>
+
+<p>Strategic model assignment (Opus vs Haiku) for optimal performance and cost efficiency across claude-ctx agents.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>claude-ctx uses an <strong>Opus-first hybrid model strategy</strong>:</p>
+<ul>
+  <li><strong>Opus 4.5</strong> (Daily Driver): State-of-the-art coding, complex reasoning, agentic tasks, architecture</li>
+  <li><strong>Haiku 4</strong> (Speed Tier): Fast execution, deterministic tasks, pattern application</li>
+</ul>
+
+<p><strong>Why Opus as Daily Driver:</strong></p>
+<ul>
+  <li>Leads SWE-bench Verified and 7/8 programming languages</li>
+  <li>Excels at long-horizon autonomous work with sustained reasoning</li>
+  <li><strong>Effort parameter</strong> makes it cost-competitive with Sonnet:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">effort: medium</code> → Sonnet-level quality, <strong>76% fewer tokens</strong></li>
+      <li><code class="language-plaintext highlighter-rouge">effort: high</code> → Exceeds Sonnet by 4.3%, 48% fewer tokens</li>
+    </ul>
+  </li>
+  <li>Cuts token usage in half vs competing solutions</li>
+</ul>
+
+<p><strong>Model IDs:</strong></p>
+<ul>
+  <li>Opus: <code class="language-plaintext highlighter-rouge">claude-opus-4-5-20251101</code> (200K context, 64K thinking budget)</li>
+  <li>Haiku: <code class="language-plaintext highlighter-rouge">claude-haiku-4-20250514</code> (200K context)</li>
+  <li>Sonnet: <code class="language-plaintext highlighter-rouge">claude-sonnet-4-5-20250929</code> (legacy fallback)</li>
+</ul>
+
+<p><strong>Pricing (per 1M tokens):</strong>
+| Model | Input | Output | Effective w/ Effort |
+|——-|——-|——–|———————|
+| Opus 4.5 | $5 | $25 | ~$1.50 at medium effort |
+| Opus 4.5 (high) | $5 | $25 | ~$3.00 at high effort |
+| Haiku 4 | $0.25 | $1.25 | N/A |
+| Sonnet 4.5 | $3 | $15 | (legacy fallback) |</p>
+
+<p><strong>Cost Impact</strong>: Opus at <code class="language-plaintext highlighter-rouge">effort: medium</code> is cost-competitive with Sonnet while delivering superior quality
+<strong>Performance</strong>: Haiku 2-5x faster for deterministic tasks, Opus excels at sustained multi-step reasoning</p>
+
+<h2 id="model-assignment-criteria">Model Assignment Criteria</h2>
+
+<h3 id="use-opus-default-when">Use Opus (Default) When:</h3>
+<ul>
+  <li><strong>Any reasoning task</strong> - Opus is the daily driver for all non-trivial work</li>
+  <li><strong>Complex reasoning</strong> (architecture, design decisions, security analysis)</li>
+  <li><strong>Long-horizon autonomous work</strong> (multi-session coding projects, complex migrations)</li>
+  <li><strong>Multi-system debugging</strong> (distributed system issues, root cause analysis)</li>
+  <li><strong>Agentic task orchestration</strong> (computer use, multi-tool workflows)</li>
+  <li><strong>Code review and quality</strong> (architectural patterns, security review)</li>
+  <li><strong>Creative synthesis</strong> (documentation strategy, technical writing)</li>
+</ul>
+
+<p><strong>Effort Parameter Guidelines:</strong>
+| Scenario | Effort Level | Why |
+|———-|————–|—–|
+| Routine reasoning | <code class="language-plaintext highlighter-rouge">medium</code> | Cost-effective, Sonnet-equivalent quality |
+| Critical decisions | <code class="language-plaintext highlighter-rouge">high</code> | Maximum quality for high-stakes work |
+| Quick analysis | <code class="language-plaintext highlighter-rouge">medium</code> | Fast turnaround with good quality |
+| Production incidents | <code class="language-plaintext highlighter-rouge">high</code> | No compromise on quality |</p>
+
+<h3 id="use-haiku-when">Use Haiku When:</h3>
+<ul>
+  <li><strong>Deterministic execution</strong> (code generation from well-defined specs)</li>
+  <li><strong>Pattern application</strong> (applying known patterns, scaffolding)</li>
+  <li><strong>Test generation</strong> (unit/integration tests following templates)</li>
+  <li><strong>Documentation generation</strong> (API docs, code comments from templates)</li>
+  <li><strong>Configuration management</strong> (Terraform, Kubernetes manifests)</li>
+  <li><strong>Data transformation</strong> (parsing, formatting, validation)</li>
+  <li><strong>Batch operations</strong> (repetitive tasks, migrations with clear patterns)</li>
+  <li><strong>Speed-critical</strong> (when latency matters more than reasoning depth)</li>
+</ul>
+
+<h3 id="legacy-sonnet-fallback">Legacy: Sonnet Fallback</h3>
+<p>Sonnet 4.5 remains available as a fallback option but is generally superseded by Opus with <code class="language-plaintext highlighter-rouge">effort: medium</code> which provides equivalent quality at lower effective cost.</p>
+
+<h2 id="agent-model-assignments">Agent Model Assignments</h2>
+
+<h3 id="opus-agents-default---daily-driver">Opus Agents (Default - Daily Driver)</h3>
+
+<p>All agents requiring reasoning now default to <strong>Opus with <code class="language-plaintext highlighter-rouge">effort: medium</code></strong> for cost-effective, high-quality output. Escalate to <code class="language-plaintext highlighter-rouge">effort: high</code> for critical scenarios.</p>
+
+<p><strong>Architecture &amp; Design (11 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">backend-architect</code> - API and service design decisions</li>
+  <li><code class="language-plaintext highlighter-rouge">system-architect</code> - System-level architecture</li>
+  <li><code class="language-plaintext highlighter-rouge">cloud-architect</code> - Cloud infrastructure design</li>
+  <li><code class="language-plaintext highlighter-rouge">hybrid-cloud-architect</code> - Multi-cloud strategy</li>
+  <li><code class="language-plaintext highlighter-rouge">devops-architect</code> - DevOps pipeline design</li>
+  <li><code class="language-plaintext highlighter-rouge">frontend-architect</code> - Frontend architecture</li>
+  <li><code class="language-plaintext highlighter-rouge">data-architect</code> - Data modeling and governance</li>
+  <li><code class="language-plaintext highlighter-rouge">ml-architect</code> - ML system design</li>
+  <li><code class="language-plaintext highlighter-rouge">architect-reviewer</code> - Architecture review</li>
+  <li><code class="language-plaintext highlighter-rouge">legacy-modernizer</code> - Legacy system redesign</li>
+  <li><code class="language-plaintext highlighter-rouge">dx-optimizer</code> - Developer experience strategy</li>
+</ul>
+
+<p><strong>Security &amp; Compliance (5 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">security-auditor</code> - Security vulnerability analysis</li>
+  <li><code class="language-plaintext highlighter-rouge">compliance-auditor</code> - Regulatory compliance</li>
+  <li><code class="language-plaintext highlighter-rouge">penetration-tester</code> - Security testing strategy</li>
+  <li><code class="language-plaintext highlighter-rouge">legal-advisor</code> - Legal review and risk assessment</li>
+  <li><code class="language-plaintext highlighter-rouge">privacy-engineer</code> - Privacy compliance</li>
+</ul>
+
+<p><strong>Incident &amp; Troubleshooting (4 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">debugger</code> - Complex debugging and root cause analysis</li>
+  <li><code class="language-plaintext highlighter-rouge">incident-responder</code> - Incident coordination and decision-making</li>
+  <li><code class="language-plaintext highlighter-rouge">devops-troubleshooter</code> - Production issue diagnosis</li>
+  <li><code class="language-plaintext highlighter-rouge">error-coordinator</code> - Error pattern analysis</li>
+</ul>
+
+<p><strong>Code Review &amp; Quality (3 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">code-reviewer</code> - Code review with architectural considerations</li>
+  <li><code class="language-plaintext highlighter-rouge">quality-engineer</code> - Quality strategy and test planning</li>
+  <li><code class="language-plaintext highlighter-rouge">performance-engineer</code> - Performance optimization strategy</li>
+</ul>
+
+<p><strong>Business &amp; Product (4 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">product-manager</code> - Product strategy and prioritization</li>
+  <li><code class="language-plaintext highlighter-rouge">requirements-analyst</code> - Requirements discovery and specification</li>
+  <li><code class="language-plaintext highlighter-rouge">business-analyst</code> - Business analysis and insights</li>
+  <li><code class="language-plaintext highlighter-rouge">search-specialist</code> - Research and information synthesis</li>
+</ul>
+
+<p><strong>Total Opus: 27 agents</strong> (previously Sonnet, now upgraded to Opus)</p>
+
+<p><strong>Effort Escalation Triggers:</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Use effort: high when:</span>
+<span class="pi">-</span> <span class="s">Production incidents with revenue impact</span>
+<span class="pi">-</span> <span class="s">Security breach or critical CVE analysis</span>
+<span class="pi">-</span> <span class="s">Platform-wide migrations affecting &gt;10 services</span>
+<span class="pi">-</span> <span class="s">Architecture decisions affecting &gt;6 month roadmap</span>
+<span class="pi">-</span> <span class="s">Multi-system debugging spanning &gt;3 service boundaries</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="haiku-agents-speed-tier">Haiku Agents (Speed Tier)</h3>
+
+<p><strong>Code Generation (8 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">python-pro</code> - Python code generation from specs</li>
+  <li><code class="language-plaintext highlighter-rouge">typescript-pro</code> - TypeScript code generation</li>
+  <li><code class="language-plaintext highlighter-rouge">javascript-pro</code> - JavaScript implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">golang-pro</code> - Go implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">rust-pro</code> - Rust implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">react-specialist</code> - React component generation</li>
+  <li><code class="language-plaintext highlighter-rouge">fastapi-pro</code> - FastAPI service generation</li>
+  <li><code class="language-plaintext highlighter-rouge">django-pro</code> - Django application generation</li>
+</ul>
+
+<p><strong>Testing (3 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">test-automator</code> - Test generation (pytest, Jest, etc.)</li>
+  <li><code class="language-plaintext highlighter-rouge">quality-automator</code> - Automated quality checks</li>
+  <li><code class="language-plaintext highlighter-rouge">integration-tester</code> - Integration test generation</li>
+</ul>
+
+<p><strong>Infrastructure as Code (4 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">terraform-specialist</code> - Terraform module generation</li>
+  <li><code class="language-plaintext highlighter-rouge">kubernetes-architect</code> - K8s manifest generation</li>
+  <li><code class="language-plaintext highlighter-rouge">helm-specialist</code> - Helm chart scaffolding</li>
+  <li><code class="language-plaintext highlighter-rouge">ansible-specialist</code> - Ansible playbook generation</li>
+</ul>
+
+<p><strong>Documentation (4 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">docs-architect</code> - Documentation structure (when following template)</li>
+  <li><code class="language-plaintext highlighter-rouge">api-documenter</code> - OpenAPI/GraphQL schema generation</li>
+  <li><code class="language-plaintext highlighter-rouge">reference-builder</code> - API reference generation</li>
+  <li><code class="language-plaintext highlighter-rouge">technical-writer</code> - Technical content (when following style guide)</li>
+</ul>
+
+<p><strong>Build &amp; Deployment (4 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">deployment-engineer</code> - Deployment pipeline execution</li>
+  <li><code class="language-plaintext highlighter-rouge">build-engineer</code> - Build optimization (deterministic)</li>
+  <li><code class="language-plaintext highlighter-rouge">cli-developer</code> - CLI command implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">tooling-engineer</code> - Tool development</li>
+</ul>
+
+<p><strong>Data Processing (3 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">data-engineer</code> - ETL pipeline implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">sql-pro</code> - SQL query optimization</li>
+  <li><code class="language-plaintext highlighter-rouge">data-validator</code> - Data validation rules</li>
+</ul>
+
+<p><strong>Specialized (5 agents):</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">git-workflow-manager</code> - Git operations and workflows</li>
+  <li><code class="language-plaintext highlighter-rouge">mermaid-expert</code> - Diagram generation</li>
+  <li><code class="language-plaintext highlighter-rouge">electron-pro</code> - Electron app scaffolding</li>
+  <li><code class="language-plaintext highlighter-rouge">websocket-engineer</code> - WebSocket implementation</li>
+  <li><code class="language-plaintext highlighter-rouge">graphql-specialist</code> - GraphQL schema implementation</li>
+</ul>
+
+<p><strong>Total Haiku: 31 agents</strong></p>
+
+<hr />
+
+<h3 id="context-dependent-9-agents">Context-Dependent (9 agents)</h3>
+
+<p>These agents switch between Opus and Haiku based on task complexity:</p>
+
+<p><strong>Default Haiku, Escalate to Opus:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">database-optimizer</code> - Query rewriting (Haiku), schema redesign (Opus)</li>
+  <li><code class="language-plaintext highlighter-rouge">refactoring-expert</code> - Simple refactors (Haiku), architectural refactors (Opus)</li>
+  <li><code class="language-plaintext highlighter-rouge">workflow-orchestrator</code> - Workflow execution (Haiku), workflow design (Opus)</li>
+  <li><code class="language-plaintext highlighter-rouge">multi-agent-coordinator</code> - Task routing (Haiku), coordination strategy (Opus)</li>
+  <li><code class="language-plaintext highlighter-rouge">context-manager</code> - Context extraction (Haiku), context strategy (Opus)</li>
+</ul>
+
+<p><strong>Default Opus, Fast Path to Haiku:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">learning-guide</code> - Curriculum design (Opus), example generation (Haiku)</li>
+  <li><code class="language-plaintext highlighter-rouge">tutorial-engineer</code> - Tutorial design (Opus), code examples (Haiku)</li>
+  <li><code class="language-plaintext highlighter-rouge">socratic-mentor</code> - Question formulation (Opus), fact retrieval (Haiku)</li>
+  <li><code class="language-plaintext highlighter-rouge">prompt-engineer</code> - Prompt strategy (Opus), prompt variations (Haiku)</li>
+</ul>
+
+<hr />
+
+<h2 id="feedback-driven-optimization">Feedback-Driven Optimization</h2>
+
+<p>Continuous feedback keeps the model strategy aligned with real-world behaviour:</p>
+
+<ul>
+  <li><strong>Ratings as Signals</strong> – Every <code class="language-plaintext highlighter-rouge">claude-ctx skills rate &lt;skill&gt;</code> call feeds the rating database (<code class="language-plaintext highlighter-rouge">skill-ratings.db</code>). The optimizer consumes average stars, helpful %, and success correlation when deciding whether a Haiku skill should escalate to Opus for better reliability.</li>
+  <li><strong>Auto-Prompt Collection</strong> – The TUI now surfaces rating prompts after a skill has been activated multiple times in the last 12 hours. That keeps recency high without relying on CLI usage.</li>
+  <li><strong>Activation Telemetry</strong> – <code class="language-plaintext highlighter-rouge">metrics.record_activation</code> logs agent/task context for each invocation; <code class="language-plaintext highlighter-rouge">SkillRatingPromptManager</code> uses the shared <code class="language-plaintext highlighter-rouge">activations.json</code> file to detect hot skills, and the orchestrator reuses the same data when rebalancing Opus vs Haiku allocations.</li>
+  <li><strong>Analytics Hooks</strong> – <code class="language-plaintext highlighter-rouge">skills ratings</code>, <code class="language-plaintext highlighter-rouge">skills top-rated</code>, and <code class="language-plaintext highlighter-rouge">skills export-ratings</code> expose the same metrics so humans can audit routing decisions, while the auto-router automatically penalizes chronically low-rated skills until they’re retrained or escalated to <code class="language-plaintext highlighter-rouge">effort: high</code> permanently.</li>
+  <li><strong>Effort Optimization</strong> – Track quality metrics per effort level to auto-tune: skills performing well at <code class="language-plaintext highlighter-rouge">effort: medium</code> stay there, skills with quality issues escalate to <code class="language-plaintext highlighter-rouge">effort: high</code>.</li>
+</ul>
+
+<p>The net effect: Haiku handles deterministic work, Opus at <code class="language-plaintext highlighter-rouge">effort: medium</code> handles most reasoning, and <code class="language-plaintext highlighter-rouge">effort: high</code> is reserved for skills that need maximum quality.</p>
+
+<hr />
+
+<h2 id="hybrid-orchestration-patterns">Hybrid Orchestration Patterns</h2>
+
+<h3 id="pattern-1-design--implement--review">Pattern 1: Design → Implement → Review</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>backend-architect (Opus @ medium)
+  ↓ produces API spec
+python-pro (Haiku)
+  ↓ implements endpoints
+test-automator (Haiku)
+  ↓ generates tests
+code-reviewer (Opus @ medium)
+  ↓ validates architecture
+</code></pre></div></div>
+
+<p><strong>Cost</strong>: 2 Opus (medium) + 2 Haiku ≈ $3.60
+<strong>Token Efficiency</strong>: 76% fewer tokens vs Sonnet equivalent</p>
+
+<h3 id="pattern-2-research--generate--validate">Pattern 2: Research → Generate → Validate</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>search-specialist (Opus @ medium)
+  ↓ researches patterns
+docs-architect (Haiku)
+  ↓ generates documentation
+technical-writer (Haiku)
+  ↓ polishes content
+</code></pre></div></div>
+
+<p><strong>Cost</strong>: 1 Opus (medium) + 2 Haiku ≈ $2.10
+<strong>Quality</strong>: Opus reasoning + Haiku speed</p>
+
+<h3 id="pattern-3-troubleshoot--fix--test">Pattern 3: Troubleshoot → Fix → Test</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>debugger (Opus @ medium)
+  ↓ diagnoses root cause
+python-pro (Haiku)
+  ↓ implements fix
+test-automator (Haiku)
+  ↓ adds regression tests
+</code></pre></div></div>
+
+<p><strong>Cost</strong>: 1 Opus (medium) + 2 Haiku ≈ $2.10
+<strong>Quality</strong>: Superior debugging with Opus reasoning</p>
+
+<h3 id="pattern-4-audit--remediate--verify-critical-path">Pattern 4: Audit → Remediate → Verify (Critical Path)</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>security-auditor (Opus @ high)
+  ↓ identifies vulnerabilities
+typescript-pro (Haiku)
+  ↓ applies security fixes
+quality-engineer (Opus @ medium)
+  ↓ validates remediation
+</code></pre></div></div>
+
+<p><strong>Cost</strong>: 1 Opus (high) + 1 Haiku + 1 Opus (medium) ≈ $4.80
+<strong>Why High Effort</strong>: Security-critical path justifies maximum quality</p>
+
+<hr />
+
+<h2 id="implementation-guidelines">Implementation Guidelines</h2>
+
+<h3 id="agent-frontmatter">Agent Frontmatter</h3>
+
+<p><strong>Opus Agents (Default - Daily Driver):</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">model</span><span class="pi">:</span>
+  <span class="na">preference</span><span class="pi">:</span> <span class="s">opus</span>
+  <span class="na">effort</span><span class="pi">:</span> <span class="s">medium</span>  <span class="c1"># Default to cost-effective mode</span>
+  <span class="na">effort_escalation</span><span class="pi">:</span>
+    <span class="na">to</span><span class="pi">:</span> <span class="s">high</span>
+    <span class="na">when</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">production</span><span class="nv"> </span><span class="s">incident"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">security-critical</span><span class="nv"> </span><span class="s">analysis"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">platform-wide</span><span class="nv"> </span><span class="s">impact"</span>
+  <span class="na">fallbacks</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">haiku</span>
+  <span class="na">reasoning</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Opus</span><span class="nv"> </span><span class="s">daily</span><span class="nv"> </span><span class="s">driver</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">effort:medium</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">cost</span><span class="nv"> </span><span class="s">efficiency,</span><span class="nv"> </span><span class="s">escalate</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">high</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">critical</span><span class="nv"> </span><span class="s">work"</span>
+</code></pre></div></div>
+
+<p><strong>Haiku Agents (Speed Tier):</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">model</span><span class="pi">:</span>
+  <span class="na">preference</span><span class="pi">:</span> <span class="s">haiku</span>
+  <span class="na">escalation</span><span class="pi">:</span>
+    <span class="na">to</span><span class="pi">:</span> <span class="s">opus</span>
+    <span class="na">effort</span><span class="pi">:</span> <span class="s">medium</span>
+    <span class="na">when</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">task</span><span class="nv"> </span><span class="s">requires</span><span class="nv"> </span><span class="s">reasoning"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">pattern</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">recognized"</span>
+  <span class="na">reasoning</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Deterministic</span><span class="nv"> </span><span class="s">code</span><span class="nv"> </span><span class="s">generation</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">well-defined</span><span class="nv"> </span><span class="s">specifications"</span>
+</code></pre></div></div>
+
+<p><strong>Context-Dependent (Two-Tier):</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">model</span><span class="pi">:</span>
+  <span class="na">preference</span><span class="pi">:</span> <span class="s">haiku</span>
+  <span class="na">escalation</span><span class="pi">:</span>
+    <span class="na">to</span><span class="pi">:</span> <span class="s">opus</span>
+    <span class="na">effort</span><span class="pi">:</span> <span class="s">medium</span>
+    <span class="na">when</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">architectural</span><span class="nv"> </span><span class="s">refactoring"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">novel</span><span class="nv"> </span><span class="s">pattern</span><span class="nv"> </span><span class="s">discovery"</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">security</span><span class="nv"> </span><span class="s">implications"</span>
+    <span class="na">effort_high</span><span class="pi">:</span>
+      <span class="na">when</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="s2">"</span><span class="s">multi-system</span><span class="nv"> </span><span class="s">scope"</span>
+        <span class="pi">-</span> <span class="s2">"</span><span class="s">critical</span><span class="nv"> </span><span class="s">path"</span>
+  <span class="na">reasoning</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Fast</span><span class="nv"> </span><span class="s">path</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">standard</span><span class="nv"> </span><span class="s">operations,</span><span class="nv"> </span><span class="s">escalate</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">Opus</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">complexity"</span>
+</code></pre></div></div>
+
+<p><strong>Legacy Sonnet (Fallback Only):</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">model</span><span class="pi">:</span>
+  <span class="na">preference</span><span class="pi">:</span> <span class="s">opus</span>
+  <span class="na">fallbacks</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">sonnet</span>  <span class="c1"># Only if Opus unavailable</span>
+    <span class="pi">-</span> <span class="s">haiku</span>
+  <span class="na">reasoning</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Sonnet</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">fallback</span><span class="nv"> </span><span class="s">when</span><span class="nv"> </span><span class="s">Opus</span><span class="nv"> </span><span class="s">unavailable"</span>
+</code></pre></div></div>
+
+<h3 id="decision-matrix">Decision Matrix</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task Characteristic</th>
+      <th>Haiku</th>
+      <th>Sonnet</th>
+      <th>Opus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Well-defined spec</td>
+      <td>+2</td>
+      <td>0</td>
+      <td>-1</td>
+    </tr>
+    <tr>
+      <td>Novel problem</td>
+      <td>0</td>
+      <td>+2</td>
+      <td>+1</td>
+    </tr>
+    <tr>
+      <td>Pattern application</td>
+      <td>+2</td>
+      <td>0</td>
+      <td>-1</td>
+    </tr>
+    <tr>
+      <td>Complex reasoning</td>
+      <td>0</td>
+      <td>+2</td>
+      <td>+1</td>
+    </tr>
+    <tr>
+      <td>Security critical</td>
+      <td>-1</td>
+      <td>+2</td>
+      <td>+1</td>
+    </tr>
+    <tr>
+      <td>Code generation</td>
+      <td>+2</td>
+      <td>0</td>
+      <td>-1</td>
+    </tr>
+    <tr>
+      <td>Architecture design</td>
+      <td>0</td>
+      <td>+2</td>
+      <td>+1</td>
+    </tr>
+    <tr>
+      <td>Batch processing</td>
+      <td>+2</td>
+      <td>0</td>
+      <td>-1</td>
+    </tr>
+    <tr>
+      <td>Creative synthesis</td>
+      <td>0</td>
+      <td>+2</td>
+      <td>+1</td>
+    </tr>
+    <tr>
+      <td>Documentation</td>
+      <td>+1</td>
+      <td>+1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><strong>Multi-system scope</strong></td>
+      <td>-2</td>
+      <td>+1</td>
+      <td><strong>+3</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Long-horizon autonomous</strong></td>
+      <td>-2</td>
+      <td>0</td>
+      <td><strong>+3</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Critical incidents</strong></td>
+      <td>-2</td>
+      <td>+1</td>
+      <td><strong>+3</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Platform migration</strong></td>
+      <td>-1</td>
+      <td>+1</td>
+      <td><strong>+3</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Sustained reasoning (&gt;10 steps)</strong></td>
+      <td>-2</td>
+      <td>+1</td>
+      <td><strong>+3</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Score Interpretation:</strong></p>
+<ul>
+  <li><strong>&gt; 5</strong>: Strong preference for that tier</li>
+  <li><strong>3-5</strong>: Moderate preference</li>
+  <li><strong>&lt; 3</strong>: Consider alternative</li>
+</ul>
+
+<p><strong>Escalation Rule</strong>: If Opus score &gt; Sonnet score by 3+, escalate to Opus</p>
+
+<hr />
+
+<h2 id="cost-analysis">Cost Analysis</h2>
+
+<h3 id="model-pricing-reference">Model Pricing Reference</h3>
+<p>| Model | Input (per 1M) | Output (per 1M) | Avg per call |
+|——-|—————-|—————–|————–|
+| Opus 4.5 | $5.00 | $25.00 | ~$6.00 |
+| Sonnet 4.5 | $3.00 | $15.00 | ~$3.60 |
+| Haiku 4 | $0.25 | $1.25 | ~$0.30 |</p>
+
+<h3 id="baseline-all-sonnet">Baseline (All Sonnet)</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Average task: 5 agent calls × $3.60 per call
+= $18 per task
+
+Daily volume (1000 tasks):
+= $18,000/day
+</code></pre></div></div>
+
+<h3 id="optimized-three-tier-hybrid">Optimized Three-Tier Hybrid</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Critical tasks (5%): 1 Opus + 2 Sonnet + 2 Haiku
+  = $6.00 + $7.20 + $0.60 = $13.80/task
+
+Architecture tasks (25%): 3 Sonnet + 2 Haiku
+  = $10.80 + $0.60 = $11.40/task
+
+Implementation tasks (50%): 1 Sonnet + 4 Haiku
+  = $3.60 + $1.20 = $4.80/task
+
+Maintenance tasks (20%): 0 Sonnet + 5 Haiku
+  = $1.50/task
+
+Weighted average:
+= (0.05 × $13.80) + (0.25 × $11.40) + (0.50 × $4.80) + (0.20 × $1.50)
+= $0.69 + $2.85 + $2.40 + $0.30
+= $6.24 per task
+
+Daily volume (1000 tasks):
+= $6,240/day
+
+Savings: 65% reduction vs all-Sonnet
+</code></pre></div></div>
+
+<h3 id="opus-effort-parameter-optimization">Opus Effort Parameter Optimization</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Opus with effort: medium
+- Sonnet-equivalent quality
+- 76% fewer tokens
+- Effective cost: ~$1.44/call (vs $6.00 at default)
+
+Opus with effort: high
+- Exceeds Sonnet by 4.3 percentage points
+- 48% fewer tokens
+- Effective cost: ~$3.12/call (vs $6.00 at default)
+
+Recommendation: Use effort: medium for cost-sensitive tasks,
+effort: high only for critical/complex scenarios
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="performance-metrics">Performance Metrics</h2>
+
+<h3 id="latency-comparison">Latency Comparison</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Type</th>
+      <th>Haiku P95</th>
+      <th>Sonnet P95</th>
+      <th>Improvement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Code Generation</td>
+      <td>1.2s</td>
+      <td>4.8s</td>
+      <td>4x faster</td>
+    </tr>
+    <tr>
+      <td>Test Generation</td>
+      <td>0.8s</td>
+      <td>3.2s</td>
+      <td>4x faster</td>
+    </tr>
+    <tr>
+      <td>Documentation</td>
+      <td>1.5s</td>
+      <td>5.0s</td>
+      <td>3.3x faster</td>
+    </tr>
+    <tr>
+      <td>IaC Generation</td>
+      <td>1.0s</td>
+      <td>3.5s</td>
+      <td>3.5x faster</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="quality-metrics">Quality Metrics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent Type</th>
+      <th>Haiku Success</th>
+      <th>Sonnet Success</th>
+      <th>Delta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Code Generation</td>
+      <td>94%</td>
+      <td>96%</td>
+      <td>-2%</td>
+    </tr>
+    <tr>
+      <td>Architecture</td>
+      <td>78%</td>
+      <td>94%</td>
+      <td>-16% (use Sonnet)</td>
+    </tr>
+    <tr>
+      <td>Test Generation</td>
+      <td>92%</td>
+      <td>93%</td>
+      <td>-1%</td>
+    </tr>
+    <tr>
+      <td>Security Audit</td>
+      <td>82%</td>
+      <td>95%</td>
+      <td>-13% (use Sonnet)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Key Insight</strong>: Haiku within 2% for deterministic tasks, Sonnet critical for reasoning tasks</p>
+
+<hr />
+
+<h2 id="implementation-status">Implementation Status</h2>
+
+<p>✅ <strong>Opus-First Strategy ACTIVE</strong> - Updated 2025-11-25</p>
+
+<h3 id="active-agent-model-distribution">Active Agent Model Distribution</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent</th>
+      <th>Category</th>
+      <th>Model</th>
+      <th>Effort</th>
+      <th>Reasoning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">python-pro</code></td>
+      <td>Code Gen</td>
+      <td><strong>haiku</strong></td>
+      <td>N/A</td>
+      <td>Deterministic code generation, 4x faster</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">typescript-pro</code></td>
+      <td>Code Gen</td>
+      <td><strong>haiku</strong></td>
+      <td>N/A</td>
+      <td>Pattern-based TypeScript, 3.3x faster</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">terraform-specialist</code></td>
+      <td>IaC</td>
+      <td><strong>haiku</strong></td>
+      <td>N/A</td>
+      <td>Deterministic Terraform, 3.5x faster</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">kubernetes-architect</code></td>
+      <td>IaC</td>
+      <td><strong>haiku</strong></td>
+      <td>N/A</td>
+      <td>YAML manifest generation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">deployment-engineer</code></td>
+      <td>CI/CD</td>
+      <td><strong>haiku</strong></td>
+      <td>N/A</td>
+      <td>Pipeline configuration</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cloud-architect</code></td>
+      <td>Architecture</td>
+      <td><strong>opus</strong></td>
+      <td>medium → high</td>
+      <td>Daily driver, escalate for multi-cloud</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">security-auditor</code></td>
+      <td>Security</td>
+      <td><strong>opus</strong></td>
+      <td>medium → high</td>
+      <td>Daily driver, escalate for breaches</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">code-reviewer</code></td>
+      <td>Quality</td>
+      <td><strong>opus</strong></td>
+      <td>medium</td>
+      <td>Architectural review</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">debugger</code></td>
+      <td>Troubleshooting</td>
+      <td><strong>opus</strong></td>
+      <td>medium → high</td>
+      <td>Daily driver, escalate for distributed</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="effort-escalation-triggers">Effort Escalation Triggers</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent</th>
+      <th>Effort High Trigger</th>
+      <th>When</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cloud-architect</code></td>
+      <td>Multi-cloud migration, &gt;10 services</td>
+      <td>Platform impact</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">security-auditor</code></td>
+      <td>Security breach, critical CVE</td>
+      <td>Security critical</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">debugger</code></td>
+      <td>Distributed system, &gt;3 service boundaries</td>
+      <td>Complex debugging</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">system-architect</code></td>
+      <td>Platform rewrite, legacy modernization</td>
+      <td>Long-horizon</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">incident-responder</code></td>
+      <td>P0 incident, revenue impact</td>
+      <td>Critical path</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Strategy</strong>: Opus @ <code class="language-plaintext highlighter-rouge">effort: medium</code> as daily driver, Haiku for speed tier
+<strong>Token Efficiency</strong>: 76% fewer tokens vs Sonnet at medium effort
+<strong>Quality</strong>: Superior reasoning with state-of-the-art coding capabilities</p>
+
+<hr />
+
+<h2 id="migration-notes">Migration Notes</h2>
+
+<p>The four-phase rollout (core agents → testing &amp; IaC → architecture &amp; security → validation &amp; documentation) completed on <strong>2025‑11‑14</strong>. The tables above reflect the final state; keep them handy when onboarding new agents or evaluating future model swaps.</p>
+
+<hr />
+
+<h2 id="monitoring--observability">Monitoring &amp; Observability</h2>
+
+<h3 id="key-metrics">Key Metrics</h3>
+
+<p><strong>Cost Metrics:</strong></p>
+<ul>
+  <li>Cost per agent call (by model)</li>
+  <li>Daily/weekly cost trends</li>
+  <li>Cost by agent category</li>
+</ul>
+
+<p><strong>Performance Metrics:</strong></p>
+<ul>
+  <li>P50, P95, P99 latency (by model)</li>
+  <li>Success rate (by agent, by model)</li>
+  <li>Escalation rate (context-dependent agents)</li>
+</ul>
+
+<p><strong>Quality Metrics:</strong></p>
+<ul>
+  <li>User satisfaction scores</li>
+  <li>Correction/revision rates</li>
+  <li>Fallback trigger frequency</li>
+</ul>
+
+<h3 id="alerts">Alerts</h3>
+
+<p><strong>Cost Anomalies:</strong></p>
+<ul>
+  <li>Daily cost &gt; 120% of 7-day average</li>
+  <li>Unexpected Sonnet/Opus usage spike</li>
+  <li>Opus calls &gt; 5% of total calls (review escalation criteria)</li>
+</ul>
+
+<p><strong>Performance Degradation:</strong></p>
+<ul>
+  <li>Success rate &lt; 85% for any agent</li>
+  <li>P95 latency &gt; 2× baseline</li>
+  <li>Opus calls not showing quality improvement over Sonnet</li>
+</ul>
+
+<p><strong>Escalation Issues:</strong></p>
+<ul>
+  <li>Escalation rate &gt; 30% (may indicate wrong default)</li>
+  <li>Opus escalation rate &gt; 10% (review Opus triggers)</li>
+  <li>Fallback rate &gt; 10%</li>
+</ul>
+
+<hr />
+
+<h2 id="best-practices">Best Practices</h2>
+
+<h3 id="opus-first-strategy">Opus-First Strategy</h3>
+<ol>
+  <li><strong>Default to Opus</strong> with <code class="language-plaintext highlighter-rouge">effort: medium</code> for all reasoning tasks</li>
+  <li><strong>Use Haiku</strong> only for well-defined, deterministic, speed-critical tasks</li>
+  <li><strong>Escalate to <code class="language-plaintext highlighter-rouge">effort: high</code></strong> for critical paths, security, production incidents</li>
+  <li><strong>Sonnet is legacy fallback</strong> - only use if Opus unavailable</li>
+</ol>
+
+<h3 id="effort-level-strategy">Effort Level Strategy</h3>
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">effort: medium</code></strong> is the sweet spot - Sonnet quality at 76% fewer tokens</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">effort: high</code></strong> for critical decisions - exceeds Sonnet by 4.3%</li>
+  <li><strong>Monitor effort-level ROI</strong> - track when high effort adds value vs medium</li>
+</ol>
+
+<h3 id="when-to-use-haiku">When to Use Haiku</h3>
+<ol>
+  <li><strong>Pattern application</strong>: Scaffolding, templates, deterministic generation</li>
+  <li><strong>Batch operations</strong>: Repetitive tasks, migrations with clear patterns</li>
+  <li><strong>Speed-critical</strong>: When latency matters more than reasoning depth</li>
+  <li><strong>Cost-sensitive bulk</strong>: High-volume, low-complexity operations</li>
+</ol>
+
+<h3 id="monitoring--optimization">Monitoring &amp; Optimization</h3>
+<ol>
+  <li><strong>Track Opus effort levels</strong> - ensure high effort shows quality improvement</li>
+  <li><strong>A/B test</strong> effort levels before full rollout</li>
+  <li><strong>Document reasoning</strong> in agent frontmatter</li>
+  <li><strong>Review monthly</strong> as Opus capabilities evolve</li>
+</ol>
+
+<hr />
+
+<h2 id="future-enhancements">Future Enhancements</h2>
+
+<h3 id="smart-two-tier-routing">Smart Two-Tier Routing</h3>
+<ul>
+  <li>Analyze task complexity before agent selection</li>
+  <li>Route deterministic tasks to Haiku, reasoning tasks to Opus</li>
+  <li>Learn from user corrections to refine boundaries</li>
+  <li>Auto-detect when Haiku should escalate to Opus</li>
+</ul>
+
+<h3 id="effort-level-auto-tuning">Effort Level Auto-Tuning</h3>
+<ul>
+  <li>Start with <code class="language-plaintext highlighter-rouge">effort: medium</code> (default)</li>
+  <li>Auto-escalate to <code class="language-plaintext highlighter-rouge">effort: high</code> if:
+    <ul>
+      <li>Task complexity score &gt; 0.8</li>
+      <li>Multi-system scope detected</li>
+      <li>Critical path indicators present</li>
+      <li>Previous medium-effort attempt had low confidence</li>
+    </ul>
+  </li>
+  <li>De-escalate to medium after successful high-effort completion</li>
+</ul>
+
+<h3 id="opus-effort-optimization">Opus Effort Optimization</h3>
+<ul>
+  <li>Auto-select effort level based on task characteristics</li>
+  <li>Track quality delta between effort levels</li>
+  <li>Cost-optimize by defaulting to <code class="language-plaintext highlighter-rouge">medium</code> effort</li>
+  <li>Escalate to <code class="language-plaintext highlighter-rouge">high</code> effort based on complexity signals</li>
+</ul>
+
+<h3 id="cost-budgets">Cost Budgets</h3>
+<ul>
+  <li>Per-agent and per-tier cost budgets</li>
+  <li>Opus spend limits with approval workflow</li>
+  <li>Auto-throttle expensive operations</li>
+  <li>User-configurable cost limits per tier</li>
+</ul>
+
+<h3 id="performance-profiling">Performance Profiling</h3>
+<ul>
+  <li>Track which agents benefit most from Sonnet vs Opus</li>
+  <li>Identify over-powered agents (Opus where Sonnet sufficient)</li>
+  <li>Measure Opus ROI: quality improvement vs cost increase</li>
+  <li>Continuous optimization loop</li>
+</ul>
+
+<hr />
+
+<h2 id="resources">Resources</h2>
+
+<ul>
+  <li><a href="https://docs.anthropic.com/en/docs/models-overview">Anthropic Model Documentation</a></li>
+  <li><a href="https://www.anthropic.com/news/claude-opus-4-5">Claude Opus 4.5 Announcement</a> - Latest model capabilities</li>
+  <li><a href="https://docs.anthropic.com/en/docs/about-claude/models">Claude Model Comparison</a> - Opus vs Sonnet vs Haiku</li>
+  <li><a href="https://docs.anthropic.com/en/docs/about-claude/pricing">Cost Calculator</a></li>
+  <li>Internal: <code class="language-plaintext highlighter-rouge">agents/dependencies.map</code> - Agent dependency graph</li>
+  <li>Internal: <code class="language-plaintext highlighter-rouge">../agents.md</code> - Complete agent catalog</li>
+</ul>
+
+<hr />
+
+<h2 id="changelog">Changelog</h2>
+
+<h3 id="2025-11-25-opus-45-as-daily-driver">2025-11-25: Opus 4.5 as Daily Driver</h3>
+<ul>
+  <li><strong>BREAKING</strong>: Opus 4.5 is now the default model for all reasoning tasks</li>
+  <li>Sonnet demoted to legacy fallback (Opus with <code class="language-plaintext highlighter-rouge">effort: medium</code> supersedes it)</li>
+  <li>Two-tier strategy: Opus (daily driver) + Haiku (speed tier)</li>
+  <li>Effort parameter optimization:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">effort: medium</code> → Sonnet-equivalent quality, 76% fewer tokens</li>
+      <li><code class="language-plaintext highlighter-rouge">effort: high</code> → Exceeds Sonnet by 4.3%, 48% fewer tokens</li>
+    </ul>
+  </li>
+  <li>Updated all 27 reasoning agents from Sonnet → Opus</li>
+  <li>31 Haiku agents retained for deterministic/speed tasks</li>
+  <li>Updated orchestration patterns to use Opus @ medium/high</li>
+  <li>New cost analysis reflecting effort parameter savings</li>
+</ul>
+
+<h3 id="2025-11-14-initial-two-tier-strategy">2025-11-14: Initial Two-Tier Strategy</h3>
+<ul>
+  <li>Implemented Sonnet/Haiku hybrid strategy</li>
+  <li>68% cost reduction achieved</li>
+  <li>9 active agents optimized</li>
+</ul>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

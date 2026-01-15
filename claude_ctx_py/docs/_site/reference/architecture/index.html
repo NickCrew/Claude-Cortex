@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Architecture Reference Documentation | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Architecture Reference Documentation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/reference/architecture/" />
+<meta property="og:url" content="http://localhost:4000/reference/architecture/" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Architecture Reference Documentation" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Architecture Reference Documentation","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/reference/architecture/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Architecture Reference Documentation</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="architecture-reference-documentation">Architecture Reference Documentation</h1>
+
+<p>Visual and textual documentation of the claude-ctx three-layer automation system.</p>
+
+<hr />
+
+<h2 id="-documentation-files">📚 Documentation Files</h2>
+
+<h3 id="1-visual_summarytxt">1. VISUAL_SUMMARY.txt</h3>
+<p><strong>Type</strong>: ASCII Art Diagram
+<strong>Size</strong>: 7.2K
+<strong>Format</strong>: Plain Text</p>
+
+<p>Quick visual overview perfect for terminal display.</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+  <li>System architecture (4 layers)</li>
+  <li>Component counts and organization</li>
+  <li>Example refactoring flow</li>
+  <li>Quick lookup tables</li>
+  <li>System statistics</li>
+</ul>
+
+<p><strong>Best for</strong>:</p>
+<ul>
+  <li>Terminal viewing</li>
+  <li>Quick reference</li>
+  <li>README files</li>
+  <li>Presentations</li>
+</ul>
+
+<p><strong>View</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>docs/reference/architecture/VISUAL_SUMMARY.txt
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="2-quick-referencemd">2. quick-reference.md</h3>
+<p><strong>Type</strong>: Cheat Sheet
+<strong>Size</strong>: 9.4K
+<strong>Format</strong>: Markdown Tables</p>
+
+<p>One-page reference for daily development use.</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+  <li>Common commands quick lookup</li>
+  <li>Behavioral modes comparison</li>
+  <li>Workflows comparison</li>
+  <li>Decision guide</li>
+  <li>Integration patterns</li>
+  <li>Keyboard shortcuts (TUI)</li>
+  <li>Typical workflows</li>
+  <li>Tips &amp; best practices</li>
+</ul>
+
+<p><strong>Best for</strong>:</p>
+<ul>
+  <li>Daily reference during development</li>
+  <li>Quick command lookup</li>
+  <li>Pattern examples</li>
+  <li>Onboarding cheat sheet</li>
+</ul>
+
+<p><strong>View</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>docs/reference/architecture/quick-reference.md
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="3-architecture-diagramsmd">3. architecture-diagrams.md</h3>
+<p><strong>Type</strong>: Comprehensive Diagrams
+<strong>Size</strong>: 15K
+<strong>Format</strong>: Markdown + Mermaid</p>
+
+<p>Deep dive with 10+ interactive diagrams.</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+  <li>System architecture overview (graph)</li>
+  <li>Command → Mode → Workflow flow (sequence diagram)</li>
+  <li>Mode activation flow (flowchart)</li>
+  <li>Workflow execution flow (detailed flowchart)</li>
+  <li>Refactoring example: End-to-end (full flow)</li>
+  <li>Decision tree: Which layer to use?</li>
+  <li>System statistics (pie chart)</li>
+  <li>Mode + Workflow compatibility matrix</li>
+  <li>Legend and symbols guide</li>
+  <li>Quick start guide</li>
+</ul>
+
+<p><strong>Best for</strong>:</p>
+<ul>
+  <li>Learning the system</li>
+  <li>Teaching and onboarding</li>
+  <li>Architecture reviews</li>
+  <li>Understanding integration patterns</li>
+</ul>
+
+<p><strong>View</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># In VS Code with Mermaid extension</span>
+code docs/reference/architecture/architecture-diagrams.md
+
+<span class="c"># Online at https://mermaid.live/</span>
+<span class="c"># Copy/paste diagrams to view and export</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="4-diagrams_readmemd">4. DIAGRAMS_README.md</h3>
+<p><strong>Type</strong>: Documentation Guide
+<strong>Size</strong>: 8.1K
+<strong>Format</strong>: Markdown</p>
+
+<p>How to use, read, and maintain all diagrams.</p>
+
+<p><strong>Contents</strong>:</p>
+<ul>
+  <li>Diagram index and descriptions</li>
+  <li>How to use each diagram type</li>
+  <li>Reading guide (symbols, colors, formats)</li>
+  <li>Diagram templates for creating new ones</li>
+  <li>Update checklist</li>
+  <li>Learning paths (Beginner → Advanced)</li>
+  <li>Tools and viewing methods</li>
+</ul>
+
+<p><strong>Best for</strong>:</p>
+<ul>
+  <li>Finding the right diagram</li>
+  <li>Understanding diagram conventions</li>
+  <li>Creating custom diagrams</li>
+  <li>Maintaining documentation</li>
+</ul>
+
+<p><strong>View</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>docs/reference/architecture/DIAGRAMS_README.md
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-quick-start">🎯 Quick Start</h2>
+
+<h3 id="for-new-users">For New Users</h3>
+
+<p><strong>Day 1</strong>: Start here</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. View ASCII summary for quick overview</span>
+<span class="nb">cat </span>docs/reference/architecture/VISUAL_SUMMARY.txt
+
+<span class="c"># 2. Try a simple command</span>
+claude-ctx
+<span class="c"># Press 3 → View Modes</span>
+<span class="c"># Press 6 → View Workflows</span>
+</code></pre></div></div>
+
+<p><strong>Week 1</strong>: Dive deeper</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 3. Read the cheat sheet</span>
+<span class="nb">cat </span>docs/reference/architecture/quick-reference.md
+
+<span class="c"># 4. Study the diagrams</span>
+<span class="c"># Open architecture-diagrams.md in VS Code or browser</span>
+</code></pre></div></div>
+
+<h3 id="for-developers">For Developers</h3>
+
+<p><strong>Daily Use</strong>:</p>
+<ul>
+  <li>Keep <code class="language-plaintext highlighter-rouge">quick-reference.md</code> open for command lookup</li>
+  <li>Reference <code class="language-plaintext highlighter-rouge">VISUAL_SUMMARY.txt</code> for system overview</li>
+  <li>Use TUI keyboard shortcuts (in quick-reference.md)</li>
+</ul>
+
+<p><strong>When Learning</strong>:</p>
+<ul>
+  <li>Study sequence diagrams in <code class="language-plaintext highlighter-rouge">architecture-diagrams.md</code></li>
+  <li>Follow the refactoring example end-to-end</li>
+  <li>Review decision tree for guidance</li>
+</ul>
+
+<h3 id="for-architects">For Architects</h3>
+
+<p><strong>Architecture Reviews</strong>:</p>
+<ul>
+  <li>Present system architecture diagram</li>
+  <li>Show component distribution</li>
+  <li>Explain integration patterns</li>
+  <li>Discuss compatibility matrix</li>
+</ul>
+
+<p><strong>Documentation</strong>:</p>
+<ul>
+  <li>Use diagrams in documentation</li>
+  <li>Reference decision trees</li>
+  <li>Show workflow examples</li>
+</ul>
+
+<hr />
+
+<h2 id="-the-three-layer-system">📖 The Three-Layer System</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Layer 1: USER COMMANDS (43 commands, 16 namespaces)
+         → What to do
+         Examples: /refactor:analyze, /workflow:run
+
+Layer 2: BEHAVIORAL MODES (8 modes)
+         → How to operate
+         Examples: Brainstorm, Deep_Analysis, Quality_Focus
+
+Layer 3: WORKFLOWS (9 multi-step processes)
+         → Step-by-step execution
+         Examples: feature-development, refactoring, api-design
+
+Layer 4: EXECUTION (Agents + MCP + Tools)
+         → Coordinates specialized agents and tools
+         Examples: code-reviewer, Codanna MCP, Sequential
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-integration-example">🔗 Integration Example</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User: /refactor:analyze src/auth
+  ↓
+Command Layer: Parse and load configuration
+  ↓
+Mode Layer: Activate Deep_Analysis + Quality_Focus
+  ↓
+Workflow Layer: Execute refactoring workflow steps 1-3
+  ↓
+Execution Layer: code-reviewer agent + Codanna MCP
+  ↓
+Output: Refactoring plan with priorities and risk assessment
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-system-statistics">📊 System Statistics</h2>
+
+<ul>
+  <li><strong>43</strong> Slash Commands across 16 namespaces</li>
+  <li><strong>8</strong> Behavioral Modes</li>
+  <li><strong>9</strong> Multi-step Workflows</li>
+  <li><strong>25+</strong> Specialized Agents</li>
+  <li><strong>3</strong> MCP Servers (Codanna, Context7, Sequential)</li>
+</ul>
+
+<p><strong>Coverage Areas</strong>:</p>
+<ul>
+  <li>Feature development &amp; bug fixing</li>
+  <li>Code refactoring &amp; quality improvement</li>
+  <li>API design &amp; implementation</li>
+  <li>Security auditing &amp; performance optimization</li>
+  <li>Technical debt management</li>
+  <li>Developer onboarding</li>
+  <li>Architecture review</li>
+</ul>
+
+<hr />
+
+<h2 id="️-installation--setup">🛠️ Installation &amp; Setup</h2>
+
+<p>These documentation files are automatically installed with claude-ctx.</p>
+
+<p><strong>Installation</strong> copies them to:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.claude/docs/architecture-diagrams.md
+~/.claude/docs/quick-reference.md
+~/.claude/docs/DIAGRAMS_README.md
+~/.claude/docs/VISUAL_SUMMARY.txt
+</code></pre></div></div>
+
+<p><strong>To reinstall/update documentation</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># From project directory</span>
+make <span class="nb">install</span>
+
+<span class="c"># Or manually copy</span>
+<span class="nb">cp </span>docs/reference/architecture/<span class="k">*</span> ~/.claude/docs/
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-viewing-diagrams">🎨 Viewing Diagrams</h2>
+
+<h3 id="ascii-art-terminal">ASCII Art (Terminal)</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>docs/reference/architecture/VISUAL_SUMMARY.txt
+<span class="c"># Or from installed location</span>
+<span class="nb">cat</span> ~/.claude/docs/VISUAL_SUMMARY.txt
+</code></pre></div></div>
+
+<h3 id="markdown-any-editor">Markdown (Any Editor)</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># VS Code, Sublime, etc.</span>
+code docs/reference/architecture/quick-reference.md
+</code></pre></div></div>
+
+<h3 id="mermaid-diagrams">Mermaid Diagrams</h3>
+
+<p><strong>In VS Code</strong>:</p>
+<ol>
+  <li>Install “Markdown Preview Mermaid Support” extension</li>
+  <li>Open <code class="language-plaintext highlighter-rouge">architecture-diagrams.md</code></li>
+  <li>Press <code class="language-plaintext highlighter-rouge">Cmd+Shift+V</code> (Mac) or <code class="language-plaintext highlighter-rouge">Ctrl+Shift+V</code> (Windows)</li>
+</ol>
+
+<p><strong>Online</strong>:</p>
+<ol>
+  <li>Visit https://mermaid.live/</li>
+  <li>Copy diagram from <code class="language-plaintext highlighter-rouge">architecture-diagrams.md</code></li>
+  <li>Paste to view and export as PNG/SVG</li>
+</ol>
+
+<p><strong>Command Line</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install mermaid-cli</span>
+npm <span class="nb">install</span> <span class="nt">-g</span> @mermaid-js/mermaid-cli
+
+<span class="c"># Generate images</span>
+mmdc <span class="nt">-i</span> architecture-diagrams.md <span class="nt">-o</span> diagrams.png
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-keeping-documentation-updated">🔄 Keeping Documentation Updated</h2>
+
+<p>When adding new components:</p>
+
+<p><strong>New Commands</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update command count in VISUAL_SUMMARY.txt</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add to quick-reference.md command table</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update namespace list if new namespace</li>
+</ul>
+
+<p><strong>New Modes</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update mode count in VISUAL_SUMMARY.txt</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add to quick-reference.md modes table</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update compatibility matrix in architecture-diagrams.md</li>
+</ul>
+
+<p><strong>New Workflows</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update workflow count in VISUAL_SUMMARY.txt</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add to quick-reference.md workflows table</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add to compatibility matrix</li>
+</ul>
+
+<p><strong>See DIAGRAMS_README.md</strong> for full update checklist.</p>
+
+<hr />
+
+<h2 id="-related-documentation">📚 Related Documentation</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">../../guides/</code> - Step-by-step guides and tutorials</li>
+  <li><code class="language-plaintext highlighter-rouge">../../README.md</code> - Main documentation index</li>
+  <li><code class="language-plaintext highlighter-rouge">../../../README.md</code> - Project README</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/commands/</code> - Slash command definitions</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/modes/</code> - Behavioral mode definitions</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/workflows/</code> - Workflow definitions</li>
+</ul>
+
+<hr />
+
+<h2 id="-contributing">🤝 Contributing</h2>
+
+<p>To improve these diagrams:</p>
+
+<ol>
+  <li><strong>Edit source files</strong> in <code class="language-plaintext highlighter-rouge">docs/reference/architecture/</code></li>
+  <li><strong>Test rendering</strong> with Mermaid preview</li>
+  <li><strong>Update statistics</strong> if component counts changed</li>
+  <li><strong>Commit changes</strong> with descriptive message</li>
+  <li><strong>Reinstall</strong> to update <code class="language-plaintext highlighter-rouge">~/.claude/docs/</code></li>
+</ol>
+
+<hr />
+
+<h2 id="-getting-help">📞 Getting Help</h2>
+
+<p><strong>Can’t find something?</strong></p>
+<ol>
+  <li>Check VISUAL_SUMMARY.txt for quick overview</li>
+  <li>Search quick-reference.md for specific commands/modes</li>
+  <li>Study architecture-diagrams.md for detailed flows</li>
+  <li>Read DIAGRAMS_README.md for guidance</li>
+</ol>
+
+<p><strong>Need more diagrams?</strong></p>
+<ul>
+  <li>Review DIAGRAMS_README.md for templates</li>
+  <li>Follow color coding and symbol conventions</li>
+  <li>Add to appropriate file</li>
+  <li>Update this README</li>
+</ul>
+
+<hr />
+
+<p><em>Last Updated: 2025-11-11</em>
+<em>Version: 1.0</em>
+<em>Part of claude-ctx: https://github.com/anthropics/claude-ctx</em></p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

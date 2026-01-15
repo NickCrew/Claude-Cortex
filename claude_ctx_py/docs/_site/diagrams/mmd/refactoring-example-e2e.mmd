@@ -1,0 +1,66 @@
+graph TB
+    subgraph "User Action"
+        U1["User: /refactor:analyze src/auth"]
+    end
+
+    subgraph "Command Layer"
+        C1["Command: refactor:analyze"]
+        C2["Parse arguments:<br/>path = 'src/auth'<br/>focus = 'all'"]
+    end
+
+    subgraph "Mode Activation"
+        M1["Activate: Deep_Analysis<br/>- Reasoning depth: ~32K tokens<br/>- Transparency markers on"]
+        M2["Activate: Quality_Focus<br/>- Review threshold: 8/10<br/>- Coverage target: 90%"]
+    end
+
+    subgraph "Workflow Execution"
+        W1["Load: refactoring.yaml"]
+        W2["Step 1: Code Analysis<br/>Agent: code-reviewer"]
+        W3["Step 2: Impact Assessment<br/>MCP: Codanna analyze_impact"]
+        W4["Step 3: Refactoring Plan<br/>Mode: Deep_Analysis"]
+    end
+
+    subgraph "Agent Layer"
+        A1["code-reviewer:<br/>- Complexity: 12 → target 6<br/>- Duplication: 45% → target 15%<br/>- Code smells: 8 found"]
+        A2["Codanna MCP:<br/>- Dependencies: 23 files<br/>- Risk score: 6.5/10<br/>- Change radius: Medium"]
+        A3["Planning:<br/>- Priority matrix generated<br/>- 3 quick wins identified<br/>- Migration strategy defined"]
+    end
+
+    subgraph "Output"
+        O1["📄 Refactoring Plan:<br/>- Issues prioritized<br/>- Impact assessed<br/>- Recommendations clear<br/>- Safety validated"]
+    end
+
+    subgraph "Next Action"
+        N1["User: /refactor:execute plan.md"]
+        N2["Command: refactor:execute<br/>Mode: Parallel_Orchestration"]
+        N3["Incremental Execution:<br/>- Change 1 → Test → ✅ Commit<br/>- Change 2 → Test → ✅ Commit<br/>- Change 3 → Test → ✅ Commit"]
+        N4["Quality Gates:<br/>- Review: 8.5/10 ✅<br/>- Coverage: 87% ✅<br/>- Performance: +2% ✅"]
+        N5["✅ Refactoring Complete"]
+    end
+
+    U1 --> C1
+    C1 --> C2
+    C2 --> M1
+    C2 --> M2
+    M1 --> W1
+    M2 --> W1
+    W1 --> W2
+    W2 --> W3
+    W3 --> W4
+    W2 --> A1
+    W3 --> A2
+    W4 --> A3
+    A1 --> O1
+    A2 --> O1
+    A3 --> O1
+    O1 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+
+    style U1 fill:#e1f5ff
+    style M1 fill:#fff3e1
+    style M2 fill:#fff3e1
+    style O1 fill:#c8e6c9
+    style N5 fill:#c8e6c9

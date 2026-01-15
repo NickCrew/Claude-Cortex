@@ -118,6 +118,8 @@ from ..core import (
     _parse_claude_md_refs,
     _inactive_dir_candidates,
     _inactive_category_dir,
+    _resolve_plugin_assets_root,
+    validate_hooks_config_file,
     _write_active_entries,
 )
 from ..core.rules import rules_activate, rules_deactivate
@@ -208,15 +210,18 @@ from ..tui_dialogs import (
     TaskEditorData,
     TaskEditorDialog,
     ConfirmDialog,
+    InfoDialog,
     HelpDialog,
     PromptDialog,
     TextViewerDialog,
 )
+from ..messages import RESTART_REQUIRED_MESSAGE, RESTART_REQUIRED_TITLE
 from ..tui_log_viewer import LogViewerScreen
+from .screens.docs import DocsScreen
 from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
-from ..watch import WatchMode
+from ..watch import WatchMode, load_watch_defaults
 import threading
 
 
@@ -569,6 +574,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.load_profiles()
         self.load_mcp_servers()
         self.update_view()
+        self._validate_plugin_hooks_startup()
 
         # Start performance monitoring timer
         self.set_interval(1.0, self.update_performance_status)
@@ -582,6 +588,20 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         # Schedule background check for pending prompts
         self.call_after_refresh(self._post_startup_checks)
+
+    def _validate_plugin_hooks_startup(self) -> None:
+        """Warn if plugin hooks.json has conflicting entries."""
+        try:
+            plugin_root = _resolve_plugin_assets_root()
+        except Exception:
+            return
+        config_path = plugin_root / "hooks" / "hooks.json"
+        if not config_path.is_file():
+            return
+        is_valid, errors = validate_hooks_config_file(config_path)
+        if not is_valid:
+            message = "Hooks config issues: " + "; ".join(errors)
+            self.notify(message, severity="warning", timeout=4)
 
     def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""
@@ -1169,11 +1189,28 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return ""
         return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
+    def _message_indicates_change(self, message: str | None) -> bool:
+        """Check if a CLI-style message indicates activation changes."""
+        clean = self._clean_ansi(message or "")
+        for line in clean.splitlines():
+            line = line.strip().lower()
+            if line.startswith("activated ") or line.startswith("deactivated "):
+                return True
+        return False
+
+    def _asset_triggers_restart(self, asset: Asset) -> bool:
+        """Return True if installing/removing the asset affects activation."""
+        return asset.category in {AssetCategory.AGENTS, AssetCategory.MODES}
+
     async def _show_text_dialog(self, title: str, body: str) -> None:
         """Display multi-line text in a modal dialog."""
         if not body:
             return
         await self.push_screen(TextViewerDialog(title, body), wait_for_dismiss=True)
+
+    def _show_restart_required(self) -> None:
+        """Show restart-required modal after activation changes."""
+        self.push_screen(InfoDialog(RESTART_REQUIRED_TITLE, RESTART_REQUIRED_MESSAGE))
 
     async def _prompt_text(
         self, title: str, prompt: str, *, default: str = "", placeholder: str = ""
@@ -4462,6 +4499,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             return False
         self.load_agents()
+        self._show_restart_required()
         return self._is_agent_active(slug_or_name)
 
     def _review_output_dir(self) -> Path:
@@ -5470,6 +5508,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.status_message = "Switched to Profiles"
         self.notify("👤 Profiles", severity="information", timeout=1)
 
+    async def action_view_docs(self) -> None:
+        """Switch to documentation view."""
+        await self.push_screen(DocsScreen())
+
     def action_view_export(self) -> None:
         """Switch to export view."""
         self.current_view = "export"
@@ -5981,8 +6023,15 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
     def _get_watch_directory(self) -> Path:
         """Get the current watch directory."""
         if self.watch_mode_instance:
-            return self.watch_mode_instance.directory
+            directories = self.watch_mode_instance.directories
+            return directories[0] if directories else Path.cwd()
         return Path.cwd()
+
+    def _get_watch_directories(self) -> List[Path]:
+        """Get the current watch directories."""
+        if self.watch_mode_instance:
+            return list(self.watch_mode_instance.directories)
+        return [Path.cwd()]
 
     def _get_watch_mode_state(self) -> WatchModeState:
         """Get current watch mode state for display."""
@@ -5992,9 +6041,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             last_notif_str = None
             if last_notif:
                 last_notif_str = f"{last_notif.get('icon', '')} {last_notif.get('title', '')} - {last_notif.get('message', '')}"
+            directories = state.get("directories") or [state.get("directory", Path.cwd())]
             return WatchModeState(
                 running=state.get("running", False),
-                directory=state.get("directory", Path.cwd()),
+                directories=directories,
                 auto_activate=state.get("auto_activate", True),
                 threshold=state.get("threshold", 0.7),
                 interval=state.get("interval", 2.0),
@@ -6004,12 +6054,13 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 started_at=state.get("started_at"),
                 last_notification=last_notif_str,
             )
+        defaults = load_watch_defaults()
         return WatchModeState(
             running=False,
-            directory=Path.cwd(),
-            auto_activate=True,
-            threshold=0.7,
-            interval=2.0,
+            directories=defaults.directories or [Path.cwd()],
+            auto_activate=defaults.auto_activate if defaults.auto_activate is not None else True,
+            threshold=defaults.threshold if defaults.threshold is not None else 0.7,
+            interval=defaults.interval if defaults.interval is not None else 2.0,
             checks_performed=0,
             recommendations_made=0,
             auto_activations=0,
@@ -6036,14 +6087,20 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.notify("Watch mode already running", severity="warning", timeout=2)
             return
         # Initialize WatchMode with current or selected directory
-        directory = self._get_watch_directory()
+        defaults = load_watch_defaults()
+        for warning in defaults.warnings:
+            self.notify(f"Watch config: {warning}", severity="warning", timeout=3)
+        directories = defaults.directories or self._get_watch_directories()
+        auto_activate = defaults.auto_activate if defaults.auto_activate is not None else True
+        threshold = defaults.threshold if defaults.threshold is not None else 0.7
+        interval = defaults.interval if defaults.interval is not None else 2.0
         self.watch_mode_instance = WatchMode(
-            auto_activate=True,
-            notification_threshold=0.7,
-            check_interval=2.0,
+            auto_activate=auto_activate,
+            notification_threshold=threshold,
+            check_interval=interval,
             notification_callback=self._handle_watch_notification
         )
-        self.watch_mode_instance.set_directory(directory)
+        self.watch_mode_instance.set_directories(directories)
         # Run in background thread
         self.watch_mode_thread = threading.Thread(
             target=self.watch_mode_instance.run,
@@ -6069,23 +6126,30 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     async def action_watch_change_directory(self) -> None:
         """Prompt for new directory to watch."""
-        current_dir = str(self._get_watch_directory())
+        current_dirs = ", ".join(str(p) for p in self._get_watch_directories())
         dialog = PromptDialog(
             "Change Watch Directory",
-            "Enter directory path to watch",
-            default=current_dir
+            "Enter directory path(s) to watch (comma-separated)",
+            default=current_dirs
         )
         result = await self.push_screen(dialog, wait_for_dismiss=True)
         if not result:
             return
-        new_dir = Path(os.path.expanduser(result.strip()))
-        if not new_dir.exists() or not new_dir.is_dir():
-            self.notify("Invalid directory", severity="error", timeout=2)
+        raw_entries = [entry.strip() for entry in result.split(",") if entry.strip()]
+        new_dirs = [Path(os.path.expanduser(entry)) for entry in raw_entries]
+        invalid = [d for d in new_dirs if not d.exists() or not d.is_dir()]
+        if invalid:
+            self.notify("Invalid directory in list", severity="error", timeout=2)
             return
         if self.watch_mode_instance:
             try:
-                self.watch_mode_instance.change_directory(new_dir)
-                self.notify(f"📁 Directory changed to {new_dir.name}", severity="information", timeout=2)
+                if len(new_dirs) == 1:
+                    self.watch_mode_instance.change_directory(new_dirs[0])
+                    label = new_dirs[0].name
+                else:
+                    self.watch_mode_instance.set_directories(new_dirs)
+                    label = f"{len(new_dirs)} directories"
+                self.notify(f"📁 Watching {label}", severity="information", timeout=2)
             except Exception as e:
                 self.notify(f"Failed to change directory: {e}", severity="error", timeout=3)
         self.update_view()
@@ -6162,7 +6226,18 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         status_action = "[space] Stop" if state.running else "[space] Start"
         table.add_row("▶ Status", status_icon, status_action)
         # Directory row
-        table.add_row("📁 Directory", str(state.directory), "[d] Change")
+        if state.directories:
+            primary = state.directories[0]
+            if len(state.directories) == 1:
+                dir_display = str(primary)
+                dir_label = "📁 Directory"
+            else:
+                dir_display = f"{primary} (+{len(state.directories) - 1} more)"
+                dir_label = "📁 Directories"
+        else:
+            dir_display = str(Path.cwd())
+            dir_label = "📁 Directory"
+        table.add_row(dir_label, dir_display, "[d] Change")
         # Settings rows
         auto_icon = "✅ ON" if state.auto_activate else "❌ OFF"
         table.add_row("🤖 Auto-activate", auto_icon, "[a] Toggle")
@@ -6282,6 +6357,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 exit_code, message = install_asset(asset, self.selected_target_dir)
                 if exit_code == 0:
                     self.notify(f"✓ Installed {asset.display_name}", severity="information", timeout=2)
+                    if self._asset_triggers_restart(asset):
+                        self._show_restart_required()
                 else:
                     self.notify(f"Failed: {message}", severity="error", timeout=3)
                 self.update_view()
@@ -6324,6 +6401,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             if exit_code == 0:
                 self.notify(f"✓ Uninstalled {asset.display_name}", severity="information", timeout=2)
+                if self._asset_triggers_restart(asset):
+                    self._show_restart_required()
             else:
                 self.notify(f"Failed: {message}", severity="error", timeout=3)
             self.update_view()
@@ -6361,6 +6440,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             exit_code, message = install_asset(asset, self.selected_target_dir)
             if exit_code == 0:
                 self.notify(f"✓ Updated {asset.display_name}", severity="information", timeout=2)
+                if self._asset_triggers_restart(asset):
+                    self._show_restart_required()
             else:
                 self.notify(f"Failed: {message}", severity="error", timeout=3)
             self.update_view()
@@ -6431,6 +6512,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             saved_cursor_row = self._table_cursor_index()
             installed_count = 0
             failed_count = 0
+            restart_needed = False
 
             for cat_name in selected:
                 assets = self.available_assets.get(cat_name, [])
@@ -6439,6 +6521,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                         exit_code, _ = install_asset(asset, self.selected_target_dir)
                         if exit_code == 0:
                             installed_count += 1
+                            if self._asset_triggers_restart(asset):
+                                restart_needed = True
                         else:
                             failed_count += 1
 
@@ -6452,6 +6536,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
             self.update_view()
             self._restore_main_table_cursor(saved_cursor_row)
+            if restart_needed:
+                self._show_restart_required()
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
 
@@ -6498,11 +6584,14 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             assets = self._assets_to_update
             updated_count = 0
             failed_count = 0
+            restart_needed = False
 
             for asset in assets:
                 exit_code, _ = install_asset(asset, self.selected_target_dir)
                 if exit_code == 0:
                     updated_count += 1
+                    if self._asset_triggers_restart(asset):
+                        restart_needed = True
                 else:
                     failed_count += 1
 
@@ -6516,6 +6605,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
             self.update_view()
             self._restore_main_table_cursor(saved_cursor_row)
+            if restart_needed:
+                self._show_restart_required()
             if hasattr(self, "_update_all_assets_pending"):
                 delattr(self, "_update_all_assets_pending")
         except Exception as e:
@@ -7022,6 +7113,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.load_rules()
             self.load_profiles()
             self.update_view()
+            self._show_restart_required()
         else:
             self.status_message = clean or f"Failed to apply {name}"
             self.notify(self.status_message, severity="error", timeout=3)
@@ -7133,6 +7225,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
             self.status_message = f"Applied profile: {config.name}"
             self.notify(f"Applied profile: {config.name}", severity="information", timeout=2)
+            self._show_restart_required()
 
         except Exception as exc:
             self.notify(f"Failed to apply: {exc}", severity="error", timeout=3)
@@ -7161,6 +7254,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 self.notify("Wizard cancelled or failed", severity="warning", timeout=3)
 
             await self._show_text_dialog("Init Wizard Result", clean_msg)
+            if exit_code == 0:
+                self._show_restart_required()
 
         except Exception as exc:
             self.notify(f"Init Wizard failed: {exc}", severity="error", timeout=3)
@@ -7204,6 +7299,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
             # Show full output
             await self._show_text_dialog("Init Minimal Result", clean_msg)
+            if exit_code == 0:
+                self._show_restart_required()
 
         except Exception as exc:
             self.notify(f"Init Minimal failed: {exc}", severity="error", timeout=3)
@@ -7242,6 +7339,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
             # Show full output
             await self._show_text_dialog("Migration Result", clean_msg)
+            if self._message_indicates_change(clean_msg):
+                self._show_restart_required()
 
         except Exception as exc:
             self.notify(f"Migration failed: {exc}", severity="error", timeout=3)
@@ -7686,9 +7785,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         elif self.current_view == "principles":
             self.action_principles_open()
         else:
-            self.notify(
-                "Docs not available in this view", severity="warning", timeout=2
-            )
+            await self.push_screen(DocsScreen())
 
     async def action_details_context(self) -> None:
         """Context-aware details shortcut."""
@@ -8847,6 +8944,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             self.load_agents()
             self.update_view()
+            self._show_restart_required()
         else:
             self.notify("Failed to auto-activate agents", severity="error", timeout=2)
 
@@ -9575,6 +9673,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                         saved_cursor_row, table.row_count - 1
                                     )
                                     table.move_cursor(row=new_cursor_row)
+                                self._show_restart_required()
                             else:
                                 self.notify(
                                     f"✗ Failed to toggle {agent.name}",
@@ -9643,6 +9742,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                     saved_cursor_row, table.row_count - 1
                                 )
                                 table.move_cursor(row=new_cursor_row)
+                            if clean_message.strip().lower().startswith(
+                                ("activated", "deactivated")
+                            ):
+                                self._show_restart_required()
                         except Exception as e:
                             self.status_message = f"Error: {e}"
                             self.notify(
@@ -9721,6 +9824,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                         saved_cursor_row, table.row_count - 1
                                     )
                                     table.move_cursor(row=new_cursor_row)
+                                self._show_restart_required()
                             else:
                                 # Show error message
                                 self.notify(
@@ -9775,6 +9879,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                             if table.row_count > 0:
                                 new_cursor_row = min(saved_cursor_row, table.row_count - 1)
                                 table.move_cursor(row=new_cursor_row)
+                            self._show_restart_required()
                         else:
                             self.notify(
                                 f"✗ {clean_message}",
@@ -9847,6 +9952,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                         saved_cursor_row, table.row_count - 1
                                     )
                                     table.move_cursor(row=new_cursor_row)
+                                self._show_restart_required()
                             else:
                                 self.notify(
                                     f"✗ {clean_message}",
@@ -9916,6 +10022,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                             saved_cursor_row, table.row_count - 1
                                         )
                                         table.move_cursor(row=new_cursor_row)
+                                    self._show_restart_required()
                                 else:
                                     self.notify(
                                         f"✗ {clean_message}",
@@ -10034,6 +10141,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 severity="information",
                 timeout=4,
             )
+            self._show_restart_required()
         except Exception as e:
             self.notify(f"Failed to write CLAUDE.md: {e}", severity="error", timeout=5)
 

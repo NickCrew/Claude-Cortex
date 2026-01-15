@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>GitHub Issues for Test Coverage (80% Target) | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="GitHub Issues for Test Coverage (80% Target)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/GITHUB_ISSUES_TEST_COVERAGE.html" />
+<meta property="og:url" content="http://localhost:4000/archive/GITHUB_ISSUES_TEST_COVERAGE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="GitHub Issues for Test Coverage (80% Target)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"GitHub Issues for Test Coverage (80% Target)","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/GITHUB_ISSUES_TEST_COVERAGE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">GitHub Issues for Test Coverage (80% Target)</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="github-issues-for-test-coverage-80-target">GitHub Issues for Test Coverage (80% Target)</h1>
+
+<p>Issues to create for reaching 80% test coverage across claude-ctx-plugin.</p>
+
+<h2 id="priority-1-core-modules-no-tests">Priority 1: Core Modules (No Tests)</h2>
+
+<h3 id="issue-1-test-coverage-for-corebasepy">Issue 1: Test Coverage for core/base.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/base.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-high, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/base.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> High (core functionality)
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`_resolve_claude_dir()`</span> - Claude directory resolution
+<span class="p">-</span> [ ] <span class="sb">`_iter_all_files()`</span> - File iteration logic
+<span class="p">-</span> [ ] <span class="sb">`_agent_basename()`</span> - Agent name extraction
+<span class="p">-</span> [ ] <span class="sb">`_is_disabled()`</span> - Disabled agent detection
+<span class="p">-</span> [ ] <span class="sb">`_extract_agent_name()`</span> - Name extraction from content
+<span class="p">-</span> [ ] <span class="sb">`_read_agent_front_matter_lines()`</span> - YAML front matter parsing
+<span class="p">-</span> [ ] <span class="sb">`_parse_dependencies_from_front()`</span> - Dependency extraction
+<span class="p">-</span> [ ] <span class="sb">`_tokenize_front_matter()`</span> - Front matter tokenization
+<span class="p">-</span> [ ] <span class="sb">`_extract_scalar_from_paths()`</span> - Scalar value extraction
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Path resolution (macOS, Linux, Windows)
+<span class="p">-</span> ✅ File iteration with filters
+<span class="p">-</span> ✅ Agent naming conventions
+<span class="p">-</span> ✅ Front matter parsing (valid, invalid, edge cases)
+<span class="p">-</span> ✅ Dependency resolution
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_base.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] All edge cases tested
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-2-test-coverage-for-coreagentspy">Issue 2: Test Coverage for core/agents.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/agents.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-high, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/agents.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> High (core functionality)
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`list_agents()`</span> - List all available agents
+<span class="p">-</span> [ ] <span class="sb">`agent_status()`</span> - Show agent activation status
+<span class="p">-</span> [ ] <span class="sb">`agent_activate()`</span> - Activate agents
+<span class="p">-</span> [ ] <span class="sb">`agent_deactivate()`</span> - Deactivate agents
+<span class="p">-</span> [ ] <span class="sb">`build_agent_graph()`</span> - Build dependency graph
+<span class="p">-</span> [ ] <span class="sb">`agent_deps()`</span> - Show agent dependencies
+<span class="p">-</span> [ ] <span class="sb">`agent_graph()`</span> - Generate dependency visualization
+<span class="p">-</span> [ ] <span class="sb">`validate_agent()`</span> - Validate agent metadata
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Agent listing (active, disabled, all)
+<span class="p">-</span> ✅ Activation/deactivation logic
+<span class="p">-</span> ✅ Dependency graph construction
+<span class="p">-</span> ✅ Circular dependency detection
+<span class="p">-</span> ✅ Validation against schema
+<span class="p">-</span> ✅ Error handling (missing files, invalid YAML)
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_agents.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Dependency graph tests comprehensive
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-3-test-coverage-for-coremodespy">Issue 3: Test Coverage for core/modes.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/modes.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-high, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/modes.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> High (core functionality)
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`list_modes()`</span> - List available modes
+<span class="p">-</span> [ ] <span class="sb">`mode_status()`</span> - Show active modes
+<span class="p">-</span> [ ] <span class="sb">`mode_activate()`</span> - Activate modes
+<span class="p">-</span> [ ] <span class="sb">`mode_deactivate()`</span> - Deactivate modes
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Mode listing (active vs inactive)
+<span class="p">-</span> ✅ Activation/deactivation
+<span class="p">-</span> ✅ File operations (move between directories)
+<span class="p">-</span> ✅ Error handling (invalid modes, missing files)
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_modes.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-4-test-coverage-for-corerulespy">Issue 4: Test Coverage for core/rules.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/rules.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-high, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/rules.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> High (core functionality)
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`list_rules()`</span> - List available rules
+<span class="p">-</span> [ ] <span class="sb">`rules_status()`</span> - Show active rules
+<span class="p">-</span> [ ] <span class="sb">`rules_activate()`</span> - Activate rules
+<span class="p">-</span> [ ] <span class="sb">`rules_deactivate()`</span> - Deactivate rules
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Rule listing
+<span class="p">-</span> ✅ Activation/deactivation
+<span class="p">-</span> ✅ File operations
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_rules.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-5-test-coverage-for-coreskillspy">Issue 5: Test Coverage for core/skills.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/skills.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/skills.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`list_skills()`</span> - List available skills
+<span class="p">-</span> [ ] <span class="sb">`skill_validate()`</span> - Validate skill structure
+<span class="p">-</span> [ ] <span class="sb">`skill_metrics()`</span> - Get skill metrics
+<span class="p">-</span> [ ] <span class="sb">`skill_community()`</span> - Community skill operations
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Skill discovery
+<span class="p">-</span> ✅ Validation logic
+<span class="p">-</span> ✅ Metrics calculation
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_skills.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-6-test-coverage-for-coreworkflowspy">Issue 6: Test Coverage for core/workflows.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/workflows.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/workflows.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`workflow_list()`</span> - List workflows
+<span class="p">-</span> [ ] <span class="sb">`workflow_status()`</span> - Show workflow status
+<span class="p">-</span> [ ] <span class="sb">`workflow_run()`</span> - Execute workflow
+<span class="p">-</span> [ ] <span class="sb">`workflow_resume()`</span> - Resume workflow
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Workflow discovery
+<span class="p">-</span> ✅ Execution logic
+<span class="p">-</span> ✅ State management
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_workflows.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-7-test-coverage-for-corecontext_exportpy">Issue 7: Test Coverage for core/context_export.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: core/context_export.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium, core-module
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/core/context_export.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`export_context()`</span> - Export context to file
+<span class="p">-</span> [ ] Category filtering logic
+<span class="p">-</span> [ ] File exclusion logic
+<span class="p">-</span> [ ] Format generation (Claude-specific, agent-generic)
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Export with various filters
+<span class="p">-</span> ✅ Format generation
+<span class="p">-</span> ✅ File writing
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_core_context_export.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="priority-2-tui-modules-partialno-tests">Priority 2: TUI Modules (Partial/No Tests)</h2>
+
+<h3 id="issue-8-test-coverage-for-tui-modules">Issue 8: Test Coverage for TUI modules</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: TUI Components (tui_<span class="err">*</span>.py)
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium, tui
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+Multiple TUI modules need test coverage:
+<span class="p">-</span> <span class="sb">`tui_command_palette.py`</span>
+<span class="p">-</span> <span class="sb">`tui_commands.py`</span>
+<span class="p">-</span> <span class="sb">`tui_dashboard.py`</span>
+<span class="p">-</span> <span class="sb">`tui_dialogs.py`</span>
+<span class="p">-</span> <span class="sb">`tui_extensions.py`</span>
+<span class="p">-</span> <span class="sb">`tui_format.py`</span>
+<span class="p">-</span> <span class="sb">`tui_graphs.py`</span>
+<span class="p">-</span> <span class="sb">`tui_icons.py`</span>
+<span class="p">-</span> <span class="sb">`tui_notifications.py`</span>
+<span class="p">-</span> <span class="sb">`tui_overview_enhanced.py`</span>
+<span class="p">-</span> <span class="sb">`tui_performance.py`</span>
+<span class="p">-</span> <span class="sb">`tui_progress.py`</span>
+<span class="p">-</span> <span class="sb">`tui_supersaiyan.py`</span>
+<span class="p">-</span> <span class="sb">`tui_textual.py`</span>
+<span class="p">-</span> <span class="sb">`tui_workflow_viz.py`</span>
+<span class="p">-</span> <span class="sb">`tui_workflows_orchest.py`</span>
+<span class="p">-</span> <span class="sb">`tui.py`</span>
+
+<span class="gs">**Current Coverage:**</span> Minimal/None
+<span class="gs">**Target Coverage:**</span> 80%+
+<span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Test Strategy</span>
+TUI components can be challenging to test. Focus on:
+<span class="p">-</span> ✅ <span class="gs">**Logic testing**</span>: Test data transformation, formatting, state management
+<span class="p">-</span> ✅ <span class="gs">**Component testing**</span>: Test Rich/Textual component generation
+<span class="p">-</span> ✅ <span class="gs">**Mock rendering**</span>: Mock Console/Live for render tests
+<span class="p">-</span> ✅ <span class="gs">**Keyboard handling**</span>: Test key press logic
+
+<span class="gu">## Suggested Approach</span>
+<span class="p">1.</span> Start with pure logic functions (formatters, converters)
+<span class="p">2.</span> Test component generation (verify Panel, Table, Text objects)
+<span class="p">3.</span> Mock Rich Console for rendering tests
+<span class="p">4.</span> Test keyboard handlers with mock events
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] Tests created for high-value TUI logic
+<span class="p">-</span> [ ] Formatting functions tested
+<span class="p">-</span> [ ] Component generation tested
+<span class="p">-</span> [ ] Tests pass in CI/CD
+<span class="p">-</span> [ ] Focus on testable logic, not visual rendering
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="priority-3-utility-modules-no-tests">Priority 3: Utility Modules (No Tests)</h2>
+
+<h3 id="issue-9-test-coverage-for-cli-module">Issue 9: Test Coverage for CLI module</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: cli.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-high, cli
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/cli.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> High (entry point)
+
+<span class="gu">## Functions Needing Tests</span>
+<span class="p">-</span> [ ] <span class="sb">`build_parser()`</span> - Argument parser construction
+<span class="p">-</span> [ ] <span class="sb">`main()`</span> - Main entry point with routing
+<span class="p">-</span> [ ] All subcommand handlers
+<span class="p">-</span> [ ] Error handling and exit codes
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Parser construction (all subcommands)
+<span class="p">-</span> ✅ Argument validation
+<span class="p">-</span> ✅ Command routing
+<span class="p">-</span> ✅ Exit codes
+<span class="p">-</span> ✅ Error messages
+
+<span class="gu">## Test Strategy</span>
+Use <span class="sb">`argparse`</span> testing patterns:
+<span class="p">```</span><span class="nl">python
+</span><span class="n">parser</span> <span class="o">=</span> <span class="n">build_parser</span><span class="p">()</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="n">parse_args</span><span class="p">([</span><span class="s">'mcp'</span><span class="p">,</span> <span class="s">'list'</span><span class="p">])</span>
+<span class="k">assert</span> <span class="n">args</span><span class="p">.</span><span class="n">command</span> <span class="o">==</span> <span class="s">'mcp'</span>
+<span class="k">assert</span> <span class="n">args</span><span class="p">.</span><span class="n">mcp_command</span> <span class="o">==</span> <span class="s">'list'</span>
+</code></pre></div></div>
+
+<h2 id="acceptance-criteria">Acceptance Criteria</h2>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><code class="language-plaintext highlighter-rouge">tests/unit/test_cli.py</code> expanded</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All subcommands tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />80%+ coverage achieved</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Tests pass in CI/CD
+```</li>
+</ul>
+
+<hr />
+
+<h3 id="issue-10-test-coverage-for-suggesterpy">Issue 10: Test Coverage for suggester.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: suggester.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/suggester.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Functions Needing Tests</span>
+All suggestion logic and recommendation algorithms
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Suggestion generation
+<span class="p">-</span> ✅ Recommendation scoring
+<span class="p">-</span> ✅ Context analysis
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_suggester.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-11-test-coverage-for-error_utilspy">Issue 11: Test Coverage for error_utils.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: error_utils.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-low
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/error_utils.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Low
+
+<span class="gu">## Functions Needing Tests</span>
+All error handling utilities
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ Error formatting
+<span class="p">-</span> ✅ Error recovery
+<span class="p">-</span> ✅ Error messages
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_error_utils.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="issue-12-test-coverage-for-cmd_aipy">Issue 12: Test Coverage for cmd_ai.py</h3>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> Test Coverage: cmd_ai.py
+
+<span class="gs">**Labels:**</span> testing, test-coverage, priority-medium, ai
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Module Information</span>
+<span class="p">-</span> <span class="gs">**File:**</span> <span class="sb">`claude_ctx_py/cmd_ai.py`</span>
+<span class="p">-</span> <span class="gs">**Current Coverage:**</span> 0% (no tests)
+<span class="p">-</span> <span class="gs">**Target Coverage:**</span> 80%+
+<span class="p">-</span> <span class="gs">**Priority:**</span> Medium
+
+<span class="gu">## Functions Needing Tests</span>
+All AI command functionality
+
+<span class="gu">## Test Areas</span>
+<span class="p">-</span> ✅ AI recommendations
+<span class="p">-</span> ✅ Context analysis
+<span class="p">-</span> ✅ Prediction logic
+<span class="p">-</span> ✅ Error handling
+
+<span class="gu">## Acceptance Criteria</span>
+<span class="p">-</span> [ ] <span class="sb">`tests/unit/test_cmd_ai.py`</span> created
+<span class="p">-</span> [ ] 80%+ coverage achieved
+<span class="p">-</span> [ ] Tests pass in CI/CD
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="implementation-plan">Implementation Plan</h2>
+
+<h3 id="phase-1-core-modules-priority-high">Phase 1: Core Modules (Priority High)</h3>
+<p><strong>Target:</strong> Week 1-2</p>
+<ol>
+  <li>Issue 1: <code class="language-plaintext highlighter-rouge">core/base.py</code></li>
+  <li>Issue 2: <code class="language-plaintext highlighter-rouge">core/agents.py</code></li>
+  <li>Issue 3: <code class="language-plaintext highlighter-rouge">core/modes.py</code></li>
+  <li>Issue 4: <code class="language-plaintext highlighter-rouge">core/rules.py</code></li>
+  <li>Issue 9: <code class="language-plaintext highlighter-rouge">cli.py</code></li>
+</ol>
+
+<h3 id="phase-2-extended-core-priority-medium">Phase 2: Extended Core (Priority Medium)</h3>
+<p><strong>Target:</strong> Week 3-4</p>
+<ol>
+  <li>Issue 5: <code class="language-plaintext highlighter-rouge">core/skills.py</code></li>
+  <li>Issue 6: <code class="language-plaintext highlighter-rouge">core/workflows.py</code></li>
+  <li>Issue 7: <code class="language-plaintext highlighter-rouge">core/context_export.py</code></li>
+  <li>Issue 10: <code class="language-plaintext highlighter-rouge">suggester.py</code></li>
+  <li>Issue 12: <code class="language-plaintext highlighter-rouge">cmd_ai.py</code></li>
+</ol>
+
+<h3 id="phase-3-tui--utilities-priority-low-medium">Phase 3: TUI &amp; Utilities (Priority Low-Medium)</h3>
+<p><strong>Target:</strong> Week 5-6</p>
+<ol>
+  <li>Issue 8: TUI modules (select high-value components)</li>
+  <li>Issue 11: <code class="language-plaintext highlighter-rouge">error_utils.py</code></li>
+</ol>
+
+<h2 id="coverage-tracking">Coverage Tracking</h2>
+
+<p>Create a tracking issue to monitor progress:</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gs">**Title:**</span> [META] Test Coverage Tracker - 80% Target
+
+<span class="gs">**Body:**</span>
+<span class="gu">## Overall Progress</span>
+
+<span class="gs">**Current Coverage:**</span> TBD
+<span class="gs">**Target Coverage:**</span> 80%
+<span class="gs">**Modules Covered:**</span> 0/32
+
+<span class="gu">## Core Modules</span>
+<span class="p">-</span> [ ] #1 core/base.py
+<span class="p">-</span> [ ] #2 core/agents.py
+<span class="p">-</span> [ ] #3 core/modes.py
+<span class="p">-</span> [ ] #4 core/rules.py
+<span class="p">-</span> [ ] #5 core/skills.py
+<span class="p">-</span> [ ] #6 core/workflows.py
+<span class="p">-</span> [ ] #7 core/context_export.py
+
+<span class="gu">## Entry Points</span>
+<span class="p">-</span> [ ] #9 cli.py
+
+<span class="gu">## AI/Intelligence</span>
+<span class="p">-</span> [ ] #10 suggester.py
+<span class="p">-</span> [ ] #12 cmd_ai.py
+
+<span class="gu">## TUI Components</span>
+<span class="p">-</span> [ ] #8 TUI modules
+
+<span class="gu">## Utilities</span>
+<span class="p">-</span> [ ] #11 error_utils.py
+
+<span class="gu">## Coverage Reports</span>
+Updated weekly with CI coverage reports.
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="resources">Resources</h2>
+
+<ul>
+  <li><strong>Existing Tests:</strong> Reference <code class="language-plaintext highlighter-rouge">tests/unit/test_mcp.py</code> for patterns</li>
+  <li><strong>pytest Docs:</strong> https://docs.pytest.org/</li>
+  <li><strong>Coverage Tool:</strong> pytest-cov</li>
+  <li><strong>CI Integration:</strong> GitHub Actions with coverage reporting</li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

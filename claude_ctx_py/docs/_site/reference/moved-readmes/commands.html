@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Cortex Command Namespaces | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Cortex Command Namespaces" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/reference/moved-readmes/commands.html" />
+<meta property="og:url" content="http://localhost:4000/reference/moved-readmes/commands.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Cortex Command Namespaces" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Cortex Command Namespaces","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/reference/moved-readmes/commands.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Cortex Command Namespaces</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="cortex-command-namespaces">Cortex Command Namespaces</h1>
+
+<p>Organized command library for efficient development workflows.</p>
+
+<h2 id="namespace-organization">Namespace Organization</h2>
+
+<p>Commands are organized by domain for better discoverability and logical grouping.</p>
+
+<h3 id="-dev---development-commands">📦 /dev - Development Commands</h3>
+
+<p>Core development tasks and code management.</p>
+
+<p><strong>Available Commands:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">code-review</code> - Comprehensive code quality review</li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dev:code-review <span class="o">[</span>path] <span class="o">[</span><span class="nt">--focus</span> quality|security|performance|all]
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="-test---testing-commands">🧪 /test - Testing Commands</h3>
+
+<p>Test generation, execution, and quality assurance.</p>
+
+<p><strong>Available Commands:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">generate-tests</code> - Generate comprehensive test suite</li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/test:generate-tests <span class="o">[</span>path] <span class="o">[</span><span class="nt">--type</span> unit|integration|e2e|all] <span class="o">[</span><span class="nt">--coverage-target</span> 80]
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="-deploy---deployment-commands">🚀 /deploy - Deployment Commands</h3>
+
+<p>Release preparation and deployment automation.</p>
+
+<p><strong>Available Commands:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">prepare-release</code> - Prepare application for production deployment</li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/deploy:prepare-release <span class="o">[</span>version] <span class="o">[</span><span class="nt">--type</span> major|minor|patch]
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="-analyze---analysis-commands">🔍 /analyze - Analysis Commands</h3>
+
+<p>Code analysis, security scanning, and optimization.</p>
+
+<p><strong>Available Commands:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">security-scan</code> - Comprehensive security vulnerability assessment</li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/analyze:security-scan <span class="o">[</span>path] <span class="o">[</span><span class="nt">--standard</span> OWASP|GDPR|SOC2|HIPAA]
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="using-commands">Using Commands</h2>
+
+<h3 id="via-claude-code-chat">Via Claude Code Chat</h3>
+
+<p>Simply type the command in the chat:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dev:code-review src/components
+</code></pre></div></div>
+
+<h3 id="via-cli-future">Via CLI (Future)</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx cmd dev:code-review src/components
+claude-ctx cmd <span class="nb">test</span>:generate-tests <span class="nt">--coverage-target</span> 90
+</code></pre></div></div>
+
+<h2 id="command-structure">Command Structure</h2>
+
+<p>Each command file includes:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">command-name</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">What the command does</span>
+<span class="na">category</span><span class="pi">:</span> <span class="s">namespace</span>
+<span class="na">personas</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">thinking</span><span class="pi">,</span> <span class="nv">modes</span><span class="pi">]</span>           <span class="c1"># Conceptual guidance</span>
+<span class="na">subagents</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">claude</span><span class="pi">,</span> <span class="nv">code</span><span class="pi">,</span> <span class="nv">workers</span><span class="pi">]</span>   <span class="c1"># Task tool delegation targets</span>
+<span class="na">mcp-servers</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">external</span><span class="pi">,</span> <span class="nv">integrations</span><span class="pi">]</span> <span class="c1"># Optional MCP integrations</span>
+<span class="nn">---</span>
+
+<span class="c1"># Command Documentation</span>
+<span class="nn">...</span>
+</code></pre></div></div>
+
+<h2 id="creating-custom-commands">Creating Custom Commands</h2>
+
+<ol>
+  <li>Choose the appropriate namespace:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/dev</code> - Development and code tasks</li>
+      <li><code class="language-plaintext highlighter-rouge">/test</code> - Testing operations</li>
+      <li><code class="language-plaintext highlighter-rouge">/deploy</code> - Deployment and release</li>
+      <li><code class="language-plaintext highlighter-rouge">/analyze</code> - Analysis and auditing</li>
+    </ul>
+  </li>
+  <li>
+    <p>Create a markdown file:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">touch</span> ~/.claude/commands/[namespace]/[command-name].md
+</code></pre></div>    </div>
+  </li>
+  <li>Follow the template structure:
+    <ul>
+      <li>YAML frontmatter with metadata</li>
+      <li>Purpose and triggers</li>
+      <li>Usage instructions</li>
+      <li>Detailed process steps</li>
+      <li>Output format</li>
+      <li>Examples</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="execution-architecture">Execution Architecture</h2>
+
+<p>Commands coordinate two types of guidance:</p>
+
+<h3 id="personas-thinking-modes">Personas (Thinking Modes)</h3>
+
+<p>Conceptual roles that guide Claude’s perspective and decision-making:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">architect</code> - System design thinking</li>
+  <li><code class="language-plaintext highlighter-rouge">frontend</code> - UI/UX focus</li>
+  <li><code class="language-plaintext highlighter-rouge">backend</code> - API and data modeling</li>
+  <li><code class="language-plaintext highlighter-rouge">security</code> - Security-first mindset</li>
+  <li><code class="language-plaintext highlighter-rouge">qa-specialist</code> - Quality standards</li>
+</ul>
+
+<p><em>Personas influence HOW Claude thinks, not WHAT tools are used.</em></p>
+
+<h3 id="subagents-workers-via-task-tool">Subagents (Workers via Task Tool)</h3>
+
+<p>Specialized agents launched via Claude Code’s Task tool for complex work:</p>
+
+<p><strong>Development Subagents:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">general-purpose</code> - Versatile implementation work</li>
+  <li><code class="language-plaintext highlighter-rouge">code-reviewer</code> - Code quality and security analysis</li>
+  <li><code class="language-plaintext highlighter-rouge">typescript-pro</code> / <code class="language-plaintext highlighter-rouge">python-pro</code> - Language specialists</li>
+</ul>
+
+<p><strong>Testing Subagents:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">test-automator</code> - Test generation and execution</li>
+  <li><code class="language-plaintext highlighter-rouge">quality-engineer</code> - Quality assurance</li>
+</ul>
+
+<p><strong>Deployment Subagents:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">deployment-engineer</code> - Release preparation</li>
+  <li><code class="language-plaintext highlighter-rouge">devops-architect</code> - Infrastructure</li>
+</ul>
+
+<p><strong>Analysis Subagents:</strong></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Explore</code> - Codebase exploration and discovery</li>
+  <li><code class="language-plaintext highlighter-rouge">security-auditor</code> - Security assessment</li>
+  <li><code class="language-plaintext highlighter-rouge">performance-engineer</code> - Performance analysis</li>
+</ul>
+
+<p><strong>When commands delegate</strong> (use Task tool to launch subagents):</p>
+
+<ul>
+  <li>✅ Complex operations (&gt;3 files, &gt;5 steps)</li>
+  <li>✅ Multi-domain work (code + tests + docs)</li>
+  <li>✅ Parallel workstreams possible</li>
+  <li>✅ User needs progress visibility</li>
+</ul>
+
+<p><strong>When commands use direct tools</strong>:</p>
+
+<ul>
+  <li>Simple operations (1-2 files)</li>
+  <li>Quick reads/searches</li>
+  <li>Atomic changes</li>
+</ul>
+
+<p>See: <a href="../docs/architecture/terminology.md"><code class="language-plaintext highlighter-rouge">docs/architecture/terminology.md</code></a> for complete architecture explanation.</p>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<ol>
+  <li><strong>Clear Naming</strong> - Use descriptive, action-oriented names</li>
+  <li><strong>Focused Purpose</strong> - Each command does one thing well</li>
+  <li><strong>Consistent Structure</strong> - Follow the template format</li>
+  <li><strong>Agent Composition</strong> - Leverage multiple agents when needed</li>
+  <li><strong>Documentation</strong> - Provide clear usage examples</li>
+</ol>
+
+<h2 id="future-namespaces">Future Namespaces</h2>
+
+<p>Planned additions:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/docs</code> - Documentation generation</li>
+  <li><code class="language-plaintext highlighter-rouge">/optimize</code> - Performance optimization</li>
+  <li><code class="language-plaintext highlighter-rouge">/refactor</code> - Code refactoring</li>
+  <li><code class="language-plaintext highlighter-rouge">/monitor</code> - Application monitoring</li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

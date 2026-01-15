@@ -135,7 +135,7 @@ class WatchModeState:
     """Represents watch mode runtime state."""
 
     running: bool
-    directory: Path
+    directories: List[Path]
     auto_activate: bool
     threshold: float
     interval: float

@@ -1,0 +1,56 @@
+.TH CORTEX-WORKFLOW 1 "2026-01-08" "cortex-workflow 2.0.0" "User Commands"
+.SH NAME
+cortex-workflow \- Command-line tool
+.SH SYNOPSIS
+.B cortex-workflow
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-workflow
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-workflow
+.SH COMMANDS
+Available commands:
+.TP
+.B run
+Run a predefined workflow
+.TP
+.B list
+List available workflows
+.TP
+.B status
+Show current workflow progress
+.TP
+.B resume
+Resume interrupted workflow
+.TP
+.B stop
+Stop the currently running workflow
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-workflow-tui (1),
+.BR cortex-workflow-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

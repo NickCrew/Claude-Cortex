@@ -5,6 +5,8 @@ Monitors file changes and provides intelligent recommendations in real-time.
 
 from __future__ import annotations
 
+import errno
+import json
 import os
 import time
 import subprocess
@@ -13,12 +15,283 @@ import sys
 import threading
 from pathlib import Path
 from types import FrameType
-from typing import Any, Callable, Deque, Dict, List, Optional, Set
+from typing import Any, Callable, Deque, Dict, List, Optional, Set, Iterable
+from dataclasses import dataclass, field
 from datetime import datetime
 from collections import deque
 
 from .intelligence import IntelligentAgent, AgentRecommendation
-from .core import _resolve_claude_dir, agent_activate, agent_deactivate
+from .launcher import DEFAULT_CONFIG_PATH
+from .core import _resolve_claude_dir, _resolve_cortex_root, agent_activate
+
+
+WATCH_DAEMON_ENV = "CORTEX_WATCH_DAEMON"
+WATCH_PID_ENV = "CORTEX_WATCH_PID_PATH"
+WATCH_LOG_ENV = "CORTEX_WATCH_LOG_PATH"
+WATCH_LOG_DIRNAME = "logs"
+WATCH_LOG_FILENAME = "watch.log"
+WATCH_PID_FILENAME = "watch.pid"
+
+
+@dataclass
+class WatchDefaults:
+    """Resolved watch mode defaults from config."""
+
+    directories: Optional[List[Path]] = None
+    auto_activate: Optional[bool] = None
+    threshold: Optional[float] = None
+    interval: Optional[float] = None
+    warnings: List[str] = field(default_factory=list)
+
+
+def _read_config(path: Path) -> tuple[Dict[str, Any], List[str]]:
+    """Read cortex-config.json safely."""
+    warnings: List[str] = []
+    if not path.exists():
+        return {}, warnings
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        warnings.append(f"Invalid JSON in {path}: {exc}")
+        return {}, warnings
+    if not isinstance(data, dict):
+        warnings.append(f"Config {path} must be a JSON object.")
+        return {}, warnings
+    return data, warnings
+
+
+def _parse_directory_list(value: Any, warnings: List[str]) -> Optional[List[Path]]:
+    if value is None:
+        return None
+    entries: List[str] = []
+    if isinstance(value, str):
+        entries = [part.strip() for part in value.split(",") if part.strip()]
+    elif isinstance(value, list):
+        entries = [item.strip() for item in value if isinstance(item, str) and item.strip()]
+    else:
+        warnings.append("Watch directories must be a list of strings or comma-separated string.")
+        return None
+
+    resolved: List[Path] = []
+    seen: Set[Path] = set()
+    invalid: List[str] = []
+    for entry in entries:
+        candidate = Path(os.path.expanduser(entry)).resolve(strict=False)
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        if not candidate.exists() or not candidate.is_dir():
+            invalid.append(str(candidate))
+            continue
+        resolved.append(candidate)
+
+    if invalid:
+        warnings.append("Invalid watch directories in config: " + ", ".join(invalid))
+
+    return resolved or None
+
+
+def _parse_bool(value: Any) -> Optional[bool]:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "1", "yes", "on"}:
+            return True
+        if lowered in {"false", "0", "no", "off"}:
+            return False
+    return None
+
+
+def _parse_float(value: Any, label: str, warnings: List[str]) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            warnings.append(f"Invalid {label} value in config: {value}")
+            return None
+    warnings.append(f"Invalid {label} value in config: {value}")
+    return None
+
+
+def load_watch_defaults(config_path: Optional[Path] = None) -> WatchDefaults:
+    """Load watch defaults from cortex-config.json."""
+    path = config_path or DEFAULT_CONFIG_PATH
+    config, warnings = _read_config(path)
+    watch_config = config.get("watch")
+
+    if watch_config is None:
+        return WatchDefaults(warnings=warnings)
+    if not isinstance(watch_config, dict):
+        warnings.append("Config 'watch' must be a JSON object.")
+        return WatchDefaults(warnings=warnings)
+
+    directories = _parse_directory_list(
+        watch_config.get("directories") or watch_config.get("dirs"),
+        warnings,
+    )
+    auto_activate = _parse_bool(watch_config.get("auto_activate"))
+    threshold = _parse_float(watch_config.get("threshold"), "threshold", warnings)
+    interval = _parse_float(watch_config.get("interval"), "interval", warnings)
+
+    if threshold is not None and not 0.0 <= threshold <= 1.0:
+        warnings.append("Watch threshold must be between 0.0 and 1.0.")
+        threshold = None
+    if interval is not None and interval <= 0:
+        warnings.append("Watch interval must be greater than 0.")
+        interval = None
+
+    return WatchDefaults(
+        directories=directories,
+        auto_activate=auto_activate,
+        threshold=threshold,
+        interval=interval,
+        warnings=warnings,
+    )
+
+
+def _default_watch_pid_path() -> Path:
+    return _resolve_cortex_root() / WATCH_PID_FILENAME
+
+
+def _default_watch_log_path() -> Path:
+    return _resolve_cortex_root() / WATCH_LOG_DIRNAME / WATCH_LOG_FILENAME
+
+
+def _read_pid(path: Path) -> Optional[int]:
+    try:
+        raw = path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    if not raw:
+        return None
+    try:
+        pid = int(raw)
+    except ValueError:
+        return None
+    return pid if pid > 0 else None
+
+
+def _write_pid(path: Path, pid: int) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(str(pid), encoding="utf-8")
+
+
+def _remove_pid(path: Path) -> None:
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        return
+    except OSError:
+        return
+
+
+def _is_process_running(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError as exc:
+        if exc.errno == errno.ESRCH:
+            return False
+        return True
+
+
+def _cleanup_daemon_pid() -> None:
+    pid_path_str = os.environ.get(WATCH_PID_ENV)
+    if not pid_path_str:
+        return
+    pid_path = Path(pid_path_str)
+    current_pid = os.getpid()
+    recorded = _read_pid(pid_path)
+    if recorded == current_pid:
+        _remove_pid(pid_path)
+
+
+def watch_daemon_status(pid_path: Optional[Path] = None) -> tuple[int, str]:
+    path = pid_path or _default_watch_pid_path()
+    pid = _read_pid(path)
+    if not pid:
+        return 1, "Watch daemon not running."
+    if _is_process_running(pid):
+        return 0, f"Watch daemon running (pid {pid})."
+    _remove_pid(path)
+    return 1, f"Watch daemon not running (stale pid {pid})."
+
+
+def stop_watch_daemon(pid_path: Optional[Path] = None) -> tuple[int, str]:
+    path = pid_path or _default_watch_pid_path()
+    pid = _read_pid(path)
+    if not pid:
+        return 1, "No watch daemon PID file found."
+    if not _is_process_running(pid):
+        _remove_pid(path)
+        return 1, f"Watch daemon not running (stale pid {pid})."
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except OSError as exc:
+        return 1, f"Failed to stop watch daemon (pid {pid}): {exc}."
+
+    for _ in range(30):
+        if not _is_process_running(pid):
+            _remove_pid(path)
+            return 0, "Watch daemon stopped."
+        time.sleep(0.2)
+
+    return 1, f"Watch daemon did not stop (pid {pid})."
+
+
+def start_watch_daemon(
+    *,
+    auto_activate: bool,
+    threshold: float,
+    interval: float,
+    directories: Optional[List[Path]] = None,
+    pid_path: Optional[Path] = None,
+    log_path: Optional[Path] = None,
+) -> tuple[int, str]:
+    if os.environ.get(WATCH_DAEMON_ENV) == "1":
+        return 1, "Already running inside watch daemon environment."
+
+    pid_path = pid_path or _default_watch_pid_path()
+    log_path = log_path or _default_watch_log_path()
+
+    existing_pid = _read_pid(pid_path)
+    if existing_pid and _is_process_running(existing_pid):
+        return 1, f"Watch daemon already running (pid {existing_pid})."
+
+    _remove_pid(pid_path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    args = [sys.executable, "-m", "claude_ctx_py.cli", "ai", "watch"]
+    if not auto_activate:
+        args.append("--no-auto-activate")
+    args.extend(["--threshold", str(threshold)])
+    args.extend(["--interval", str(interval)])
+    if directories:
+        for directory in directories:
+            args.extend(["--dir", str(directory)])
+
+    env = os.environ.copy()
+    env[WATCH_DAEMON_ENV] = "1"
+    env[WATCH_PID_ENV] = str(pid_path)
+    env[WATCH_LOG_ENV] = str(log_path)
+
+    with log_path.open("a", encoding="utf-8") as log_file:
+        process = subprocess.Popen(
+            args,
+            stdout=log_file,
+            stderr=log_file,
+            stdin=subprocess.DEVNULL,
+            env=env,
+            start_new_session=True,
+        )
+
+    _write_pid(pid_path, process.pid)
+    return 0, f"Watch daemon started (pid {process.pid}). Logs: {log_path}"
 
 
 class WatchMode:
@@ -50,9 +323,10 @@ class WatchMode:
 
         # Track state
         self.running = False
-        self.directory = Path.cwd()
+        self.directories: List[Path] = [Path.cwd()]
+        self.directory = self.directories[0]
         self.last_check_time = time.time()
-        self.last_git_head = self._get_git_head()
+        self.last_git_heads: Dict[Path, Optional[str]] = {}
         self.last_recommendations: List[AgentRecommendation] = []
         self.activated_agents: Set[str] = set()
         self.notification_history: Deque[Dict[str, str]] = deque(maxlen=50)
@@ -65,11 +339,44 @@ class WatchMode:
 
         # Thread safety
         self._state_lock = threading.Lock()
+        self._refresh_git_heads()
 
     def stop(self) -> None:
         """Stop watch mode gracefully."""
         with self._state_lock:
             self.running = False
+
+    def _normalize_directories(self, directories: Iterable[Path]) -> List[Path]:
+        """Normalize and de-duplicate directories."""
+        seen: Set[Path] = set()
+        normalized: List[Path] = []
+        for directory in directories:
+            resolved = Path(os.path.expanduser(str(directory))).resolve(strict=False)
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            normalized.append(resolved)
+        return normalized
+
+    def _refresh_git_heads(self) -> None:
+        """Refresh git head snapshots for all watched directories."""
+        self.last_git_heads = {
+            directory: self._get_git_head(directory) for directory in self.directories
+        }
+
+    def set_directories(self, directories: List[Path]) -> None:
+        """Set the directories to watch.
+
+        Args:
+            directories: Directory paths to watch
+        """
+        with self._state_lock:
+            normalized = self._normalize_directories(directories)
+            if not normalized:
+                normalized = [Path.cwd().resolve()]
+            self.directories = normalized
+            self.directory = normalized[0]
+            self._refresh_git_heads()
 
     def set_directory(self, directory: Path) -> None:
         """Set the directory to watch.
@@ -77,9 +384,7 @@ class WatchMode:
         Args:
             directory: Directory path to watch
         """
-        with self._state_lock:
-            self.directory = directory
-            self.last_git_head = self._get_git_head()
+        self.set_directories([directory])
 
     def change_directory(self, directory: Path) -> None:
         """Change the watched directory.
@@ -91,8 +396,9 @@ class WatchMode:
             old_dir = os.getcwd()
             try:
                 os.chdir(directory)
+                self.directories = [directory]
                 self.directory = directory
-                self.last_git_head = self._get_git_head()
+                self.last_git_heads = {directory: self._get_git_head(directory)}
             except Exception:
                 os.chdir(old_dir)
                 raise
@@ -107,6 +413,7 @@ class WatchMode:
             return {
                 "running": self.running,
                 "directory": self.directory,
+                "directories": list(self.directories),
                 "auto_activate": self.auto_activate,
                 "threshold": self.notification_threshold,
                 "interval": self.check_interval,
@@ -117,7 +424,7 @@ class WatchMode:
                 "last_notification": self.notification_history[-1] if self.notification_history else None,
             }
 
-    def _get_git_head(self) -> Optional[str]:
+    def _get_git_head(self, directory: Path) -> Optional[str]:
         """Get current git HEAD hash.
 
         Returns:
@@ -129,17 +436,14 @@ class WatchMode:
                 capture_output=True,
                 text=True,
                 check=True,
+                cwd=str(directory),
             )
             return result.stdout.strip()
         except Exception:
             return None
 
-    def _get_changed_files(self) -> List[Path]:
-        """Get list of changed files from git.
-
-        Returns:
-            List of changed file paths
-        """
+    def _get_changed_files_for_directory(self, directory: Path) -> List[Path]:
+        """Get list of changed files from git for a directory."""
         try:
             # Get unstaged changes
             result = subprocess.run(
@@ -147,6 +451,7 @@ class WatchMode:
                 capture_output=True,
                 text=True,
                 check=True,
+                cwd=str(directory),
             )
 
             # Get staged changes
@@ -155,13 +460,36 @@ class WatchMode:
                 capture_output=True,
                 text=True,
                 check=True,
+                cwd=str(directory),
             )
 
             all_files = set(result.stdout.split("\n") + staged.stdout.split("\n"))
-            return [Path(f) for f in all_files if f.strip()]
+            return [
+                (directory / f).resolve()
+                for f in all_files
+                if f.strip()
+            ]
 
         except Exception:
             return []
+
+    def _get_changed_files(self) -> List[Path]:
+        """Get list of changed files from git.
+
+        Returns:
+            List of changed file paths
+        """
+        files: List[Path] = []
+        seen: Set[Path] = set()
+        with self._state_lock:
+            directories = list(self.directories)
+        for directory in directories:
+            for file_path in self._get_changed_files_for_directory(directory):
+                if file_path in seen:
+                    continue
+                seen.add(file_path)
+                files.append(file_path)
+        return files
 
     def _print_banner(self) -> None:
         """Print watch mode banner."""
@@ -176,6 +504,12 @@ class WatchMode:
         print("    • Git changes (commits, staged, unstaged)")
         print("    • File modifications")
         print("    • Context changes")
+        if len(self.directories) == 1:
+            print(f"    • Directory: {self.directories[0]}")
+        else:
+            print("    • Directories:")
+            for directory in self.directories:
+                print(f"      - {directory}")
         print("\n  Press Ctrl+C to stop\n")
         print("─" * 70 + "\n")
 
@@ -396,15 +730,22 @@ class WatchMode:
             self.checks_performed += 1
 
         # Check git HEAD changes (commits)
-        current_head = self._get_git_head()
-        if current_head != self.last_git_head:
-            self._print_notification(
-                "📝",
-                "Git commit detected",
-                f"HEAD: {current_head[:8] if current_head else 'unknown'}",
-                "yellow",
-            )
-            self.last_git_head = current_head
+        with self._state_lock:
+            directories = list(self.directories)
+        for directory in directories:
+            current_head = self._get_git_head(directory)
+            with self._state_lock:
+                previous_head = self.last_git_heads.get(directory)
+            if current_head != previous_head:
+                head_display = current_head[:8] if current_head else "unknown"
+                self._print_notification(
+                    "📝",
+                    "Git commit detected",
+                    f"{directory}: HEAD {head_display}",
+                    "yellow",
+                )
+                with self._state_lock:
+                    self.last_git_heads[directory] = current_head
 
         # Analyze context
         self._analyze_context()
@@ -468,6 +809,7 @@ class WatchMode:
             # Cleanup
             self._print_notification("🛑", "Watch mode stopped", "", "yellow")
             self._print_statistics()
+            _cleanup_daemon_pid()
 
         return 0
 
@@ -476,6 +818,7 @@ def watch_main(
     auto_activate: bool = True,
     threshold: float = 0.7,
     interval: float = 2.0,
+    directories: Optional[List[Path]] = None,
 ) -> int:
     """Main entry point for watch mode.
 
@@ -483,6 +826,7 @@ def watch_main(
         auto_activate: Enable auto-activation
         threshold: Confidence threshold for notifications
         interval: Check interval in seconds
+        directories: Optional list of directories to watch
 
     Returns:
         Exit code
@@ -492,5 +836,7 @@ def watch_main(
         notification_threshold=threshold,
         check_interval=interval,
     )
+    if directories:
+        watcher.set_directories(directories)
 
     return watcher.run()

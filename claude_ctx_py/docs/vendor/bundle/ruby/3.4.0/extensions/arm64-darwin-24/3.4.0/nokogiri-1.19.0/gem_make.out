@@ -1,0 +1,451 @@
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri
+/opt/homebrew/opt/ruby/bin/ruby extconf.rb
+checking for whether -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include is accepted as CPPFLAGS... yes
+checking for whether -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib is accepted as LDFLAGS... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+checking for whether -Wno-declaration-after-statement is accepted as CFLAGS... yes
+checking for whether -O2 is accepted as CFLAGS... yes
+checking for whether -g is accepted as CFLAGS... yes
+checking for whether -Winline is accepted as CFLAGS... yes
+checking for whether -Wmissing-noreturn is accepted as CFLAGS... yes
+checking for whether -Wconversion is accepted as CFLAGS... yes
+checking for whether -Wno-error=unused-command-line-argument-hard-error-in-future is accepted as CFLAGS... no
+checking for whether -Wno-unknown-warning-option is accepted as CFLAGS... yes
+Building nokogiri using packaged libraries.
+Static linking is enabled.
+Cross build is disabled.
+checking for iconv.h... yes
+Using mini_portile version 2.8.9
+checking for iconv using --with-opt-* flags... yes
+---------- IMPORTANT NOTICE ----------
+Building Nokogiri with a packaged version of libxml2-2.13.9.
+Configuration options: --host\=arm64-apple-darwin24 --enable-static --disable-shared --libdir\=/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib --with-legacy --with-iconv\=yes --disable-dependency-tracking --without-python --without-readline --with-c14n --with-debug --with-threads --disable-shared --enable-static CPPFLAGS\=-I/opt/homebrew/opt/libyaml/include\ -I/opt/homebrew/opt/openssl@3/include\ -I/usr/local/opt/readline/include\ -I/usr/local/opt/zlib/include\ -I/usr/local/opt/bzip2/include LDFLAGS\=-L/opt/homebrew/opt/libyaml/lib\ -L/opt/homebrew/opt/openssl@3/lib RANLIB\=/usr/bin/ranlib CFLAGS\=-O2\ -g\ -fPIC
+The following patches are being applied:
+  - 0001-Remove-script-macro-support.patch
+  - 0002-Update-entities-to-remove-handling-of-ssi.patch
+  - 0009-allow-wildcard-namespaces.patch
+  - 0010-update-config.guess-and-config.sub-for-libxml2.patch
+  - 0011-rip-out-libxml2-s-libc_single_threaded-support.patch
+  - 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch
+
+The Nokogiri maintainers intend to provide timely security updates, but if
+this is a concern for you and want to use your OS/distro system library
+instead, then abort this installation process and install nokogiri as
+instructed at:
+
+  https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries
+
+Note, however, that nokogiri cannot guarantee compatibility with every
+version of libxml2 that may be provided by OS/package vendors.
+
+Extracting libxml2-2.13.9.tar.xz into tmp/arm64-apple-darwin24/ports/libxml2/2.13.9... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0001-Remove-script-macro-support.patch... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0002-Update-entities-to-remove-handling-of-ssi.patch... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0009-allow-wildcard-namespaces.patch... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0010-update-config.guess-and-config.sub-for-libxml2.patch... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0011-rip-out-libxml2-s-libc_single_threaded-support.patch... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxml2/0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch... OK
+Running 'configure' for libxml2 2.13.9... OK
+Running 'compile' for libxml2 2.13.9... OK
+Running 'install' for libxml2 2.13.9... OK
+Activating libxml2 2.13.9 (from /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9)...
+Using mini_portile version 2.8.9
+---------- IMPORTANT NOTICE ----------
+Building Nokogiri with a packaged version of libxslt-1.1.43.
+Configuration options: --host\=arm64-apple-darwin24 --enable-static --disable-shared --libdir\=/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib --disable-dependency-tracking --without-python --without-crypto --with-debug --with-libxml-prefix\=/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9 --disable-shared --enable-static RANLIB\=/usr/bin/ranlib CFLAGS\=-O2\ -g\ -fPIC
+The following patches are being applied:
+  - 0001-update-config.guess-and-config.sub-for-libxslt.patch
+
+The Nokogiri maintainers intend to provide timely security updates, but if
+this is a concern for you and want to use your OS/distro system library
+instead, then abort this installation process and install nokogiri as
+instructed at:
+
+  https://nokogiri.org/tutorials/installing_nokogiri.html#installing-using-standard-system-libraries
+
+Extracting libxslt-1.1.43.tar.xz into tmp/arm64-apple-darwin24/ports/libxslt/1.1.43... OK
+Running git apply with /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/patches/libxslt/0001-update-config.guess-and-config.sub-for-libxslt.patch... OK
+Running 'configure' for libxslt 1.1.43... OK
+Running 'compile' for libxslt 1.1.43... OK
+Running 'install' for libxslt 1.1.43... OK
+Activating libxslt 1.1.43 (from /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43)...
+checking for whether -DNOKOGIRI_PACKAGED_LIBRARIES is accepted as CPPFLAGS... yes
+xml2-config cflags: -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2
+checking for whether -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" is accepted as CPPFLAGS... yes
+checking for -llzma... yes
+xslt-config cflags: -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include
+checking for whether -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" is accepted as CPPFLAGS... yes
+checking for xmlParseDoc() in libxml/parser.h... yes
+checking for xsltParseStylesheetDoc() in libxslt/xslt.h... yes
+checking for exsltFuncRegister() in libexslt/exslt.h... yes
+Using mini_portile version 2.8.9
+---------- IMPORTANT NOTICE ----------
+Building Nokogiri with a packaged version of libgumbo-1.0.0-nokogiri.
+Configuration options: --disable-shared --enable-static CFLAGS\=-fPIC
+Copying gumbo-parser files into tmp/arm64-apple-darwin24/ports/libgumbo/1.0.0-nokogiri/gumbo-parser...
+Running 'compile' for libgumbo 1.0.0-nokogiri... OK
+Activating libgumbo 1.0.0-nokogiri (from ports/arm64-darwin24/libgumbo/1.0.0-nokogiri)...
+checking for whether -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include is accepted as CPPFLAGS... yes
+checking for gumbo_parse_with_options() in nokogiri_gumbo.h... yes
+checking for xmlCtxtSetOptions()... yes
+checking for xmlCtxtGetOptions()... no
+checking for xmlSwitchEncodingName()... yes
+checking for rb_category_warning()... yes
+checking for whether -DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\"libgumbo:1.0.0-nokogiri\"" is accepted as CPPFLAGS... yes
+creating Makefile
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-5ihcxh sitelibdir\=./.gem.20251230-60566-5ihcxh clean
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-5ihcxh sitelibdir\=./.gem.20251230-60566-5ihcxh
+compiling gumbo.c
+In file included from gumbo.c:30:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+gumbo.c:380:72: warning: implicit conversion changes signedness: 'GumboQuirksModeEnum' to 'int' [-Wsign-conversion]
+  380 |   rb_iv_set(rdoc, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
+      |                                   ~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+gumbo.c:505:14: warning: implicit conversion changes signedness: 'int' to 'GumboNamespaceEnum' [-Wsign-conversion]
+  505 |     ctx_ns = lookup_namespace(ctx, true);
+      |            ~ ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+gumbo.c:588:80: warning: implicit conversion changes signedness: 'GumboQuirksModeEnum' to 'int' [-Wsign-conversion]
+  588 |   rb_iv_set(doc_fragment, "@quirks_mode", INT2NUM(output->document->v.document.doc_type_quirks_mode));
+      |                                           ~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+4 warnings generated.
+compiling html4_document.c
+In file included from html4_document.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+html4_document.c:148:23: warning: implicit conversion changes signedness: 'xmlElementType' to 'int' [-Wsign-conversion]
+  148 |   return INT2NUM(doc->type);
+      |          ~~~~~~~ ~~~~~^~~~
+2 warnings generated.
+compiling html4_element_description.c
+In file included from html4_element_description.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling html4_entity_lookup.c
+In file included from html4_entity_lookup.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling html4_sax_parser.c
+In file included from html4_sax_parser.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling html4_sax_parser_context.c
+In file included from html4_sax_parser_context.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling html4_sax_push_parser.c
+In file included from html4_sax_push_parser.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling libxml2_polyfill.c
+In file included from libxml2_polyfill.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling nokogiri.c
+In file included from nokogiri.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling test_global_handlers.c
+In file included from test_global_handlers.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_attr.c
+In file included from xml_attr.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_attribute_decl.c
+In file included from xml_attribute_decl.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+xml_attribute_decl.c:16:24: warning: implicit conversion changes signedness: 'xmlAttributeType' to 'int' [-Wsign-conversion]
+   16 |   return INT2NUM(node->atype);
+      |          ~~~~~~~ ~~~~~~^~~~~
+2 warnings generated.
+compiling xml_cdata.c
+In file included from xml_cdata.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_comment.c
+In file included from xml_comment.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_document.c
+In file included from xml_document.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+xml_document.c:94:7: warning: '__xmlDeregisterNodeDefaultValue' is deprecated [-Wdeprecated-declarations]
+   94 |   if (xmlDeregisterNodeDefaultValue) {
+      |       ^
+/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2/libxml/tree.h:694:5: note: expanded from macro 'xmlDeregisterNodeDefaultValue'
+  694 |     XML_GLOBAL_MACRO(xmlDeregisterNodeDefaultValue)
+      |     ^
+/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2/libxml/xmlexports.h:124:36: note: expanded from macro 'XML_GLOBAL_MACRO'
+  124 |   #define XML_GLOBAL_MACRO(name) (*__##name())
+      |                                    ^
+<scratch space>:196:1: note: expanded from here
+  196 | __xmlDeregisterNodeDefaultValue
+      | ^
+/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2/libxml/tree.h:685:1: note: '__xmlDeregisterNodeDefaultValue' has been explicitly marked deprecated here
+  685 | XML_GLOBALS_TREE
+      | ^
+/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2/libxml/tree.h:682:10: note: expanded from macro 'XML_GLOBALS_TREE'
+  682 |          XML_DEPRECATED)
+      |          ^
+/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2/libxml/xmlexports.h:69:43: note: expanded from macro 'XML_DEPRECATED'
+   69 |     #define XML_DEPRECATED __attribute__((deprecated))
+      |                                           ^
+2 warnings generated.
+compiling xml_document_fragment.c
+In file included from xml_document_fragment.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_dtd.c
+In file included from xml_dtd.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_element_content.c
+In file included from xml_element_content.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+xml_element_content.c:38:24: warning: implicit conversion changes signedness: 'xmlElementContentType' to 'int' [-Wsign-conversion]
+   38 |   return INT2NUM(elem->type);
+      |          ~~~~~~~ ~~~~~~^~~~
+xml_element_content.c:79:24: warning: implicit conversion changes signedness: 'xmlElementContentOccur' to 'int' [-Wsign-conversion]
+   79 |   return INT2NUM(elem->ocur);
+      |          ~~~~~~~ ~~~~~~^~~~
+3 warnings generated.
+compiling xml_element_decl.c
+In file included from xml_element_decl.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+xml_element_decl.c:18:24: warning: implicit conversion changes signedness: 'xmlElementTypeVal' to 'int' [-Wsign-conversion]
+   18 |   return INT2NUM(node->etype);
+      |          ~~~~~~~ ~~~~~~^~~~~
+2 warnings generated.
+compiling xml_encoding_handler.c
+In file included from xml_encoding_handler.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_entity_decl.c
+In file included from xml_entity_decl.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_entity_reference.c
+In file included from xml_entity_reference.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_namespace.c
+In file included from xml_namespace.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_node.c
+In file included from xml_node.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+xml_node.c:1488:24: warning: implicit conversion changes signedness: 'xmlElementType' to 'int' [-Wsign-conversion]
+ 1488 |   return INT2NUM(node->type);
+      |          ~~~~~~~ ~~~~~~^~~~
+2 warnings generated.
+compiling xml_node_set.c
+In file included from xml_node_set.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_processing_instruction.c
+In file included from xml_processing_instruction.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_reader.c
+In file included from xml_reader.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_relax_ng.c
+In file included from xml_relax_ng.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_sax_parser.c
+In file included from xml_sax_parser.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_sax_parser_context.c
+In file included from xml_sax_parser_context.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_sax_push_parser.c
+In file included from xml_sax_push_parser.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_schema.c
+In file included from xml_schema.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_syntax_error.c
+In file included from xml_syntax_error.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_text.c
+In file included from xml_text.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xml_xpath_context.c
+In file included from xml_xpath_context.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+compiling xslt_stylesheet.c
+In file included from xslt_stylesheet.c:1:
+In file included from ./nokogiri.h:83:
+In file included from /opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/encoding.h:21:
+/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/internal/encoding/coderange.h:82:37: warning: implicit conversion changes signedness: 'enum ruby_coderange_type' to 'int' [-Wsign-conversion]
+   82 |     return rb_enc_coderange_clean_p(cr);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~ ^~
+1 warning generated.
+linking shared-object nokogiri/nokogiri.bundle
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+Cleaning files only used during build.
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-5ihcxh sitelibdir\=./.gem.20251230-60566-5ihcxh install
+/usr/bin/install -c -m 0755 nokogiri.bundle ./.gem.20251230-60566-5ihcxh/nokogiri
+installing nokogiri libraries
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-5ihcxh sitelibdir\=./.gem.20251230-60566-5ihcxh clean

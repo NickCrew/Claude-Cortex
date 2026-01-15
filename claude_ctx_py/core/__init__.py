@@ -35,6 +35,7 @@ from .base import (
 from .base import (
     _color,
     _resolve_cortex_root,
+    _resolve_plugin_assets_root,
     _resolve_claude_dir,
     _resolve_init_dirs,
     _ensure_claude_structure,
@@ -317,6 +318,8 @@ from .hooks import (
     uninstall_hook,
     get_hook_events,
     create_hook_template,
+    validate_hooks_config,
+    validate_hooks_config_file,
 )
 
 # Export backup functions
@@ -346,6 +349,7 @@ __all__ = [
     # Base functions
     "_color",
     "_resolve_claude_dir",
+    "_resolve_plugin_assets_root",
     "_resolve_init_dirs",
     "_ensure_claude_structure",
     "_init_slug_for_path",

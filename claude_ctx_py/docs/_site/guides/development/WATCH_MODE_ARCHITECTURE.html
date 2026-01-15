@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Watch Mode: Real-Time Intelligence Architecture | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Watch Mode: Real-Time Intelligence Architecture" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/development/WATCH_MODE_ARCHITECTURE.html" />
+<meta property="og:url" content="http://localhost:4000/guides/development/WATCH_MODE_ARCHITECTURE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Watch Mode: Real-Time Intelligence Architecture" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Watch Mode: Real-Time Intelligence Architecture","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/development/WATCH_MODE_ARCHITECTURE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Watch Mode: Real-Time Intelligence Architecture</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="watch-mode-real-time-intelligence-architecture">Watch Mode: Real-Time Intelligence Architecture</h1>
+
+<p><strong>Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2025-12-05<br />
+<strong>Status</strong>: Current</p>
+
+<hr />
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<ol>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#architecture">Architecture</a></li>
+  <li><a href="#core-components">Core Components</a></li>
+  <li><a href="#polling-mechanism">Polling Mechanism</a></li>
+  <li><a href="#git-integration">Git Integration</a></li>
+  <li><a href="#notification-system">Notification System</a></li>
+  <li><a href="#auto-activation">Auto-Activation</a></li>
+  <li><a href="#resource-management">Resource Management</a></li>
+  <li><a href="#statistics--monitoring">Statistics &amp; Monitoring</a></li>
+  <li><a href="#cli-usage">CLI Usage</a></li>
+  <li><a href="#development-guide">Development Guide</a></li>
+</ol>
+
+<hr />
+
+<h2 id="overview">Overview</h2>
+
+<h3 id="purpose">Purpose</h3>
+
+<p><strong>Watch Mode</strong> provides real-time monitoring and intelligent recommendations by:</p>
+<ul>
+  <li>✅ Continuously monitoring git changes (commits, staged, unstaged)</li>
+  <li>✅ Detecting context changes from file modifications</li>
+  <li>✅ Making intelligent recommendations in real-time</li>
+  <li>✅ Auto-activating high-confidence agents</li>
+  <li>✅ Providing live notifications and statistics</li>
+</ul>
+
+<h3 id="key-characteristics">Key Characteristics</h3>
+
+<ul>
+  <li><strong>Real-Time</strong>: 2-second polling interval (configurable)</li>
+  <li><strong>Git-Aware</strong>: Detects commits, staged, and unstaged changes</li>
+  <li><strong>Intelligent</strong>: Integrates with AI Intelligence System for recommendations</li>
+  <li><strong>Non-Intrusive</strong>: Runs in background, minimal output unless changes detected</li>
+  <li><strong>Auto-Activation</strong>: Automatically activates agents with ≥80% confidence</li>
+  <li><strong>Statistics</strong>: Tracks checks, recommendations, and activations</li>
+</ul>
+
+<h3 id="design-philosophy">Design Philosophy</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Monitor &gt; React &gt; Automate | Background &gt; Foreground | Signal &gt; Noise
+</code></pre></div></div>
+
+<p>Watch Mode prioritizes <strong>continuous monitoring</strong> with <strong>intelligent filtering</strong>, <strong>automatic action</strong> on high-confidence signals, and <strong>minimal noise</strong> through smart notification thresholds.</p>
+
+<hr />
+
+<h2 id="architecture">Architecture</h2>
+
+<h3 id="high-level-architecture">High-Level Architecture</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────────────────────────────────────────────┐
+│ Watch Mode Main Loop (2s interval)                      │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  while running:                                          │
+│    ├─ sleep(check_interval)                             │
+│    ├─ check_for_changes()                               │
+│    │   ├─ Check git HEAD (commits)                      │
+│    │   ├─ Get changed files                             │
+│    │   └─ analyze_context()                             │
+│    └─ handle_results()                                   │
+│                                                          │
+└────────────┬─────────────────────────────────────────────┘
+             ↓
+┌─────────────────────────────────────────────────────────┐
+│ Context Analysis Layer                                   │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  IntelligentAgent.analyze_context(changed_files)        │
+│  └─ Returns SessionContext                              │
+│                                                          │
+│  IntelligentAgent.get_recommendations()                 │
+│  └─ Returns List[AgentRecommendation]                   │
+│                                                          │
+└────────────┬─────────────────────────────────────────────┘
+             ↓
+┌─────────────────────────────────────────────────────────┐
+│ Action Layer                                             │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  if recommendations_changed():                           │
+│    ├─ show_recommendations()                            │
+│    └─ if auto_activate:                                 │
+│        └─ handle_auto_activation()                      │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="data-flow">Data Flow</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. Polling Timer (every 2s)
+   └─ Check interval elapsed?
+
+2. Git Status Check
+   └─ subprocess.run(["git", "rev-parse", "HEAD"])
+      └─ Compare with last_git_head
+
+3. Get Changed Files
+   └─ git diff --name-only HEAD           (unstaged)
+   └─ git diff --name-only --cached       (staged)
+   └─ Merge into changed_files list
+
+4. Context Analysis
+   └─ IntelligentAgent.analyze_context(changed_files)
+      └─ SessionContext with signals detected
+
+5. Generate Recommendations
+   └─ IntelligentAgent.get_recommendations()
+      └─ List[AgentRecommendation] sorted by confidence
+
+6. Check if Changed
+   └─ Compare agent_names with last_recommendations
+      └─ If different → proceed
+      └─ If same → skip (avoid spam)
+
+7. Show Notifications
+   └─ Print context summary
+   └─ Print high-confidence recommendations (≥70%)
+
+8. Auto-Activate (if enabled)
+   └─ Filter recommendations: confidence ≥ 0.8
+   └─ Exclude already activated
+   └─ Call agent_activate() for each
+
+9. Update State
+   └─ last_recommendations = new_recommendations
+   └─ activated_agents.add(agent_name)
+   └─ Statistics counters++
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="core-components">Core Components</h2>
+
+<h3 id="watchmode-class">WatchMode Class</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">watch.py</code> - <code class="language-plaintext highlighter-rouge">WatchMode</code> class</p>
+
+<p>The main controller for watch mode operations:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">WatchMode</span><span class="p">:</span>
+    <span class="s">"""Watch mode for real-time AI recommendations."""</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">auto_activate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="n">notification_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">,</span>
+        <span class="n">check_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">auto_activate</span> <span class="o">=</span> <span class="n">auto_activate</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">notification_threshold</span> <span class="o">=</span> <span class="n">notification_threshold</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">check_interval</span> <span class="o">=</span> <span class="n">check_interval</span>
+        
+        <span class="c1"># Initialize intelligent agent
+</span>        <span class="n">claude_dir</span> <span class="o">=</span> <span class="n">_resolve_claude_dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">intelligent_agent</span> <span class="o">=</span> <span class="n">IntelligentAgent</span><span class="p">(</span><span class="n">claude_dir</span> <span class="o">/</span> <span class="s">"intelligence"</span><span class="p">)</span>
+        
+        <span class="c1"># State tracking
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">last_check_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">last_git_head</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_git_head</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">last_recommendations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AgentRecommendation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">notification_history</span><span class="p">:</span> <span class="n">Deque</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        
+        <span class="c1"># Statistics
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">recommendations_made</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">auto_activations</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Key Attributes</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>Type</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">auto_activate</code></td>
+      <td>bool</td>
+      <td>Enable auto-activation (default: True)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">notification_threshold</code></td>
+      <td>float</td>
+      <td>Confidence threshold for notifications (0.7 = 70%)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">check_interval</code></td>
+      <td>float</td>
+      <td>Seconds between checks (default: 2.0)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intelligent_agent</code></td>
+      <td>IntelligentAgent</td>
+      <td>AI Intelligence integration</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">last_git_head</code></td>
+      <td>str</td>
+      <td>Last known git HEAD hash</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">last_recommendations</code></td>
+      <td>List</td>
+      <td>Previous recommendations (for diff)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">activated_agents</code></td>
+      <td>Set[str]</td>
+      <td>Agents activated this session</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">notification_history</code></td>
+      <td>Deque</td>
+      <td>Last 50 notifications</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="polling-mechanism">Polling Mechanism</h2>
+
+<h3 id="main-loop">Main Loop</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s">"""Run watch mode main loop."""</span>
+    
+    <span class="c1"># Setup signal handlers for graceful shutdown
+</span>    <span class="k">def</span> <span class="nf">signal_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrameType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>
+    
+    <span class="n">signal</span><span class="p">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="p">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal_handler</span><span class="p">)</span>   <span class="c1"># Ctrl+C
+</span>    <span class="n">signal</span><span class="p">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="p">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">signal_handler</span><span class="p">)</span>  <span class="c1"># kill
+</span>    
+    <span class="c1"># Print banner
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_print_banner</span><span class="p">()</span>
+    
+    <span class="c1"># Initial analysis
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_analyze_context</span><span class="p">()</span>
+    
+    <span class="c1"># Main loop
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">True</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="p">.</span><span class="n">running</span><span class="p">:</span>
+            <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">check_interval</span><span class="p">)</span>  <span class="c1"># Wait 2 seconds
+</span>            <span class="bp">self</span><span class="p">.</span><span class="n">_check_for_changes</span><span class="p">()</span>        <span class="c1"># Check for changes
+</span>    
+    <span class="k">except</span> <span class="nb">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+    
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Cleanup and statistics
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">_print_notification</span><span class="p">(</span><span class="s">"🛑"</span><span class="p">,</span> <span class="s">"Watch mode stopped"</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="s">"yellow"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_print_statistics</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="mi">0</span>
+</code></pre></div></div>
+
+<h3 id="check-cycle">Check Cycle</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_check_for_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Check for changes and analyze context."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c1"># 1. Check git HEAD changes (new commits)
+</span>    <span class="n">current_head</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_git_head</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">current_head</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">.</span><span class="n">last_git_head</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_print_notification</span><span class="p">(</span>
+            <span class="s">"📝"</span><span class="p">,</span>
+            <span class="s">"Git commit detected"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s">"HEAD: </span><span class="si">{</span><span class="n">current_head</span><span class="p">[</span><span class="si">:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+            <span class="s">"yellow"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">last_git_head</span> <span class="o">=</span> <span class="n">current_head</span>
+    
+    <span class="c1"># 2. Analyze context (changed files)
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_analyze_context</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="performance-characteristics">Performance Characteristics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Poll interval</td>
+      <td>2s</td>
+      <td>Configurable via <code class="language-plaintext highlighter-rouge">--interval</code></td>
+    </tr>
+    <tr>
+      <td>Git check overhead</td>
+      <td>~10-20ms</td>
+      <td><code class="language-plaintext highlighter-rouge">git rev-parse HEAD</code></td>
+    </tr>
+    <tr>
+      <td>File diff overhead</td>
+      <td>~20-50ms</td>
+      <td><code class="language-plaintext highlighter-rouge">git diff --name-only</code></td>
+    </tr>
+    <tr>
+      <td>Context analysis</td>
+      <td>~50-100ms</td>
+      <td>File pattern matching</td>
+    </tr>
+    <tr>
+      <td>Recommendation generation</td>
+      <td>~100ms</td>
+      <td>Pattern matching + rules</td>
+    </tr>
+    <tr>
+      <td>Total cycle time</td>
+      <td>~200ms</td>
+      <td>Leaves 1.8s idle</td>
+    </tr>
+    <tr>
+      <td>CPU usage</td>
+      <td>~1%</td>
+      <td>Mostly sleeping</td>
+    </tr>
+    <tr>
+      <td>Memory usage</td>
+      <td>~20MB</td>
+      <td>Loaded patterns + history</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="git-integration">Git Integration</h2>
+
+<h3 id="git-status-detection">Git Status Detection</h3>
+
+<p><strong>Detecting Commits</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_get_git_head</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="s">"""Get current git HEAD hash."""</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s">"git"</span><span class="p">,</span> <span class="s">"rev-parse"</span><span class="p">,</span> <span class="s">"HEAD"</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">stdout</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="c1"># Usage:
+</span><span class="n">current_head</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_git_head</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">current_head</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">.</span><span class="n">last_git_head</span><span class="p">:</span>
+    <span class="c1"># New commit detected!
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">last_git_head</span> <span class="o">=</span> <span class="n">current_head</span>
+</code></pre></div></div>
+
+<p><strong>Detecting File Changes</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_get_changed_files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="s">"""Get list of changed files from git."""</span>
+    
+    <span class="c1"># Get unstaged changes
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s">"git"</span><span class="p">,</span> <span class="s">"diff"</span><span class="p">,</span> <span class="s">"--name-only"</span><span class="p">,</span> <span class="s">"HEAD"</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Get staged changes
+</span>    <span class="n">staged</span> <span class="o">=</span> <span class="n">subprocess</span><span class="p">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s">"git"</span><span class="p">,</span> <span class="s">"diff"</span><span class="p">,</span> <span class="s">"--name-only"</span><span class="p">,</span> <span class="s">"--cached"</span><span class="p">],</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Merge and deduplicate
+</span>    <span class="n">all_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">stdout</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span> <span class="o">+</span> <span class="n">staged</span><span class="p">.</span><span class="n">stdout</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_files</span> <span class="k">if</span> <span class="n">f</span><span class="p">.</span><span class="n">strip</span><span class="p">()]</span>
+</code></pre></div></div>
+
+<h3 id="change-detection-strategy">Change Detection Strategy</h3>
+
+<p><strong>Three types of changes monitored</strong>:</p>
+
+<ol>
+  <li><strong>Commits</strong> (via <code class="language-plaintext highlighter-rouge">git rev-parse HEAD</code>)
+    <ul>
+      <li>Detects new commits</li>
+      <li>Triggers notification</li>
+      <li>Context re-analysis</li>
+    </ul>
+  </li>
+  <li><strong>Staged Changes</strong> (via <code class="language-plaintext highlighter-rouge">git diff --cached</code>)
+    <ul>
+      <li>Files added to index (<code class="language-plaintext highlighter-rouge">git add</code>)</li>
+      <li>Ready for commit</li>
+      <li>Included in context</li>
+    </ul>
+  </li>
+  <li><strong>Unstaged Changes</strong> (via <code class="language-plaintext highlighter-rouge">git diff HEAD</code>)
+    <ul>
+      <li>Modified but not staged</li>
+      <li>Working directory changes</li>
+      <li>Included in context</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Example Workflow</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># User makes changes</span>
+<span class="nv">$ </span>vim src/auth.py          <span class="c"># Unstaged change detected</span>
+<span class="nv">$ </span>git add src/auth.py      <span class="c"># Staged change detected</span>
+<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s2">"..."</span>      <span class="c"># Commit detected (HEAD change)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="notification-system">Notification System</h2>
+
+<h3 id="notification-types">Notification Types</h3>
+
+<p><strong>Context Detection</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[14:30:15] 🔍 Context detected: Backend, API, Auth
+  7 files changed
+</code></pre></div></div>
+
+<p><strong>Recommendations</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  💡 Recommendations:
+
+     🔴 security-auditor [AUTO]
+        90% - Auth code detected - security review recommended
+
+     🟡 test-automator
+        75% - Used in 6/8 similar sessions
+
+     🔵 quality-engineer [AUTO]
+        85% - Changes detected - quality review recommended
+
+     🔵 code-reviewer [AUTO]
+        75% - Changes detected - code review recommended
+</code></pre></div></div>
+
+<p><strong>Auto-Activation</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[14:30:16] ⚡ Auto-activating 3 agents...
+     ✓ security-auditor
+     ✓ quality-engineer
+     ✓ code-reviewer
+</code></pre></div></div>
+
+<p><strong>Commit Detection</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[14:31:42] 📝 Git commit detected
+  HEAD: a3f8d2e1
+</code></pre></div></div>
+
+<p><strong>Status Changes</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[14:32:00] 💤 No recommendations
+  Current context doesn't warrant any suggestions
+</code></pre></div></div>
+
+<h3 id="notification-filtering">Notification Filtering</h3>
+
+<p><strong>Threshold-Based</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Only show recommendations with confidence &gt;= threshold
+</span><span class="n">high_confidence</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> 
+    <span class="k">if</span> <span class="n">r</span><span class="p">.</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="p">.</span><span class="n">notification_threshold</span>
+<span class="p">]</span>
+
+<span class="c1"># Default: 0.7 (70% confidence)
+</span></code></pre></div></div>
+
+<p><strong>Change-Based</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_recommendations_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_recs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AgentRecommendation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="s">"""Check if recommendations changed significantly."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">last_recommendations</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">new_recs</span><span class="p">)</span>
+    
+    <span class="c1"># Compare agent names
+</span>    <span class="n">old_agents</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">.</span><span class="n">agent_name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">last_recommendations</span><span class="p">}</span>
+    <span class="n">new_agents</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">.</span><span class="n">agent_name</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">new_recs</span><span class="p">}</span>
+    
+    <span class="c1"># Only notify if different
+</span>    <span class="k">return</span> <span class="n">old_agents</span> <span class="o">!=</span> <span class="n">new_agents</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ No spam from repeated identical recommendations</li>
+  <li>✅ Only notifies on meaningful context changes</li>
+  <li>✅ Configurable threshold for different sensitivity levels</li>
+</ul>
+
+<h3 id="color-coded-output">Color-Coded Output</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">color_codes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"red"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[91m"</span><span class="p">,</span>      <span class="c1"># Critical urgency
+</span>    <span class="s">"green"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[92m"</span><span class="p">,</span>    <span class="c1"># Success/activation
+</span>    <span class="s">"yellow"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[93m"</span><span class="p">,</span>   <span class="c1"># Warning/commit
+</span>    <span class="s">"blue"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[94m"</span><span class="p">,</span>     <span class="c1"># Info
+</span>    <span class="s">"magenta"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[95m"</span><span class="p">,</span>  <span class="c1"># Unused
+</span>    <span class="s">"cyan"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[96m"</span><span class="p">,</span>     <span class="c1"># Context detection
+</span>    <span class="s">"white"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[97m"</span><span class="p">,</span>    <span class="c1"># Default
+</span>    <span class="s">"dim"</span><span class="p">:</span> <span class="s">"</span><span class="se">\033</span><span class="s">[2m"</span><span class="p">,</span>       <span class="c1"># Low priority
+</span><span class="p">}</span>
+
+<span class="c1"># Example:
+</span><span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">cyan</span><span class="si">}</span><span class="s">[14:30:15] 🔍 Context detected</span><span class="si">{</span><span class="n">reset</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="urgency-icons">Urgency Icons</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Urgency</th>
+      <th>Icon</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Critical</td>
+      <td>🔴</td>
+      <td>Immediate action required (test failures, security)</td>
+    </tr>
+    <tr>
+      <td>High</td>
+      <td>🟡</td>
+      <td>Important recommendation (80%+ confidence)</td>
+    </tr>
+    <tr>
+      <td>Medium</td>
+      <td>🔵</td>
+      <td>Moderate priority (50-79% confidence)</td>
+    </tr>
+    <tr>
+      <td>Low</td>
+      <td>⚪</td>
+      <td>Optional suggestion (&lt;50% confidence)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="auto-activation">Auto-Activation</h2>
+
+<h3 id="auto-activation-logic">Auto-Activation Logic</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_handle_auto_activation</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> 
+    <span class="n">recommendations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AgentRecommendation</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Handle auto-activation of agents."""</span>
+    
+    <span class="c1"># Filter candidates
+</span>    <span class="n">auto_agents</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">r</span><span class="p">.</span><span class="n">agent_name</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span>
+        <span class="k">if</span> <span class="n">r</span><span class="p">.</span><span class="n">auto_activate</span> <span class="ow">and</span> <span class="n">r</span><span class="p">.</span><span class="n">agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span>
+    <span class="p">]</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">auto_agents</span><span class="p">:</span>
+        <span class="k">return</span>
+    
+    <span class="c1"># Notify
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_print_notification</span><span class="p">(</span>
+        <span class="s">"⚡"</span><span class="p">,</span> 
+        <span class="sa">f</span><span class="s">"Auto-activating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">auto_agents</span><span class="p">)</span><span class="si">}</span><span class="s"> agents..."</span><span class="p">,</span> 
+        <span class="s">""</span><span class="p">,</span> 
+        <span class="s">"green"</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Activate each agent
+</span>    <span class="k">for</span> <span class="n">agent_name</span> <span class="ow">in</span> <span class="n">auto_agents</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">exit_code</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">agent_activate</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">auto_activations</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"     ✓ </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"     ✗ </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s">: Failed"</span><span class="p">)</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"     ✗ </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="activation-criteria">Activation Criteria</h3>
+
+<p>An agent is auto-activated if <strong>ALL</strong> conditions are met:</p>
+
+<ol>
+  <li>✅ <code class="language-plaintext highlighter-rouge">rec.auto_activate == True</code> (confidence ≥ 0.8)</li>
+  <li>✅ <code class="language-plaintext highlighter-rouge">agent_name not in self.activated_agents</code> (not already activated)</li>
+</ol>
+
+<p><strong>Example</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Context: Modified src/auth.py
+# Recommendation: security-auditor (confidence=0.9, auto_activate=True)
+</span>
+<span class="k">if</span> <span class="mf">0.9</span> <span class="o">&gt;=</span> <span class="mf">0.8</span> <span class="ow">and</span> <span class="s">"security-auditor"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">activated_agents</span><span class="p">:</span>
+    <span class="n">agent_activate</span><span class="p">(</span><span class="s">"security-auditor"</span><span class="p">)</span>  <span class="c1"># AUTO-ACTIVATE
+</span>    <span class="n">activated_agents</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="s">"security-auditor"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="preventing-duplicate-activations">Preventing Duplicate Activations</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Track activated agents per session
+</span><span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<span class="c1"># Check before activating
+</span><span class="k">if</span> <span class="n">agent_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">:</span>
+    <span class="n">agent_activate</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Already activated - skip
+</span>    <span class="k">pass</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ No duplicate activations</li>
+  <li>✅ Agents only activated once per watch session</li>
+  <li>✅ Clean state tracking</li>
+</ul>
+
+<hr />
+
+<h2 id="resource-management">Resource Management</h2>
+
+<h3 id="memory-management">Memory Management</h3>
+
+<p><strong>Fixed Size Structures</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Notification history: bounded at 50 entries
+</span><span class="bp">self</span><span class="p">.</span><span class="n">notification_history</span><span class="p">:</span> <span class="n">Deque</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="c1"># Activated agents: typically 5-10 agents max
+</span><span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<span class="c1"># Last recommendations: typically 3-7 recommendations
+</span><span class="bp">self</span><span class="p">.</span><span class="n">last_recommendations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AgentRecommendation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</code></pre></div></div>
+
+<p><strong>Memory Profile</strong>:</p>
+<ul>
+  <li>IntelligentAgent: ~5MB (loaded patterns)</li>
+  <li>Notification history: ~5KB (50 notifications × 100 bytes)</li>
+  <li>State tracking: ~1KB</li>
+  <li><strong>Total</strong>: ~20MB steady-state</li>
+</ul>
+
+<h3 id="cpu-management">CPU Management</h3>
+
+<p><strong>Sleep-Dominated Loop</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">while</span> <span class="bp">self</span><span class="p">.</span><span class="n">running</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">check_interval</span><span class="p">)</span>  <span class="c1"># 2s sleep (0% CPU)
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_check_for_changes</span><span class="p">()</span>        <span class="c1"># ~200ms work (~10% CPU during check)
+</span>
+<span class="c1"># Result: Average CPU usage ~1%
+</span></code></pre></div></div>
+
+<p><strong>Process Priority</strong>:</p>
+<ul>
+  <li>Runs at normal priority (not background)</li>
+  <li>Can be nice’d down: <code class="language-plaintext highlighter-rouge">nice -n 10 claude-ctx watch</code></li>
+  <li>Suitable for long-running background monitoring</li>
+</ul>
+
+<h3 id="signal-handling">Signal Handling</h3>
+
+<p><strong>Graceful Shutdown</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">signal_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FrameType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># Exit main loop
+</span>
+<span class="n">signal</span><span class="p">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="p">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal_handler</span><span class="p">)</span>   <span class="c1"># Ctrl+C
+</span><span class="n">signal</span><span class="p">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="p">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">signal_handler</span><span class="p">)</span>  <span class="c1"># kill command
+</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">while</span> <span class="bp">self</span><span class="p">.</span><span class="n">running</span><span class="p">:</span>
+        <span class="c1"># ... main loop
+</span><span class="k">except</span> <span class="nb">KeyboardInterrupt</span><span class="p">:</span>
+    <span class="k">pass</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="c1"># Always print statistics before exit
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_print_statistics</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Handled Signals</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">SIGINT</code> (Ctrl+C): Graceful shutdown with statistics</li>
+  <li><code class="language-plaintext highlighter-rouge">SIGTERM</code> (kill): Graceful shutdown with statistics</li>
+  <li><code class="language-plaintext highlighter-rouge">KeyboardInterrupt</code>: Catch-all for interrupts</li>
+</ul>
+
+<hr />
+
+<h2 id="statistics--monitoring">Statistics &amp; Monitoring</h2>
+
+<h3 id="statistics-tracking">Statistics Tracking</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Statistics counters
+</span><span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># Total polling cycles
+</span><span class="bp">self</span><span class="p">.</span><span class="n">recommendations_made</span> <span class="o">=</span> <span class="mi">0</span>    <span class="c1"># Times recommendations changed
+</span><span class="bp">self</span><span class="p">.</span><span class="n">auto_activations</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># Agents auto-activated
+</span><span class="bp">self</span><span class="p">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">()</span> <span class="c1"># Session start time
+</span>
+<span class="c1"># Example increment:
+</span><span class="k">def</span> <span class="nf">_check_for_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># ...
+</span>    <span class="k">if</span> <span class="n">recommendations_changed</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">recommendations_made</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<h3 id="statistics-display">Statistics Display</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_print_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Print watch mode statistics."""</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="p">.</span><span class="n">start_time</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">duration</span><span class="p">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">duration</span><span class="p">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span> <span class="o">+</span> <span class="s">"─"</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"📊 WATCH MODE STATISTICS"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"─"</span> <span class="o">*</span> <span class="mi">70</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Duration: </span><span class="si">{</span><span class="n">hours</span><span class="si">}</span><span class="s">h </span><span class="si">{</span><span class="n">minutes</span><span class="si">}</span><span class="s">m"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Checks performed: </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Recommendations: </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">recommendations_made</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Auto-activations: </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">auto_activations</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Agents activated: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"    </span><span class="si">{</span><span class="s">', '</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">activated_agents</span><span class="p">))</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"─"</span> <span class="o">*</span> <span class="mi">70</span> <span class="o">+</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Example Output</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>──────────────────────────────────────────────────────────────────
+📊 WATCH MODE STATISTICS
+──────────────────────────────────────────────────────────────────
+  Duration: 0h 15m
+  Checks performed: 450
+  Recommendations: 3
+  Auto-activations: 5
+  Agents activated: 3
+    python-pro, security-auditor, test-automator
+──────────────────────────────────────────────────────────────────
+</code></pre></div></div>
+
+<h3 id="notification-history">Notification History</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Store last 50 notifications with timestamp
+</span><span class="bp">self</span><span class="p">.</span><span class="n">notification_history</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+    <span class="s">"timestamp"</span><span class="p">:</span> <span class="s">"14:30:15"</span><span class="p">,</span>
+    <span class="s">"icon"</span><span class="p">:</span> <span class="s">"🔍"</span><span class="p">,</span>
+    <span class="s">"title"</span><span class="p">:</span> <span class="s">"Context detected"</span><span class="p">,</span>
+    <span class="s">"message"</span><span class="p">:</span> <span class="s">"Backend, API, Auth"</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1"># Query history:
+</span><span class="n">recent_notifications</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">notification_history</span><span class="p">)[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="cli-usage">CLI Usage</h2>
+
+<h3 id="basic-usage">Basic Usage</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Start watch mode with defaults</span>
+<span class="nv">$ </span>claude-ctx watch
+
+🤖 AI WATCH MODE - Real-time Intelligence
+══════════════════════════════════════════════════════════════════
+
+<span class="o">[</span>14:30:00] Watch mode started
+  Auto-activate: ON
+  Threshold: 70% confidence
+  Check interval: 2s
+
+  Monitoring:
+    • Git changes <span class="o">(</span>commits, staged, unstaged<span class="o">)</span>
+    • File modifications
+    • Context changes
+
+  Press Ctrl+C to stop
+
+──────────────────────────────────────────────────────────────────
+
+<span class="o">[</span>14:30:00] 🚀 Performing initial analysis...
+
+<span class="o">[</span>14:30:01] 🔍 Context detected: Backend, API
+  3 files changed
+
+  💡 Recommendations:
+
+     🟡 python-pro
+        75% - Used <span class="k">in </span>5/7 similar sessions
+
+     🔵 api-documenter
+        65% - API changes detected
+
+<span class="o">[</span>14:30:02] ⚡ Auto-activating 1 agents...
+     ✓ python-pro
+
+<span class="o">[</span>14:32:15] 📝 Git commit detected
+  HEAD: a3f8d2e1
+
+<span class="o">[</span>14:35:00] ^C
+
+<span class="o">[</span>14:35:00] 🛑 Watch mode stopped
+
+──────────────────────────────────────────────────────────────────
+📊 WATCH MODE STATISTICS
+──────────────────────────────────────────────────────────────────
+  Duration: 0h 5m
+  Checks performed: 150
+  Recommendations: 2
+  Auto-activations: 1
+  Agents activated: 1
+    python-pro
+──────────────────────────────────────────────────────────────────
+</code></pre></div></div>
+
+<h3 id="command-options">Command Options</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Disable auto-activation</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--no-auto</span>
+
+<span class="c"># Set custom threshold (50% confidence)</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--threshold</span> 0.5
+
+<span class="c"># Custom check interval (5 seconds)</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--interval</span> 5
+
+<span class="c"># Combine options</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--no-auto</span> <span class="nt">--threshold</span> 0.8 <span class="nt">--interval</span> 1
+</code></pre></div></div>
+
+<h3 id="cli-parameters">CLI Parameters</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--auto/--no-auto</code></td>
+      <td>flag</td>
+      <td>True</td>
+      <td>Enable/disable auto-activation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--threshold</code></td>
+      <td>float</td>
+      <td>0.7</td>
+      <td>Confidence threshold (0.0-1.0)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">--interval</code></td>
+      <td>float</td>
+      <td>2.0</td>
+      <td>Check interval in seconds</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="development-guide">Development Guide</h2>
+
+<h3 id="adding-custom-notifications">Adding Custom Notifications</h3>
+
+<p><strong>Step 1</strong>: Add notification method:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_notify_custom_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Notify about custom event."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">_print_notification</span><span class="p">(</span>
+        <span class="s">"🎯"</span><span class="p">,</span>                          <span class="c1"># Icon
+</span>        <span class="s">"Custom Event Detected"</span><span class="p">,</span>       <span class="c1"># Title
+</span>        <span class="n">details</span><span class="p">,</span>                       <span class="c1"># Message
+</span>        <span class="s">"magenta"</span><span class="p">,</span>                     <span class="c1"># Color
+</span>    <span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Step 2</strong>: Call in check cycle:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_check_for_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="c1"># Existing checks
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_check_git_head</span><span class="p">()</span>
+    
+    <span class="c1"># NEW: Custom check
+</span>    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_detect_custom_condition</span><span class="p">():</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_notify_custom_event</span><span class="p">(</span><span class="s">"Custom condition met!"</span><span class="p">)</span>
+    
+    <span class="bp">self</span><span class="p">.</span><span class="n">_analyze_context</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="extending-context-detection">Extending Context Detection</h3>
+
+<p><strong>Step 1</strong>: Add detection logic:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_detect_dockerfile_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="s">"""Check if Dockerfile changed."""</span>
+    <span class="n">changed_files</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_changed_files</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="s">"Dockerfile"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">changed_files</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Step 2</strong>: Integrate with analysis:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_analyze_context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="s">"""Analyze context with Dockerfile detection."""</span>
+    <span class="n">changed_files</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_changed_files</span><span class="p">()</span>
+    
+    <span class="c1"># Custom detection
+</span>    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_detect_dockerfile_changes</span><span class="p">():</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_print_notification</span><span class="p">(</span>
+            <span class="s">"🐳"</span><span class="p">,</span>
+            <span class="s">"Docker changes detected"</span><span class="p">,</span>
+            <span class="s">"Dockerfile modified"</span><span class="p">,</span>
+            <span class="s">"cyan"</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># Standard analysis
+</span>    <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">intelligent_agent</span><span class="p">.</span><span class="n">analyze_context</span><span class="p">(</span><span class="n">changed_files</span><span class="p">)</span>
+    <span class="c1"># ...
+</span></code></pre></div></div>
+
+<h3 id="testing-watch-mode">Testing Watch Mode</h3>
+
+<p><strong>Example Test</strong> (<code class="language-plaintext highlighter-rouge">tests/unit/test_watch.py</code>):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.watch</span> <span class="kn">import</span> <span class="n">WatchMode</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">patch</span><span class="p">,</span> <span class="n">MagicMock</span>
+
+<span class="k">def</span> <span class="nf">test_watch_mode_initialization</span><span class="p">():</span>
+    <span class="s">"""Test watch mode initialization."""</span>
+    <span class="n">watch</span> <span class="o">=</span> <span class="n">WatchMode</span><span class="p">(</span>
+        <span class="n">auto_activate</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="n">notification_threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">check_interval</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="k">assert</span> <span class="n">watch</span><span class="p">.</span><span class="n">auto_activate</span> <span class="ow">is</span> <span class="bp">False</span>
+    <span class="k">assert</span> <span class="n">watch</span><span class="p">.</span><span class="n">notification_threshold</span> <span class="o">==</span> <span class="mf">0.8</span>
+    <span class="k">assert</span> <span class="n">watch</span><span class="p">.</span><span class="n">check_interval</span> <span class="o">==</span> <span class="mf">5.0</span>
+    <span class="k">assert</span> <span class="n">watch</span><span class="p">.</span><span class="n">checks_performed</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="o">@</span><span class="n">patch</span><span class="p">(</span><span class="s">"subprocess.run"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_git_head_detection</span><span class="p">(</span><span class="n">mock_run</span><span class="p">):</span>
+    <span class="s">"""Test git HEAD detection."""</span>
+    <span class="n">mock_run</span><span class="p">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">(</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="s">"abc123def456</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="n">watch</span> <span class="o">=</span> <span class="n">WatchMode</span><span class="p">()</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="n">watch</span><span class="p">.</span><span class="n">_get_git_head</span><span class="p">()</span>
+    
+    <span class="k">assert</span> <span class="n">head</span> <span class="o">==</span> <span class="s">"abc123def456"</span>
+    <span class="n">mock_run</span><span class="p">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">test_recommendation_change_detection</span><span class="p">():</span>
+    <span class="s">"""Test recommendation change detection."""</span>
+    <span class="kn">from</span> <span class="nn">claude_ctx_py.intelligence</span> <span class="kn">import</span> <span class="n">AgentRecommendation</span>
+    
+    <span class="n">watch</span> <span class="o">=</span> <span class="n">WatchMode</span><span class="p">()</span>
+    
+    <span class="c1"># Initial recommendations
+</span>    <span class="n">rec1</span> <span class="o">=</span> <span class="n">AgentRecommendation</span><span class="p">(</span>
+        <span class="n">agent_name</span><span class="o">=</span><span class="s">"python-pro"</span><span class="p">,</span>
+        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">reason</span><span class="o">=</span><span class="s">"Test"</span><span class="p">,</span>
+        <span class="n">urgency</span><span class="o">=</span><span class="s">"medium"</span><span class="p">,</span>
+        <span class="n">auto_activate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">context_triggers</span><span class="o">=</span><span class="p">[],</span>
+    <span class="p">)</span>
+    
+    <span class="n">watch</span><span class="p">.</span><span class="n">last_recommendations</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec1</span><span class="p">]</span>
+    
+    <span class="c1"># Same recommendation
+</span>    <span class="n">new_recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">watch</span><span class="p">.</span><span class="n">_recommendations_changed</span><span class="p">(</span><span class="n">new_recs</span><span class="p">)</span>
+    
+    <span class="c1"># Different recommendation
+</span>    <span class="n">rec2</span> <span class="o">=</span> <span class="n">AgentRecommendation</span><span class="p">(</span>
+        <span class="n">agent_name</span><span class="o">=</span><span class="s">"security-auditor"</span><span class="p">,</span>
+        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">reason</span><span class="o">=</span><span class="s">"Test"</span><span class="p">,</span>
+        <span class="n">urgency</span><span class="o">=</span><span class="s">"high"</span><span class="p">,</span>
+        <span class="n">auto_activate</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">context_triggers</span><span class="o">=</span><span class="p">[],</span>
+    <span class="p">)</span>
+    
+    <span class="n">new_recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec2</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">watch</span><span class="p">.</span><span class="n">_recommendations_changed</span><span class="p">(</span><span class="n">new_recs</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="debugging-tips">Debugging Tips</h3>
+
+<p><strong>1. Dry-run mode (no auto-activation)</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx watch <span class="nt">--no-auto</span> <span class="nt">--threshold</span> 0.5
+</code></pre></div></div>
+
+<p><strong>2. Verbose logging</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Add debug prints
+</span><span class="k">def</span> <span class="nf">_check_for_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"[DEBUG] Check #</span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">checks_performed</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"[DEBUG] Git HEAD: </span><span class="si">{</span><span class="bp">self</span><span class="p">.</span><span class="n">_get_git_head</span><span class="p">()</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"[DEBUG] Changed files: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_get_changed_files</span><span class="p">())</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    <span class="c1"># ...
+</span></code></pre></div></div>
+
+<p><strong>3. Monitor in separate terminal</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Terminal 1: Watch mode</span>
+<span class="nv">$ </span>claude-ctx watch
+
+<span class="c"># Terminal 2: Make changes and observe</span>
+<span class="nv">$ </span>vim src/file.py
+<span class="nv">$ </span>git add src/file.py
+<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s2">"test"</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="performance-considerations">Performance Considerations</h2>
+
+<h3 id="optimization-strategies">Optimization Strategies</h3>
+
+<p><strong>1. Reduce Poll Interval</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Lower interval for more responsive monitoring</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--interval</span> 1.0
+
+<span class="c"># Higher interval for lower resource usage</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--interval</span> 5.0
+</code></pre></div></div>
+
+<p><strong>2. Threshold Tuning</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Higher threshold = fewer notifications</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--threshold</span> 0.9
+
+<span class="c"># Lower threshold = more notifications</span>
+<span class="nv">$ </span>claude-ctx watch <span class="nt">--threshold</span> 0.5
+</code></pre></div></div>
+
+<p><strong>3. Git Optimization</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Cache git commands
+</span><span class="o">@</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_get_git_head</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># Cached for 1 call (invalidate on next check)
+</span>    <span class="k">pass</span>
+</code></pre></div></div>
+
+<h3 id="resource-limits">Resource Limits</h3>
+
+<p><strong>Recommended Limits</strong>:</p>
+<ul>
+  <li>Max poll frequency: 0.5s (2 Hz)</li>
+  <li>Min poll frequency: 10s (0.1 Hz)</li>
+  <li>Notification history: 50 entries (configurable)</li>
+  <li>Memory cap: ~50MB total</li>
+</ul>
+
+<p><strong>Scaling Behavior</strong>:</p>
+<ul>
+  <li>Linear with number of changed files</li>
+  <li>Constant with repository size</li>
+  <li>Independent of total file count</li>
+</ul>
+
+<hr />
+
+<h2 id="integration-patterns">Integration Patterns</h2>
+
+<h3 id="with-ai-intelligence">With AI Intelligence</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Watch mode delegates to IntelligentAgent
+</span><span class="bp">self</span><span class="p">.</span><span class="n">intelligent_agent</span> <span class="o">=</span> <span class="n">IntelligentAgent</span><span class="p">(</span><span class="n">claude_dir</span> <span class="o">/</span> <span class="s">"intelligence"</span><span class="p">)</span>
+
+<span class="c1"># On each check:
+</span><span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">intelligent_agent</span><span class="p">.</span><span class="n">analyze_context</span><span class="p">(</span><span class="n">changed_files</span><span class="p">)</span>
+<span class="n">recommendations</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">intelligent_agent</span><span class="p">.</span><span class="n">get_recommendations</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="with-memory-vault">With Memory Vault</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Can integrate auto-capture on session end
+</span><span class="k">if</span> <span class="n">watch_mode_stopping</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">is_auto_capture_enabled</span><span class="p">():</span>
+        <span class="n">memory_capture</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s">"Watch session </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+            <span class="n">summary</span><span class="o">=</span><span class="sa">f</span><span class="s">"Auto-activated: </span><span class="si">{</span><span class="n">activated_agents</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+            <span class="n">implementations</span><span class="o">=</span><span class="n">changed_files</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="with-tui">With TUI</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Can run watch mode in background while TUI is active</span>
+<span class="nv">$ </span>claude-ctx watch &amp;
+<span class="nv">$ </span>claude-ctx tui
+
+<span class="c"># Watch mode provides notifications</span>
+<span class="c"># TUI provides interactive control</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="related-documentation">Related Documentation</h2>
+
+<ul>
+  <li><a href="/guides/development/AI_INTELLIGENCE_ARCHITECTURE.html">AI Intelligence System</a></li>
+  <li><a href="/guides/development/MEMORY_VAULT_ARCHITECTURE.html">Memory Vault System</a></li>
+  <li><a href="/architecture/MASTER_ARCHITECTURE.html">Master Architecture Document</a></li>
+</ul>
+
+<hr />
+
+<h2 id="revision-history">Revision History</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Changes</th>
+      <th>Author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>2025-12-05</td>
+      <td>Initial Watch Mode documentation</td>
+      <td>System Architect</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Document Status</strong>: ✅ Current<br />
+<strong>Maintainer</strong>: Core Team</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

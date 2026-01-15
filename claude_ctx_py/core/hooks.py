@@ -22,6 +22,15 @@ HOOK_EVENTS = [
     "UserPromptSubmit",
 ]
 
+# Hook names that cannot be installed together.
+MUTUALLY_EXCLUSIVE_HOOK_GROUPS = [
+    {
+        "parallel-workflow-enforcer",
+        "implementation-quality-gate",
+        "implementation-quality-gates",
+    },
+]
+
 
 @dataclass
 class HookDefinition:
@@ -100,6 +109,100 @@ def save_settings(settings: Dict[str, Any]) -> Tuple[bool, str]:
         return False, f"Failed to save settings: {e}"
 
 
+def _hook_name_matches(hook_name: str, command: str, args: Optional[List[Any]] = None) -> bool:
+    """Check whether a hook entry references a hook name."""
+    tokens: List[str] = []
+    if command:
+        tokens.extend(command.split())
+    if args:
+        tokens.extend(str(arg) for arg in args if arg is not None)
+
+    for token in tokens:
+        if token == hook_name:
+            return True
+        try:
+            stem = Path(token).stem
+        except OSError:
+            stem = ""
+        if stem == hook_name:
+            return True
+        if hook_name in token:
+            return True
+    return False
+
+
+def _is_hook_installed(settings: Dict[str, Any], hook_name: str) -> bool:
+    """Check if a hook name already exists in settings.json hooks config."""
+    hooks_config = settings.get("hooks", {})
+    if not isinstance(hooks_config, dict):
+        return False
+    for matchers in hooks_config.values():
+        if not isinstance(matchers, list):
+            continue
+        for matcher_entry in matchers:
+            for hook in matcher_entry.get("hooks", []):
+                if _hook_name_matches(
+                    hook_name,
+                    hook.get("command", ""),
+                    hook.get("args", []),
+                ):
+                    return True
+    return False
+
+
+def _find_hook_conflict(settings: Dict[str, Any], hook_name: str) -> Optional[str]:
+    """Return conflicting hook name if hook_name is mutually exclusive with installed hooks."""
+    for group in MUTUALLY_EXCLUSIVE_HOOK_GROUPS:
+        if hook_name in group:
+            for other in group:
+                if other != hook_name and _is_hook_installed(settings, other):
+                    return other
+    return None
+
+
+def validate_hooks_config(config: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """Validate hook config dict for mutual exclusivity and structure."""
+    errors: List[str] = []
+    hooks_config = config.get("hooks") if "hooks" in config else config
+    if not isinstance(hooks_config, dict):
+        return False, ["Hooks config must be a JSON object with a 'hooks' map."]
+
+    present: Dict[str, bool] = {}
+    for matchers in hooks_config.values():
+        if not isinstance(matchers, list):
+            continue
+        for matcher_entry in matchers:
+            for hook in matcher_entry.get("hooks", []):
+                command = hook.get("command", "")
+                args = hook.get("args", [])
+                for group in MUTUALLY_EXCLUSIVE_HOOK_GROUPS:
+                    for name in group:
+                        if _hook_name_matches(name, command, args):
+                            present[name] = True
+
+    for group in MUTUALLY_EXCLUSIVE_HOOK_GROUPS:
+        found = [name for name in group if present.get(name)]
+        if len(found) > 1:
+            errors.append(
+                "Hooks config contains mutually exclusive hooks: "
+                + ", ".join(sorted(found))
+                + ". Remove all but one."
+            )
+
+    return (len(errors) == 0), errors
+
+
+def validate_hooks_config_file(path: Path) -> Tuple[bool, List[str]]:
+    """Validate a hooks.json file for mutual exclusivity."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, [f"Invalid JSON in {path}: {exc}"]
+    if not isinstance(data, dict):
+        return False, [f"Hooks config {path} must be a JSON object."]
+    return validate_hooks_config(data)
+
+
 def get_installed_hooks() -> List[InstalledHook]:
     """Get list of installed hooks from settings.json."""
     settings = load_settings()
@@ -125,7 +228,7 @@ def get_installed_hooks() -> List[InstalledHook]:
 
 
 def get_available_hooks(plugin_dir: Optional[Path] = None) -> List[HookDefinition]:
-    """Get available hooks from hooks/examples directory.
+    """Get available hooks from hooks/ (and hooks/examples as fallback).
 
     Args:
         plugin_dir: Plugin directory. If None, uses package location.
@@ -135,24 +238,28 @@ def get_available_hooks(plugin_dir: Optional[Path] = None) -> List[HookDefinitio
     """
     hooks: List[HookDefinition] = []
 
-    # Find hooks/examples directory
     if plugin_dir is None:
         # Try to find from package location
         import claude_ctx_py
 
         pkg_dir = Path(claude_ctx_py.__file__).parent.parent
-        examples_dir = pkg_dir / "hooks" / "examples"
+        base_hooks_dir = pkg_dir / "hooks"
     else:
-        examples_dir = plugin_dir / "hooks" / "examples"
+        base_hooks_dir = plugin_dir / "hooks"
 
-    if not examples_dir.is_dir():
-        return hooks
+    candidate_dirs = [base_hooks_dir, base_hooks_dir / "examples"]
+    seen: set[str] = set()
 
-    # Parse each hook file
-    for hook_file in sorted(examples_dir.glob("*.py")):
-        hook_def = parse_hook_file(hook_file)
-        if hook_def:
-            hooks.append(hook_def)
+    for hooks_dir in candidate_dirs:
+        if not hooks_dir.is_dir():
+            continue
+        for hook_file in sorted(hooks_dir.glob("*.py")):
+            if hook_file.stem in seen:
+                continue
+            hook_def = parse_hook_file(hook_file)
+            if hook_def:
+                hooks.append(hook_def)
+                seen.add(hook_file.stem)
 
     # Also check user's hooks directory
     claude_dir = _resolve_claude_dir()
@@ -272,6 +379,12 @@ def install_hook(
 
     # Update settings.json
     settings = load_settings()
+    conflict = _find_hook_conflict(settings, hook.name)
+    if conflict:
+        return (
+            False,
+            f"Hook '{hook.name}' conflicts with '{conflict}'. Uninstall '{conflict}' first.",
+        )
     if "hooks" not in settings:
         settings["hooks"] = {}
 

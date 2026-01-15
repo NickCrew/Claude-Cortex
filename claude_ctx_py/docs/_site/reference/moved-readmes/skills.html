@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Agent Skills - Progressive Disclosure Architecture | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Agent Skills - Progressive Disclosure Architecture" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/reference/moved-readmes/skills.html" />
+<meta property="og:url" content="http://localhost:4000/reference/moved-readmes/skills.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Agent Skills - Progressive Disclosure Architecture" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Agent Skills - Progressive Disclosure Architecture","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/reference/moved-readmes/skills.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Agent Skills - Progressive Disclosure Architecture</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="agent-skills---progressive-disclosure-architecture">Agent Skills - Progressive Disclosure Architecture</h1>
+
+<p>Agent skills implement <strong>progressive disclosure</strong> - loading specialized knowledge only when needed, reducing token usage while maintaining deep expertise.</p>
+
+<h2 id="architecture">Architecture</h2>
+
+<h3 id="three-tier-progressive-loading">Three-Tier Progressive Loading</h3>
+
+<ol>
+  <li><strong>Metadata (Always Loaded)</strong>: YAML frontmatter with name, description, and activation triggers</li>
+  <li><strong>Instructions (Loaded When Activated)</strong>: Core guidance and patterns</li>
+  <li><strong>Resources (On-Demand)</strong>: Detailed examples, templates, and references</li>
+</ol>
+
+<h3 id="token-efficiency">Token Efficiency</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Without Skills:
+  backend-architect.md (full agent) = ~8,000 tokens loaded immediately
+
+With Skills:
+  backend-architect.md (core agent) = ~3,000 tokens
+  + api-design-patterns skill (when needed) = +2,500 tokens
+  + microservices-patterns skill (when needed) = +2,800 tokens
+  Total loaded only what's needed = 30-40% reduction
+</code></pre></div></div>
+
+<h2 id="skill-structure">Skill Structure</h2>
+
+<h3 id="directory-layout">Directory Layout</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>skills/
+├── api-design-patterns/
+│   └── SKILL.md                    # Skill content
+├── microservices-patterns/
+│   └── SKILL.md
+├── event-driven-architecture/
+│   └── SKILL.md
+└── README.md                       # This file
+</code></pre></div></div>
+
+<h3 id="skillmd-format">SKILL.md Format</h3>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">skill-name</span>                    <span class="c1"># Hyphen-case, unique identifier</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">What the skill does. Use when [trigger condition].</span> <span class="c1"># &lt; 1024 chars</span>
+<span class="nn">---</span>
+
+<span class="c1"># Skill Title</span>
+
+<span class="s">Overview paragraph explaining the skill's purpose and scope.</span>
+
+<span class="c1">## When to Use This Skill</span>
+
+<span class="pi">-</span> <span class="s">Specific scenario </span><span class="m">1</span>
+<span class="pi">-</span> <span class="s">Specific scenario </span><span class="m">2</span>
+<span class="pi">-</span> <span class="s">Specific scenario </span><span class="m">3</span>
+
+<span class="c1">## Core Content</span>
+
+<span class="pi">[</span><span class="nv">Progressive disclosure tiers</span><span class="pi">:</span> <span class="nv">foundational → intermediate → advanced</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<h2 id="integration-with-agents">Integration with Agents</h2>
+
+<h3 id="agent-frontmatter-enhancement">Agent Frontmatter Enhancement</h3>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">backend-architect</span>
+<span class="c1"># ... existing fields ...</span>
+<span class="na">skills</span><span class="pi">:</span>                             <span class="c1"># NEW: Skills this agent can activate</span>
+  <span class="pi">-</span> <span class="s">api-design-patterns</span>
+  <span class="pi">-</span> <span class="s">microservices-patterns</span>
+  <span class="pi">-</span> <span class="s">event-driven-architecture</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<h3 id="cli-commands">CLI Commands</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># List available skills</span>
+claude-ctx skills list
+
+<span class="c"># Show skill details</span>
+claude-ctx skills info api-design-patterns
+
+<span class="c"># Show which agents use a skill</span>
+claude-ctx skills deps api-design-patterns
+</code></pre></div></div>
+
+<h3 id="activation-triggers">Activation Triggers</h3>
+
+<p>Skills activate automatically when:</p>
+<ol>
+  <li><strong>Keywords match</strong>: User request contains skill-specific keywords</li>
+  <li><strong>Agent requests</strong>: Active agent explicitly invokes skill</li>
+  <li><strong>Context indicates</strong>: File patterns or project structure suggest need</li>
+</ol>
+
+<h2 id="creating-new-skills">Creating New Skills</h2>
+
+<h3 id="1-identify-knowledge-domain">1. Identify Knowledge Domain</h3>
+
+<p>Extract heavyweight knowledge from agents that:</p>
+<ul>
+  <li>Contains &gt;1000 tokens of specialized patterns</li>
+  <li>Applies to specific scenarios (not always needed)</li>
+  <li>Has clear activation criteria</li>
+  <li>Benefits multiple agents</li>
+</ul>
+
+<h3 id="2-create-skill-directory">2. Create Skill Directory</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> skills/your-skill-name
+</code></pre></div></div>
+
+<h3 id="3-write-skillmd">3. Write SKILL.md</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">your-skill-name</span>
+<span class="na">description</span><span class="pi">:</span> <span class="s">Brief description. Use when [clear trigger condition].</span>
+<span class="nn">---</span>
+
+<span class="c1"># Skill Title</span>
+
+<span class="c1">## When to Use This Skill</span>
+<span class="pi">[</span><span class="nv">Specific scenarios with clear triggers</span><span class="pi">]</span>
+
+<span class="c1">## Core Patterns</span>
+<span class="pi">[</span><span class="nv">Progressive disclosure</span><span class="pi">:</span> <span class="nv">essential → detailed → advanced</span><span class="pi">]</span>
+
+<span class="c1">## Best Practices Summary</span>
+<span class="pi">[</span><span class="nv">Quick reference for common cases</span><span class="pi">]</span>
+
+<span class="c1">## Resources</span>
+<span class="pi">[</span><span class="nv">External references and documentation</span><span class="pi">]</span>
+</code></pre></div></div>
+
+<h3 id="4-link-to-agents">4. Link to Agents</h3>
+
+<p>Update agent frontmatter to reference the skill:</p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">skills</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">your-skill-name</span>
+</code></pre></div></div>
+
+<h3 id="5-validate">5. Validate</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Ensure skill metadata is valid</span>
+claude-ctx skills validate your-skill-name
+
+<span class="c"># Test skill loading</span>
+claude-ctx skills info your-skill-name
+</code></pre></div></div>
+
+<h2 id="existing-skills">Existing Skills</h2>
+
+<h3 id="phase-1-skills-foundation">Phase 1 Skills (Foundation)</h3>
+
+<h4 id="api-design-patterns">api-design-patterns</h4>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: API design, REST, GraphQL, endpoint design, service contracts
+<strong>Content</strong>: Versioning, pagination, error handling, HATEOAS, rate limiting, caching
+<strong>Size</strong>: ~1,800 tokens</p>
+
+<h3 id="newly-added-skills">Newly Added Skills</h3>
+
+<p>In addition to the core skills, the following skills have been integrated from personal collections and the <code class="language-plaintext highlighter-rouge">obra/superpowers</code> project:</p>
+
+<ul>
+  <li><strong>From personal collection:</strong> <code class="language-plaintext highlighter-rouge">canvas-design</code>, <code class="language-plaintext highlighter-rouge">internal-comms</code>, <code class="language-plaintext highlighter-rouge">skill-creator</code>, <code class="language-plaintext highlighter-rouge">template-skill</code>, <code class="language-plaintext highlighter-rouge">webapp-testing</code>.</li>
+  <li><strong>From <code class="language-plaintext highlighter-rouge">obra/superpowers</code>:</strong> <code class="language-plaintext highlighter-rouge">condition-based-waiting</code>, <code class="language-plaintext highlighter-rouge">defense-in-depth</code>, <code class="language-plaintext highlighter-rouge">dispatching-parallel-agents</code>, <code class="language-plaintext highlighter-rouge">finishing-a-development-branch</code>, <code class="language-plaintext highlighter-rouge">receiving-code-review</code>, <code class="language-plaintext highlighter-rouge">requesting-code-review</code>, <code class="language-plaintext highlighter-rouge">root-cause-tracing</code>, <code class="language-plaintext highlighter-rouge">sharing-skills</code>, <code class="language-plaintext highlighter-rouge">subagent-driven-development</code>, <code class="language-plaintext highlighter-rouge">systematic-debugging</code>, <code class="language-plaintext highlighter-rouge">test-driven-development</code>, <code class="language-plaintext highlighter-rouge">testing-anti-patterns</code>, <code class="language-plaintext highlighter-rouge">testing-skills-with-subagents</code>, <code class="language-plaintext highlighter-rouge">using-git-worktrees</code>, <code class="language-plaintext highlighter-rouge">using-superpowers</code>, <code class="language-plaintext highlighter-rouge">verification-before-completion</code>, <code class="language-plaintext highlighter-rouge">writing-skills</code>.</li>
+</ul>
+
+<h3 id="collaboration-skills-borrowed-from-obrasuperpowers-mit">Collaboration Skills (borrowed from obra/superpowers, MIT)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Skill</th>
+      <th>Command</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">collaboration/brainstorming</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/ctx:brainstorm</code></td>
+      <td>Structured ideation aligned with Supersaiyan mode + Task TUI seeding</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">collaboration/writing-plans</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/ctx:plan</code></td>
+      <td>Produces actionable plans that map to workflows + tasks</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">collaboration/executing-plans</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/ctx:execute-plan</code></td>
+      <td>Drives plan execution, orchestration view, verification</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="microservices-patterns">microservices-patterns</h4>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: Microservices, service decomposition, distributed systems
+<strong>Content</strong>: Service decomposition, communication patterns, CQRS, saga, resilience, observability
+<strong>Size</strong>: ~3,200 tokens</p>
+
+<h3 id="phase-2-skills-core-skills">Phase 2 Skills (Core Skills)</h3>
+
+<h4 id="architecture--design-4-skills">Architecture &amp; Design (4 skills)</h4>
+
+<h5 id="event-driven-architecture">event-driven-architecture</h5>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: Event sourcing, CQRS, message brokers, eventual consistency
+<strong>Content</strong>: Event sourcing, CQRS, pub/sub, saga patterns, Kafka/RabbitMQ
+<strong>Size</strong>: ~3,400 tokens</p>
+
+<h5 id="database-design-patterns">database-design-patterns</h5>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: Database schema, query optimization, data modeling
+<strong>Content</strong>: Normalization, indexing, partitioning, sharding, replication patterns
+<strong>Size</strong>: ~3,200 tokens</p>
+
+<h5 id="cqrs-event-sourcing">cqrs-event-sourcing</h5>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: CQRS, event sourcing, temporal queries, audit systems
+<strong>Content</strong>: Command/query separation, event store design, projections, snapshots
+<strong>Size</strong>: ~3,500 tokens</p>
+
+<h5 id="api-gateway-patterns">api-gateway-patterns</h5>
+<p><strong>Agents</strong>: backend-architect
+<strong>Triggers</strong>: API gateway, BFF, service composition, routing
+<strong>Content</strong>: Gateway routing, authentication, rate limiting, circuit breakers, BFF
+<strong>Size</strong>: ~2,400 tokens</p>
+
+<h4 id="infrastructure-4-skills">Infrastructure (4 skills)</h4>
+
+<h5 id="kubernetes-deployment-patterns">kubernetes-deployment-patterns</h5>
+<p><strong>Agents</strong>: kubernetes-architect
+<strong>Triggers</strong>: K8s deployments, rollout strategies, StatefulSets
+<strong>Content</strong>: Deployment strategies (rolling, blue-green, canary), workload types, autoscaling
+<strong>Size</strong>: ~2,800 tokens</p>
+
+<h5 id="kubernetes-security-policies">kubernetes-security-policies</h5>
+<p><strong>Agents</strong>: kubernetes-architect
+<strong>Triggers</strong>: K8s security, RBAC, network policies, Pod Security Standards
+<strong>Content</strong>: PSS/PSA, Network Policies, RBAC, Security Contexts, admission control
+<strong>Size</strong>: ~2,500 tokens</p>
+
+<h5 id="helm-chart-patterns">helm-chart-patterns</h5>
+<p><strong>Agents</strong>: kubernetes-architect
+<strong>Triggers</strong>: Helm charts, K8s packaging, templating
+<strong>Content</strong>: Chart structure, values files, templates, dependencies, hooks, Helmfile
+<strong>Size</strong>: ~2,700 tokens</p>
+
+<h5 id="gitops-workflows">gitops-workflows</h5>
+<p><strong>Agents</strong>: kubernetes-architect
+<strong>Triggers</strong>: GitOps, ArgoCD, Flux, declarative deployments
+<strong>Content</strong>: GitOps principles, ArgoCD, Flux, environment promotion, secret management
+<strong>Size</strong>: ~2,600 tokens</p>
+
+<h5 id="terraform-best-practices">terraform-best-practices</h5>
+<p><strong>Agents</strong>: terraform-specialist
+<strong>Triggers</strong>: Terraform, IaC, infrastructure automation
+<strong>Content</strong>: Module design, state management, workspaces, security, testing
+<strong>Size</strong>: ~2,400 tokens</p>
+
+<h4 id="development-5-skills">Development (5 skills)</h4>
+
+<h5 id="async-python-patterns">async-python-patterns</h5>
+<p><strong>Agents</strong>: python-pro
+<strong>Triggers</strong>: Python asyncio, async/await, concurrent programming
+<strong>Content</strong>: asyncio fundamentals, async/await, event loops, context managers
+<strong>Size</strong>: ~2,000 tokens</p>
+
+<h5 id="python-testing-patterns">python-testing-patterns</h5>
+<p><strong>Agents</strong>: python-pro
+<strong>Triggers</strong>: pytest, unit testing, mocking, test automation
+<strong>Content</strong>: pytest fundamentals, fixtures, parametrize, mocking, property-based testing
+<strong>Size</strong>: ~2,700 tokens</p>
+
+<h5 id="python-performance-optimization">python-performance-optimization</h5>
+<p><strong>Agents</strong>: python-pro
+<strong>Triggers</strong>: Python performance, profiling, optimization
+<strong>Content</strong>: Profiling tools, algorithmic optimization, memoization, Cython, multiprocessing
+<strong>Size</strong>: ~2,400 tokens</p>
+
+<h5 id="typescript-advanced-patterns">typescript-advanced-patterns</h5>
+<p><strong>Agents</strong>: typescript-pro
+<strong>Triggers</strong>: TypeScript, advanced types, type safety
+<strong>Content</strong>: Conditional types, mapped types, template literals, type guards, generics
+<strong>Size</strong>: ~2,800 tokens</p>
+
+<h5 id="react-performance-optimization">react-performance-optimization</h5>
+<p><strong>Agents</strong>: typescript-pro
+<strong>Triggers</strong>: React performance, memoization, code splitting
+<strong>Content</strong>: React.memo, useMemo/useCallback, code splitting, virtualization, concurrent features
+<strong>Size</strong>: ~2,500 tokens</p>
+
+<h4 id="security-4-skills">Security (4 skills)</h4>
+
+<h5 id="owasp-top-10">owasp-top-10</h5>
+<p><strong>Agents</strong>: security-auditor
+<strong>Triggers</strong>: Security vulnerabilities, OWASP, security audit
+<strong>Content</strong>: OWASP Top 10 2021 vulnerabilities with detection and remediation
+<strong>Size</strong>: ~3,200 tokens</p>
+
+<h5 id="secure-coding-practices">secure-coding-practices</h5>
+<p><strong>Agents</strong>: security-auditor
+<strong>Triggers</strong>: Secure coding, input validation, authentication, cryptography
+<strong>Content</strong>: Input validation, output encoding, authentication, cryptography, secure defaults
+<strong>Size</strong>: ~3,400 tokens</p>
+
+<h5 id="threat-modeling-techniques">threat-modeling-techniques</h5>
+<p><strong>Agents</strong>: security-auditor
+<strong>Triggers</strong>: Threat modeling, STRIDE, attack trees, risk assessment
+<strong>Content</strong>: STRIDE methodology, attack trees, DFD, trust boundaries, DREAD
+<strong>Size</strong>: ~3,600 tokens</p>
+
+<h5 id="security-testing-patterns">security-testing-patterns</h5>
+<p><strong>Agents</strong>: security-auditor
+<strong>Triggers</strong>: Security testing, SAST, DAST, penetration testing
+<strong>Content</strong>: SAST/DAST, penetration testing, fuzzing, API security testing
+<strong>Size</strong>: ~3,200 tokens</p>
+
+<h3 id="summary">Summary</h3>
+
+<p><strong>Total Skills</strong>: 42
+<strong>Average Skill Size</strong>: ~2,800 tokens (estimated)
+<strong>Token Efficiency</strong>: 30-50% reduction per agent (estimated)</p>
+
+<h2 id="skill-development-guidelines">Skill Development Guidelines</h2>
+
+<h3 id="naming-conventions">Naming Conventions</h3>
+<ul>
+  <li>Use hyphen-case: <code class="language-plaintext highlighter-rouge">api-design-patterns</code>, not <code class="language-plaintext highlighter-rouge">API_Design_Patterns</code></li>
+  <li>Be specific: <code class="language-plaintext highlighter-rouge">react-performance-optimization</code>, not <code class="language-plaintext highlighter-rouge">performance</code></li>
+  <li>Focus on domain: <code class="language-plaintext highlighter-rouge">kubernetes-security-policies</code>, not <code class="language-plaintext highlighter-rouge">k8s-stuff</code></li>
+</ul>
+
+<h3 id="description-format">Description Format</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[What it does]. Use when [specific trigger].
+
+Good:
+"REST and GraphQL API design with versioning and pagination. Use when designing endpoints or service contracts."
+
+Bad:
+"Helps with APIs and stuff. Use when you need API help."
+</code></pre></div></div>
+
+<h3 id="content-structure">Content Structure</h3>
+
+<ol>
+  <li><strong>Overview</strong> (1-2 paragraphs): What and why</li>
+  <li><strong>When to Use</strong> (bulleted list): Clear activation criteria</li>
+  <li><strong>Core Patterns</strong> (progressive sections): Essential → detailed → advanced</li>
+  <li><strong>Examples</strong> (practical): Real-world code with annotations</li>
+  <li><strong>Anti-Patterns</strong> (optional): Common mistakes to avoid</li>
+  <li><strong>Resources</strong> (links): Official docs and references</li>
+</ol>
+
+<h3 id="progressive-disclosure-tiers">Progressive Disclosure Tiers</h3>
+
+<p><strong>Tier 1 - Essential (always include):</strong></p>
+<ul>
+  <li>Core concepts and principles</li>
+  <li>Most common patterns (80% use cases)</li>
+  <li>Quick reference tables</li>
+</ul>
+
+<p><strong>Tier 2 - Detailed (include for depth):</strong></p>
+<ul>
+  <li>Advanced patterns and edge cases</li>
+  <li>Performance optimization techniques</li>
+  <li>Complex examples with explanations</li>
+</ul>
+
+<p><strong>Tier 3 - Reference (optional, link externally):</strong></p>
+<ul>
+  <li>Exhaustive specifications</li>
+  <li>Framework-specific implementations</li>
+  <li>Academic research or RFCs</li>
+</ul>
+
+<h2 id="token-budget-guidelines">Token Budget Guidelines</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Skill Complexity</th>
+      <th>Target Token Range</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Focused</td>
+      <td>500-1,500 tokens</td>
+      <td>git-workflow-patterns</td>
+    </tr>
+    <tr>
+      <td>Standard</td>
+      <td>1,500-3,000 tokens</td>
+      <td>api-design-patterns</td>
+    </tr>
+    <tr>
+      <td>Comprehensive</td>
+      <td>3,000-5,000 tokens</td>
+      <td>async-python-patterns</td>
+    </tr>
+    <tr>
+      <td>Specialized</td>
+      <td>5,000-8,000 tokens</td>
+      <td>kubernetes-operator-patterns</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Rule</strong>: If skill exceeds 8,000 tokens, split into multiple focused skills.</p>
+
+<h2 id="quality-checklist">Quality Checklist</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Clear, specific skill name (hyphen-case)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Description &lt; 1024 chars with “Use when” trigger</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />“When to Use This Skill” section with 5-10 scenarios</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Progressive disclosure (essential → detailed → advanced)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Practical code examples with annotations</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Best practices summary at the end</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />No emojis unless explicitly requested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Grammar and spelling checked</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Links to official documentation included</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Validated with <code class="language-plaintext highlighter-rouge">claude-ctx skills validate</code></li>
+</ul>
+
+<h2 id="benefits-vs-full-agent-loading">Benefits vs. Full Agent Loading</h2>
+
+<h3 id="before-agent-only">Before (Agent-Only)</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User: "Design a REST API for user management"
+→ Loads entire backend-architect agent (~8,000 tokens)
+→ Includes DB patterns, caching, event-driven, etc. (not needed)
+→ Context pollution with irrelevant knowledge
+</code></pre></div></div>
+
+<h3 id="after-agent--skills">After (Agent + Skills)</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User: "Design a REST API for user management"
+→ Loads backend-architect core agent (~3,000 tokens)
+→ Activates api-design-patterns skill (~2,500 tokens)
+→ Total: 5,500 tokens (31% reduction)
+→ Only relevant knowledge in context
+</code></pre></div></div>
+
+<h2 id="roadmap">Roadmap</h2>
+
+<p>All planned phases for skill development and integration are now <strong>COMPLETED</strong>. The framework supports a wide array of skills, including those for architecture, infrastructure, development, security, and collaboration. The total number of available skills has significantly expanded, enhancing the system’s overall capabilities.</p>
+
+<h2 id="see-also">See Also</h2>
+
+<ul>
+  <li><a href="https://github.com/anthropics/skills/blob/main/agent_skills_spec.md">Anthropic Agent Skills Specification</a></li>
+  <li><a href="https://github.com/wshobson/agents/blob/main/docs/agent-skills.md">~/agents Agent Skills Guide</a></li>
+  <li><a href="https://docs.claude.com/en/docs/agents-and-tools/agent-skills/overview">Claude Code Skills Documentation</a></li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

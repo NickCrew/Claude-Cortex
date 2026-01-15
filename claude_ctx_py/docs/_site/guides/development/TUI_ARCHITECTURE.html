@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>TUI Architecture: Comprehensive Guide | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="TUI Architecture: Comprehensive Guide" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/development/TUI_ARCHITECTURE.html" />
+<meta property="og:url" content="http://localhost:4000/guides/development/TUI_ARCHITECTURE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="TUI Architecture: Comprehensive Guide" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"TUI Architecture: Comprehensive Guide","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/development/TUI_ARCHITECTURE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">TUI Architecture: Comprehensive Guide</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="tui-architecture-comprehensive-guide">TUI Architecture: Comprehensive Guide</h1>
+
+<p><strong>Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2025-12-05<br />
+<strong>Status</strong>: Current</p>
+
+<hr />
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<ol>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#package-structure">Package Structure</a></li>
+  <li><a href="#architecture-patterns">Architecture Patterns</a></li>
+  <li><a href="#core-components">Core Components</a></li>
+  <li><a href="#view-system">View System</a></li>
+  <li><a href="#styling-system">Styling System</a></li>
+  <li><a href="#data-flow">Data Flow</a></li>
+  <li><a href="#key-features">Key Features</a></li>
+  <li><a href="#development-guide">Development Guide</a></li>
+  <li><a href="#performance-optimization">Performance Optimization</a></li>
+</ol>
+
+<hr />
+
+<h2 id="overview">Overview</h2>
+
+<h3 id="purpose">Purpose</h3>
+
+<p>The TUI (Terminal User Interface) provides an <strong>interactive, keyboard-driven interface</strong> for managing and exploring the claude-ctx framework. It’s built on the Textual framework and follows a modern reactive architecture.</p>
+
+<h3 id="key-characteristics">Key Characteristics</h3>
+
+<ul>
+  <li><strong>230KB Consolidated Application</strong>: Single <code class="language-plaintext highlighter-rouge">main.py</code> with all views integrated</li>
+  <li><strong>Package-Based Structure</strong>: Proper Python package with organized submodules</li>
+  <li><strong>Reactive State Management</strong>: Textual’s reactive properties for automatic UI updates</li>
+  <li><strong>TCSS Styling</strong>: External CSS-like styling for maintainability</li>
+  <li><strong>Type-Safe</strong>: Dedicated type definitions for all data models</li>
+  <li><strong>Keyboard-First</strong>: Fully navigable without mouse</li>
+</ul>
+
+<h3 id="technology-stack">Technology Stack</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Textual 0.47+  → TUI framework (reactive, CSS-like styling)
+Rich 13.x      → Terminal formatting and rendering
+Python 3.9+    → Runtime with dataclasses and type hints
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="package-structure">Package Structure</h2>
+
+<h3 id="directory-organization">Directory Organization</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude_ctx_py/tui/
+├── __init__.py              # Package initialization
+├── main.py                  # Main application (230KB)
+├── types.py                 # Type definitions (2.3KB)
+├── constants.py             # Global constants (2.3KB)
+├── styles.tcss              # Textual CSS styles (4.5KB)
+├── widgets.py               # Custom widgets (13KB)
+│
+├── screens/                 # View/screen definitions
+│   ├── agents.py
+│   ├── modes.py
+│   ├── rules.py
+│   ├── skills.py
+│   ├── workflows.py
+│   ├── scenarios.py
+│   ├── profiles.py
+│   ├── mcp.py
+│   ├── ai_assistant.py
+│   └── memory.py
+│
+├── widgets/                 # Reusable widget components
+│   ├── data_table.py
+│   ├── status_bar.py
+│   └── notification.py
+│
+├── dialogs/                 # Modal dialogs
+│   ├── rating.py            # Skill rating dialog
+│   ├── confirm.py           # Confirmation dialog
+│   └── input.py             # Text input dialog
+│
+└── layouts/                 # Layout components
+    └── command_palette.py   # Fuzzy search command palette
+</code></pre></div></div>
+
+<h3 id="key-files">Key Files</h3>
+
+<p><strong>main.py</strong> (230KB)</p>
+
+<ul>
+  <li>Main <code class="language-plaintext highlighter-rouge">ClaudeCtxApp</code> class</li>
+  <li>All view implementations</li>
+  <li>Command palette integration</li>
+  <li>Keyboard handling</li>
+  <li>State management</li>
+</ul>
+
+<p><strong>types.py</strong> (2.3KB)</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">@dataclass</code> definitions for all data models</li>
+  <li><code class="language-plaintext highlighter-rouge">RuleNode</code>, <code class="language-plaintext highlighter-rouge">AgentTask</code>, <code class="language-plaintext highlighter-rouge">WorkflowInfo</code>, <code class="language-plaintext highlighter-rouge">ModeInfo</code>, etc.</li>
+  <li>Type-safe data structures</li>
+</ul>
+
+<p><strong>constants.py</strong> (2.3KB)</p>
+
+<ul>
+  <li>View titles and descriptions</li>
+  <li>Key bindings configuration</li>
+  <li>Profile descriptions</li>
+  <li>Export categories</li>
+</ul>
+
+<p><strong>styles.tcss</strong> (4.5KB)</p>
+
+<ul>
+  <li>Super Saiyan theme colors</li>
+  <li>Component styling rules</li>
+  <li>Dialog and overlay styles</li>
+  <li>Animation definitions</li>
+</ul>
+
+<hr />
+
+<h2 id="architecture-patterns">Architecture Patterns</h2>
+
+<h3 id="1-reactive-state-management">1. Reactive State Management</h3>
+
+<p>Uses Textual’s <code class="language-plaintext highlighter-rouge">Reactive</code> properties for automatic UI updates:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">textual.reactive</span> <span class="kn">import</span> <span class="n">Reactive</span>
+
+<span class="k">class</span> <span class="nc">ClaudeCtxApp</span><span class="p">(</span><span class="n">App</span><span class="p">):</span>
+    <span class="s">"""Main TUI application."""</span>
+    
+    <span class="c1"># Reactive properties - UI updates automatically
+</span>    <span class="n">active_agents</span><span class="p">:</span> <span class="n">Reactive</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Reactive</span><span class="p">([])</span>
+    <span class="n">active_modes</span><span class="p">:</span> <span class="n">Reactive</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Reactive</span><span class="p">([])</span>
+    <span class="n">current_view</span><span class="p">:</span> <span class="n">Reactive</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Reactive</span><span class="p">(</span><span class="s">"overview"</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">watch_active_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""Called automatically when active_agents changes."""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span><span class="si">}</span><span class="s"> agents active"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">refresh_agent_view</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+
+<ul>
+  <li>✅ No manual UI refresh calls</li>
+  <li>✅ Automatic change propagation</li>
+  <li>✅ Eliminates state synchronization bugs</li>
+</ul>
+
+<h3 id="2-single-page-application-spa">2. Single-Page Application (SPA)</h3>
+
+<p>All views share the same window with view switching:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">switch_to_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Switch to a different view."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">current_view</span> <span class="o">=</span> <span class="n">view_name</span>  <span class="c1"># Triggers reactive update
+</span>    
+    <span class="k">if</span> <span class="n">view_name</span> <span class="o">==</span> <span class="s">"agents"</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">load_agents_view</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">view_name</span> <span class="o">==</span> <span class="s">"modes"</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">load_modes_view</span><span class="p">()</span>
+    <span class="c1"># ... etc
+</span></code></pre></div></div>
+
+<h3 id="3-dependency-injection">3. Dependency Injection</h3>
+
+<p>Core modules injected into views:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AgentsView</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">:</span> <span class="n">ClaudeCtxApp</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="c1"># Access core modules
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">agent_mgr</span> <span class="o">=</span> <span class="n">app</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">agents</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">skills_mgr</span> <span class="o">=</span> <span class="n">app</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">skills</span>
+</code></pre></div></div>
+
+<h3 id="4-command-pattern">4. Command Pattern</h3>
+
+<p>Actions abstracted as commands for keyboard and palette:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">COMMANDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"agents_list"</span><span class="p">:</span> <span class="p">(</span><span class="s">"List all agents"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">switch_to_view</span><span class="p">(</span><span class="s">"agents"</span><span class="p">)),</span>
+    <span class="s">"mode_activate"</span><span class="p">:</span> <span class="p">(</span><span class="s">"Activate mode"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">activate_selected_mode</span><span class="p">()),</span>
+    <span class="s">"export_agents"</span><span class="p">:</span> <span class="p">(</span><span class="s">"Export agents"</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">export_view</span><span class="p">(</span><span class="s">"agents"</span><span class="p">)),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="core-components">Core Components</h2>
+
+<h3 id="1-claudectxapp-main-application">1. ClaudeCtxApp (Main Application)</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">tui/main.py</code></p>
+
+<p>The central application class that orchestrates all views and state:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">ClaudeCtxApp</span><span class="p">(</span><span class="n">App</span><span class="p">):</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Main TUI application for claude-ctx management.</span><span class="se">\"\"\"</span><span class="s">
+    
+    CSS_PATH = "</span><span class="n">styles</span><span class="p">.</span><span class="n">tcss</span><span class="s">"
+    TITLE = "</span><span class="n">Cortex</span> <span class="n">Manager</span><span class="s">"
+    
+    # Reactive state
+    active_agents: Reactive[List[str]] = Reactive([])
+    active_modes: Reactive[List[str]] = Reactive([])
+    current_view: Reactive[str] = Reactive("</span><span class="n">overview</span><span class="s">")
+    
+    # Key bindings
+    BINDINGS = [
+        ("</span><span class="mi">1</span><span class="s">", "</span><span class="n">view_overview</span><span class="s">", "</span><span class="n">Overview</span><span class="s">"),
+        ("</span><span class="mi">2</span><span class="s">", "</span><span class="n">view_agents</span><span class="s">", "</span><span class="n">Agents</span><span class="s">"),
+        ("</span><span class="mi">3</span><span class="s">", "</span><span class="n">view_modes</span><span class="s">", "</span><span class="n">Modes</span><span class="s">"),
+        ("</span><span class="n">ctrl</span><span class="o">+</span><span class="n">p</span><span class="s">", "</span><span class="n">command_palette</span><span class="s">", "</span><span class="n">Command</span> <span class="n">Palette</span><span class="s">"),
+        ("</span><span class="n">q</span><span class="s">", "</span><span class="n">quit</span><span class="s">", "</span><span class="n">Quit</span><span class="s">"),
+    ]
+    
+    def compose(self) -&gt; ComposeResult:
+        </span><span class="se">\"\"\"</span><span class="s">Create child widgets.</span><span class="se">\"\"\"</span><span class="s">
+        yield Header()
+        yield Container(
+            self.create_view_container(),
+            id="</span><span class="n">main</span><span class="o">-</span><span class="n">container</span><span class="s">"
+        )
+        yield AdaptiveFooter()
+    
+    def on_mount(self) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Initialize on startup.</span><span class="se">\"\"\"</span><span class="s">
+        self.load_core_modules()
+        self.load_initial_view()
+        self.start_background_tasks()
+</span></code></pre></div></div>
+
+<p><strong>Responsibilities</strong>:</p>
+
+<ul>
+  <li>View coordination</li>
+  <li>State management</li>
+  <li>Keyboard routing</li>
+  <li>Background task management</li>
+  <li>Module initialization</li>
+</ul>
+
+<h3 id="2-type-system">2. Type System</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">tui/types.py</code></p>
+
+<p>Type-safe data models using <code class="language-plaintext highlighter-rouge">@dataclass</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">AgentTask</span><span class="p">:</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Represents an active agent task.</span><span class="se">\"\"\"</span><span class="s">
+    agent_id: str
+    agent_name: str
+    workstream: str
+    status: str  # "</span><span class="n">active</span><span class="s">", "</span><span class="n">completed</span><span class="s">", "</span><span class="n">failed</span><span class="s">"
+    progress: int  # 0-100
+    category: str = "</span><span class="n">general</span><span class="s">"
+    started: Optional[float] = None
+    completed: Optional[float] = None
+    description: str = ""
+    source_path: Optional[str] = None
+
+@dataclass
+class ModeInfo:
+    </span><span class="se">\"\"\"</span><span class="s">Represents a behavioral mode.</span><span class="se">\"\"\"</span><span class="s">
+    name: str
+    status: str  # "</span><span class="n">active</span><span class="s">" or "</span><span class="n">inactive</span><span class="s">"
+    purpose: str
+    description: str
+    path: Path
+
+@dataclass
+class MemoryNote:
+    </span><span class="se">\"\"\"</span><span class="s">Represents a memory vault note.</span><span class="se">\"\"\"</span><span class="s">
+    title: str
+    note_type: str  # knowledge, projects, sessions, fixes
+    path: str
+    modified: datetime
+    tags: List[str]
+    snippet: str
+</span></code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+
+<ul>
+  <li>Type checking with mypy</li>
+  <li>IDE autocomplete</li>
+  <li>Self-documenting code</li>
+  <li>Immutability by default</li>
+</ul>
+
+<h3 id="3-constants-system">3. Constants System</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">tui/constants.py</code></p>
+
+<p>Centralized configuration:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># View key bindings
+</span><span class="n">PRIMARY_VIEW_BINDINGS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">"1"</span><span class="p">,</span> <span class="s">"overview"</span><span class="p">,</span> <span class="s">"Overview"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"2"</span><span class="p">,</span> <span class="s">"agents"</span><span class="p">,</span> <span class="s">"Agents"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"3"</span><span class="p">,</span> <span class="s">"modes"</span><span class="p">,</span> <span class="s">"Modes"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"4"</span><span class="p">,</span> <span class="s">"rules"</span><span class="p">,</span> <span class="s">"Rules"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"5"</span><span class="p">,</span> <span class="s">"skills"</span><span class="p">,</span> <span class="s">"Skills"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"6"</span><span class="p">,</span> <span class="s">"workflows"</span><span class="p">,</span> <span class="s">"Workflows"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"7"</span><span class="p">,</span> <span class="s">"mcp"</span><span class="p">,</span> <span class="s">"MCP"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"8"</span><span class="p">,</span> <span class="s">"profiles"</span><span class="p">,</span> <span class="s">"Profiles"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"9"</span><span class="p">,</span> <span class="s">"export"</span><span class="p">,</span> <span class="s">"Export"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"0"</span><span class="p">,</span> <span class="s">"ai_assistant"</span><span class="p">,</span> <span class="s">"AI Assistant"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"A"</span><span class="p">,</span> <span class="s">"assets"</span><span class="p">,</span> <span class="s">"Assets"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"M"</span><span class="p">,</span> <span class="s">"memory"</span><span class="p">,</span> <span class="s">"Memory"</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># View titles with icons
+</span><span class="n">VIEW_TITLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"overview"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">Icons</span><span class="p">.</span><span class="n">METRICS</span><span class="si">}</span><span class="s"> Overview"</span><span class="p">,</span>
+    <span class="s">"agents"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">Icons</span><span class="p">.</span><span class="n">CODE</span><span class="si">}</span><span class="s"> Agents"</span><span class="p">,</span>
+    <span class="s">"modes"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">Icons</span><span class="p">.</span><span class="n">FILTER</span><span class="si">}</span><span class="s"> Modes"</span><span class="p">,</span>
+    <span class="s">"skills"</span><span class="p">:</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">Icons</span><span class="p">.</span><span class="n">CODE</span><span class="si">}</span><span class="s"> Skills"</span><span class="p">,</span>
+    <span class="s">"memory"</span><span class="p">:</span> <span class="s">"🧠 Memory Vault"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Profile descriptions
+</span><span class="n">PROFILE_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"minimal"</span><span class="p">:</span> <span class="s">"Load minimal profile (essential agents only)"</span><span class="p">,</span>
+    <span class="s">"frontend"</span><span class="p">:</span> <span class="s">"Load frontend profile (TypeScript + review)"</span><span class="p">,</span>
+    <span class="s">"backend"</span><span class="p">:</span> <span class="s">"Load backend profile (Python + security)"</span><span class="p">,</span>
+    <span class="s">"devops"</span><span class="p">:</span> <span class="s">"Load devops profile (infrastructure &amp; deploy)"</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="view-system">View System</h2>
+
+<h3 id="view-lifecycle">View Lifecycle</h3>
+
+<p>Each view follows a consistent lifecycle pattern:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. Initialization  → __init__()
+2. Composition     → compose()
+3. Mounting        → on_mount()
+4. Data Loading    → load_data()
+5. UI Setup        → setup_ui()
+6. Event Handling  → on_&lt;event&gt;()
+7. Unmounting      → on_unmount()
+</code></pre></div></div>
+
+<h3 id="view-implementation-pattern">View Implementation Pattern</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AgentsView</span><span class="p">(</span><span class="n">Container</span><span class="p">):</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Agents management view.</span><span class="se">\"\"\"</span><span class="s">
+    
+    def __init__(self, app: ClaudeCtxApp):
+        super().__init__()
+        self.app = app
+        self.agents_data: List[Agent] = []
+        self.table: Optional[DataTable] = None
+    
+    def compose(self) -&gt; ComposeResult:
+        </span><span class="se">\"\"\"</span><span class="s">Create child widgets.</span><span class="se">\"\"\"</span><span class="s">
+        yield DataTable(id="</span><span class="n">agents</span><span class="o">-</span><span class="n">table</span><span class="s">")
+        yield Static("</span><span class="n">Loading</span> <span class="n">agents</span><span class="p">...</span><span class="s">", id="</span><span class="n">status</span><span class="s">")
+    
+    async def on_mount(self) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Initialize on mount.</span><span class="se">\"\"\"</span><span class="s">
+        # 1. Get reference to widgets
+        self.table = self.query_one(DataTable)
+        
+        # 2. Load data
+        await self.load_agents()
+        
+        # 3. Setup UI
+        self.setup_table()
+        
+        # 4. Start refresh timer
+        self.set_interval(5.0, self.refresh_data)
+    
+    async def load_agents(self) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Load agents from core module.</span><span class="se">\"\"\"</span><span class="s">
+        self.agents_data = await self.app.core.agents.list_all()
+    
+    def setup_table(self) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Setup data table.</span><span class="se">\"\"\"</span><span class="s">
+        self.table.add_columns(
+            "</span><span class="n">Name</span><span class="s">", "</span><span class="n">Status</span><span class="s">", "</span><span class="n">Dependencies</span><span class="s">", "</span><span class="n">Category</span><span class="s">"
+        )
+        for agent in self.agents_data:
+            self.table.add_row(
+                agent.name,
+                "</span><span class="err">✅</span><span class="s">" if agent.active else "</span><span class="err">⭕</span><span class="s">",
+                "</span><span class="p">,</span> <span class="s">".join(agent.dependencies),
+                agent.category
+            )
+    
+    async def on_key(self, event: events.Key) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Handle key presses.</span><span class="se">\"\"\"</span><span class="s">
+        if event.key == "</span><span class="n">enter</span><span class="s">":
+            await self.activate_selected()
+        elif event.key == "</span><span class="n">d</span><span class="s">":
+            await self.deactivate_selected()
+        elif event.key == "</span><span class="n">i</span><span class="s">":
+            await self.show_info()
+</span></code></pre></div></div>
+
+<h3 id="primary-views">Primary Views</h3>
+
+<p><strong>1. Overview (Key: 1)</strong></p>
+
+<ul>
+  <li>System metrics dashboard</li>
+  <li>Active agents/modes/rules summary</li>
+  <li>Quick stats</li>
+</ul>
+
+<p><strong>2. Agents (Key: 2)</strong></p>
+
+<ul>
+  <li>Agent list with status</li>
+  <li>Activation/deactivation</li>
+  <li>Dependency visualization</li>
+  <li>Agent details</li>
+</ul>
+
+<p><strong>3. Modes (Key: 3)</strong></p>
+
+<ul>
+  <li>Mode list with status</li>
+  <li>Mode activation</li>
+  <li>Mode descriptions</li>
+</ul>
+
+<p><strong>4. Rules (Key: 4)</strong></p>
+
+<ul>
+  <li>Rule list with status</li>
+  <li>Rule activation</li>
+  <li>Rule categories</li>
+</ul>
+
+<p><strong>5. Skills (Key: 5)</strong></p>
+
+<ul>
+  <li>Skill catalog</li>
+  <li>Rating system (Ctrl+R)</li>
+  <li>Skill details</li>
+  <li>Category filtering</li>
+</ul>
+
+<p><strong>6. Workflows (Key: 6)</strong></p>
+
+<ul>
+  <li>Workflow list</li>
+  <li>Workflow execution</li>
+  <li>Progress tracking</li>
+</ul>
+
+<p><strong>7. MCP (Key: 7)</strong></p>
+
+<ul>
+  <li>MCP server list</li>
+  <li>Server status</li>
+  <li>Server diagnostics</li>
+  <li>Documentation viewer</li>
+</ul>
+
+<p><strong>8. Profiles (Key: 8)</strong></p>
+
+<ul>
+  <li>Profile templates</li>
+  <li>Profile loading</li>
+  <li>Quick profile switch</li>
+</ul>
+
+<p><strong>9. Export (Key: 9)</strong></p>
+
+<ul>
+  <li>Context export</li>
+  <li>Category selection</li>
+  <li>Clipboard integration</li>
+</ul>
+
+<p><strong>0. AI Assistant (Key: 0)</strong></p>
+
+<ul>
+  <li>AI recommendations</li>
+  <li>Auto-activation</li>
+  <li>Workflow predictions</li>
+</ul>
+
+<p><strong>A. Assets (Key: A)</strong></p>
+
+<ul>
+  <li>Asset manager</li>
+  <li>Installation wizard</li>
+  <li>Asset catalog</li>
+</ul>
+
+<p><strong>M. Memory (Key: M)</strong></p>
+
+<ul>
+  <li>Memory vault notes</li>
+  <li>Note browser</li>
+  <li>Search interface</li>
+</ul>
+
+<hr />
+
+<h2 id="styling-system">Styling System</h2>
+
+<h3 id="tcss-textual-css">TCSS (Textual CSS)</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">tui/styles.tcss</code></p>
+
+<p>External stylesheet for all TUI components:</p>
+
+<pre><code class="language-tcss">/* Super Saiyan Mode Theme */
+$primary: #3b82f6;       /* Blue */
+$secondary: #8b5cf6;     /* Purple */
+$accent: #06b6d4;        /* Cyan */
+$success: #10b981;       /* Green */
+$warning: #f59e0b;       /* Orange */
+$error: #ef4444;         /* Red */
+$surface: #050714;       /* Dark background */
+$text: #f8fafc;          /* Light text */
+
+/* DataTable Styling */
+DataTable {
+    height: 1fr;
+    background: $surface-lighten-1;
+    border: solid $primary;
+    padding: 0 1;
+}
+
+DataTable &gt; .datatable--header {
+    background: $surface-lighten-2;
+    color: $accent;
+    text-style: bold;
+}
+
+DataTable:focus &gt; .datatable--cursor {
+    background: $primary;
+    color: white;
+    text-style: bold;
+    border: heavy $accent;
+}
+
+/* Button Styling */
+Button {
+    background: $primary;
+    color: white;
+    border: solid $primary;
+    text-style: bold;
+}
+
+Button:hover {
+    background: $accent;
+    border: solid $accent;
+    transition: background 150ms, border 150ms;
+}
+
+/* Dialog Styling */
+#dialog {
+    align: center middle;
+    width: 50%;
+    background: $surface-lighten-1;
+    border: thick $accent;
+    padding: 1 2;
+    opacity: 0;
+}
+
+#dialog.visible {
+    opacity: 1;
+    transition: opacity 250ms;
+}
+</code></pre>
+
+<h3 id="theme-customization">Theme Customization</h3>
+
+<p>To customize the theme, edit <code class="language-plaintext highlighter-rouge">styles.tcss</code> color variables:</p>
+
+<pre><code class="language-tcss">/* Custom Theme Example */
+$primary: #your-color;
+$secondary: #your-color;
+$accent: #your-color;
+</code></pre>
+
+<p>Changes are hot-reloaded when running in development mode.</p>
+
+<hr />
+
+<h2 id="data-flow">Data Flow</h2>
+
+<h3 id="data-flow-architecture">Data Flow Architecture</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────┐
+│ User Input (Keyboard)                                     │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ Event Handlers (on_key, on_button_pressed)               │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ Action Methods (activate_agent, load_mode)               │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ Core Business Logic (core/agents.py, core/modes.py)      │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ File System / Database                                    │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ Reactive State Update (self.active_agents = new_list)    │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ watch_* Methods (watch_active_agents)                     │
+└────────────────┬─────────────────────────────────────────┘
+                 ↓
+┌──────────────────────────────────────────────────────────┐
+│ UI Refresh (table.refresh(), notify())                    │
+└──────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="example-activating-an-agent">Example: Activating an Agent</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. User presses Enter on selected agent
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">on_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">events</span><span class="p">.</span><span class="n">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">"enter"</span><span class="p">:</span>
+        <span class="c1"># 2. Call action method
+</span>        <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">activate_selected_agent</span><span class="p">()</span>
+
+<span class="c1"># 3. Action method interacts with core
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">activate_selected_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">selected_row</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">cursor_row</span>
+    <span class="n">agent_name</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">agents_data</span><span class="p">[</span><span class="n">selected_row</span><span class="p">].</span><span class="n">name</span>
+    
+    <span class="c1"># 4. Call core business logic
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">app</span><span class="p">.</span><span class="n">core</span><span class="p">.</span><span class="n">agents</span><span class="p">.</span><span class="n">activate</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+    
+    <span class="c1"># 5. Update reactive state
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">app</span><span class="p">.</span><span class="n">active_agents</span> <span class="o">=</span> <span class="n">result</span><span class="p">.</span><span class="n">active_agents</span>
+    
+    <span class="c1"># 6. Notification
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="sa">f</span><span class="s">"Activated: </span><span class="si">{</span><span class="n">agent_name</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1"># 7. Reactive watch updates UI
+</span><span class="k">def</span> <span class="nf">watch_active_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="c1"># 8. Refresh table to show new status
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">refresh_agents_table</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="key-features">Key Features</h2>
+
+<h3 id="1-command-palette">1. Command Palette</h3>
+
+<p><strong>Trigger</strong>: <code class="language-plaintext highlighter-rouge">Ctrl+P</code></p>
+
+<p>Fuzzy search across all TUI commands:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">CommandPalette</span><span class="p">:</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Fuzzy search command palette.</span><span class="se">\"\"\"</span><span class="s">
+    
+    def compose(self) -&gt; ComposeResult:
+        yield Static("</span><span class="err">🔍</span> <span class="n">Command</span> <span class="n">Palette</span><span class="s">", id="</span><span class="n">palette</span><span class="o">-</span><span class="n">title</span><span class="s">")
+        yield Input(placeholder="</span><span class="n">Type</span> <span class="n">to</span> <span class="n">search</span><span class="p">...</span><span class="s">", id="</span><span class="n">palette</span><span class="o">-</span><span class="nb">input</span><span class="s">")
+        yield DataTable(id="</span><span class="n">palette</span><span class="o">-</span><span class="n">results</span><span class="s">")
+        yield Static("</span><span class="n">Enter</span><span class="o">=</span><span class="n">Execute</span> <span class="o">|</span> <span class="n">Esc</span><span class="o">=</span><span class="n">Close</span><span class="s">", id="</span><span class="n">palette</span><span class="o">-</span><span class="n">help</span><span class="s">")
+    
+    def on_input_changed(self, event: Input.Changed) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Filter commands as user types.</span><span class="se">\"\"\"</span><span class="s">
+        query = event.value.lower()
+        matches = self.fuzzy_match(query, ALL_COMMANDS)
+        self.update_results(matches)
+    
+    def fuzzy_match(self, query: str, commands: List[Command]) -&gt; List[Command]:
+        </span><span class="se">\"\"\"</span><span class="s">Simple fuzzy matching.</span><span class="se">\"\"\"</span><span class="s">
+        return [
+            cmd for cmd in commands
+            if query in cmd.name.lower() or query in cmd.description.lower()
+        ]
+</span></code></pre></div></div>
+
+<p><strong>Features</strong>:</p>
+
+<ul>
+  <li>Real-time filtering</li>
+  <li>Keyboard navigation (↑/↓)</li>
+  <li>Fuzzy matching on name and description</li>
+  <li>Execute with Enter</li>
+  <li>50+ available commands</li>
+</ul>
+
+<h3 id="2-adaptive-footer">2. Adaptive Footer</h3>
+
+<p>Context-aware help display:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">AdaptiveFooter</span><span class="p">(</span><span class="n">Static</span><span class="p">):</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Footer that shows context-specific keybindings.</span><span class="se">\"\"\"</span><span class="s">
+    
+    def update_for_view(self, view_name: str) -&gt; None:
+        </span><span class="se">\"\"\"</span><span class="s">Update help text for current view.</span><span class="se">\"\"\"</span><span class="s">
+        bindings = VIEW_BINDINGS.get(view_name, [])
+        help_text = "</span> <span class="o">|</span> <span class="s">".join(
+            f"</span><span class="p">{</span><span class="n">key</span><span class="p">}</span><span class="o">=</span><span class="p">{</span><span class="n">desc</span><span class="p">}</span><span class="s">" for key, desc in bindings
+        )
+        self.update(help_text)
+</span></code></pre></div></div>
+
+<p><strong>Example Outputs</strong>:</p>
+
+<ul>
+  <li>Agents view: <code class="language-plaintext highlighter-rouge">Enter=Activate | d=Deactivate | i=Info | g=Graph</code></li>
+  <li>Skills view: <code class="language-plaintext highlighter-rouge">Enter=View | Ctrl+R=Rate | f=Filter</code></li>
+</ul>
+
+<h3 id="3-real-time-notifications">3. Real-Time Notifications</h3>
+
+<p>Toast-style notifications:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"info"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Show toast notification.</span><span class="se">\"\"\"</span><span class="s">
+    styles = {
+        "</span><span class="n">info</span><span class="s">": "</span><span class="n">blue</span><span class="s">",
+        "</span><span class="n">success</span><span class="s">": "</span><span class="n">green</span><span class="s">",
+        "</span><span class="n">warning</span><span class="s">": "</span><span class="n">yellow</span><span class="s">",
+        "</span><span class="n">error</span><span class="s">": "</span><span class="n">red</span><span class="s">",
+    }
+    self.app.notify(
+        message,
+        title="</span><span class="n">Status</span><span class="s">",
+        severity=severity,
+        timeout=3.0
+    )
+</span></code></pre></div></div>
+
+<h3 id="4-modal-dialogs">4. Modal Dialogs</h3>
+
+<p>Reusable dialog system:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Confirmation dialog
+</span><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">app</span><span class="p">.</span><span class="n">show_dialog</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s">"Confirm Action"</span><span class="p">,</span>
+    <span class="n">message</span><span class="o">=</span><span class="s">"Deactivate all agents?"</span><span class="p">,</span>
+    <span class="n">buttons</span><span class="o">=</span><span class="p">[</span><span class="s">"Yes"</span><span class="p">,</span> <span class="s">"No"</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Input dialog
+</span><span class="n">value</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">app</span><span class="p">.</span><span class="n">show_input_dialog</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s">"Enter Name"</span><span class="p">,</span>
+    <span class="n">placeholder</span><span class="o">=</span><span class="s">"Mode name..."</span>
+<span class="p">)</span>
+
+<span class="c1"># Rating dialog (skills)
+</span><span class="n">rating</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">app</span><span class="p">.</span><span class="n">show_rating_dialog</span><span class="p">(</span>
+    <span class="n">skill_name</span><span class="o">=</span><span class="s">"api-design-patterns"</span><span class="p">,</span>
+    <span class="n">current_rating</span><span class="o">=</span><span class="bp">None</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="development-guide">Development Guide</h2>
+
+<h3 id="adding-a-new-view">Adding a New View</h3>
+
+<p><strong>Step 1</strong>: Define view key binding in <code class="language-plaintext highlighter-rouge">constants.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PRIMARY_VIEW_BINDINGS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ... existing bindings
+</span>    <span class="p">(</span><span class="s">"X"</span><span class="p">,</span> <span class="s">"myview"</span><span class="p">,</span> <span class="s">"My View"</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">VIEW_TITLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... existing titles
+</span>    <span class="s">"myview"</span><span class="p">:</span> <span class="s">"🚀 My View"</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Step 2</strong>: Implement view in <code class="language-plaintext highlighter-rouge">main.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">load_myview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Load my custom view.</span><span class="se">\"\"\"</span><span class="s">
+    # Clear current view
+    self.clear_view_container()
+    
+    # Create table
+    table = DataTable()
+    table.add_columns("</span><span class="n">Column</span> <span class="mi">1</span><span class="s">", "</span><span class="n">Column</span> <span class="mi">2</span><span class="s">")
+    
+    # Load data
+    data = self.load_my_data()
+    for item in data:
+        table.add_row(item.col1, item.col2)
+    
+    # Add to container
+    self.view_container.mount(table)
+    
+    # Update state
+    self.current_view = "</span><span class="n">myview</span><span class="s">"
+</span></code></pre></div></div>
+
+<p><strong>Step 3</strong>: Add key binding handler:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">action_view_myview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Action to switch to myview.</span><span class="se">\"\"\"</span><span class="s">
+    self.load_myview()
+</span></code></pre></div></div>
+
+<p><strong>Step 4</strong>: Add to command palette:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">COMMANDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... existing commands
+</span>    <span class="s">"myview_open"</span><span class="p">:</span> <span class="p">(</span><span class="s">"Open My View"</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">load_myview</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="adding-a-custom-widget">Adding a Custom Widget</h3>
+
+<p><strong>Step 1</strong>: Create widget class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">textual.widgets</span> <span class="kn">import</span> <span class="n">Static</span>
+<span class="kn">from</span> <span class="nn">rich.text</span> <span class="kn">import</span> <span class="n">Text</span>
+
+<span class="k">class</span> <span class="nc">StatusIndicator</span><span class="p">(</span><span class="n">Static</span><span class="p">):</span>
+    \<span class="s">"</span><span class="se">\"\"</span><span class="s">Custom status indicator widget.</span><span class="se">\"\"\"</span><span class="s">
+    
+    def __init__(self, status: str):
+        super().__init__()
+        self.status = status
+    
+    def render(self) -&gt; Text:
+        </span><span class="se">\"\"\"</span><span class="s">Render the status indicator.</span><span class="se">\"\"\"</span><span class="s">
+        icons = {
+            "</span><span class="n">active</span><span class="s">": "</span><span class="err">✅</span><span class="s">",
+            "</span><span class="n">inactive</span><span class="s">": "</span><span class="err">⭕</span><span class="s">",
+            "</span><span class="n">error</span><span class="s">": "</span><span class="err">❌</span><span class="s">",
+        }
+        icon = icons.get(self.status, "</span><span class="err">❓</span><span class="s">")
+        return Text(f"</span><span class="p">{</span><span class="n">icon</span><span class="p">}</span> <span class="p">{</span><span class="bp">self</span><span class="p">.</span><span class="n">status</span><span class="p">.</span><span class="n">title</span><span class="p">()}</span><span class="s">")
+</span></code></pre></div></div>
+
+<p><strong>Step 2</strong>: Use in views:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">compose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComposeResult</span><span class="p">:</span>
+    <span class="k">yield</span> <span class="n">StatusIndicator</span><span class="p">(</span><span class="s">"active"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="debugging-tips">Debugging Tips</h3>
+
+<p><strong>1. Enable Textual DevTools</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>textual console
+<span class="c"># In another terminal</span>
+<span class="nv">$ </span>claude-ctx tui
+</code></pre></div></div>
+
+<p><strong>2. Add Debug Logging</strong>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">textual</span> <span class="kn">import</span> <span class="n">log</span>
+
+<span class="n">log</span><span class="p">(</span><span class="s">"Debug message:"</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+<span class="n">log</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Info message"</span><span class="p">)</span>
+<span class="n">log</span><span class="p">.</span><span class="n">warning</span><span class="p">(</span><span class="s">"Warning message"</span><span class="p">)</span>
+<span class="n">log</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="s">"Error message"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>3. Inspect Widget Tree</strong>:</p>
+
+<p>Press <code class="language-plaintext highlighter-rouge">Ctrl+\\</code> to toggle widget tree inspector.</p>
+
+<hr />
+
+<h2 id="performance-optimization">Performance Optimization</h2>
+
+<h3 id="best-practices">Best Practices</h3>
+
+<p><strong>1. Lazy Loading</strong></p>
+
+<p>Only load data when view is active:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">def</span> <span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">current_view</span> <span class="o">==</span> <span class="s">"agents"</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">load_agents</span><span class="p">()</span>  <span class="c1"># Load only when needed
+</span></code></pre></div></div>
+
+<p><strong>2. Debounced Search</strong></p>
+
+<p>Debounce search input to reduce updates:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">textual.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+<span class="k">def</span> <span class="nf">on_input_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Input</span><span class="p">.</span><span class="n">Changed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="c1"># Cancel previous timer
+</span>    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">"_search_timer"</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_search_timer</span><span class="p">.</span><span class="n">stop</span><span class="p">()</span>
+    
+    <span class="c1"># Start new timer (300ms delay)
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_search_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">set_timer</span><span class="p">(</span>
+        <span class="mf">0.3</span><span class="p">,</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="p">.</span><span class="n">perform_search</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>3. Virtual Scrolling</strong></p>
+
+<p>For large lists (&gt;100 items), use pagination:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PAGE_SIZE</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="k">def</span> <span class="nf">load_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">page</span> <span class="o">*</span> <span class="n">PAGE_SIZE</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">PAGE_SIZE</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">all_items</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">add_row</span><span class="p">(...)</span>
+</code></pre></div></div>
+
+<p><strong>4. Efficient Redraws</strong></p>
+
+<p>Update only changed cells:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ❌ Inefficient - rebuilds entire table
+</span><span class="k">def</span> <span class="nf">update_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">items</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">add_row</span><span class="p">(...)</span>
+
+<span class="c1"># ✅ Efficient - updates specific cell
+</span><span class="k">def</span> <span class="nf">update_agent_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_status</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">row_index</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">find_row_by_name</span><span class="p">(</span><span class="n">agent_name</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">table</span><span class="p">.</span><span class="n">update_cell</span><span class="p">(</span><span class="n">row_index</span><span class="p">,</span> <span class="s">"status"</span><span class="p">,</span> <span class="n">new_status</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="performance-metrics">Performance Metrics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operation</th>
+      <th>Target</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>View switch</td>
+      <td>&lt;200ms</td>
+      <td>Includes data load</td>
+    </tr>
+    <tr>
+      <td>Table render (100 rows)</td>
+      <td>&lt;100ms</td>
+      <td>Initial render</td>
+    </tr>
+    <tr>
+      <td>Search filter</td>
+      <td>&lt;50ms</td>
+      <td>With debouncing</td>
+    </tr>
+    <tr>
+      <td>Keyboard response</td>
+      <td>&lt;16ms</td>
+      <td>60fps target</td>
+    </tr>
+    <tr>
+      <td>Memory usage</td>
+      <td>&lt;50MB</td>
+      <td>With all views</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="screenshots">Screenshots</h2>
+
+<p>Fresh screenshots available in <code class="language-plaintext highlighter-rouge">docs/assets/images/screenshots/december-2025/</code>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">agents-view.png</code> - Agents view</li>
+  <li><code class="language-plaintext highlighter-rouge">ai-assist-view.png</code> - AI assistant view</li>
+  <li><code class="language-plaintext highlighter-rouge">ai-watch-mode.png</code> - AI watch mode</li>
+  <li><code class="language-plaintext highlighter-rouge">asset-manager.png</code> - Asset manager</li>
+  <li><code class="language-plaintext highlighter-rouge">backup-manager.png</code> - Backup manager</li>
+  <li><code class="language-plaintext highlighter-rouge">cli-usage.png</code> - CLI usage</li>
+  <li><code class="language-plaintext highlighter-rouge">command-palette.png</code> - Command palette</li>
+  <li><code class="language-plaintext highlighter-rouge">config-wizard.png</code> - Setup wizard</li>
+  <li><code class="language-plaintext highlighter-rouge">export-view.png</code> - Export view</li>
+  <li><code class="language-plaintext highlighter-rouge">flags-view.png</code> - Flags explorer</li>
+  <li><code class="language-plaintext highlighter-rouge">galaxy-view.png</code> - Agent galaxy</li>
+  <li><code class="language-plaintext highlighter-rouge">hooks-manager.png</code> - Hooks manager</li>
+  <li><code class="language-plaintext highlighter-rouge">mcp-view.png</code> - MCP servers</li>
+  <li><code class="language-plaintext highlighter-rouge">memory-vault.png</code> - Memory vault</li>
+  <li><code class="language-plaintext highlighter-rouge">modes-view.png</code> - Modes view</li>
+  <li><code class="language-plaintext highlighter-rouge">principles-view.png</code> - Principles view</li>
+  <li><code class="language-plaintext highlighter-rouge">profiles-view.png</code> - Profiles view</li>
+  <li><code class="language-plaintext highlighter-rouge">scenarios-view.png</code> - Scenarios view</li>
+  <li><code class="language-plaintext highlighter-rouge">shortcuts-help.png</code> - Shortcuts/help overlay</li>
+  <li><code class="language-plaintext highlighter-rouge">skills-view.png</code> - Skills catalog</li>
+  <li><code class="language-plaintext highlighter-rouge">slash-commands-view.png</code> - Slash commands</li>
+  <li><code class="language-plaintext highlighter-rouge">workflows-view.png</code> - Workflows</li>
+  <li><code class="language-plaintext highlighter-rouge">worktrees-view.png</code> - Worktrees</li>
+</ul>
+
+<hr />
+
+<h2 id="related-documentation">Related Documentation</h2>
+
+<ul>
+  <li><a href="/guides/tui/tui-navigation-summary.html">TUI Navigation Summary</a></li>
+  <li><a href="/guides/tui/tui-keyboard-reference.html">TUI Keyboard Reference</a></li>
+  <li><a href="/guides/tui/tui-entity-guide.html">TUI Entity Guide</a></li>
+  <li><a href="/guides/tui/tui-mcp-view.html">TUI MCP View</a></li>
+  <li><a href="/architecture/MASTER_ARCHITECTURE.html">Master Architecture Document</a></li>
+</ul>
+
+<hr />
+
+<h2 id="revision-history">Revision History</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Changes</th>
+      <th>Author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>2025-12-05</td>
+      <td>Initial TUI architecture documentation</td>
+      <td>System Architect</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Document Status</strong>: ✅ Current<br />
+<strong>Maintainer</strong>: Core Team</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

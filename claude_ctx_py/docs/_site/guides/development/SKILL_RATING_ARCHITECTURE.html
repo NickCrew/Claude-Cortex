@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Skill Rating &amp; Feedback System: Technical Architecture | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Skill Rating &amp; Feedback System: Technical Architecture" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/development/SKILL_RATING_ARCHITECTURE.html" />
+<meta property="og:url" content="http://localhost:4000/guides/development/SKILL_RATING_ARCHITECTURE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Skill Rating &amp; Feedback System: Technical Architecture" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Skill Rating &amp; Feedback System: Technical Architecture","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/development/SKILL_RATING_ARCHITECTURE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Skill Rating &amp;amp; Feedback System: Technical Architecture</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="skill-rating--feedback-system-technical-architecture">Skill Rating &amp; Feedback System: Technical Architecture</h1>
+
+<p><strong>Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2025-12-06<br />
+<strong>Status</strong>: Current</p>
+
+<hr />
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<ol>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#architecture">Architecture</a></li>
+  <li><a href="#rating-system">Rating System</a></li>
+  <li><a href="#auto-prompt-system">Auto-Prompt System</a></li>
+  <li><a href="#quality-metrics">Quality Metrics</a></li>
+  <li><a href="#database-schema">Database Schema</a></li>
+  <li><a href="#tui-integration">TUI Integration</a></li>
+  <li><a href="#analytics--reports">Analytics &amp; Reports</a></li>
+  <li><a href="#privacy--anonymity">Privacy &amp; Anonymity</a></li>
+  <li><a href="#cli-commands">CLI Commands</a></li>
+  <li><a href="#development-guide">Development Guide</a></li>
+</ol>
+
+<hr />
+
+<h2 id="overview">Overview</h2>
+
+<h3 id="purpose">Purpose</h3>
+
+<p><strong>Skill Rating &amp; Feedback System</strong> provides community-driven quality signals through:</p>
+<ul>
+  <li>⭐ 1-5 star ratings with optional reviews</li>
+  <li>📊 Automated quality metrics (success rate, helpfulness %)</li>
+  <li>🤖 Intelligent auto-prompts after skill usage</li>
+  <li>📈 Analytics dashboard and top-rated leaderboard</li>
+  <li>🔒 Anonymous user tracking (SHA256 hash)</li>
+</ul>
+
+<h3 id="key-characteristics">Key Characteristics</h3>
+
+<ul>
+  <li><strong>SQLite Storage</strong>: 3 tables (ratings, metrics, usage)</li>
+  <li><strong>Auto-Prompts</strong>: Smart timing (12hr lookback, 24hr cooldown)</li>
+  <li><strong>Quality Metrics</strong>: 6 dimensions (avg rating, success %, helpful %, token efficiency, usage count, distribution)</li>
+  <li><strong>TUI Integration</strong>: Ctrl+R shortcut in Skills view</li>
+  <li><strong>Privacy-First</strong>: Anonymous user hashing (machine ID + username)</li>
+</ul>
+
+<h3 id="design-philosophy">Design Philosophy</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Community &gt; Individual | Data &gt; Opinion | Prompt &gt; Nag | Anonymous &gt; Identified
+</code></pre></div></div>
+
+<p>System prioritizes <strong>aggregate community wisdom</strong>, <strong>measured outcomes</strong> over subjective opinions, <strong>smart non-intrusive prompts</strong>, and <strong>user privacy</strong> through anonymization.</p>
+
+<hr />
+
+<h2 id="architecture">Architecture</h2>
+
+<h3 id="system-architecture">System Architecture</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────┐
+│ User Interfaces                                          │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  TUI (Ctrl+R)          CLI Commands                     │
+│  ├─ Rate skill         ├─ skills rate                   │
+│  ├─ View ratings       ├─ skills top-rated              │
+│  └─ Review history     └─ skills export-ratings         │
+│                                                          │
+└────────────┬─────────────────────────────────────────────┘
+             ↓
+┌──────────────────────────────────────────────────────────┐
+│ Rating Management Layer                                  │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  SkillRatingCollector                                    │
+│  ├─ record_rating()    → Store rating in DB             │
+│  ├─ record_usage()     → Track success correlation      │
+│  ├─ get_skill_score()  → Fetch aggregated metrics       │
+│  └─ _update_metrics()  → Recompute on new data          │
+│                                                          │
+└────────────┬─────────────────────────────────────────────┘
+             ↓
+┌──────────────────────────────────────────────────────────┐
+│ Auto-Prompt Intelligence                                 │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  SkillRatingPromptManager                                │
+│  ├─ detect_due_prompts()   → Find skills needing rating │
+│  ├─ mark_prompted()        → Enforce cooldown           │
+│  ├─ mark_rated()           → Update state               │
+│  └─ _should_prompt()       → Smart heuristics           │
+│                                                          │
+└────────────┬─────────────────────────────────────────────┘
+             ↓
+┌──────────────────────────────────────────────────────────┐
+│ Data Layer (SQLite)                                      │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  ~/.claude/data/skill-ratings.db                        │
+│  ├─ skill_ratings            → Individual ratings       │
+│  ├─ skill_quality_metrics    → Aggregated cache         │
+│  └─ skill_usage              → Success tracking         │
+│                                                          │
+│  ~/.claude/data/skill-rating-prompts.json               │
+│  └─ Prompt state (last_prompted, last_rated)            │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="data-flow-rating-a-skill">Data Flow: Rating a Skill</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. User Action
+   └─ TUI: Press Ctrl+R on selected skill
+      CLI: claude-ctx skills rate &lt;skill&gt; --stars 5
+
+2. Collect Rating Data
+   └─ Stars (1-5)
+   └─ Helpful? (yes/no)
+   └─ Task succeeded? (yes/no)
+   └─ Optional review text
+   └─ Optional project type
+
+3. Generate Anonymous User Hash
+   └─ SHA256(platform.node() + getpass.getuser())
+   └─ Truncate to 16 chars
+   └─ Example: "a3f8d2e1c4b9f7e6"
+
+4. Store in Database
+   └─ INSERT INTO skill_ratings
+   └─ Timestamp in UTC
+
+5. Update Aggregated Metrics
+   └─ Calculate avg_rating
+   └─ Calculate helpful_percentage
+   └─ Calculate success_correlation
+   └─ Calculate star distribution
+   └─ UPSERT skill_quality_metrics
+
+6. Mark Prompted State
+   └─ Update skill-rating-prompts.json
+   └─ Set last_rated timestamp
+   └─ Prevent duplicate prompts
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="rating-system">Rating System</h2>
+
+<h3 id="skillratingcollector-class">SkillRatingCollector Class</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">skill_rating.py</code> - <code class="language-plaintext highlighter-rouge">SkillRatingCollector</code></p>
+
+<p>Main API for rating operations:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">SkillRatingCollector</span><span class="p">:</span>
+    <span class="s">"""Collect and aggregate skill ratings."""</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">home</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="bp">None</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">home</span> <span class="o">=</span> <span class="n">_resolve_claude_dir</span><span class="p">(</span><span class="n">home</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">home</span> <span class="o">/</span> <span class="s">"data"</span> <span class="o">/</span> <span class="s">"skill-ratings.db"</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_init_database</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="recording-ratings">Recording Ratings</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">record_rating</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">stars</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>              <span class="c1"># 1-5
+</span>    <span class="n">helpful</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>           <span class="c1"># Was helpful?
+</span>    <span class="n">task_succeeded</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>    <span class="c1"># Task succeeded?
+</span>    <span class="n">review</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">project_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SkillRating</span><span class="p">:</span>
+    <span class="s">"""Record user rating for a skill."""</span>
+    
+    <span class="c1"># Validate stars
+</span>    <span class="k">if</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">stars</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s">"Stars must be 1-5, got </span><span class="si">{</span><span class="n">stars</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    
+    <span class="c1"># Generate anonymous user hash
+</span>    <span class="n">user_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_user_hash</span><span class="p">()</span>
+    
+    <span class="c1"># Create rating
+</span>    <span class="n">rating</span> <span class="o">=</span> <span class="n">SkillRating</span><span class="p">(</span>
+        <span class="n">skill_name</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+        <span class="n">user_hash</span><span class="o">=</span><span class="n">user_hash</span><span class="p">,</span>
+        <span class="n">stars</span><span class="o">=</span><span class="n">stars</span><span class="p">,</span>
+        <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">),</span>
+        <span class="n">project_type</span><span class="o">=</span><span class="n">project_type</span> <span class="ow">or</span> <span class="s">"unknown"</span><span class="p">,</span>
+        <span class="n">review</span><span class="o">=</span><span class="n">review</span><span class="p">,</span>
+        <span class="n">was_helpful</span><span class="o">=</span><span class="n">helpful</span><span class="p">,</span>
+        <span class="n">task_succeeded</span><span class="o">=</span><span class="n">task_succeeded</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Store in DB
+</span>    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            INSERT INTO skill_ratings
+            (skill_name, user_hash, stars, timestamp, project_type,
+             review, was_helpful, task_succeeded)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """</span><span class="p">,</span> <span class="p">(...))</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+    
+    <span class="c1"># Update metrics
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_update_metrics</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">rating</span>
+</code></pre></div></div>
+
+<h3 id="recording-usage">Recording Usage</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">record_usage</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">succeeded</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">duration_minutes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">tokens_saved</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Record skill usage for success correlation."""</span>
+    
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            INSERT INTO skill_usage
+            (skill_name, timestamp, succeeded, duration_minutes, tokens_saved)
+            VALUES (?, ?, ?, ?, ?)
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">(),</span> 
+              <span class="n">succeeded</span><span class="p">,</span> <span class="n">duration_minutes</span><span class="p">,</span> <span class="n">tokens_saved</span><span class="p">))</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+    
+    <span class="c1"># Update metrics to reflect new usage
+</span>    <span class="bp">self</span><span class="p">.</span><span class="n">_update_metrics</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="retrieving-ratings">Retrieving Ratings</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_skill_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SkillQualityMetrics</span><span class="p">]:</span>
+    <span class="s">"""Get aggregated quality metrics for a skill."""</span>
+    
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            SELECT avg_rating, total_ratings, helpful_percentage,
+                   success_correlation, token_efficiency, usage_count,
+                   last_updated, stars_5, stars_4, stars_3, stars_2, stars_1
+            FROM skill_quality_metrics
+            WHERE skill_name = ?
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,)).</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        
+        <span class="k">return</span> <span class="n">SkillQualityMetrics</span><span class="p">(</span>
+            <span class="n">skill_name</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+            <span class="n">avg_rating</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">total_ratings</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">helpful_percentage</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">success_correlation</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">token_efficiency</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+            <span class="n">usage_count</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+            <span class="n">last_updated</span><span class="o">=</span><span class="n">datetime</span><span class="p">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">]),</span>
+            <span class="n">stars_5</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
+            <span class="n">stars_4</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
+            <span class="n">stars_3</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span>
+            <span class="n">stars_2</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span>
+            <span class="n">stars_1</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="auto-prompt-system">Auto-Prompt System</h2>
+
+<h3 id="skillratingpromptmanager-class">SkillRatingPromptManager Class</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">skill_rating_prompts.py</code> - <code class="language-plaintext highlighter-rouge">SkillRatingPromptManager</code></p>
+
+<p>Intelligent prompt orchestration:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">SkillRatingPromptManager</span><span class="p">:</span>
+    <span class="s">"""Detect which skills should prompt for ratings."""</span>
+    
+    <span class="n">PROMPT_COOLDOWN_HOURS</span> <span class="o">=</span> <span class="mi">24</span>        <span class="c1"># Min time between prompts
+</span>    <span class="n">RATING_FRESHNESS_DAYS</span> <span class="o">=</span> <span class="mi">14</span>        <span class="c1"># Recently rated threshold
+</span>    <span class="n">ACTIVATION_LOOKBACK_HOURS</span> <span class="o">=</span> <span class="mi">12</span>    <span class="c1"># Usage window
+</span></code></pre></div></div>
+
+<h3 id="detecting-due-prompts">Detecting Due Prompts</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">detect_due_prompts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RatingPrompt</span><span class="p">]:</span>
+    <span class="s">"""Return up to `limit` skills that should be rated."""</span>
+    
+    <span class="c1"># 1. Gather recent usage (last 12 hours)
+</span>    <span class="n">usage_map</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_gather_recent_usage</span><span class="p">()</span>
+    
+    <span class="c1"># 2. Filter by prompt eligibility
+</span>    <span class="n">prompts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">usage_map</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_should_prompt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+            <span class="n">prompt</span> <span class="o">=</span> <span class="n">RatingPrompt</span><span class="p">(</span>
+                <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+                <span class="n">reason</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_build_reason</span><span class="p">(</span><span class="n">info</span><span class="p">),</span>
+                <span class="n">last_used</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s">"last_used"</span><span class="p">],</span>
+                <span class="n">usage_count</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s">"count"</span><span class="p">],</span>
+                <span class="n">success_rate</span><span class="o">=</span><span class="n">info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"success_rate"</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">prompts</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    
+    <span class="c1"># 3. Sort by recency, limit results
+</span>    <span class="n">prompts</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">.</span><span class="n">last_used</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prompts</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h3 id="prompt-eligibility-logic">Prompt Eligibility Logic</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_should_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">usage_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="s">"""Determine if skill should prompt for rating."""</span>
+    
+    <span class="c1"># Must have been used
+</span>    <span class="k">if</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="c1"># Check cooldown (24 hours since last prompt)
+</span>    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="n">last_prompted</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_last_prompted</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">last_prompted</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="n">last_prompted</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>  <span class="c1"># Too soon
+</span>    
+    <span class="c1"># Check existing rating
+</span>    <span class="n">rating</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_user_rating</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rating</span><span class="p">:</span>
+        <span class="c1"># If rated recently (14 days), only prompt if high usage
+</span>        <span class="k">if</span> <span class="n">now</span> <span class="o">-</span> <span class="n">rating</span><span class="p">.</span><span class="n">timestamp</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>  <span class="c1"># Not enough new usage
+</span>    
+    <span class="k">return</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<h3 id="gathering-recent-usage">Gathering Recent Usage</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_gather_recent_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="s">"""Aggregate activation data within lookback window."""</span>
+    
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>  <span class="c1"># 12hr lookback
+</span>    <span class="n">usage</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1"># Load activation log
+</span>    <span class="n">detailed</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_load_activation_log</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">activation</span> <span class="ow">in</span> <span class="n">detailed</span><span class="p">:</span>
+        <span class="n">skill</span> <span class="o">=</span> <span class="n">activation</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"skill_name"</span><span class="p">)</span>
+        <span class="n">ts</span> <span class="o">=</span> <span class="n">parse_timestamp</span><span class="p">(</span><span class="n">activation</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"timestamp"</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ts</span> <span class="ow">or</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="n">info</span> <span class="o">=</span> <span class="n">usage</span><span class="p">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s">"count"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">"last_used"</span><span class="p">:</span> <span class="n">ts</span><span class="p">,</span>
+            <span class="s">"successes"</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s">"task_types"</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+        <span class="p">})</span>
+        
+        <span class="n">info</span><span class="p">[</span><span class="s">"count"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">ts</span> <span class="o">&gt;</span> <span class="n">info</span><span class="p">[</span><span class="s">"last_used"</span><span class="p">]:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">"last_used"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts</span>
+        
+        <span class="c1"># Track success
+</span>        <span class="n">success</span> <span class="o">=</span> <span class="n">activation</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"metrics"</span><span class="p">,</span> <span class="p">{}).</span><span class="n">get</span><span class="p">(</span><span class="s">"success"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">success</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">"successes"</span><span class="p">].</span><span class="n">append</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">success</span><span class="p">))</span>
+        
+        <span class="c1"># Track task type
+</span>        <span class="n">task_type</span> <span class="o">=</span> <span class="n">activation</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"context"</span><span class="p">,</span> <span class="p">{}).</span><span class="n">get</span><span class="p">(</span><span class="s">"task_type"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">task_type</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">"task_types"</span><span class="p">].</span><span class="n">add</span><span class="p">(</span><span class="n">task_type</span><span class="p">)</span>
+    
+    <span class="c1"># Calculate success rates
+</span>    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">usage</span><span class="p">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">successes</span> <span class="o">=</span> <span class="n">info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"successes"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">successes</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">"success_rate"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">successes</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">successes</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">usage</span>
+</code></pre></div></div>
+
+<h3 id="building-prompt-reasons">Building Prompt Reasons</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_build_reason</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">usage_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s">"""Generate human-readable reason for prompt."""</span>
+    
+    <span class="n">count</span> <span class="o">=</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"count"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">success_rate</span> <span class="o">=</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"success_rate"</span><span class="p">)</span>
+    <span class="n">task_types</span> <span class="o">=</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"task_types"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">last_used</span> <span class="o">=</span> <span class="n">usage_info</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"last_used"</span><span class="p">)</span>
+    
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">"Used </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s"> time</span><span class="si">{</span><span class="s">'s'</span> <span class="k">if</span> <span class="n">count</span> <span class="err">!</span><span class="o">=</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">''</span><span class="si">}</span><span class="s"> recently"</span><span class="p">]</span>
+    
+    <span class="k">if</span> <span class="n">task_types</span><span class="p">:</span>
+        <span class="n">parts</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s">"Tasks: </span><span class="si">{</span><span class="s">', '</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">task_types</span><span class="p">))</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">success_rate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">parts</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s">"Success rate </span><span class="si">{</span><span class="n">success_rate</span> <span class="o">*</span> <span class="mi">100</span><span class="si">:</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%"</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last_used</span><span class="p">,</span> <span class="n">datetime</span><span class="p">):</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">last_used</span>
+        <span class="n">hours</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">elapsed</span><span class="p">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">))</span>
+        <span class="n">parts</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s">"Last used ~</span><span class="si">{</span><span class="n">hours</span><span class="si">}</span><span class="s">h ago"</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="s">" · "</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Example Output</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"Used 3 times recently · Tasks: api-design, code-review · Success rate 67% · Last used ~2h ago"
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="quality-metrics">Quality Metrics</h2>
+
+<h3 id="skillqualitymetrics-model">SkillQualityMetrics Model</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">SkillQualityMetrics</span><span class="p">:</span>
+    <span class="s">"""Automated quality metrics for a skill."""</span>
+    
+    <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span>
+    
+    <span class="c1"># Core metrics
+</span>    <span class="n">avg_rating</span><span class="p">:</span> <span class="nb">float</span>              <span class="c1"># 0.0-5.0 average
+</span>    <span class="n">total_ratings</span><span class="p">:</span> <span class="nb">int</span>             <span class="c1"># Number of ratings
+</span>    <span class="n">helpful_percentage</span><span class="p">:</span> <span class="nb">float</span>      <span class="c1"># % marked helpful
+</span>    <span class="n">success_correlation</span><span class="p">:</span> <span class="nb">float</span>     <span class="c1"># % tasks succeeded
+</span>    <span class="n">token_efficiency</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>  <span class="c1"># Avg tokens saved
+</span>    <span class="n">usage_count</span><span class="p">:</span> <span class="nb">int</span>               <span class="c1"># Times activated
+</span>    
+    <span class="c1"># Star distribution
+</span>    <span class="n">stars_5</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">stars_4</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">stars_3</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">stars_2</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">stars_1</span><span class="p">:</span> <span class="nb">int</span>
+    
+    <span class="n">last_updated</span><span class="p">:</span> <span class="n">datetime</span>
+</code></pre></div></div>
+
+<h3 id="metric-calculations">Metric Calculations</h3>
+
+<p><strong>Average Rating</strong>:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="k">AVG</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span> <span class="k">as</span> <span class="n">avg_rating</span>
+<span class="k">FROM</span> <span class="n">skill_ratings</span>
+<span class="k">WHERE</span> <span class="n">skill_name</span> <span class="o">=</span> <span class="o">?</span>
+</code></pre></div></div>
+
+<p><strong>Helpful Percentage</strong>:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> 
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">was_helpful</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">.</span><span class="mi">0</span> <span class="o">/</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">skill_ratings</span>
+<span class="k">WHERE</span> <span class="n">skill_name</span> <span class="o">=</span> <span class="o">?</span>
+</code></pre></div></div>
+
+<p><strong>Success Correlation</strong>:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> 
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">succeeded</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">.</span><span class="mi">0</span> <span class="o">/</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span>
+<span class="k">FROM</span> <span class="n">skill_usage</span>
+<span class="k">WHERE</span> <span class="n">skill_name</span> <span class="o">=</span> <span class="o">?</span>
+</code></pre></div></div>
+
+<p><strong>Star Distribution</strong>:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">stars</span> <span class="o">=</span> <span class="mi">5</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="k">as</span> <span class="n">stars_5</span><span class="p">,</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">stars</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="k">as</span> <span class="n">stars_4</span><span class="p">,</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">stars</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="k">as</span> <span class="n">stars_3</span><span class="p">,</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">stars</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="k">as</span> <span class="n">stars_2</span><span class="p">,</span>
+    <span class="k">SUM</span><span class="p">(</span><span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">stars</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span><span class="p">)</span> <span class="k">as</span> <span class="n">stars_1</span>
+<span class="k">FROM</span> <span class="n">skill_ratings</span>
+<span class="k">WHERE</span> <span class="n">skill_name</span> <span class="o">=</span> <span class="o">?</span>
+</code></pre></div></div>
+
+<h3 id="metrics-update-trigger">Metrics Update Trigger</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Update aggregated metrics for a skill."""</span>
+    
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Calculate all metrics in one query
+</span>        <span class="n">rating_stats</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            SELECT
+                COUNT(*) as total,
+                AVG(stars) as avg_stars,
+                SUM(CASE WHEN was_helpful = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as helpful_pct,
+                SUM(CASE WHEN stars = 5 THEN 1 ELSE 0 END) as stars_5,
+                SUM(CASE WHEN stars = 4 THEN 1 ELSE 0 END) as stars_4,
+                SUM(CASE WHEN stars = 3 THEN 1 ELSE 0 END) as stars_3,
+                SUM(CASE WHEN stars = 2 THEN 1 ELSE 0 END) as stars_2,
+                SUM(CASE WHEN stars = 1 THEN 1 ELSE 0 END) as stars_1
+            FROM skill_ratings
+            WHERE skill_name = ?
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,)).</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="n">usage_stats</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            SELECT
+                COUNT(*) as total_usage,
+                SUM(CASE WHEN succeeded = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as success_pct,
+                AVG(tokens_saved) as avg_tokens_saved
+            FROM skill_usage
+            WHERE skill_name = ?
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,)).</span><span class="n">fetchone</span><span class="p">()</span>
+        
+        <span class="c1"># Upsert aggregated metrics
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            INSERT OR REPLACE INTO skill_quality_metrics
+            (skill_name, avg_rating, total_ratings, helpful_percentage,
+             success_correlation, token_efficiency, usage_count, last_updated,
+             stars_5, stars_4, stars_3, stars_2, stars_1)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """</span><span class="p">,</span> <span class="p">(...))</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="database-schema">Database Schema</h2>
+
+<h3 id="skill_ratings-table">skill_ratings Table</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">skill_ratings</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTOINCREMENT</span><span class="p">,</span>
+    <span class="n">skill_name</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">user_hash</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>          <span class="c1">-- Anonymous SHA256 hash</span>
+    <span class="n">stars</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">CHECK</span><span class="p">(</span><span class="n">stars</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">AND</span> <span class="n">stars</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="nb">timestamp</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>          <span class="c1">-- ISO 8601 UTC</span>
+    <span class="n">project_type</span> <span class="nb">TEXT</span><span class="p">,</span>                <span class="c1">-- Optional context</span>
+    <span class="n">review</span> <span class="nb">TEXT</span><span class="p">,</span>                      <span class="c1">-- Optional review text</span>
+    <span class="n">was_helpful</span> <span class="nb">BOOLEAN</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>     <span class="c1">-- 0 or 1</span>
+    <span class="n">task_succeeded</span> <span class="nb">BOOLEAN</span> <span class="k">NOT</span> <span class="k">NULL</span>   <span class="c1">-- 0 or 1</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">idx_skill_ratings_skill</span> <span class="k">ON</span> <span class="n">skill_ratings</span><span class="p">(</span><span class="n">skill_name</span><span class="p">);</span>
+<span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">idx_skill_ratings_user</span> <span class="k">ON</span> <span class="n">skill_ratings</span><span class="p">(</span><span class="n">user_hash</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="skill_quality_metrics-table">skill_quality_metrics Table</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">skill_quality_metrics</span> <span class="p">(</span>
+    <span class="n">skill_name</span> <span class="nb">TEXT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span>
+    <span class="n">avg_rating</span> <span class="nb">REAL</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">total_ratings</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">helpful_percentage</span> <span class="nb">REAL</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">success_correlation</span> <span class="nb">REAL</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">token_efficiency</span> <span class="nb">REAL</span><span class="p">,</span>
+    <span class="n">usage_count</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">last_updated</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">stars_5</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">stars_4</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">stars_3</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">stars_2</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">stars_1</span> <span class="nb">INTEGER</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="skill_usage-table">skill_usage Table</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">skill_usage</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">INTEGER</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTOINCREMENT</span><span class="p">,</span>
+    <span class="n">skill_name</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="nb">timestamp</span> <span class="nb">TEXT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">succeeded</span> <span class="nb">BOOLEAN</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+    <span class="n">duration_minutes</span> <span class="nb">REAL</span><span class="p">,</span>
+    <span class="n">tokens_saved</span> <span class="nb">REAL</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">INDEX</span> <span class="n">idx_skill_usage_skill</span> <span class="k">ON</span> <span class="n">skill_usage</span><span class="p">(</span><span class="n">skill_name</span><span class="p">);</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="tui-integration">TUI Integration</h2>
+
+<h3 id="keyboard-shortcut-ctrlr">Keyboard Shortcut: Ctrl+R</h3>
+
+<p><strong>Location</strong>: Skills view in TUI</p>
+
+<p><strong>Trigger</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># In Skills view
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">on_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">events</span><span class="p">.</span><span class="n">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">event</span><span class="p">.</span><span class="n">key</span> <span class="o">==</span> <span class="s">"ctrl_r"</span><span class="p">:</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="p">.</span><span class="n">show_rating_dialog</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="rating-dialog">Rating Dialog</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌────────────────────────────────────────────────┐
+│ Rate Skill: python-testing-patterns            │
+├────────────────────────────────────────────────┤
+│                                                │
+│ How would you rate this skill?                │
+│                                                │
+│ ⭐ ⭐ ⭐ ⭐ ⭐  (5 stars)                         │
+│                                                │
+│ Was this skill helpful?                        │
+│ ☑ Yes    ☐ No                                 │
+│                                                │
+│ Did your task succeed?                         │
+│ ☑ Yes    ☐ No                                 │
+│                                                │
+│ Optional review:                               │
+│ ┌────────────────────────────────────────┐   │
+│ │ Great patterns for test organization   │   │
+│ └────────────────────────────────────────┘   │
+│                                                │
+│ [Submit]  [Cancel]                             │
+└────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="auto-prompt-in-tui">Auto-Prompt in TUI</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># On TUI startup or view switch
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">on_mount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="c1"># Check for due prompts
+</span>    <span class="n">prompt_mgr</span> <span class="o">=</span> <span class="n">SkillRatingPromptManager</span><span class="p">()</span>
+    <span class="n">prompts</span> <span class="o">=</span> <span class="n">prompt_mgr</span><span class="p">.</span><span class="n">detect_due_prompts</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">prompts</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="c1"># Show non-intrusive notification
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s">"💭 Rate '</span><span class="si">{</span><span class="n">prompt</span><span class="p">.</span><span class="n">skill</span><span class="si">}</span><span class="s">'? </span><span class="si">{</span><span class="n">prompt</span><span class="p">.</span><span class="n">reason</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s">"Skill Feedback"</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Mark as prompted
+</span>        <span class="n">prompt_mgr</span><span class="p">.</span><span class="n">mark_prompted</span><span class="p">(</span><span class="n">prompt</span><span class="p">.</span><span class="n">skill</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="analytics--reports">Analytics &amp; Reports</h2>
+
+<h3 id="top-rated-skills">Top-Rated Skills</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_top_rated</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> 
+    <span class="n">category</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> 
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SkillQualityMetrics</span><span class="p">]]:</span>
+    <span class="s">"""Get top-rated skills."""</span>
+    
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            SELECT skill_name, avg_rating, total_ratings, helpful_percentage,
+                   success_correlation, token_efficiency, usage_count, ...
+            FROM skill_quality_metrics
+            WHERE total_ratings &gt;= 3  -- Min 3 ratings
+            ORDER BY avg_rating DESC, total_ratings DESC
+            LIMIT ?
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">limit</span><span class="p">,)).</span><span class="n">fetchall</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="p">[(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SkillQualityMetrics</span><span class="p">(...))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p><strong>Example Output</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOP RATED SKILLS
+
+1. kubernetes-deployment-patterns    ⭐⭐⭐⭐⭐ 4.9/5.0  (12 ratings)
+   Success: 94% | Helpful: 100% | Usage: 45
+
+2. python-testing-patterns           ⭐⭐⭐⭐½ 4.6/5.0  (18 ratings)
+   Success: 89% | Helpful: 94% | Usage: 67
+
+3. api-design-patterns               ⭐⭐⭐⭐½ 4.5/5.0  (23 ratings)
+   Success: 87% | Helpful: 91% | Usage: 89
+</code></pre></div></div>
+
+<h3 id="recent-reviews">Recent Reviews</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_recent_reviews</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> 
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="s">"""Get recent reviews for a skill."""</span>
+    
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            SELECT stars, review, timestamp, was_helpful
+            FROM skill_ratings
+            WHERE skill_name = ? AND review IS NOT NULL
+            ORDER BY timestamp DESC
+            LIMIT ?
+        """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">limit</span><span class="p">)).</span><span class="n">fetchall</span><span class="p">()</span>
+        
+        <span class="n">reviews</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">time_ago</span> <span class="o">=</span> <span class="n">calculate_time_ago</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+            
+            <span class="n">reviews</span><span class="p">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s">"stars"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s">"review"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s">"timestamp"</span><span class="p">:</span> <span class="n">ts</span><span class="p">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s">"time_ago"</span><span class="p">:</span> <span class="n">time_ago</span><span class="p">,</span>  <span class="c1"># "2 days ago"
+</span>                <span class="s">"was_helpful"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">reviews</span>
+</code></pre></div></div>
+
+<h3 id="export-ratings">Export Ratings</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">export_ratings</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> 
+    <span class="n">skill</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="s">"""Export ratings data for analysis."""</span>
+    
+    <span class="c1"># Fetch all ratings (or filter by skill)
+</span>    <span class="c1"># Fetch all metrics
+</span>    
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"export_date"</span><span class="p">:</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s">"ratings"</span><span class="p">:</span> <span class="n">rating_data</span><span class="p">,</span>      <span class="c1"># List of individual ratings
+</span>        <span class="s">"metrics"</span><span class="p">:</span> <span class="n">metrics_data</span><span class="p">,</span>     <span class="c1"># List of aggregated metrics
+</span>        <span class="s">"total_ratings"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rating_data</span><span class="p">),</span>
+        <span class="s">"total_skills"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s">"skill_name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rating_data</span><span class="p">)),</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="privacy--anonymity">Privacy &amp; Anonymity</h2>
+
+<h3 id="anonymous-user-hashing">Anonymous User Hashing</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_get_user_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s">"""Generate anonymous user hash."""</span>
+    <span class="kn">import</span> <span class="nn">getpass</span>
+    <span class="kn">import</span> <span class="nn">platform</span>
+    
+    <span class="c1"># Combine machine ID and username
+</span>    <span class="n">user_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">platform</span><span class="p">.</span><span class="n">node</span><span class="p">()</span><span class="si">}</span><span class="s">-</span><span class="si">{</span><span class="n">getpass</span><span class="p">.</span><span class="n">getuser</span><span class="p">()</span><span class="si">}</span><span class="s">"</span>
+    
+    <span class="c1"># SHA256 hash
+</span>    <span class="n">hash_full</span> <span class="o">=</span> <span class="n">hashlib</span><span class="p">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">user_id</span><span class="p">.</span><span class="n">encode</span><span class="p">()).</span><span class="n">hexdigest</span><span class="p">()</span>
+    
+    <span class="c1"># Truncate to 16 chars
+</span>    <span class="k">return</span> <span class="n">hash_full</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
+    
+<span class="c1"># Example outputs:
+# Machine 1: "a3f8d2e1c4b9f7e6"
+# Machine 2: "b7d4f9a2e8c1d6b3"
+</span></code></pre></div></div>
+
+<h3 id="privacy-guarantees">Privacy Guarantees</h3>
+
+<p>✅ <strong>No PII Stored</strong>:</p>
+<ul>
+  <li>No usernames</li>
+  <li>No email addresses</li>
+  <li>No IP addresses</li>
+  <li>Only anonymous hash</li>
+</ul>
+
+<p>✅ <strong>Consistent Across Sessions</strong>:</p>
+<ul>
+  <li>Same machine + user = same hash</li>
+  <li>Enables duplicate detection</li>
+  <li>Tracks user’s own ratings</li>
+</ul>
+
+<p>✅ <strong>Cannot Reverse</strong>:</p>
+<ul>
+  <li>SHA256 is one-way</li>
+  <li>Hash truncation adds entropy</li>
+  <li>No mapping back to user</li>
+</ul>
+
+<hr />
+
+<h2 id="cli-commands">CLI Commands</h2>
+
+<h3 id="rate-a-skill">Rate a Skill</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx skills rate python-testing-patterns <span class="nt">--stars</span> 5 <span class="nt">--helpful</span> <span class="nt">--succeeded</span>
+
+✅ Recorded rating <span class="k">for </span>python-testing-patterns
+   Stars: ⭐⭐⭐⭐⭐
+   Helpful: Yes
+   Task succeeded: Yes
+</code></pre></div></div>
+
+<h3 id="view-top-rated">View Top-Rated</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx skills top-rated <span class="nt">--limit</span> 10
+
+TOP RATED SKILLS <span class="o">(</span>min 3 ratings<span class="o">)</span>
+
+1. kubernetes-deployment-patterns
+   ⭐⭐⭐⭐⭐ 4.9/5.0 <span class="o">(</span>12 ratings<span class="o">)</span>
+   94% success | 100% helpful | 45 uses
+
+2. python-testing-patterns
+   ⭐⭐⭐⭐½ 4.6/5.0 <span class="o">(</span>18 ratings<span class="o">)</span>
+   89% success | 94% helpful | 67 uses
+
+3. api-design-patterns
+   ⭐⭐⭐⭐½ 4.5/5.0 <span class="o">(</span>23 ratings<span class="o">)</span>
+   87% success | 91% helpful | 89 uses
+</code></pre></div></div>
+
+<h3 id="export-ratings-1">Export Ratings</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx skills export-ratings <span class="nt">--skill</span> python-testing-patterns
+
+✅ Exported ratings to ratings-export.json
+   18 ratings
+   1 skill
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="development-guide">Development Guide</h2>
+
+<h3 id="adding-custom-metrics">Adding Custom Metrics</h3>
+
+<p><strong>Step 1</strong>: Add column to schema:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">skill_quality_metrics</span>
+<span class="k">ADD</span> <span class="k">COLUMN</span> <span class="n">custom_metric</span> <span class="nb">REAL</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><strong>Step 2</strong>: Update metric calculation:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="c1"># ... existing metrics
+</span>    
+    <span class="c1"># NEW: Calculate custom metric
+</span>    <span class="n">custom_value</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+        SELECT AVG(your_calculation)
+        FROM skill_usage
+        WHERE skill_name = ?
+    """</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,)).</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c1"># Include in upsert
+</span>    <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+        INSERT OR REPLACE INTO skill_quality_metrics
+        (..., custom_metric)
+        VALUES (..., ?)
+    """</span><span class="p">,</span> <span class="p">(...,</span> <span class="n">custom_value</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><strong>Step 3</strong>: Update data model:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">SkillQualityMetrics</span><span class="p">:</span>
+    <span class="c1"># ... existing fields
+</span>    <span class="n">custom_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+</code></pre></div></div>
+
+<h3 id="testing-rating-system">Testing Rating System</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_record_rating</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Test rating recording."""</span>
+    <span class="n">collector</span> <span class="o">=</span> <span class="n">SkillRatingCollector</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+    
+    <span class="n">rating</span> <span class="o">=</span> <span class="n">collector</span><span class="p">.</span><span class="n">record_rating</span><span class="p">(</span>
+        <span class="n">skill</span><span class="o">=</span><span class="s">"test-skill"</span><span class="p">,</span>
+        <span class="n">stars</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">helpful</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">task_succeeded</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">review</span><span class="o">=</span><span class="s">"Great skill!"</span><span class="p">,</span>
+        <span class="n">project_type</span><span class="o">=</span><span class="s">"python-fastapi"</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="k">assert</span> <span class="n">rating</span><span class="p">.</span><span class="n">stars</span> <span class="o">==</span> <span class="mi">5</span>
+    <span class="k">assert</span> <span class="n">rating</span><span class="p">.</span><span class="n">was_helpful</span>
+    <span class="k">assert</span> <span class="n">rating</span><span class="p">.</span><span class="n">review</span> <span class="o">==</span> <span class="s">"Great skill!"</span>
+    
+    <span class="c1"># Verify in DB
+</span>    <span class="n">metrics</span> <span class="o">=</span> <span class="n">collector</span><span class="p">.</span><span class="n">get_skill_score</span><span class="p">(</span><span class="s">"test-skill"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">.</span><span class="n">avg_rating</span> <span class="o">==</span> <span class="mf">5.0</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">.</span><span class="n">total_ratings</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="related-documentation">Related Documentation</h2>
+
+<ul>
+  <li><a href="/guides/development/AI_INTELLIGENCE_ARCHITECTURE.html">AI Intelligence System</a></li>
+  <li><a href="/guides/development/AI_INTELLIGENCE_ARCHITECTURE.html#skill-recommendation-engine">Skill Recommender Integration</a></li>
+  <li><a href="/architecture/MASTER_ARCHITECTURE.html">Master Architecture</a></li>
+</ul>
+
+<hr />
+
+<h2 id="revision-history">Revision History</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Changes</th>
+      <th>Author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>2025-12-06</td>
+      <td>Initial Skill Rating documentation</td>
+      <td>System Architect</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Document Status</strong>: ✅ Current<br />
+<strong>Maintainer</strong>: Core Team</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

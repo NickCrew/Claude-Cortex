@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>TUI Navigation Summary | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="TUI Navigation Summary" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/tui/tui-navigation-summary.html" />
+<meta property="og:url" content="http://localhost:4000/guides/tui/tui-navigation-summary.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="TUI Navigation Summary" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"TUI Navigation Summary","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/tui/tui-navigation-summary.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="tui-navigation-summary">TUI Navigation Summary</h1>
+
+<p>This page summarizes how to move through the claude-ctx TUI and where each major system lives.</p>
+
+<h2 id="primary-views-19-0">Primary Views (1–9, 0)</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1  Overview    2  Agents     3  Modes      4  Rules
+5  Skills      6  Workflows  7  MCP        8  Profiles
+9  Export      0  AI Assistant
+</code></pre></div></div>
+
+<h2 id="additional-views-hotkeys">Additional Views (Hotkeys)</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>A  Asset Manager     C  Worktrees     F  Flags     M  Memory Vault
+p  Principles        w  Watch Mode    S  Scenarios     o  Orchestrate
+g  Agent Galaxy      t  Tasks         /  Slash Commands
+</code></pre></div></div>
+
+<h2 id="command-palette">Command Palette</h2>
+
+<p>Press <code class="language-plaintext highlighter-rouge">Ctrl+P</code> to open the command palette. It provides fuzzy search across views and actions (for example, “Assets”, “Worktrees”, “MCP”, “Skills”).</p>
+
+<h2 id="global-actions">Global Actions</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">?</code></td>
+      <td>Help overlay</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">r</code></td>
+      <td>Refresh current view</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">q</code></td>
+      <td>Quit</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Space</code></td>
+      <td>Toggle selected item (where supported)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+E</code></td>
+      <td>Edit current item</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="view-highlights">View Highlights</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>View</th>
+      <th>Key</th>
+      <th>Key Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Asset Manager</td>
+      <td><code class="language-plaintext highlighter-rouge">A</code></td>
+      <td><code class="language-plaintext highlighter-rouge">i</code> install, <code class="language-plaintext highlighter-rouge">u</code> uninstall, <code class="language-plaintext highlighter-rouge">d</code> diff, <code class="language-plaintext highlighter-rouge">U</code> update all, <code class="language-plaintext highlighter-rouge">I</code> bulk install, <code class="language-plaintext highlighter-rouge">T</code> target</td>
+    </tr>
+    <tr>
+      <td>Worktrees</td>
+      <td><code class="language-plaintext highlighter-rouge">C</code></td>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+N</code> add, <code class="language-plaintext highlighter-rouge">Ctrl+O</code> open, <code class="language-plaintext highlighter-rouge">Ctrl+W</code> remove, <code class="language-plaintext highlighter-rouge">Ctrl+K</code> prune, <code class="language-plaintext highlighter-rouge">Ctrl+B</code> base dir</td>
+    </tr>
+    <tr>
+      <td>Workflows</td>
+      <td><code class="language-plaintext highlighter-rouge">6</code></td>
+      <td><code class="language-plaintext highlighter-rouge">R</code> run, <code class="language-plaintext highlighter-rouge">s</code> stop</td>
+    </tr>
+    <tr>
+      <td>Scenarios</td>
+      <td><code class="language-plaintext highlighter-rouge">S</code></td>
+      <td><code class="language-plaintext highlighter-rouge">P</code> preview, <code class="language-plaintext highlighter-rouge">R</code> run, <code class="language-plaintext highlighter-rouge">V</code> validate, <code class="language-plaintext highlighter-rouge">H</code> history</td>
+    </tr>
+    <tr>
+      <td>MCP Servers</td>
+      <td><code class="language-plaintext highlighter-rouge">7</code></td>
+      <td><code class="language-plaintext highlighter-rouge">B</code> browse, <code class="language-plaintext highlighter-rouge">Ctrl+A</code> add, <code class="language-plaintext highlighter-rouge">E</code> edit, <code class="language-plaintext highlighter-rouge">X</code> remove, <code class="language-plaintext highlighter-rouge">v</code> validate</td>
+    </tr>
+    <tr>
+      <td>Export</td>
+      <td><code class="language-plaintext highlighter-rouge">9</code></td>
+      <td><code class="language-plaintext highlighter-rouge">f</code> format, <code class="language-plaintext highlighter-rouge">e</code> export, <code class="language-plaintext highlighter-rouge">x</code> copy</td>
+    </tr>
+    <tr>
+      <td>Memory Vault</td>
+      <td><code class="language-plaintext highlighter-rouge">M</code></td>
+      <td><code class="language-plaintext highlighter-rouge">Enter</code> view, <code class="language-plaintext highlighter-rouge">O</code> open, <code class="language-plaintext highlighter-rouge">D</code> delete</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="status-bar">Status Bar</h2>
+
+<p>The footer shows the current view, quick hints, and runtime metrics (memory/CPU). It updates automatically.</p>
+
+<hr />
+
+<p><strong>Related guides</strong>: <a href="tui-keyboard-reference.html">TUI Keyboard Reference</a> • <a href="../asset-manager.html">Asset Manager</a> • <a href="../worktrees.html">Worktree Manager</a></p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

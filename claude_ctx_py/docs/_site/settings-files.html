@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Settings Files Catalog | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Settings Files Catalog" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/settings-files.html" />
+<meta property="og:url" content="http://localhost:4000/settings-files.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Settings Files Catalog" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Settings Files Catalog","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/settings-files.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Settings Files Catalog</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="settings-files-catalog">Settings Files Catalog</h1>
+
+<p>This catalog lists the configuration, state, and reference files that the app
+reads or writes. Paths are shown relative to the active Claude directory
+(default <code class="language-plaintext highlighter-rouge">~/.claude/</code>). You can override the active directory with
+<code class="language-plaintext highlighter-rouge">CLAUDE_PLUGIN_ROOT</code> / <code class="language-plaintext highlighter-rouge">--plugin-root</code>, or use project-local <code class="language-plaintext highlighter-rouge">.claude/</code> via
+<code class="language-plaintext highlighter-rouge">--scope project</code> or <code class="language-plaintext highlighter-rouge">CLAUDE_CTX_SCOPE=project</code>.</p>
+
+<h2 id="core-framework-files">Core Framework Files</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">CLAUDE.md</code></td>
+      <td>Main manifest with <code class="language-plaintext highlighter-rouge">@</code> references</td>
+      <td>Primary entry point for context assembly</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">FLAGS.md</code></td>
+      <td>Flag activation list (<code class="language-plaintext highlighter-rouge">@flags/*.md</code>)</td>
+      <td>Updated by TUI Flag Manager</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">PRINCIPLES.md</code></td>
+      <td>Engineering principles</td>
+      <td>Generated from <code class="language-plaintext highlighter-rouge">principles/*.md</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">RULES.md</code></td>
+      <td>Core rules</td>
+      <td>Included by <code class="language-plaintext highlighter-rouge">CLAUDE.md</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="principles-snippets">Principles Snippets</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">principles/*.md</code></td>
+      <td>Principles snippets</td>
+      <td>Concatenated by <code class="language-plaintext highlighter-rouge">cortex principles build</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="activation-state-files">Activation State Files</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.active-modes</code></td>
+      <td>Active mode list</td>
+      <td>Reference-based activation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.active-rules</code></td>
+      <td>Active rules list</td>
+      <td>Reference-based activation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.active-mcp</code></td>
+      <td>Active MCP docs list</td>
+      <td>Reference-based activation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.active-principles</code></td>
+      <td>Active principles snippet list</td>
+      <td>Used by <code class="language-plaintext highlighter-rouge">cortex principles build</code> (order is filename-sorted)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="agent-and-skill-settings">Agent and Skill Settings</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">agents/triggers.yaml</code></td>
+      <td>Agent trigger metadata</td>
+      <td>Used by recommendations</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/activation.yaml</code></td>
+      <td>Skill keyword activation map</td>
+      <td>Used by auto-activation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/composition.yaml</code></td>
+      <td>Skill composition rules</td>
+      <td>Used by skill composer</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/versions.yaml</code></td>
+      <td>Skill version registry</td>
+      <td>Used by <code class="language-plaintext highlighter-rouge">skills versions</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/skill-rules.json</code></td>
+      <td>Skill selection rules</td>
+      <td>Recommendation logic</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/recommendation-rules.json</code></td>
+      <td>Recommendation rules</td>
+      <td>AI suggestions</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/community/registry.yaml</code></td>
+      <td>Community skill registry</td>
+      <td>Community skill install</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/analytics.schema.json</code></td>
+      <td>Skill analytics schema</td>
+      <td>Validation/reference</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">skills/metrics.schema.json</code></td>
+      <td>Skill metrics schema</td>
+      <td>Validation/reference</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="hooks-and-mcp">Hooks and MCP</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">settings.json</code></td>
+      <td>Claude Code settings (hooks)</td>
+      <td>TUI hooks manager updates this</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">mcp/docs/*.md</code></td>
+      <td>Local MCP docs</td>
+      <td>Activated via <code class="language-plaintext highlighter-rouge">.active-mcp</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="tui">TUI</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tui/theme.tcss</code></td>
+      <td>TUI theme override</td>
+      <td>Optional; loaded after <code class="language-plaintext highlighter-rouge">styles.tcss</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="intelligence-and-memory">Intelligence and Memory</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intelligence-config.json</code></td>
+      <td>LLM intelligence settings</td>
+      <td>Model selection/budget/caching</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">memory-config.json</code></td>
+      <td>Memory vault settings</td>
+      <td>Vault path and auto-capture</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="schemas">Schemas</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">schema/agent-schema-v2.yaml</code></td>
+      <td>Agent validation schema</td>
+      <td>Used by validators</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">schema/scenario-schema-v1.yaml</code></td>
+      <td>Scenario validation schema</td>
+      <td>Used by validators</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="auto-managed-data-for-reference">Auto-Managed Data (for reference)</h2>
+
+<p>All paths below are relative to the active Claude directory.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.metrics/skills/stats.json</code></td>
+      <td>Skill metrics summary</td>
+      <td>Generated automatically</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">.metrics/skills/activations.json</code></td>
+      <td>Activation log</td>
+      <td>Generated automatically</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">data/skill-ratings.db</code></td>
+      <td>Skill ratings database</td>
+      <td>SQLite</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">data/skill-rating-prompts.json</code></td>
+      <td>Rating prompt state</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intelligence/session_history.json</code></td>
+      <td>Recommendation history</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intelligence/semantic_cache/session_embeddings.jsonl</code></td>
+      <td>Embedding cache</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tasks/current/active_agents.json</code></td>
+      <td>Task view state</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tasks/current/active_workflow</code></td>
+      <td>Current workflow name</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tasks/current/workflow_status</code></td>
+      <td>Workflow status</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tasks/current/workflow_started</code></td>
+      <td>Workflow start time</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tasks/current/current_step</code></td>
+      <td>Workflow step label</td>
+      <td>Auto-managed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">community/ratings/*.json</code></td>
+      <td>Community skill ratings</td>
+      <td>Auto-managed</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="external-claude-desktop-mcp-config">External (Claude Desktop MCP Config)</h2>
+
+<p>Claude Desktop config is outside <code class="language-plaintext highlighter-rouge">.claude</code> but is read for MCP server setup:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS</td>
+      <td><code class="language-plaintext highlighter-rouge">~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+    </tr>
+    <tr>
+      <td>Linux</td>
+      <td><code class="language-plaintext highlighter-rouge">~/.config/Claude/claude_desktop_config.json</code></td>
+    </tr>
+    <tr>
+      <td>Windows</td>
+      <td><code class="language-plaintext highlighter-rouge">%APPDATA%/Claude/claude_desktop_config.json</code></td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

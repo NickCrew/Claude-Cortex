@@ -229,3 +229,32 @@
     #galaxy-graph {
         overflow: auto;
     }
+
+    /* Docs Screen Styles */
+    DocsScreen {
+        layout: grid;
+        grid-size: 1;
+    }
+
+    .docs-container {
+        layout: grid;
+        grid-size: 2;
+        grid-columns: 1fr 3fr;
+        height: 1fr;
+        background: $surface-lighten-1;
+        border: solid $primary;
+    }
+
+    #docs-tree {
+        height: 100%;
+        background: $surface-lighten-2;
+        border-right: solid $primary;
+        color: $text;
+    }
+
+    #docs-content {
+        height: 100%;
+        padding: 1 2;
+        background: $surface;
+        overflow-y: scroll;
+    }

@@ -1,0 +1,56 @@
+.TH CLAUDE-CTX-WORKFLOW 1 "2025-12-31" "claude-ctx-workflow 1.1.0" "User Commands"
+.SH NAME
+claude-ctx-workflow \- Command-line tool
+.SH SYNOPSIS
+.B claude-ctx-workflow
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B claude-ctx-workflow
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B claude-ctx-workflow
+.SH COMMANDS
+Available commands:
+.TP
+.B run
+Run a predefined workflow
+.TP
+.B list
+List available workflows
+.TP
+.B status
+Show current workflow progress
+.TP
+.B resume
+Resume interrupted workflow
+.TP
+.B stop
+Stop the currently running workflow
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR claude-ctx-workflow-tui (1),
+.BR claude-ctx-workflow-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>
