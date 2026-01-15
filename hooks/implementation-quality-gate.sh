@@ -4,6 +4,7 @@
 #
 # Triggers: After user prompt submission
 # Purpose: Ensure all implementations have tests (>=85% coverage), documentation (>=7.5/10), and code review (high/medium issues resolved)
+# Note: For a broader project-level enforcement (Planning, Docs, Release), see hooks/parallel-workflow-enforcer.sh
 
 set -euo pipefail
 
@@ -204,7 +205,7 @@ extract_coverage() {
 
 # Main hook logic
 main() {
-    local user_prompt="${CLAUDE_USER_PROMPT:-}"
+    local user_prompt="${CLAUDE_HOOK_PROMPT:-${CLAUDE_USER_PROMPT:-}}"
 
     # Skip if not an implementation task
     if ! is_implementation_task "$user_prompt"; then

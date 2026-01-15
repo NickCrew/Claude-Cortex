@@ -16,7 +16,7 @@ Usage:
               {
                 "type": "command",
                 "command": "python3",
-                "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/memory_auto_capture.py"]
+                "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/memory_auto_capture.py"]
               }
             ]
           }

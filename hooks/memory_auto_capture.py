@@ -16,7 +16,7 @@ Usage:
               {
                 "type": "command",
                 "command": "python3",
-                "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/examples/memory_auto_capture.py"]
+                "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/memory_auto_capture.py"]
               }
             ]
           }
@@ -39,6 +39,28 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
+
+HOOK_LOG_ENV = ("CORTEX_HOOK_LOG_PATH", "CLAUDE_HOOK_LOG_PATH")
+
+
+def _hook_log_path() -> Path:
+    for name in HOOK_LOG_ENV:
+        value = os.getenv(name, "").strip()
+        if value:
+            return Path(value).expanduser()
+    return Path.home() / ".cortex" / "logs" / "hooks.log"
+
+
+def _log_hook(message: str) -> None:
+    try:
+        path = _hook_log_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(f"{timestamp} [{Path(__file__).name}] {message}\n")
+    except Exception:
+        return
 
 
 def get_claude_dir() -> Path:
@@ -184,6 +206,7 @@ def create_session_note(info: dict) -> Optional[Path]:
         note_path.write_text(content, encoding="utf-8")
         return note_path
     except OSError as e:
+        _log_hook(f"Error writing note: {e}")
         print(f"Error writing note: {e}", file=sys.stderr)
         return None
 
@@ -244,9 +267,13 @@ def main() -> int:
         print(f"Auto-captured session: {note_path}")
         update_last_capture()
         return 0
-    else:
-        return 1
+    _log_hook("Failed to auto-capture session note.")
+    return 1
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except Exception as exc:
+        _log_hook(f"Unhandled error: {exc}")
+        raise
