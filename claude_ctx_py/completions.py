@@ -15,7 +15,7 @@ _cortex_completion() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # Top-level commands
-    local commands="mode agent rules principles skills mcp init profile workflow start claude tui version completion install help doctor setup"
+    local commands="mode agent rules principles hooks skills mcp init profile workflow start claude config tui version completion install help doctor setup"
 
     # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -59,6 +59,14 @@ _cortex_completion() {
                 COMPREPLY=($(compgen -W "${principles_cmds}" -- ${cur}))
             fi
             ;;
+        hooks)
+            local hooks_cmds="validate"
+            if [[ ${COMP_CWORD} -eq 2 ]]; then
+                COMPREPLY=($(compgen -W "${hooks_cmds}" -- ${cur}))
+            elif [[ ${prev} == "validate" ]]; then
+                COMPREPLY=($(compgen -W "--path" -- ${cur}))
+            fi
+            ;;
         skills)
             local skills_cmds="list info validate analyze suggest metrics deps agents compose versions analytics report trending community"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
@@ -84,6 +92,10 @@ _cortex_completion() {
             elif [[ ${prev} == "migrate-commands" ]]; then
                 COMPREPLY=($(compgen -W "--dry-run --force" -- ${cur}))
             fi
+            ;;
+        config)
+            local config_opts="--config --plugin-dir --raw --json"
+            COMPREPLY=($(compgen -W "${config_opts}" -- ${cur}))
             ;;
         profile)
             local profile_cmds="list apply create edit show"
@@ -130,6 +142,7 @@ _cortex() {
         'agent:Agent management commands'
         'rules:Rule management commands'
         'principles:Principles snippet commands'
+        'hooks:Hook commands'
         'skills:Skill management commands'
         'mcp:MCP server management'
         'init:Initialize project configuration'
@@ -138,6 +151,7 @@ _cortex() {
         'workflow:Workflow management'
         'start:Launch Claude Code with Cortex configuration'
         'claude:Alias for start'
+        'config:Show configuration'
         'tui:Launch terminal UI'
         'doctor:Diagnose and fix context issues'
         'version:Show version information'
@@ -180,6 +194,11 @@ _cortex() {
         'activate:Activate one or more principle snippets'
         'deactivate:Deactivate one or more principle snippets'
         'build:Build PRINCIPLES.md from active snippets'
+    )
+
+    local -a hooks_commands
+    hooks_commands=(
+        'validate:Validate hooks.json configuration'
     )
 
     local -a skills_commands
@@ -283,6 +302,16 @@ _cortex() {
                             ;;
                     esac
                     ;;
+                hooks)
+                    _arguments \
+                        '1: :->hooks_command' \
+                        '*::hooks_arg:->hooks_args'
+                    case $state in
+                        hooks_command)
+                            _describe -t hooks_commands 'hooks command' hooks_commands
+                            ;;
+                    esac
+                    ;;
                 skills)
                     _arguments \
                         '1: :->skills_command' \
@@ -321,6 +350,13 @@ _cortex() {
                             ;;
                     esac
                     ;;
+                config)
+                    _arguments \
+                        '--config[Path to cortex-config.json]:config file:_files' \
+                        '--plugin-dir[Path to Cortex plugin assets]:plugin dir:_files -/' \
+                        '--raw[Print raw config file contents]' \
+                        '--json[Output configuration as JSON]'
+                    ;;
                 install)
                     _arguments \
                         '1: :->install_command'
@@ -348,6 +384,7 @@ complete -c cortex -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "agent" -d "Agent management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "rules" -d "Rule management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "principles" -d "Principles snippet management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "hooks" -d "Hook commands"
 complete -c cortex -f -n "__fish_use_subcommand" -a "skills" -d "Skill management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "mcp" -d "MCP server management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "init" -d "Initialize project"
@@ -356,6 +393,7 @@ complete -c cortex -f -n "__fish_use_subcommand" -a "profile" -d "Profile manage
 complete -c cortex -f -n "__fish_use_subcommand" -a "workflow" -d "Workflow management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "start" -d "Launch Claude Code with Cortex configuration"
 complete -c cortex -f -n "__fish_use_subcommand" -a "claude" -d "Alias for start"
+complete -c cortex -f -n "__fish_use_subcommand" -a "config" -d "Show configuration"
 complete -c cortex -f -n "__fish_use_subcommand" -a "tui" -d "Launch terminal UI"
 complete -c cortex -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
 complete -c cortex -f -n "__fish_use_subcommand" -a "version" -d "Show version"
@@ -365,6 +403,12 @@ complete -c cortex -f -n "__fish_use_subcommand" -a "help" -d "Show help"
 
 # Doctor subcommands
 complete -c cortex -f -n "__fish_seen_subcommand_from doctor" -l "fix" -d "Attempt auto-fix"
+
+# Config options
+complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "config" -r -d "Path to cortex-config.json"
+complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "plugin-dir" -r -d "Path to Cortex plugin assets"
+complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "raw" -d "Print raw config file contents"
+complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "json" -d "Output configuration as JSON"
 
 # Mode subcommands
 complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available modes"
@@ -402,6 +446,9 @@ complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish
 complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "activate" -d "Activate principle snippets"
 complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "deactivate" -d "Deactivate principle snippets"
 complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "build" -d "Build PRINCIPLES.md"
+
+# Hooks subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from hooks; and not __fish_seen_subcommand_from validate" -a "validate" -d "Validate hooks.json configuration"
 
 # Skills subcommands
 complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "list" -d "List skills"

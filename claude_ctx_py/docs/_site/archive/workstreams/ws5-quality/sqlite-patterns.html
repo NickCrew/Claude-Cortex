@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SQLite Resource Management Patterns | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="SQLite Resource Management Patterns" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/workstreams/ws5-quality/sqlite-patterns.html" />
+<meta property="og:url" content="http://localhost:4000/archive/workstreams/ws5-quality/sqlite-patterns.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SQLite Resource Management Patterns" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"SQLite Resource Management Patterns","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/workstreams/ws5-quality/sqlite-patterns.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">SQLite Resource Management Patterns</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="sqlite-resource-management-patterns">SQLite Resource Management Patterns</h1>
+
+<p><strong>Purpose</strong>: Standards and patterns for safe SQLite database operations
+<strong>Last Updated</strong>: 2025-11-27</p>
+
+<h2 id="quick-reference">Quick Reference</h2>
+
+<h3 id="-required-pattern-context-manager">✅ REQUIRED Pattern: Context Manager</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT ..."</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="c1"># Automatic commit on success
+</span>    <span class="c1"># Automatic rollback on exception
+</span>    <span class="c1"># Automatic connection close
+</span></code></pre></div></div>
+
+<h3 id="-forbidden-pattern-manual-management">❌ FORBIDDEN Pattern: Manual Management</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+<span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT ..."</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchall</span><span class="p">()</span>
+<span class="n">conn</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+<span class="c1"># ❌ No automatic cleanup
+# ❌ Connection leaks on exception
+# ❌ No transaction management
+</span></code></pre></div></div>
+
+<h2 id="core-patterns">Core Patterns</h2>
+
+<h3 id="pattern-1-simple-query-read-only">Pattern 1: Simple Query (Read-Only)</h3>
+
+<p><strong>Use Case</strong>: Reading data without modifications</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_skill_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="s">"""Fetch statistics for a skill."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"""
+            SELECT COUNT(*) as total, AVG(rating) as avg_rating
+            FROM skill_ratings
+            WHERE skill_name = ?
+            """</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">skill_name</span><span class="p">,)</span>
+        <span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"total"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s">"avg_rating"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Automatic connection cleanup</li>
+  <li>✅ Safe parameter binding with <code class="language-plaintext highlighter-rouge">?</code> placeholders</li>
+  <li>✅ No SQL injection risk</li>
+</ul>
+
+<h3 id="pattern-2-single-write-operation">Pattern 2: Single Write Operation</h3>
+
+<p><strong>Use Case</strong>: Inserting or updating data</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">record_rating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rating</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Record a skill rating."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"""
+            INSERT INTO skill_ratings (skill_name, rating, timestamp)
+            VALUES (?, ?, ?)
+            """</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">rating</span><span class="p">,</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>  <span class="c1"># Explicit commit for clarity
+</span></code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Automatic rollback if INSERT fails</li>
+  <li>✅ Connection closed even on error</li>
+  <li>✅ Explicit commit() for readability</li>
+</ul>
+
+<p><strong>Note</strong>: Context manager commits automatically on exit, but explicit <code class="language-plaintext highlighter-rouge">conn.commit()</code> improves readability.</p>
+
+<h3 id="pattern-3-multiple-operations-transaction">Pattern 3: Multiple Operations (Transaction)</h3>
+
+<p><strong>Use Case</strong>: Multiple related operations that should succeed or fail together</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">transfer_rating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rating_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Move a rating from one skill to another (transaction)."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># All operations in one transaction
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"DELETE FROM skill_ratings WHERE id = ? AND skill_name = ?"</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">rating_id</span><span class="p">,</span> <span class="n">from_skill</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"""
+            INSERT INTO skill_ratings (skill_name, rating, timestamp)
+            SELECT ?, rating, timestamp FROM skill_ratings WHERE id = ?
+            """</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">to_skill</span><span class="p">,</span> <span class="n">rating_id</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="c1"># If any operation fails, ALL are rolled back
+</span></code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Atomic operations (all or nothing)</li>
+  <li>✅ Automatic rollback on any error</li>
+  <li>✅ Data consistency guaranteed</li>
+</ul>
+
+<h3 id="pattern-4-complex-query-with-error-handling">Pattern 4: Complex Query with Error Handling</h3>
+
+<p><strong>Use Case</strong>: Operations that may fail due to data issues</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_recommendations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="s">"""Get skill recommendations with robust error handling."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s">"""
+                SELECT successful_skills, success_rate
+                FROM context_patterns
+                WHERE context_hash = ?
+                ORDER BY success_rate DESC
+                LIMIT 10
+                """</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">context_hash</span><span class="p">,)</span>
+            <span class="p">)</span>
+
+            <span class="n">recommendations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchall</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Parse JSON data with error handling
+</span>                    <span class="n">skills</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">recommendations</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">skills</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">json</span><span class="p">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+                    <span class="c1"># Skip corrupted data, continue processing
+</span>                    <span class="k">continue</span>
+
+            <span class="k">return</span> <span class="n">recommendations</span>
+
+    <span class="k">except</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MetricsFileError</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">),</span>
+            <span class="s">"query recommendations"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s">"Database error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s">"</span>
+        <span class="p">)</span> <span class="k">from</span> <span class="n">exc</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Graceful handling of corrupted data</li>
+  <li>✅ Preserves exception chain</li>
+  <li>✅ Clear error messages</li>
+  <li>✅ Continues processing on partial failures</li>
+</ul>
+
+<h3 id="pattern-5-database-initialization">Pattern 5: Database Initialization</h3>
+
+<p><strong>Use Case</strong>: Creating tables and indexes</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_init_database</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Initialize database schema."""</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">.</span><span class="n">parent</span><span class="p">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Create tables
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            CREATE TABLE IF NOT EXISTS skill_ratings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL,
+                rating INTEGER NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+        """</span><span class="p">)</span>
+
+        <span class="c1"># Create indexes
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"""
+            CREATE INDEX IF NOT EXISTS idx_skill_name
+            ON skill_ratings(skill_name)
+        """</span><span class="p">)</span>
+
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Idempotent (safe to run multiple times)</li>
+  <li>✅ Automatic schema creation</li>
+  <li>✅ Single transaction for all schema changes</li>
+</ul>
+
+<h3 id="pattern-6-conditional-updates">Pattern 6: Conditional Updates</h3>
+
+<p><strong>Use Case</strong>: Update or insert based on existence</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Update or insert skill metrics."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"""
+            INSERT OR REPLACE INTO skill_metrics
+            (skill_name, avg_rating, total_ratings, last_updated)
+            VALUES (?, ?, ?, ?)
+            """</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="n">skill</span><span class="p">,</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s">"avg_rating"</span><span class="p">],</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="s">"total_ratings"</span><span class="p">],</span>
+                <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Upsert operation (update or insert)</li>
+  <li>✅ No need for separate SELECT</li>
+  <li>✅ Atomic operation</li>
+</ul>
+
+<h2 id="advanced-patterns">Advanced Patterns</h2>
+
+<h3 id="pattern-7-row-factory-for-named-access">Pattern 7: Row Factory for Named Access</h3>
+
+<p><strong>Use Case</strong>: Access results by column name instead of index</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_skill_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="s">"""Get skill details with named column access."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Enable row factory for named access
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">row_factory</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">Row</span>
+
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"SELECT skill_name, avg_rating, total_ratings FROM skills WHERE skill_name = ?"</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">skill_name</span><span class="p">,)</span>
+        <span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="c1"># Access by column name
+</span>        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">"name"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">"skill_name"</span><span class="p">],</span>
+            <span class="s">"rating"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">"avg_rating"</span><span class="p">],</span>
+            <span class="s">"total"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s">"total_ratings"</span><span class="p">]</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ More readable code</li>
+  <li>✅ Self-documenting</li>
+  <li>✅ Refactoring-safe (column order doesn’t matter)</li>
+</ul>
+
+<h3 id="pattern-8-batch-operations">Pattern 8: Batch Operations</h3>
+
+<p><strong>Use Case</strong>: Inserting many records efficiently</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">record_batch_ratings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ratings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Record multiple ratings efficiently."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Use executemany for batch operations
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s">"""
+            INSERT INTO skill_ratings (skill_name, rating, timestamp)
+            VALUES (?, ?, ?)
+            """</span><span class="p">,</span>
+            <span class="n">ratings</span>
+        <span class="p">)</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Much faster than individual INSERTs</li>
+  <li>✅ Single transaction for all records</li>
+  <li>✅ Automatic rollback if any fails</li>
+</ul>
+
+<h3 id="pattern-9-connection-with-timeout">Pattern 9: Connection with Timeout</h3>
+
+<p><strong>Use Case</strong>: Prevent indefinite blocking on locked databases</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_stats_with_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="s">"""Query with timeout to prevent blocking."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s">"SELECT * FROM skill_ratings WHERE skill_name = ?"</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">skill</span><span class="p">,)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchall</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>✅ Prevents indefinite blocking</li>
+  <li>✅ Fails fast on contention</li>
+  <li>✅ Better for concurrent access</li>
+</ul>
+
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+
+<h3 id="pitfall-1-forgetting-placeholders">Pitfall 1: Forgetting Placeholders</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ❌ WRONG: SQL injection risk
+</span><span class="n">skill_name</span> <span class="o">=</span> <span class="s">"test'; DROP TABLE skills; --"</span>
+<span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s">"SELECT * FROM skills WHERE name = '</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s">'"</span><span class="p">)</span>
+
+<span class="c1"># ✅ CORRECT: Safe parameter binding
+</span><span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT * FROM skills WHERE name = ?"</span><span class="p">,</span> <span class="p">(</span><span class="n">skill_name</span><span class="p">,))</span>
+</code></pre></div></div>
+
+<h3 id="pitfall-2-multiple-connections">Pitfall 2: Multiple Connections</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ❌ WRONG: Multiple connections to same database
+</span><span class="n">conn1</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+<span class="n">conn2</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+<span class="c1"># Risk of locking issues and data corruption
+</span>
+<span class="c1"># ✅ CORRECT: Reuse single connection
+</span><span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+    <span class="c1"># All operations with same connection
+</span>    <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"INSERT ..."</span><span class="p">)</span>
+    <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"UPDATE ..."</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="pitfall-3-catching-too-broadly">Pitfall 3: Catching Too Broadly</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ❌ WRONG: Catches all exceptions
+</span><span class="k">try</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT ..."</span><span class="p">)</span>
+<span class="k">except</span> <span class="nb">Exception</span><span class="p">:</span>
+    <span class="k">pass</span>  <span class="c1"># Silently fails, hard to debug
+</span>
+<span class="c1"># ✅ CORRECT: Catch specific exceptions
+</span><span class="k">try</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT ..."</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">MetricsFileError</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">db_path</span><span class="p">),</span> <span class="s">"query"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+    <span class="p">)</span> <span class="k">from</span> <span class="n">exc</span>
+</code></pre></div></div>
+
+<h3 id="pitfall-4-no-error-on-missing-file">Pitfall 4: No Error on Missing File</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ❌ WRONG: Creates database if missing
+</span><span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="s">"/wrong/path/db.sqlite"</span><span class="p">)</span>
+<span class="c1"># Silently creates file, hard to debug
+</span>
+<span class="c1"># ✅ CORRECT: Validate path exists
+</span><span class="k">if</span> <span class="ow">not</span> <span class="n">db_path</span><span class="p">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="nb">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s">"Database not found: </span><span class="si">{</span><span class="n">db_path</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+    <span class="c1"># ...
+</span></code></pre></div></div>
+
+<h2 id="testing-patterns">Testing Patterns</h2>
+
+<h3 id="pattern-verify-resource-cleanup">Pattern: Verify Resource Cleanup</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_no_resource_leak</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Verify database connections are properly closed."""</span>
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s">"test.db"</span>
+
+    <span class="n">recommender</span> <span class="o">=</span> <span class="n">SkillRecommender</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># Perform operations
+</span>    <span class="n">recommender</span><span class="p">.</span><span class="n">get_recommendation_stats</span><span class="p">()</span>
+
+    <span class="c1"># Verify no open connections
+</span>    <span class="kn">import</span> <span class="nn">gc</span>
+    <span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>  <span class="c1"># Force garbage collection
+</span>
+    <span class="c1"># Should be able to delete database (no locks)
+</span>    <span class="n">db_path</span><span class="p">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Should not raise "file in use" error
+</span></code></pre></div></div>
+
+<h3 id="pattern-test-transaction-rollback">Pattern: Test Transaction Rollback</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_rollback_on_error</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Verify automatic rollback on error."""</span>
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s">"test.db"</span>
+
+    <span class="n">recommender</span> <span class="o">=</span> <span class="n">SkillRecommender</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># Record initial state
+</span>    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">initial_count</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT COUNT(*) FROM ratings"</span><span class="p">).</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Attempt operation that will fail
+</span>    <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="n">raises</span><span class="p">(</span><span class="nb">ValueError</span><span class="p">):</span>
+        <span class="n">recommender</span><span class="p">.</span><span class="n">record_invalid_rating</span><span class="p">()</span>  <span class="c1"># Should rollback
+</span>
+    <span class="c1"># Verify rollback occurred
+</span>    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">final_count</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT COUNT(*) FROM ratings"</span><span class="p">).</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">final_count</span> <span class="o">==</span> <span class="n">initial_count</span><span class="p">,</span> <span class="s">"Transaction should have rolled back"</span>
+</code></pre></div></div>
+
+<h2 id="migration-guide">Migration Guide</h2>
+
+<h3 id="migrating-from-manual-to-context-manager">Migrating from Manual to Context Manager</h3>
+
+<p><strong>Before</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span>
+    <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT * FROM stats WHERE skill = ?"</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,))</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="n">conn</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">"total"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">"avg"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+</code></pre></div></div>
+
+<p><strong>After</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"SELECT * FROM stats WHERE skill = ?"</span><span class="p">,</span> <span class="p">(</span><span class="n">skill</span><span class="p">,))</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">cursor</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">"total"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">"avg"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+</code></pre></div></div>
+
+<p><strong>Changes</strong>:</p>
+<ol>
+  <li>✅ Removed <code class="language-plaintext highlighter-rouge">conn = </code> assignment</li>
+  <li>✅ Added <code class="language-plaintext highlighter-rouge">with</code> statement</li>
+  <li>✅ Indented operations</li>
+  <li>✅ Removed <code class="language-plaintext highlighter-rouge">conn.close()</code></li>
+  <li>✅ Added error handling (optional but recommended)</li>
+</ol>
+
+<h2 id="performance-considerations">Performance Considerations</h2>
+
+<h3 id="1-connection-pooling">1. Connection Pooling</h3>
+
+<p>For high-concurrency scenarios, consider connection pooling:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="k">class</span> <span class="nc">DatabasePool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pool_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">db_path</span> <span class="o">=</span> <span class="n">db_path</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">pool</span> <span class="o">=</span> <span class="p">[</span><span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pool_size</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">available</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">pool</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="o">@</span><span class="n">contextmanager</span>
+    <span class="k">def</span> <span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">available</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">conn</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">available</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="2-write-ahead-logging-wal">2. Write-Ahead Logging (WAL)</h3>
+
+<p>Enable WAL mode for better concurrent read performance:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">_init_database</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Enable WAL mode for better concurrency
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"PRAGMA journal_mode=WAL"</span><span class="p">)</span>
+        <span class="c1"># ... create tables ...
+</span></code></pre></div></div>
+
+<h3 id="3-batch-commits">3. Batch Commits</h3>
+
+<p>For bulk operations, use transactions:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">import_ratings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ratings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="s">"""Import many ratings in a single transaction."""</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="c1"># Disable auto-commit for better performance
+</span>        <span class="k">for</span> <span class="n">rating</span> <span class="ow">in</span> <span class="n">ratings</span><span class="p">:</span>
+            <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s">"INSERT INTO ratings VALUES (?, ?, ?)"</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">rating</span><span class="p">[</span><span class="s">"skill"</span><span class="p">],</span> <span class="n">rating</span><span class="p">[</span><span class="s">"stars"</span><span class="p">],</span> <span class="n">rating</span><span class="p">[</span><span class="s">"timestamp"</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="c1"># Single commit for all operations
+</span>        <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="linting-rules">Linting Rules</h2>
+
+<p>Add these to your <code class="language-plaintext highlighter-rouge">.pylintrc</code> or <code class="language-plaintext highlighter-rouge">pyproject.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[tool.pylint.messages_control]</span>
+<span class="c"># Require context managers for database connections</span>
+<span class="py">enable</span> <span class="p">=</span> <span class="p">[</span>
+    <span class="s">"unidiomatic-typecheck"</span><span class="p">,</span>
+    <span class="s">"consider-using-with"</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<h2 id="pre-commit-hook">Pre-commit Hook</h2>
+
+<p>Add to <code class="language-plaintext highlighter-rouge">.pre-commit-config.yaml</code>:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="pi">-</span> <span class="na">repo</span><span class="pi">:</span> <span class="s">local</span>
+  <span class="na">hooks</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">id</span><span class="pi">:</span> <span class="s">check-sqlite-pattern</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">Check SQLite context managers</span>
+      <span class="na">entry</span><span class="pi">:</span> <span class="s">grep -r "= sqlite3.connect" --include="*.py"</span>
+      <span class="na">language</span><span class="pi">:</span> <span class="s">system</span>
+      <span class="na">pass_filenames</span><span class="pi">:</span> <span class="no">false</span>
+      <span class="c1"># Fail if pattern found (should use 'with sqlite3.connect')</span>
+</code></pre></div></div>
+
+<h2 id="summary">Summary</h2>
+
+<h3 id="-always-use">✅ Always Use</h3>
+<ul>
+  <li>Context managers (<code class="language-plaintext highlighter-rouge">with sqlite3.connect()</code>)</li>
+  <li>Parameter binding (<code class="language-plaintext highlighter-rouge">?</code> placeholders)</li>
+  <li>Specific exception handling (<code class="language-plaintext highlighter-rouge">sqlite3.Error</code>)</li>
+  <li>Explicit commits for clarity</li>
+  <li>Row factories for named access</li>
+</ul>
+
+<h3 id="-never-use">❌ Never Use</h3>
+<ul>
+  <li>Manual connection management</li>
+  <li>String interpolation in SQL</li>
+  <li>Broad exception catching</li>
+  <li>Multiple simultaneous connections</li>
+  <li>Unprotected file paths</li>
+</ul>
+
+<h3 id="-best-practices">🎯 Best Practices</h3>
+<ol>
+  <li>One connection per operation</li>
+  <li>Short-lived connections</li>
+  <li>Explicit transactions</li>
+  <li>Proper error handling</li>
+  <li>Resource cleanup verification in tests</li>
+</ol>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://docs.python.org/3/library/sqlite3.html">Python sqlite3 documentation</a></li>
+  <li><a href="https://www.sqlite.org/lang_transaction.html">SQLite transaction guide</a></li>
+  <li><a href="https://peps.python.org/pep-0343/">Context managers (PEP 343)</a></li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

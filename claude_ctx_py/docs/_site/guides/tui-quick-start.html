@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>TUI Quick Start Guide - New Features | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="TUI Quick Start Guide - New Features" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/tui-quick-start.html" />
+<meta property="og:url" content="http://localhost:4000/guides/tui-quick-start.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="TUI Quick Start Guide - New Features" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"TUI Quick Start Guide - New Features","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/tui-quick-start.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">TUI Quick Start Guide - New Features</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="tui-quick-start-guide---new-features">TUI Quick Start Guide - New Features</h1>
+
+<h2 id="launch-the-tui">Launch the TUI</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+</code></pre></div></div>
+
+<h2 id="-what-you-should-see">🎯 What You Should See</h2>
+
+<h3 id="1-status-bar-bottom-of-screen">1. Status Bar (Bottom of Screen)</h3>
+<p><strong>Location</strong>: Very bottom, above the footer with key bindings</p>
+
+<p><strong>What it shows</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[View: Agents] Welcome to claude-ctx TUI │ 25MB 0%
+</code></pre></div></div>
+
+<ul>
+  <li><strong>Left</strong>: Current view and status message</li>
+  <li><strong>Right</strong>: Real-time memory usage and CPU percentage</li>
+  <li><strong>Updates</strong>: Every second automatically</li>
+</ul>
+
+<p><strong>Colors</strong>:</p>
+<ul>
+  <li>🟢 Green: Healthy (Memory &lt;60%, CPU &lt;50%)</li>
+  <li>🟡 Yellow: Moderate (Memory 60-80%, CPU 50-80%)</li>
+  <li>🔴 Red: High (Memory &gt;80%, CPU &gt;80%)</li>
+</ul>
+
+<hr />
+
+<h3 id="2-command-palette-press-ctrlp">2. Command Palette (Press Ctrl+P)</h3>
+<p><strong>How to open</strong>: Press <code class="language-plaintext highlighter-rouge">Ctrl+P</code> (or <code class="language-plaintext highlighter-rouge">^P</code> on Mac)</p>
+
+<p><strong>What you’ll see</strong>: A centered modal dialog with:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>🔍 Command Palette
+┌─────────────────────────────────────┐
+│ Type to search commands...          │
+├─────────────────────────────────────┤
+│ → Show Agents      View and manage  │
+│   Show Skills      Browse available  │
+│   Show Modes       View active modes │
+│   Show Rules       View active rules │
+│   ...                                │
+└─────────────────────────────────────┘
+↑/↓ Navigate  ✓ Select  Esc Close
+</code></pre></div></div>
+
+<p><strong>How to use</strong>:</p>
+<ol>
+  <li>Press <code class="language-plaintext highlighter-rouge">Ctrl+P</code></li>
+  <li>Type to filter (try typing “agent”)</li>
+  <li>Use ↑/↓ arrow keys to select</li>
+  <li>Press Enter to execute</li>
+  <li>Press Esc to close</li>
+</ol>
+
+<p><strong>Fuzzy Search</strong>: It’s smart!</p>
+<ul>
+  <li>Type “agt” → matches “Show <strong>Ag</strong>en<strong>t</strong>s”</li>
+  <li>Type “skill” → matches “Show <strong>Skill</strong>s”, “Create <strong>Skill</strong>”</li>
+  <li>Consecutive characters get priority</li>
+</ul>
+
+<hr />
+
+<h3 id="3-enhanced-overview-press-1">3. Enhanced Overview (Press 1)</h3>
+<p><strong>How to access</strong>: Press <code class="language-plaintext highlighter-rouge">1</code> key</p>
+
+<p><strong>What you’ll see</strong>: Dashboard cards showing:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>System Overview
+
+💻 Agents      13/78 active
+⚑ Modes        3/9 active
+📝 Rules       3/6 active
+💻 Skills      54 installed
+⏳ Workflows   0 running
+
+Performance Metrics
+⏳ 5m 23s │ 📊 45MB │ CPU 12% │ ├─ 8 threads
+</code></pre></div></div>
+
+<p><strong>Colors indicate status</strong>:</p>
+<ul>
+  <li>Green: Active/running</li>
+  <li>Dim: Inactive/none</li>
+</ul>
+
+<hr />
+
+<h3 id="4-all-views-enhanced">4. All Views Enhanced</h3>
+<p>Every view now has:</p>
+<ul>
+  <li><strong>Icons</strong>: 💻 📝 ⚑ ▶ for visual clarity</li>
+  <li><strong>Status Indicators</strong>: ✓ Active, ○ Ready, ⏳ Running, ✗ Failed</li>
+  <li><strong>Progress Bars</strong>: Visual progress in Workflows and Orchestrate views</li>
+  <li><strong>Smart Truncation</strong>: Long text is trimmed with <code class="language-plaintext highlighter-rouge">...</code></li>
+  <li><strong>Relative Time</strong>: “5m ago” instead of timestamps</li>
+</ul>
+
+<hr />
+
+<h2 id="-keyboard-shortcuts">🎹 Keyboard Shortcuts</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+P</code></td>
+      <td><strong>Command Palette</strong> (NEW!)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">1-9</code></td>
+      <td>Switch primary views</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">0</code></td>
+      <td>AI Assistant</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">A</code></td>
+      <td>Asset Manager</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">C</code></td>
+      <td>Worktrees</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">F</code></td>
+      <td>Flags</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">M</code></td>
+      <td>Memory Vault</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">w</code></td>
+      <td>Watch Mode</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">S</code></td>
+      <td>Scenarios</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">o</code></td>
+      <td>Orchestrate</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">g</code></td>
+      <td>Galaxy</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">t</code></td>
+      <td>Tasks</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">/</code></td>
+      <td>Slash Commands catalog</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">R</code></td>
+      <td>Refresh current view</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Space</code></td>
+      <td>Toggle selected item</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">?</code></td>
+      <td>Show help</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Q</code></td>
+      <td>Quit</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="-testing-the-features">🧪 Testing the Features</h2>
+
+<h3 id="test-1-status-bar">Test 1: Status Bar</h3>
+<ol>
+  <li>Launch TUI: <code class="language-plaintext highlighter-rouge">claude-ctx tui</code></li>
+  <li>Look at <strong>very bottom</strong> of screen</li>
+  <li>Should see: <code class="language-plaintext highlighter-rouge">[View: ...] ... │ &lt;memory&gt; &lt;cpu&gt;</code></li>
+  <li>Wait 1 second - numbers should update</li>
+</ol>
+
+<p><strong>If you don’t see it</strong>:</p>
+<ul>
+  <li>Make sure your terminal is tall enough</li>
+  <li>The status bar is ABOVE the footer (the line with “1 Overview  2 Agents  …”)</li>
+</ul>
+
+<hr />
+
+<h3 id="test-2-command-palette">Test 2: Command Palette</h3>
+<ol>
+  <li>Press <code class="language-plaintext highlighter-rouge">Ctrl+P</code> (hold Control and press P)</li>
+  <li>A dialog should pop up in the center</li>
+  <li>Type “agent”</li>
+  <li>Should see “Show Agents” highlighted</li>
+  <li>Press Enter - should go to Agents view</li>
+  <li>Try again with different searches</li>
+</ol>
+
+<p><strong>If it doesn’t open</strong>:</p>
+<ul>
+  <li>Make sure you’re pressing Ctrl+P together</li>
+  <li>Some terminals might need Ctrl+Shift+P</li>
+</ul>
+
+<hr />
+
+<h3 id="test-3-dashboard">Test 3: Dashboard</h3>
+<ol>
+  <li>Press <code class="language-plaintext highlighter-rouge">1</code> key</li>
+  <li>Should see “System Overview” header</li>
+  <li>Should see colored cards with stats</li>
+  <li>Should see “Performance Metrics” section at bottom</li>
+</ol>
+
+<hr />
+
+<h3 id="test-4-performance-updates">Test 4: Performance Updates</h3>
+<ol>
+  <li>Watch the status bar for 5 seconds</li>
+  <li>The memory and CPU values should change</li>
+  <li>They update automatically every second</li>
+</ol>
+
+<hr />
+
+<h2 id="-troubleshooting">🐛 Troubleshooting</h2>
+
+<h3 id="status-bar-is-empty-or-shows-no-metrics">Status bar is empty or shows no metrics</h3>
+<p><strong>Cause</strong>: psutil not installed
+<strong>Fix</strong>: Already fixed! Just restart the TUI</p>
+
+<h3 id="command-palette-doesnt-open-with-ctrlp">Command palette doesn’t open with Ctrl+P</h3>
+<p><strong>Possible causes</strong>:</p>
+<ol>
+  <li>Terminal is intercepting Ctrl+P</li>
+  <li>Try in a different terminal</li>
+  <li>Check if textual keybindings are working (try other keys like 1-9, A, C, R, Q)</li>
+</ol>
+
+<h3 id="dashboard-looks-plain-no-colorsicons">Dashboard looks plain (no colors/icons)</h3>
+<p><strong>Cause</strong>: Terminal doesn’t support Unicode or colors
+<strong>Fix</strong>: Use a modern terminal (iTerm2, Terminal.app, Windows Terminal, etc.)</p>
+
+<h3 id="module-not-found-errors">“Module not found” errors</h3>
+<p><strong>Fix</strong>: Reinstall the package:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>uv pip <span class="nb">install</span> <span class="nt">-e</span> <span class="nb">.</span> <span class="nt">--force-reinstall</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-whats-new-summary">📊 What’s New Summary</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>What it does</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Command Palette</strong></td>
+      <td>Universal search for all commands (Ctrl+P)</td>
+    </tr>
+    <tr>
+      <td><strong>Performance Monitor</strong></td>
+      <td>Real-time memory/CPU in status bar</td>
+    </tr>
+    <tr>
+      <td><strong>Dashboard Cards</strong></td>
+      <td>Visual stats with icons in Overview</td>
+    </tr>
+    <tr>
+      <td><strong>Enhanced Icons</strong></td>
+      <td>Professional Unicode icons everywhere</td>
+    </tr>
+    <tr>
+      <td><strong>Progress Bars</strong></td>
+      <td>Visual progress in Workflows/Orchestrate</td>
+    </tr>
+    <tr>
+      <td><strong>Smart Formatting</strong></td>
+      <td>Better time display, text truncation</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="-visual-examples">🎨 Visual Examples</h2>
+
+<h3 id="before">Before</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Status: Active
+Workflow: workflow-1 | running | 75 | 1699123456
+</code></pre></div></div>
+
+<h3 id="after">After</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>✓ Active
+▶ workflow-1 │ ⏳ Running │ ███████░░░ 75% │ 5m ago
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-pro-tips">🚀 Pro Tips</h2>
+
+<ol>
+  <li><strong>Quick Navigation</strong>: Press <code class="language-plaintext highlighter-rouge">Ctrl+P</code>, type first few letters, Enter
+    <ul>
+      <li>Faster than pressing number keys!</li>
+    </ul>
+  </li>
+  <li><strong>Watch Performance</strong>: Keep an eye on status bar while working
+    <ul>
+      <li>Catch performance issues early</li>
+    </ul>
+  </li>
+  <li><strong>Dashboard Overview</strong>: Press <code class="language-plaintext highlighter-rouge">1</code> to see everything at a glance
+    <ul>
+      <li>Quick health check of your setup</li>
+    </ul>
+  </li>
+  <li><strong>Fuzzy Search</strong>: Don’t type full words
+    <ul>
+      <li>“agt” finds “Show Agents”</li>
+      <li>“wf” finds “Show Workflows”</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="-success-checklist">✅ Success Checklist</h2>
+
+<p>After launching <code class="language-plaintext highlighter-rouge">claude-ctx tui</code>, verify:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Status bar shows memory and CPU at bottom</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Ctrl+P opens command palette in center</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Typing in command palette filters results</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Pressing 1 shows dashboard with cards</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All views have colorful icons</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance metrics update every second</li>
+</ul>
+
+<p>If all checked, you’re ready to go! 🎉</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

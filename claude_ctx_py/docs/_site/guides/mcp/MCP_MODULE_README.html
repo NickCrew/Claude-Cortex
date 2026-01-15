@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>MCP Module | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="MCP Module" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/mcp/MCP_MODULE_README.html" />
+<meta property="og:url" content="http://localhost:4000/guides/mcp/MCP_MODULE_README.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="MCP Module" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"MCP Module","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/mcp/MCP_MODULE_README.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">MCP Module</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="mcp-module">MCP Module</h1>
+
+<p><strong>Core functionality for managing MCP (Model Context Protocol) servers in Claude Desktop</strong></p>
+
+<h2 id="overview">Overview</h2>
+
+<p>The MCP module (<code class="language-plaintext highlighter-rouge">claude_ctx_py/core/mcp.py</code>) provides a comprehensive toolkit for discovering, validating, and managing MCP servers configured in Claude Desktop. It offers both low-level APIs for programmatic access and high-level CLI-friendly functions.</p>
+
+<h2 id="key-features">Key Features</h2>
+
+<p>✅ <strong>Cross-Platform Support</strong> - Automatic path detection for macOS, Linux, and Windows
+✅ <strong>Server Discovery</strong> - Parse Claude Desktop config and discover all MCP servers
+✅ <strong>Configuration Validation</strong> - Validate server configs with detailed error reporting
+✅ <strong>Documentation Integration</strong> - Automatic discovery of server documentation
+✅ <strong>Config Generation</strong> - Generate JSON snippets for new server configurations
+✅ <strong>Multiple Export Formats</strong> - Export server lists as text, JSON, or Markdown
+✅ <strong>Comprehensive Testing</strong> - 50 unit tests with 100% coverage of core functionality
+✅ <strong>Type Safety</strong> - Full type hints for Python 3.9+
+✅ <strong>Error Handling</strong> - Custom exceptions with recovery hints</p>
+
+<h2 id="quick-start">Quick Start</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.core.mcp</span> <span class="kn">import</span> <span class="n">discover_servers</span><span class="p">,</span> <span class="n">validate_server_config</span>
+
+<span class="c1"># Discover all servers
+</span><span class="n">success</span><span class="p">,</span> <span class="n">servers</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">discover_servers</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">server</span> <span class="ow">in</span> <span class="n">servers</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Found: </span><span class="si">{</span><span class="n">server</span><span class="p">.</span><span class="n">name</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1"># Validate each server
+</span>        <span class="n">valid</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">validate_server_config</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  ✓ Valid configuration"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  ✗ Errors: </span><span class="si">{</span><span class="s">', '</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="module-structure">Module Structure</h2>
+
+<h3 id="core-functions">Core Functions</h3>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">discover_servers()</code></strong> - Find all MCP servers in config</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">get_server_info(name)</code></strong> - Get details about a specific server</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">validate_server_config(name)</code></strong> - Validate server configuration</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">get_server_docs_path(name)</code></strong> - Find server documentation</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">generate_config_snippet(...)</code></strong> - Generate JSON config for a server</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">list_available_servers()</code></strong> - Get list of server names</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">get_server_command_line(name)</code></strong> - Get full command line for server</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">export_servers_list(format)</code></strong> - Export servers in various formats</li>
+</ul>
+
+<h3 id="cli-friendly-functions">CLI-Friendly Functions</h3>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_list()</code></strong> - List all servers with status</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_show(name)</code></strong> - Show detailed server info</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_docs(name)</code></strong> - Display server documentation</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_test(name)</code></strong> - Test server configuration</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_diagnose()</code></strong> - Diagnose all server issues</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">mcp_snippet(name)</code></strong> - Generate config snippet for server</li>
+</ul>
+
+<h3 id="data-classes">Data Classes</h3>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">MCPServerInfo</code></strong> - Server configuration and metadata</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">MCPServerCapabilities</code></strong> - Server capabilities (tools, resources, prompts)</li>
+</ul>
+
+<h3 id="exceptions">Exceptions</h3>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">MCPConfigError</code></strong> - Configuration file errors</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">MCPServerNotFoundError</code></strong> - Server not found errors</li>
+</ul>
+
+<h2 id="platform-support">Platform Support</h2>
+
+<p>The module automatically detects the correct Claude Desktop config location:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>Config Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>macOS</td>
+      <td><code class="language-plaintext highlighter-rouge">~/Library/Application Support/Claude/claude_desktop_config.json</code></td>
+    </tr>
+    <tr>
+      <td>Linux</td>
+      <td><code class="language-plaintext highlighter-rouge">~/.config/Claude/claude_desktop_config.json</code></td>
+    </tr>
+    <tr>
+      <td>Windows</td>
+      <td><code class="language-plaintext highlighter-rouge">%APPDATA%/Claude/claude_desktop_config.json</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="usage-examples">Usage Examples</h2>
+
+<h3 id="validate-all-servers">Validate All Servers</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.core.mcp</span> <span class="kn">import</span> <span class="n">discover_servers</span><span class="p">,</span> <span class="n">validate_server_config</span>
+
+<span class="n">success</span><span class="p">,</span> <span class="n">servers</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">discover_servers</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">server</span> <span class="ow">in</span> <span class="n">servers</span><span class="p">:</span>
+        <span class="n">valid</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">validate_server_config</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s">"✓"</span> <span class="k">if</span> <span class="n">valid</span> <span class="k">else</span> <span class="s">"✗"</span>
+        <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s"> </span><span class="si">{</span><span class="n">server</span><span class="p">.</span><span class="n">name</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"  Error: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="generate-config-for-new-server">Generate Config for New Server</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.core.mcp</span> <span class="kn">import</span> <span class="n">generate_config_snippet</span>
+
+<span class="n">snippet</span> <span class="o">=</span> <span class="n">generate_config_snippet</span><span class="p">(</span>
+    <span class="s">"myserver"</span><span class="p">,</span>
+    <span class="s">"npx"</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s">"-y"</span><span class="p">,</span> <span class="s">"@myorg/mcp-server"</span><span class="p">],</span>
+    <span class="n">env</span><span class="o">=</span><span class="p">{</span><span class="s">"API_KEY"</span><span class="p">:</span> <span class="s">"your-key-here"</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">snippet</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="export-server-list-as-markdown">Export Server List as Markdown</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.core.mcp</span> <span class="kn">import</span> <span class="n">export_servers_list</span>
+
+<span class="n">success</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">export_servers_list</span><span class="p">(</span><span class="n">format_type</span><span class="o">=</span><span class="s">"markdown"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="testing">Testing</h2>
+
+<p>The module includes comprehensive tests:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run all MCP tests</span>
+pytest tests/unit/test_mcp.py <span class="nt">-v</span>
+
+<span class="c"># Run with coverage</span>
+pytest tests/unit/test_mcp.py <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py.core.mcp <span class="nt">--cov-report</span><span class="o">=</span>html
+</code></pre></div></div>
+
+<p><strong>Test Coverage:</strong></p>
+<ul>
+  <li>50 unit tests</li>
+  <li>Platform detection (macOS, Linux, Windows)</li>
+  <li>Server discovery and validation</li>
+  <li>Documentation lookup</li>
+  <li>Config generation</li>
+  <li>Export formats (text, JSON, Markdown)</li>
+  <li>Error handling and edge cases</li>
+  <li>Unicode support</li>
+  <li>Custom exceptions</li>
+</ul>
+
+<h2 id="implementation-details">Implementation Details</h2>
+
+<h3 id="design-principles">Design Principles</h3>
+
+<ol>
+  <li><strong>Cross-Platform First</strong> - Works on macOS, Linux, and Windows out of the box</li>
+  <li><strong>Graceful Degradation</strong> - Missing config or docs don’t cause crashes</li>
+  <li><strong>Type Safety</strong> - Full type hints for IDE support and static analysis</li>
+  <li><strong>Comprehensive Error Handling</strong> - Clear error messages with recovery hints</li>
+  <li><strong>Testing</strong> - Every function has multiple test cases</li>
+</ol>
+
+<h3 id="code-organization">Code Organization</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude_ctx_py/core/mcp.py          # Core implementation (~820 lines)
+tests/unit/test_mcp.py             # Comprehensive tests (~590 lines)
+docs/guides/mcp/MCP_MODULE_USAGE.md           # Usage guide
+docs/MCP_MODULE_README.md          # This file
+</code></pre></div></div>
+
+<h3 id="dependencies">Dependencies</h3>
+
+<ul>
+  <li><strong>Python 3.9+</strong> - Uses modern type hints</li>
+  <li><strong>pathlib</strong> - Cross-platform path handling</li>
+  <li><strong>json</strong> - Config parsing</li>
+  <li><strong>platform</strong> - OS detection</li>
+  <li><strong>dataclasses</strong> - Structured data</li>
+</ul>
+
+<h2 id="future-enhancements">Future Enhancements</h2>
+
+<p>Planned features for future releases:</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Active Capability Discovery</strong> - Query running MCP servers for capabilities</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Health Checks</strong> - Test actual connectivity to servers</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Config Management</strong> - Add/remove/modify configs programmatically</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Server Templates</strong> - Pre-configured templates for common servers</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Auto-Discovery</strong> - Scan for locally installed MCP servers</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Server Monitoring</strong> - Track server health and performance</li>
+</ul>
+
+<h2 id="api-documentation">API Documentation</h2>
+
+<h3 id="function-signatures">Function Signatures</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Discovery
+</span><span class="k">def</span> <span class="nf">discover_servers</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">MCPServerInfo</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">get_server_info</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MCPServerInfo</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
+
+<span class="c1"># Validation
+</span><span class="k">def</span> <span class="nf">validate_server_config</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+
+<span class="c1"># Documentation
+</span><span class="k">def</span> <span class="nf">get_server_docs_path</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">claude_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+
+<span class="c1"># Config Generation
+</span><span class="k">def</span> <span class="nf">generate_config_snippet</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+
+<span class="c1"># Export
+</span><span class="k">def</span> <span class="nf">export_servers_list</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">format_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"text"</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+<span class="c1"># CLI Functions (return exit_code, message)
+</span><span class="k">def</span> <span class="nf">mcp_list</span><span class="p">(</span><span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">mcp_show</span><span class="p">(</span><span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">mcp_docs</span><span class="p">(</span><span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">mcp_test</span><span class="p">(</span><span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">mcp_diagnose</span><span class="p">(</span><span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">mcp_snippet</span><span class="p">(</span><span class="n">server_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h2 id="contributing">Contributing</h2>
+
+<p>To contribute to the MCP module:</p>
+
+<ol>
+  <li>Add new functionality to <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/mcp.py</code></li>
+  <li>Export new functions in <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/__init__.py</code></li>
+  <li>Add tests to <code class="language-plaintext highlighter-rouge">tests/unit/test_mcp.py</code></li>
+  <li>Update documentation in <code class="language-plaintext highlighter-rouge">docs/MCP_MODULE_USAGE.md</code></li>
+  <li>Run tests: <code class="language-plaintext highlighter-rouge">pytest tests/unit/test_mcp.py -v</code></li>
+  <li>Ensure type checking passes: <code class="language-plaintext highlighter-rouge">mypy claude_ctx_py/core/mcp.py</code></li>
+</ol>
+
+<h2 id="license">License</h2>
+
+<p>Part of the claude-ctx-py project. See main project README for license information.</p>
+
+<hr />
+
+<p><strong>Status</strong>: ✅ Production Ready
+<strong>Tests</strong>: 50 passing
+<strong>Python</strong>: 3.9+
+<strong>Platforms</strong>: macOS, Linux, Windows
+<strong>Last Updated</strong>: 2025-01-05</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

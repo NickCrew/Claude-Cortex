@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Test Coverage Plan - Reach 80% Coverage | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Test Coverage Plan - Reach 80% Coverage" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/TEST_COVERAGE_PLAN.html" />
+<meta property="og:url" content="http://localhost:4000/archive/TEST_COVERAGE_PLAN.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Test Coverage Plan - Reach 80% Coverage" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Test Coverage Plan - Reach 80% Coverage","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/TEST_COVERAGE_PLAN.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Test Coverage Plan - Reach 80% Coverage</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="test-coverage-plan---reach-80-coverage">Test Coverage Plan - Reach 80% Coverage</h1>
+
+<p>Complete plan for achieving 80% test coverage across claude-ctx-plugin.</p>
+
+<h2 id="executive-summary">Executive Summary</h2>
+
+<p><strong>Current State:</strong></p>
+<ul>
+  <li>Test coverage: ~15% (estimated, 3 modules with tests out of 32)</li>
+  <li>Modules with tests: <code class="language-plaintext highlighter-rouge">mcp.py</code>, <code class="language-plaintext highlighter-rouge">analytics.py</code>, <code class="language-plaintext highlighter-rouge">composer.py</code>, <code class="language-plaintext highlighter-rouge">versioner.py</code>, <code class="language-plaintext highlighter-rouge">watch.py</code>, <code class="language-plaintext highlighter-rouge">intelligence.py</code>, <code class="language-plaintext highlighter-rouge">metrics.py</code></li>
+  <li>Modules without tests: 25+ files</li>
+</ul>
+
+<p><strong>Target State:</strong></p>
+<ul>
+  <li>Test coverage: 80%+</li>
+  <li>All core modules tested</li>
+  <li>Critical paths covered</li>
+  <li>CI/CD integration with coverage reporting</li>
+</ul>
+
+<p><strong>Timeline:</strong> 4-6 weeks
+<strong>Effort:</strong> 11 GitHub issues created, prioritized by impact</p>
+
+<h2 id="files-created">Files Created</h2>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">.github/ISSUE_TEMPLATE/test_coverage.md</code></strong> - Template for test coverage issues</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">GITHUB_ISSUES_TEST_COVERAGE.md</code></strong> - Detailed analysis of all needed tests</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">CREATE_THESE_ISSUES.md</code></strong> - Copy-paste ready GitHub issue content</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">scripts/create_test_coverage_issues.sh</code></strong> - Automation script for issue creation</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">TEST_COVERAGE_PLAN.md</code></strong> - This document</li>
+</ol>
+
+<h2 id="priority-breakdown">Priority Breakdown</h2>
+
+<h3 id="-priority-high-week-1-2---core-modules">🔴 Priority High (Week 1-2) - Core Modules</h3>
+
+<p><strong>Target:</strong> 5 modules, ~2000 lines of test code</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Module</th>
+      <th>Current</th>
+      <th>Target</th>
+      <th>Complexity</th>
+      <th>Issue #</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/base.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Medium</td>
+      <td>#1</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/agents.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>High</td>
+      <td>#2</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/modes.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Low</td>
+      <td>#3</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/rules.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Low</td>
+      <td>#4</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cli.py</code></td>
+      <td>10%</td>
+      <td>80%</td>
+      <td>Medium</td>
+      <td>#5</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Why Priority High:</strong></p>
+<ul>
+  <li>Core functionality used by all features</li>
+  <li>Entry points (cli.py)</li>
+  <li>Dependency graph critical (agents.py)</li>
+  <li>File operations need validation (base.py, modes.py, rules.py)</li>
+</ul>
+
+<h3 id="-priority-medium-week-3-4---extended-core">🟡 Priority Medium (Week 3-4) - Extended Core</h3>
+
+<p><strong>Target:</strong> 5 modules, ~1500 lines of test code</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Module</th>
+      <th>Current</th>
+      <th>Target</th>
+      <th>Complexity</th>
+      <th>Issue #</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/skills.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Medium</td>
+      <td>#6</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/workflows.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Medium</td>
+      <td>#7</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/context_export.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Low</td>
+      <td>#8</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">suggester.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Medium</td>
+      <td>#9</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cmd_ai.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>High</td>
+      <td>#10</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Why Priority Medium:</strong></p>
+<ul>
+  <li>Important but not critical path</li>
+  <li>Less frequently used features</li>
+  <li>Can leverage patterns from high-priority tests</li>
+</ul>
+
+<h3 id="-priority-low-week-5-6---utilities--tui">🟢 Priority Low (Week 5-6) - Utilities &amp; TUI</h3>
+
+<p><strong>Target:</strong> Select high-value components, ~1000 lines of test code</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Module</th>
+      <th>Current</th>
+      <th>Target</th>
+      <th>Complexity</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">error_utils.py</code></td>
+      <td>0%</td>
+      <td>80%</td>
+      <td>Low</td>
+      <td>Utility functions</td>
+    </tr>
+    <tr>
+      <td>TUI modules</td>
+      <td>0-50%</td>
+      <td>60%</td>
+      <td>High</td>
+      <td>Focus on logic, not rendering</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Why Priority Low:</strong></p>
+<ul>
+  <li>Utilities with simple logic</li>
+  <li>TUI components hard to test (visual)</li>
+  <li>Lower ROI for test effort</li>
+</ul>
+
+<h2 id="issue-creation">Issue Creation</h2>
+
+<h3 id="manual-creation">Manual Creation</h3>
+<p>Use <code class="language-plaintext highlighter-rouge">CREATE_THESE_ISSUES.md</code> - copy and paste each issue into GitHub.</p>
+
+<h3 id="automated-creation">Automated Creation</h3>
+<p>Use the script:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./scripts/create_test_coverage_issues.sh
+</code></pre></div></div>
+
+<p><strong>Prerequisites:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install GitHub CLI</span>
+brew <span class="nb">install </span>gh
+
+<span class="c"># Authenticate</span>
+gh auth login
+
+<span class="c"># Run script</span>
+./scripts/create_test_coverage_issues.sh
+</code></pre></div></div>
+
+<h2 id="testing-strategy">Testing Strategy</h2>
+
+<h3 id="test-structure">Test Structure</h3>
+
+<p><strong>File naming:</strong></p>
+<ul>
+  <li>Implementation: <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/agents.py</code></li>
+  <li>Tests: <code class="language-plaintext highlighter-rouge">tests/unit/test_core_agents.py</code></li>
+</ul>
+
+<p><strong>Test organization:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""Tests for claude_ctx_py.core.agents"""</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">claude_ctx_py.core.agents</span> <span class="kn">import</span> <span class="n">list_agents</span><span class="p">,</span> <span class="n">agent_activate</span>
+
+<span class="k">class</span> <span class="nc">TestListAgents</span><span class="p">:</span>
+    <span class="s">"""Tests for list_agents function"""</span>
+
+    <span class="k">def</span> <span class="nf">test_lists_all_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Should list all agents"""</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">list_agents</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">test_filters_disabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Should filter disabled agents"""</span>
+        <span class="c1"># Test implementation
+</span>
+<span class="k">class</span> <span class="nc">TestAgentActivate</span><span class="p">:</span>
+    <span class="s">"""Tests for agent_activate function"""</span>
+
+    <span class="k">def</span> <span class="nf">test_activates_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Should activate valid agent"""</span>
+        <span class="c1"># Test implementation
+</span>
+    <span class="k">def</span> <span class="nf">test_handles_dependencies</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Should activate dependencies"""</span>
+        <span class="c1"># Test implementation
+</span>
+    <span class="k">def</span> <span class="nf">test_error_on_missing_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""Should raise error for missing agent"""</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="n">raises</span><span class="p">(</span><span class="nb">Exception</span><span class="p">):</span>
+            <span class="n">agent_activate</span><span class="p">(</span><span class="s">"nonexistent"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="coverage-measurement">Coverage Measurement</h3>
+
+<p><strong>Local:</strong></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Install coverage tools</span>
+pip <span class="nb">install </span>pytest pytest-cov
+
+<span class="c"># Run tests with coverage</span>
+pytest <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py <span class="nt">--cov-report</span><span class="o">=</span>term-missing
+
+<span class="c"># Generate HTML report</span>
+pytest <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py <span class="nt">--cov-report</span><span class="o">=</span>html
+open htmlcov/index.html
+</code></pre></div></div>
+
+<p><strong>CI/CD:</strong></p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># .github/workflows/test.yml</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">Tests</span>
+
+<span class="na">on</span><span class="pi">:</span> <span class="pi">[</span><span class="nv">push</span><span class="pi">,</span> <span class="nv">pull_request</span><span class="pi">]</span>
+
+<span class="na">jobs</span><span class="pi">:</span>
+  <span class="na">test</span><span class="pi">:</span>
+    <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
+    <span class="na">steps</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v2</span>
+      <span class="pi">-</span> <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/setup-python@v2</span>
+        <span class="na">with</span><span class="pi">:</span>
+          <span class="na">python-version</span><span class="pi">:</span> <span class="s1">'</span><span class="s">3.9'</span>
+      <span class="pi">-</span> <span class="na">run</span><span class="pi">:</span> <span class="s">pip install -e .[dev]</span>
+      <span class="pi">-</span> <span class="na">run</span><span class="pi">:</span> <span class="s">pytest --cov=claude_ctx_py --cov-report=xml</span>
+      <span class="pi">-</span> <span class="na">uses</span><span class="pi">:</span> <span class="s">codecov/codecov-action@v2</span>
+        <span class="na">with</span><span class="pi">:</span>
+          <span class="na">files</span><span class="pi">:</span> <span class="s">./coverage.xml</span>
+</code></pre></div></div>
+
+<h2 id="test-patterns">Test Patterns</h2>
+
+<h3 id="pattern-1-file-operations">Pattern 1: File Operations</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_file_operation</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Test file creation/modification"""</span>
+    <span class="n">test_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s">"test.md"</span>
+    <span class="n">test_file</span><span class="p">.</span><span class="n">write_text</span><span class="p">(</span><span class="s">"content"</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">your_function</span><span class="p">(</span><span class="n">test_file</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">expected</span>
+</code></pre></div></div>
+
+<h3 id="pattern-2-mocking-external-calls">Pattern 2: Mocking External Calls</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+
+<span class="k">def</span> <span class="nf">test_with_mock</span><span class="p">():</span>
+    <span class="s">"""Test with mocked dependency"""</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s">'claude_ctx_py.core.module.external_call'</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock</span><span class="p">:</span>
+        <span class="n">mock</span><span class="p">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s">"mocked value"</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">your_function</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">mock</span><span class="p">.</span><span class="n">called</span>
+</code></pre></div></div>
+
+<h3 id="pattern-3-fixtures">Pattern 3: Fixtures</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># conftest.py
+</span><span class="o">@</span><span class="n">pytest</span><span class="p">.</span><span class="n">fixture</span>
+<span class="k">def</span> <span class="nf">sample_agent</span><span class="p">():</span>
+    <span class="s">"""Provide sample agent data"""</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">"name"</span><span class="p">:</span> <span class="s">"test-agent"</span><span class="p">,</span>
+        <span class="s">"dependencies"</span><span class="p">:</span> <span class="p">[</span><span class="s">"dep1"</span><span class="p">,</span> <span class="s">"dep2"</span><span class="p">]</span>
+    <span class="p">}</span>
+
+<span class="c1"># test file
+</span><span class="k">def</span> <span class="nf">test_with_fixture</span><span class="p">(</span><span class="n">sample_agent</span><span class="p">):</span>
+    <span class="s">"""Test using fixture"""</span>
+    <span class="k">assert</span> <span class="n">sample_agent</span><span class="p">[</span><span class="s">"name"</span><span class="p">]</span> <span class="o">==</span> <span class="s">"test-agent"</span>
+</code></pre></div></div>
+
+<h3 id="pattern-4-parametrized-tests">Pattern 4: Parametrized Tests</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">pytest</span><span class="p">.</span><span class="n">mark</span><span class="p">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s">"input,expected"</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">"value1"</span><span class="p">,</span> <span class="s">"result1"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"value2"</span><span class="p">,</span> <span class="s">"result2"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"value3"</span><span class="p">,</span> <span class="s">"result3"</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_multiple_inputs</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+    <span class="s">"""Test with multiple inputs"""</span>
+    <span class="k">assert</span> <span class="n">your_function</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected</span>
+</code></pre></div></div>
+
+<h2 id="success-metrics">Success Metrics</h2>
+
+<h3 id="coverage-targets">Coverage Targets</h3>
+<ul>
+  <li><strong>Core modules:</strong> 85%+ coverage</li>
+  <li><strong>CLI:</strong> 80%+ coverage</li>
+  <li><strong>Utilities:</strong> 75%+ coverage</li>
+  <li><strong>TUI:</strong> 60%+ coverage (focus on logic)</li>
+  <li><strong>Overall:</strong> 80%+ coverage</li>
+</ul>
+
+<h3 id="quality-metrics">Quality Metrics</h3>
+<ul>
+  <li>All tests pass on main branch</li>
+  <li>No flaky tests (&gt;95% pass rate)</li>
+  <li>Tests run in &lt;2 minutes</li>
+  <li>Coverage reported in PR checks</li>
+  <li>Badge in README showing coverage</li>
+</ul>
+
+<h3 id="process-metrics">Process Metrics</h3>
+<ul>
+  <li>Issues completed per week: 2-3</li>
+  <li>Code review for all test additions</li>
+  <li>Documentation updated with testing guide</li>
+</ul>
+
+<h2 id="timeline--milestones">Timeline &amp; Milestones</h2>
+
+<h3 id="week-1-2-foundation-priority-high">Week 1-2: Foundation (Priority High)</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #1: core/base.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #2: core/agents.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #3: core/modes.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #4: core/rules.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #5: cli.py expanded tests</li>
+  <li class="task-list-item"><strong>Milestone:</strong> 50% coverage achieved</li>
+</ul>
+
+<h3 id="week-3-4-extension-priority-medium">Week 3-4: Extension (Priority Medium)</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #6: core/skills.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #7: core/workflows.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #8: core/context_export.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #9: suggester.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Issue #10: cmd_ai.py tested</li>
+  <li class="task-list-item"><strong>Milestone:</strong> 70% coverage achieved</li>
+</ul>
+
+<h3 id="week-5-6-polish-priority-low">Week 5-6: Polish (Priority Low)</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />error_utils.py tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Select TUI components tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />CI/CD integration complete</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Coverage badge added</li>
+  <li class="task-list-item"><strong>Milestone:</strong> 80% coverage achieved</li>
+</ul>
+
+<h2 id="resources">Resources</h2>
+
+<h3 id="documentation">Documentation</h3>
+<ul>
+  <li><a href="https://docs.pytest.org/">pytest documentation</a></li>
+  <li><a href="https://pytest-cov.readthedocs.io/">pytest-cov plugin</a></li>
+  <li><a href="https://docs.pytest.org/en/stable/goodpractices.html">Testing best practices</a></li>
+</ul>
+
+<h3 id="reference-tests">Reference Tests</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/test_mcp.py</code> - Comprehensive module testing</li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/test_analytics.py</code> - Class-based testing</li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/test_composer.py</code> - Integration testing</li>
+</ul>
+
+<h3 id="tools">Tools</h3>
+<ul>
+  <li><strong>pytest</strong> - Test framework</li>
+  <li><strong>pytest-cov</strong> - Coverage measurement</li>
+  <li><strong>pytest-xdist</strong> - Parallel test execution</li>
+  <li><strong>pytest-mock</strong> - Mocking utilities</li>
+  <li><strong>codecov</strong> - Coverage reporting service</li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<ol>
+  <li><strong>Create Issues:</strong>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./scripts/create_test_coverage_issues.sh
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Set Up CI/CD:</strong>
+    <ul>
+      <li>Add GitHub Actions workflow for tests</li>
+      <li>Configure codecov integration</li>
+      <li>Add coverage badge to README</li>
+    </ul>
+  </li>
+  <li><strong>Start Testing (Week 1):</strong>
+    <ul>
+      <li>Pick Issue #1 (core/base.py)</li>
+      <li>Create <code class="language-plaintext highlighter-rouge">tests/unit/test_core_base.py</code></li>
+      <li>Write tests for all functions</li>
+      <li>Submit PR with tests</li>
+    </ul>
+  </li>
+  <li><strong>Iterate:</strong>
+    <ul>
+      <li>Complete 2-3 issues per week</li>
+      <li>Review and merge test PRs</li>
+      <li>Update coverage metrics</li>
+      <li>Celebrate milestones! 🎉</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="questions">Questions?</h2>
+
+<ul>
+  <li><strong>How do I run tests?</strong> <code class="language-plaintext highlighter-rouge">pytest</code> or <code class="language-plaintext highlighter-rouge">pytest tests/unit/test_file.py</code></li>
+  <li><strong>How do I check coverage?</strong> <code class="language-plaintext highlighter-rouge">pytest --cov=claude_ctx_py</code></li>
+  <li><strong>Where are the issues?</strong> See <code class="language-plaintext highlighter-rouge">CREATE_THESE_ISSUES.md</code></li>
+  <li><strong>Can I contribute?</strong> Yes! Pick an issue labeled <code class="language-plaintext highlighter-rouge">good-first-issue</code></li>
+</ul>
+
+<hr />
+
+<p><strong>Status:</strong> Plan ready, issues ready to create
+<strong>Last Updated:</strong> 2025-11-05</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

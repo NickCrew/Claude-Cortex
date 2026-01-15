@@ -1,0 +1,25 @@
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/json-2.18.0/ext/json/ext/parser
+/opt/homebrew/opt/ruby/bin/ruby extconf.rb
+checking for rb_enc_interned_str() in ruby/encoding.h... yes
+checking for rb_str_to_interned_str() in ruby.h... yes
+checking for rb_hash_new_capa() in ruby.h... yes
+checking for rb_hash_bulk_insert() in ruby.h... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+checking for arm_neon.h... yes
+checking for cpuid.h... no
+creating Makefile
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/json-2.18.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-jprzja sitelibdir\=./.gem.20251230-60566-jprzja clean
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/json-2.18.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-jprzja sitelibdir\=./.gem.20251230-60566-jprzja
+compiling parser.c
+linking shared-object json/ext/parser.bundle
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/json-2.18.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-jprzja sitelibdir\=./.gem.20251230-60566-jprzja install
+/usr/bin/install -c -m 0755 parser.bundle ./.gem.20251230-60566-jprzja/json/ext
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/json-2.18.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-jprzja sitelibdir\=./.gem.20251230-60566-jprzja clean

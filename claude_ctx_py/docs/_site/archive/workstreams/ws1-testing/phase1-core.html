@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Phase 1: Core Module Testing | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Phase 1: Core Module Testing" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/workstreams/ws1-testing/phase1-core.html" />
+<meta property="og:url" content="http://localhost:4000/archive/workstreams/ws1-testing/phase1-core.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Phase 1: Core Module Testing" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Phase 1: Core Module Testing","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/workstreams/ws1-testing/phase1-core.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Phase 1: Core Module Testing</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="phase-1-core-module-testing">Phase 1: Core Module Testing</h1>
+
+<h2 id="objective">Objective</h2>
+<p>Establish comprehensive test coverage for critical business logic and core modules, achieving 40% overall coverage.</p>
+
+<h2 id="timeline">Timeline</h2>
+<ul>
+  <li><strong>Start</strong>: Nov 27, 2025</li>
+  <li><strong>Target End</strong>: Dec 11, 2025 (2 weeks)</li>
+  <li><strong>Status</strong>: 🟡 In Progress</li>
+</ul>
+
+<h2 id="coverage-targets">Coverage Targets</h2>
+
+<h3 id="overall-target-40-coverage">Overall Target: 40% Coverage</h3>
+
+<h3 id="per-module-targets-minimum-60-each">Per-Module Targets (Minimum 60% each)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Module</th>
+      <th>Current</th>
+      <th>Target</th>
+      <th>Priority</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/agents.py</code></td>
+      <td>TBD</td>
+      <td>70%</td>
+      <td>P0</td>
+      <td>🔴 Not Started</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/base.py</code></td>
+      <td>TBD</td>
+      <td>70%</td>
+      <td>P0</td>
+      <td>🔴 Not Started</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">intelligence.py</code></td>
+      <td>~40%</td>
+      <td>80%</td>
+      <td>P0</td>
+      <td>🟡 Partial</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">metrics.py</code></td>
+      <td>~30%</td>
+      <td>70%</td>
+      <td>P1</td>
+      <td>🟡 Partial</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cli.py</code></td>
+      <td>TBD</td>
+      <td>60%</td>
+      <td>P1</td>
+      <td>🔴 Not Started</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">analytics.py</code></td>
+      <td>TBD</td>
+      <td>70%</td>
+      <td>P1</td>
+      <td>🔴 Not Started</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">versioner.py</code></td>
+      <td>~25%</td>
+      <td>65%</td>
+      <td>P2</td>
+      <td>🟡 Partial</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/composer.py</code></td>
+      <td>TBD</td>
+      <td>65%</td>
+      <td>P2</td>
+      <td>🔴 Not Started</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">core/config.py</code></td>
+      <td>TBD</td>
+      <td>70%</td>
+      <td>P2</td>
+      <td>🔴 Not Started</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="high-priority-modules-p0">High-Priority Modules (P0)</h2>
+
+<h3 id="1-coreagentspy---agent-system-backbone">1. core/agents.py - Agent System Backbone</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/core/test_agents_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 70%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent lifecycle (initialization, activation, deactivation)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent configuration loading and validation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent state management</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent communication protocols</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent error handling and recovery</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent metadata and capabilities</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Concurrent agent operations</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Agent discovery and registration</li>
+</ul>
+
+<p><strong>Test Scenarios</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Core functionality
+</span><span class="o">-</span> <span class="n">test_agent_initialization</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_activation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_deactivation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_config_load</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_config_validation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_state_transitions</span><span class="p">()</span>
+
+<span class="c1"># Error handling
+</span><span class="o">-</span> <span class="n">test_agent_invalid_config</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_activation_failure</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_concurrent_operations</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_state_corruption_recovery</span><span class="p">()</span>
+
+<span class="c1"># Edge cases
+</span><span class="o">-</span> <span class="n">test_agent_multiple_activations</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_missing_dependencies</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_agent_circular_dependencies</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All public methods tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error paths covered</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />State transitions validated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Concurrent operations safe</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Configuration validated</li>
+</ul>
+
+<hr />
+
+<h3 id="2-corebasepy---base-classes--utilities">2. core/base.py - Base Classes &amp; Utilities</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/core/test_base_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 70%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Base class initialization</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Abstract method enforcement</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Utility function correctness</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Type validation and coercion</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error handling patterns</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Common patterns and mixins</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Serialization/deserialization</li>
+</ul>
+
+<p><strong>Test Scenarios</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Base classes
+</span><span class="o">-</span> <span class="n">test_base_class_instantiation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_abstract_method_enforcement</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_inheritance_patterns</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_mixin_composition</span><span class="p">()</span>
+
+<span class="c1"># Utilities
+</span><span class="o">-</span> <span class="n">test_utility_functions</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_type_validation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_type_coercion</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_serialization</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_deserialization</span><span class="p">()</span>
+
+<span class="c1"># Error handling
+</span><span class="o">-</span> <span class="n">test_invalid_types</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_missing_required_fields</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_validation_errors</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All base classes tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All utility functions tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Type safety validated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error messages clear</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Serialization round-trips</li>
+</ul>
+
+<hr />
+
+<h3 id="3-intelligencepy---ai-intelligence-layer">3. intelligence.py - AI Intelligence Layer</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/test_intelligence_comprehensive.py</code>
+<strong>Current Coverage</strong>: ~40% (existing tests)
+<strong>Target</strong>: 80%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />SessionContext creation and validation (existing)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />AgentRecommendation logic (existing)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />WorkflowPrediction accuracy</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />PatternLearner training and prediction</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />ContextDetector detection logic</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />IntelligentAgent orchestration</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Pattern storage and retrieval</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Learning algorithm validation</li>
+</ul>
+
+<p><strong>Additional Test Scenarios Needed</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Pattern learning
+</span><span class="o">-</span> <span class="n">test_pattern_learner_training</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_pattern_learner_prediction</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_pattern_learner_model_persistence</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_pattern_learner_incremental_learning</span><span class="p">()</span>
+
+<span class="c1"># Context detection
+</span><span class="o">-</span> <span class="n">test_context_detector_file_patterns</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_context_detector_directory_analysis</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_context_detector_framework_detection</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_context_detector_confidence_scoring</span><span class="p">()</span>
+
+<span class="c1"># Integration
+</span><span class="o">-</span> <span class="n">test_intelligent_agent_recommendation_flow</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_intelligent_agent_workflow_prediction</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_intelligent_agent_pattern_application</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Acceptance Criteria</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All dataclasses tested</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Pattern learning validated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Context detection accurate</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Recommendations sensible</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance acceptable</li>
+</ul>
+
+<hr />
+
+<h2 id="medium-priority-modules-p1">Medium-Priority Modules (P1)</h2>
+
+<h3 id="4-metricspy---metrics-collection">4. metrics.py - Metrics Collection</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/test_metrics_comprehensive.py</code>
+<strong>Current Coverage</strong>: ~30% (existing tests)
+<strong>Target</strong>: 70%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />Basic metric collection (existing)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Metric aggregation and rollups</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Metric persistence and retrieval</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Metric export formats</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance metric calculation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Metric validation and sanitization</li>
+</ul>
+
+<p><strong>Additional Test Scenarios</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">-</span> <span class="n">test_metric_collection_aggregation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_metric_persistence</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_metric_export_json</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_metric_export_prometheus</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_performance_metric_calculation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_metric_validation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_concurrent_metric_updates</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="5-clipy---cli-command-handlers">5. cli.py - CLI Command Handlers</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/test_cli_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 60%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Command parsing and validation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Command execution flow</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error handling and user feedback</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Help text generation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Command composition</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Flag/option handling</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Interactive prompts</li>
+</ul>
+
+<p><strong>Test Scenarios</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">-</span> <span class="n">test_command_parsing</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_command_execution</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_invalid_command_handling</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_help_text_generation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_flag_handling</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_option_validation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_interactive_prompt</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_command_chaining</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="6-analyticspy---analytics-engine">6. analytics.py - Analytics Engine</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/test_analytics_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 70%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Event tracking</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Usage pattern analysis</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance analysis</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Report generation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Data aggregation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Privacy and sanitization</li>
+</ul>
+
+<p><strong>Test Scenarios</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">-</span> <span class="n">test_event_tracking</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_usage_pattern_detection</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_performance_analysis</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_report_generation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_data_aggregation</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_privacy_sanitization</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">test_analytics_export</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="lower-priority-modules-p2">Lower-Priority Modules (P2)</h2>
+
+<h3 id="7-versionerpy---version-management">7. versioner.py - Version Management</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/test_versioner.py</code> (expand existing)
+<strong>Current Coverage</strong>: ~25%
+<strong>Target</strong>: 65%</p>
+
+<p><strong>Additional Coverage Needed</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Version comparison logic</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Migration handling</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Compatibility checking</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Version constraints</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Upgrade/downgrade paths</li>
+</ul>
+
+<hr />
+
+<h3 id="8-corecomposerpy---component-composition">8. core/composer.py - Component Composition</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/core/test_composer_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 65%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Component registration</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Dependency resolution</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Composition validation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Lifecycle management</li>
+</ul>
+
+<hr />
+
+<h3 id="9-coreconfigpy---configuration-management">9. core/config.py - Configuration Management</h3>
+<p><strong>Test File</strong>: <code class="language-plaintext highlighter-rouge">tests/unit/core/test_config_comprehensive.py</code>
+<strong>Current Coverage</strong>: Unknown
+<strong>Target</strong>: 70%</p>
+
+<p><strong>Critical Test Areas</strong>:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Config loading from files</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Config validation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Config merging</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Environment variable handling</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Default values</li>
+</ul>
+
+<hr />
+
+<h2 id="test-infrastructure-setup">Test Infrastructure Setup</h2>
+
+<h3 id="required-test-directories">Required Test Directories</h3>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>tests/unit/core/          <span class="c"># Core module tests</span>
+tests/unit/core/__init__.py
+tests/unit/core/test_agents_comprehensive.py
+tests/unit/core/test_base_comprehensive.py
+tests/unit/core/test_composer_comprehensive.py
+tests/unit/core/test_config_comprehensive.py
+</code></pre></div></div>
+
+<h3 id="shared-fixtures-testsconftestpy">Shared Fixtures (tests/conftest.py)</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Mock agent configurations</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Temporary file system fixtures</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Mock intelligence patterns</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance timing fixtures</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Mock CLI environments</li>
+</ul>
+
+<h3 id="test-utilities-needed">Test Utilities Needed</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># tests/utils/test_helpers.py
+</span><span class="o">-</span> <span class="n">create_mock_agent</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">create_mock_session_context</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">create_temp_workspace</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">assert_metric_valid</span><span class="p">()</span>
+<span class="o">-</span> <span class="n">assert_coverage_threshold</span><span class="p">()</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="immediate-actions-this-session">Immediate Actions (This Session)</h2>
+
+<h3 id="1-fix-test-collection-error">1. Fix Test Collection Error</h3>
+<p><strong>Priority</strong>: P0
+<strong>Status</strong>: 🔴 Blocked</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Current error: 1 error in test collection</span>
+<span class="c"># Action: Identify and fix collection error</span>
+pytest <span class="nt">--collect-only</span> tests/ 2&gt;&amp;1 | <span class="nb">grep</span> <span class="nt">-A</span> 10 <span class="s2">"ERROR"</span>
+</code></pre></div></div>
+
+<h3 id="2-create-core-test-directory-structure">2. Create Core Test Directory Structure</h3>
+<p><strong>Priority</strong>: P0
+<strong>Status</strong>: 🔴 Not Started</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> tests/unit/core
+<span class="nb">touch </span>tests/unit/core/__init__.py
+<span class="nb">touch </span>tests/unit/core/.gitkeep
+</code></pre></div></div>
+
+<h3 id="3-create-skeleton-test-files">3. Create Skeleton Test Files</h3>
+<p><strong>Priority</strong>: P0
+<strong>Status</strong>: 🔴 Not Started</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/core/test_agents_comprehensive.py</code></li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/core/test_base_comprehensive.py</code></li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/core/test_config_comprehensive.py</code></li>
+</ul>
+
+<h3 id="4-baseline-coverage-measurement">4. Baseline Coverage Measurement</h3>
+<p><strong>Priority</strong>: P1
+<strong>Status</strong>: 🔴 Not Started</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run coverage for each core module</span>
+pytest <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py.core.agents <span class="nt">--cov-report</span><span class="o">=</span>term-missing
+pytest <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py.core.base <span class="nt">--cov-report</span><span class="o">=</span>term-missing
+pytest <span class="nt">--cov</span><span class="o">=</span>claude_ctx_py.intelligence <span class="nt">--cov-report</span><span class="o">=</span>term-missing
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="quality-gates-phase-1-exit-criteria">Quality Gates (Phase 1 Exit Criteria)</h2>
+
+<h3 id="coverage-gates">Coverage Gates</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Overall coverage ≥40%</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Core modules (P0) ≥70% each</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Medium priority (P1) ≥60% each</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />No module &lt;50% coverage</li>
+</ul>
+
+<h3 id="test-quality-gates">Test Quality Gates</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All tests passing (100% pass rate)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />No flaky tests (3 consecutive runs)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test execution time &lt;2 minutes</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />No test collection errors</li>
+</ul>
+
+<h3 id="code-quality-gates">Code Quality Gates</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All new test code type-checked (mypy)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All new test code linted (ruff)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test code follows patterns</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test code documented</li>
+</ul>
+
+<h3 id="documentation-gates">Documentation Gates</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All test modules have docstrings</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Complex test scenarios documented</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test data and fixtures documented</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Coverage gaps documented</li>
+</ul>
+
+<hr />
+
+<h2 id="progress-tracking">Progress Tracking</h2>
+
+<h3 id="daily-metrics">Daily Metrics</h3>
+<p>Track daily:</p>
+<ul>
+  <li>Overall coverage %</li>
+  <li>Module-specific coverage %</li>
+  <li>Test count</li>
+  <li>Pass rate</li>
+  <li>Execution time</li>
+</ul>
+
+<h3 id="weekly-review">Weekly Review</h3>
+<p>Review weekly:</p>
+<ul>
+  <li>Progress vs targets</li>
+  <li>Blockers and risks</li>
+  <li>Adjust priorities</li>
+  <li>Plan next week</li>
+</ul>
+
+<hr />
+
+<h2 id="risk--mitigation">Risk &amp; Mitigation</h2>
+
+<h3 id="risk-low-baseline-coverage">Risk: Low Baseline Coverage</h3>
+<p><strong>Impact</strong>: More work than estimated
+<strong>Mitigation</strong>: Focus on P0 first, extend timeline if needed</p>
+
+<h3 id="risk-test-collection-error">Risk: Test Collection Error</h3>
+<p><strong>Impact</strong>: Blocks new test creation
+<strong>Mitigation</strong>: Fix immediately, high priority</p>
+
+<h3 id="risk-complex-modules-hard-to-test">Risk: Complex Modules Hard to Test</h3>
+<p><strong>Impact</strong>: Lower coverage than target
+<strong>Mitigation</strong>: Use mocking, focus on critical paths</p>
+
+<h3 id="risk-performance-degradation">Risk: Performance Degradation</h3>
+<p><strong>Impact</strong>: Slow test suite
+<strong>Mitigation</strong>: Monitor execution time, optimize slow tests</p>
+
+<hr />
+
+<p><strong>Status</strong>: 🟡 Phase 1 In Progress
+<strong>Last Updated</strong>: Nov 27, 2025
+<strong>Next Review</strong>: Dec 4, 2025</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Modes | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Modes" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/modes.html" />
+<meta property="og:url" content="http://localhost:4000/guides/modes.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Modes" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Modes","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/modes.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="modes">Modes</h1>
+
+<p>Modes are opinionated behavioral presets that shape how Cortex works: planning depth, tone, trade-off bias, and emphasis on speed vs quality. They are designed to be lightweight, composable, and easy to toggle per task.</p>
+
+<h2 id="how-modes-activate">How Modes Activate</h2>
+
+<p>You can enable modes in three ways:</p>
+
+<ol>
+  <li>
+    <p><strong>CLI</strong></p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx mode list
+claude-ctx mode status
+claude-ctx mode activate Architect
+claude-ctx mode deactivate Architect
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>TUI</strong></p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+<span class="c"># Press 3 for Modes, Space to toggle</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Flags</strong></p>
+
+    <p>Add mode flags to <code class="language-plaintext highlighter-rouge">FLAGS.md</code> (for example <code class="language-plaintext highlighter-rouge">--brainstorm</code> or <code class="language-plaintext highlighter-rouge">--token-efficient</code>) to auto-activate modes on load.</p>
+  </li>
+</ol>
+
+<p>Active state is stored in <code class="language-plaintext highlighter-rouge">.active-modes</code>, which makes mode activation consistent across CLI, TUI, and export. Use <code class="language-plaintext highlighter-rouge">claude-ctx setup migrate</code> to move legacy <code class="language-plaintext highlighter-rouge">CLAUDE.md</code> references into <code class="language-plaintext highlighter-rouge">.active-modes</code>.</p>
+
+<h2 id="mode-catalog">Mode Catalog</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mode</th>
+      <th>Purpose</th>
+      <th>Best For</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Amphetamine</strong></td>
+      <td>Maximum-velocity MVP prototyping</td>
+      <td>Hackathons, spikes, proof-of-concepts</td>
+    </tr>
+    <tr>
+      <td><strong>Architect</strong></td>
+      <td>Strategic system design and trade-offs</td>
+      <td>Architecture planning, large refactors</td>
+    </tr>
+    <tr>
+      <td><strong>Brainstorming</strong></td>
+      <td>Collaborative discovery and exploration</td>
+      <td>Vague requirements, early ideation</td>
+    </tr>
+    <tr>
+      <td><strong>Idea_Lab</strong></td>
+      <td>Timeboxed option generation</td>
+      <td>Rapid alternatives and experiments</td>
+    </tr>
+    <tr>
+      <td><strong>Introspection</strong></td>
+      <td>Meta-cognitive reflection</td>
+      <td>Root cause analysis, process review</td>
+    </tr>
+    <tr>
+      <td><strong>Security_Audit</strong></td>
+      <td>Security-first review mindset</td>
+      <td>Threat modeling, hardening passes</td>
+    </tr>
+    <tr>
+      <td><strong>Super_Saiyan</strong></td>
+      <td>Visual excellence &amp; UX polish</td>
+      <td>UI work across web/TUI/docs</td>
+    </tr>
+    <tr>
+      <td><strong>Teacher</strong></td>
+      <td>Educational explanations</td>
+      <td>Onboarding, mentoring, walkthroughs</td>
+    </tr>
+    <tr>
+      <td><strong>Token_Efficiency</strong></td>
+      <td>Concise, token-aware responses</td>
+      <td>Long sessions, cost control</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="super-saiyan-variants">Super Saiyan Variants</h3>
+
+<p><code class="language-plaintext highlighter-rouge">Super_Saiyan</code> includes platform-specific extensions in <code class="language-plaintext highlighter-rouge">modes/supersaiyan/</code> for CLI, TUI, docs, and detection heuristics. Start with the core mode, then apply the variant that matches your target surface.</p>
+
+<h2 id="mode-metadata-conflicts--dependencies">Mode Metadata, Conflicts &amp; Dependencies</h2>
+
+<p>Modes can include YAML frontmatter metadata to declare:</p>
+
+<ul>
+  <li><strong>conflicts</strong> (modes that should not run together)</li>
+  <li><strong>dependencies</strong> (required modes or rule modules)</li>
+  <li><strong>group</strong> (mutually exclusive groups)</li>
+  <li><strong>priority</strong> (auto-deactivation vs prompt)</li>
+  <li><strong>auto_activate_triggers</strong> (contexts that can switch modes automatically)</li>
+</ul>
+
+<p>The CLI and TUI surface conflicts and dependency warnings when activating a mode so you can resolve overlaps intentionally.</p>
+
+<h2 id="tips">Tips</h2>
+
+<ul>
+  <li>Use <strong>Architect</strong> for multi-phase system work, <strong>Amphetamine</strong> for fast spikes.</li>
+  <li>Combine <strong>Teacher</strong> with <strong>Brainstorming</strong> for guided discovery sessions.</li>
+  <li>Turn on <strong>Token_Efficiency</strong> when context size is growing.</li>
+</ul>
+
+<hr />
+
+<p><strong>Related guides</strong>: <a href="asset-manager.html">Asset Manager</a> • <a href="worktrees.html">Worktree Manager</a> • <a href="FLAGS_MANAGEMENT.html">Flags Management</a></p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Memory Vault System: Technical Architecture | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Memory Vault System: Technical Architecture" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/development/MEMORY_VAULT_ARCHITECTURE.html" />
+<meta property="og:url" content="http://localhost:4000/guides/development/MEMORY_VAULT_ARCHITECTURE.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Memory Vault System: Technical Architecture" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Memory Vault System: Technical Architecture","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/development/MEMORY_VAULT_ARCHITECTURE.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Memory Vault System: Technical Architecture</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="memory-vault-system-technical-architecture">Memory Vault System: Technical Architecture</h1>
+
+<p><strong>Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2025-12-05<br />
+<strong>Status</strong>: Current</p>
+
+<hr />
+
+<h2 id="table-of-contents">Table of Contents</h2>
+
+<ol>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#architecture">Architecture</a></li>
+  <li><a href="#module-structure">Module Structure</a></li>
+  <li><a href="#note-types">Note Types</a></li>
+  <li><a href="#cli-commands">CLI Commands</a></li>
+  <li><a href="#tui-integration">TUI Integration</a></li>
+  <li><a href="#auto-capture-system">Auto-Capture System</a></li>
+  <li><a href="#search--retrieval">Search &amp; Retrieval</a></li>
+  <li><a href="#data-model">Data Model</a></li>
+  <li><a href="#integration-patterns">Integration Patterns</a></li>
+  <li><a href="#configuration">Configuration</a></li>
+  <li><a href="#development-guide">Development Guide</a></li>
+</ol>
+
+<hr />
+
+<h2 id="overview">Overview</h2>
+
+<h3 id="purpose">Purpose</h3>
+
+<p>The <strong>Memory Vault</strong> provides persistent, structured knowledge capture for:</p>
+<ul>
+  <li>✅ Domain knowledge and gotchas</li>
+  <li>✅ Project context and relationships</li>
+  <li>✅ Session summaries and decisions</li>
+  <li>✅ Bug fixes and solutions</li>
+  <li>✅ Auto-capture of work sessions</li>
+</ul>
+
+<h3 id="key-characteristics">Key Characteristics</h3>
+
+<ul>
+  <li><strong>Markdown-Native</strong>: All notes stored as plain markdown for portability</li>
+  <li><strong>Type-Safe</strong>: Structured templates for each note type</li>
+  <li><strong>Search-Optimized</strong>: Full-text search with snippet extraction</li>
+  <li><strong>MCP-Compatible</strong>: Integrates with basic-memory MCP server</li>
+  <li><strong>CLI &amp; TUI</strong>: Dual interface for capture and browsing</li>
+  <li><strong>Auto-Capture</strong>: Optional automatic session summary generation</li>
+</ul>
+
+<h3 id="design-philosophy">Design Philosophy</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Capture &gt; Perfect │ Search &gt; Browse │ Context &gt; Detail
+</code></pre></div></div>
+
+<p>The vault prioritizes <strong>quick capture</strong> over perfect formatting, <strong>powerful search</strong> over manual browsing, and <strong>sufficient context</strong> over exhaustive detail.</p>
+
+<hr />
+
+<h2 id="architecture">Architecture</h2>
+
+<h3 id="high-level-architecture">High-Level Architecture</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────────────────────────────────────────────┐
+│ Interfaces                                              │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  CLI Commands          TUI View (Key M)                │
+│  ├─ remember           ├─ Browser                      │
+│  ├─ project            ├─ Search                       │
+│  ├─ capture            └─ Preview                      │
+│  ├─ fix                                                │
+│  ├─ auto                                               │
+│  ├─ list                                               │
+│  └─ search                                             │
+│                                                         │
+└────────────┬────────────────────────────────────────────┘
+             ↓
+┌─────────────────────────────────────────────────────────┐
+│ Memory Module (claude_ctx_py/memory/)                   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  capture.py      → CLI entry points, main API          │
+│  notes.py        → CRUD operations, path management    │
+│  templates.py    → Markdown template rendering         │
+│  search.py       → Full-text search, tag search        │
+│  config.py       → Configuration, vault path           │
+│                                                         │
+└────────────┬────────────────────────────────────────────┘
+             ↓
+┌─────────────────────────────────────────────────────────┐
+│ Storage Layer                                           │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ~/basic-memory/  (or $CLAUDE_CTX_MEMORY_VAULT)        │
+│  ├─ knowledge/    → Domain knowledge notes             │
+│  ├─ projects/     → Project context                    │
+│  ├─ sessions/     → Session summaries                  │
+│  └─ fixes/        → Bug fix documentation              │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="data-flow-capturing-a-note">Data Flow: Capturing a Note</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. User Input
+   └─ CLI: claude-ctx memory remember "FastAPI uses starlette"
+      TUI: Key M → New Note → Enter details
+
+2. Capture Module (capture.py)
+   └─ memory_remember(text, topic, tags)
+      ├─ Extract topic from text (if not provided)
+      ├─ Check if note exists
+      └─ Render template
+
+3. Template Rendering (templates.py)
+   └─ render_knowledge_note(topic, summary, details, tags)
+      └─ Returns formatted markdown
+
+4. Note Creation (notes.py)
+   └─ create_note(NoteType.KNOWLEDGE, topic, content)
+      ├─ Slugify topic → "fastapi-starlette"
+      ├─ Get note path → ~/basic-memory/knowledge/fastapi-starlette.md
+      └─ Write file
+
+5. Result
+   └─ Return (path, created_flag)
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="module-structure">Module Structure</h2>
+
+<h3 id="file-organization">File Organization</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude_ctx_py/memory/
+├── __init__.py              # Package exports
+├── capture.py               # CLI entry points (428 lines)
+├── config.py                # Configuration management (247 lines)
+├── notes.py                 # CRUD operations (408 lines)
+├── search.py                # Search implementation (350 lines)
+└── templates.py             # Template rendering (423 lines)
+</code></pre></div></div>
+
+<h3 id="module-responsibilities">Module Responsibilities</h3>
+
+<p><strong>capture.py</strong> - Public API</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">memory_remember()</code> - Quick knowledge capture</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_project()</code> - Project context</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_capture()</code> - Session summary</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_fix()</code> - Bug fix documentation</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_auto()</code> - Auto-capture toggle</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_list()</code> - List notes</li>
+  <li><code class="language-plaintext highlighter-rouge">memory_search()</code> - Search notes</li>
+  <li><code class="language-plaintext highlighter-rouge">get_vault_stats()</code> - Statistics</li>
+</ul>
+
+<p><strong>notes.py</strong> - Core CRUD</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">create_note()</code> - Create/update note</li>
+  <li><code class="language-plaintext highlighter-rouge">read_note()</code> - Read note content</li>
+  <li><code class="language-plaintext highlighter-rouge">list_notes()</code> - List with filtering</li>
+  <li><code class="language-plaintext highlighter-rouge">delete_note()</code> - Delete note</li>
+  <li><code class="language-plaintext highlighter-rouge">note_exists()</code> - Check existence</li>
+  <li><code class="language-plaintext highlighter-rouge">slugify()</code> - Name normalization</li>
+  <li><code class="language-plaintext highlighter-rouge">extract_topic_from_text()</code> - Topic extraction</li>
+</ul>
+
+<p><strong>templates.py</strong> - Rendering</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">render_knowledge_note()</code> - Domain knowledge template</li>
+  <li><code class="language-plaintext highlighter-rouge">render_project_note()</code> - Project context template</li>
+  <li><code class="language-plaintext highlighter-rouge">render_session_note()</code> - Session summary template</li>
+  <li><code class="language-plaintext highlighter-rouge">render_fix_note()</code> - Bug fix template</li>
+  <li><code class="language-plaintext highlighter-rouge">append_to_knowledge_note()</code> - Update existing</li>
+</ul>
+
+<p><strong>search.py</strong> - Discovery</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">search_notes()</code> - Full-text search</li>
+  <li><code class="language-plaintext highlighter-rouge">search_by_tags()</code> - Tag-based filtering</li>
+  <li><code class="language-plaintext highlighter-rouge">get_all_tags()</code> - Tag enumeration</li>
+</ul>
+
+<p><strong>config.py</strong> - Settings</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">get_config()</code> - Load configuration</li>
+  <li><code class="language-plaintext highlighter-rouge">save_config()</code> - Persist configuration</li>
+  <li><code class="language-plaintext highlighter-rouge">get_vault_path()</code> - Resolve vault location</li>
+  <li><code class="language-plaintext highlighter-rouge">ensure_vault_structure()</code> - Directory setup</li>
+  <li><code class="language-plaintext highlighter-rouge">is_auto_capture_enabled()</code> - Check auto-capture</li>
+  <li><code class="language-plaintext highlighter-rouge">set_auto_capture_enabled()</code> - Toggle auto-capture</li>
+</ul>
+
+<hr />
+
+<h2 id="note-types">Note Types</h2>
+
+<h3 id="1-knowledge-notes">1. Knowledge Notes</h3>
+
+<p><strong>Purpose</strong>: Domain knowledge, gotchas, corrections</p>
+
+<p><strong>Template Structure</strong>:</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># Topic Name</span>
+
+<span class="gu">## Summary</span>
+One-line description of what this is about
+
+<span class="gu">## Details</span>
+<span class="p">-</span> Key fact 1
+<span class="p">-</span> Key fact 2
+<span class="p">-</span> Correction or gotcha
+
+<span class="gu">## Related</span>
+<span class="p">-</span> <span class="p">[</span><span class="nv">Related Topic</span><span class="p">](</span><span class="sx">../knowledge/related-topic.md</span><span class="p">)</span>
+<span class="p">
+---</span>
+tags: #knowledge #python #async
+captured: 2025-12-05
+updated: 2025-12-05
+</code></pre></div></div>
+
+<p><strong>CLI Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Quick capture (auto-extracts topic)</span>
+claude-ctx memory remember <span class="s2">"FastAPI uses Starlette under the hood"</span>
+
+<span class="c"># Explicit topic</span>
+claude-ctx memory remember <span class="s2">"Uses ASGI"</span> <span class="nt">--topic</span> <span class="s2">"fastapi"</span>
+
+<span class="c"># With tags</span>
+claude-ctx memory remember <span class="s2">"Supports async/await"</span> <span class="nt">--topic</span> <span class="s2">"python-async"</span> <span class="nt">--tags</span> <span class="s2">"python,async"</span>
+</code></pre></div></div>
+
+<p><strong>Update Behavior</strong>: If note exists, appends to Details section</p>
+
+<h3 id="2-project-notes">2. Project Notes</h3>
+
+<p><strong>Purpose</strong>: Project context, architecture, relationships</p>
+
+<p><strong>Template Structure</strong>:</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># Project Name</span>
+
+<span class="gu">## Purpose</span>
+What this project does
+
+<span class="gu">## Repository</span>
+<span class="p">-</span> Path: <span class="sb">`/path/to/repo`</span>
+<span class="p">-</span> Remote: https://github.com/org/repo
+
+<span class="gu">## Architecture</span>
+Key components and relationships
+
+<span class="gu">## Related Projects</span>
+<span class="p">-</span> <span class="p">[</span><span class="nv">other-project</span><span class="p">](</span><span class="sx">../projects/other-project.md</span><span class="p">)</span> - Dependency
+<span class="p">-</span> <span class="p">[</span><span class="nv">service-x</span><span class="p">](</span><span class="sx">../projects/service-x.md</span><span class="p">)</span> - Consumer
+
+<span class="gu">## Key Files</span>
+<span class="p">-</span> <span class="sb">`src/main.py`</span> - Entry point
+<span class="p">-</span> <span class="sb">`config/settings.py`</span> - Configuration
+
+<span class="gu">## Gotchas</span>
+<span class="p">-</span> Thing to remember when working on this
+<span class="p">
+---</span>
+tags: #project #backend #python
+captured: 2025-12-05
+</code></pre></div></div>
+
+<p><strong>CLI Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Minimal</span>
+claude-ctx memory project <span class="s2">"my-api"</span> <span class="nt">--purpose</span> <span class="s2">"REST API for users"</span>
+
+<span class="c"># Full context</span>
+claude-ctx memory project <span class="s2">"my-api"</span> <span class="se">\</span>
+  <span class="nt">--path</span> <span class="s2">"/Users/me/projects/my-api"</span> <span class="se">\</span>
+  <span class="nt">--purpose</span> <span class="s2">"REST API for user management"</span> <span class="se">\</span>
+  <span class="nt">--related</span> <span class="s2">"auth-service,user-db"</span>
+</code></pre></div></div>
+
+<h3 id="3-session-notes">3. Session Notes</h3>
+
+<p><strong>Purpose</strong>: Work session summaries, decisions, implementations</p>
+
+<p><strong>Template Structure</strong>:</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># Session Title</span>
+
+<span class="gu">## Date</span>
+2025-12-05
+
+<span class="gu">## Summary</span>
+What we worked on during this session
+
+<span class="gu">## Decisions</span>
+<span class="p">-</span> Decided to use FastAPI over Flask
+<span class="p">-</span> Chose PostgreSQL for persistence
+
+<span class="gu">## Implementations</span>
+<span class="p">-</span> Built user authentication endpoint
+<span class="p">-</span> Added rate limiting middleware
+
+<span class="gu">## Open Items</span>
+<span class="p">-</span> TODO: Add integration tests
+<span class="p">-</span> TODO: Deploy to staging
+
+<span class="gu">## Related</span>
+<span class="p">-</span> <span class="p">[</span><span class="nv">my-api</span><span class="p">](</span><span class="sx">../projects/my-api.md</span><span class="p">)</span>
+<span class="p">
+---</span>
+tags: #session #my-api
+captured: 2025-12-05
+</code></pre></div></div>
+
+<p><strong>CLI Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Quick capture</span>
+claude-ctx memory capture <span class="s2">"Added auth"</span> <span class="nt">--summary</span> <span class="s2">"Built JWT authentication"</span>
+
+<span class="c"># Detailed</span>
+claude-ctx memory capture <span class="s2">"API Refactor"</span> <span class="se">\</span>
+  <span class="nt">--summary</span> <span class="s2">"Refactored API endpoints"</span> <span class="se">\</span>
+  <span class="nt">--decisions</span> <span class="s2">"Use dependency injection|Add caching layer"</span> <span class="se">\</span>
+  <span class="nt">--implementations</span> <span class="s2">"Refactored auth|Added Redis cache"</span> <span class="se">\</span>
+  <span class="nt">--open</span> <span class="s2">"Add metrics|Write docs"</span> <span class="se">\</span>
+  <span class="nt">--project</span> <span class="s2">"my-api"</span>
+</code></pre></div></div>
+
+<p><strong>Naming</strong>: Session notes use date-prefix: <code class="language-plaintext highlighter-rouge">YYYY-MM-DD-session-title.md</code></p>
+
+<h3 id="4-fix-notes">4. Fix Notes</h3>
+
+<p><strong>Purpose</strong>: Bug fixes, root cause analysis, solutions</p>
+
+<p><strong>Template Structure</strong>:</p>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># Issue Title</span>
+
+<span class="gu">## Problem</span>
+What was broken or wrong
+
+<span class="gu">## Cause</span>
+Root cause analysis
+
+<span class="gu">## Solution</span>
+How we fixed it
+
+<span class="gu">## Files Changed</span>
+<span class="p">-</span> <span class="sb">`src/auth.py`</span> - Fixed token validation
+<span class="p">-</span> <span class="sb">`tests/test_auth.py`</span> - Added test cases
+
+<span class="gu">## Prevention</span>
+How to avoid this in future (optional)
+
+<span class="gu">## Related</span>
+<span class="p">-</span> <span class="p">[</span><span class="nv">my-api</span><span class="p">](</span><span class="sx">../projects/my-api.md</span><span class="p">)</span>
+<span class="p">
+---</span>
+tags: #fix #bug #my-api
+captured: 2025-12-05
+</code></pre></div></div>
+
+<p><strong>CLI Usage</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Minimal</span>
+claude-ctx memory fix <span class="s2">"Token expired too fast"</span> <span class="se">\</span>
+  <span class="nt">--problem</span> <span class="s2">"Tokens expiring in 1 minute"</span> <span class="se">\</span>
+  <span class="nt">--cause</span> <span class="s2">"Wrong TTL constant"</span> <span class="se">\</span>
+  <span class="nt">--solution</span> <span class="s2">"Changed TTL to 3600 seconds"</span>
+
+<span class="c"># With files</span>
+claude-ctx memory fix <span class="s2">"Auth bug"</span> <span class="se">\</span>
+  <span class="nt">--problem</span> <span class="s2">"Users logged out randomly"</span> <span class="se">\</span>
+  <span class="nt">--cause</span> <span class="s2">"Token validation race condition"</span> <span class="se">\</span>
+  <span class="nt">--solution</span> <span class="s2">"Added mutex lock"</span> <span class="se">\</span>
+  <span class="nt">--files</span> <span class="s2">"src/auth.py,tests/test_auth.py"</span> <span class="se">\</span>
+  <span class="nt">--project</span> <span class="s2">"my-api"</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="cli-commands">CLI Commands</h2>
+
+<h3 id="command-reference">Command Reference</h3>
+
+<p><strong>remember</strong> - Quick knowledge capture</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory remember TEXT <span class="o">[</span><span class="nt">--topic</span> TOPIC] <span class="o">[</span><span class="nt">--tags</span> TAGS]
+
+<span class="c"># Examples:</span>
+claude-ctx memory remember <span class="s2">"Redis is single-threaded"</span>
+claude-ctx memory remember <span class="s2">"Handles 100k ops/sec"</span> <span class="nt">--topic</span> <span class="s2">"redis-performance"</span>
+</code></pre></div></div>
+
+<p><strong>project</strong> - Project context</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory project NAME <span class="o">[</span><span class="nt">--path</span> PATH] <span class="o">[</span><span class="nt">--purpose</span> PURPOSE] <span class="o">[</span><span class="nt">--related</span> PROJECTS]
+
+<span class="c"># Examples:</span>
+claude-ctx memory project <span class="s2">"api-gateway"</span> <span class="nt">--purpose</span> <span class="s2">"Route all API traffic"</span>
+claude-ctx memory project <span class="s2">"auth-service"</span> <span class="nt">--path</span> <span class="s2">"~/services/auth"</span> <span class="nt">--related</span> <span class="s2">"user-db,redis"</span>
+</code></pre></div></div>
+
+<p><strong>capture</strong> - Session summary</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory capture <span class="o">[</span>TITLE] <span class="o">[</span>OPTIONS]
+
+Options:
+  <span class="nt">--summary</span> SUMMARY          What we worked on
+  <span class="nt">--decisions</span> DECISIONS      Decisions made <span class="o">(</span>pipe-separated<span class="o">)</span>
+  <span class="nt">--implementations</span> IMPLS    What was built <span class="o">(</span>pipe-separated<span class="o">)</span>
+  <span class="nt">--open</span> ITEMS              Open items <span class="o">(</span>pipe-separated<span class="o">)</span>
+  <span class="nt">--project</span> PROJECT         Related project
+
+<span class="c"># Examples:</span>
+claude-ctx memory capture <span class="s2">"Auth work"</span> <span class="nt">--summary</span> <span class="s2">"Built login flow"</span>
+claude-ctx memory capture <span class="s2">"Refactor"</span> <span class="se">\</span>
+  <span class="nt">--decisions</span> <span class="s2">"Use FastAPI|Add Redis"</span> <span class="se">\</span>
+  <span class="nt">--implementations</span> <span class="s2">"Auth endpoints|Cache layer"</span>
+</code></pre></div></div>
+
+<p><strong>fix</strong> - Bug fix documentation</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory fix TITLE <span class="o">[</span>OPTIONS]
+
+Options:
+  <span class="nt">--problem</span> PROBLEM     What was broken
+  <span class="nt">--cause</span> CAUSE         Root cause
+  <span class="nt">--solution</span> SOLUTION   How we fixed it
+  <span class="nt">--files</span> FILES         Changed files <span class="o">(</span>comma-separated<span class="o">)</span>
+  <span class="nt">--project</span> PROJECT     Related project
+
+<span class="c"># Examples:</span>
+claude-ctx memory fix <span class="s2">"Login timeout"</span> <span class="se">\</span>
+  <span class="nt">--problem</span> <span class="s2">"Users timing out"</span> <span class="se">\</span>
+  <span class="nt">--cause</span> <span class="s2">"DB connection pool exhausted"</span> <span class="se">\</span>
+  <span class="nt">--solution</span> <span class="s2">"Increased pool size to 20"</span>
+</code></pre></div></div>
+
+<p><strong>auto</strong> - Auto-capture toggle</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory auto <span class="o">[</span>on|off|status]
+
+<span class="c"># Examples:</span>
+claude-ctx memory auto on      <span class="c"># Enable auto-capture</span>
+claude-ctx memory auto off     <span class="c"># Disable auto-capture</span>
+claude-ctx memory auto status  <span class="c"># Check status</span>
+</code></pre></div></div>
+
+<p><strong>list</strong> - List notes</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory list <span class="o">[</span>TYPE] <span class="o">[</span><span class="nt">--recent</span> N] <span class="o">[</span><span class="nt">--tags</span> TAGS]
+
+<span class="c"># Examples:</span>
+claude-ctx memory list                           <span class="c"># All notes</span>
+claude-ctx memory list knowledge                 <span class="c"># Knowledge notes only</span>
+claude-ctx memory list <span class="nt">--recent</span> 10               <span class="c"># 10 most recent</span>
+claude-ctx memory list sessions <span class="nt">--tags</span> <span class="s2">"my-api"</span>  <span class="c"># Tagged notes</span>
+</code></pre></div></div>
+
+<p><strong>search</strong> - Search notes</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory search QUERY <span class="o">[</span><span class="nt">--type</span> TYPE] <span class="o">[</span><span class="nt">--limit</span> N]
+
+<span class="c"># Examples:</span>
+claude-ctx memory search <span class="s2">"redis"</span>              <span class="c"># Search all notes</span>
+claude-ctx memory search <span class="s2">"authentication"</span> <span class="nt">--type</span> knowledge
+claude-ctx memory search <span class="s2">"bug"</span> <span class="nt">--limit</span> 5      <span class="c"># Top 5 results</span>
+</code></pre></div></div>
+
+<p><strong>stats</strong> - Vault statistics</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx memory stats
+
+<span class="c"># Output:</span>
+Vault: /Users/me/basic-memory
+Exists: <span class="nb">yes
+
+</span>Note counts:
+  knowledge: 45
+  projects: 12
+  sessions: 78
+  fixes: 23
+  total: 158
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="tui-integration">TUI Integration</h2>
+
+<h3 id="memory-view-key-m">Memory View (Key: M)</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">tui/main.py</code> - Memory view implementation</p>
+
+<p><strong>Features</strong>:</p>
+<ul>
+  <li>📋 Browse all notes by type</li>
+  <li>🔍 Full-text search interface</li>
+  <li>👁️ Preview pane with syntax highlighting</li>
+  <li>🏷️ Tag filtering</li>
+  <li>⚡ Quick actions (Edit, Delete, Export)</li>
+</ul>
+
+<p><strong>Keyboard Navigation</strong>:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>M          → Open Memory view
+↑/↓        → Navigate note list
+Enter      → Open note preview
+/          → Search
+t          → Filter by tag
+n          → New note dialog
+e          → Edit selected note
+d          → Delete selected note
+c          → Copy note path to clipboard
+Esc        → Close view
+</code></pre></div></div>
+
+<p><strong>Data Model</strong> (<code class="language-plaintext highlighter-rouge">tui/types.py</code>):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">MemoryNote</span><span class="p">:</span>
+    <span class="s">"""Represents a memory vault note."""</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">note_type</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># knowledge, projects, sessions, fixes
+</span>    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">modified</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">snippet</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div></div>
+
+<p><strong>View Lifecycle</strong>:</p>
+<ol>
+  <li><strong>Mount</strong> → Load notes from vault using <code class="language-plaintext highlighter-rouge">list_notes()</code></li>
+  <li><strong>Render</strong> → Display in DataTable with columns: Type, Title, Tags, Modified</li>
+  <li><strong>Search</strong> → Filter notes using <code class="language-plaintext highlighter-rouge">search_notes()</code> with debouncing</li>
+  <li><strong>Select</strong> → Load full content and show preview pane</li>
+  <li><strong>Actions</strong> → Execute operations (edit, delete, export)</li>
+</ol>
+
+<hr />
+
+<h2 id="auto-capture-system">Auto-Capture System</h2>
+
+<h3 id="configuration">Configuration</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">~/.claude/memory-config.json</code></p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"vault_path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"~/basic-memory"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"auto_capture"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"min_session_length"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"exclude_patterns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"explain"</span><span class="p">,</span><span class="w"> </span><span class="s2">"what is"</span><span class="p">,</span><span class="w"> </span><span class="s2">"how do"</span><span class="p">],</span><span class="w">
+    </span><span class="nl">"last_capture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-12-05T14:30:00"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"defaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+    </span><span class="nl">"project"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="auto-capture-logic">Auto-Capture Logic</h3>
+
+<p><strong>Trigger Conditions</strong>:</p>
+<ul>
+  <li>✅ Auto-capture is enabled (<code class="language-plaintext highlighter-rouge">auto_capture.enabled = true</code>)</li>
+  <li>✅ Session length &gt; <code class="language-plaintext highlighter-rouge">min_session_length</code> minutes</li>
+  <li>✅ User query doesn’t match <code class="language-plaintext highlighter-rouge">exclude_patterns</code></li>
+  <li>✅ Time since last capture &gt; threshold (30 minutes default)</li>
+</ul>
+
+<p><strong>Capture Process</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. Detect session end (watch mode triggers)
+</span><span class="k">if</span> <span class="n">should_auto_capture</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
+    <span class="c1"># 2. Extract session metadata
+</span>    <span class="n">title</span> <span class="o">=</span> <span class="n">generate_session_title</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">summarize_session</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+    
+    <span class="c1"># 3. Create session note
+</span>    <span class="n">memory_capture</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+        <span class="n">decisions</span><span class="o">=</span><span class="n">extract_decisions</span><span class="p">(</span><span class="n">session</span><span class="p">),</span>
+        <span class="n">implementations</span><span class="o">=</span><span class="n">extract_changes</span><span class="p">(</span><span class="n">session</span><span class="p">),</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># 4. Update last capture timestamp
+</span>    <span class="n">update_last_capture</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Exclusion Patterns</strong>:</p>
+<ul>
+  <li>Questions: “what is”, “how do”, “explain”</li>
+  <li>Short queries: &lt; 5 words</li>
+  <li>Non-actionable: “show”, “list”, “help”</li>
+</ul>
+
+<h3 id="integration-with-watch-mode">Integration with Watch Mode</h3>
+
+<p>When watch mode is active:</p>
+<ol>
+  <li>Monitors file changes in repository</li>
+  <li>Tracks session duration</li>
+  <li>Triggers auto-capture when session ends</li>
+  <li>Captures: changed files, commit messages, time spent</li>
+</ol>
+
+<hr />
+
+<h2 id="search--retrieval">Search &amp; Retrieval</h2>
+
+<h3 id="full-text-search">Full-Text Search</h3>
+
+<p><strong>Implementation</strong>: <code class="language-plaintext highlighter-rouge">search.py</code> - <code class="language-plaintext highlighter-rouge">search_notes()</code></p>
+
+<p><strong>Search Features</strong>:</p>
+<ul>
+  <li>Case-insensitive matching</li>
+  <li>Snippet extraction with context</li>
+  <li>Relevance scoring</li>
+  <li>Type filtering</li>
+  <li>Result limiting</li>
+</ul>
+
+<p><strong>Relevance Scoring</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">score</span> <span class="o">=</span> <span class="n">base_score</span> <span class="o">+</span> <span class="n">bonuses</span>
+
+<span class="n">base_score</span> <span class="o">=</span> <span class="n">number_of_matches</span>
+
+<span class="n">bonuses</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">Title</span> <span class="n">match</span><span class="p">:</span> <span class="o">+</span><span class="mi">10</span>
+  <span class="o">-</span> <span class="n">Summary</span> <span class="n">match</span><span class="p">:</span> <span class="o">+</span><span class="mi">5</span>
+  <span class="o">-</span> <span class="n">Multiple</span> <span class="n">matches</span><span class="p">:</span> <span class="o">+</span><span class="mi">1</span> <span class="n">per</span> <span class="n">additional</span> <span class="n">match</span>
+</code></pre></div></div>
+
+<p><strong>Example</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx memory search <span class="s2">"authentication"</span>
+
+Found 3 result<span class="o">(</span>s<span class="o">)</span> <span class="k">for</span> <span class="s1">'authentication'</span>:
+
+JWT Authentication <span class="o">(</span>knowledge<span class="o">)</span>
+  /Users/me/basic-memory/knowledge/jwt-authentication.md
+    JWT tokens are stateless authentication...
+    Use RS256 <span class="k">for </span>asymmetric signing...
+
+Auth Service Refactor <span class="o">(</span>sessions<span class="o">)</span>
+  /Users/me/basic-memory/sessions/2025-12-05-auth-refactor.md
+    Implemented JWT authentication endpoint...
+    Added refresh token rotation...
+</code></pre></div></div>
+
+<h3 id="tag-based-search">Tag-Based Search</h3>
+
+<p><strong>Implementation</strong>: <code class="language-plaintext highlighter-rouge">search.py</code> - <code class="language-plaintext highlighter-rouge">search_by_tags()</code></p>
+
+<p><strong>Features</strong>:</p>
+<ul>
+  <li>OR logic (any tag matches)</li>
+  <li>Case-insensitive</li>
+  <li>Multi-tag support</li>
+  <li>Ordered by match count</li>
+</ul>
+
+<p><strong>Example</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx memory list <span class="nt">--tags</span> <span class="s2">"python,fastapi"</span>
+
+<span class="c"># Returns notes tagged with EITHER python OR fastapi</span>
+</code></pre></div></div>
+
+<h3 id="tag-management">Tag Management</h3>
+
+<p><strong>Get all tags</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">search</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="n">search</span><span class="p">.</span><span class="n">get_all_tags</span><span class="p">()</span>
+<span class="c1"># Returns: {"python": 45, "fastapi": 12, "redis": 8, ...}
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="data-model">Data Model</h2>
+
+<h3 id="configuration-model">Configuration Model</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">AutoCaptureConfig</span><span class="p">:</span>
+    <span class="s">"""Auto-capture settings."""</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">min_session_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># minutes
+</span>    <span class="n">exclude_patterns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"explain"</span><span class="p">,</span> <span class="s">"what is"</span><span class="p">]</span>
+    <span class="n">last_capture</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># ISO timestamp
+</span>
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">MemoryDefaults</span><span class="p">:</span>
+    <span class="s">"""Default values for capture."""</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">project</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">MemoryConfig</span><span class="p">:</span>
+    <span class="s">"""Memory vault configuration."""</span>
+    <span class="n">vault_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"~/basic-memory"</span>
+    <span class="n">auto_capture</span><span class="p">:</span> <span class="n">AutoCaptureConfig</span>
+    <span class="n">defaults</span><span class="p">:</span> <span class="n">MemoryDefaults</span>
+</code></pre></div></div>
+
+<h3 id="note-metadata-model">Note Metadata Model</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Returned by list_notes()
+</span><span class="p">{</span>
+    <span class="s">"path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># Full path to note file
+</span>    <span class="s">"name"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># Slug (filename without .md)
+</span>    <span class="s">"type"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># knowledge|projects|sessions|fixes
+</span>    <span class="s">"title"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>         <span class="c1"># Extracted from first # heading
+</span>    <span class="s">"modified"</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span> <span class="c1"># Last modified timestamp
+</span>    <span class="s">"tags"</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>    <span class="c1"># Extracted tags
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="search-result-model">Search Result Model</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Returned by search_notes()
+</span><span class="p">{</span>
+    <span class="s">"path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># Full path to note file
+</span>    <span class="s">"name"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># Slug
+</span>    <span class="s">"type"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>          <span class="c1"># Note type
+</span>    <span class="s">"title"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>         <span class="c1"># Note title
+</span>    <span class="s">"snippet"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>       <span class="c1"># Text snippet with match
+</span>    <span class="s">"score"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>         <span class="c1"># Relevance score
+</span>    <span class="s">"match_count"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>   <span class="c1"># Number of matches
+</span><span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="integration-patterns">Integration Patterns</h2>
+
+<h3 id="1-basic-memory-mcp-integration">1. Basic Memory MCP Integration</h3>
+
+<p>The vault is designed to work with the <code class="language-plaintext highlighter-rouge">basic-memory</code> MCP server:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"basic-memory"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npx"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"-y"</span><span class="p">,</span><span class="w"> </span><span class="s2">"@modelcontextprotocol/server-memory"</span><span class="p">],</span><span class="w">
+      </span><span class="nl">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"MEMORY_DIR"</span><span class="p">:</span><span class="w"> </span><span class="s2">"~/basic-memory"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Benefits</strong>:</p>
+<ul>
+  <li>Claude Code can query vault directly</li>
+  <li>Notes become part of AI context</li>
+  <li>Auto-enrichment of responses with captured knowledge</li>
+</ul>
+
+<h3 id="2-ai-intelligence-integration">2. AI Intelligence Integration</h3>
+
+<p>Memory vault feeds into AI recommendations:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># AI Intelligence queries vault for context
+</span><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">search</span>
+
+<span class="c1"># Get relevant knowledge for current task
+</span><span class="n">context_notes</span> <span class="o">=</span> <span class="n">search</span><span class="p">.</span><span class="n">search_notes</span><span class="p">(</span>
+    <span class="n">query</span><span class="o">=</span><span class="n">current_task_description</span><span class="p">,</span>
+    <span class="n">limit</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">)</span>
+
+<span class="c1"># Include in recommendations
+</span><span class="n">recommendations</span> <span class="o">=</span> <span class="n">ai</span><span class="p">.</span><span class="n">recommend_agents</span><span class="p">(</span>
+    <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
+    <span class="n">memory_context</span><span class="o">=</span><span class="n">context_notes</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="3-watch-mode-integration">3. Watch Mode Integration</h3>
+
+<p>Watch mode can trigger auto-capture:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># When watch mode detects session end
+</span><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">capture</span>
+
+<span class="k">if</span> <span class="n">is_auto_capture_enabled</span><span class="p">():</span>
+    <span class="c1"># Extract session info from git changes
+</span>    <span class="n">summary</span> <span class="o">=</span> <span class="n">git_extract_summary</span><span class="p">()</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">git_changed_files</span><span class="p">()</span>
+    
+    <span class="c1"># Auto-capture session
+</span>    <span class="n">capture</span><span class="p">.</span><span class="n">memory_capture</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s">"Session </span><span class="si">{</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">strftime</span><span class="p">(</span><span class="s">'%H</span><span class="si">:</span><span class="o">%</span><span class="n">M</span><span class="s">')</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+        <span class="n">implementations</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
+        <span class="n">quick</span><span class="o">=</span><span class="bp">True</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="4-skills-system-integration">4. Skills System Integration</h3>
+
+<p>Skills can reference memory vault:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Skill execution can log learnings
+</span><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">capture</span>
+
+<span class="k">def</span> <span class="nf">execute_skill</span><span class="p">(</span><span class="n">skill_name</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">run_skill</span><span class="p">(</span><span class="n">skill_name</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    
+    <span class="c1"># Capture learnings
+</span>    <span class="k">if</span> <span class="n">result</span><span class="p">.</span><span class="n">has_gotcha</span><span class="p">:</span>
+        <span class="n">capture</span><span class="p">.</span><span class="n">memory_remember</span><span class="p">(</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">result</span><span class="p">.</span><span class="n">gotcha</span><span class="p">,</span>
+            <span class="n">topic</span><span class="o">=</span><span class="n">skill_name</span><span class="p">,</span>
+            <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s">"skill"</span><span class="p">,</span> <span class="s">"gotcha"</span><span class="p">]</span>
+        <span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="configuration-1">Configuration</h2>
+
+<h3 id="vault-path-resolution">Vault Path Resolution</h3>
+
+<p><strong>Priority Order</strong>:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">CLAUDE_CTX_MEMORY_VAULT</code> environment variable</li>
+  <li>Config file (<code class="language-plaintext highlighter-rouge">~/.claude/memory-config.json</code> → <code class="language-plaintext highlighter-rouge">vault_path</code>)</li>
+  <li>Default: <code class="language-plaintext highlighter-rouge">~/basic-memory</code></li>
+</ol>
+
+<p><strong>Example</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Override vault path</span>
+<span class="nb">export </span><span class="nv">CLAUDE_CTX_MEMORY_VAULT</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/my-knowledge-base"</span>
+claude-ctx memory remember <span class="s2">"Custom vault location"</span>
+</code></pre></div></div>
+
+<h3 id="directory-structure">Directory Structure</h3>
+
+<p><strong>Automatic Setup</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="c1"># Creates full structure if missing
+</span><span class="n">vault</span> <span class="o">=</span> <span class="n">config</span><span class="p">.</span><span class="n">ensure_vault_structure</span><span class="p">()</span>
+
+<span class="c1"># Creates:
+# ~/basic-memory/
+# ├── knowledge/
+# ├── projects/
+# ├── sessions/
+# └── fixes/
+</span></code></pre></div></div>
+
+<h3 id="config-file-management">Config File Management</h3>
+
+<p><strong>Location</strong>: <code class="language-plaintext highlighter-rouge">~/.claude/memory-config.json</code></p>
+
+<p><strong>Read</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">config</span><span class="p">.</span><span class="n">get_config</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">cfg</span><span class="p">.</span><span class="n">vault_path</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">cfg</span><span class="p">.</span><span class="n">auto_capture</span><span class="p">.</span><span class="n">enabled</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Write</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">config</span><span class="p">.</span><span class="n">get_config</span><span class="p">()</span>
+<span class="n">cfg</span><span class="p">.</span><span class="n">auto_capture</span><span class="p">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">cfg</span><span class="p">.</span><span class="n">defaults</span><span class="p">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="s">"work"</span><span class="p">,</span> <span class="s">"dev"</span><span class="p">]</span>
+<span class="n">config</span><span class="p">.</span><span class="n">save_config</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="development-guide">Development Guide</h2>
+
+<h3 id="adding-a-new-note-type">Adding a New Note Type</h3>
+
+<p><strong>Step 1</strong>: Add to enum in <code class="language-plaintext highlighter-rouge">templates.py</code>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NoteType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">KNOWLEDGE</span> <span class="o">=</span> <span class="s">"knowledge"</span>
+    <span class="n">PROJECT</span> <span class="o">=</span> <span class="s">"projects"</span>
+    <span class="n">SESSION</span> <span class="o">=</span> <span class="s">"sessions"</span>
+    <span class="n">FIX</span> <span class="o">=</span> <span class="s">"fixes"</span>
+    <span class="n">REFERENCE</span> <span class="o">=</span> <span class="s">"references"</span>  <span class="c1"># NEW
+</span></code></pre></div></div>
+
+<p><strong>Step 2</strong>: Create render function:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">render_reference_note</span><span class="p">(</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s">"""Render a reference note."""</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="n">tags</span> <span class="ow">or</span> <span class="p">[</span><span class="s">"reference"</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="sa">f</span><span class="s">"""# </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s">
+
+## URL
+</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s">
+
+## Summary
+</span><span class="si">{</span><span class="n">summary</span><span class="si">}</span><span class="s">
+
+---
+tags: </span><span class="si">{</span><span class="n">_format_tags</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="si">}</span><span class="s">
+captured: </span><span class="si">{</span><span class="n">_format_date</span><span class="p">()</span><span class="si">}</span><span class="s">
+"""</span>
+</code></pre></div></div>
+
+<p><strong>Step 3</strong>: Add capture function in <code class="language-plaintext highlighter-rouge">capture.py</code>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">memory_reference</span><span class="p">(</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="s">"""Capture a reference link."""</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">render_reference_note</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="n">summary</span> <span class="ow">or</span> <span class="s">"Reference link"</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="n">path</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">create_note</span><span class="p">(</span><span class="n">NoteType</span><span class="p">.</span><span class="n">REFERENCE</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">_color</span><span class="p">(</span><span class="sa">f</span><span class="s">"Created: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s">"</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><strong>Step 4</strong>: Wire up CLI in <code class="language-plaintext highlighter-rouge">cli.py</code>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Add parser
+</span><span class="n">ref_parser</span> <span class="o">=</span> <span class="n">memory_sub</span><span class="p">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s">"reference"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"Capture reference link"</span><span class="p">)</span>
+<span class="n">ref_parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">"title"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"Reference title"</span><span class="p">)</span>
+<span class="n">ref_parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">"url"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"Reference URL"</span><span class="p">)</span>
+<span class="n">ref_parser</span><span class="p">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">"--summary"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">"One-line summary"</span><span class="p">)</span>
+
+<span class="c1"># Add handler in _handle_memory_command()
+</span><span class="k">if</span> <span class="n">args</span><span class="p">.</span><span class="n">memory_command</span> <span class="o">==</span> <span class="s">"reference"</span><span class="p">:</span>
+    <span class="n">exit_code</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">memory</span><span class="p">.</span><span class="n">memory_reference</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">url</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s">"summary"</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">exit_code</span>
+</code></pre></div></div>
+
+<p><strong>Step 5</strong>: Update vault structure in <code class="language-plaintext highlighter-rouge">config.py</code>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">ensure_vault_structure</span><span class="p">(</span><span class="n">vault_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">subdirs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"knowledge"</span><span class="p">,</span> <span class="s">"projects"</span><span class="p">,</span> <span class="s">"sessions"</span><span class="p">,</span> <span class="s">"fixes"</span><span class="p">,</span> <span class="s">"references"</span><span class="p">]</span>  <span class="c1"># Added
+</span>    <span class="c1"># ...
+</span></code></pre></div></div>
+
+<h3 id="testing-memory-functions">Testing Memory Functions</h3>
+
+<p><strong>Example Test</strong> (<code class="language-plaintext highlighter-rouge">tests/unit/test_memory.py</code>):</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">claude_ctx_py.memory</span> <span class="kn">import</span> <span class="n">capture</span><span class="p">,</span> <span class="n">config</span>
+
+<span class="k">def</span> <span class="nf">test_memory_remember</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># Setup temporary vault
+</span>    <span class="n">config</span><span class="p">.</span><span class="n">save_config</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">MemoryConfig</span><span class="p">(</span><span class="n">vault_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)))</span>
+    
+    <span class="c1"># Capture knowledge
+</span>    <span class="n">exit_code</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">capture</span><span class="p">.</span><span class="n">memory_remember</span><span class="p">(</span>
+        <span class="n">text</span><span class="o">=</span><span class="s">"Redis is single-threaded"</span><span class="p">,</span>
+        <span class="n">topic</span><span class="o">=</span><span class="s">"redis"</span><span class="p">,</span>
+        <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s">"database"</span><span class="p">]</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Verify
+</span>    <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">note_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s">"knowledge"</span> <span class="o">/</span> <span class="s">"redis.md"</span>
+    <span class="k">assert</span> <span class="n">note_path</span><span class="p">.</span><span class="n">exists</span><span class="p">()</span>
+    
+    <span class="n">content</span> <span class="o">=</span> <span class="n">note_path</span><span class="p">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="s">"Redis is single-threaded"</span> <span class="ow">in</span> <span class="n">content</span>
+    <span class="k">assert</span> <span class="s">"#database"</span> <span class="ow">in</span> <span class="n">content</span>
+</code></pre></div></div>
+
+<h3 id="debugging-tips">Debugging Tips</h3>
+
+<p><strong>1. Check vault path</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>claude-ctx memory stats
+Vault: /Users/me/basic-memory
+</code></pre></div></div>
+
+<p><strong>2. Inspect config</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cat</span> ~/.claude/memory-config.json
+</code></pre></div></div>
+
+<p><strong>3. Manual search</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> ~/basic-memory
+<span class="nv">$ </span><span class="nb">grep</span> <span class="nt">-r</span> <span class="s2">"search term"</span> <span class="nb">.</span>
+</code></pre></div></div>
+
+<p><strong>4. Validate note structure</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> ~/basic-memory/knowledge
+<span class="nv">$ </span><span class="k">for </span>f <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"=== </span><span class="nv">$f</span><span class="s2"> ==="</span><span class="p">;</span> <span class="nb">head</span> <span class="nt">-20</span> <span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="performance-considerations">Performance Considerations</h2>
+
+<h3 id="file-io-optimization">File I/O Optimization</h3>
+
+<p><strong>Lazy Loading</strong>: Notes loaded on-demand, not upfront</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ✅ Good - lazy iteration
+</span><span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">list_notes</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">matches_criteria</span><span class="p">(</span><span class="n">note</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">read_note</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="s">"type"</span><span class="p">],</span> <span class="n">note</span><span class="p">[</span><span class="s">"name"</span><span class="p">])</span>
+        <span class="n">process</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<span class="c1"># ❌ Bad - loads all upfront
+</span><span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="n">read_note</span><span class="p">(...)</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">list_notes</span><span class="p">()]</span>
+</code></pre></div></div>
+
+<p><strong>Caching</strong>: Search results cached for repeated queries</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># TUI implements LRU cache for search
+</span><span class="o">@</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">cached_search</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">note_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">search_notes</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">note_type</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="search-performance">Search Performance</h3>
+
+<p><strong>Metrics</strong> (vault with 100 notes):</p>
+<ul>
+  <li>List all notes: ~10ms</li>
+  <li>Full-text search: ~50ms</li>
+  <li>Tag search: ~20ms</li>
+  <li>Get all tags: ~30ms</li>
+</ul>
+
+<p><strong>Optimization Tips</strong>:</p>
+<ul>
+  <li>Use <code class="language-plaintext highlighter-rouge">limit</code> parameter for large result sets</li>
+  <li>Filter by type before searching</li>
+  <li>Use tag search when possible (faster than full-text)</li>
+</ul>
+
+<h3 id="storage-considerations">Storage Considerations</h3>
+
+<p><strong>Typical Sizes</strong>:</p>
+<ul>
+  <li>Knowledge note: ~1-2 KB</li>
+  <li>Project note: ~3-5 KB</li>
+  <li>Session note: ~2-4 KB</li>
+  <li>Fix note: ~2-3 KB</li>
+</ul>
+
+<p><strong>Scaling</strong>:</p>
+<ul>
+  <li>1,000 notes ≈ 2-3 MB</li>
+  <li>10,000 notes ≈ 20-30 MB</li>
+  <li>Search remains fast up to 10k notes</li>
+</ul>
+
+<hr />
+
+<h2 id="related-documentation">Related Documentation</h2>
+
+<ul>
+  <li><a href="/architecture/MASTER_ARCHITECTURE.html">Master Architecture Document</a></li>
+  <li><a href="/guides/development/TUI_ARCHITECTURE.html">TUI Architecture</a></li>
+  <li><a href="/guides/development/AI_INTELLIGENCE_ARCHITECTURE.html">AI Intelligence System</a> (pending)</li>
+  <li><a href="/guides/development/WATCH_MODE_ARCHITECTURE.html">Watch Mode Implementation</a> (pending)</li>
+</ul>
+
+<hr />
+
+<h2 id="revision-history">Revision History</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Changes</th>
+      <th>Author</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>2025-12-05</td>
+      <td>Initial memory vault documentation</td>
+      <td>System Architect</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Document Status</strong>: ✅ Current<br />
+<strong>Maintainer</strong>: Core Team</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

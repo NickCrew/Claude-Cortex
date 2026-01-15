@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Cortex - Executive Overview & Roadmap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reset.css" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/dist/reveal.css" />
+  <link rel="stylesheet" href="https://unpkg.com/reveal.js@5/plugin/highlight/monokai.css" />
+  <style>
+    :root {
+      /* Brand Colors - Claude Theme */
+      --primary-blue: #0256B6;
+      --deep-navy: #001E62;
+      --sky-blue: #519DEC;
+      --steel-blue: #5E89B3;
+      --magenta: #D62597;
+      --purple: #430098;
+      --alert-orange: #E35205;
+      --success-green: #02B040;
+      --danger-red: #ED3240;
+      --charcoal: #221E20;
+
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--deep-navy) 50%, var(--magenta) 100%);
+      --gradient-accent: linear-gradient(135deg, var(--magenta) 0%, var(--purple) 100%);
+      --gradient-cool: linear-gradient(135deg, var(--sky-blue) 0%, var(--primary-blue) 100%);
+      --gradient-alert: linear-gradient(90deg, var(--alert-orange) 0%, var(--danger-red) 100%);
+
+      color-scheme: dark;
+    }
+
+    body,
+    .reveal {
+      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(circle at top left, #0a0f1e 0%, #020510 60%);
+      color: #e8eef7;
+    }
+
+    .reveal .slides {
+      text-align: left;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: #ffffff;
+    }
+
+    .reveal h1 {
+      font-size: 3.0em;
+      line-height: 1.1;
+      margin-bottom: 0.5em;
+      background: linear-gradient(135deg, #ffffff 0%, var(--sky-blue) 50%, var(--magenta) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 8s ease infinite;
+      filter: drop-shadow(0 0 30px rgba(81, 157, 236, 0.5));
+    }
+
+    .reveal h2 {
+      font-size: 2.1em;
+      line-height: 1.2;
+      margin-bottom: 0.75em;
+      color: #ffffff;
+      position: relative;
+      padding-bottom: 0.5em;
+    }
+
+    .reveal h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--sky-blue), var(--magenta));
+      border-radius: 2px;
+      box-shadow: 0 0 15px rgba(81, 157, 236, 0.6);
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    .reveal h3 {
+      font-size: 1.35em;
+      margin-bottom: 0.5em;
+      color: var(--sky-blue);
+    }
+
+    .reveal section {
+      height: 100%;
+      padding: 1.25rem;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .reveal section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.02) 2px, rgba(255, 255, 255, 0.02) 4px);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .reveal p {
+      margin: 0 0 0.75em;
+      line-height: 1.6;
+      color: rgba(232, 238, 247, 0.9);
+    }
+
+    .reveal ul,
+    .reveal ol {
+      margin: 0 0 1em 1.5em;
+    }
+
+    .reveal li {
+      margin-bottom: 0.4em;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 0.5em;
+    }
+
+    .reveal li::before {
+      content: '';
+      position: absolute;
+      left: -1em;
+      top: 0.7em;
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, var(--sky-blue), var(--magenta));
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(81, 157, 236, 0.6);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .reveal strong {
+      color: var(--sky-blue);
+      font-weight: 600;
+    }
+
+    .reveal section img {
+      max-height: 430px;
+      max-width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(81, 157, 236, 0.2);
+      border: none;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal section img.zoomable {
+      cursor: zoom-in;
+    }
+
+    .reveal section img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(81, 157, 236, 0.4),
+        0 0 30px rgba(81, 157, 236, 0.3);
+    }
+
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 5, 16, 0.92);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 9999;
+      padding: 2rem;
+    }
+
+    .zoom-overlay.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .zoom-overlay img {
+      max-width: 95vw;
+      max-height: 92vh;
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(81, 157, 236, 0.35);
+    }
+
+    .zoom-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(8, 28, 56, 0.9);
+      color: #ffffff;
+      border: 1px solid rgba(81, 157, 236, 0.5);
+      border-radius: 999px;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    /* Typography Utilities */
+    .subtitle {
+      font-size: 0.6em;
+      margin-top: 0.5rem;
+      color: rgba(232, 238, 247, 0.75);
+      font-weight: 400;
+    }
+
+    .muted {
+      color: rgba(232, 238, 247, 0.6);
+      font-size: 0.85em;
+    }
+
+    .highlight {
+      color: var(--sky-blue);
+      font-weight: 600;
+    }
+
+    .mono {
+      font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      padding: 0.15em 0.4em;
+      background: rgba(81, 157, 236, 0.15);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid rgba(81, 157, 236, 0.3);
+      border-radius: 6px;
+      color: var(--sky-blue);
+      box-shadow: 0 0 10px rgba(81, 157, 236, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .mono:hover {
+      background: rgba(81, 157, 236, 0.25);
+      box-shadow: 0 0 15px rgba(81, 157, 236, 0.4);
+    }
+
+    .reveal pre {
+      background: rgba(10, 18, 32, 0.85);
+      border: 1px solid rgba(81, 157, 236, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      overflow: auto;
+    }
+
+    .reveal pre code,
+    .reveal pre code.hljs,
+    .reveal .hljs {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .reveal code {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    /* Badge System */
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    .badge {
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.7em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, rgba(81, 157, 236, 0.2), rgba(2, 86, 182, 0.3));
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 2px solid rgba(81, 157, 236, 0.4);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(81, 157, 236, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .badge::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s ease, height 0.5s ease;
+    }
+
+    .badge:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 24px rgba(81, 157, 236, 0.6);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .badge:hover::before {
+      width: 200%;
+      height: 200%;
+    }
+
+    /* Card System */
+    .feature-card,
+    .callout {
+      padding: 1rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(2, 86, 182, 0.15) 0%, rgba(67, 0, 152, 0.15) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(81, 157, 236, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      text-align: left;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before,
+    .callout::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-cool);
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.08) 50%,
+          transparent 70%);
+      transform: rotate(45deg);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--sky-blue);
+      box-shadow: 0 20px 60px rgba(81, 157, 236, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .feature-card:hover::after {
+      opacity: 1;
+      animation: shimmer 1.5s ease-in-out infinite;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25em;
+      color: #ffffff;
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 0.9em;
+      line-height: 1.6;
+      color: rgba(232, 238, 247, 0.85);
+    }
+
+    /* Grid Layouts */
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    /* Title Slide */
+    .title-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .title-slide h1 {
+      font-size: 3.5em;
+      margin-bottom: 0.3em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .title-slide h3 {
+      font-size: 1.5em;
+      color: rgba(232, 238, 247, 0.9);
+      font-weight: 500;
+      margin-bottom: 0.5em;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Callout Variations */
+    .callout {
+      background: linear-gradient(135deg, rgba(2, 176, 64, 0.15) 0%, rgba(2, 86, 182, 0.15) 100%);
+      border-color: var(--success-green);
+    }
+
+    .callout::before {
+      background: linear-gradient(90deg, var(--success-green) 0%, var(--primary-blue) 100%);
+    }
+
+    .callout ol,
+    .callout ul {
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+    }
+
+    .callout li {
+      margin-bottom: 0.5rem;
+    }
+
+    .callout .mono,
+    .feature-card .mono {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    /* Thanks Slide */
+    .thanks-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+    }
+
+    .thanks-slide h2 {
+      font-size: 3.5em;
+      margin-bottom: 0.5em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Content Wrapper */
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .content-wrapper>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    .content-wrapper h2 {
+      margin-bottom: 0.5em;
+    }
+
+    .content-wrapper p {
+      margin-bottom: 0.75em;
+    }
+
+    /* Animations */
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 15px rgba(81, 157, 236, 0.6);
+      }
+
+      50% {
+        box-shadow: 0 0 25px rgba(81, 157, 236, 0.9);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(0.95);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%) rotate(45deg);
+      }
+
+      100% {
+        transform: translateX(100%) rotate(45deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <!-- Title Slide -->
+      <section
+        data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="title-slide">
+          <h1>📈 Cortex</h1>
+          <h3>Executive Overview & Roadmap</h3>
+          <p class="subtitle">Operational leverage for AI-assisted development</p>
+          <div class="badge-row">
+            <span class="badge">Context Quality</span>
+            <span class="badge">Workflow Acceleration</span>
+            <span class="badge">Governance</span>
+            <span class="badge">Roadmap</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why Cortex -->
+      <section
+        data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Why Cortex?</h2>
+          <p>Increase signal quality, reduce context drift, and scale AI-assisted development across teams.</p>
+
+          <div class="three-col" style="margin-top: 1.25rem;">
+            <div class="feature-card">
+              <h3>📌 Consistent Context</h3>
+              <p>Guardrails and templates keep teams aligned</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>⚡ Faster Delivery</h3>
+              <p>AI recommendations accelerate execution</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>🛡️ Quality & Safety</h3>
+              <p>Multi-reviewer bundles and validation hooks</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Product Experience -->
+      <section
+        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Product Experience</h2>
+          <p>AI assistant + watch mode + guardrails in a unified TUI workflow.</p>
+
+          <figure style="margin: 1.25rem auto 0; max-width: 980px;">
+            <img class="zoomable" src="../assets/images/screenshots/december-2025/ai-assist-view.png" alt="AI Assistant View" />
+            <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">AI Assistant with recommendations
+              and auto-activation</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Capability Highlights -->
+      <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Capability Highlights</h2>
+          <p>Best-in-class features for AI-assisted development workflows.</p>
+
+          <div class="three-col" style="margin-top: 1.25rem;">
+            <div class="feature-card">
+              <h3>👁️ Watch Mode</h3>
+              <p>Real-time context detection and auto-activation</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>🎨 Visual Excellence</h3>
+              <p>Super Saiyan system for consistent UX polish</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>📦 Asset Manager</h3>
+              <p>Bulk install/update across Claude directories</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>🤝 Multi-LLM Consult</h3>
+              <p>Second opinions across top LLM providers</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>🧭 Guardrails</h3>
+              <p>Template detection + setup wizard prompts</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>🧠 Intelligence</h3>
+              <p>Pattern learning + recommendation engine</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Improvements -->
+      <section data-background="radial-gradient(circle at center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Recent Improvements</h2>
+          <p>Focused upgrades across reliability, setup, and multi-model workflows.</p>
+
+          <div class="three-col" style="margin-top: 1.25rem;">
+            <div class="feature-card">
+              <h3>✅ Template Guardrails</h3>
+              <p>Auto-detect missing templates</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>✅ Asset Manager Fixes</h3>
+              <p>Bulk install + Update All reliability</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>✅ LLM Provider Settings</h3>
+              <p>TUI dialog for API keys</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>✅ Flag Toggles</h3>
+              <p>Working group toggles in TUI</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>✅ Presentation Refresh</h3>
+              <p>New decks + updated screenshots</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>✅ Operational Stability</h3>
+              <p>Improved initialization flow</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roadmap -->
+      <section
+        data-background="radial-gradient(circle at top left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Roadmap</h2>
+          <p>Phased delivery focused on reliability, intelligence, and ecosystem scale.</p>
+
+          <div class="three-col" style="margin-top: 1.25rem;">
+            <div class="feature-card">
+              <h3>Phase 1</h3>
+              <p><strong>Reliability:</strong> Guardrails, assets, setup flows</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Phase 2</h3>
+              <p><strong>Intelligence:</strong> Smarter recommendations and automation</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Phase 3</h3>
+              <p><strong>Ecosystem:</strong> Marketplace, analytics, collaboration</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Adoption Plan -->
+      <section
+        data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Adoption Plan</h2>
+          <p>Phased rollout with clear guardrails and measurement.</p>
+
+          <div class="two-col" style="margin-top: 1.25rem; align-items: start;">
+            <div class="callout">
+              <h3>Stage 1: Pilot</h3>
+              <ul>
+                <li>Pick 1-2 teams</li>
+                <li>Configure profiles + guardrails</li>
+                <li>Collect feedback + quick wins</li>
+              </ul>
+            </div>
+
+            <div class="callout">
+              <h3>Stage 2: Scale</h3>
+              <ul>
+                <li>Standardize templates and assets</li>
+                <li>Enable AI Watch Mode for key repos</li>
+                <li>Governance and training</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Risks & Mitigations -->
+      <section
+        data-background="radial-gradient(circle at bottom right, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="content-wrapper">
+          <h2>Risks & Mitigations</h2>
+          <div class="three-col" style="margin-top: 1.25rem;">
+            <div class="feature-card">
+              <h3>Model Drift</h3>
+              <p>Use multi‑LLM consult + validation hooks</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Security & Keys</h3>
+              <p>Centralized provider settings + scoped access</p>
+            </div>
+
+            <div class="feature-card">
+              <h3>Change Fatigue</h3>
+              <p>Incremental rollouts with clear wins</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Closing -->
+      <section
+        data-background="radial-gradient(circle at center, rgba(81, 157, 236, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
+        <div class="thanks-slide">
+          <h2>Next Steps</h2>
+          <p class="subtitle" style="font-size: 1.4em; margin-top: 1rem;">
+            Pilot • Measure • Scale
+          </p>
+          <div class="badge-row" style="margin-top: 2rem;">
+            <span class="badge">Reliability</span>
+            <span class="badge">Intelligence</span>
+            <span class="badge">Ecosystem</span>
+            <span class="badge">Adoption</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="zoom-overlay" id="zoom-overlay" aria-hidden="true">
+    <button class="zoom-close" type="button" aria-label="Close image">Close</button>
+    <img id="zoom-image" alt="" />
+  </div>
+
+  <script src="https://unpkg.com/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://unpkg.com/reveal.js@5/plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      transition: 'fade',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      controls: true,
+      progress: true,
+      center: false,
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2.0,
+      plugins: [RevealHighlight],
+    });
+
+    const overlay = document.getElementById('zoom-overlay');
+    const zoomImage = document.getElementById('zoom-image');
+    const closeBtn = overlay.querySelector('.zoom-close');
+    const zoomables = document.querySelectorAll('img.zoomable');
+
+    const closeZoom = () => {
+      overlay.classList.remove('is-active');
+      overlay.setAttribute('aria-hidden', 'true');
+      zoomImage.removeAttribute('src');
+      zoomImage.removeAttribute('alt');
+    };
+
+    zoomables.forEach((img) => {
+      img.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        zoomImage.src = img.src;
+        zoomImage.alt = img.alt || 'Expanded screenshot';
+        overlay.classList.add('is-active');
+        overlay.setAttribute('aria-hidden', 'false');
+      });
+    });
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+        closeZoom();
+      }
+    });
+
+    closeBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      closeZoom();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && overlay.classList.contains('is-active')) {
+        closeZoom();
+      }
+    });
+  </script>
+</body>
+
+</html>

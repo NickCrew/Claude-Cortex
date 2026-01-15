@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Worktree Manager | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Worktree Manager" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/worktrees.html" />
+<meta property="og:url" content="http://localhost:4000/guides/worktrees.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Worktree Manager" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Worktree Manager","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/worktrees.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <h1 id="worktree-manager">Worktree Manager</h1>
+
+<p>Cortex includes a Git worktree manager in both the CLI and TUI. It supports listing, adding, pruning, and removing worktrees with a configurable base directory.</p>
+
+<h2 id="cli-commands">CLI Commands</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># List worktrees and base directory</span>
+claude-ctx worktree list
+
+<span class="c"># Add a new worktree</span>
+claude-ctx worktree add my-branch <span class="nt">--path</span> ../worktrees/my-branch
+
+<span class="c"># Remove a worktree (path or branch)</span>
+claude-ctx worktree remove my-branch
+
+<span class="c"># Prune stale worktrees</span>
+claude-ctx worktree prune <span class="nt">--dry-run</span>
+
+<span class="c"># Set or clear the base directory (stored in git config)</span>
+claude-ctx worktree <span class="nb">dir</span> ../worktrees
+claude-ctx worktree <span class="nb">dir</span> <span class="nt">--clear</span>
+</code></pre></div></div>
+
+<h3 id="base-directory-behavior">Base Directory Behavior</h3>
+
+<p>The worktree base directory is resolved in this order:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">claude-ctx.worktreeDir</code> (git config)</li>
+  <li><code class="language-plaintext highlighter-rouge">.worktrees/</code> in the repo root</li>
+  <li><code class="language-plaintext highlighter-rouge">worktrees/</code> in the repo root</li>
+</ol>
+
+<h2 id="tui-view">TUI View</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx tui
+<span class="c"># Press 'C' for Worktrees</span>
+</code></pre></div></div>
+
+<h3 id="tui-keybindings">TUI Keybindings</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+N</code></td>
+      <td>Add new worktree</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+O</code></td>
+      <td>Open selected worktree</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+W</code></td>
+      <td>Remove selected worktree</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+K</code></td>
+      <td>Prune stale worktrees</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Ctrl+B</code></td>
+      <td>Set base directory (use <code class="language-plaintext highlighter-rouge">-</code> to clear)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Related guides</strong>: <a href="asset-manager.html">Asset Manager</a> • <a href="modes.html">Modes</a> • <a href="tui/tui-keyboard-reference.html">TUI Keyboard Reference</a></p>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

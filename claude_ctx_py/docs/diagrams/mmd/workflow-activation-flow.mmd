@@ -1,0 +1,67 @@
+flowchart TD
+    Start(["/workflow:run feature-development"]) --> Load[Load Workflow YAML]
+
+    Load --> Validate{Validate<br/>Definition?}
+    Validate -->|Invalid| Error1[❌ Report Error]
+    Validate -->|Valid| Init[Initialize Workflow State]
+
+    Init --> CreateTasks[Create TodoWrite Tasks<br/>for Each Step]
+    CreateTasks --> SetupOutputs[Setup Output Directory<br/>./workflow-outputs/]
+
+    SetupOutputs --> Step1[Step 1: Architecture Design]
+
+    Step1 --> LoadMode1[Load Required Mode:<br/>Deep_Analysis]
+    LoadMode1 --> Agent1[Activate Agent:<br/>system-architect]
+    Agent1 --> Execute1[Execute Step 1]
+    Execute1 --> Validate1{Outputs<br/>Valid?}
+
+    Validate1 -->|No| Retry1[Retry or Fail]
+    Validate1 -->|Yes| Update1[Update TodoWrite: ✅]
+
+    Update1 --> Checkpoint1[Save Checkpoint]
+    Checkpoint1 --> Step2[Step 2: Implementation Planning]
+
+    Step2 --> Agent2[Activate Agent:<br/>requirements-analyst]
+    Agent2 --> Execute2[Execute Step 2<br/>with Step 1 Outputs]
+    Execute2 --> Update2[Update TodoWrite: ✅]
+
+    Update2 --> Step3[Step 3: Code Implementation]
+
+    Step3 --> LoadMode3[Load Mode:<br/>Parallel_Orchestration]
+    LoadMode3 --> Parallel{Parallel<br/>Capable?}
+
+    Parallel -->|Yes| Multi[Launch Multiple Agents<br/>in Parallel]
+    Parallel -->|No| Single[Sequential Execution]
+
+    Multi --> Sync[Synchronize Results]
+    Single --> Sync
+
+    Sync --> Update3[Update TodoWrite: ✅]
+
+    Update3 --> Step4[Step 4: Code Review]
+    Step4 --> QualityGate{Quality Gate}
+
+    QualityGate -->|Fail| Block["❌ Block Progression<br/>Report Issues<br/>Request Fixes"]
+    QualityGate -->|Pass| Update4[Update TodoWrite: ✅]
+
+    Block --> Remediate[Fix Issues]
+    Remediate --> QualityGate
+
+    Update4 --> MoreSteps{More<br/>Steps?}
+
+    MoreSteps -->|Yes| NextStep[Continue to Next Step]
+    MoreSteps -->|No| CheckSuccess{All Success<br/>Criteria Met?}
+
+    NextStep --> Step1
+
+    CheckSuccess -->|No| Incomplete[❌ Workflow Incomplete<br/>Report Missing Criteria]
+    CheckSuccess -->|Yes| Report[Generate Final Report]
+
+    Report --> Archive[Archive Outputs]
+    Archive --> Complete([✅ Workflow Complete])
+
+    style Start fill:#e1f5ff
+    style Complete fill:#c8e6c9
+    style QualityGate fill:#fff3e1
+    style Block fill:#ffcdd2
+    style Archive fill:#c8e6c9

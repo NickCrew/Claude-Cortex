@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>WS5 Quality &amp; Error Handling - Action Plan | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="WS5 Quality &amp; Error Handling - Action Plan" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/workstreams/ws5-quality/action-plan.html" />
+<meta property="og:url" content="http://localhost:4000/archive/workstreams/ws5-quality/action-plan.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="WS5 Quality &amp; Error Handling - Action Plan" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"WS5 Quality &amp; Error Handling - Action Plan","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/workstreams/ws5-quality/action-plan.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">WS5 Quality &amp;amp; Error Handling - Action Plan</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="ws5-quality--error-handling---action-plan">WS5 Quality &amp; Error Handling - Action Plan</h1>
+
+<p><strong>Status</strong>: Ready for Execution
+<strong>Priority</strong>: HIGH
+<strong>Estimated Total Effort</strong>: 15-25 hours</p>
+
+<h2 id="quick-start-checklist">Quick Start Checklist</h2>
+
+<h3 id="phase-1-critical-fixes-week-1---3-6-hours">Phase 1: Critical Fixes (Week 1) - 3-6 hours</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>SQLite Resource Cleanup</strong> (2-4 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 101: <code class="language-plaintext highlighter-rouge">_init_database()</code></li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 369: <code class="language-plaintext highlighter-rouge">_pattern_based_recommendations()</code></li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 444: <code class="language-plaintext highlighter-rouge">_record_recommendations()</code></li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 458: <code class="language-plaintext highlighter-rouge">record_activation()</code></li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 479: <code class="language-plaintext highlighter-rouge">learn_from_feedback()</code> (CRITICAL)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 517: <code class="language-plaintext highlighter-rouge">get_recommendation_stats()</code></li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">skill_recommender.py</code> line 578: <code class="language-plaintext highlighter-rouge">record_feedback()</code> (CRITICAL)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Run tests to verify no ResourceWarnings</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Verify test suite passes</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>datetime.utcnow() Migration</strong> (1-2 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">analytics.py</code> (8 instances)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">core/base.py</code> (1 instance)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">core/profiles.py</code> (2 instances)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">tests/unit/test_analytics.py</code> (1 instance)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Fix <code class="language-plaintext highlighter-rouge">tests/unit/test_metrics.py</code> (1 instance)</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Run tests to verify no DeprecationWarnings</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Verify test suite passes</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="phase-2-validation--testing-week-2---4-6-hours">Phase 2: Validation &amp; Testing (Week 2) - 4-6 hours</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Resource Cleanup Tests</strong> (2-3 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add test to verify no ResourceWarnings</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add test to verify database can be deleted after operations</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add test for transaction rollback on error</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add test for concurrent access safety</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Error Handling Tests</strong> (2-3 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add negative tests for database errors</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add tests for corrupted data handling</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add tests for timeout scenarios</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Verify exception chain preservation</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="phase-3-documentation--standards-week-3---4-6-hours">Phase 3: Documentation &amp; Standards (Week 3) - 4-6 hours</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Development Guidelines</strong> (2-3 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Document error handling standards</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Create code review checklist</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add examples and anti-patterns</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Update CONTRIBUTING.md</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Automation</strong> (2-3 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add pre-commit hook for SQLite patterns</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Configure pylint for error handling</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add CI check for DeprecationWarnings</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add CI check for ResourceWarnings</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="phase-4-advanced-improvements-week-4---4-7-hours">Phase 4: Advanced Improvements (Week 4) - 4-7 hours</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Error Recovery</strong> (2-4 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add retry logic for transient database errors</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Implement graceful degradation patterns</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add telemetry for error tracking</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" /><strong>Performance</strong> (2-3 hours)
+    <ul class="task-list">
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Benchmark database operations</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Consider connection pooling</li>
+      <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Enable WAL mode for better concurrency</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="detailed-task-breakdown">Detailed Task Breakdown</h2>
+
+<h3 id="task-1-fix-sqlite-resource-leaks">Task 1: Fix SQLite Resource Leaks</h3>
+
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/skill_recommender.py</code></p>
+
+<p><strong>Priority</strong>: CRITICAL
+<strong>Estimated Time</strong>: 2-4 hours
+<strong>Dependencies</strong>: None</p>
+
+<p><strong>Changes Required</strong>:</p>
+
+<ol>
+  <li><strong>Line 101: <code class="language-plaintext highlighter-rouge">_init_database()</code></strong>
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># BEFORE
+</span><span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span>
+<span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"CREATE TABLE ..."</span><span class="p">)</span>
+<span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+<span class="n">conn</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># AFTER
+</span><span class="k">with</span> <span class="n">sqlite3</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+    <span class="n">conn</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="s">"CREATE TABLE ..."</span><span class="p">)</span>
+    <span class="n">conn</span><span class="p">.</span><span class="n">commit</span><span class="p">()</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Line 369: <code class="language-plaintext highlighter-rouge">_pattern_based_recommendations()</code></strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add error handling for database errors</li>
+      <li>Add error handling for JSON parsing</li>
+    </ul>
+  </li>
+  <li><strong>Line 444: <code class="language-plaintext highlighter-rouge">_record_recommendations()</code></strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add error handling for INSERT failures</li>
+    </ul>
+  </li>
+  <li><strong>Line 458: <code class="language-plaintext highlighter-rouge">record_activation()</code></strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add error handling for UPDATE failures</li>
+    </ul>
+  </li>
+  <li><strong>Line 479: <code class="language-plaintext highlighter-rouge">learn_from_feedback()</code> (CRITICAL)</strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add comprehensive error handling (complex logic)</li>
+      <li>Add transaction management for multi-step operation</li>
+    </ul>
+  </li>
+  <li><strong>Line 517: <code class="language-plaintext highlighter-rouge">get_recommendation_stats()</code></strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add error handling for query failures</li>
+    </ul>
+  </li>
+  <li><strong>Line 578: <code class="language-plaintext highlighter-rouge">record_feedback()</code> (CRITICAL)</strong>
+    <ul>
+      <li>Add context manager</li>
+      <li>Add comprehensive error handling (complex logic)</li>
+      <li>Add transaction management</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Testing</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run with warnings enabled</span>
+python <span class="nt">-W</span> error::ResourceWarning <span class="nt">-m</span> pytest tests/
+
+<span class="c"># Should show 0 ResourceWarnings</span>
+</code></pre></div></div>
+
+<h3 id="task-2-replace-datetimeutcnow">Task 2: Replace datetime.utcnow()</h3>
+
+<p><strong>Files</strong>: 5 files, 13 instances total</p>
+
+<p><strong>Priority</strong>: HIGH
+<strong>Estimated Time</strong>: 1-2 hours
+<strong>Dependencies</strong>: None</p>
+
+<p><strong>Changes Required</strong>:</p>
+
+<ol>
+  <li><strong>Update imports</strong> (all affected files):
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Add timezone to imports
+</span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">timedelta</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Replace all instances</strong>:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># BEFORE
+</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">utcnow</span><span class="p">()</span>
+<span class="n">cutoff</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">iso_str</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">utcnow</span><span class="p">().</span><span class="n">isoformat</span><span class="p">()</span> <span class="o">+</span> <span class="s">"Z"</span>
+
+<span class="c1"># AFTER
+</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="n">cutoff</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">iso_str</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="p">.</span><span class="n">utc</span><span class="p">).</span><span class="n">isoformat</span><span class="p">()</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p><strong>File-by-file breakdown</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">analytics.py</code>: 8 instances (lines 193, 283, 346, 367, 430, 711, 764, 798)</li>
+  <li><code class="language-plaintext highlighter-rouge">core/base.py</code>: 1 instance (line 641)</li>
+  <li><code class="language-plaintext highlighter-rouge">core/profiles.py</code>: 2 instances (lines 510, 1264)</li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/test_analytics.py</code>: 1 instance (line 47)</li>
+  <li><code class="language-plaintext highlighter-rouge">tests/unit/test_metrics.py</code>: 1 instance (line 101)</li>
+</ul>
+
+<p><strong>Testing</strong>:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Run with deprecation warnings as errors</span>
+python <span class="nt">-W</span> error::DeprecationWarning <span class="nt">-m</span> pytest tests/
+
+<span class="c"># Should show 0 DeprecationWarnings</span>
+</code></pre></div></div>
+
+<h3 id="task-3-add-resource-cleanup-tests">Task 3: Add Resource Cleanup Tests</h3>
+
+<p><strong>Priority</strong>: HIGH
+<strong>Estimated Time</strong>: 2-3 hours
+<strong>Dependencies</strong>: Task 1 complete</p>
+
+<p><strong>Test Cases to Add</strong>:</p>
+
+<ol>
+  <li><strong>Test no ResourceWarnings</strong>:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_no_resource_warnings_after_operations</span><span class="p">():</span>
+    <span class="s">"""Verify no ResourceWarnings after database operations."""</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="p">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="p">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">"always"</span><span class="p">,</span> <span class="nb">ResourceWarning</span><span class="p">)</span>
+        <span class="c1"># Perform operations
+</span>        <span class="n">recommender</span> <span class="o">=</span> <span class="n">SkillRecommender</span><span class="p">()</span>
+        <span class="n">recommender</span><span class="p">.</span><span class="n">get_recommendation_stats</span><span class="p">()</span>
+        <span class="c1"># Check warnings
+</span>        <span class="n">resource_warnings</span> <span class="o">=</span> <span class="p">[</span><span class="n">warning</span> <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">w</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">warning</span><span class="p">.</span><span class="n">category</span><span class="p">,</span> <span class="nb">ResourceWarning</span><span class="p">)]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">resource_warnings</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s">"Found ResourceWarnings: </span><span class="si">{</span><span class="n">resource_warnings</span><span class="si">}</span><span class="s">"</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Test database can be deleted</strong>:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_database_can_be_deleted_after_use</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Verify database file can be deleted (no locks)."""</span>
+    <span class="n">db_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s">"test.db"</span>
+    <span class="n">recommender</span> <span class="o">=</span> <span class="n">SkillRecommender</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">recommender</span><span class="p">.</span><span class="n">get_recommendation_stats</span><span class="p">()</span>
+
+    <span class="kn">import</span> <span class="nn">gc</span>
+    <span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>  <span class="c1"># Force cleanup
+</span>
+    <span class="c1"># Should not raise "file in use" error
+</span>    <span class="n">db_path</span><span class="p">.</span><span class="n">unlink</span><span class="p">()</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Test transaction rollback</strong>:
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_automatic_rollback_on_error</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="s">"""Verify automatic rollback on exceptions."""</span>
+    <span class="n">recommender</span> <span class="o">=</span> <span class="n">SkillRecommender</span><span class="p">(</span><span class="n">home</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="c1"># Get initial count
+</span>    <span class="n">initial_count</span> <span class="o">=</span> <span class="n">get_rating_count</span><span class="p">(</span><span class="n">recommender</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span>
+
+    <span class="c1"># Attempt operation that fails
+</span>    <span class="k">with</span> <span class="n">pytest</span><span class="p">.</span><span class="n">raises</span><span class="p">(</span><span class="nb">ValueError</span><span class="p">):</span>
+        <span class="n">recommender</span><span class="p">.</span><span class="n">record_invalid_rating</span><span class="p">()</span>
+
+    <span class="c1"># Verify rollback
+</span>    <span class="n">final_count</span> <span class="o">=</span> <span class="n">get_rating_count</span><span class="p">(</span><span class="n">recommender</span><span class="p">.</span><span class="n">db_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">final_count</span> <span class="o">==</span> <span class="n">initial_count</span><span class="p">,</span> <span class="s">"Transaction should have rolled back"</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="task-4-add-error-handling-documentation">Task 4: Add Error Handling Documentation</h3>
+
+<p><strong>Priority</strong>: MEDIUM
+<strong>Estimated Time</strong>: 2-3 hours
+<strong>Dependencies</strong>: None</p>
+
+<p><strong>Documents to Create</strong>:</p>
+
+<ol>
+  <li><strong>Developer Guidelines</strong> (<code class="language-plaintext highlighter-rouge">docs/development/error-handling.md</code>):
+    <ul>
+      <li>Error handling standards</li>
+      <li>Resource management patterns</li>
+      <li>Exception chain preservation</li>
+      <li>Error message guidelines</li>
+    </ul>
+  </li>
+  <li><strong>Code Review Checklist</strong> (<code class="language-plaintext highlighter-rouge">docs/development/code-review.md</code>):
+    <ul>
+      <li>Resource cleanup verification</li>
+      <li>Error handling verification</li>
+      <li>Exception chain verification</li>
+      <li>Error message quality check</li>
+    </ul>
+  </li>
+  <li><strong>Examples Repository</strong> (<code class="language-plaintext highlighter-rouge">docs/examples/error-handling/</code>):
+    <ul>
+      <li>Good patterns</li>
+      <li>Anti-patterns</li>
+      <li>Common pitfalls</li>
+      <li>Migration examples</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="task-5-add-automation">Task 5: Add Automation</h3>
+
+<p><strong>Priority</strong>: MEDIUM
+<strong>Estimated Time</strong>: 2-3 hours
+<strong>Dependencies</strong>: Tasks 1-2 complete</p>
+
+<p><strong>Automation to Add</strong>:</p>
+
+<ol>
+  <li><strong>Pre-commit Hook</strong> (<code class="language-plaintext highlighter-rouge">.pre-commit-config.yaml</code>):
+```yaml
+    <ul>
+      <li>repo: local
+hooks:
+        <ul>
+          <li>
+            <p>id: check-sqlite-context-manager
+name: Check SQLite uses context managers
+entry: bash -c ‘if grep -r “= sqlite3.connect” –include=”*.py” claude_ctx_py/; then exit 1; fi’
+language: system
+pass_filenames: false</p>
+          </li>
+          <li>
+            <p>id: check-datetime-utcnow
+name: Check no datetime.utcnow()
+entry: bash -c ‘if grep -r “datetime.utcnow()” –include=”*.py” claude_ctx_py/; then exit 1; fi’
+language: system
+pass_filenames: false
+```</p>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Pylint Configuration</strong> (<code class="language-plaintext highlighter-rouge">pyproject.toml</code>):
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[tool.pylint.messages_control]</span>
+<span class="py">enable</span> <span class="p">=</span> <span class="p">[</span>
+    <span class="s">"consider-using-with"</span><span class="p">,</span>
+    <span class="s">"unidiomatic-typecheck"</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>CI Check</strong> (<code class="language-plaintext highlighter-rouge">.github/workflows/quality.yml</code>):
+```yaml
+    <ul>
+      <li>name: Check for warnings
+run: |
+  python -W error::ResourceWarning -W error::DeprecationWarning -m pytest tests/
+```</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="progress-tracking">Progress Tracking</h2>
+
+<h3 id="week-1-goals">Week 1 Goals</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All SQLite resource leaks fixed</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All datetime.utcnow() instances migrated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test suite passes with no warnings</li>
+</ul>
+
+<h3 id="week-2-goals">Week 2 Goals</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Resource cleanup tests added</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Error handling tests added</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Test coverage &gt;85%</li>
+</ul>
+
+<h3 id="week-3-goals">Week 3 Goals</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Documentation complete</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Code review checklist in place</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Pre-commit hooks configured</li>
+</ul>
+
+<h3 id="week-4-goals">Week 4 Goals</h3>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Advanced error recovery implemented</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Performance benchmarks complete</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />CI/CD quality gates active</li>
+</ul>
+
+<h2 id="success-criteria">Success Criteria</h2>
+
+<h3 id="must-have-critical">Must Have (Critical)</h3>
+<ul>
+  <li>✅ 0 SQLite ResourceWarnings</li>
+  <li>✅ 0 datetime DeprecationWarnings</li>
+  <li>✅ All tests passing</li>
+  <li>✅ 100% of database ops use context managers</li>
+</ul>
+
+<h3 id="should-have-important">Should Have (Important)</h3>
+<ul>
+  <li>✅ Resource cleanup tests in place</li>
+  <li>✅ Error handling documentation complete</li>
+  <li>✅ Pre-commit hooks configured</li>
+  <li>✅ CI checks enforcing standards</li>
+</ul>
+
+<h3 id="nice-to-have-optional">Nice to Have (Optional)</h3>
+<ul>
+  <li>✅ Connection pooling implemented</li>
+  <li>✅ WAL mode enabled</li>
+  <li>✅ Performance benchmarks documented</li>
+  <li>✅ Error telemetry in place</li>
+</ul>
+
+<h2 id="risk-management">Risk Management</h2>
+
+<h3 id="risk-breaking-existing-functionality">Risk: Breaking Existing Functionality</h3>
+<p><strong>Probability</strong>: Low
+<strong>Impact</strong>: High
+<strong>Mitigation</strong>:</p>
+<ul>
+  <li>Comprehensive testing before merge</li>
+  <li>Code review with domain expert</li>
+  <li>Incremental rollout if possible</li>
+</ul>
+
+<h3 id="risk-test-suite-failures">Risk: Test Suite Failures</h3>
+<p><strong>Probability</strong>: Medium
+<strong>Impact</strong>: Medium
+<strong>Mitigation</strong>:</p>
+<ul>
+  <li>Fix tests alongside code changes</li>
+  <li>Verify tests with warnings enabled</li>
+  <li>Add regression tests</li>
+</ul>
+
+<h3 id="risk-performance-degradation">Risk: Performance Degradation</h3>
+<p><strong>Probability</strong>: Low
+<strong>Impact</strong>: Medium
+<strong>Mitigation</strong>:</p>
+<ul>
+  <li>Benchmark before/after changes</li>
+  <li>Profile critical paths</li>
+  <li>Monitor production metrics</li>
+</ul>
+
+<h2 id="resources">Resources</h2>
+
+<h3 id="documentation">Documentation</h3>
+<ul>
+  <li><a href="/archive/workstreams/ws5-quality/sqlite-patterns.html">SQLite Patterns Guide</a></li>
+  <li><a href="/archive/workstreams/ws5-quality/error-audit.html">Error Audit Report</a></li>
+  <li><a href="https://docs.python.org/3/library/datetime.html">Python datetime docs</a></li>
+  <li><a href="https://docs.python.org/3/library/sqlite3.html">Python sqlite3 docs</a></li>
+</ul>
+
+<h3 id="tools">Tools</h3>
+<ul>
+  <li>pytest with warnings enabled</li>
+  <li>pylint for pattern detection</li>
+  <li>pre-commit for automation</li>
+  <li>coverage.py for test coverage</li>
+</ul>
+
+<h3 id="support">Support</h3>
+<ul>
+  <li>Python 3.12+ for testing deprecation warnings</li>
+  <li>SQLite 3.x for database operations</li>
+  <li>pytest 7.x for testing framework</li>
+</ul>
+
+<h2 id="next-steps">Next Steps</h2>
+
+<ol>
+  <li><strong>Immediate</strong>: Start with Task 1 (SQLite fixes)</li>
+  <li><strong>Short-term</strong>: Complete Task 2 (datetime migration)</li>
+  <li><strong>Medium-term</strong>: Add tests and documentation</li>
+  <li><strong>Long-term</strong>: Implement automation and advanced features</li>
+</ol>
+
+<h2 id="questions--decisions">Questions &amp; Decisions</h2>
+
+<h3 id="q-should-we-migrate-all-at-once-or-incrementally">Q: Should we migrate all at once or incrementally?</h3>
+<p><strong>Decision</strong>: Migrate incrementally, starting with critical paths
+<strong>Rationale</strong>: Lower risk, easier to test and validate</p>
+
+<h3 id="q-should-we-add-connection-pooling-now">Q: Should we add connection pooling now?</h3>
+<p><strong>Decision</strong>: No, defer to Phase 4
+<strong>Rationale</strong>: Fix critical issues first, optimize later</p>
+
+<h3 id="q-should-we-enable-wal-mode-globally">Q: Should we enable WAL mode globally?</h3>
+<p><strong>Decision</strong>: Yes, but test thoroughly first
+<strong>Rationale</strong>: Better concurrency with minimal risk</p>
+
+<h2 id="sign-off">Sign-off</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Technical Lead Review</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />QA Validation</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Documentation Complete</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />CI/CD Updated</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Ready for Merge</li>
+</ul>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

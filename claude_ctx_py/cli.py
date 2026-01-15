@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import re
@@ -11,6 +12,7 @@ from typing import Iterable, List, cast, Dict, Any, Callable
 
 from . import core
 from .core.migration import migrate_to_file_activation, migrate_commands_layout
+from .messages import RESTART_REQUIRED_MESSAGE
 
 
 def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
@@ -26,6 +28,26 @@ def _enable_argcomplete(parser: argparse.ArgumentParser) -> None:
 
 def _print(text: str) -> None:
     sys.stdout.write(text + "\n")
+
+
+_ANSI_PATTERN = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _strip_ansi(text: str) -> str:
+    return _ANSI_PATTERN.sub("", text)
+
+
+def _message_indicates_change(message: str) -> bool:
+    clean = _strip_ansi(message or "")
+    for line in clean.splitlines():
+        line = line.strip().lower()
+        if line.startswith("activated ") or line.startswith("deactivated "):
+            return True
+    return False
+
+
+def _restart_notice() -> str:
+    return RESTART_REQUIRED_MESSAGE
 
 
 def _build_mode_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -145,6 +167,19 @@ def _build_prompts_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     prompts_deactivate.add_argument(
         "slugs", nargs="+", help="Prompt slug(s) in category/name format"
+    )
+
+
+def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    hooks_parser = subparsers.add_parser("hooks", help="Hook commands")
+    hooks_sub = hooks_parser.add_subparsers(dest="hooks_command")
+    hooks_validate = hooks_sub.add_parser(
+        "validate", help="Validate hooks.json configuration"
+    )
+    hooks_validate.add_argument(
+        "--path",
+        type=Path,
+        help="Path to hooks.json (defaults to plugin root hooks/hooks.json)",
     )
 
 
@@ -745,19 +780,47 @@ def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "--no-auto-activate",
         dest="no_auto_activate",
         action="store_true",
+        default=None,
         help="Disable auto-activation of high-confidence agents",
+    )
+    ai_watch.add_argument(
+        "--daemon",
+        action="store_true",
+        help="Run watch mode in the background as a daemon",
+    )
+    ai_watch.add_argument(
+        "--status",
+        action="store_true",
+        help="Show watch daemon status",
+    )
+    ai_watch.add_argument(
+        "--stop",
+        action="store_true",
+        help="Stop the watch daemon",
+    )
+    ai_watch.add_argument(
+        "--log",
+        dest="watch_log",
+        help="Log file for daemon mode (default: ~/.cortex/logs/watch.log)",
     )
     ai_watch.add_argument(
         "--threshold",
         type=float,
-        default=0.7,
-        help="Confidence threshold for notifications (0.0-1.0, default: 0.7)",
+        default=None,
+        help="Confidence threshold for notifications (0.0-1.0, default: config or 0.7)",
     )
     ai_watch.add_argument(
         "--interval",
         type=float,
-        default=2.0,
-        help="Check interval in seconds (default: 2.0)",
+        default=None,
+        help="Check interval in seconds (default: config or 2.0)",
+    )
+    ai_watch.add_argument(
+        "--dir",
+        dest="watch_dirs",
+        action="append",
+        default=[],
+        help="Directory to watch (can be repeated or comma-separated)",
     )
 
 
@@ -999,6 +1062,15 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
+def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    docs_parser = subparsers.add_parser("docs", help="Documentation viewer")
+    docs_parser.add_argument(
+        "page",
+        nargs="?",
+        help="Documentation page to view (e.g., architecture/overview). Lists pages if omitted.",
+    )
+
+
 def _build_statusline_parser(
     subparsers: argparse._SubParsersAction[Any],
 ) -> None:
@@ -1008,6 +1080,36 @@ def _build_statusline_parser(
         "statusline", help="Render Claude Code status line"
     )
     statusline.add_statusline_arguments(statusline_parser)
+
+
+def _build_config_parser(
+    subparsers: argparse._SubParsersAction[Any],
+) -> None:
+    config_parser = subparsers.add_parser(
+        "config", help="Show the current Cortex launcher configuration"
+    )
+    config_parser.add_argument(
+        "--config",
+        type=Path,
+        default=None,
+        help="Path to cortex-config.json (default: ~/.cortex/cortex-config.json)",
+    )
+    config_parser.add_argument(
+        "--plugin-dir",
+        type=Path,
+        help="Path to Cortex plugin assets (commands, agents, skills, hooks)",
+    )
+    config_parser.add_argument(
+        "--raw",
+        action="store_true",
+        help="Print raw config file contents without applying defaults",
+    )
+    config_parser.add_argument(
+        "--json",
+        dest="config_json",
+        action="store_true",
+        help="Output configuration as JSON",
+    )
 
 
 def _add_start_arguments(parser: argparse.ArgumentParser) -> None:
@@ -1070,6 +1172,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_rules_parser(subparsers)
     _build_principles_parser(subparsers)
     _build_prompts_parser(subparsers)
+    _build_hooks_parser(subparsers)
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_init_parser(subparsers)
@@ -1077,6 +1180,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_workflow_parser(subparsers)
     _build_worktree_parser(subparsers)
     _build_orchestrate_parser(subparsers)
+    _build_config_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
     start_parser = subparsers.add_parser(
@@ -1099,6 +1203,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_export_parser(subparsers)
     _build_completion_parser(subparsers)
     _build_install_parser(subparsers)
+    _build_docs_parser(subparsers)
     _build_doctor_parser(subparsers)
     _build_memory_parser(subparsers)
     _build_setup_parser(subparsers)
@@ -1116,22 +1221,32 @@ def _handle_mode_command(args: argparse.Namespace) -> int:
     if args.mode_command == "activate":
         messages = []
         final_exit_code = 0
+        changed = False
         for mode in args.modes:
             exit_code, message = core.mode_activate(mode)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.mode_command == "deactivate":
         messages = []
         final_exit_code = 0
+        changed = False
         for mode in args.modes:
             exit_code, message = core.mode_deactivate(mode)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     return 1
 
@@ -1146,22 +1261,32 @@ def _handle_agent_command(args: argparse.Namespace) -> int:
     if args.agent_command == "activate":
         messages = []
         final_exit_code = 0
+        changed = False
         for agent in args.agents:
             exit_code, message = core.agent_activate(agent)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.agent_command == "deactivate":
         messages = []
         final_exit_code = 0
+        changed = False
         for agent in args.agents:
             exit_code, message = core.agent_deactivate(agent, force=args.force)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.agent_command == "deps":
         exit_code, message = core.agent_deps(args.agent)
@@ -1189,15 +1314,27 @@ def _handle_rules_command(args: argparse.Namespace) -> int:
         return 0
     if args.rules_command == "activate":
         messages = []
+        changed = False
         for rule in args.rules:
-            messages.append(core.rules_activate(rule))
+            message = core.rules_activate(rule)
+            messages.append(message)
+            if _message_indicates_change(message):
+                changed = True
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return 0
     if args.rules_command == "deactivate":
         messages = []
+        changed = False
         for rule in args.rules:
-            messages.append(core.rules_deactivate(rule))
+            message = core.rules_deactivate(rule)
+            messages.append(message)
+            if _message_indicates_change(message):
+                changed = True
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return 0
     return 1
 
@@ -1212,22 +1349,32 @@ def _handle_principles_command(args: argparse.Namespace) -> int:
     if args.principles_command == "activate":
         messages = []
         final_exit_code = 0
+        changed = False
         for name in args.principles:
             exit_code, message = core.principles_activate(name)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.principles_command == "deactivate":
         messages = []
         final_exit_code = 0
+        changed = False
         for name in args.principles:
             exit_code, message = core.principles_deactivate(name)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.principles_command == "build":
         exit_code, message = core.principles_build()
@@ -1261,6 +1408,153 @@ def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> in
         return 1
 
 
+def _handle_config_command(args: argparse.Namespace) -> int:
+    from .launcher import (
+        DEFAULT_CONFIG_PATH,
+        _read_json,
+        _resolve_flags_md,
+        _resolve_plugin_root,
+        load_launcher_config,
+    )
+    from .watch import load_watch_defaults
+
+    config_path = getattr(args, "config", None) or DEFAULT_CONFIG_PATH
+    config_exists = config_path.exists()
+    raw_config, warnings = _read_json(config_path)
+
+    if getattr(args, "raw", False):
+        payload = {
+            "config_path": str(config_path),
+            "config_exists": config_exists,
+            "config": raw_config,
+            "warnings": warnings,
+        }
+        if getattr(args, "config_json", False):
+            _print(json.dumps(payload, indent=2))
+            return 0
+
+        lines = ["=== Cortex Config (raw) ==="]
+        if config_exists:
+            lines.append(f"Config file: {config_path}")
+        else:
+            lines.append(f"Config file: {config_path} (missing)")
+        lines.append("")
+        lines.append(json.dumps(raw_config, indent=2) if raw_config else "{}")
+        if warnings:
+            lines.append("")
+            lines.append("Warnings:")
+            for warning in warnings:
+                lines.append(f"- {warning}")
+        _print("\n".join(lines))
+        return 0
+
+    plugin_dir = getattr(args, "plugin_dir", None) or getattr(args, "plugin_root", None)
+    plugin_root = _resolve_plugin_root(plugin_dir, raw_config)
+    if plugin_root is None or not plugin_root.exists():
+        _print(
+            "Unable to resolve plugin root. Provide --plugin-dir or set "
+            "`plugin_dir` in ~/.cortex/cortex-config.json."
+        )
+        return 1
+
+    content_root = config_path.parent
+    config, load_warnings = load_launcher_config(
+        config_path=config_path,
+        plugin_root=plugin_root,
+        content_root=content_root,
+        write_defaults=False,
+    )
+    warnings.extend(load_warnings)
+
+    flags_md = _resolve_flags_md(content_root, plugin_root, config_path.parent)
+    flags_source = f"FLAGS.md ({flags_md})" if flags_md else "config file"
+    watch_defaults = load_watch_defaults(config_path)
+
+    payload = {
+        "config_path": str(config_path),
+        "config_exists": config_exists,
+        "plugin_root": str(plugin_root),
+        "content_root": str(content_root),
+        "settings_path": str(config.settings_path) if config.settings_path else None,
+        "rules": config.rules,
+        "flags": config.flags,
+        "flags_source": flags_source,
+        "modes": config.modes,
+        "principles": config.principles,
+        "claude_args": config.claude_args,
+        "extra_plugin_dirs": [str(path) for path in config.extra_plugin_dirs],
+        "watch": {
+            "directories": [
+                str(path) for path in watch_defaults.directories or []
+            ],
+            "auto_activate": watch_defaults.auto_activate,
+            "threshold": watch_defaults.threshold,
+            "interval": watch_defaults.interval,
+            "warnings": watch_defaults.warnings,
+        },
+        "warnings": warnings,
+    }
+
+    if getattr(args, "config_json", False):
+        _print(json.dumps(payload, indent=2))
+        return 0
+
+    def _fmt_list(values: List[str]) -> str:
+        return ", ".join(values) if values else "None"
+
+    claude_args_display = (
+        " ".join(config.claude_args) if config.claude_args else "None"
+    )
+
+    lines = ["=== Cortex Config ==="]
+    if config_exists:
+        lines.append(f"Config file: {config_path}")
+    else:
+        lines.append(f"Config file: {config_path} (missing)")
+    lines.append(f"Plugin root: {plugin_root}")
+    lines.append(f"Content root: {content_root}")
+    lines.append(f"Settings path: {config.settings_path or 'None'}")
+    lines.append(f"Rules: {_fmt_list(config.rules)}")
+    lines.append(f"Flags: {_fmt_list(config.flags)}")
+    lines.append(f"Flags source: {flags_source}")
+    lines.append(f"Modes: {_fmt_list(config.modes)}")
+    lines.append(f"Principles: {_fmt_list(config.principles)}")
+    lines.append(f"Claude args: {claude_args_display}")
+    lines.append(
+        f"Extra plugin dirs: {_fmt_list([str(p) for p in config.extra_plugin_dirs])}"
+    )
+    if watch_defaults.directories:
+        lines.append(f"Watch directories: {_fmt_list([str(p) for p in watch_defaults.directories])}")
+    else:
+        lines.append("Watch directories: None")
+    if watch_defaults.auto_activate is not None:
+        lines.append(f"Watch auto-activate: {'ON' if watch_defaults.auto_activate else 'OFF'}")
+    else:
+        lines.append("Watch auto-activate: default")
+    if watch_defaults.threshold is not None:
+        lines.append(f"Watch threshold: {watch_defaults.threshold}")
+    else:
+        lines.append("Watch threshold: default")
+    if watch_defaults.interval is not None:
+        lines.append(f"Watch interval: {watch_defaults.interval}")
+    else:
+        lines.append("Watch interval: default")
+
+    if warnings:
+        lines.append("")
+        lines.append("Warnings:")
+        for warning in warnings:
+            lines.append(f"- {warning}")
+    if watch_defaults.warnings:
+        lines.append("")
+        lines.append("Watch config warnings:")
+        for warning in watch_defaults.warnings:
+            lines.append(f"- {warning}")
+
+    _print("\n".join(lines))
+    return 0
+
+
 def _handle_prompts_command(args: argparse.Namespace) -> int:
     if args.prompts_command == "list":
         _print(core.list_prompts())
@@ -1271,23 +1565,53 @@ def _handle_prompts_command(args: argparse.Namespace) -> int:
     if args.prompts_command == "activate":
         messages = []
         final_exit_code = 0
+        changed = False
         for slug in args.slugs:
             exit_code, message = core.prompt_activate(slug)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.prompts_command == "deactivate":
         messages = []
         final_exit_code = 0
+        changed = False
         for slug in args.slugs:
             exit_code, message = core.prompt_deactivate(slug)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
+    return 1
+
+
+def _handle_hooks_command(args: argparse.Namespace) -> int:
+    if args.hooks_command == "validate":
+        path = getattr(args, "path", None)
+        if path is None:
+            plugin_root = getattr(args, "plugin_root", None) or core._resolve_plugin_assets_root()
+            path = plugin_root / "hooks" / "hooks.json"
+        if not path.exists():
+            _print(f"Hooks config not found: {path}")
+            return 1
+        is_valid, errors = core.validate_hooks_config_file(path)
+        if is_valid:
+            _print(f"Hooks config OK: {path}")
+            return 0
+        for error in errors:
+            _print(error)
+        return 1
+    _print("Hooks command required. Use 'cortex hooks --help' for options.")
     return 1
 
 
@@ -1452,22 +1776,32 @@ def _handle_mcp_command(args: argparse.Namespace) -> int:
     if args.mcp_command == "activate":
         messages = []
         final_exit_code = 0
+        changed = False
         for doc in args.docs:
             exit_code, message = core.mcp_activate(doc)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.mcp_command == "deactivate":
         messages = []
         final_exit_code = 0
+        changed = False
         for doc in args.docs:
             exit_code, message = core.mcp_deactivate(doc)
             messages.append(message)
-            if exit_code != 0:
+            if exit_code == 0:
+                changed = True
+            else:
                 final_exit_code = exit_code
         _print("\n".join(messages))
+        if changed:
+            _print(_restart_notice())
         return final_exit_code
     if args.mcp_command == "show":
         exit_code, message = core.mcp_show(args.server)
@@ -1506,11 +1840,15 @@ def _handle_init_command(args: argparse.Namespace) -> int:
         exit_code, message = core.init_minimal()
         if message:
             _print(message)
+        if exit_code == 0:
+            _print(_restart_notice())
         return exit_code
     if init_command == "profile":
         exit_code, message = core.init_profile(getattr(args, "name", None))
         if message:
             _print(message)
+        if exit_code == 0:
+            _print(_restart_notice())
         return exit_code
     if init_command == "status":
         exit_code, output, warnings = core.init_status(
@@ -1561,6 +1899,8 @@ def _handle_init_command(args: argparse.Namespace) -> int:
         exit_code, message = core.init_wizard(cwd=Path.cwd())
     if message:
         _print(message)
+    if exit_code == 0:
+        _print(_restart_notice())
     return exit_code
 
 
@@ -1592,6 +1932,8 @@ def _handle_profile_command(args: argparse.Namespace) -> int:
     if loader:
         exit_code, message = loader()
         _print(message)
+        if exit_code == 0:
+            _print(_restart_notice())
         return exit_code
     return 1
 
@@ -1724,11 +2066,80 @@ def _handle_ai_command(args: argparse.Namespace) -> int:
     elif args.ai_command == "watch":
         from . import watch
 
-        return watch.watch_main(
-            auto_activate=not args.no_auto_activate,
-            threshold=args.threshold,
-            interval=args.interval,
+        if args.status and args.stop:
+            _print("Choose either --status or --stop.")
+            return 1
+        if (args.status or args.stop) and args.daemon:
+            _print("Use --status/--stop without --daemon.")
+            return 1
+        if args.status:
+            exit_code, message = watch.watch_daemon_status()
+            _print(message)
+            return exit_code
+        if args.stop:
+            exit_code, message = watch.stop_watch_daemon()
+            _print(message)
+            return exit_code
+
+        defaults = watch.load_watch_defaults()
+        for warning in defaults.warnings:
+            _print(f"Config warning: {warning}")
+
+        watch_dirs: List[Path] = []
+        for entry in getattr(args, "watch_dirs", []) or []:
+            for raw in entry.split(","):
+                cleaned = raw.strip()
+                if not cleaned:
+                    continue
+                watch_dirs.append(Path(os.path.expanduser(cleaned)))
+
+        if watch_dirs:
+            invalid = [p for p in watch_dirs if not p.exists() or not p.is_dir()]
+            if invalid:
+                _print("Invalid watch directory(s):")
+                for path in invalid:
+                    _print(f"  - {path}")
+                return 1
+
+        if args.no_auto_activate is True:
+            auto_activate = False
+        elif defaults.auto_activate is not None:
+            auto_activate = defaults.auto_activate
+        else:
+            auto_activate = True
+
+        threshold = (
+            args.threshold
+            if args.threshold is not None
+            else (defaults.threshold if defaults.threshold is not None else 0.7)
+        )
+        interval = (
+            args.interval
+            if args.interval is not None
+            else (defaults.interval if defaults.interval is not None else 2.0)
+        )
+        directories = watch_dirs or defaults.directories
+
+        if args.daemon:
+            log_path = None
+            if args.watch_log:
+                log_path = Path(os.path.expanduser(args.watch_log)).resolve()
+            exit_code, message = watch.start_watch_daemon(
+                auto_activate=auto_activate,
+                threshold=threshold,
+                interval=interval,
+                directories=directories,
+                log_path=log_path,
             )
+            _print(message)
+            return exit_code
+
+        return watch.watch_main(
+            auto_activate=auto_activate,
+            threshold=threshold,
+            interval=interval,
+            directories=directories,
+        )
     else:
         _print("AI command required. Use 'cortex ai --help' for options.")
         return 1
@@ -1875,6 +2286,19 @@ def _handle_install_command(args: argparse.Namespace) -> int:
     else:
         _print("Install subcommand required. Use 'cortex install --help'")
         return 1
+
+
+def _handle_docs_command(args: argparse.Namespace) -> int:
+    from . import cmd_docs
+
+    if args.page:
+        exit_code, message = cmd_docs.view_doc(args.page)
+    else:
+        exit_code, message = cmd_docs.list_docs()
+    
+    if message:
+        _print(message)
+    return exit_code
 
 
 def _handle_statusline_command(args: argparse.Namespace) -> int:
@@ -2055,6 +2479,8 @@ def _handle_setup_command(args: argparse.Namespace) -> int:
     if args.setup_command == "migrate":
         exit_code, message = migrate_to_file_activation()
         _print(message)
+        if _message_indicates_change(message):
+            _print(_restart_notice())
         return exit_code
     if args.setup_command == "migrate-commands":
         exit_code, message = migrate_commands_layout(
@@ -2195,6 +2621,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "rules": _handle_rules_command,
         "principles": _handle_principles_command,
         "prompts": _handle_prompts_command,
+        "hooks": _handle_hooks_command,
         "skills": _handle_skills_command,
         "mcp": _handle_mcp_command,
         "init": _handle_init_command,
@@ -2203,10 +2630,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         "worktree": _handle_worktree_command,
         "orchestrate": _handle_orchestrate_command,
         "orch": _handle_orchestrate_command,
+        "config": _handle_config_command,
         "ai": _handle_ai_command,
         "export": _handle_export_command,
         "completion": _handle_completion_command,
         "install": _handle_install_command,
+        "docs": _handle_docs_command,
         "statusline": _handle_statusline_command,
         "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,

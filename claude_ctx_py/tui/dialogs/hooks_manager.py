@@ -19,6 +19,7 @@ from ...core.hooks import (
     get_installed_hooks,
     install_hook,
     uninstall_hook,
+    validate_hooks_config_file,
 )
 
 
@@ -165,7 +166,21 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
             self.installed_hooks = get_installed_hooks()
         except Exception:
             self.installed_hooks = []
+        self._validate_plugin_hooks_config()
         self._update_lists()
+
+    def _validate_plugin_hooks_config(self) -> None:
+        """Validate plugin hooks.json for mutual exclusivity issues."""
+        if not self.plugin_dir:
+            return
+        config_path = self.plugin_dir / "hooks" / "hooks.json"
+        if not config_path.is_file():
+            return
+        is_valid, errors = validate_hooks_config_file(config_path)
+        if is_valid:
+            return
+        message = "Hooks config issues: " + "; ".join(errors)
+        self.notify(message, severity="warning", timeout=4)
 
     def _update_lists(self) -> None:
         """Update the hook lists."""

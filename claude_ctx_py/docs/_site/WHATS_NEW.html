@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>What’s New in Cortex | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="What’s New in Cortex" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/WHATS_NEW.html" />
+<meta property="og:url" content="http://localhost:4000/WHATS_NEW.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="What’s New in Cortex" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"What’s New in Cortex","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/WHATS_NEW.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">What’s New in Cortex</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="whats-new-in-cortex">What’s New in Cortex</h1>
+
+<h2 id="2025-12-28-multi-reviewer-auto-activation--tui-review-grouping">2025-12-28: Multi-Reviewer Auto-Activation &amp; TUI Review Grouping</h2>
+
+<h3 id="-multi-reviewer-auto-activation">✅ Multi-Reviewer Auto-Activation</h3>
+
+<ul>
+  <li>AI recommendations now trigger <strong>multiple reviewer agents at once</strong> based on the change set.</li>
+  <li>Always-on reviewers: <code class="language-plaintext highlighter-rouge">quality-engineer</code> + <code class="language-plaintext highlighter-rouge">code-reviewer</code> for any non-empty changeset.</li>
+  <li>Specialized reviewers: <code class="language-plaintext highlighter-rouge">typescript-pro</code>, <code class="language-plaintext highlighter-rouge">react-specialist</code>, <code class="language-plaintext highlighter-rouge">ui-ux-designer</code>, <code class="language-plaintext highlighter-rouge">database-optimizer</code>, <code class="language-plaintext highlighter-rouge">sql-pro</code>, <code class="language-plaintext highlighter-rouge">performance-engineer</code>, <code class="language-plaintext highlighter-rouge">architect-review</code> (as applicable).</li>
+</ul>
+
+<h3 id="-tui-ai-assistant-improvements">🧭 TUI AI Assistant Improvements</h3>
+
+<ul>
+  <li>The AI Assistant view now groups recommendations into <strong>Review Requests</strong> vs <strong>Other Suggestions</strong> for faster scanning.</li>
+  <li>AUTO badges remain, but review requests are clearly labeled as review actions.</li>
+</ul>
+
+<h3 id="-quick-tui-theme-overrides">🎨 Quick TUI Theme Overrides</h3>
+
+<ul>
+  <li>Add a custom <code class="language-plaintext highlighter-rouge">.tcss</code> file via <code class="language-plaintext highlighter-rouge">cortex tui --theme</code>, <code class="language-plaintext highlighter-rouge">CLAUDE_CTX_TUI_THEME</code>, or <code class="language-plaintext highlighter-rouge">~/.claude/tui/theme.tcss</code>.</li>
+  <li>Overrides load after the default theme, so palette variables can be swapped without code changes.</li>
+</ul>
+
+<h3 id="-principles-snippets-option-a">🧩 Principles Snippets (Option A)</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">PRINCIPLES.md</code> can now be generated from modular snippets in <code class="language-plaintext highlighter-rouge">principles/</code>.</li>
+  <li>New CLI: <code class="language-plaintext highlighter-rouge">cortex principles list|status|activate|deactivate|build</code>.</li>
+  <li>Activation is tracked in <code class="language-plaintext highlighter-rouge">.active-principles</code>, with filename ordering (use numeric prefixes).</li>
+  <li>TUI support: press <code class="language-plaintext highlighter-rouge">p</code> for the Principles view; use <code class="language-plaintext highlighter-rouge">Space</code> to toggle snippets, <code class="language-plaintext highlighter-rouge">c</code> to rebuild, and <code class="language-plaintext highlighter-rouge">d</code> to open <code class="language-plaintext highlighter-rouge">PRINCIPLES.md</code>.</li>
+</ul>
+
+<h2 id="2025-12-31-command-palette--memory-vault-overhaul">2025-12-31: Command Palette &amp; Memory Vault Overhaul</h2>
+
+<h3 id="-expanded-command-palette-ctrlp">🚀 Expanded Command Palette (Ctrl+P)</h3>
+
+<ul>
+  <li>Added <strong>20+ new commands</strong> covering every major view (Galaxy, Flags, Tasks, Watch Mode, etc.).</li>
+  <li>Commands are now organized into logical categories: <code class="language-plaintext highlighter-rouge">AGENT</code>, <code class="language-plaintext highlighter-rouge">MODE</code>, <code class="language-plaintext highlighter-rouge">RULE</code>, <code class="language-plaintext highlighter-rouge">VIEW</code>, <code class="language-plaintext highlighter-rouge">CONFIG</code>, <code class="language-plaintext highlighter-rouge">TOOLS</code>, <code class="language-plaintext highlighter-rouge">SYSTEM</code>.</li>
+  <li>Search results now display visual hotkey reminders, making the palette a great way to learn shortcuts.</li>
+</ul>
+
+<h3 id="-tui-memory-vault-viewer">🧠 TUI Memory Vault Viewer</h3>
+
+<ul>
+  <li>New dedicated <strong>Memory Screen</strong> (<code class="language-plaintext highlighter-rouge">M</code> or <code class="language-plaintext highlighter-rouge">Ctrl+P</code> -&gt; “Memory”) with split-pane browsing.</li>
+  <li><strong>Real-time search</strong>: Filter notes instantly by title or content.</li>
+  <li><strong>Markdown viewer</strong>: Read note content directly in the TUI without opening an external editor.</li>
+</ul>
+
+<h3 id="-asset-manager-polish">📦 Asset Manager Polish</h3>
+
+<ul>
+  <li><strong>Keyboard Shortcuts</strong>: Added <code class="language-plaintext highlighter-rouge">i</code> for “Install All” in the Bulk Install dialog.</li>
+  <li><strong>Button Hints</strong>: Updated all modal buttons to explicitly show their hotkeys (e.g., “Install [i]”, “Close [esc]”).</li>
+  <li><strong>Confirm Dialogs</strong>: Added visible <code class="language-plaintext highlighter-rouge">[y]/[n]</code> hints to confirmation prompts.</li>
+</ul>
+
+<h2 id="2025-11-18-task-log-streaming--palette-hardening">2025-11-18: Task Log Streaming &amp; Palette Hardening</h2>
+
+<h3 id="-task-detail-panel--log-actions">🔍 Task Detail Panel + Log Actions</h3>
+
+<ul>
+  <li>The Tasks view now surfaces every workstream with inline summaries and a detail modal (<code class="language-plaintext highlighter-rouge">s</code>) that shows raw notes, timestamps, and the source log path.</li>
+  <li>Two new shortcuts ship with the view: <code class="language-plaintext highlighter-rouge">L</code> tails the underlying <code class="language-plaintext highlighter-rouge">agent-*.jsonl</code> file inside the TUI log viewer, and <code class="language-plaintext highlighter-rouge">O</code> opens the same file via <code class="language-plaintext highlighter-rouge">open</code>/<code class="language-plaintext highlighter-rouge">xdg-open</code>/<code class="language-plaintext highlighter-rouge">start</code> so you can keep digging in your native editor.</li>
+  <li>Docs updated: <a href="guides/tui/tui-entity-guide.html">Entity guide</a> and <a href="guides/tui/tui-keyboard-reference.html">keyboard reference</a> call out the new workflow, and the screenshots section now has placeholders for Tasks view details.</li>
+</ul>
+
+<h3 id="-command-palette-reliability">🎛 Command Palette Reliability</h3>
+
+<ul>
+  <li>Ctrl+P previously threw <code class="language-plaintext highlighter-rouge">NoActiveWorker</code> in edge cases (e.g., when other modals were open). The palette now launches on its own worker, so you can summon it repeatedly while logs stream or tasks refresh.</li>
+  <li>The <a href="guides/COMMAND_PALETTE_GUIDE.html">Command Palette Guide</a> has been refreshed to note the stability fix and reiterate the quick actions you can stack while workflows run.</li>
+</ul>
+
+<h2 id="2025-11-11-major-enhancement---three-layer-system--visual-documentation">2025-11-11: Major Enhancement - Three-Layer System &amp; Visual Documentation</h2>
+
+<h3 id="-new-behavioral-modes-4-added">🎨 New Behavioral Modes (4 added)</h3>
+
+<p>Modes change HOW Claude operates:</p>
+
+<ol>
+  <li><strong>Brainstorm Mode</strong> - Collaborative discovery through Socratic dialogue
+    <ul>
+      <li>Activates: <code class="language-plaintext highlighter-rouge">--brainstorm</code> or keywords like “maybe”, “not sure”</li>
+      <li>Use for: Vague requirements, exploration, requirement gathering</li>
+    </ul>
+  </li>
+  <li><strong>Deep Analysis Mode</strong> - Maximum-depth reasoning (~32K tokens)
+    <ul>
+      <li>Activates: <code class="language-plaintext highlighter-rouge">--ultrathink</code>, <code class="language-plaintext highlighter-rouge">--think-hard</code>, or <code class="language-plaintext highlighter-rouge">--think</code></li>
+      <li>Use for: Complex debugging, architecture decisions, system redesign</li>
+    </ul>
+  </li>
+  <li><strong>Quality Focus Mode</strong> - Enhanced quality enforcement (8/10, 90% coverage)
+    <ul>
+      <li>Activates: <code class="language-plaintext highlighter-rouge">--focus quality</code>, <code class="language-plaintext highlighter-rouge">--validate</code>, or <code class="language-plaintext highlighter-rouge">--safe-mode</code></li>
+      <li>Use for: Production code, security-critical features</li>
+    </ul>
+  </li>
+  <li><strong>Token Efficient Mode</strong> - Symbol-enhanced communication (30-50% reduction)
+    <ul>
+      <li>Activates: <code class="language-plaintext highlighter-rouge">--uc</code> or auto-activates at 75% context usage</li>
+      <li>Use for: Large operations, cost optimization</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Total Modes</strong>: Now 8 behavioral modes</p>
+
+<h3 id="-new-workflows-5-added">🔄 New Workflows (5 added)</h3>
+
+<p>Multi-step processes with agent coordination:</p>
+
+<ol>
+  <li><strong>Refactoring</strong> - Safe, incremental code refactoring (10 steps)
+    <ul>
+      <li>Modes: Deep_Analysis, Parallel_Orchestration, Quality_Focus</li>
+      <li>Features: Impact assessment, continuous testing, quality gates</li>
+    </ul>
+  </li>
+  <li><strong>API Design</strong> - End-to-end API design and implementation (15 steps)
+    <ul>
+      <li>Modes: Brainstorm, Deep_Analysis, Parallel_Orchestration</li>
+      <li>Produces: OpenAPI spec, mock API, implementation, tests, SDKs</li>
+    </ul>
+  </li>
+  <li><strong>Technical Debt Reduction</strong> - Quarterly debt cleanup (13 steps)
+    <ul>
+      <li>Modes: Deep_Analysis, Quality_Focus</li>
+      <li>Features: Debt inventory, prioritization, prevention plan</li>
+    </ul>
+  </li>
+  <li><strong>Architecture Review</strong> - Comprehensive assessment (15 steps)
+    <ul>
+      <li>Mode: Deep_Analysis</li>
+      <li>Features: Quality/performance/security/scalability assessment</li>
+    </ul>
+  </li>
+  <li><strong>Developer Onboarding</strong> - 4-week onboarding program (17 steps)
+    <ul>
+      <li>Modes: Brainstorm, Deep_Analysis, Task_Management</li>
+      <li>Milestones: Day 1, Week 1, Week 2, Week 4 checkpoints</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Total Workflows</strong>: Now 9 multi-step workflows</p>
+
+<h3 id="-new-slash-commands-7-added">🎯 New Slash Commands (7 added)</h3>
+
+<p>Quick-action commands across 3 new namespaces:</p>
+
+<p><strong>New Namespaces</strong>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">/refactor:*</code> - Code refactoring operations</li>
+  <li><code class="language-plaintext highlighter-rouge">/workflow:*</code> - Workflow execution</li>
+  <li><code class="language-plaintext highlighter-rouge">/mode:*</code> - Mode management</li>
+</ul>
+
+<p><strong>Commands</strong>:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">/refactor:analyze</code> - Analyze code for refactoring opportunities</li>
+  <li><code class="language-plaintext highlighter-rouge">/refactor:execute</code> - Execute refactoring plan safely</li>
+  <li><code class="language-plaintext highlighter-rouge">/workflow:run</code> - Execute multi-step workflows</li>
+  <li><code class="language-plaintext highlighter-rouge">/mode:activate</code> - Manually activate behavioral modes</li>
+  <li><code class="language-plaintext highlighter-rouge">/docs:diagrams</code> - View architecture diagrams</li>
+</ol>
+
+<p><strong>Total Commands</strong>: Now 43 commands across 16 namespaces</p>
+
+<h3 id="-architecture-documentation-new">📐 Architecture Documentation (NEW!)</h3>
+
+<p>Comprehensive visual documentation ships with the plugin:</p>
+
+<p><strong>Files Included</strong>:</p>
+
+<ol>
+  <li><strong>architecture-diagrams.md</strong> (15K)
+    <ul>
+      <li>10+ Mermaid diagrams</li>
+      <li>System architecture, flows, decision trees</li>
+      <li>Compatibility matrix</li>
+    </ul>
+  </li>
+  <li><strong>quick-reference.md</strong> (9.4K)
+    <ul>
+      <li>One-page cheat sheet</li>
+      <li>Command/mode/workflow tables</li>
+      <li>Integration patterns</li>
+    </ul>
+  </li>
+  <li><strong>VISUAL_SUMMARY.txt</strong> (7.2K)
+    <ul>
+      <li>Beautiful ASCII art diagram</li>
+      <li>Terminal-friendly display</li>
+      <li>Quick overview</li>
+    </ul>
+  </li>
+  <li><strong>DIAGRAMS_README.md</strong> (8.1K)
+    <ul>
+      <li>How to use diagrams</li>
+      <li>Reading guide with symbols/colors</li>
+      <li>Update checklist</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>Installation</strong>:</p>
+
+<ul>
+  <li>Automatically installs to <code class="language-plaintext highlighter-rouge">~/.claude/docs/</code></li>
+  <li>Included in package distribution</li>
+  <li>View via <code class="language-plaintext highlighter-rouge">/docs:diagrams</code> command</li>
+</ul>
+
+<p><strong>Quick View</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat</span> ~/.claude/docs/VISUAL_SUMMARY.txt
+</code></pre></div></div>
+
+<h3 id="️-system-architecture">🏗️ System Architecture</h3>
+
+<p>The three-layer automation system:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Layer 1: USER COMMANDS (43 commands, 16 namespaces)
+         → What to do
+         Examples: /refactor:analyze, /workflow:run
+
+Layer 2: BEHAVIORAL MODES (8 modes)
+         → How to operate
+         Examples: Brainstorm, Deep_Analysis, Quality_Focus
+
+Layer 3: WORKFLOWS (9 multi-step processes)
+         → Step-by-step execution
+         Examples: feature-development, refactoring, api-design
+
+Layer 4: EXECUTION (Agents + MCP + Tools)
+         → Coordinates specialized agents and tools
+</code></pre></div></div>
+
+<h3 id="-system-statistics">📊 System Statistics</h3>
+
+<ul>
+  <li><strong>43</strong> Slash Commands (up from 36)</li>
+  <li><strong>16</strong> Command Namespaces (up from 13)</li>
+  <li><strong>8</strong> Behavioral Modes (up from 4)</li>
+  <li><strong>9</strong> Multi-step Workflows (up from 4)</li>
+  <li><strong>25+</strong> Specialized Agents</li>
+  <li><strong>3</strong> MCP Servers (Codanna, Context7, Sequential)</li>
+</ul>
+
+<h3 id="-new-integration-patterns">🎯 New Integration Patterns</h3>
+
+<p><strong>Example: Refactoring Flow</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>User: /refactor:analyze src/auth
+  ↓
+Command activates: Deep_Analysis + Quality_Focus modes
+  ↓
+Triggers: Refactoring workflow (steps 1-3)
+  ↓
+Uses: code-reviewer agent + Codanna MCP
+  ↓
+Output: Refactoring plan with priorities
+</code></pre></div></div>
+
+<h3 id="️-installation-changes">🛠️ Installation Changes</h3>
+
+<p><strong>New Files Installed</strong>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/docs/architecture-diagrams.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/docs/quick-reference.md</code></li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/docs/VISUAL_SUMMARY.txt</code></li>
+  <li><code class="language-plaintext highlighter-rouge">~/.claude/docs/DIAGRAMS_README.md</code></li>
+</ul>
+
+<p><strong>New Scripts</strong>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">scripts/deprecated/post-install-docs.sh</code> - Auto-installs documentation</li>
+  <li>Updated <code class="language-plaintext highlighter-rouge">scripts/deprecated/install.sh</code> - Calls post-install script</li>
+</ul>
+
+<p><strong>Package Configuration</strong>:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">pyproject.toml</code> - Includes docs in package data</li>
+  <li><code class="language-plaintext highlighter-rouge">MANIFEST.in</code> - Ensures docs in distribution</li>
+</ul>
+
+<h3 id="-documentation-improvements">📚 Documentation Improvements</h3>
+
+<p><strong>New Sections in docs/README.md</strong>:</p>
+
+<ul>
+  <li>Architecture Documentation section (top of page)</li>
+  <li>Links to all diagram files</li>
+  <li>Quick view commands</li>
+</ul>
+
+<p><strong>New Directory Structure</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docs/
+├── reference/
+│   └── architecture/
+│       ├── architecture-diagrams.md
+│       ├── quick-reference.md
+│       ├── VISUAL_SUMMARY.txt
+│       ├── DIAGRAMS_README.md
+│       └── README.md
+</code></pre></div></div>
+
+<h3 id="-usage-examples">🚀 Usage Examples</h3>
+
+<p><strong>View Documentation</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># ASCII art overview</span>
+<span class="nb">cat</span> ~/.claude/docs/VISUAL_SUMMARY.txt
+
+<span class="c"># Via command</span>
+/docs:diagrams
+/docs:diagrams quick
+/docs:diagrams full
+</code></pre></div></div>
+
+<p><strong>Activate Modes</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/mode:activate Brainstorm              <span class="c"># Collaborative discovery</span>
+/mode:activate Deep_Analysis           <span class="c"># Maximum reasoning</span>
+/mode:activate Quality_Focus           <span class="c"># Enhanced quality</span>
+</code></pre></div></div>
+
+<p><strong>Run Workflows</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/workflow:run refactoring              <span class="c"># Safe refactoring</span>
+/workflow:run api-design               <span class="c"># API design</span>
+/workflow:run technical-debt           <span class="c"># Quarterly cleanup</span>
+</code></pre></div></div>
+
+<p><strong>Execute Refactoring</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/refactor:analyze src/auth             <span class="c"># Analyze for opportunities</span>
+/refactor:execute refactor-plan.md     <span class="c"># Execute safely</span>
+</code></pre></div></div>
+
+<h3 id="-visual-enhancements">🎨 Visual Enhancements</h3>
+
+<p><strong>Color-Coded Diagrams</strong>:</p>
+
+<ul>
+  <li>Light Blue - User/Input</li>
+  <li>Light Red - Commands</li>
+  <li>Light Orange - Modes</li>
+  <li>Light Green - Workflows</li>
+  <li>Light Purple - Agents/Tools</li>
+  <li>Green - Success states</li>
+  <li>Red - Error states</li>
+</ul>
+
+<p><strong>Diagram Types</strong>:</p>
+
+<ul>
+  <li>System architecture (graph)</li>
+  <li>Sequence diagrams (flows)</li>
+  <li>Flowcharts (decisions)</li>
+  <li>Pie charts (statistics)</li>
+  <li>Compatibility matrices</li>
+</ul>
+
+<h3 id="-learning-resources">📖 Learning Resources</h3>
+
+<p><strong>For New Users</strong>:</p>
+
+<ol>
+  <li>View <code class="language-plaintext highlighter-rouge">VISUAL_SUMMARY.txt</code> for overview</li>
+  <li>Read <code class="language-plaintext highlighter-rouge">quick-reference.md</code> for patterns</li>
+  <li>Study <code class="language-plaintext highlighter-rouge">architecture-diagrams.md</code> for details</li>
+</ol>
+
+<p><strong>For Developers</strong>:</p>
+
+<ul>
+  <li>Keep <code class="language-plaintext highlighter-rouge">quick-reference.md</code> open for command lookup</li>
+  <li>Use TUI (press 3 for Modes, 6 for Workflows)</li>
+  <li>Reference integration patterns</li>
+</ul>
+
+<p><strong>For Architects</strong>:</p>
+
+<ul>
+  <li>Present <code class="language-plaintext highlighter-rouge">architecture-diagrams.md</code> in reviews</li>
+  <li>Use compatibility matrix for planning</li>
+  <li>Reference decision trees</li>
+</ul>
+
+<h3 id="-maintenance">🔧 Maintenance</h3>
+
+<p><strong>Updating Documentation</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Edit source files</span>
+vim docs/reference/architecture/architecture-diagrams.md
+
+<span class="c"># Reinstall to update ~/.claude/docs/</span>
+make <span class="nb">install</span>
+<span class="c"># or</span>
+bash scripts/deprecated/post-install-docs.sh
+</code></pre></div></div>
+
+<p><strong>Adding New Components</strong>:</p>
+
+<ul>
+  <li>Update component counts in VISUAL_SUMMARY.txt</li>
+  <li>Add to tables in quick-reference.md</li>
+  <li>Update diagrams in architecture-diagrams.md</li>
+  <li>Follow update checklist in DIAGRAMS_README.md</li>
+</ul>
+
+<h3 id="-whats-next">🎯 What’s Next</h3>
+
+<p>Planned features:</p>
+
+<ul>
+  <li>More slash commands for common tasks</li>
+  <li>Additional workflows for specialized scenarios</li>
+  <li>More behavioral modes for different contexts</li>
+  <li>Enhanced diagram interactivity</li>
+  <li>Video tutorials using diagrams</li>
+</ul>
+
+<hr />
+
+<h2 id="previous-updates">Previous Updates</h2>
+
+<h3 id="2025-11-08-tui-enhancements">2025-11-08: TUI Enhancements</h3>
+
+<ul>
+  <li>Enhanced visual interface</li>
+  <li>Keyboard shortcuts</li>
+  <li>Entity guides</li>
+</ul>
+
+<h3 id="2025-11-05-scenario-management">2025-11-05: Scenario Management</h3>
+
+<ul>
+  <li>Scenario definitions</li>
+  <li>Progress tracking</li>
+  <li>Status monitoring</li>
+</ul>
+
+<hr />
+
+<p><em>For full changelog, see git commit history</em>
+<em>For architecture details, see docs/reference/architecture/</em></p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

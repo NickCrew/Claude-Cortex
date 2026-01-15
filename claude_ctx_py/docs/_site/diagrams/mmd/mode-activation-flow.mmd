@@ -1,0 +1,49 @@
+flowchart TB
+    Start([User Input]) --> Detect{Detect Trigger?}
+
+    Detect -->|Manual| Manual["/mode:activate"]
+    Detect -->|Flag| Flag["--brainstorm<br/>--ultrathink<br/>--focus quality"]
+    Detect -->|Auto| Auto["Keywords:<br/>'maybe', 'not sure'<br/>'refactor', 'analyze'"]
+    Detect -->|Workflow| Workflow["Workflow step<br/>specifies mode"]
+
+    Manual --> LoadMode[Load Mode Configuration]
+    Flag --> LoadMode
+    Auto --> LoadMode
+    Workflow --> LoadMode
+
+    LoadMode --> ParseDef[Parse Mode Definition]
+    ParseDef --> SetBehavior[Set Behavioral Changes]
+
+    SetBehavior --> Behavior{Mode Type?}
+
+    Behavior -->|Brainstorm| B1["- Ask clarifying questions<br/>- Present options<br/>- Use AskUserQuestion<br/>- Build shared understanding"]
+
+    Behavior -->|Deep Analysis| B2["- Extended reasoning depth<br/>- Hypothesis generation<br/>- Evidence-based conclusions<br/>- Transparency markers"]
+
+    Behavior -->|Quality Focus| B3["- Review threshold: 8/10<br/>- Coverage target: 90%<br/>- Elevated standards<br/>- Zero tolerance issues"]
+
+    Behavior -->|Token Efficient| B4["- Symbol communication<br/>- 30-50% reduction<br/>- Eliminate redundancy<br/>- Structured compression"]
+
+    Behavior -->|Parallel Orch| B5["- Parallel-first mindset<br/>- Quality gates mandatory<br/>- Agent maximization<br/>- Workstream coordination"]
+
+    B1 --> Active[Mode Active ✅]
+    B2 --> Active
+    B3 --> Active
+    B4 --> Active
+    B5 --> Active
+
+    Active --> Execute[Execute Task<br/>with Mode Behavior]
+
+    Execute --> Deactivate{Deactivate?}
+
+    Deactivate -->|Session End| End1([Mode Ends])
+    Deactivate -->|Task Complete| End2([Mode Ends])
+    Deactivate -->|Manual /mode:deactivate| End3([Mode Ends])
+    Deactivate -->|Permanent| Persist[Persist to Profile]
+
+    Persist --> End4([Mode Remains Active])
+
+    style Start fill:#e1f5ff
+    style LoadMode fill:#fff3e1
+    style Active fill:#c8e6c9
+    style Execute fill:#bbdefb

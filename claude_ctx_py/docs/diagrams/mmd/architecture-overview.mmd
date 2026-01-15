@@ -1,0 +1,74 @@
+graph TB
+    subgraph "Layer 1: User Interface"
+        User[👤 User Input]
+        Commands["/slash:commands<br/>43 commands<br/>16 namespaces"]
+        Flags["--flags<br/>--brainstorm, --ultrathink<br/>--focus, --orchestrate"]
+    end
+
+    subgraph "Layer 2: Behavioral Modes"
+        Brainstorm[🤝 Brainstorm<br/>Socratic dialogue]
+        DeepAnalysis[🔬 Deep Analysis<br/>Max reasoning]
+        QualityFocus[✨ Quality Focus<br/>8/10, 90%]
+        TokenEfficient[📦 Token Efficient<br/>30-50% reduction]
+        ParallelOrch[⚡ Parallel Orchestration<br/>Parallel execution]
+        SuperSaiyan[🔥 Super Saiyan<br/>Visual excellence]
+        TaskMgmt[📋 Task Management<br/>Hierarchical tasks]
+    end
+
+    subgraph "Layer 3: Workflows"
+        FeatureDev[🚀 Feature Development<br/>9 steps]
+        BugFix[🐛 Bug Fix<br/>8 steps]
+        Refactor[♻️ Refactoring<br/>10 steps]
+        APIDev[🎯 API Design<br/>15 steps]
+        TechDebt[🧹 Tech Debt<br/>13 steps]
+        ArchReview[🏗️ Architecture<br/>15 steps]
+        Onboard[👋 Onboarding<br/>17 steps]
+        Security[🔒 Security Audit<br/>8 steps]
+        Perf[⚡ Performance<br/>10 steps]
+    end
+
+    subgraph "Layer 4: Execution"
+        Agents[🤖 Specialized Agents<br/>code-reviewer, test-automator<br/>security-auditor, etc.]
+        MCP[🔌 MCP Servers<br/>Codanna, Context7<br/>Sequential]
+        Tools[🛠️ Native Tools<br/>Read, Write, Edit<br/>Bash, Grep, etc.]
+    end
+
+    User --> Commands
+    User --> Flags
+    Commands --> Brainstorm
+    Commands --> DeepAnalysis
+    Commands --> QualityFocus
+    Flags --> TokenEfficient
+    Flags --> ParallelOrch
+
+    Brainstorm --> FeatureDev
+    Brainstorm --> APIDev
+    Brainstorm --> Onboard
+
+    DeepAnalysis --> Refactor
+    DeepAnalysis --> TechDebt
+    DeepAnalysis --> ArchReview
+
+    QualityFocus --> Refactor
+    QualityFocus --> TechDebt
+
+    ParallelOrch --> FeatureDev
+    ParallelOrch --> Refactor
+    ParallelOrch --> APIDev
+
+    FeatureDev --> Agents
+    BugFix --> Agents
+    Refactor --> Agents
+    APIDev --> Agents
+
+    Agents --> MCP
+    Agents --> Tools
+
+    style User fill:#e1f5ff
+    style Commands fill:#ffe1e1
+    style Brainstorm fill:#fff3e1
+    style DeepAnalysis fill:#fff3e1
+    style QualityFocus fill:#fff3e1
+    style FeatureDev fill:#e8f5e9
+    style Agents fill:#f3e5f5
+    style MCP fill:#f3e5f5

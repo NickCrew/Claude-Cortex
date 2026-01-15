@@ -1,0 +1,284 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    Cortex PLUGIN - ARCHITECTURE SUMMARY               ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ SYSTEM OVERVIEW                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+The Cortex is a context management system with AI-powered automation
+and a rich terminal user interface for Claude Code.
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │                      4-Layer Architecture                     │
+  ├──────────────────────────────────────────────────────────────┤
+  │ 1. UI Layer        → CLI (commands) + TUI (9 views)          │
+  │ 2. Intelligence    → AI recommendations + auto-activation    │
+  │ 3. Core Logic      → Agents, Skills, Modes, Workflows        │
+  │ 4. Data Layer      → Markdown files + JSON + SQLite          │
+  └──────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ KEY COMPONENTS                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────┬─────────────────────────────────────────────────────────────┐
+│ CLI         │ Command-line interface with argparse                        │
+│ (cli.py)    │ • mode, agent, skill, workflow, ai, mcp commands            │
+│             │ • Shell completion support                                  │
+│             │ • Rich text output                                          │
+├─────────────┼─────────────────────────────────────────────────────────────┤
+│ TUI         │ Textual-based terminal UI with 9 interactive views          │
+│ (tui/)      │ • Views: Agents, Modes, Rules, Skills, Workflows,           │
+│             │   Scenarios, Profiles, MCP Servers, AI Assistant            │
+│             │ • Command palette (Ctrl+P) for fuzzy search                 │
+│             │ • Real-time updates and notifications                       │
+├─────────────┼─────────────────────────────────────────────────────────────┤
+│Intelligence │ AI-powered context detection and recommendations            │
+│ (intel...)  │ • SessionContext: Tracks files, types, patterns             │
+│             │ • PatternLearner: Learns from history                       │
+│             │ • AgentRecommendation: Confidence-based suggestions         │
+│             │ • Auto-activation: ≥80% confidence threshold                │
+├─────────────┼─────────────────────────────────────────────────────────────┤
+│ Core        │ 14 domain-specific modules for business logic               │
+│ (core/)     │ • agents.py: Dependency graphs, activation                  │
+│             │ • skills.py: Metrics, ratings, community                    │
+│             │ • modes.py: Behavioral contexts                             │
+│             │ • workflows.py: Multi-step orchestration                    │
+│             │ • mcp.py: MCP server integration                            │
+│             │ • ...and 9 more specialized modules                         │
+├─────────────┼─────────────────────────────────────────────────────────────┤
+│ Data        │ File-based storage with YAML frontmatter                    │
+│ (files)     │ • ~/.cortex/CLAUDE.md: Main configuration                   │
+│             │ • *.md files: Agents, modes, skills, rules                  │
+│             │ • data/: JSON metrics, SQLite ratings DB                    │
+└─────────────┴─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DATA FLOWS                                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌───────────────────────────────────────────────────────────────┐
+  │                    Context Detection Flow                     │
+  └───────────────────────────────────────────────────────────────┘
+
+    File Changes → Context Detection → Pattern Matching → Recommendations
+         ↓               ↓                    ↓                ↓
+    Watch Mode    SessionContext       Pattern DB      Auto-Activation
+                                                             ↓
+                                                       Update CLAUDE.md
+
+  ┌───────────────────────────────────────────────────────────────┐
+  │                    Agent Activation Flow                      │
+  └───────────────────────────────────────────────────────────────┘
+
+    User Request → Resolve Agent → Parse Metadata → Build Dep Graph
+         ↓              ↓                ↓                ↓
+    CLI/TUI      Find .md file    YAML frontmatter  Check dependencies
+                                                          ↓
+                                                  Recursive Activation
+                                                          ↓
+                                                  Update CLAUDE.md
+
+  ┌───────────────────────────────────────────────────────────────┐
+  │                    Intelligence Learning Flow                 │
+  └───────────────────────────────────────────────────────────────┘
+
+    Session Start → Detect Context → Match Patterns → Recommend Agents
+         ↓               ↓                ↓                  ↓
+    Track files    Parse types      Query history    Score by confidence
+         ↓               ↓                ↓                  ↓
+    Session End → Record Success → Update Patterns → Improve Future
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TECHNOLOGY STACK                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Runtime:         Python 3.9+
+  CLI:             argparse + argcomplete (shell completion)
+  TUI:             Textual 0.47+ (reactive terminal UI)
+  Formatting:      rich (terminal colors and tables)
+  Data:            PyYAML (frontmatter), SQLite (ratings)
+  System:          psutil (monitoring)
+
+  Development:     pytest, pytest-cov, mypy, black
+  Build:           setuptools, python-semantic-release
+  Docs:            Jekyll (site), Mermaid (diagrams)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FILE STRUCTURE                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  cortex-plugin/
+  │
+  ├── claude_ctx_py/              Python package (source code)
+  │   ├── cli.py                  CLI entry point (1,200 lines)
+  │   ├── intelligence.py         AI system (600 lines)
+  │   ├── core/                   14 business logic modules
+  │   └── tui/                    TUI package (3,000+ lines)
+  │
+  ├── agents/                     Agent definitions (markdown)
+  ├── modes/                      Mode definitions (markdown)
+  ├── skills/                     Skill library (markdown)
+  ├── rules/                      Rule modules (markdown)
+  ├── commands/                   Slash commands (markdown)
+  │
+  ├── tests/                      Test suite (~15% coverage → 80% target)
+  ├── docs/                       Documentation (you are here)
+  │   ├── architecture/           Architecture docs (NEW!)
+  │   ├── guides/                 User and developer guides
+  │   ├── workstreams/            Project tracking
+  │   └── reference/              API reference
+  │
+  └── Configuration files (pyproject.toml, pytest.ini, etc.)
+
+  User Configuration (~/.cortex/):
+  │
+  ├── CLAUDE.md                   Main config (active components)
+  ├── modes/                      Available modes
+  ├── agents/                     Available agents
+  ├── skills/                     Available skills
+  ├── rules/                      Rule modules
+  ├── inactive/                   Disabled components
+  │   ├── agents/
+  │   ├── modes/
+  │   └── ...
+  └── data/                       Runtime data
+      ├── metrics/                Session metrics (JSON)
+      ├── sessions/               Session history (JSON)
+      └── skill-ratings.db        Ratings database (SQLite)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ KEY WORKFLOWS                                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Agent Activation
+     • User → CLI/TUI → agents.py → Dependency resolution → CLAUDE.md update
+
+  2. AI Recommendation
+     • File changes → Context detection → Pattern matching → Agent suggestions
+
+  3. Auto-Activation
+     • High confidence (≥80%) → Automatic agent activation → User notification
+
+  4. Skill Rating
+     • User rates skill → SQLite database → Analytics update → Recommendations
+
+  5. Workflow Execution
+     • User → workflows.py → Scenario steps → Phase tracking → Completion
+
+  6. MCP Integration
+     • Discover servers → Validate config → Access docs → Test connectivity
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DESIGN PRINCIPLES                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  ✓ Separation of Concerns    UI ↔ Intelligence ↔ Core ↔ Data
+  ✓ Dependency Injection      No hardcoded paths
+  ✓ Plugin Architecture       Markdown files = plugins
+  ✓ Event-Driven TUI          Reactive properties, no polling
+  ✓ File-Based Storage        No daemon, simple data model
+  ✓ Progressive Enhancement   Works without AI, better with it
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PERFORMANCE CHARACTERISTICS                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  • Lazy loading of markdown files (parse on demand)
+  • Frontmatter caching (avoid re-parsing)
+  • Incremental CLAUDE.md updates (backup + atomic write)
+  • TUI async data loading (non-blocking UI)
+  • Intelligence pattern DB pruning (recent sessions only)
+  • SQLite ratings for fast queries
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TESTING STRATEGY                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Current Coverage:    ~15% (baseline)
+  Target Coverage:     80% (by Week 8)
+
+  Test Categories:
+    • Unit tests:        Core business logic (agents, skills, modes)
+    • Integration tests: CLI workflows, file operations
+    • TUI tests:         View rendering, interactions
+    • End-to-end:        Complete user workflows
+
+  See: docs/workstreams/ws1-testing/ for detailed plan
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ EXTENSION POINTS                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Adding Components
+     • Create markdown file with YAML frontmatter
+     • Place in appropriate directory (agents/, modes/, skills/)
+     • Auto-discovered by CLI/TUI
+
+  2. Adding TUI Views
+     • Add view class in tui/main.py
+     • Register in view switcher
+     • Add key binding
+
+  3. Adding Intelligence Rules
+     • Extend PatternLearner with detection logic
+     • Add trigger patterns to agent frontmatter
+     • Update confidence scoring
+
+  4. Adding MCP Integrations
+     • Add server to Claude Desktop config
+     • Create curated docs in mcp/docs/
+     • Register in mcp.py discovery
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DOCUMENTATION INDEX                                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Architecture Documentation (docs/architecture/):
+    • README.md             - Main architecture overview (17K, comprehensive)
+    • quick-reference.md    - Quick start and common patterns (9K)
+    • DIAGRAMS_README.md    - Visual diagrams and flows (32K)
+    • terminology.md        - Glossary and definitions (11K)
+
+  Workstream Tracking (docs/workstreams/ws4-documentation/):
+    • README.md             - WS4 status and progress (3K)
+    • todo.md               - Documentation tasks and priorities (8.5K)
+
+  Total: 2,221 lines of documentation created
+
+  Next Steps:
+    → Week 2-3: Contributor guides and workflows
+    → Week 4-6: API documentation for all modules
+    → Week 7-9: Examples and tutorials
+    → Week 8-10: Reference documentation and schemas
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ QUICK COMMANDS                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  # Installation
+  pip install -e ".[dev]"
+
+  # Run CLI
+  cortex --help
+  cortex mode activate Brainstorming
+  cortex ai recommend
+  cortex ai watch
+
+  # Run TUI
+  cortex tui
+
+  # Run tests
+  pytest
+  pytest -v --cov=claude_ctx_py
+
+  # View architecture docs
+  cat docs/architecture/README.md
+  cat docs/architecture/quick-reference.md
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  This visual summary is part of the WS4 Documentation Workstream          ║
+║  Last updated: 2025-11-27                                                 ║
+║  Maintained by: Documentation Team                                        ║
+╚═══════════════════════════════════════════════════════════════════════════╝

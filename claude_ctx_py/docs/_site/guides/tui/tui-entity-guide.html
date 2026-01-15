@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Cortex TUI Entity Relationship Guide | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Cortex TUI Entity Relationship Guide" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/guides/tui/tui-entity-guide.html" />
+<meta property="og:url" content="http://localhost:4000/guides/tui/tui-entity-guide.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Cortex TUI Entity Relationship Guide" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Cortex TUI Entity Relationship Guide","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/guides/tui/tui-entity-guide.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Cortex TUI Entity Relationship Guide</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="cortex-tui-entity-relationship-guide">Cortex TUI Entity Relationship Guide</h1>
+
+<p>Understand how the TUI slices the Cortex plugin into manageable pieces so you can tell at a glance what to touch—profiles, modes, workflows, scenarios, agents, and rules each solve a different layer of control. This page focuses on the Rich/Textual TUI (<code class="language-plaintext highlighter-rouge">claude-ctx tui</code>) but the concepts match the CLI and context bundle.</p>
+
+<h2 id="quick-reference-map">Quick Reference Map</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Entity</th>
+      <th>What it controls</th>
+      <th>Source files</th>
+      <th>TUI entry point</th>
+      <th>Downstream impact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Agents</td>
+      <td>Individual specialists with triggers, dependencies, and skills</td>
+      <td><code class="language-plaintext highlighter-rouge">agents/*.md</code>, <code class="language-plaintext highlighter-rouge">inactive/agents/</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">2</code> (Agents)</td>
+      <td>Form the workforce that workflows/scenarios schedule</td>
+    </tr>
+    <tr>
+      <td>Modes</td>
+      <td>Behavioral overlays that rewrite execution rules (e.g., <code class="language-plaintext highlighter-rouge">Architect</code>, <code class="language-plaintext highlighter-rouge">Token_Efficiency</code>)</td>
+      <td><code class="language-plaintext highlighter-rouge">modes/*.md</code>, <code class="language-plaintext highlighter-rouge">.active-modes</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">3</code> (Modes)</td>
+      <td>Change how every active agent executes tasks</td>
+    </tr>
+    <tr>
+      <td>Rules</td>
+      <td>Instruction blocks (workflow, quality, efficiency) loaded into <code class="language-plaintext highlighter-rouge">CLAUDE.md</code></td>
+      <td><code class="language-plaintext highlighter-rouge">rules/*.md</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">4</code> (Rules)</td>
+      <td>Provide guardrails that profiles/modes rely on</td>
+    </tr>
+    <tr>
+      <td>Principles</td>
+      <td>Engineering principles snippets</td>
+      <td><code class="language-plaintext highlighter-rouge">principles/*.md</code>, <code class="language-plaintext highlighter-rouge">.active-principles</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">p</code> (Principles)</td>
+      <td>Shapes the baseline reasoning framework</td>
+    </tr>
+    <tr>
+      <td>Skills</td>
+      <td>Discrete capabilities/commands surfaced in the palette</td>
+      <td><code class="language-plaintext highlighter-rouge">skills/**/SKILL.md</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">5</code> (Skills)</td>
+      <td>Extend what agents can automate</td>
+    </tr>
+    <tr>
+      <td>Profiles</td>
+      <td>Bundles of agents + modes + rules + resource limits</td>
+      <td><code class="language-plaintext highlighter-rouge">profiles/**.profile</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">8</code> (Profiles)</td>
+      <td>One tap switches the entire operating posture</td>
+    </tr>
+    <tr>
+      <td>Workflows</td>
+      <td>Ordered, restartable sequences of steps</td>
+      <td><code class="language-plaintext highlighter-rouge">workflows/*.yaml</code></td>
+      <td>View <code class="language-plaintext highlighter-rouge">6</code> (Workflows)</td>
+      <td>Drive long-running operations; feed Orchestrate view</td>
+    </tr>
+    <tr>
+      <td>Scenarios</td>
+      <td>Event playbooks with triggers, phases, monitoring, and rollback</td>
+      <td><code class="language-plaintext highlighter-rouge">scenarios/*.yaml</code></td>
+      <td>Hotkey <code class="language-plaintext highlighter-rouge">S</code> (Scenarios view)</td>
+      <td>Can activate profiles, agents, and workflows per phase</td>
+    </tr>
+    <tr>
+      <td>Orchestrate / Tasks</td>
+      <td>Real-time agent task board with per-task notes + log streaming</td>
+      <td>Hotkey <code class="language-plaintext highlighter-rouge">o</code> (Orchestrate) / <code class="language-plaintext highlighter-rouge">t</code> (Tasks)</td>
+      <td>Pulls from workflow/scenario executions</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>AI Assistant</td>
+      <td>Predictive recommendations across the stack</td>
+      <td>View <code class="language-plaintext highlighter-rouge">0</code></td>
+      <td>Suggests which profile/workflow/scenario fits the current repo state</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Shortcuts / Help</td>
+      <td>Keyboard overlays and command palette tips</td>
+      <td><code class="language-plaintext highlighter-rouge">docs/guides/tui/tui-keyboard-reference.md</code></td>
+      <td><code class="language-plaintext highlighter-rouge">?</code> (help overlay) / <code class="language-plaintext highlighter-rouge">Ctrl+P</code> (command palette)</td>
+      <td>Keeps operators aligned on the hotkeys tied to each entity</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="profiles-vs-modes">Profiles vs. Modes</h2>
+
+<ul>
+  <li><strong>Modes</strong> are single behavioral overlays. The TUI lists mode files from <code class="language-plaintext highlighter-rouge">modes/</code> and tracks activation in <code class="language-plaintext highlighter-rouge">.active-modes</code>. Press <code class="language-plaintext highlighter-rouge">Space</code> to toggle a mode on or off; the status chip flips between <code class="language-plaintext highlighter-rouge">● ACTIVE</code> and <code class="language-plaintext highlighter-rouge">○ inactive</code>.</li>
+  <li><strong>Profiles</strong> bundle multiple modes, rules, and agent tiers. Looking at <code class="language-plaintext highlighter-rouge">profiles/enhanced/incident-response.profile</code> you can see <code class="language-plaintext highlighter-rouge">MODES="Orchestration"</code>, <code class="language-plaintext highlighter-rouge">RULES="workflow-rules efficiency-rules"</code>, agent tiers, activation strategy, and workflow hints. In View <code class="language-plaintext highlighter-rouge">8</code>, <code class="language-plaintext highlighter-rouge">Space</code> applies a profile, <code class="language-plaintext highlighter-rouge">n</code> snapshots the current selection, and <code class="language-plaintext highlighter-rouge">D</code> deletes a saved profile. Applying a profile simultaneously toggles the listed modes/rules and preloads the referenced agents, so it is the fastest way to change the operating posture.</li>
+</ul>
+
+<p>Use modes when you need a targeted behavior tweak (e.g., temporarily enabling <code class="language-plaintext highlighter-rouge">Super_Saiyan</code>), and use profiles when you need a whole operating bundle (agents + modes + rules + concurrency limits).</p>
+
+<h2 id="workflows-vs-scenarios">Workflows vs. Scenarios</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Workflows</th>
+      <th>Scenarios</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format</td>
+      <td>Simple YAML with <code class="language-plaintext highlighter-rouge">steps</code>, <code class="language-plaintext highlighter-rouge">trigger</code>, and <code class="language-plaintext highlighter-rouge">success_criteria</code> (see <code class="language-plaintext highlighter-rouge">workflows/feature-development.yaml</code>)</td>
+      <td>Rich YAML with <code class="language-plaintext highlighter-rouge">phases</code>, <code class="language-plaintext highlighter-rouge">monitoring</code>, <code class="language-plaintext highlighter-rouge">alerts</code>, and <code class="language-plaintext highlighter-rouge">rollback</code> (see <code class="language-plaintext highlighter-rouge">scenarios/product-launch.yaml</code>)</td>
+    </tr>
+    <tr>
+      <td>TUI access</td>
+      <td>View <code class="language-plaintext highlighter-rouge">6</code> (press <code class="language-plaintext highlighter-rouge">6</code> or pick “Show Workflows”)</td>
+      <td>Press <code class="language-plaintext highlighter-rouge">S</code> (or use the command palette → “Show Scenarios”)</td>
+    </tr>
+    <tr>
+      <td>Actions</td>
+      <td>View live status/progress, detect paused/running workflows, and read steps. (Run/resume via CLI <code class="language-plaintext highlighter-rouge">claude-ctx workflow run ...</code>.)</td>
+      <td>Preview (<code class="language-plaintext highlighter-rouge">P</code>), auto-run (<code class="language-plaintext highlighter-rouge">R</code>), schema-validate (<code class="language-plaintext highlighter-rouge">V</code>), and inspect status history (<code class="language-plaintext highlighter-rouge">H</code>) directly inside the TUI.</td>
+    </tr>
+    <tr>
+      <td>Scope</td>
+      <td>Linear, execution-focused (e.g., Feature Development)</td>
+      <td>Event/incident playbooks that stitch profiles + agents per phase, include monitoring + rollback</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Workflows are ideal for predictable, repeatable sequences (feature work, bug fixes). Highlight one in the Workflows view and press <code class="language-plaintext highlighter-rouge">Shift+R</code> to run it or <code class="language-plaintext highlighter-rouge">s</code> to stop it without leaving the dashboard. Scenarios add orchestration metadata for messy or long-lived events: highlight a scenario in the Scenarios view and press <code class="language-plaintext highlighter-rouge">Shift+R</code> to auto-run it (use <code class="language-plaintext highlighter-rouge">s</code> to clear the lock if you need to abort). The <code class="language-plaintext highlighter-rouge">product-launch</code> scenario, for instance, wires four named phases, assigns profiles (<code class="language-plaintext highlighter-rouge">quality</code>, <code class="language-plaintext highlighter-rouge">meta</code>), and lists success criteria and monitoring thresholds.</p>
+
+<h2 id="how-the-tui-threads-everything-together">How the TUI Threads Everything Together</h2>
+
+<ol>
+  <li><strong>Overview (1)</strong> – Shows total/active counts for agents, modes, rules, skills, and running workflows so you know when a profile or scenario actually toggled something. The banner pulls directly from the same data structures the per-entity views use.</li>
+  <li><strong>Agents (2)</strong> – Use <code class="language-plaintext highlighter-rouge">Space</code> to activate/deactivate individuals; enter displays dependency/tier info so you understand what a profile or scenario is about to call.</li>
+  <li><strong>Modes (3) &amp; Rules (4)</strong> – After applying a profile, flip to these views to confirm which enforcement layers actually changed.</li>
+  <li><strong>Skills (5)</strong> – Optional but handy: when a workflow step references <code class="language-plaintext highlighter-rouge">/dev:git</code> or <code class="language-plaintext highlighter-rouge">/ctx:test</code>, the skill view lets you validate/install them before orchestrating.</li>
+  <li><strong>Workflows (6)</strong> – Shows YAML-derived metadata, current step, and progress bar. Press <code class="language-plaintext highlighter-rouge">Shift+R</code> to launch the highlighted workflow or <code class="language-plaintext highlighter-rouge">s</code> to stop the active one; the Orchestrate view reflects each agent task once it starts.</li>
+  <li><strong>Scenarios (<code class="language-plaintext highlighter-rouge">S</code>)</strong> – Catalog every operational playbook living under <code class="language-plaintext highlighter-rouge">~/.claude/scenarios</code>. Rows display priority coloring, count of phases/agents, last run timestamp, and quick actions (<code class="language-plaintext highlighter-rouge">P</code>, <code class="language-plaintext highlighter-rouge">Shift+R</code>, <code class="language-plaintext highlighter-rouge">s</code>, <code class="language-plaintext highlighter-rouge">V</code>, <code class="language-plaintext highlighter-rouge">H</code>).</li>
+  <li><strong>Orchestrate (<code class="language-plaintext highlighter-rouge">o</code>) &amp; Tasks (<code class="language-plaintext highlighter-rouge">t</code>)</strong> – Live task board that aggregates whatever the workflows/scenarios launched. Press <code class="language-plaintext highlighter-rouge">s</code> for the full detail modal, <code class="language-plaintext highlighter-rouge">L</code> to tail the source log inside the TUI, or <code class="language-plaintext highlighter-rouge">O</code> to pop the log open in your native viewer. Critical for verifying that the parallel workstreams a profile demands are actually running.</li>
+  <li><strong>Profiles (8)</strong> – When you apply or save a profile snapshot, the next pass through Overview/Agents/Modes immediately reflects the new state.</li>
+  <li><strong>AI Assistant (0)</strong> – Consumes metrics collected from agents/modes/workflows to recommend “next best” actions (e.g., “Run performance-optimize workflow” when runtime metrics spike). It is a guidance layer that keeps the pieces aligned.</li>
+</ol>
+
+<h2 id="relationship-cheat-codes">Relationship Cheat Codes</h2>
+
+<ul>
+  <li><strong>Profiles call Modes/Rules</strong> – Every <code class="language-plaintext highlighter-rouge">.profile</code> file lists <code class="language-plaintext highlighter-rouge">MODES=</code> and <code class="language-plaintext highlighter-rouge">RULES=</code>, so applying a profile is equivalent to toggling multiple modes/rules in one action.</li>
+  <li><strong>Workflows call Agents</strong> – <code class="language-plaintext highlighter-rouge">workflows/*.yaml</code> enumerates <code class="language-plaintext highlighter-rouge">steps[].agent</code>. When a workflow is running, the Orchestrate view will show those agents as tasks; canceling a task from Orchestrate pauses the workflow.</li>
+  <li><strong>Scenarios call Profiles + Agents</strong> – <code class="language-plaintext highlighter-rouge">phases[].profiles</code> tell the orchestrator which profile to apply before scheduling the <code class="language-plaintext highlighter-rouge">phases[].agents</code>. That means a single scenario may switch contexts several times as it advances.</li>
+  <li><strong>AI Assistant predicts Workflows/Scenarios</strong> – Recommendations are based on the currently active agents/modes/workflows; it often suggests the matching workflow or scenario when it detects keywords or repo signals.</li>
+</ul>
+
+<h2 id="typical-end-to-end-flow">Typical End-to-End Flow</h2>
+
+<ol>
+  <li><strong>Choose a profile</strong> (View 8, <code class="language-plaintext highlighter-rouge">Space</code>) – e.g., <code class="language-plaintext highlighter-rouge">quality</code> for audit work. The TUI toggles the associated modes/rules instantly.</li>
+  <li><strong>Verify the enforcement layers</strong> – Spot-check Modes (3) and Rules (4) to ensure the profile change stuck.</li>
+  <li><strong>Kick off a workflow</strong> – Either via CLI or the command palette suggestion. Monitor its status in View 6 and watch Orchestrate (<code class="language-plaintext highlighter-rouge">o</code>) populate.</li>
+  <li><strong>Escalate to a scenario if needed</strong> – If the situation is broader (e.g., release goes sideways), hit <code class="language-plaintext highlighter-rouge">S</code>, preview the relevant scenario, and run it with <code class="language-plaintext highlighter-rouge">R</code>. The scenario may swap profiles between phases; the Overview view will show those transitions.</li>
+  <li><strong>Capture learnings</strong> – Save the tuned setup as a new profile (<code class="language-plaintext highlighter-rouge">n</code> in View 8) so you can reapply the same mix next time.</li>
+</ol>
+
+<p>Following that loop keeps the “profiles vs. modes vs. workflows vs. scenarios” distinction tangible—you always know which layer you are manipulating, which files back it, and exactly where to look in the TUI to confirm the state.</p>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

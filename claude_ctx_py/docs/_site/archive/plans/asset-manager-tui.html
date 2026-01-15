@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>TUI Asset Manager Implementation Plan | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="TUI Asset Manager Implementation Plan" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/plans/asset-manager-tui.html" />
+<meta property="og:url" content="http://localhost:4000/archive/plans/asset-manager-tui.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="TUI Asset Manager Implementation Plan" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"TUI Asset Manager Implementation Plan","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/plans/asset-manager-tui.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">TUI Asset Manager Implementation Plan</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="tui-asset-manager-implementation-plan">TUI Asset Manager Implementation Plan</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>Add an Asset Manager view to the TUI that allows users to:</p>
+<ol>
+  <li>Discover available assets from the plugin</li>
+  <li>Find <code class="language-plaintext highlighter-rouge">.claude</code> directories (local and global)</li>
+  <li>Install/uninstall assets to chosen locations</li>
+  <li>View installation status and diff conflicts</li>
+</ol>
+
+<h2 id="current-state-analysis">Current State Analysis</h2>
+
+<h3 id="tui-architecture">TUI Architecture</h3>
+<ul>
+  <li><strong>Pattern</strong>: Single-screen app with view switching via <code class="language-plaintext highlighter-rouge">ContentSwitcher</code></li>
+  <li><strong>Views</strong>: Rendered in <code class="language-plaintext highlighter-rouge">DataTable</code>, switched via reactive <code class="language-plaintext highlighter-rouge">current_view</code> variable</li>
+  <li><strong>Entry Point</strong>: <code class="language-plaintext highlighter-rouge">/claude_ctx_py/tui/main.py</code> (~3700 lines)</li>
+  <li><strong>Styling</strong>: TCSS (<code class="language-plaintext highlighter-rouge">styles.tcss</code>) + Rich markup for dynamic content</li>
+  <li><strong>Dialogs</strong>: <code class="language-plaintext highlighter-rouge">ModalScreen</code> subclasses in <code class="language-plaintext highlighter-rouge">tui_dialogs.py</code></li>
+</ul>
+
+<h3 id="available-assets-to-manage">Available Assets to Manage</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Count</th>
+      <th>Location</th>
+      <th>Install Target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Hooks</td>
+      <td>3</td>
+      <td><code class="language-plaintext highlighter-rouge">hooks/examples/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/hooks/</code></td>
+    </tr>
+    <tr>
+      <td>Commands</td>
+      <td>49</td>
+      <td><code class="language-plaintext highlighter-rouge">commands/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/commands/</code></td>
+    </tr>
+    <tr>
+      <td>Agents</td>
+      <td>9</td>
+      <td><code class="language-plaintext highlighter-rouge">agents/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/agents/</code></td>
+    </tr>
+    <tr>
+      <td>Skills</td>
+      <td>50+</td>
+      <td><code class="language-plaintext highlighter-rouge">skills/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/skills/</code></td>
+    </tr>
+    <tr>
+      <td>Modes</td>
+      <td>4</td>
+      <td><code class="language-plaintext highlighter-rouge">modes/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/modes/</code></td>
+    </tr>
+    <tr>
+      <td>Workflows</td>
+      <td>4</td>
+      <td><code class="language-plaintext highlighter-rouge">workflows/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">~/.claude/workflows/</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="metadata-sources">Metadata Sources</h3>
+<ul>
+  <li><strong>Hooks</strong>: README + inline comments</li>
+  <li><strong>Commands</strong>: YAML frontmatter (name, description, category)</li>
+  <li><strong>Agents</strong>: YAML frontmatter (summary, description, tier, category)</li>
+  <li><strong>Skills</strong>: YAML frontmatter in SKILL.md + versions.yaml</li>
+  <li><strong>Modes</strong>: Markdown structure (Purpose section)</li>
+  <li><strong>Workflows</strong>: YAML (name, description, version)</li>
+</ul>
+
+<hr />
+
+<h2 id="implementation-plan">Implementation Plan</h2>
+
+<h3 id="phase-1-core-infrastructure">Phase 1: Core Infrastructure</h3>
+
+<h4 id="11-asset-discovery-module">1.1 Asset Discovery Module</h4>
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/asset_discovery.py</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Data structures
+</span><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Asset</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># hooks, commands, agents, skills, modes, workflows
+</span>    <span class="n">source_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">dependencies</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">ClaudeDir</span><span class="p">:</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">scope</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># "project", "parent", "global"
+</span>    <span class="n">installed_assets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>  <span class="c1"># category -&gt; [names]
+</span>
+<span class="c1"># Functions
+</span><span class="k">def</span> <span class="nf">discover_plugin_assets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Asset</span><span class="p">]]</span>
+<span class="k">def</span> <span class="nf">find_claude_directories</span><span class="p">(</span><span class="n">start_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ClaudeDir</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">get_installed_assets</span><span class="p">(</span><span class="n">claude_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="k">def</span> <span class="nf">check_installation_status</span><span class="p">(</span><span class="n">asset</span><span class="p">:</span> <span class="n">Asset</span><span class="p">,</span> <span class="n">claude_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InstallStatus</span>
+</code></pre></div></div>
+
+<p><strong>InstallStatus enum</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">NOT_INSTALLED</code> - Asset not present</li>
+  <li><code class="language-plaintext highlighter-rouge">INSTALLED_SAME</code> - Installed, matches source</li>
+  <li><code class="language-plaintext highlighter-rouge">INSTALLED_DIFFERENT</code> - Installed, differs from source</li>
+  <li><code class="language-plaintext highlighter-rouge">INSTALLED_NEWER</code> - Installed version is newer</li>
+  <li><code class="language-plaintext highlighter-rouge">INSTALLED_OLDER</code> - Installed version is older</li>
+</ul>
+
+<h4 id="12-asset-installer-module">1.2 Asset Installer Module</h4>
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/asset_installer.py</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">install_asset</span><span class="p">(</span><span class="n">asset</span><span class="p">:</span> <span class="n">Asset</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">uninstall_asset</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">get_asset_diff</span><span class="p">(</span><span class="n">asset</span><span class="p">:</span> <span class="n">Asset</span><span class="p">,</span> <span class="n">installed_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+<span class="k">def</span> <span class="nf">bulk_install</span><span class="p">(</span><span class="n">assets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Asset</span><span class="p">],</span> <span class="n">target_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Asset</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+</code></pre></div></div>
+
+<p><strong>Installation logic by category</strong>:</p>
+<ul>
+  <li><strong>Hooks</strong>: Copy to <code class="language-plaintext highlighter-rouge">hooks/</code>, add to settings.json if not present</li>
+  <li><strong>Commands</strong>: Copy to <code class="language-plaintext highlighter-rouge">commands/&lt;namespace&gt;/</code></li>
+  <li><strong>Agents</strong>: Copy to <code class="language-plaintext highlighter-rouge">agents/</code> (active or inactive based on user choice)</li>
+  <li><strong>Skills</strong>: Copy entire skill directory to <code class="language-plaintext highlighter-rouge">skills/</code></li>
+  <li><strong>Modes</strong>: Copy to <code class="language-plaintext highlighter-rouge">modes/</code></li>
+  <li><strong>Workflows</strong>: Copy to <code class="language-plaintext highlighter-rouge">workflows/</code></li>
+</ul>
+
+<hr />
+
+<h3 id="phase-2-tui-views">Phase 2: TUI Views</h3>
+
+<h4 id="21-asset-manager-view-main-view">2.1 Asset Manager View (Main View)</h4>
+<p><strong>View key</strong>: <code class="language-plaintext highlighter-rouge">A</code> (for Assets)
+<strong>View name</strong>: <code class="language-plaintext highlighter-rouge">assets</code></p>
+
+<p><strong>Table Columns</strong>:
+| Column | Width | Content |
+|——–|——-|———|
+| Category | 12 | hooks/commands/agents/etc |
+| Name | 30 | Asset name |
+| Status | 15 | ● Installed / ○ Available / ⚠ Differs |
+| Description | 40+ | Truncated description |</p>
+
+<p><strong>Actions</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Enter</code> - Open asset detail dialog</li>
+  <li><code class="language-plaintext highlighter-rouge">i</code> - Install selected asset</li>
+  <li><code class="language-plaintext highlighter-rouge">u</code> - Uninstall selected asset</li>
+  <li><code class="language-plaintext highlighter-rouge">d</code> - Show diff (if installed differs)</li>
+  <li><code class="language-plaintext highlighter-rouge">t</code> - Change target directory</li>
+  <li><code class="language-plaintext highlighter-rouge">c</code> - Filter by category</li>
+  <li><code class="language-plaintext highlighter-rouge">I</code> - Bulk install category</li>
+</ul>
+
+<p><strong>View Rendering Pattern</strong>:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">show_assets_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">AnyDataTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">table</span><span class="p">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">"Category"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">"category"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">table</span><span class="p">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">"Name"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">"name"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">table</span><span class="p">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">"Status"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">"status"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">table</span><span class="p">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">"Description"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">"description"</span><span class="p">)</span>
+
+    <span class="c1"># Group by category or flat list based on filter
+</span>    <span class="k">for</span> <span class="n">asset</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">available_assets</span><span class="p">:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_get_install_status</span><span class="p">(</span><span class="n">asset</span><span class="p">)</span>
+        <span class="n">status_text</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_format_status</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+        <span class="c1"># ...
+</span></code></pre></div></div>
+
+<h4 id="22-target-selector-dialog">2.2 Target Selector Dialog</h4>
+<p><strong>Type</strong>: <code class="language-plaintext highlighter-rouge">ModalScreen</code></p>
+
+<p>Show discovered <code class="language-plaintext highlighter-rouge">.claude</code> directories with radio selection:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─ Select Installation Target ─────────────────┐
+│                                              │
+│  ◉ ~/.claude (global)                        │
+│  ○ ./project/.claude (project)               │
+│  ○ ../parent/.claude (parent project)        │
+│                                              │
+│  [Select]  [Cancel]                          │
+└──────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h4 id="23-asset-detail-dialog">2.3 Asset Detail Dialog</h4>
+<p><strong>Type</strong>: <code class="language-plaintext highlighter-rouge">ModalScreen</code></p>
+
+<p>Show full asset details:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─ Asset: code-reviewer ───────────────────────┐
+│                                              │
+│  Category: agents                            │
+│  Version: 2.0                                │
+│  Status: ⚠ Installed (differs from source)  │
+│                                              │
+│  Description:                                │
+│  Expert code review specialist with deep     │
+│  expertise in security, performance...       │
+│                                              │
+│  Dependencies:                               │
+│  • debugger (agent)                          │
+│  • security-auditor (agent)                  │
+│                                              │
+│  [Install]  [View Diff]  [Close]             │
+└──────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h4 id="24-diff-viewer-dialog">2.4 Diff Viewer Dialog</h4>
+<p><strong>Type</strong>: <code class="language-plaintext highlighter-rouge">ModalScreen</code> with scrollable content</p>
+
+<p>Show unified diff between source and installed:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─ Diff: code-reviewer.md ─────────────────────┐
+│  --- installed                               │
+│  +++ source                                  │
+│  @@ -5,7 +5,8 @@                             │
+│   summary: "Senior reviewer..."              │
+│  -tier: standard                             │
+│  +tier: core                                 │
+│  +priority: critical                         │
+│                                              │
+│  [Apply Update]  [Keep Installed]  [Close]   │
+└──────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="phase-3-memory-vault-browser-bonus">Phase 3: Memory Vault Browser (Bonus)</h3>
+
+<h4 id="31-memory-view">3.1 Memory View</h4>
+<p><strong>View key</strong>: <code class="language-plaintext highlighter-rouge">M</code> (for Memory)
+<strong>View name</strong>: <code class="language-plaintext highlighter-rouge">memory</code></p>
+
+<p><strong>Table Columns</strong>:
+| Column | Width | Content |
+|——–|——-|———|
+| Type | 12 | knowledge/projects/sessions/fixes |
+| Title | 35 | Note title |
+| Modified | 12 | Date or “5m ago” |
+| Tags | 20+ | #tag1 #tag2 |</p>
+
+<p><strong>Actions</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Enter</code> - View note content</li>
+  <li><code class="language-plaintext highlighter-rouge">s</code> - Search notes</li>
+  <li><code class="language-plaintext highlighter-rouge">/</code> - Quick search</li>
+  <li><code class="language-plaintext highlighter-rouge">d</code> - Delete note (with confirm)</li>
+  <li><code class="language-plaintext highlighter-rouge">n</code> - New note (opens prompt)</li>
+</ul>
+
+<hr />
+
+<h3 id="phase-4-integration">Phase 4: Integration</h3>
+
+<h4 id="41-constants-updates">4.1 Constants Updates</h4>
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/tui/constants.py</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PRIMARY_VIEW_BINDINGS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ... existing ...
+</span>    <span class="p">(</span><span class="s">"a"</span><span class="p">,</span> <span class="s">"assets"</span><span class="p">,</span> <span class="s">"Assets"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">"m"</span><span class="p">,</span> <span class="s">"memory"</span><span class="p">,</span> <span class="s">"Memory"</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">VIEW_TITLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... existing ...
+</span>    <span class="s">"assets"</span><span class="p">:</span> <span class="s">"📦 Asset Manager"</span><span class="p">,</span>
+    <span class="s">"memory"</span><span class="p">:</span> <span class="s">"🧠 Memory Vault"</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="42-types-updates">4.2 Types Updates</h4>
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/tui/types.py</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">AssetInfo</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">source_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># "installed", "available", "differs"
+</span>    <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">MemoryNote</span><span class="p">:</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">note_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">modified</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">snippet</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div></div>
+
+<h4 id="43-main-tui-updates">4.3 Main TUI Updates</h4>
+<p><strong>File</strong>: <code class="language-plaintext highlighter-rouge">claude_ctx_py/tui/main.py</code></p>
+
+<p>Add:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">load_assets()</code> - Load available assets</li>
+  <li><code class="language-plaintext highlighter-rouge">load_memory_notes()</code> - Load memory vault</li>
+  <li><code class="language-plaintext highlighter-rouge">show_assets_view()</code> - Render assets table</li>
+  <li><code class="language-plaintext highlighter-rouge">show_memory_view()</code> - Render memory table</li>
+  <li><code class="language-plaintext highlighter-rouge">action_install_asset()</code> - Install handler</li>
+  <li><code class="language-plaintext highlighter-rouge">action_view_asset_detail()</code> - Detail dialog</li>
+  <li>Action handlers for all new keybindings</li>
+</ul>
+
+<hr />
+
+<h2 id="file-structure">File Structure</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude_ctx_py/
+├── core/
+│   ├── asset_discovery.py    # NEW: Asset discovery
+│   └── asset_installer.py    # NEW: Install/uninstall logic
+├── memory/                   # EXISTING: Memory module
+│   └── ...
+└── tui/
+    ├── main.py               # UPDATE: Add views
+    ├── constants.py          # UPDATE: Add bindings
+    ├── types.py              # UPDATE: Add types
+    ├── styles.tcss           # UPDATE: Add styles
+    └── dialogs/              # NEW: Asset dialogs
+        ├── __init__.py
+        ├── target_selector.py
+        ├── asset_detail.py
+        └── diff_viewer.py
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="implementation-order">Implementation Order</h2>
+
+<h3 id="sprint-1-core-infrastructure-day-1">Sprint 1: Core Infrastructure (Day 1)</h3>
+<ol class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Create <code class="language-plaintext highlighter-rouge">asset_discovery.py</code> with:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">Asset</code> dataclass</li>
+      <li><code class="language-plaintext highlighter-rouge">discover_plugin_assets()</code> for each category</li>
+      <li><code class="language-plaintext highlighter-rouge">find_claude_directories()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">get_installed_assets()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">check_installation_status()</code></li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Create <code class="language-plaintext highlighter-rouge">asset_installer.py</code> with:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">install_asset()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">uninstall_asset()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">get_asset_diff()</code></li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Unit tests for discovery and install</li>
+</ol>
+
+<h3 id="sprint-2-tui-asset-view-day-2">Sprint 2: TUI Asset View (Day 2)</h3>
+<ol class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add Asset view to TUI:
+    <ul>
+      <li>Add bindings in <code class="language-plaintext highlighter-rouge">constants.py</code></li>
+      <li>Add types in <code class="language-plaintext highlighter-rouge">types.py</code></li>
+      <li>Add <code class="language-plaintext highlighter-rouge">load_assets()</code> method</li>
+      <li>Add <code class="language-plaintext highlighter-rouge">show_assets_view()</code> method</li>
+      <li>Wire up in <code class="language-plaintext highlighter-rouge">update_view()</code></li>
+    </ul>
+  </li>
+  <li class="task-list-item">
+    <p><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Create Target Selector dialog</p>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Create Asset Detail dialog</li>
+</ol>
+
+<h3 id="sprint-3-install-actions-day-3">Sprint 3: Install Actions (Day 3)</h3>
+<ol class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Implement install action:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">action_install_asset()</code></li>
+      <li>Progress/confirmation dialogs</li>
+      <li>Refresh after install</li>
+    </ul>
+  </li>
+  <li class="task-list-item">
+    <p><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Implement uninstall action</p>
+  </li>
+  <li class="task-list-item">
+    <p><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Implement diff viewer dialog</p>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Implement bulk install</li>
+</ol>
+
+<h3 id="sprint-4-memory-view-day-4">Sprint 4: Memory View (Day 4)</h3>
+<ol class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add Memory view to TUI:
+    <ul>
+      <li>Integrate with existing <code class="language-plaintext highlighter-rouge">memory</code> module</li>
+      <li>Add <code class="language-plaintext highlighter-rouge">show_memory_view()</code></li>
+      <li>Note viewer dialog</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add memory actions:
+    <ul>
+      <li>Search</li>
+      <li>Delete with confirm</li>
+      <li>New note</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="sprint-5-polish-day-5">Sprint 5: Polish (Day 5)</h3>
+<ol class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add styles for new views</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Add to command palette</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Integration testing</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Documentation</li>
+</ol>
+
+<hr />
+
+<h2 id="ui-mockups">UI Mockups</h2>
+
+<h3 id="assets-view">Assets View</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>╭─ 📦 Asset Manager ───────────────────────────────────────────────────────────╮
+│ Target: ~/.claude (global)                                    [t] change     │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Category     │ Name                           │ Status        │ Description  │
+├──────────────┼────────────────────────────────┼───────────────┼──────────────┤
+│ hooks        │ 📎 implementation-quality-gate │ ● Installed   │ Quality ga...│
+│ hooks        │ 📎 skill_auto_suggester        │ ● Installed   │ Auto-sugge...│
+│ hooks        │ 📎 memory_auto_capture         │ ● Installed   │ Auto-captu...│
+│ commands     │ 📝 analyze:code                │ ○ Available   │ Comprehens...│
+│ commands     │ 📝 analyze:security-scan       │ ○ Available   │ Security v...│
+│ commands     │ 📝 dev:test                    │ ⚠ Differs     │ Execute te...│
+│ agents       │ 🤖 code-reviewer               │ ● Installed   │ Senior rev...│
+│ agents       │ 🤖 debugger                    │ ○ Available   │ Expert deb...│
+│ skills       │ 🎯 api-design-patterns         │ ○ Available   │ REST and G...│
+╰──────────────────────────────────────────────────────────────────────────────╯
+ [i]Install [u]Uninstall [d]Diff [Enter]Details [c]Category [I]Bulk Install
+</code></pre></div></div>
+
+<h3 id="memory-view">Memory View</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>╭─ 🧠 Memory Vault ────────────────────────────────────────────────────────────╮
+│ Vault: ~/basic-memory                                         [/] search    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Type         │ Title                          │ Modified      │ Tags         │
+├──────────────┼────────────────────────────────┼───────────────┼──────────────┤
+│ knowledge    │ 📚 threatx-gateway             │ 2h ago        │ #knowledge   │
+│ projects     │ 📁 waf-gauntlet                │ 2h ago        │ #project     │
+│ sessions     │ 📅 2025-11-30-memory-system    │ 1h ago        │ #session     │
+│ fixes        │ 🔧 docker-arm64-fix            │ 3d ago        │ #fix #docker │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ [Enter]View [s]Search [n]New [d]Delete [r]Refresh
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="key-technical-decisions">Key Technical Decisions</h2>
+
+<ol>
+  <li><strong>Plugin Source Detection</strong>
+    <ul>
+      <li>Use <code class="language-plaintext highlighter-rouge">__file__</code> to find plugin installation path</li>
+      <li>Or check <code class="language-plaintext highlighter-rouge">CLAUDE_PLUGIN_ROOT</code> env var</li>
+      <li>Fallback to package resources</li>
+    </ul>
+  </li>
+  <li><strong>Claude Directory Detection</strong>
+    <ul>
+      <li>Walk up from cwd looking for <code class="language-plaintext highlighter-rouge">.claude/</code></li>
+      <li>Always include <code class="language-plaintext highlighter-rouge">~/.claude</code> as global</li>
+      <li>Prefer <code class="language-plaintext highlighter-rouge">CLAUDE_PLUGIN_ROOT</code> when running as a plugin</li>
+    </ul>
+  </li>
+  <li><strong>Diff Implementation</strong>
+    <ul>
+      <li>Use <code class="language-plaintext highlighter-rouge">difflib.unified_diff</code> from stdlib</li>
+      <li>Show in scrollable dialog</li>
+      <li>Highlight additions/deletions with Rich markup</li>
+    </ul>
+  </li>
+  <li><strong>Settings.json Updates for Hooks</strong>
+    <ul>
+      <li>Parse existing settings.json</li>
+      <li>Merge new hook configuration</li>
+      <li>Preserve existing hooks/settings</li>
+    </ul>
+  </li>
+  <li><strong>Installation Atomicity</strong>
+    <ul>
+      <li>Copy to temp location first</li>
+      <li>Move atomically on success</li>
+      <li>Rollback on failure</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="acceptance-criteria">Acceptance Criteria</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can see all available assets from plugin</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can see which assets are installed</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can select installation target (.claude directory)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can install individual assets</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can bulk install by category</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can uninstall assets</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can view diffs when installed differs from source</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can browse memory vault</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can search memory notes</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Users can view note contents</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />All actions have keyboard shortcuts</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Views integrate with existing TUI navigation</li>
+</ul>
+
+<hr />
+
+<h2 id="dependencies">Dependencies</h2>
+
+<ul>
+  <li>Existing: <code class="language-plaintext highlighter-rouge">difflib</code> (stdlib)</li>
+  <li>Existing: Textual framework</li>
+  <li>Existing: <code class="language-plaintext highlighter-rouge">memory</code> module</li>
+  <li>New: None required</li>
+</ul>
+
+<hr />
+
+<h2 id="risks--mitigations">Risks &amp; Mitigations</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Risk</th>
+      <th>Mitigation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Large asset list overwhelming</td>
+      <td>Category filtering, search</td>
+    </tr>
+    <tr>
+      <td>Settings.json corruption</td>
+      <td>Backup before modify, atomic writes</td>
+    </tr>
+    <tr>
+      <td>Path resolution edge cases</td>
+      <td>Extensive path normalization, tests</td>
+    </tr>
+    <tr>
+      <td>TUI main.py too large</td>
+      <td>Extract dialogs to separate module</td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

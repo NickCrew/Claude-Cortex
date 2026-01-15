@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Design: Doctor Command (/ctx:doctor) | Cortex</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Design: Doctor Command (/ctx:doctor)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Comprehensive context management plugin for Claude Code" />
+<meta property="og:description" content="Comprehensive context management plugin for Claude Code" />
+<link rel="canonical" href="http://localhost:4000/archive/designs/doctor-command.html" />
+<meta property="og:url" content="http://localhost:4000/archive/designs/doctor-command.html" />
+<meta property="og:site_name" content="Cortex" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Design: Doctor Command (/ctx:doctor)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Comprehensive context management plugin for Claude Code","headline":"Design: Doctor Command (/ctx:doctor)","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/hero.png"}},"url":"http://localhost:4000/archive/designs/doctor-command.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Cortex" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Cortex</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/">Overview</a><a class="page-link" href="/tutorials/">Tutorials</a><a class="page-link" href="/guides/getting-started.html">Getting Started</a><a class="page-link" href="/guides/ai/">AI &amp;amp; LLM Intelligence Documentation</a><a class="page-link" href="/guides/ai/LLM_INTELLIGENCE_GUIDE.html">LLM Intelligence Guide</a><a class="page-link" href="/architecture/MASTER_ARCHITECTURE.html">Cortex: Master Architecture Document</a><a class="page-link" href="/guides/agents.html">Agents</a><a class="page-link" href="/guides/skills.html">Skills</a><a class="page-link" href="/guides/development/model-optimization.html">Model Optimization</a><a class="page-link" href="/guides/commands.html">Command Reference</a><a class="page-link" href="/AI_INTELLIGENCE.html">AI Intelligence Features</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Design: Doctor Command (/ctx:doctor)</h1>
+  </header>
+
+  <div class="post-content">
+    <h1 id="design-doctor-command-ctxdoctor">Design: Doctor Command (<code class="language-plaintext highlighter-rouge">/ctx:doctor</code>)</h1>
+
+<h2 id="objective">Objective</h2>
+<p>Implement a <code class="language-plaintext highlighter-rouge">doctor</code> command (<code class="language-plaintext highlighter-rouge">claude-ctx doctor</code>) to diagnose, validate, and optimize the <code class="language-plaintext highlighter-rouge">claude-ctx</code> environment. This tool acts as a system health check, ensuring the integrity of Claude’s context.</p>
+
+<h2 id="core-responsibilities">Core Responsibilities</h2>
+
+<ol>
+  <li><strong>Consistency Verification (Real vs. Expected Context)</strong>
+    <ul>
+      <li><strong>Goal:</strong> Ensure <code class="language-plaintext highlighter-rouge">claude-ctx</code>’s internal state matches the actual file system.</li>
+      <li><strong>Checks:</strong>
+        <ul>
+          <li>Verify all entries in <code class="language-plaintext highlighter-rouge">.active-modes</code>, <code class="language-plaintext highlighter-rouge">.active-rules</code>, etc., point to existing files.</li>
+          <li>Verify that all required “Base” agents/modes for the active profile are actually present.</li>
+          <li>Detect “Zombie” states: Config files pointing to deleted resources.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Duplicate Detection</strong>
+    <ul>
+      <li><strong>Goal:</strong> Prevent context pollution from duplicate definitions.</li>
+      <li><strong>Checks:</strong>
+        <ul>
+          <li>Identify agents/modes with identical names (case-insensitive).</li>
+          <li>Identify agents/modes with identical content (hash comparison).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Redundancy Analysis</strong>
+    <ul>
+      <li><strong>Goal:</strong> Identify unused resources.</li>
+      <li><strong>Checks:</strong>
+        <ul>
+          <li>Agents not used in any Mode or Workflow.</li>
+          <li>Modes that activate no agents/rules.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Optimization Recommendations</strong>
+    <ul>
+      <li><strong>Goal:</strong> Improve performance and reduce token usage.</li>
+      <li><strong>Checks:</strong>
+        <ul>
+          <li>Warn about excessively large context files (&gt;10KB).</li>
+          <li>Warn about too many active agents (&gt;5).</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="architecture">Architecture</h2>
+
+<h3 id="1-core-module-claude_ctx_pycoredoctorpy">1. Core Module: <code class="language-plaintext highlighter-rouge">claude_ctx_py/core/doctor.py</code></h3>
+<p>A new module containing the diagnostic logic.</p>
+
+<p><strong>Data Structures:</strong></p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">@</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">Diagnosis</span><span class="p">:</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># e.g., "Consistency", "Optimization"
+</span>    <span class="n">level</span><span class="p">:</span> <span class="nb">str</span>     <span class="c1"># "ERROR", "WARNING", "INFO"
+</span>    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">suggestion</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p><strong>Key Functions:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">doctor_run(fix: bool = False) -&gt; Tuple[int, str]</code>: Main entry point.</li>
+  <li><code class="language-plaintext highlighter-rouge">check_consistency(claude_dir: Path) -&gt; List[Diagnosis]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">check_duplicates(claude_dir: Path) -&gt; List[Diagnosis]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">check_redundancy(claude_dir: Path) -&gt; List[Diagnosis]</code></li>
+  <li><code class="language-plaintext highlighter-rouge">check_optimizations(claude_dir: Path) -&gt; List[Diagnosis]</code></li>
+</ul>
+
+<h3 id="2-cli-integration-claude_ctx_pyclipy">2. CLI Integration: <code class="language-plaintext highlighter-rouge">claude_ctx_py/cli.py</code></h3>
+<ul>
+  <li>Add <code class="language-plaintext highlighter-rouge">_build_doctor_parser</code> to register the <code class="language-plaintext highlighter-rouge">doctor</code> subcommand.</li>
+  <li>Add <code class="language-plaintext highlighter-rouge">_handle_doctor_command</code> to execute <code class="language-plaintext highlighter-rouge">core.doctor_run</code>.</li>
+</ul>
+
+<h2 id="usage">Usage</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx doctor
+<span class="c"># Output:</span>
+<span class="c"># [ERROR] Consistency: Active mode 'debugging' references missing file 'modes/debugging.md'.</span>
+<span class="c"># [WARN]  Optimization: Agent 'verbose-logger' is 25KB. Consider splitting.</span>
+<span class="c"># [INFO]  Redundancy: Agent 'old-test' is never used.</span>
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>claude-ctx doctor <span class="nt">--fix</span>
+<span class="c"># Attempts to auto-resolve issues (e.g., removing missing entries from .active-* files).</span>
+</code></pre></div></div>
+
+  </div>
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Cortex</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Cortex</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Comprehensive context management plugin for Claude Code</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     🤖 AI ASSISTANT - INTELLIGENT RECOMMENDATIONS            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│ ⚡ AGENT RECOMMENDATIONS                                                    │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                                             │
+│ ✓ Agent   backend-architect            90%                                 │
+│           Multiple Python service files detected                            │
+│                                                                             │
+│ • Agent   test-automator                75%                                 │
+│           Tests directory present but coverage incomplete                   │
+│                                                                             │
+│                                                                             │
+│ ✨ SKILL RECOMMENDATIONS                                                    │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                                             │
+│ ✓ Skill   test-driven-development       85%  AUTO                          │
+│           Tests detected, TDD would improve coverage                        │
+│                                                                             │
+│ ✓ Skill   api-design-patterns           82%  AUTO                          │
+│           Multiple API endpoints found, standardization recommended         │
+│                                                                             │
+│ • Skill   python-testing-patterns       70%                                 │
+│           Test files use pytest, advanced patterns available                │
+│                                                                             │
+│ • Skill   database-design-patterns      65%                                 │
+│           SQLite usage detected, optimization patterns available            │
+│                                                                             │
+│ ○ Skill   python-performance            55%                                 │
+│           Consider for production optimization                              │
+│                                                                             │
+│                                                                             │
+│ 🔮 WORKFLOW PREDICTIONS                                                     │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│                                                                             │
+│ ○ Workflow  Testing workflow recommended  60%                              │
+│             Run tests before committing changes                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+KEY:
+  ✓ GREEN  = High confidence (≥80%) - Auto-activate
+  • YELLOW = Medium confidence (60-79%) - Suggested
+  ○ DIM    = Low confidence (<60%) - Consider
+
+  AUTO = Will activate automatically when confidence ≥80%
+
+Press 'q' to close this view
+Press 'f' to provide feedback on a skill recommendation

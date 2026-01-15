@@ -12,6 +12,7 @@ from typing import Dict, Iterable, List, Optional, Tuple
 
 
 from .core.base import _resolve_bundled_assets_root, _resolve_cortex_root
+from .core.hooks import validate_hooks_config_file
 
 
 DEFAULT_CONFIG_PATH = _resolve_cortex_root() / "cortex-config.json"
@@ -30,6 +31,7 @@ class LauncherConfig:
     modes: List[str]
     principles: List[str]
     claude_args: List[str]
+    extra_plugin_dirs: List[Path]
 
 
 def _read_json(path: Path) -> Tuple[Dict[str, object], List[str]]:
@@ -203,6 +205,7 @@ def _ensure_default_config(
     config: Dict[str, object],
     plugin_root: Path,
     content_root: Optional[Path] = None,
+    write_defaults: bool = True,
 ) -> Tuple[Dict[str, object], List[str]]:
     updated = False
     warnings: List[str] = []
@@ -235,6 +238,9 @@ def _ensure_default_config(
     if "claude_args" not in config:
         config["claude_args"] = []
         updated = True
+    if "extra_plugin_dirs" not in config:
+        config["extra_plugin_dirs"] = []
+        updated = True
 
     if "settings_path" not in config:
         settings_path = source_root / "templates" / "settings.json"
@@ -244,7 +250,7 @@ def _ensure_default_config(
         config["settings_path"] = str(settings_path) if settings_path.exists() else None
         updated = True
 
-    if updated:
+    if updated and write_defaults:
         try:
             _write_json(config_path, config)
             warnings.append(f"Initialized config: {config_path}")
@@ -278,6 +284,43 @@ def _normalize_claude_args(value: object, warnings: List[str]) -> List[str]:
         except ValueError as exc:
             warnings.append(f"Failed to parse 'claude_args' string: {exc}")
     return []
+
+
+def _normalize_path_list(
+    value: object,
+    warnings: List[str],
+    label: str,
+) -> List[Path]:
+    items: List[str] = []
+    if isinstance(value, list):
+        items = [item.strip() for item in value if isinstance(item, str) and item.strip()]
+    elif isinstance(value, str) and value.strip():
+        warnings.append(
+            f"Config '{label}' should be a JSON array of strings; parsing string value."
+        )
+        try:
+            items = [item.strip() for item in shlex.split(value) if item.strip()]
+        except ValueError as exc:
+            warnings.append(f"Failed to parse '{label}' string: {exc}")
+            return []
+
+    paths: List[Path] = []
+    seen: set[Path] = set()
+    invalid: List[str] = []
+    for item in items:
+        path = Path(item).expanduser().resolve(strict=False)
+        if path in seen:
+            continue
+        seen.add(path)
+        if not path.exists() or not path.is_dir():
+            invalid.append(str(path))
+            continue
+        paths.append(path)
+
+    if invalid:
+        warnings.append(f"Extra plugin dirs not found: {', '.join(invalid)}")
+
+    return paths
 
 
 def _ensure_symlink(source: Path, target: Path) -> Optional[str]:
@@ -436,10 +479,15 @@ def load_launcher_config(
     content_root: Optional[Path] = None,
     modes_override: Optional[str] = None,
     flags_override: Optional[str] = None,
+    write_defaults: bool = True,
 ) -> Tuple[LauncherConfig, List[str]]:
     config, warnings = _read_json(config_path)
     config, update_warnings = _ensure_default_config(
-        config_path, config, plugin_root, content_root=content_root
+        config_path,
+        config,
+        plugin_root,
+        content_root=content_root,
+        write_defaults=write_defaults,
     )
     warnings.extend(update_warnings)
 
@@ -462,6 +510,9 @@ def load_launcher_config(
         else []
     )
     claude_args = _normalize_claude_args(config.get("claude_args"), warnings)
+    extra_plugin_dirs = _normalize_path_list(
+        config.get("extra_plugin_dirs"), warnings, "extra_plugin_dirs"
+    )
 
     settings_path = None
     settings_raw = config.get("settings_path")
@@ -477,6 +528,7 @@ def load_launcher_config(
             modes=modes,
             principles=principles,
             claude_args=claude_args,
+            extra_plugin_dirs=extra_plugin_dirs,
         ),
         warnings,
     )
@@ -499,6 +551,13 @@ def start_claude(
             "Unable to resolve plugin root. Provide --plugin-dir or set "
             "`plugin_dir` in ~/.cortex/cortex-config.json."
         )
+
+    hooks_path = plugin_root / "hooks" / "hooks.json"
+    if hooks_path.is_file():
+        is_valid, errors = validate_hooks_config_file(hooks_path)
+        if not is_valid:
+            details = "; ".join(errors) if errors else "Unknown hooks config error."
+            raise RuntimeError(f"Invalid hooks config at {hooks_path}: {details}")
 
     content_root = config_path.parent if config_path is not None else _resolve_cortex_root()
     config, warnings = load_launcher_config(
@@ -526,6 +585,10 @@ def start_claude(
 
     cmd: List[str] = [claude_bin]
     cmd.extend(["--plugin-dir", str(plugin_root)])
+    for extra_dir in config.extra_plugin_dirs:
+        if extra_dir.resolve() == plugin_root.resolve():
+            continue
+        cmd.extend(["--plugin-dir", str(extra_dir)])
 
     effective_settings = settings_path or config.settings_path
     if effective_settings is not None:

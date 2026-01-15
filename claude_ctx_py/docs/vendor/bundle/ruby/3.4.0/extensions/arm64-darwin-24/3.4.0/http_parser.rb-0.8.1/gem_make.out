@@ -1,0 +1,23 @@
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+/opt/homebrew/opt/ruby/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-7grp20 sitelibdir\=./.gem.20251230-60566-7grp20 clean
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-7grp20 sitelibdir\=./.gem.20251230-60566-7grp20
+compiling ruby_http_parser.c
+ruby_http_parser.c:373:17: warning: comparison of integers of different signs: 'size_t' (aka 'unsigned long') and 'long' [-Wsign-compare]
+  373 |     if (nparsed < len)
+      |         ~~~~~~~ ^ ~~~
+1 warning generated.
+compiling ryah_http_parser.c
+linking shared-object ruby_http_parser.bundle
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-7grp20 sitelibdir\=./.gem.20251230-60566-7grp20 install
+/usr/bin/install -c -m 0755 ruby_http_parser.bundle ./.gem.20251230-60566-7grp20
+
+current directory: /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.1/ext/ruby_http_parser
+make DESTDIR\= sitearchdir\=./.gem.20251230-60566-7grp20 sitelibdir\=./.gem.20251230-60566-7grp20 clean

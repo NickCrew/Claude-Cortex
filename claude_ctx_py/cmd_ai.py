@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 from .intelligence import IntelligentAgent
 from .core import _resolve_claude_dir
+from .messages import RESTART_REQUIRED_MESSAGE
 
 
 def ai_recommend() -> int:
@@ -148,6 +149,8 @@ def ai_auto_activate() -> int:
             print(f"✗ {agent_name}: {str(e)}")
 
     print(f"\n✓ Activated {len(activated)}/{len(auto_agents)} agents")
+    if activated:
+        print(RESTART_REQUIRED_MESSAGE)
 
     if failed:
         print(f"✗ Failed: {', '.join(failed)}")

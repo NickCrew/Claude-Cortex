@@ -1,0 +1,54 @@
+graph TB
+    subgraph "Workflows"
+        W1[Feature Dev]
+        W2[Bug Fix]
+        W3[Refactoring]
+        W4[API Design]
+        W5[Tech Debt]
+        W6[Arch Review]
+        W7[Onboarding]
+        W8[Security]
+        W9[Performance]
+    end
+
+    subgraph "Modes"
+        M1[Brainstorm]
+        M2[Deep Analysis]
+        M3[Quality Focus]
+        M4[Parallel Orch]
+        M5[Task Mgmt]
+    end
+
+    M1 -.-> W1
+    M1 -.-> W4
+    M1 -.-> W7
+
+    M2 -.-> W3
+    M2 -.-> W5
+    M2 -.-> W6
+
+    M3 -.-> W3
+    M3 -.-> W5
+    M3 -.-> W8
+
+    M4 -.-> W1
+    M4 -.-> W3
+    M4 -.-> W4
+
+    M5 -.-> W1
+    M5 -.-> W7
+
+    style W1 fill:#e8f5e9
+    style W2 fill:#e8f5e9
+    style W3 fill:#e8f5e9
+    style W4 fill:#e8f5e9
+    style W5 fill:#e8f5e9
+    style W6 fill:#e8f5e9
+    style W7 fill:#e8f5e9
+    style W8 fill:#e8f5e9
+    style W9 fill:#e8f5e9
+    style M1 fill:#fff3e1
+    style M2 fill:#fff3e1
+    style M3 fill:#fff3e1
+    style M4 fill:#fff3e1
+    style M5 fill:#fff3e1

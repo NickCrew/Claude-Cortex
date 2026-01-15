@@ -1,0 +1,668 @@
+append_cppflags: checking for whether -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib  -arch arm64   -lruby.3.4  -lpthread  "
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -arch arm64 -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_ldflags: checking for whether -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib is accepted as LDFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib -arch arm64   -lruby.3.4  -lpthread  "
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -std=c99 is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -arch arm64 -std=c99 -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Wno-declaration-after-statement is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -arch arm64 -Wno-declaration-after-statement -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -O2 is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -arch arm64 -O2 -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -g is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -arch arm64 -g -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Winline is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -arch arm64 -Winline -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Wmissing-noreturn is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -arch arm64 -Wmissing-noreturn -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Wconversion is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -arch arm64 -Wconversion -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Wno-error=unused-command-line-argument-hard-error-in-future is accepted as CFLAGS... -------------------- no
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -arch arm64 -Wno-error=unused-command-line-argument-hard-error-in-future -Werror -c conftest.c"
+error: unknown warning option '-Werror=unused-command-line-argument-hard-error-in-future'; did you mean '-Werror=unused-command-line-argument'? [-Werror,-Wunknown-warning-option]
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cflags: checking for whether -Wno-unknown-warning-option is accepted as CFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -arch arm64 -Wno-unknown-warning-option -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+have_header: checking for iconv.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64  -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <iconv.h>
+/* end */
+
+--------------------
+
+try_link_iconv: checking for iconv using --with-opt-* flags... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64   -lruby.3.4  -lpthread  "
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+Undefined symbols for architecture arm64:
+  "_iconv", referenced from:
+      _main in conftest-c494a0.o
+  "_iconv_open", referenced from:
+      _main in conftest-c494a0.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <stdlib.h>
+ 4: #include <iconv.h>
+ 5: int main(void)
+ 6: {
+ 7:     iconv_t cd = iconv_open("", "");
+ 8:     iconv(cd, NULL, NULL, NULL, NULL);
+ 9:     return EXIT_SUCCESS;
+10: }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64   -lruby.3.4 -liconv -lpthread  "
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <stdlib.h>
+ 4: #include <iconv.h>
+ 5: int main(void)
+ 6: {
+ 7:     iconv_t cd = iconv_open("", "");
+ 8:     iconv(cd, NULL, NULL, NULL, NULL);
+ 9:     return EXIT_SUCCESS;
+10: }
+/* end */
+
+--------------------
+
+append_cppflags: checking for whether -DNOKOGIRI_PACKAGED_LIBRARIES is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64 -DNOKOGIRI_PACKAGED_LIBRARIES -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+append_cppflags: checking for whether -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64 -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+have_library: checking for -llzma... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64   -lruby.3.4 -llzma  -lpthread  "
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: 
+15: int t(void) { ; return 0; }
+/* end */
+
+--------------------
+
+append_cppflags: checking for whether -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64 -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+have_func: checking for xmlParseDoc() in libxml/parser.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxml/parser.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     int (* volatile tp)(void)=(int (*)(void))&t;
+11:     printf("%d", (*tp)());
+12:   }
+13: 
+14:   return !!argv[argc];
+15: }
+16: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlParseDoc; return !p; }
+/* end */
+
+--------------------
+
+have_func: checking for xsltParseStylesheetDoc() in libxslt/xslt.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lpthread  "
+conftest.c:16:57: error: use of undeclared identifier 'xsltParseStylesheetDoc'
+   16 | int t(void) { void ((*volatile p)()); p = (void ((*)()))xsltParseStylesheetDoc; return !p; }
+      |                                                         ^
+1 error generated.
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxslt/xslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     int (* volatile tp)(void)=(int (*)(void))&t;
+11:     printf("%d", (*tp)());
+12:   }
+13: 
+14:   return !!argv[argc];
+15: }
+16: int t(void) { void ((*volatile p)()); p = (void ((*)()))xsltParseStylesheetDoc; return !p; }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libxslt/xslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     int (* volatile tp)(void)=(int (*)(void))&t;
+11:     printf("%d", (*tp)());
+12:   }
+13: 
+14:   return !!argv[argc];
+15: }
+16: extern void xsltParseStylesheetDoc();
+17: int t(void) { xsltParseStylesheetDoc(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for exsltFuncRegister() in libexslt/exslt.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <libexslt/exslt.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     int (* volatile tp)(void)=(int (*)(void))&t;
+11:     printf("%d", (*tp)());
+12:   }
+13: 
+14:   return !!argv[argc];
+15: }
+16: int t(void) { void ((*volatile p)()); p = (void ((*)()))exsltFuncRegister; return !p; }
+/* end */
+
+--------------------
+
+append_cppflags: checking for whether -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
+have_func: checking for gumbo_parse_with_options() in nokogiri_gumbo.h... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <nokogiri_gumbo.h>
+ 4: 
+ 5: /*top*/
+ 6: extern int t(void);
+ 7: int main(int argc, char **argv)
+ 8: {
+ 9:   if (argc > 1000000) {
+10:     int (* volatile tp)(void)=(int (*)(void))&t;
+11:     printf("%d", (*tp)());
+12:   }
+13: 
+14:   return !!argv[argc];
+15: }
+16: int t(void) { void ((*volatile p)()); p = (void ((*)()))gumbo_parse_with_options; return !p; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlCtxtSetOptions()... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+conftest.c:14:57: error: use of undeclared identifier 'xmlCtxtSetOptions'
+   14 | int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlCtxtSetOptions; return !p; }
+      |                                                         ^
+1 error generated.
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlCtxtSetOptions; return !p; }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: extern void xmlCtxtSetOptions();
+15: int t(void) { xmlCtxtSetOptions(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlCtxtGetOptions()... -------------------- no
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+conftest.c:14:57: error: use of undeclared identifier 'xmlCtxtGetOptions'
+   14 | int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlCtxtGetOptions; return !p; }
+      |                                                         ^
+1 error generated.
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlCtxtGetOptions; return !p; }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+Undefined symbols for architecture arm64:
+  "_xmlCtxtGetOptions", referenced from:
+      _t in conftest-fb8683.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: extern void xmlCtxtGetOptions();
+15: int t(void) { xmlCtxtGetOptions(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for xmlSwitchEncodingName()... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+conftest.c:14:57: error: use of undeclared identifier 'xmlSwitchEncodingName'
+   14 | int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSwitchEncodingName; return !p; }
+      |                                                         ^
+1 error generated.
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: int t(void) { void ((*volatile p)()); p = (void ((*)()))xmlSwitchEncodingName; return !p; }
+/* end */
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: extern void xmlSwitchEncodingName();
+15: int t(void) { xmlSwitchEncodingName(); return 0; }
+/* end */
+
+--------------------
+
+have_func: checking for rb_category_warning()... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -o conftest -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option conftest.c -L. -L/opt/homebrew/Cellar/ruby/3.4.7/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib -L/opt/homebrew/opt/libyaml/lib -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/Cellar/xz/5.8.2/lib -L/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib -L. -fstack-protector-strong -L/opt/homebrew/Cellar/libyaml/0.2.5/lib -L/opt/homebrew/Cellar/openssl@3/3.6.0/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib  -arch arm64  /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lruby.3.4 /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a -liconv -llzma -lz /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a -llzma /Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a -lpthread  "
+ld: warning: ignoring duplicate libraries: '-liconv', '-llzma', '-lz', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/lib/libgumbo.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/lib/libxml2.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libexslt.a', '/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/lib/libxslt.a'
+ld: warning: search path '/usr/local/opt/readline/lib' not found
+ld: warning: search path '/usr/local/opt/zlib/lib' not found
+ld: warning: search path '/usr/local/opt/bzip2/lib' not found
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: /*top*/
+ 4: extern int t(void);
+ 5: int main(int argc, char **argv)
+ 6: {
+ 7:   if (argc > 1000000) {
+ 8:     int (* volatile tp)(void)=(int (*)(void))&t;
+ 9:     printf("%d", (*tp)());
+10:   }
+11: 
+12:   return !!argv[argc];
+13: }
+14: int t(void) { void ((*volatile p)()); p = (void ((*)()))rb_category_warning; return !p; }
+/* end */
+
+--------------------
+
+append_cppflags: checking for whether -DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\"libgumbo:1.0.0-nokogiri\"" is accepted as CPPFLAGS... -------------------- yes
+
+DYLD_LIBRARY_PATH=.:/opt/homebrew/Cellar/ruby/3.4.7/lib ASAN_OPTIONS=detect_leaks=0 "clang -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/arm64-darwin24 -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0/ruby/backward -I/opt/homebrew/Cellar/ruby/3.4.7/include/ruby-3.4.0 -I. -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxslt/1.1.43/include -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ports/arm64-darwin24/libxml2/2.13.9/include/libxml2 -I/opt/homebrew/opt/libyaml/include -I/opt/homebrew/opt/openssl@3/include -D_XOPEN_SOURCE -D_DARWIN_C_SOURCE -D_DARWIN_UNLIMITED_SELECT -D_REENTRANT   -I/usr/local/opt/readline/include -I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include -DNOKOGIRI_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATCHES="\"0001-Remove-script-macro-support.patch 0002-Update-entities-to-remove-handling-of-ssi.patch 0009-allow-wildcard-namespaces.patch 0010-update-config.guess-and-config.sub-for-libxml2.patch 0011-rip-out-libxml2-s-libc_single_threaded-support.patch 0019-xpath-Use-separate-static-hash-table-for-standard-fu.patch\"" -DNOKOGIRI_LIBXSLT_PATCHES="\"0001-update-config.guess-and-config.sub-for-libxslt.patch\"" -I/Users/nferguson/Developer/personal/claude-ctx-plugin/docs/vendor/bundle/ruby/3.4.0/gems/nokogiri-1.19.0/ext/nokogiri/ports/arm64-darwin24/libgumbo/1.0.0-nokogiri/include -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fdeclspec  -O3 -fno-fast-math -ggdb3 -Wall -Wextra -Wextra-tokens -Wdeprecated-declarations -Wdivision-by-zero -Wdiv-by-zero -Wimplicit-function-declaration -Wimplicit-int -Wpointer-arith -Wshorten-64-to-32 -Wwrite-strings -Wold-style-definition -Wmissing-noreturn -Wno-cast-function-type -Wno-constant-logical-operand -Wno-long-long -Wno-missing-field-initializers -Wno-overlength-strings -Wno-parentheses-equality -Wno-self-assign -Wno-tautological-compare -Wno-unused-parameter -Wno-unused-value -Wunused-variable -Wmisleading-indentation -Wundef -fno-common -pipe -std=c99 -Wno-declaration-after-statement -O2 -g -Winline -Wmissing-noreturn -Wconversion -Wno-unknown-warning-option -arch arm64 -DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\"libgumbo:1.0.0-nokogiri\"" -Werror -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: int main(int argc, char **argv)
+4: {
+5:   return !!argv[argc];
+6: }
+/* end */
+
+--------------------
+
