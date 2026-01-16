@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 try:
-    import anthropic
+    import anthropic  # type: ignore[import-not-found]
 except ImportError:
-    anthropic = None  # type: ignore
+    anthropic = None  # type: ignore[assignment]
 
 
 class ContextualIngester:
@@ -92,7 +92,7 @@ Answer only with the succinct context and nothing else.
                 ],
                 extra_headers={"anthropic-beta": "prompt-caching-2024-07-31"}
             )
-            return response.content[0].text
+            return str(response.content[0].text)
         except Exception as e:
             return f"Error generating context: {e}"
 

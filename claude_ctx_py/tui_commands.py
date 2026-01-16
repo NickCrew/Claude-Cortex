@@ -393,7 +393,7 @@ class AgentCommandProvider(Provider):
         elif action == "show_docs":
             if hasattr(app, "push_screen"):
                 try:
-                    from .screens.docs import DocsScreen
+                    from .tui.screens.docs import DocsScreen
                     getattr(app, "push_screen")(DocsScreen())
                 except Exception as e:
                     app.status_message = f"Error opening docs: {e}"

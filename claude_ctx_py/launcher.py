@@ -260,7 +260,7 @@ def _ensure_default_config(
     return config, warnings
 
 
-def _normalize_name_list(values: Iterable[str]) -> List[str]:
+def _normalize_name_list(values: Iterable[object]) -> List[str]:
     items: List[str] = []
     for value in values:
         if not isinstance(value, str):
