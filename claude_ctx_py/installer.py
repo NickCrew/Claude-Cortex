@@ -251,11 +251,18 @@ def bootstrap(
     target_dir: Optional[Path] = None,
     force: bool = False,
     dry_run: bool = False,
+    link_rules: bool = False,
 ) -> Tuple[int, str]:
     """Bootstrap ~/.cortex with bundled assets and default configuration.
 
     Creates the cortex home directory structure and copies rules, flags,
     modes, and principles from the bundled package assets.
+
+    Args:
+        target_dir: Target directory (default: ~/.cortex)
+        force: Overwrite existing directories
+        dry_run: Show what would be done without writing files
+        link_rules: Also create symlinks in ~/.claude/rules/cortex/
     """
     assets_root = _resolve_bundled_assets_root()
     if assets_root is None:
@@ -348,17 +355,39 @@ def bootstrap(
         except OSError as exc:
             results.append(f"  ✗ Failed to create FLAGS.md: {exc}")
 
+    # Link rules into ~/.claude/rules/cortex/ if requested
+    link_results: List[str] = []
+    if link_rules:
+        from .launcher import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
+
+        rules_root = cortex_home
+        active_rules = [p.stem for p in (cortex_home / "rules").glob("*.md")]
+        if dry_run:
+            link_results.append(f"Would symlink {len(active_rules)} rules to {DEFAULT_RULES_SUBDIR}")
+        else:
+            _, link_messages = sync_rule_symlinks(
+                rules_root=rules_root,
+                active_rules=active_rules,
+                target_dir=DEFAULT_RULES_SUBDIR,
+            )
+            link_results.extend(link_messages)
+            link_results.append(f"  ✓ Linked rules to {DEFAULT_RULES_SUBDIR}")
+
     summary = [
         f"✓ Bootstrapped cortex at: {cortex_home}",
         f"  Assets from: {assets_root}",
         "",
         "Results:",
         *results,
+    ]
+    if link_results:
+        summary.extend(["", "Rule symlinks:", *link_results])
+    summary.extend([
         "",
         "Next steps:",
         "  1. Run 'cortex start' to launch Claude Code with Cortex",
         "  2. Or run 'cortex tui' for the interactive interface",
-    ]
+    ])
     return 0, "\n".join(summary)
 
 

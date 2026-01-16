@@ -585,10 +585,27 @@ def start_claude(
 
     cmd: List[str] = [claude_bin]
     cmd.extend(["--plugin-dir", str(plugin_root)])
+
+    # Automatically add bundled plugins from <plugin_root>/plugins/
+    bundled_plugins_dir = plugin_root / "plugins"
+    added_plugin_dirs: set[Path] = {plugin_root.resolve()}
+    if bundled_plugins_dir.is_dir():
+        for plugin_subdir in sorted(bundled_plugins_dir.iterdir()):
+            if not plugin_subdir.is_dir():
+                continue
+            # Check if it's a valid Claude plugin (has .claude-plugin directory)
+            if (plugin_subdir / ".claude-plugin").is_dir():
+                resolved = plugin_subdir.resolve()
+                if resolved not in added_plugin_dirs:
+                    cmd.extend(["--plugin-dir", str(plugin_subdir)])
+                    added_plugin_dirs.add(resolved)
+
     for extra_dir in config.extra_plugin_dirs:
-        if extra_dir.resolve() == plugin_root.resolve():
+        resolved = extra_dir.resolve()
+        if resolved in added_plugin_dirs:
             continue
         cmd.extend(["--plugin-dir", str(extra_dir)])
+        added_plugin_dirs.add(resolved)
 
     effective_settings = settings_path or config.settings_path
     if effective_settings is not None:
