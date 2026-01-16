@@ -348,6 +348,7 @@ __all__ = [
     "ScenarioMetadata",
     # Base functions
     "_color",
+    "_resolve_cortex_root",
     "_resolve_claude_dir",
     "_resolve_plugin_assets_root",
     "_resolve_init_dirs",
@@ -570,4 +571,29 @@ __all__ = [
     "mcp_docs_status",
     # Doctor functions
     "doctor_run",
+    # Hooks functions
+    "HookDefinition",
+    "InstalledHook",
+    "HOOK_EVENTS",
+    "get_settings_path",
+    "load_settings",
+    "save_settings",
+    "get_installed_hooks",
+    "get_available_hooks",
+    "parse_hook_file",
+    "install_hook",
+    "uninstall_hook",
+    "get_hook_events",
+    "create_hook_template",
+    "validate_hooks_config",
+    "validate_hooks_config_file",
+    # Backup functions
+    "BackupInfo",
+    "get_backup_dir",
+    "create_backup",
+    "list_backups",
+    "restore_backup",
+    "delete_backup",
+    "get_backup_summary",
+    "auto_cleanup_backups",
 ]

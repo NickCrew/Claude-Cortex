@@ -14,7 +14,7 @@ from textual.widgets.tree import TreeNode
 from ...cmd_docs import _get_bundled_docs_root
 
 
-class DocsScreen(Screen):
+class DocsScreen(Screen[None]):
     """Screen for viewing bundled documentation."""
 
     BINDINGS = [
@@ -49,7 +49,7 @@ class DocsScreen(Screen):
         if readme.exists():
             self.load_doc(readme)
 
-    def _populate_tree(self, path: Path, node: TreeNode) -> None:
+    def _populate_tree(self, path: Path, node: "TreeNode[Path]") -> None:
         """Recursively populate the file tree."""
         # Files first
         for file_path in sorted(path.glob("*.md")):
@@ -61,7 +61,7 @@ class DocsScreen(Screen):
                 sub_node = node.add(dir_path.name, expand=False)
                 self._populate_tree(dir_path, sub_node)
 
-    def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
+    def on_tree_node_selected(self, event: "Tree.NodeSelected[Path]") -> None:
         """Handle tree selection."""
         if event.node.data:
             self.load_doc(event.node.data)
