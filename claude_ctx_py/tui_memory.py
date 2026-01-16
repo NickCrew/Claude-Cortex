@@ -32,6 +32,7 @@ from .memory import (
     memory_fix,
 )
 from .tui.dialogs import MemoryNoteCreateDialog
+from .tui.dialogs.memory_dialogs import MemoryNoteCreateData
 
 
 class MemoryScreen(Screen[None]):
@@ -215,7 +216,7 @@ class MemoryScreen(Screen[None]):
         }
         return aliases.get(note_type)
 
-    def _handle_new_note_create(self, result: Optional[Dict[str, str]]) -> None:
+    def _handle_new_note_create(self, result: Optional[MemoryNoteCreateData]) -> None:
         if not result:
             return
 

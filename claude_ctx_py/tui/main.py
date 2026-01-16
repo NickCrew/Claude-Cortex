@@ -4473,16 +4473,16 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         key = raw.lower()
         if key in lookup:
-            return lookup[key]
+            return str(lookup[key])
         key = key.replace(" ", "-")
-        return lookup.get(key, raw)
+        return str(lookup.get(key, raw))
 
     def _is_agent_active(self, slug_or_name: str) -> bool:
         agents = getattr(self, "agents", [])
         needle = slug_or_name.lower()
         for agent in agents:
             if agent.slug.lower() == needle or agent.name.lower() == needle:
-                return agent.status == "active"
+                return bool(agent.status == "active")
         return False
 
     def _ensure_agent_active(self, slug_or_name: str) -> bool:
@@ -6636,11 +6636,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.action_view_memory()
 
         from .dialogs import MemoryNoteCreateDialog
+        from .dialogs.memory_dialogs import MemoryNoteCreateData
 
         dialog = MemoryNoteCreateDialog("New Memory Note")
         self.push_screen(dialog, callback=self._handle_memory_note_create)
 
-    def _handle_memory_note_create(self, result: Optional[dict[str, str]]) -> None:
+    def _handle_memory_note_create(self, result: Optional[MemoryNoteCreateData]) -> None:
         if not result:
             return
 

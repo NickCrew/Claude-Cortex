@@ -31,6 +31,7 @@ class Icons:
     CODE = "💻"
     TEST = "🧪"
     DOC = "📝"
+    DOCUMENT = "📄"
 
     # Actions
     PLAY = "▶"
