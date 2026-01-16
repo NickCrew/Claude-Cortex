@@ -979,6 +979,25 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without writing files",
     )
 
+    # Bootstrap ~/.cortex with bundled assets
+    bootstrap_parser = install_sub.add_parser(
+        "bootstrap", help="Initialize ~/.cortex with bundled assets and config"
+    )
+    bootstrap_parser.add_argument(
+        "--target",
+        dest="bootstrap_target",
+        type=Path,
+        help="Target directory (default: ~/.cortex)",
+    )
+    bootstrap_parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing directories"
+    )
+    bootstrap_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing files",
+    )
+
     # Run all post-install steps
     post_parser = install_sub.add_parser(
         "post", help="Install completions, manpages, and docs"
@@ -2248,6 +2267,16 @@ def _handle_install_command(args: argparse.Namespace) -> int:
 
         exit_code, message = installer.install_docs(
             target_dir=args.docs_target,
+            dry_run=args.dry_run,
+        )
+        _print(message)
+        return exit_code
+    if args.install_command == "bootstrap":
+        from . import installer
+
+        exit_code, message = installer.bootstrap(
+            target_dir=args.bootstrap_target,
+            force=args.force,
             dry_run=args.dry_run,
         )
         _print(message)

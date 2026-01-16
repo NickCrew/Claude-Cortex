@@ -1,0 +1,38 @@
+{    "name": "ux-product", "source": "./plugins/ux-product",
+      "description": "User experience design, product strategy, interaction design, and accessibility expertise for user-centered development",
+      "version": "1.0.0",
+      "author": {
+    "name": "Nicholas Ferguson",
+    "email": "ncf423@gmail.com",
+    "url": "https://github.com/NickCrew/claude-cortex"
+  },
+  "repository": "https://github.com/NickCrew/claude-cortex",
+  "homepage": "https://github.com/NickCrew/claude-cortex",
+  "license": "MIT",
+
+      "keywords": [
+        "ux",
+        "user-experience",
+        "product-strategy",
+        "interaction-design",
+        "accessibility",
+        "user-research",
+        "usability"
+      ],
+      "category": "design",
+      "strict": false,
+      "commands": [
+        "./commands/ux-review.md"
+      ],
+      "agents": [
+        "./agents/ux-designer.md",
+        "./agents/product-strategist.md",
+        "./agents/interaction-designer.md",
+        "./agents/accessibility-expert.md",
+        "./agents/user-researcher.md"
+      ],
+      "skills": [
+        "./skills/user-journey-mapping"
+      ]
+    }
+
