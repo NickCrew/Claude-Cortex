@@ -9363,13 +9363,14 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 severity="warning",
                 timeout=3,
             )
-            prompt = await self._prompt_text(
+            inline_prompt = await self._prompt_text(
                 "Gemini Consult",
                 "Prompt for Gemini",
                 placeholder="What should Gemini evaluate?",
             )
-            if not prompt:
+            if not inline_prompt:
                 return
+            prompt = inline_prompt
         finally:
             try:
                 if tmp_path and tmp_path.exists():
