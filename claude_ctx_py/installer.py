@@ -13,7 +13,7 @@ from typing import List, Optional, Tuple
 
 from . import completions
 from . import shell_integration
-from .core.base import _resolve_cortex_root
+from .core.base import _resolve_bundled_assets_root, _resolve_cortex_root
 
 PACKAGE_NAME = "claude-cortex"
 DOC_FILES = [
@@ -241,6 +241,125 @@ def install_docs(
         f"  cat {target / 'VISUAL_SUMMARY.txt'}",
     ]
     return 0, "\n".join(message)
+
+
+# Directories to copy from bundled assets to ~/.cortex
+BOOTSTRAP_DIRS = ["rules", "flags", "modes", "principles", "templates"]
+
+
+def bootstrap(
+    target_dir: Optional[Path] = None,
+    force: bool = False,
+    dry_run: bool = False,
+) -> Tuple[int, str]:
+    """Bootstrap ~/.cortex with bundled assets and default configuration.
+
+    Creates the cortex home directory structure and copies rules, flags,
+    modes, and principles from the bundled package assets.
+    """
+    assets_root = _resolve_bundled_assets_root()
+    if assets_root is None:
+        return 1, (
+            "Bundled assets not found. This may indicate a broken installation.\n"
+            "Try reinstalling: pipx install --force claude-cortex"
+        )
+
+    cortex_home = target_dir or _resolve_cortex_root()
+    results: List[str] = []
+    copied_dirs: List[str] = []
+
+    if dry_run:
+        lines = [
+            f"Would bootstrap cortex home at: {cortex_home}",
+            f"Using assets from: {assets_root}",
+            "",
+            "Directories to copy:",
+        ]
+        for dir_name in BOOTSTRAP_DIRS:
+            source = assets_root / dir_name
+            if source.is_dir():
+                lines.append(f"  - {dir_name}/ ({len(list(source.glob('*')))} files)")
+        lines.extend(["", "Would create:", "  - cortex-config.json"])
+        return 0, "\n".join(lines)
+
+    # Create cortex home directory
+    try:
+        cortex_home.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return 1, f"Failed to create {cortex_home}: {exc}"
+
+    # Copy directories from assets
+    for dir_name in BOOTSTRAP_DIRS:
+        source = assets_root / dir_name
+        target = cortex_home / dir_name
+        if not source.is_dir():
+            continue
+        if target.exists() and not force:
+            results.append(f"  Skipped {dir_name}/ (exists, use --force to overwrite)")
+            continue
+        try:
+            if target.exists():
+                shutil.rmtree(target)
+            shutil.copytree(source, target)
+            copied_dirs.append(dir_name)
+            results.append(f"  ✓ Copied {dir_name}/")
+        except OSError as exc:
+            results.append(f"  ✗ Failed to copy {dir_name}/: {exc}")
+
+    # Create default config if it doesn't exist
+    config_path = cortex_home / "cortex-config.json"
+    if not config_path.exists() or force:
+        import json
+        default_config = {
+            "plugin_id": "cortex",
+            "rules": [p.stem for p in (cortex_home / "rules").glob("*.md")]
+            if (cortex_home / "rules").is_dir()
+            else [],
+            "flags": [],
+            "modes": [],
+            "principles": [p.stem for p in (cortex_home / "principles").glob("*.md")]
+            if (cortex_home / "principles").is_dir()
+            else [],
+            "claude_args": [],
+            "extra_plugin_dirs": [],
+        }
+        try:
+            config_path.write_text(
+                json.dumps(default_config, indent=2) + "\n", encoding="utf-8"
+            )
+            results.append("  ✓ Created cortex-config.json")
+        except OSError as exc:
+            results.append(f"  ✗ Failed to create config: {exc}")
+    else:
+        results.append("  Skipped cortex-config.json (exists)")
+
+    # Create FLAGS.md if it doesn't exist
+    flags_md = cortex_home / "FLAGS.md"
+    if not flags_md.exists():
+        try:
+            flags_md.write_text(
+                "# Active Flags\n\n"
+                "# Add flags below (one per line):\n"
+                "# @flags/mode-activation\n"
+                "# @flags/mcp-servers\n",
+                encoding="utf-8",
+            )
+            results.append("  ✓ Created FLAGS.md")
+        except OSError as exc:
+            results.append(f"  ✗ Failed to create FLAGS.md: {exc}")
+
+    summary = [
+        f"✓ Bootstrapped cortex at: {cortex_home}",
+        f"  Assets from: {assets_root}",
+        "",
+        "Results:",
+        *results,
+        "",
+        "Next steps:",
+        "  1. Run 'cortex start' to launch Claude Code with Cortex",
+        "  2. Or run 'cortex tui' for the interactive interface",
+    ]
+    return 0, "\n".join(summary)
 
 
 def install_post(

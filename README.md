@@ -421,7 +421,10 @@ uv tool install claude-cortex
 # Or with pip
 pip install claude-cortex
 
-# Finish setup (shell completions, manpages)
+# Initialize ~/.cortex with bundled assets (rules, flags, modes, etc.)
+cortex install bootstrap
+
+# Install shell completions and manpages
 cortex install post
 
 # Launch Claude Code with Cortex context
@@ -456,8 +459,23 @@ pipx install -e .
 
 ### Post-Install Setup
 
-After installing the package, run:
+After installing the package, run these commands to complete setup:
 
+**1. Bootstrap ~/.cortex (required for first install):**
+```bash
+cortex install bootstrap
+```
+
+This creates `~/.cortex/` and copies:
+- `rules/` – Rule markdown files
+- `flags/` – Flag category files (22 categories)
+- `modes/` – Behavioral mode files
+- `templates/` – Initialization templates
+- `cortex-config.json` – Default configuration
+
+Use `--force` to reinitialize: `cortex install bootstrap --force`
+
+**2. Install shell integrations (optional but recommended):**
 ```bash
 cortex install post
 ```
@@ -475,7 +493,7 @@ The `cortex start` command launches Claude Code with your Cortex configuration a
 
 ### 1. Configuration Loading
 
-On first run, `cortex start` creates `~/.cortex/cortex-config.json` with sensible defaults. On subsequent runs, it reads this file plus `FLAGS.md` to determine what context to load.
+Reads `~/.cortex/cortex-config.json` (created by `cortex install bootstrap`) plus `FLAGS.md` to determine what context to load.
 
 ### 2. Plugin Root Resolution
 

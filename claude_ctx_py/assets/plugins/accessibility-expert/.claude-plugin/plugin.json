@@ -1,0 +1,34 @@
+{
+      "name": "frontend-excellence",
+      "source": "./plugins/frontend-excellence",
+      "description": "Advanced frontend architecture with design systems, React specialization, performance optimization, and state management expertise",
+      "version": "1.0.0",
+      "author": {
+    "name": "Nicholas Ferguson",
+    "email": "ncf423@gmail.com",
+    "url": "https://github.com/NickCrew/claude-cortex"
+  },
+  "repository": "https://github.com/NickCrew/claude-cortex",
+  "homepage": "https://github.com/NickCrew/claude-cortex",
+  "license": "MIT",
+    "keywords": [
+        "frontend",
+        "design-system",
+        "react",
+        "performance",
+        "state-management",
+        "component-architecture"
+      ],
+      "category": "development",
+      "strict": false,
+      "commands": [],
+      "agents": [
+        "./agents/component-architect.md",
+        "./agents/react-specialist.md",
+        "./agents/frontend-optimizer.md",
+        "./agents/state-architect.md"
+      ],
+      "skills": [
+        "./skills/design-system-architecture"
+      ]
+    },
