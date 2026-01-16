@@ -13,17 +13,52 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 * [Executive Roadmap](docs/presentations/cortex-executive-roadmap.html) 
 * [Feature Catalog](docs/presentations/tui-showcase.html)
 
-## What's inside
+## What's Inside
 
-- `commands/` – slash command definitions that surface curated behavioural prompts
-- `agents/` and `inactive/agents/` – Claude subagents with dependency metadata (move files into `inactive/agents` to park them)
-- `modes/` – opinionated context modules that toggle workflow defaults (activation tracked in `.active-modes`, managed via CLI/TUI)
-- `rules/` – reusable rule sets referenced by the CLI and plugin commands
-- `flags/` – modular context packs toggled via `FLAGS.md`
-- `hooks/` – optional automation hooks for command workflows
-- `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
-- `claude_ctx_py/` and `cortex-py` – Python CLI entrypoint mirroring the original `cortex`
-- `schema/` and `scripts/` – validation schemas and helper scripts
+### Core Assets (Loaded by Claude Code)
+
+| Directory | Purpose |
+|-----------|---------|
+| `agents/` | Claude subagents with dependency metadata. Move to `inactive/agents/` to park. |
+| `commands/` | Slash command definitions (50+ curated commands) |
+| `skills/` | Reusable skill modules (80+ skills) with activation triggers and dependencies |
+| `modes/` | Behavioral context modules that toggle workflow defaults |
+| `rules/` | Rule sets symlinked to `~/.claude/rules/cortex/` on launch |
+| `flags/` | Modular token-efficient flag packs (22 categories, 3,380 tokens total) |
+| `hooks/` | Automation hooks for pre/post tool execution and session events |
+
+### Orchestration & Templates
+
+| Directory | Purpose |
+|-----------|---------|
+| `profiles/` | Project type presets (frontend, backend, devops, etc.) |
+| `scenarios/` | Multi-step workflow scenarios |
+| `workflows/` | Complex workstream orchestration templates |
+| `prompts/` | Prompt templates: guidelines, personas, and reusable snippets |
+| `templates/` | Initialization templates for new projects |
+| `plugins/` | Additional plugin modules (accessibility, frontend, UX) |
+
+### Python Package (`claude_ctx_py/`)
+
+| Module | Purpose |
+|--------|---------|
+| `cli.py` | Main CLI entrypoint with all subcommands |
+| `launcher.py` | `cortex start` implementation (plugin resolution, rules symlinking) |
+| `core/` | Core domain logic (agents, skills, modes, rules, hooks, backups) |
+| `tui/` | Textual-based terminal UI with 15+ specialized views |
+| `intelligence/` | AI recommendation engine and pattern learning |
+| `memory/` | Session memory and knowledge persistence |
+| `analytics.py` | Usage analytics and skill metrics |
+
+### Supporting Files
+
+| Path | Purpose |
+|------|---------|
+| `.claude-plugin/plugin.json` | Plugin manifest for Claude Code marketplace |
+| `docs/` | Documentation site (Jekyll-based) |
+| `tests/` | Test suite with pytest |
+| `schema/` | JSON schemas for validation |
+| `scripts/` | Helper scripts for installation and maintenance |
 
 ### 🆕 Latest Updates
 
