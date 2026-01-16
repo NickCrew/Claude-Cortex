@@ -997,6 +997,11 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         action="store_true",
         help="Show what would be done without writing files",
     )
+    bootstrap_parser.add_argument(
+        "--link-rules",
+        action="store_true",
+        help="Also create symlinks in ~/.claude/rules/cortex/ for Claude discovery",
+    )
 
     # Run all post-install steps
     post_parser = install_sub.add_parser(
@@ -2278,6 +2283,7 @@ def _handle_install_command(args: argparse.Namespace) -> int:
             target_dir=args.bootstrap_target,
             force=args.force,
             dry_run=args.dry_run,
+            link_rules=args.link_rules,
         )
         _print(message)
         return exit_code
