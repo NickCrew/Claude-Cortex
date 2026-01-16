@@ -183,7 +183,10 @@ from .dialogs import (
     HooksManagerDialog,
     BackupManagerDialog,
     LLMProviderSettingsDialog,
+    MemoryNoteCreateDialog,
+    MemoryNoteDialog,
 )
+from .dialogs.memory_dialogs import MemoryNoteCreateData
 from ..core.mcp_installer import install_and_configure
 from ..core.mcp_registry import get_server
 from ..core import _resolve_claude_dir
@@ -6635,9 +6638,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if self.current_view != "memory":
             self.action_view_memory()
 
-        from .dialogs import MemoryNoteCreateDialog
-        from .dialogs.memory_dialogs import MemoryNoteCreateData
-
         dialog = MemoryNoteCreateDialog("New Memory Note")
         self.push_screen(dialog, callback=self._handle_memory_note_create)
 
@@ -6743,7 +6743,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     def _show_memory_note_dialog(self, note: MemoryNote, content: str) -> None:
         """Show a dialog with memory note content."""
-        from .dialogs import MemoryNoteDialog
         self._current_memory_note = note
         dialog = MemoryNoteDialog(note, content)
         self.push_screen(dialog, callback=self._handle_memory_note_action)
@@ -8964,11 +8963,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.notify(f"🎨 Designing UI: {prompt}", severity="information", timeout=3)
         # Note: In the TUI we don't have a direct 'chat' to send /design:ui to,
         # but we can log the intent or spawn an LLM task.
-        await self.action_assign_llm_tasks(
-            purpose=f"Design UI: {prompt}",
-            prompt=f"Use /design:ui {prompt}",
-            diff_text=None
-        )
+        self.action_assign_llm_tasks()
 
     async def action_rag_ingest(self) -> None:
         """Trigger the RAG Ingestion flow."""
@@ -8983,7 +8978,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.notify(f"📂 Ingesting {path_str} with contextual awareness...", severity="information")
         
         # We'll run this in a thread to avoid blocking the TUI
-        def do_ingest():
+        def do_ingest() -> None:
             try:
                 from ..core import rag
                 ingester = rag.ContextualIngester()
@@ -9157,13 +9152,14 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 severity="warning",
                 timeout=3,
             )
-            prompt = await self._prompt_text(
+            inline_prompt = await self._prompt_text(
                 "Assign LLM Tasks",
                 "Prompt for LLMs",
                 placeholder="What should the other LLMs do?",
             )
-            if not prompt:
+            if not inline_prompt:
                 return
+            prompt = inline_prompt
         finally:
             try:
                 if tmp_path and tmp_path.exists():
@@ -9173,7 +9169,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         if not prompt:
             use_inline = bool(
-                await self.push_screen(
+                await self.push_screen(  # type: ignore[call-overload]
                     ConfirmDialog(
                         "Assign LLM Tasks",
                         "Prompt is empty. Use inline prompt instead?",
@@ -9183,19 +9179,20 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             if not use_inline:
                 return
-            prompt = await self._prompt_text(
+            inline_prompt2 = await self._prompt_text(
                 "Assign LLM Tasks",
                 "Prompt for LLMs",
                 placeholder="What should the other LLMs do?",
             )
-            if not prompt:
+            if not inline_prompt2:
                 return
+            prompt = inline_prompt2
 
         diff_text = self._get_git_diff()
         include_diff = False
         if diff_text:
             include_diff = bool(
-                await self.push_screen(
+                await self.push_screen(  # type: ignore[call-overload]
                     ConfirmDialog(
                         "Include git diff?",
                         "Attach the current git diff to all LLM tasks?",
@@ -9382,7 +9379,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         if not prompt:
             use_inline = bool(
-                await self.push_screen(
+                await self.push_screen(  # type: ignore[call-overload]
                     ConfirmDialog(
                         "Gemini Consult",
                         "Prompt is empty. Use inline prompt instead?",
@@ -9392,19 +9389,20 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             if not use_inline:
                 return
-            prompt = await self._prompt_text(
+            inline_prompt = await self._prompt_text(
                 "Gemini Consult",
                 "Prompt for Gemini",
                 placeholder="What should Gemini evaluate?",
             )
-            if not prompt:
+            if not inline_prompt:
                 return
+            prompt = inline_prompt
 
         diff_text = self._get_git_diff()
         include_diff = False
         if diff_text:
             include_diff = bool(
-                await self.push_screen(
+                await self.push_screen(  # type: ignore[call-overload]
                     ConfirmDialog(
                         "Include git diff?",
                         "Attach the current git diff as context for Gemini?",
