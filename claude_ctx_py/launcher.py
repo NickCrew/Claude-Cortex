@@ -8,7 +8,7 @@ import shlex
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
 
 
 from .core.base import _resolve_bundled_assets_root, _resolve_cortex_root
@@ -491,21 +491,21 @@ def load_launcher_config(
     )
     warnings.extend(update_warnings)
 
-    rules = _normalize_name_list(config.get("rules", [])) if isinstance(config.get("rules"), list) else []
+    rules = _normalize_name_list(cast(List[Any], config.get("rules", []))) if isinstance(config.get("rules"), list) else []
     flags_md = _resolve_flags_md(content_root or plugin_root, plugin_root, config_path.parent)
     if flags_override:
         flags = _normalize_name_list(flags_override.split(","))
     elif flags_md is not None:
         flags = _parse_flags_md(flags_md)
     elif isinstance(config.get("flags"), list):
-        flags = _normalize_name_list(config.get("flags", []))
+        flags = _normalize_name_list(cast(List[Any], config.get("flags", [])))
     else:
         flags = []
     modes = _normalize_name_list(modes_override.split(",")) if modes_override else (
-        _normalize_name_list(config.get("modes", [])) if isinstance(config.get("modes"), list) else []
+        _normalize_name_list(cast(List[Any], config.get("modes", []))) if isinstance(config.get("modes"), list) else []
     )
     principles = (
-        _normalize_name_list(config.get("principles", []))
+        _normalize_name_list(cast(List[Any], config.get("principles", [])))
         if isinstance(config.get("principles"), list)
         else []
     )

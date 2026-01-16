@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 try:
     import anthropic  # type: ignore[import-not-found]
 except ImportError:
-    anthropic = None  # type: ignore[assignment]
+    anthropic = None
 
 
 class ContextualIngester:
