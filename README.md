@@ -3,7 +3,7 @@
 This repository packages the Cortex (`cortex`) context management toolkit as a Claude Code plugin.
 It bundles the curated agents, commands, modes, rules, and supporting Python CLI + TUI so teams can install the complete experience through the plugin system or keep using the standalone `cortex` / `cortex-ui` scripts.
 
-**Note:** The `cortex` command  has been deprecated but will remain available for a while.  
+**Note:** The `claude-ctx` command  has been deprecated but will remain available for a while.  
 
  📚 **Docs:** <https://cortex.atlascrew.dev/>
 
@@ -372,116 +372,259 @@ See [Flag Management Guide](docs/guides/FLAGS_MANAGEMENT.md) for complete docume
 
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
 
-## Installing via Claude Code
+## Installation
 
-1. Add the marketplace that references this repository (see the companion [`NickCrew/claude-marketplace`](https://github.com/NickCrew/claude-marketplace) project).
-2. Install the plugin with `/plugin install cortex@<marketplace-name>`.
-3. Restart Claude Code so the new commands and agents load.
-
-After installation, the `/plugin` browser will list the bundled commands, and the `/agents` panel will show all active agents from the `agents/` directory.
-
-## Installing the CLI
-
-### Legacy Installer (Deprecated)
-
-The legacy install scripts live under `scripts/deprecated/`. They are still available,
-but new installs should use the CLI flow below.
+### Quick Start
 
 ```bash
-./scripts/deprecated/install.sh
-```
+# Install with pipx (recommended for CLI tools)
+pipx install claude-cortex
 
-This will:
+# Or with uv
+uv tool install claude-cortex
 
-- Install `cortex-py` in editable mode with dev dependencies
-- Set up shell completions for your shell (bash/zsh/fish)
-- Install the manpage system-wide
+# Or with pip
+pip install claude-cortex
 
-**Options (legacy):**
-
-```bash
-./scripts/deprecated/install.sh --help              # Show all options
-./scripts/deprecated/install.sh --no-completions    # Skip completions
-./scripts/deprecated/install.sh --system-install    # Install system-wide (not editable)
-./scripts/deprecated/install.sh --shell zsh         # Specify shell for completions
-```
-
-### CLI Post-Install (after any pip/uv/pipx install)
-
-If you install the package manually, you can finish setup with the CLI:
-
-```bash
+# Finish setup (shell completions, manpages)
 cortex install post
-```
 
-This installs shell completions, manpages, and local architecture docs.
-
-### Using Just
-
-```bash
-just install        # Full installation
-just install-dev    # Development installation
-just help           # Show all targets
-```
-
-### Manual Installation
-
-```bash
-python3 -m pip install .
-cortex mode list
-cortex agent graph --export dependency-map.md
-```
-
-Launch Claude Code with Cortex configuration:
-
-```bash
+# Launch Claude Code with Cortex context
 cortex start
 ```
 
-This reads `~/.cortex/cortex-config.json` (created on first run) and `FLAGS.md`
-to select active flags, rules, modes, and principles, then starts Claude Code
-with those settings and plugin assets.
+### Installation Options
 
-Use `--modes` or `--flags` to override config/`FLAGS.md` for a single launch.
-Use `claude_args` in `cortex-config.json` to pass persistent Claude arguments
-on every `cortex start`.
-See `docs/guides/INSTALL.md` for the full `cortex-config.json` field reference.
+**pipx (recommended)** – Isolated environment, no conflicts:
+```bash
+pipx install claude-cortex
+```
 
-Alias: `cortex claude`
+**uv** – Fast, modern package manager:
+```bash
+uv tool install claude-cortex
+# Or in a project: uv pip install claude-cortex
+```
 
-Optional post-install steps:
+**pip** – Standard installation:
+```bash
+pip install claude-cortex
+```
+
+**Development install** – Editable mode for contributors:
+```bash
+git clone https://github.com/NickCrew/claude-cortex.git
+cd claude-cortex
+pipx install -e .
+# Or: uv pip install -e .[dev]
+```
+
+### Post-Install Setup
+
+After installing the package, run:
 
 ```bash
 cortex install post
 ```
 
-You can also install the package via the CLI:
+This installs:
+- Shell completions (bash/zsh/fish)
+- Manual pages (`man cortex`)
+- Local architecture documentation
+
+---
+
+## How `cortex start` Works
+
+The `cortex start` command launches Claude Code with your Cortex configuration automatically applied. Here's what happens:
+
+### 1. Configuration Loading
+
+On first run, `cortex start` creates `~/.cortex/cortex-config.json` with sensible defaults. On subsequent runs, it reads this file plus `FLAGS.md` to determine what context to load.
+
+### 2. Plugin Root Resolution
+
+The launcher finds your Cortex assets in this order:
+
+1. `--plugin-root` CLI argument (if provided)
+2. `CLAUDE_PLUGIN_ROOT` or `CORTEX_PLUGIN_ROOT` environment variable
+3. `plugin_dir` field in `cortex-config.json`
+4. Bundled assets from the installed Python package
+5. Claude's plugin registry (`~/.claude/plugins/installed_plugins.json`)
+
+### 3. Rules Symlinking
+
+Active rules from `rules/` are symlinked into `~/.claude/rules/cortex/` so Claude Code automatically loads them. The launcher also adds `rules/cortex/` to `~/.claude/.gitignore`.
+
+### 4. Claude Code Launch
+
+Finally, `cortex start` executes Claude Code with:
+- `--plugin-dir` pointing to the Cortex assets
+- `--settings` if a settings.json path is configured
+- Any extra `--plugin-dir` entries from `extra_plugin_dirs`
+- Any persistent arguments from `claude_args`
+
+### Example Launch
 
 ```bash
-cortex install package --manager uv --editable --dev
-cortex install package --manager pipx
+# Basic launch
+cortex start
+
+# Override modes for this session only
+cortex start --modes "Deep_Analysis,Quality_Focus"
+
+# Override flags for this session only
+cortex start --flags "security-hardening,testing-quality"
+
+# Pass extra args to Claude (after --)
+cortex start -- --model claude-sonnet-4-20250514
+
+# Use a different Claude binary
+cortex start --claude-bin /path/to/claude
 ```
 
-Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.cortex`.
+**Alias:** `cortex claude` is equivalent to `cortex start`.
 
-> **Tip:** The CLI resolves its data folder in this order: `CORTEX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `CORTEX_ROOT` (default `~/.cortex`). To point the standalone CLI at the plugin cache (or a local checkout), set:
->
-> ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
-> ```
->
-> or:
->
-> ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-cortex"
-> ```
->
-> To target a project-local scope or a specific plugin root:
->
-> ```bash
-> cortex --scope project status
-> cortex --plugin-root /path/to/claude-cortex status
-> ```
+---
+
+## Directory Structure
+
+### What Gets Installed Where
+
+| Location | Purpose |
+|----------|---------|
+| `~/.cortex/` | **Cortex home** – configuration, rules, flags, modes, principles |
+| `~/.cortex/cortex-config.json` | Launcher configuration (created on first `cortex start`) |
+| `~/.cortex/FLAGS.md` | Active flag references (updated by TUI Flag Manager) |
+| `~/.cortex/PRINCIPLES.md` | Generated principles (from `principles/*.md`) |
+| `~/.cortex/rules/` | Rule markdown files |
+| `~/.cortex/flags/` | Individual flag category files |
+| `~/.cortex/modes/` | Behavioral mode files |
+| `~/.cortex/principles/` | Principles snippet files |
+| `~/.claude/rules/cortex/` | **Symlinked rules** – created by `cortex start` |
+| `~/.claude/settings.json` | Claude Code settings (hooks, etc.) |
+
+### Activation State Files
+
+| File | Purpose |
+|------|---------|
+| `.active-modes` | List of currently active modes |
+| `.active-rules` | List of currently active rules |
+| `.active-mcp` | List of active MCP documentation |
+| `.active-principles` | List of active principles snippets |
+
+---
+
+## Configuration: `cortex-config.json`
+
+The launcher configuration file controls what context gets loaded when you run `cortex start`.
+
+### Location
+
+- **Default:** `~/.cortex/cortex-config.json`
+- **Created:** Automatically on first `cortex start`
+
+### Full Example
+
+```json
+{
+  "plugin_dir": "~/Developer/claude-cortex",
+  "plugin_id": "cortex",
+  "extra_plugin_dirs": [
+    "~/my-custom-plugin"
+  ],
+  "rules": [
+    "workflow-rules",
+    "quality-rules",
+    "git-rules"
+  ],
+  "flags": [
+    "mode-activation",
+    "mcp-servers",
+    "testing-quality"
+  ],
+  "modes": [
+    "Deep_Analysis",
+    "Quality_Focus"
+  ],
+  "principles": [
+    "00-core-directive",
+    "10-philosophy",
+    "20-engineering-mindset"
+  ],
+  "settings_path": "~/.claude/settings.json",
+  "claude_args": [
+    "--model", "claude-sonnet-4-20250514",
+    "--dangerously-skip-permissions"
+  ],
+  "watch": {
+    "directories": ["~/projects/my-app"],
+    "auto_activate": true,
+    "threshold": 0.7,
+    "interval": 2.0
+  }
+}
+```
+
+### Field Reference
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `plugin_dir` | string | auto-detected | Explicit path to Cortex assets. Overrides auto-discovery. |
+| `plugin_id` | string | `"cortex"` | Plugin ID for registry lookup (if `plugin_dir` not set). |
+| `extra_plugin_dirs` | string[] | `[]` | Additional plugin directories passed via `--plugin-dir`. |
+| `rules` | string[] | all in `rules/` | Rule slugs (without `.md`) to symlink. |
+| `flags` | string[] | from `FLAGS.md` | Fallback if `FLAGS.md` missing. Override with `--flags`. |
+| `modes` | string[] | `[]` | Mode slugs to append to system prompt. |
+| `principles` | string[] | all in `principles/` | Principles snippets to include. |
+| `settings_path` | string | template if present | Path passed to Claude via `--settings`. |
+| `claude_args` | string[] | `[]` | Args always passed to `claude` command. |
+| `watch` | object | unset | Watch mode defaults (directories, auto-activate, etc.). |
+
+### Notes
+
+- **Flags:** Read from `FLAGS.md` when present; `flags` in config is a fallback.
+- **Rules:** Specified by slug (filename without `.md`). Active rules are symlinked to `~/.claude/rules/cortex/`.
+- **claude_args:** Must be a JSON array of strings. Parsed with shell splitting if you accidentally provide a single string.
+
+### Overriding Per-Session
+
+```bash
+# Override modes for one session
+cortex start --modes "Architect,Deep_Analysis"
+
+# Override flags for one session
+cortex start --flags "security-hardening,database-operations"
+
+# Both
+cortex start --modes "Quality_Focus" --flags "testing-quality"
+```
+
+---
+
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `CORTEX_ROOT` | Override Cortex home directory (default: `~/.cortex`) |
+| `CORTEX_SCOPE` | Scope selection: `project`, `global`, or `plugin` |
+| `CLAUDE_PLUGIN_ROOT` | Explicit plugin assets path |
+| `CORTEX_PLUGIN_ROOT` | Alias for `CLAUDE_PLUGIN_ROOT` |
+| `CORTEX_HOOK_LOG_PATH` | Override hook log location (default: `~/.cortex/logs/hooks.log`) |
+
+### Scope Selection
+
+```bash
+# Use project-local .claude/ directory
+cortex --scope project status
+
+# Use explicit plugin root
+cortex --plugin-root /path/to/cortex status
+
+# Set via environment
+export CLAUDE_PLUGIN_ROOT="$HOME/Developer/claude-cortex"
+cortex status
+```
 
 ### Shell completion
 
