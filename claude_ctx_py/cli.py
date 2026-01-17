@@ -1189,6 +1189,13 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Explicit path to the plugin root (overrides --scope)",
     )
+    parser.add_argument(
+        "--skip-wizard",
+        "--no-init",
+        dest="skip_wizard",
+        action="store_true",
+        help="Skip the first-run wizard even if ~/.cortex doesn't exist",
+    )
     subparsers = parser.add_subparsers(dest="command")
 
     _build_mode_parser(subparsers)
@@ -2649,6 +2656,17 @@ def main(argv: Iterable[str] | None = None) -> int:
         os.environ["CLAUDE_PLUGIN_ROOT"] = str(args.plugin_root)
     if getattr(args, "scope", None):
         os.environ["CORTEX_SCOPE"] = str(args.scope)
+
+    # Run first-run wizard if needed (before any command processing)
+    skip_wizard = getattr(args, "skip_wizard", False)
+    if not skip_wizard:
+        from .wizard import should_run_wizard, run_wizard
+
+        if should_run_wizard():
+            exit_code, _ = run_wizard()
+            if exit_code != 0:
+                return exit_code
+            # Continue to execute the requested command after wizard
 
     handlers: Dict[str, Callable[[argparse.Namespace], int]] = {
         "mode": _handle_mode_command,
