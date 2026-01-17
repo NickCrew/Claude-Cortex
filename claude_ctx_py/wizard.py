@@ -35,7 +35,7 @@ def should_run_wizard() -> bool:
     """Check if the wizard should run.
 
     Returns True if:
-    - ~/.cortex doesn't exist
+    - ~/.cortex/cortex-config.json doesn't exist (not bootstrapped)
     - CORTEX_SKIP_WIZARD env var is not set
     - Not running in a non-interactive environment (CI, etc.)
     """
@@ -47,9 +47,12 @@ def should_run_wizard() -> bool:
     if not sys.stdin.isatty():
         return False
 
-    # Check if cortex root exists
+    # Check if cortex has been bootstrapped (config file exists)
+    # Note: We check for config file, not just directory, because hooks
+    # may create ~/.cortex/logs before the wizard runs
     cortex_root = _resolve_cortex_root()
-    return not cortex_root.exists()
+    config_file = cortex_root / "cortex-config.json"
+    return not config_file.exists()
 
 
 def _show_welcome(console: Console) -> bool:

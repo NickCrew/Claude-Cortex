@@ -52,8 +52,8 @@ def existing_cortex_root(mock_cortex_root):
 class TestShouldRunWizard:
     """Tests for should_run_wizard() detection logic."""
 
-    def test_should_run_when_cortex_not_exists(self, mock_cortex_root):
-        """Wizard should run when ~/.cortex doesn't exist."""
+    def test_should_run_when_config_not_exists(self, mock_cortex_root):
+        """Wizard should run when cortex-config.json doesn't exist."""
         with patch(
             "claude_ctx_py.wizard._resolve_cortex_root", return_value=mock_cortex_root
         ):
@@ -63,14 +63,30 @@ class TestShouldRunWizard:
                 with patch("sys.stdin.isatty", return_value=True):
                     assert should_run_wizard() is True
 
-    def test_should_not_run_when_cortex_exists(self, existing_cortex_root):
-        """Wizard should not run when ~/.cortex exists."""
+    def test_should_not_run_when_config_exists(self, existing_cortex_root):
+        """Wizard should not run when cortex-config.json exists."""
+        # Create the config file to simulate bootstrapped state
+        config_file = existing_cortex_root / "cortex-config.json"
+        config_file.write_text("{}")
         with patch(
             "claude_ctx_py.wizard._resolve_cortex_root", return_value=existing_cortex_root
         ):
             with patch.dict(os.environ, {}, clear=True):
                 with patch("sys.stdin.isatty", return_value=True):
                     assert should_run_wizard() is False
+
+    def test_should_run_when_only_logs_dir_exists(self, mock_cortex_root):
+        """Wizard should run even if ~/.cortex/logs exists (from hooks)."""
+        # Create just the logs directory (simulating hook behavior)
+        mock_cortex_root.mkdir(parents=True, exist_ok=True)
+        (mock_cortex_root / "logs").mkdir()
+        with patch(
+            "claude_ctx_py.wizard._resolve_cortex_root", return_value=mock_cortex_root
+        ):
+            with patch.dict(os.environ, {}, clear=True):
+                with patch("sys.stdin.isatty", return_value=True):
+                    # Should still run because cortex-config.json doesn't exist
+                    assert should_run_wizard() is True
 
     def test_should_not_run_with_skip_env_var(self, mock_cortex_root):
         """Wizard should not run when CORTEX_SKIP_WIZARD is set."""
