@@ -549,8 +549,13 @@ class MCPServerDialog(ModalScreen[Optional[MCPServerData]]):
         )
 
 
-class HelpDialog(ModalScreen[None]):
-    """Comprehensive keyboard shortcuts help dialog."""
+class HelpDialog(ModalScreen[Optional[str]]):
+    """Comprehensive keyboard shortcuts help dialog.
+
+    Returns:
+        - "start_tour" if user clicked Start Tour button
+        - None otherwise
+    """
 
     CSS = """
     HelpDialog {
@@ -576,12 +581,24 @@ class HelpDialog(ModalScreen[None]):
         text-style: none;
         background: transparent;
     }
+
+    HelpDialog #help-buttons {
+        height: auto;
+        width: 100%;
+        align: center middle;
+        margin-top: 1;
+    }
+
+    HelpDialog #help-buttons Button {
+        margin: 0 1;
+    }
     """
 
     BINDINGS = [
         Binding("escape", "close", "Close"),
         Binding("enter", "close", "Close"),
         Binding("q", "close", "Close"),
+        Binding("t", "start_tour", "Tour", show=False),
     ]
 
     def __init__(self, current_view: str = "overview"):
@@ -596,7 +613,9 @@ class HelpDialog(ModalScreen[None]):
                 yield Static(f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title")
                 with VerticalScroll(id="help-scroll"):
                     yield Static(help_text, id="dialog-message")
-                yield Button("Close (ESC/Q)", variant="primary", id="close")
+                with Container(id="help-buttons"):
+                    yield Button("Start Tour [t]", variant="success", id="tour")
+                    yield Button("Close (ESC/Q)", variant="primary", id="close")
 
     def _generate_help_text(self) -> str:
         """Generate formatted help text with all shortcuts."""
@@ -774,7 +793,7 @@ class HelpDialog(ModalScreen[None]):
         footer = """
 [bold cyan]━━━━━━━━━━━━━━━━━━━━━━[/bold cyan]
 
-[dim]↑/↓ or j/k to scroll • ESC, Q, or Enter to close[/dim]
+[dim]↑/↓ or j/k to scroll • [t] Start Tour • ESC, Q, or Enter to close[/dim]
 """
 
         if current_section:
@@ -782,7 +801,13 @@ class HelpDialog(ModalScreen[None]):
         return global_shortcuts + footer
 
     def action_close(self) -> None:
-        self.dismiss()
+        self.dismiss(None)
+
+    def action_start_tour(self) -> None:
+        self.dismiss("start_tour")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.dismiss()
+        if event.button.id == "tour":
+            self.dismiss("start_tour")
+        else:
+            self.dismiss(None)
