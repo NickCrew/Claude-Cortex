@@ -1420,9 +1420,10 @@ def _handle_principles_command(args: argparse.Namespace) -> int:
 
 
 def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> int:
-    from .launcher import DEFAULT_CONFIG_PATH, start_claude
+    from .launcher import resolve_config_path, start_claude
 
-    config_path = getattr(args, "config", None) or DEFAULT_CONFIG_PATH
+    explicit_config = getattr(args, "config", None)
+    config_path = resolve_config_path(explicit_config)
     claude_args = list(getattr(args, "claude_args", []) or [])
     if extra_args:
         claude_args.extend(extra_args)
@@ -1446,7 +1447,7 @@ def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> in
 
 def _handle_config_command(args: argparse.Namespace) -> int:
     from .launcher import (
-        DEFAULT_CONFIG_PATH,
+        resolve_config_path,
         _read_json,
         _resolve_flags_md,
         _resolve_plugin_root,
@@ -1454,7 +1455,8 @@ def _handle_config_command(args: argparse.Namespace) -> int:
     )
     from .watch import load_watch_defaults
 
-    config_path = getattr(args, "config", None) or DEFAULT_CONFIG_PATH
+    explicit_config = getattr(args, "config", None)
+    config_path = resolve_config_path(explicit_config)
     config_exists = config_path.exists()
     raw_config, warnings = _read_json(config_path)
 

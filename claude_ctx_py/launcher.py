@@ -20,6 +20,30 @@ DEFAULT_RULES_SUBDIR = Path.home() / ".claude" / "rules" / "cortex"
 DEFAULT_PLUGIN_ID_CANDIDATES = ("cortex", "cortex", "cortex-plugin")
 
 
+def resolve_config_path(explicit: Optional[Path] = None, cwd: Optional[Path] = None) -> Path:
+    """Resolve config path with local override support.
+
+    Resolution order:
+    1. Explicit path (--config flag)
+    2. .claude/cortex-config.json (project-local, searching up from cwd)
+    3. ~/.cortex/cortex-config.json (global default)
+    """
+    if explicit is not None:
+        return explicit
+
+    start = cwd or Path.cwd()
+    current = start.resolve()
+    while True:
+        candidate = current / ".claude" / "cortex-config.json"
+        if candidate.is_file():
+            return candidate
+        if current == current.parent:
+            break
+        current = current.parent
+
+    return DEFAULT_CONFIG_PATH
+
+
 @dataclass
 class LauncherConfig:
     """Resolved configuration for launching Claude."""
