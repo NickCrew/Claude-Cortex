@@ -1167,6 +1167,11 @@ def _add_start_arguments(parser: argparse.ArgumentParser) -> None:
         help="Comma-separated list of flags to append for this launch",
     )
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be passed to Claude without launching",
+    )
+    parser.add_argument(
         "claude_args",
         nargs=argparse.REMAINDER,
         help="Arguments passed through to Claude Code",
@@ -1439,6 +1444,7 @@ def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> in
             modes_override=getattr(args, "modes", None),
             flags_override=getattr(args, "flags", None),
             extra_args=claude_args,
+            dry_run=getattr(args, "dry_run", False),
         )
     except RuntimeError as exc:
         _print(str(exc))
