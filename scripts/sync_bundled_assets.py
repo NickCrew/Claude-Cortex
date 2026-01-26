@@ -15,6 +15,7 @@ ASSET_ITEMS = [
     ".claude-plugin",
     ".mcp.json",
     ".lsp.json",
+    "cortex-config.json",
     "agents",
     "commands",
     "skills",

@@ -1,0 +1,18 @@
+{
+  "plugin_id": "cortex",
+  "plugin_dir": null,
+  "settings_path": null,
+  "claude_args": [],
+  "extra_plugin_dirs": ["plugins"],
+  "rules": [
+    "workflow-rules",
+    "git-rules",
+    "quality-rules",
+    "quality-gate-rules",
+    "efficiency-rules",
+    "parallel-execution-rules"
+  ],
+  "flags": [],
+  "modes": [],
+  "principles": []
+}
