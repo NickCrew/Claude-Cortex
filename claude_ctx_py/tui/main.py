@@ -185,8 +185,10 @@ from .dialogs import (
     LLMProviderSettingsDialog,
     MemoryNoteCreateDialog,
     MemoryNoteDialog,
+    PrincipleCreateDialog,
 )
 from .dialogs.memory_dialogs import MemoryNoteCreateData
+from .dialogs.principle_dialogs import PrincipleCreateData
 from ..core.mcp_installer import install_and_configure
 from ..core.mcp_registry import get_server
 from ..core import _resolve_claude_dir
@@ -225,6 +227,7 @@ from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
 from ..watch import WatchMode, load_watch_defaults
+from .tour import TourManager, TourOverlay, QUICK_TOUR
 import threading
 
 
@@ -262,6 +265,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self,
         *,
         theme_path: Optional[Path] = None,
+        start_tour: bool = False,
         **kwargs: Any,
     ) -> None:
         resolved_theme = self._resolve_theme_path(theme_path)
@@ -279,6 +283,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         super().__init__(css_path=css_path, **kwargs)
         self.theme_path = resolved_theme
         self.claude_home: Path = _resolve_claude_dir()
+        # Tour system
+        self._start_tour = start_tour
+        self.tour_manager = TourManager()
         self.agents: List[AgentGraphNode] = []
         self.rules: List[RuleNode] = []
         self.modes: List[ModeInfo] = []
@@ -397,6 +404,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("ctrl+k", "worktree_prune", "Prune Worktrees", show=False),
         Binding("y", "copy_definition", "Copy Definition", show=False),
         Binding("n", "profile_save_prompt", "Save Profile", show=False),
+        Binding("N", "principle_create", "New Principle", show=False),
         Binding("D", "context_delete", "Delete/Diagnose", show=False),
         Binding("P", "scenario_preview", "Preview", show=False),
         Binding("R", "run_selected", "Run", show=False),
@@ -1566,8 +1574,31 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     async def _post_startup_checks(self) -> None:
         """Run startup prompts after the UI has mounted."""
+        # Check for tour (either requested via --tour or first-time offer)
+        await self._maybe_show_tour()
         await self._maybe_prompt_for_missing_templates()
         await self._maybe_prompt_for_skill_ratings()
+
+    async def _maybe_show_tour(self) -> None:
+        """Show tour if requested or offer for first-time users."""
+        if self._start_tour:
+            # Tour requested via --tour flag
+            self.action_start_tour()
+        elif self.tour_manager.should_offer_tour("quick_tour"):
+            # First-time user - offer tour
+            self.tour_manager.record_tour_offer()
+            from ..tui_dialogs import ConfirmDialog
+
+            result = await self.push_screen_wait(
+                ConfirmDialog(
+                    "Welcome to Cortex",
+                    "Would you like to take a quick tour of the TUI?\n\n"
+                    "This will show you how to use key features.",
+                    default=True,
+                )
+            )
+            if result:
+                self.action_start_tour()
 
     async def _maybe_prompt_for_missing_templates(self) -> None:
         """Offer to initialize missing template files in CLAUDE_PLUGIN_ROOT."""
@@ -6899,6 +6930,72 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         else:
             self.notify(clean or "Build failed", severity="error", timeout=3)
 
+    def action_principle_create(self) -> None:
+        """Create a new principle snippet."""
+        if self.current_view != "principles":
+            self.action_view_principles()
+
+        dialog = PrincipleCreateDialog("New Principle")
+        self.push_screen(dialog, callback=self._handle_principle_create)
+
+    def _handle_principle_create(self, result: Optional[PrincipleCreateData]) -> None:
+        """Handle the result of the principle create dialog."""
+        if not result:
+            return
+
+        name = result.get("name", "").strip()
+        title = result.get("title", "").strip()
+        content = result.get("content", "").strip()
+
+        if not name:
+            self.notify("Principle name is required", severity="warning", timeout=2)
+            return
+
+        # Build the file content
+        claude_dir = _resolve_claude_dir()
+        principles_dir = claude_dir / "principles"
+
+        # Create directory if it doesn't exist
+        principles_dir.mkdir(parents=True, exist_ok=True)
+
+        # Build markdown content
+        file_content = ""
+        if title:
+            file_content = f"# {title}\n\n"
+        if content:
+            file_content += content
+        else:
+            file_content += f"<!-- Add your {name} principle here -->\n"
+
+        # Write the file
+        file_path = principles_dir / f"{name}.md"
+        if file_path.exists():
+            self.notify(
+                f"Principle '{name}' already exists",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        try:
+            file_path.write_text(file_content, encoding="utf-8")
+        except OSError as exc:
+            self.notify(
+                f"Failed to create principle: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        self.notify(f"✓ Created principle '{name}'", severity="information", timeout=2)
+        self.load_principles()
+        self.update_view()
+
+        # Automatically rebuild PRINCIPLES.md
+        exit_code, message = principles_build()
+        if exit_code == 0:
+            self.notify("✓ Rebuilt PRINCIPLES.md", severity="information", timeout=2)
+
     async def action_scenario_run_auto(self) -> None:
         """Run the selected scenario in automatic mode."""
         if self.current_view != "scenarios":
@@ -10075,7 +10172,41 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
     def action_help(self) -> None:
         """Show comprehensive keyboard shortcuts help."""
-        self.push_screen(HelpDialog(current_view=self.current_view))
+
+        def handle_help_result(result: Optional[str]) -> None:
+            """Handle help dialog result."""
+            if result == "start_tour":
+                self.action_start_tour()
+
+        self.push_screen(HelpDialog(current_view=self.current_view), callback=handle_help_result)
+
+    def action_start_tour(self) -> None:
+        """Start the interactive TUI tour."""
+
+        def on_view_change(view_name: str) -> None:
+            """Handle view change requests from tour."""
+            if hasattr(self, f"action_view_{view_name}"):
+                getattr(self, f"action_view_{view_name}")()
+
+        def handle_tour_result(result: Optional[str]) -> None:
+            """Handle tour completion."""
+            if result == "completed":
+                self.tour_manager.mark_tour_completed("quick_tour")
+                self.notify(
+                    "Tour completed! Press [?] anytime for help.",
+                    severity="information",
+                    timeout=5,
+                )
+            elif result == "skipped":
+                self.tour_manager.mark_tour_skipped("quick_tour")
+                self.notify(
+                    "Tour skipped. Start it anytime from Help [?].",
+                    severity="information",
+                    timeout=3,
+                )
+
+        overlay = TourOverlay(QUICK_TOUR, on_view_change=on_view_change)
+        self.push_screen(overlay, callback=handle_tour_result)
 
     def action_claude_md_wizard(self) -> None:
         """Open the CLAUDE.md configuration wizard."""
@@ -10215,8 +10346,16 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
 
 
-def main(theme_path: Optional[Path] = None) -> int:
-    """Entry point for the Textual TUI."""
+def main(theme_path: Optional[Path] = None, start_tour: bool = False) -> int:
+    """Entry point for the Textual TUI.
+
+    Args:
+        theme_path: Optional path to a custom theme file.
+        start_tour: If True, start the interactive tour on launch.
+
+    Returns:
+        Exit code (0 for success).
+    """
     resolved_theme: Optional[Path] = None
     if theme_path is not None:
         resolved_theme = Path(theme_path).expanduser()
@@ -10224,7 +10363,7 @@ def main(theme_path: Optional[Path] = None) -> int:
             print(f"Theme file not found: {resolved_theme}")
             return 1
 
-    app = AgentTUI(theme_path=resolved_theme)
+    app = AgentTUI(theme_path=resolved_theme, start_tour=start_tour)
     app.run()
     return 0
 

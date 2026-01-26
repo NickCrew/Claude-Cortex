@@ -12,6 +12,11 @@ from .memory_dialogs import (
     MemoryNoteCreateDialog,
 )
 
+from .principle_dialogs import (
+    PrincipleCreateDialog,
+    PrincipleCreateData,
+)
+
 from .mcp_install_dialogs import (
     MCPBrowseDialog,
     MCPInstallDialog,
@@ -47,6 +52,8 @@ __all__ = [
     "BulkInstallDialog",
     "MemoryNoteDialog",
     "MemoryNoteCreateDialog",
+    "PrincipleCreateDialog",
+    "PrincipleCreateData",
     "MCPBrowseDialog",
     "MCPInstallDialog",
     "ClaudeMdWizard",
