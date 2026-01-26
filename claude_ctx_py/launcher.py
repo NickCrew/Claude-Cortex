@@ -567,6 +567,7 @@ def start_claude(
     modes_override: Optional[str] = None,
     flags_override: Optional[str] = None,
     extra_args: Optional[List[str]] = None,
+    dry_run: bool = False,
 ) -> int:
     config_raw, config_warnings = _read_json(config_path)
     plugin_root = _resolve_plugin_root(plugin_dir, config_raw)
@@ -650,5 +651,52 @@ def start_claude(
     env = os.environ.copy()
     env["CLAUDE_PLUGIN_ROOT"] = str(plugin_root)
     env["CORTEX_ROOT"] = str(content_root)
+
+    if dry_run:
+        print("=== Cortex Start Dry Run ===\n")
+        print(f"Config file: {config_path}")
+        print(f"Config exists: {config_path.exists()}")
+        print(f"Content root: {content_root}")
+        print(f"Plugin root: {plugin_root}")
+        print()
+        print("=== Plugin Directories ===")
+        for i, arg in enumerate(cmd):
+            if arg == "--plugin-dir" and i + 1 < len(cmd):
+                print(f"  {cmd[i + 1]}")
+        print()
+        print("=== Active Configuration ===")
+        print(f"Rules: {', '.join(config.rules) or 'None'}")
+        print(f"Modes: {', '.join(config.modes) or 'None'}")
+        print(f"Flags: {', '.join(config.flags) or 'None'}")
+        print(f"Principles: {', '.join(config.principles) or 'None'}")
+        print(f"Settings: {effective_settings or 'None'}")
+        print(f"Claude args: {' '.join(config.claude_args) if config.claude_args else 'None'}")
+        print()
+        print("=== System Prompt ===")
+        if prompt:
+            print(prompt)
+        else:
+            print("(empty)")
+        print()
+        print("=== Full Command ===")
+        # Redact the potentially long system prompt for readability
+        display_cmd = []
+        skip_next = False
+        for i, arg in enumerate(cmd):
+            if skip_next:
+                skip_next = False
+                continue
+            if arg == "--append-system-prompt":
+                display_cmd.append(arg)
+                display_cmd.append('"<system-prompt-content>"')
+                skip_next = True
+            else:
+                display_cmd.append(arg)
+        print(" ".join(display_cmd))
+        print()
+        print("=== Environment ===")
+        print(f"CLAUDE_PLUGIN_ROOT={plugin_root}")
+        print(f"CORTEX_ROOT={content_root}")
+        return 0
 
     return subprocess.call(cmd, env=env)
