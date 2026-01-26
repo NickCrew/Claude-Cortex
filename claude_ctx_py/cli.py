@@ -1230,6 +1230,11 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Path to a Textual .tcss theme override file",
     )
+    tui_parser.add_argument(
+        "--tour",
+        action="store_true",
+        help="Start with the interactive tour",
+    )
     _build_ai_parser(subparsers)
     _build_export_parser(subparsers)
     _build_completion_parser(subparsers)
@@ -2701,7 +2706,10 @@ def main(argv: Iterable[str] | None = None) -> int:
     
     if args.command == "tui":
         from .tui.main import main as tui_main
-        return tui_main(theme_path=getattr(args, "theme", None))
+        return tui_main(
+            theme_path=getattr(args, "theme", None),
+            start_tour=getattr(args, "tour", False),
+        )
 
     if args.command in ("start", "claude"):
         return _handle_start_command(args, extra_args)
