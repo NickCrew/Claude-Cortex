@@ -2,25 +2,13 @@
 
 Flags to control Model Context Protocol server selection and usage.
 
-**Estimated tokens: ~160**
+**Estimated tokens: ~100**
 
 ---
 
 **--c7 / --context7**
 - Trigger: Library imports, framework questions, official documentation needs
 - Behavior: Enable Context7 for curated documentation lookup and pattern guidance
-
-**--seq / --sequential**
-- Trigger: Complex debugging, system design, multi-component analysis
-- Behavior: Enable Sequential for structured multi-step reasoning and hypothesis testing
-
-**--magic**
-- Trigger: UI component requests (/ui, /21), design system queries, frontend development
-- Behavior: Enable Magic for modern UI generation from 21st.dev patterns
-
-**--morph / --morphllm**
-- Trigger: Bulk code transformations, pattern-based edits, style enforcement
-- Behavior: Enable Morphllm for efficient multi-file pattern application
 
 **--codanna**
 - Trigger: Symbol operations, project memory needs, large codebase navigation
