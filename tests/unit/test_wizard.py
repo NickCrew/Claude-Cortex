@@ -3,10 +3,13 @@
 Tests cover:
 - should_run_wizard detection logic
 - WizardConfig defaults
+- ExperienceLevel enum
+- OnboardingState persistence
 - Non-interactive wizard execution
 - CLI skip flag integration
 """
 
+import json
 import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -14,9 +17,15 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from claude_ctx_py.wizard import (
+    ExperienceLevel,
+    OnboardingState,
     WizardConfig,
     should_run_wizard,
     run_wizard_non_interactive,
+    _load_onboarding_state,
+    _save_onboarding_state,
+    _get_onboarding_state_path,
+    _map_detection_to_profile,
 )
 
 
@@ -251,42 +260,79 @@ class TestCLIIntegration:
 
 
 class TestInteractiveWizard:
-    """Tests for interactive wizard flow with mocked prompts."""
+    """Tests for interactive wizard flow with mocked prompts.
+
+    Note: These tests mock the new wizard flow which starts with experience level
+    selection, followed by welcome, project detection, profile selection, etc.
+    """
 
     def test_wizard_cancelled_at_welcome(self):
         """Wizard should exit cleanly when cancelled at welcome."""
         from rich.console import Console
-        from claude_ctx_py.wizard import run_wizard
+        from claude_ctx_py.wizard import run_wizard, ExperienceLevel
 
         console = Console(force_terminal=True, no_color=True)
 
-        with patch("claude_ctx_py.wizard._show_welcome", return_value=False):
-            exit_code, message = run_wizard(console)
+        with patch(
+            "claude_ctx_py.wizard._get_experience_level",
+            return_value=ExperienceLevel.NEW,
+        ):
+            with patch("claude_ctx_py.wizard._show_welcome", return_value=False):
+                exit_code, message = run_wizard(console)
 
-            assert exit_code == 1
-            assert "cancelled" in message.lower()
+                assert exit_code == 1
+                assert "cancelled" in message.lower()
 
-    def test_wizard_cancelled_at_summary(self, mock_cortex_root):
+    def test_wizard_cancelled_at_summary(self, mock_cortex_root, tmp_path):
         """Wizard should exit cleanly when cancelled at summary."""
         from rich.console import Console
-        from claude_ctx_py.wizard import run_wizard
+        from claude_ctx_py.wizard import run_wizard, ExperienceLevel
 
         console = Console(force_terminal=True, no_color=True)
+        mock_rc = tmp_path / ".zshrc"
+        mock_rc.write_text("# zshrc")
 
-        with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
-            with patch(
-                "claude_ctx_py.wizard._get_target_directory", return_value=mock_cortex_root
-            ):
+        with patch(
+            "claude_ctx_py.wizard._get_experience_level",
+            return_value=ExperienceLevel.EXPERIENCED,
+        ):
+            with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
                 with patch(
-                    "claude_ctx_py.wizard._get_shell_config",
-                    return_value=("zsh", Path.home() / ".zshrc", True, True),
+                    "claude_ctx_py.wizard._get_target_directory",
+                    return_value=mock_cortex_root,
                 ):
-                    with patch("claude_ctx_py.wizard._get_rule_linking_config", return_value=True):
-                        with patch("claude_ctx_py.wizard._show_summary", return_value=False):
-                            exit_code, message = run_wizard(console)
+                    with patch(
+                        "claude_ctx_py.wizard._detect_project_and_recommend",
+                        return_value=({}, "minimal"),
+                    ):
+                        with patch(
+                            "claude_ctx_py.wizard._get_profile_selection",
+                            return_value="minimal",
+                        ):
+                            with patch(
+                                "claude_ctx_py.wizard._get_shell_config",
+                                return_value=("zsh", mock_rc, True, True),
+                            ):
+                                with patch(
+                                    "claude_ctx_py.wizard._get_rule_linking_config",
+                                    return_value=True,
+                                ):
+                                    with patch(
+                                        "claude_ctx_py.wizard._setup_claude_integration",
+                                        return_value=(True, True, True),
+                                    ):
+                                        with patch(
+                                            "claude_ctx_py.wizard._prompt_tui_tour",
+                                            return_value=False,
+                                        ):
+                                            with patch(
+                                                "claude_ctx_py.wizard._show_summary",
+                                                return_value=False,
+                                            ):
+                                                exit_code, message = run_wizard(console)
 
-                            assert exit_code == 1
-                            assert "cancelled" in message.lower()
+                                                assert exit_code == 1
+                                                assert "cancelled" in message.lower()
 
     def test_wizard_handles_keyboard_interrupt(self):
         """Wizard should handle Ctrl+C gracefully."""
@@ -295,7 +341,10 @@ class TestInteractiveWizard:
 
         console = Console(force_terminal=True, no_color=True)
 
-        with patch("claude_ctx_py.wizard._show_welcome", side_effect=KeyboardInterrupt):
+        with patch(
+            "claude_ctx_py.wizard._get_experience_level",
+            side_effect=KeyboardInterrupt,
+        ):
             exit_code, message = run_wizard(console)
 
             assert exit_code == 1
@@ -304,44 +353,345 @@ class TestInteractiveWizard:
     def test_wizard_handles_permission_error(self, mock_cortex_root):
         """Wizard should handle permission errors gracefully."""
         from rich.console import Console
-        from claude_ctx_py.wizard import run_wizard
+        from claude_ctx_py.wizard import run_wizard, ExperienceLevel
 
         console = Console(force_terminal=True, no_color=True)
 
-        with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
-            with patch(
-                "claude_ctx_py.wizard._get_target_directory",
-                side_effect=PermissionError("/forbidden"),
-            ):
-                exit_code, message = run_wizard(console)
+        with patch(
+            "claude_ctx_py.wizard._get_experience_level",
+            return_value=ExperienceLevel.EXPERIENCED,
+        ):
+            with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
+                with patch(
+                    "claude_ctx_py.wizard._get_target_directory",
+                    side_effect=PermissionError("/forbidden"),
+                ):
+                    exit_code, message = run_wizard(console)
 
-                assert exit_code == 1
-                assert "permission" in message.lower()
+                    assert exit_code == 1
+                    assert "permission" in message.lower()
 
     def test_wizard_successful_flow(self, mock_cortex_root, tmp_path):
         """Wizard should complete successfully with all steps."""
         from rich.console import Console
-        from claude_ctx_py.wizard import run_wizard
+        from claude_ctx_py.wizard import run_wizard, ExperienceLevel
 
         console = Console(force_terminal=True, no_color=True)
         mock_rc = tmp_path / ".zshrc"
         mock_rc.write_text("# zshrc")
 
-        with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
-            with patch(
-                "claude_ctx_py.wizard._get_target_directory", return_value=mock_cortex_root
-            ):
+        with patch(
+            "claude_ctx_py.wizard._get_experience_level",
+            return_value=ExperienceLevel.EXPERIENCED,
+        ):
+            with patch("claude_ctx_py.wizard._show_welcome", return_value=True):
                 with patch(
-                    "claude_ctx_py.wizard._get_shell_config",
-                    return_value=("zsh", mock_rc, False, False),  # Disable shell integration
+                    "claude_ctx_py.wizard._get_target_directory",
+                    return_value=mock_cortex_root,
                 ):
-                    with patch("claude_ctx_py.wizard._get_rule_linking_config", return_value=False):
-                        with patch("claude_ctx_py.wizard._show_summary", return_value=True):
+                    with patch(
+                        "claude_ctx_py.wizard._detect_project_and_recommend",
+                        return_value=({}, "minimal"),
+                    ):
+                        with patch(
+                            "claude_ctx_py.wizard._get_profile_selection",
+                            return_value="minimal",
+                        ):
                             with patch(
-                                "claude_ctx_py.wizard.installer.bootstrap",
-                                return_value=(0, "✓ Bootstrap complete"),
+                                "claude_ctx_py.wizard._get_shell_config",
+                                return_value=("zsh", mock_rc, False, False),
                             ):
-                                exit_code, message = run_wizard(console)
+                                with patch(
+                                    "claude_ctx_py.wizard._get_rule_linking_config",
+                                    return_value=False,
+                                ):
+                                    with patch(
+                                        "claude_ctx_py.wizard._setup_claude_integration",
+                                        return_value=(False, False, False),
+                                    ):
+                                        with patch(
+                                            "claude_ctx_py.wizard._prompt_tui_tour",
+                                            return_value=False,
+                                        ):
+                                            with patch(
+                                                "claude_ctx_py.wizard._show_summary",
+                                                return_value=True,
+                                            ):
+                                                with patch(
+                                                    "claude_ctx_py.wizard.installer.bootstrap",
+                                                    return_value=(0, "* Bootstrap complete"),
+                                                ):
+                                                    with patch(
+                                                        "claude_ctx_py.wizard._save_onboarding_state",
+                                                        return_value=True,
+                                                    ):
+                                                        exit_code, message = run_wizard(
+                                                            console
+                                                        )
 
-                                assert exit_code == 0
-                                assert "success" in message.lower()
+                                                        assert exit_code == 0
+                                                        assert "success" in message.lower()
+
+
+# =============================================================================
+# Tests: ExperienceLevel enum
+# =============================================================================
+
+
+class TestExperienceLevel:
+    """Tests for ExperienceLevel enum."""
+
+    def test_values(self):
+        """ExperienceLevel should have expected values."""
+        assert ExperienceLevel.NEW.value == "new"
+        assert ExperienceLevel.EXPERIENCED.value == "experienced"
+        assert ExperienceLevel.POWER_USER.value == "power_user"
+
+    def test_all_members(self):
+        """ExperienceLevel should have exactly 3 members."""
+        assert len(ExperienceLevel) == 3
+
+
+# =============================================================================
+# Tests: OnboardingState
+# =============================================================================
+
+
+class TestOnboardingState:
+    """Tests for OnboardingState dataclass."""
+
+    def test_default_values(self):
+        """OnboardingState should have sensible defaults."""
+        state = OnboardingState()
+
+        assert state.completed_at is None
+        assert state.experience_level == "new"
+        assert state.profile_applied == "minimal"
+        assert state.tui_tour_shown is False
+        assert state.version == "1.0"
+
+    def test_to_dict(self):
+        """OnboardingState.to_dict should serialize correctly."""
+        state = OnboardingState(
+            completed_at="2024-01-01T00:00:00Z",
+            experience_level="experienced",
+            profile_applied="frontend",
+            tui_tour_shown=True,
+            version="1.0",
+        )
+        result = state.to_dict()
+
+        assert result["completed_at"] == "2024-01-01T00:00:00Z"
+        assert result["experience_level"] == "experienced"
+        assert result["profile_applied"] == "frontend"
+        assert result["tui_tour_shown"] is True
+        assert result["version"] == "1.0"
+
+    def test_from_dict(self):
+        """OnboardingState.from_dict should deserialize correctly."""
+        data = {
+            "completed_at": "2024-01-01T00:00:00Z",
+            "experience_level": "power_user",
+            "profile_applied": "backend",
+            "tui_tour_shown": True,
+            "version": "1.0",
+        }
+        state = OnboardingState.from_dict(data)
+
+        assert state.completed_at == "2024-01-01T00:00:00Z"
+        assert state.experience_level == "power_user"
+        assert state.profile_applied == "backend"
+        assert state.tui_tour_shown is True
+
+    def test_from_dict_with_missing_keys(self):
+        """OnboardingState.from_dict should handle missing keys."""
+        data = {}  # type: ignore
+        state = OnboardingState.from_dict(data)
+
+        assert state.completed_at is None
+        assert state.experience_level == "new"
+        assert state.profile_applied == "minimal"
+
+
+# =============================================================================
+# Tests: Onboarding State Persistence
+# =============================================================================
+
+
+class TestOnboardingStatePersistence:
+    """Tests for onboarding state load/save functions."""
+
+    def test_load_returns_none_when_file_missing(self, tmp_path):
+        """_load_onboarding_state should return None when file doesn't exist."""
+        with patch(
+            "claude_ctx_py.wizard._get_onboarding_state_path",
+            return_value=tmp_path / ".onboarding-state.json",
+        ):
+            result = _load_onboarding_state()
+            assert result is None
+
+    def test_load_returns_state_when_file_exists(self, tmp_path):
+        """_load_onboarding_state should return OnboardingState when file exists."""
+        state_path = tmp_path / ".onboarding-state.json"
+        state_data = {
+            "completed_at": "2024-01-01T00:00:00Z",
+            "experience_level": "experienced",
+            "profile_applied": "frontend",
+            "tui_tour_shown": True,
+            "version": "1.0",
+        }
+        state_path.write_text(json.dumps(state_data))
+
+        with patch(
+            "claude_ctx_py.wizard._get_onboarding_state_path",
+            return_value=state_path,
+        ):
+            result = _load_onboarding_state()
+
+            assert result is not None
+            assert result.completed_at == "2024-01-01T00:00:00Z"
+            assert result.experience_level == "experienced"
+
+    def test_load_returns_none_on_invalid_json(self, tmp_path):
+        """_load_onboarding_state should return None on invalid JSON."""
+        state_path = tmp_path / ".onboarding-state.json"
+        state_path.write_text("not valid json")
+
+        with patch(
+            "claude_ctx_py.wizard._get_onboarding_state_path",
+            return_value=state_path,
+        ):
+            result = _load_onboarding_state()
+            assert result is None
+
+    def test_save_creates_file(self, tmp_path):
+        """_save_onboarding_state should create state file."""
+        state_path = tmp_path / ".onboarding-state.json"
+        config = WizardConfig(
+            experience_level=ExperienceLevel.EXPERIENCED,
+            selected_profile="frontend",
+        )
+
+        with patch(
+            "claude_ctx_py.wizard._get_onboarding_state_path",
+            return_value=state_path,
+        ):
+            result = _save_onboarding_state(config)
+
+            assert result is True
+            assert state_path.exists()
+
+            data = json.loads(state_path.read_text())
+            assert data["experience_level"] == "experienced"
+            assert data["profile_applied"] == "frontend"
+
+
+# =============================================================================
+# Tests: Profile Mapping
+# =============================================================================
+
+
+class TestProfileMapping:
+    """Tests for _map_detection_to_profile function."""
+
+    def test_react_maps_to_frontend(self):
+        """React framework should map to frontend profile."""
+        detection = {"language": "javascript", "framework": "react", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "frontend"
+
+    def test_vue_maps_to_frontend(self):
+        """Vue framework should map to frontend profile."""
+        detection = {"language": "javascript", "framework": "vue", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "frontend"
+
+    def test_nextjs_maps_to_frontend(self):
+        """Next.js framework should map to frontend profile."""
+        detection = {"language": "javascript", "framework": "nextjs", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "frontend"
+
+    def test_django_maps_to_backend(self):
+        """Django framework should map to backend profile."""
+        detection = {"language": "python", "framework": "django", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_flask_maps_to_backend(self):
+        """Flask framework should map to backend profile."""
+        detection = {"language": "python", "framework": "flask", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_express_maps_to_backend(self):
+        """Express framework should map to backend profile."""
+        detection = {"language": "javascript", "framework": "express", "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_terraform_maps_to_devops(self):
+        """Terraform infrastructure should map to devops profile."""
+        detection = {"language": None, "framework": None, "infrastructure": "terraform", "types": []}
+        assert _map_detection_to_profile(detection) == "devops"
+
+    def test_docker_compose_maps_to_devops(self):
+        """Docker Compose infrastructure should map to devops profile."""
+        detection = {"language": None, "framework": None, "infrastructure": "docker-compose", "types": []}
+        assert _map_detection_to_profile(detection) == "devops"
+
+    def test_python_maps_to_backend(self):
+        """Plain Python should map to backend profile."""
+        detection = {"language": "python", "framework": None, "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_typescript_maps_to_frontend(self):
+        """Plain TypeScript should map to frontend profile."""
+        detection = {"language": "typescript", "framework": None, "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "frontend"
+
+    def test_go_maps_to_backend(self):
+        """Go language should map to backend profile."""
+        detection = {"language": "go", "framework": None, "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_rust_maps_to_backend(self):
+        """Rust language should map to backend profile."""
+        detection = {"language": "rust", "framework": None, "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "backend"
+
+    def test_unknown_maps_to_minimal(self):
+        """Unknown detection should map to minimal profile."""
+        detection = {"language": None, "framework": None, "infrastructure": None, "types": []}
+        assert _map_detection_to_profile(detection) == "minimal"
+
+
+# =============================================================================
+# Tests: Enhanced WizardConfig
+# =============================================================================
+
+
+class TestEnhancedWizardConfig:
+    """Tests for new WizardConfig fields."""
+
+    def test_new_default_values(self):
+        """WizardConfig should have new default values."""
+        config = WizardConfig()
+
+        assert config.experience_level == ExperienceLevel.NEW
+        assert config.detected_language is None
+        assert config.detected_framework is None
+        assert config.recommended_profile == "minimal"
+        assert config.selected_profile == "minimal"
+        assert config.setup_mcp is True
+        assert config.setup_hooks is True
+        assert config.configure_settings is True
+        assert config.show_tui_tour is True
+
+    def test_custom_experience_level(self):
+        """WizardConfig should accept custom experience level."""
+        config = WizardConfig(experience_level=ExperienceLevel.POWER_USER)
+        assert config.experience_level == ExperienceLevel.POWER_USER
+
+    def test_custom_profile_selection(self):
+        """WizardConfig should accept custom profile selection."""
+        config = WizardConfig(
+            recommended_profile="frontend",
+            selected_profile="backend",
+        )
+        assert config.recommended_profile == "frontend"
+        assert config.selected_profile == "backend"
