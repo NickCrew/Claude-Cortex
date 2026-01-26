@@ -105,7 +105,7 @@ bundle-assets:
     @python3 ./scripts/sync_bundled_assets.py
     @just docs-sync
 
-build:
+build: bundle-assets
     @python -m build
 
 publish:

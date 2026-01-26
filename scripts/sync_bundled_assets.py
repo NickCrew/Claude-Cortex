@@ -33,6 +33,7 @@ ASSET_ITEMS = [
     "mcp",
     "inactive",
     "scripts",
+    "plugins",  # Domain-specific plugin packages
 ]
 
 
