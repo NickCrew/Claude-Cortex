@@ -597,8 +597,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
-        # Schedule background check for pending prompts
-        self.call_after_refresh(self._post_startup_checks)
+        # Schedule background check for pending prompts (needs worker for wait_for_dismiss)
+        self.call_after_refresh(lambda: self.run_worker(self._post_startup_checks()))
 
     def _validate_plugin_hooks_startup(self) -> None:
         """Warn if plugin hooks.json has conflicting entries."""
