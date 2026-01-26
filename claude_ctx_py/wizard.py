@@ -32,6 +32,51 @@ class ExperienceLevel(Enum):
     POWER_USER = "power_user"  # Minimal prompts, auto-defaults
 
 
+# MCP Server definitions with installation info
+MCP_SERVERS: Dict[str, Dict[str, object]] = {
+    "context7": {
+        "name": "Context7",
+        "description": "Documentation lookup for libraries and frameworks",
+        "url": "https://github.com/upstash/context7",
+        "config": {
+            "command": "npx",
+            "args": ["-y", "@upstash/context7-mcp"],
+        },
+        "default": True,
+    },
+    "claude-mem": {
+        "name": "Claude Memory",
+        "description": "Persistent memory across sessions (recommended)",
+        "url": "https://github.com/thedotmack/claude-mem",
+        "config": {
+            "command": "uvx",
+            "args": ["claude-mem", "mcp"],
+        },
+        "default": True,
+    },
+    "codanna": {
+        "name": "Codanna",
+        "description": "Code intelligence and semantic understanding",
+        "url": "https://github.com/bartolli/codanna",
+        "config": {
+            "command": "codanna",
+            "args": ["serve", "--watch"],
+        },
+        "default": False,
+    },
+    "basic-memory": {
+        "name": "Basic Memory",
+        "description": "Memory vault for knowledge management",
+        "url": "https://github.com/basicmachines-co/basic-memory",
+        "config": {
+            "command": "uvx",
+            "args": ["basic-memory", "mcp"],
+        },
+        "default": False,
+    },
+}
+
+
 @dataclass
 class OnboardingState:
     """Persisted onboarding completion state."""
@@ -82,6 +127,7 @@ class WizardConfig:
     recommended_profile: str = "minimal"
     selected_profile: str = "minimal"
     setup_mcp: bool = True
+    selected_mcp_servers: List[str] = field(default_factory=lambda: ["context7", "claude-mem"])
     setup_hooks: bool = True
     configure_settings: bool = True
     show_tui_tour: bool = True
@@ -531,9 +577,80 @@ def _get_rule_linking_config(console: Console, config: WizardConfig) -> bool:
     return Confirm.ask("Enable automatic rule discovery?", default=True, console=console)
 
 
+def _prompt_mcp_servers(console: Console, config: WizardConfig) -> List[str]:
+    """Prompt user to select MCP servers to enable.
+
+    Args:
+        console: Rich Console to use.
+        config: Wizard configuration.
+
+    Returns:
+        List of selected MCP server IDs.
+    """
+    if config.experience_level == ExperienceLevel.POWER_USER:
+        # Power users get defaults
+        return [k for k, v in MCP_SERVERS.items() if v.get("default")]
+
+    console.print()
+    console.print("[bold]MCP Server Selection[/bold]")
+    console.print("-" * 50)
+
+    if config.experience_level == ExperienceLevel.NEW:
+        console.print(
+            "MCP (Model Context Protocol) servers extend Claude's capabilities.\n"
+            "Select which servers to enable:\n"
+        )
+
+    # Display table of available servers
+    table = Table(show_header=True, header_style="bold cyan")
+    table.add_column("#", style="dim", width=3)
+    table.add_column("Server", width=15)
+    table.add_column("Description", width=45)
+    table.add_column("Default", width=8)
+
+    server_ids = list(MCP_SERVERS.keys())
+    for i, server_id in enumerate(server_ids, 1):
+        server = MCP_SERVERS[server_id]
+        default_marker = "[green]✓[/green]" if server.get("default") else ""
+        table.add_row(
+            str(i),
+            str(server["name"]),
+            str(server["description"]),
+            default_marker,
+        )
+
+    console.print(table)
+    console.print()
+
+    # Get default selections
+    defaults = [str(i + 1) for i, sid in enumerate(server_ids) if MCP_SERVERS[sid].get("default")]
+    default_str = ",".join(defaults) if defaults else "none"
+
+    selection = Prompt.ask(
+        "Enter server numbers to enable (comma-separated, or 'all'/'none')",
+        default=default_str,
+        console=console,
+    )
+
+    if selection.lower() == "all":
+        return server_ids
+    if selection.lower() == "none":
+        return []
+
+    selected: List[str] = []
+    for part in selection.split(","):
+        part = part.strip()
+        if part.isdigit():
+            idx = int(part) - 1
+            if 0 <= idx < len(server_ids):
+                selected.append(server_ids[idx])
+
+    return selected
+
+
 def _setup_claude_integration(
     console: Console, config: WizardConfig
-) -> Tuple[bool, bool, bool]:
+) -> Tuple[bool, List[str], bool, bool]:
     """Setup Claude Code integration (MCP, hooks, settings).
 
     Args:
@@ -541,11 +658,12 @@ def _setup_claude_integration(
         config: Wizard configuration.
 
     Returns:
-        Tuple of (setup_mcp, setup_hooks, configure_settings).
+        Tuple of (setup_mcp, selected_mcp_servers, setup_hooks, configure_settings).
     """
     if config.experience_level == ExperienceLevel.POWER_USER:
         console.print("[dim]Claude integration auto-configured[/dim]")
-        return True, True, True
+        defaults = [k for k, v in MCP_SERVERS.items() if v.get("default")]
+        return True, defaults, True, True
 
     console.print()
     console.print("[bold]Claude Code Integration[/bold]")
@@ -559,10 +677,14 @@ def _setup_claude_integration(
         console.print()
 
     setup_mcp = Confirm.ask(
-        "Generate MCP server documentation?",
+        "Configure MCP servers?",
         default=True,
         console=console,
     )
+
+    selected_mcp: List[str] = []
+    if setup_mcp:
+        selected_mcp = _prompt_mcp_servers(console, config)
 
     setup_hooks = Confirm.ask(
         "Show available hooks? (can be installed later via TUI)",
@@ -576,7 +698,27 @@ def _setup_claude_integration(
         console=console,
     )
 
-    return setup_mcp, setup_hooks, configure_settings
+    return setup_mcp, selected_mcp, setup_hooks, configure_settings
+
+
+def _write_mcp_config(target_dir: Path, selected_servers: List[str]) -> None:
+    """Write .mcp.json with selected servers.
+
+    Args:
+        target_dir: Directory to write config to.
+        selected_servers: List of server IDs to include.
+    """
+    mcp_config: Dict[str, object] = {"mcpServers": {}}
+    servers_dict: Dict[str, object] = {}
+
+    for server_id in selected_servers:
+        if server_id in MCP_SERVERS:
+            servers_dict[server_id] = MCP_SERVERS[server_id]["config"]
+
+    mcp_config["mcpServers"] = servers_dict
+
+    mcp_path = target_dir / ".mcp.json"
+    mcp_path.write_text(json.dumps(mcp_config, indent=2) + "\n", encoding="utf-8")
 
 
 def _prompt_tui_tour(console: Console, config: WizardConfig) -> bool:
@@ -652,10 +794,11 @@ def _show_summary(console: Console, config: WizardConfig) -> bool:
         else "[dim]No[/dim]",
     )
 
-    table.add_row(
-        "MCP documentation",
-        "[green]Yes[/green]" if config.setup_mcp else "[dim]No[/dim]",
-    )
+    if config.setup_mcp and config.selected_mcp_servers:
+        server_names = [MCP_SERVERS[s]["name"] for s in config.selected_mcp_servers if s in MCP_SERVERS]
+        table.add_row("MCP servers", ", ".join(str(n) for n in server_names))
+    else:
+        table.add_row("MCP servers", "[dim]None[/dim]")
     table.add_row(
         "Hooks setup",
         "[green]Yes[/green]" if config.setup_hooks else "[dim]No[/dim]",
@@ -730,6 +873,16 @@ def _execute_installation(
             console.print(
                 f"[dim]Profile '{config.selected_profile}' will be applied on first TUI launch[/dim]"
             )
+
+    # Write MCP configuration if servers were selected
+    if config.setup_mcp and config.selected_mcp_servers:
+        try:
+            _write_mcp_config(config.target_dir, config.selected_mcp_servers)
+            server_count = len(config.selected_mcp_servers)
+            console.print(f"[green]* Configured {server_count} MCP server(s)[/green]")
+            results.append(f"Configured {server_count} MCP server(s)")
+        except Exception as e:
+            console.print(f"[yellow]! MCP config: {e}[/yellow]")
 
     # Install shell completions if requested
     if config.install_completions and config.detected_shell:
@@ -866,7 +1019,7 @@ def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
         config.link_rules = _get_rule_linking_config(console, config)
 
         # Step 8: Claude integration (MCP, hooks, settings)
-        config.setup_mcp, config.setup_hooks, config.configure_settings = (
+        config.setup_mcp, config.selected_mcp_servers, config.setup_hooks, config.configure_settings = (
             _setup_claude_integration(console, config)
         )
 

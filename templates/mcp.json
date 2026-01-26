@@ -4,9 +4,9 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
     },
-    "codanna": {
-      "command": "codanna",
-      "args": ["serve", "--watch"]
+    "claude-mem": {
+      "command": "uvx",
+      "args": ["claude-mem", "mcp"]
     }
   }
 }
