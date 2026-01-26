@@ -347,6 +347,7 @@ class AdaptiveFooter(Widget):
             "modes": [("Spc", "Toggle"), ("^e", "Edit")],
             "rules": [("Spc", "Toggle"), ("^e", "Edit")],
             "principles": [
+                ("N", "New"),
                 ("Spc", "Toggle"),
                 ("s", "Details"),
                 ("c", "Build"),
