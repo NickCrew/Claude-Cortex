@@ -25,10 +25,7 @@ from claude_ctx_py.init_cmds import (
     init_detect,
     init_minimal,
     init_profile,
-    init_reset,
-    init_resume,
     init_status,
-    init_wizard,
 )
 
 
@@ -749,23 +746,3 @@ class TestInitStatus:
         assert "Failed to read" in output
 
 
-class TestStubFunctions:
-    """Tests for stub functions (wizard, reset, resume)."""
-
-    def test_init_wizard_not_implemented(self, tmp_path):
-        """init_wizard returns not implemented."""
-        exit_code, output = init_wizard(tmp_path)
-        assert exit_code == 1
-        assert "not yet implemented" in output
-
-    def test_init_reset_not_implemented(self, tmp_path):
-        """init_reset returns not implemented."""
-        exit_code, output = init_reset(tmp_path)
-        assert exit_code == 1
-        assert "not yet implemented" in output
-
-    def test_init_resume_not_implemented(self, tmp_path):
-        """init_resume returns not implemented."""
-        exit_code, output = init_resume(tmp_path)
-        assert exit_code == 1
-        assert "not yet implemented" in output
