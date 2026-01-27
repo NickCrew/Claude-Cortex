@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NickCrew/claude-cortex/schemas/memory-config.schema.json",
+  "title": "Memory Configuration",
+  "description": "Configuration for cortex memory vault and auto-capture",
+  "type": "object",
+  "required": ["vault_path", "auto_capture", "defaults"],
+  "properties": {
+    "vault_path": {
+      "type": "string",
+      "description": "Path to the memory vault directory (supports ~ expansion)",
+      "minLength": 1
+    },
+    "auto_capture": {
+      "type": "object",
+      "description": "Settings for automatic session capture",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether auto-capture is enabled",
+          "default": true
+        },
+        "min_session_length": {
+          "type": "integer",
+          "description": "Minimum number of exchanges before capturing",
+          "minimum": 1,
+          "default": 5
+        },
+        "exclude_patterns": {
+          "type": "array",
+          "description": "Patterns to exclude from capture (matched against user messages)",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "last_capture": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last capture"
+        }
+      },
+      "additionalProperties": false
+    },
+    "defaults": {
+      "type": "object",
+      "description": "Default values for new memory entries",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "description": "Default tags to apply to new entries",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "project": {
+          "type": ["string", "null"],
+          "description": "Default project name for new entries"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

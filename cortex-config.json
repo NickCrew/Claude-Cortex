@@ -1,4 +1,5 @@
 {
+  "$schema": "./schemas/cortex-config.schema.json",
   "plugin_id": "cortex",
   "plugin_dir": null,
   "settings_path": "templates/settings.json",

@@ -1,4 +1,5 @@
 {
+  "$schema": "../schemas/skill-rules.schema.json",
   "version": "2025-12-14",
   "rules": [
     {
