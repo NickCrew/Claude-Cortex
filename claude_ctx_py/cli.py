@@ -1240,6 +1240,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Start with the interactive tour",
     )
+    tui_parser.add_argument(
+        "--view",
+        type=str,
+        help="Start on a specific view (e.g., 'flags', 'agents', 'rules')",
+    )
     _build_ai_parser(subparsers)
     _build_export_parser(subparsers)
     _build_completion_parser(subparsers)
@@ -2717,6 +2722,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         return tui_main(
             theme_path=getattr(args, "theme", None),
             start_tour=getattr(args, "tour", False),
+            start_view=getattr(args, "view", None),
         )
 
     if args.command in ("start", "claude"):

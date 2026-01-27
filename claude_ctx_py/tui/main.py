@@ -266,6 +266,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         *,
         theme_path: Optional[Path] = None,
         start_tour: bool = False,
+        start_view: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         resolved_theme = self._resolve_theme_path(theme_path)
@@ -285,6 +286,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.claude_home: Path = _resolve_claude_dir()
         # Tour system
         self._start_tour = start_tour
+        self._start_view = start_view
         self.tour_manager = TourManager()
         self.agents: List[AgentGraphNode] = []
         self.rules: List[RuleNode] = []
@@ -584,6 +586,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.load_scenarios()
         self.load_profiles()
         self.load_mcp_servers()
+
+        # Switch to start_view if specified, otherwise use default
+        if self._start_view:
+            self.current_view = self._start_view
         self.update_view()
         self._validate_plugin_hooks_startup()
 
@@ -10346,12 +10352,17 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 )
 
 
-def main(theme_path: Optional[Path] = None, start_tour: bool = False) -> int:
+def main(
+    theme_path: Optional[Path] = None,
+    start_tour: bool = False,
+    start_view: Optional[str] = None,
+) -> int:
     """Entry point for the Textual TUI.
 
     Args:
         theme_path: Optional path to a custom theme file.
         start_tour: If True, start the interactive tour on launch.
+        start_view: If provided, start on this view (e.g., 'flags', 'agents').
 
     Returns:
         Exit code (0 for success).
@@ -10363,7 +10374,7 @@ def main(theme_path: Optional[Path] = None, start_tour: bool = False) -> int:
             print(f"Theme file not found: {resolved_theme}")
             return 1
 
-    app = AgentTUI(theme_path=resolved_theme, start_tour=start_tour)
+    app = AgentTUI(theme_path=resolved_theme, start_tour=start_tour, start_view=start_view)
     app.run()
     return 0
 
