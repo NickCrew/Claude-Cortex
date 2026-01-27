@@ -41,6 +41,9 @@ python3 -m pip install -e ".[dev]"
 # Finish setup (completions, manpages, docs)
 cortex install post
 
+# Verify your setup
+cortex doctor
+
 # Try it out
 cortex mode list
 cortex agent graph --export dependency-map.md
