@@ -1,4 +1,5 @@
 {
+  "$schema": "../schemas/recommendation-rules.schema.json",
   "version": "2025-12-28.1",
   "rules": [
     {

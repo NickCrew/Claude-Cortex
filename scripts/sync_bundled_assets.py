@@ -30,7 +30,7 @@ ASSET_ITEMS = [
     "principles",
     "prompts",
     "templates",
-    "schema",
+    "schemas",
     "mcp",
     "inactive",
     "scripts",

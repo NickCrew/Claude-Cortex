@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NickCrew/claude-cortex/schemas/recommendation-rules.schema.json",
+  "title": "Recommendation Rules",
+  "description": "File pattern-based skill recommendation rules for cortex",
+  "type": "object",
+  "required": ["version", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version date (YYYY-MM-DD format)",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(\\.\\d+)?$"
+    },
+    "rules": {
+      "type": "array",
+      "description": "List of file pattern-based recommendation rules",
+      "items": {
+        "$ref": "#/definitions/recommendationRule"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "recommendationRule": {
+      "type": "object",
+      "required": ["trigger", "recommend"],
+      "properties": {
+        "trigger": {
+          "$ref": "#/definitions/trigger"
+        },
+        "recommend": {
+          "type": "array",
+          "description": "Skills to recommend when trigger matches",
+          "items": {
+            "$ref": "#/definitions/recommendation"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["file_patterns"],
+      "properties": {
+        "file_patterns": {
+          "type": "array",
+          "description": "Glob patterns to match against file paths",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "recommendation": {
+      "type": "object",
+      "required": ["skill", "confidence", "reason"],
+      "properties": {
+        "skill": {
+          "type": "string",
+          "description": "Name of the skill to recommend",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Confidence score for this recommendation",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "reason": {
+          "type": "string",
+          "description": "Human-readable explanation for the recommendation",
+          "minLength": 10,
+          "maxLength": 200
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

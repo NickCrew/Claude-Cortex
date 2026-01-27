@@ -1,4 +1,5 @@
 {
+  "$schema": "../schemas/memory-config.schema.json",
   "vault_path": "~/.cortex/memory-vault",
   "auto_capture": {
     "enabled": true,

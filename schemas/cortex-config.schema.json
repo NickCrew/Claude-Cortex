@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NickCrew/claude-cortex/schemas/cortex-config.schema.json",
+  "title": "Cortex Configuration",
+  "description": "Configuration file for cortex CLI and launcher",
+  "type": "object",
+  "properties": {
+    "plugin_id": {
+      "type": "string",
+      "description": "Identifier for this plugin configuration",
+      "default": "cortex"
+    },
+    "plugin_dir": {
+      "type": ["string", "null"],
+      "description": "Path to plugin directory (null uses bundled assets)"
+    },
+    "settings_path": {
+      "type": ["string", "null"],
+      "description": "Path to Claude Code settings.json template"
+    },
+    "claude_args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional arguments to pass to Claude Code CLI",
+      "default": []
+    },
+    "extra_plugin_dirs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional plugin directories to load",
+      "default": []
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of rule names to activate (without .md extension)",
+      "default": []
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of flag names to enable",
+      "default": []
+    },
+    "modes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of mode names to activate",
+      "default": []
+    },
+    "principles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of principle names to include",
+      "default": []
+    }
+  },
+  "additionalProperties": false
+}
