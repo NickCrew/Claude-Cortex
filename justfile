@@ -12,7 +12,9 @@ help:
     @echo "  just regen-manpages       # Re-generate manpages from CLI definitions"
     @echo "  just update-completions   # Update cortex/cortex completion scripts"
     @echo "  just uninstall            # Uninstall cortex (manual cleanup may remain)"
-    @echo "  just test                 # Run test suite"
+    @echo "  just test                 # Run full test suite"
+    @echo "  just test-unit            # Run unit tests only"
+    @echo "  just test-integration     # Run integration tests only"
     @echo "  just test-cov             # Run tests with coverage report"
     @echo "  just lint                 # Run code format checks"
     @echo "  just lint-fix             # Auto-format code with black"
@@ -64,6 +66,12 @@ uninstall:
 
 test:
     @.venv/bin/pytest
+
+test-unit:
+    @.venv/bin/pytest tests/unit -v
+
+test-integration:
+    @.venv/bin/pytest tests/integration -v
 
 test-cov:
     @.venv/bin/pytest --cov=claude_ctx_py --cov-report=term-missing --cov-report=html
