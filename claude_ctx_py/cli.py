@@ -1253,8 +1253,16 @@ def build_parser() -> argparse.ArgumentParser:
     _build_doctor_parser(subparsers)
     _build_memory_parser(subparsers)
     _build_setup_parser(subparsers)
+    subparsers.add_parser("onboard", help="Start the project onboarding assistant")
+    subparsers.add_parser("dashboard", help="Launch web-based dashboard")
 
     return parser
+
+
+def _handle_onboard_command(args: argparse.Namespace) -> int:
+    from . import cmd_onboard
+
+    return cmd_onboard.onboard()
 
 
 def _handle_mode_command(args: argparse.Namespace) -> int:
@@ -2348,6 +2356,11 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         return 1
 
 
+def _handle_dashboard_command(args: argparse.Namespace) -> int:
+    from . import cmd_dashboard
+    return cmd_dashboard.dashboard()
+
+
 def _handle_docs_command(args: argparse.Namespace) -> int:
     from . import cmd_docs
 
@@ -2711,6 +2724,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,
         "setup": _handle_setup_command,
+        "onboard": _handle_onboard_command,
+        "dashboard": _handle_dashboard_command,
     }
 
     if args.command == "status":
