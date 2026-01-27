@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Tuple, Set, Dict
 
+import subprocess
+
 from .base import (
     _resolve_claude_dir,
     _resolve_cortex_root,
@@ -22,6 +24,18 @@ from .base import (
     BLUE,
     NC,
 )
+
+# External dependencies and their requirement levels
+DEPENDENCIES = {
+    # (command, version_flag, required, description)
+    "git": ("git", "--version", True, "Version control"),
+    "python3": ("python3", "--version", True, "Python runtime"),
+    "node": ("node", "--version", False, "Node.js (for npx/MCP servers)"),
+    "npx": ("npx", "--version", False, "Node package executor (context7 MCP)"),
+    "uv": ("uv", "--version", False, "Python package runner (mcp-memory)"),
+    "bun": ("bun", "--version", False, "JavaScript runtime (claude-mem plugin)"),
+    "gh": ("gh", "--version", False, "GitHub CLI"),
+}
 
 # Expected directories in CORTEX_ROOT
 EXPECTED_DIRECTORIES = [
@@ -149,6 +163,25 @@ def doctor_run(fix: bool = False, home: Path | None = None) -> Tuple[int, str]:
         else:
             report_lines.append(f"{_color('[WARN]', YELLOW)} Principles check")
         for d in principles_issues:
+            report_lines.append(f"  - {d.message}")
+            if d.suggestion:
+                report_lines.append(f"    Suggestion: {d.suggestion}")
+            if d.level == "ERROR":
+                error_count += 1
+            else:
+                warning_count += 1
+
+    # 6. Dependencies
+    dependency_issues = check_dependencies()
+    if not dependency_issues:
+        report_lines.append(f"{_color('[PASS]', GREEN)} Dependencies check")
+    else:
+        has_errors = any(d.level == "ERROR" for d in dependency_issues)
+        if has_errors:
+            report_lines.append(f"{_color('[FAIL]', RED)} Dependencies check")
+        else:
+            report_lines.append(f"{_color('[WARN]', YELLOW)} Dependencies check")
+        for d in dependency_issues:
             report_lines.append(f"  - {d.message}")
             if d.suggestion:
                 report_lines.append(f"    Suggestion: {d.suggestion}")
@@ -313,6 +346,40 @@ def check_principles(cortex_root: Path) -> List[Diagnosis]:
             resource=str(principles_dir),
             suggestion="Add principle files or run 'cortex install bootstrap'"
         ))
+
+    return diagnoses
+
+
+def check_dependencies() -> List[Diagnosis]:
+    """Check for required and recommended external dependencies."""
+    diagnoses = []
+
+    for name, (cmd, version_flag, required, description) in DEPENDENCIES.items():
+        try:
+            result = subprocess.run(
+                [cmd, version_flag],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode != 0:
+                raise FileNotFoundError()
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            level = "ERROR" if required else "WARNING"
+            if required:
+                message = f"Required dependency not found: {name}"
+                suggestion = f"Install {name} - see 'cortex docs dependencies'"
+            else:
+                message = f"Optional dependency not found: {name}"
+                suggestion = f"Install for {description}"
+
+            diagnoses.append(Diagnosis(
+                category="Dependencies",
+                level=level,
+                message=message,
+                resource=cmd,
+                suggestion=suggestion,
+            ))
 
     return diagnoses
 
