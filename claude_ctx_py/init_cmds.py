@@ -410,18 +410,3 @@ def init_status(
         lines.append("  No specific detection")
 
     return 0, "\n".join(lines)
-
-
-def init_wizard(home: Path | None = None) -> Tuple[int, str]:
-    """Interactive wizard for project initialization (stub)."""
-    return 1, _color("init wizard: not yet implemented", YELLOW)
-
-
-def init_reset(home: Path | None = None) -> Tuple[int, str]:
-    """Reset initialization state (stub)."""
-    return 1, _color("init reset: not yet implemented", YELLOW)
-
-
-def init_resume(home: Path | None = None) -> Tuple[int, str]:
-    """Resume interrupted initialization (stub)."""
-    return 1, _color("init resume: not yet implemented", YELLOW)
