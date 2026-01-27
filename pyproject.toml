@@ -29,6 +29,10 @@ ai = [
 llm = [
     "anthropic>=0.18.0",  # Optional LLM-powered recommendations
 ]
+dashboard = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
 # Development dependencies
 dev = [
     "pytest>=7.4.0",
@@ -47,6 +51,8 @@ all = [
     "fastembed>=0.7.4",
     "numpy>=1.24.0",
     "anthropic>=0.18.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
 ]
 
 [project.urls]
