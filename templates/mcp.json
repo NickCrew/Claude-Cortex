@@ -4,9 +4,9 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
     },
-    "claude-mem": {
+    "mcp-memory": {
       "command": "uvx",
-      "args": ["claude-mem", "mcp"]
+      "args": ["--refresh", "--quiet", "mcp-memory-py"]
     }
   }
 }
