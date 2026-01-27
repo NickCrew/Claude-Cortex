@@ -33,6 +33,7 @@ class ExperienceLevel(Enum):
 
 
 # MCP Server definitions with installation info
+# Note: claude-mem is a Claude Code plugin (install via /plugin), not an MCP server
 MCP_SERVERS: Dict[str, Dict[str, object]] = {
     "context7": {
         "name": "Context7",
@@ -44,29 +45,19 @@ MCP_SERVERS: Dict[str, Dict[str, object]] = {
         },
         "default": True,
     },
-    "claude-mem": {
-        "name": "Claude Memory",
-        "description": "Persistent memory across sessions (recommended)",
-        "url": "https://github.com/thedotmack/claude-mem",
+    "mcp-memory": {
+        "name": "MCP Memory",
+        "description": "Knowledge graph memory across sessions",
+        "url": "https://pypi.org/project/mcp-memory-py/",
         "config": {
             "command": "uvx",
-            "args": ["claude-mem", "mcp"],
+            "args": ["--refresh", "--quiet", "mcp-memory-py"],
         },
         "default": True,
     },
-    "codanna": {
-        "name": "Codanna",
-        "description": "Code intelligence and semantic understanding",
-        "url": "https://github.com/bartolli/codanna",
-        "config": {
-            "command": "codanna",
-            "args": ["serve", "--watch"],
-        },
-        "default": False,
-    },
     "basic-memory": {
         "name": "Basic Memory",
-        "description": "Memory vault for knowledge management",
+        "description": "Local-first personal knowledge management",
         "url": "https://github.com/basicmachines-co/basic-memory",
         "config": {
             "command": "uvx",
@@ -127,10 +118,10 @@ class WizardConfig:
     recommended_profile: str = "minimal"
     selected_profile: str = "minimal"
     setup_mcp: bool = True
-    selected_mcp_servers: List[str] = field(default_factory=lambda: ["context7", "claude-mem"])
+    selected_mcp_servers: List[str] = field(default_factory=lambda: ["context7", "mcp-memory"])
     setup_hooks: bool = True
     configure_settings: bool = True
-    show_tui_tour: bool = True
+    post_setup_action: str = "none"  # "tour", "flags", or "none"
 
 
 def _get_onboarding_state_path() -> Path:
@@ -721,33 +712,40 @@ def _write_mcp_config(target_dir: Path, selected_servers: List[str]) -> None:
     mcp_path.write_text(json.dumps(mcp_config, indent=2) + "\n", encoding="utf-8")
 
 
-def _prompt_tui_tour(console: Console, config: WizardConfig) -> bool:
-    """Offer TUI tour at end of wizard.
+def _prompt_post_setup_action(console: Console, config: WizardConfig) -> str:
+    """Offer post-setup actions at end of wizard.
 
     Args:
         console: Rich Console to use.
         config: Wizard configuration.
 
     Returns:
-        True if user wants to see the TUI tour.
+        One of: "tour", "flags", "none"
     """
     if config.experience_level == ExperienceLevel.POWER_USER:
-        return False
+        return "none"
 
     console.print()
-    console.print("[bold]Interactive Tour[/bold]")
+    console.print("[bold]What's Next?[/bold]")
     console.print("-" * 50)
-    console.print(
-        "Would you like to take a quick tour of the TUI?\n"
-        "This will show you how to use Cortex's key features."
-    )
+    console.print("Choose what to do after setup:\n")
+    console.print("  [cyan]1[/cyan] Take a quick tour of the TUI")
+    console.print("  [cyan]2[/cyan] Open the Flag Manager to customize flags")
+    console.print("  [cyan]3[/cyan] Exit and start using Cortex")
     console.print()
 
-    return Confirm.ask(
-        "Launch interactive TUI tour?",
-        default=True,
+    choice = Prompt.ask(
+        "Enter choice",
+        choices=["1", "2", "3"],
+        default="1",
         console=console,
     )
+
+    if choice == "1":
+        return "tour"
+    elif choice == "2":
+        return "flags"
+    return "none"
 
 
 def _show_summary(console: Console, config: WizardConfig) -> bool:
@@ -974,6 +972,27 @@ def _launch_tui_tour(console: Console) -> None:
         console.print("You can start the tour later with: [cyan]cortex tui --tour[/cyan]")
 
 
+def _launch_flag_manager(console: Console) -> None:
+    """Launch the TUI and navigate to the Flag Manager view.
+
+    Args:
+        console: Rich Console to use.
+    """
+    console.print()
+    console.print("[cyan]Launching Flag Manager...[/cyan]")
+    console.print()
+
+    try:
+        # Launch cortex tui --view=flags
+        subprocess.run(
+            [sys.executable, "-m", "claude_ctx_py", "tui", "--view", "flags"],
+            check=False,
+        )
+    except Exception as e:
+        console.print(f"[yellow]Could not launch Flag Manager: {e}[/yellow]")
+        console.print("You can open it later with: [cyan]cortex tui[/cyan] then press [cyan]F[/cyan]")
+
+
 def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
     """Run the first-run wizard interactively.
 
@@ -1023,8 +1042,8 @@ def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
             _setup_claude_integration(console, config)
         )
 
-        # Step 9: Offer TUI tour
-        config.show_tui_tour = _prompt_tui_tour(console, config)
+        # Step 9: Offer post-setup action
+        config.post_setup_action = _prompt_post_setup_action(console, config)
 
         # Step 10: Summary and confirmation
         if not _show_summary(console, config):
@@ -1038,9 +1057,11 @@ def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
             # Step 12: Next steps
             _show_next_steps(console, config)
 
-            # Step 13: Launch TUI tour if requested
-            if config.show_tui_tour:
+            # Step 13: Launch post-setup action if requested
+            if config.post_setup_action == "tour":
                 _launch_tui_tour(console)
+            elif config.post_setup_action == "flags":
+                _launch_flag_manager(console)
 
             return 0, "Setup completed successfully"
         else:
