@@ -319,11 +319,11 @@ class TestInteractiveWizard:
                                 ):
                                     with patch(
                                         "claude_ctx_py.wizard._setup_claude_integration",
-                                        return_value=(True, True, True),
+                                        return_value=(True, [], True, True),
                                     ):
                                         with patch(
-                                            "claude_ctx_py.wizard._prompt_tui_tour",
-                                            return_value=False,
+                                            "claude_ctx_py.wizard._prompt_post_setup_action",
+                                            return_value="none",
                                         ):
                                             with patch(
                                                 "claude_ctx_py.wizard._show_summary",
@@ -407,11 +407,11 @@ class TestInteractiveWizard:
                                 ):
                                     with patch(
                                         "claude_ctx_py.wizard._setup_claude_integration",
-                                        return_value=(False, False, False),
+                                        return_value=(False, [], False, False),
                                     ):
                                         with patch(
-                                            "claude_ctx_py.wizard._prompt_tui_tour",
-                                            return_value=False,
+                                            "claude_ctx_py.wizard._prompt_post_setup_action",
+                                            return_value="none",
                                         ):
                                             with patch(
                                                 "claude_ctx_py.wizard._show_summary",
@@ -680,7 +680,7 @@ class TestEnhancedWizardConfig:
         assert config.setup_mcp is True
         assert config.setup_hooks is True
         assert config.configure_settings is True
-        assert config.show_tui_tour is True
+        assert config.post_setup_action == "none"
 
     def test_custom_experience_level(self):
         """WizardConfig should accept custom experience level."""
