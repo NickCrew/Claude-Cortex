@@ -1,7 +1,8 @@
 # Settings Files Catalog
 
 This catalog lists the configuration, state, and reference files that the app
-reads or writes. Paths are shown relative to the active Cortex directory
+reads or writes. For detailed documentation with schemas and examples, see the
+[Configuration Reference](reference/configuration.md). Paths are shown relative to the active Cortex directory
 (default `~/.cortex/`). You can override the active directory with
 `CORTEX_ROOT` or `CLAUDE_PLUGIN_ROOT` / `--plugin-root`, or use project-local
 `.claude/` via `--scope project` or `CORTEX_SCOPE=project`.
@@ -38,8 +39,8 @@ reads or writes. Paths are shown relative to the active Cortex directory
 | `skills/activation.yaml` | Skill keyword activation map | Used by auto-activation |
 | `skills/composition.yaml` | Skill composition rules | Used by skill composer |
 | `skills/versions.yaml` | Skill version registry | Used by `skills versions` |
-| `skills/skill-rules.json` | Skill selection rules | Recommendation logic |
-| `skills/recommendation-rules.json` | Recommendation rules | AI suggestions |
+| `skills/skill-rules.json` | Skill selection rules | [Docs](reference/configuration.md#skill-rulesjson) |
+| `skills/recommendation-rules.json` | Recommendation rules | [Docs](reference/configuration.md#recommendation-rulesjson) |
 | `skills/community/registry.yaml` | Community skill registry | Community skill install |
 | `skills/analytics.schema.json` | Skill analytics schema | Validation/reference |
 | `skills/metrics.schema.json` | Skill metrics schema | Validation/reference |
@@ -57,17 +58,29 @@ reads or writes. Paths are shown relative to the active Cortex directory
 | --- | --- | --- |
 | `tui/theme.tcss` | TUI theme override | Optional; loaded after `styles.tcss` |
 
+## Launcher Configuration
+
+| Path | Purpose | Notes |
+| --- | --- | --- |
+| `cortex-config.json` | Main launcher config | [Docs](reference/configuration.md#cortex-configjson) |
+| `.onboarding-state.json` | Wizard completion state | [Docs](reference/configuration.md#onboarding-statejson) |
+
 ## Intelligence and Memory
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
 | `intelligence-config.json` | LLM intelligence settings | Model selection/budget/caching |
-| `memory-config.json` | Memory vault settings | Vault path and auto-capture |
+| `memory-config.json` | Memory vault settings | [Docs](reference/configuration.md#memory-configjson) |
 
 ## Schemas
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
+| `schemas/cortex-config.schema.json` | Cortex config validation | [Docs](reference/configuration.md#cortex-configjson) |
+| `schemas/memory-config.schema.json` | Memory config validation | [Docs](reference/configuration.md#memory-configjson) |
+| `schemas/skill-rules.schema.json` | Skill rules validation | [Docs](reference/configuration.md#skill-rulesjson) |
+| `schemas/recommendation-rules.schema.json` | Recommendation rules validation | [Docs](reference/configuration.md#recommendation-rulesjson) |
+| `schemas/onboarding-state.schema.json` | Onboarding state validation | [Docs](reference/configuration.md#onboarding-statejson) |
 | `schema/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
 | `schema/scenario-schema-v1.yaml` | Scenario validation schema | Used by validators |
 
