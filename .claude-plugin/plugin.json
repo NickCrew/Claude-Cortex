@@ -1,7 +1,7 @@
 {
   "name": "claude-cortex",
-  "version": "2.3.1",
-  "description": "Context orchestration plugin bundling claude-cortex Python tooling with curated commands, agents, modes, rules, and workflows.",
+  "version": "3.0.0",
+  "description": "Context orchestration plugin with curated agents, rules, skills, and CLI management tools.",
   "author": {
     "name": "Nicholas Ferguson",
     "email": "ncf423@gmail.com",
@@ -13,7 +13,8 @@
   "keywords": [
     "context",
     "agents",
-    "workflows",
+    "skills",
+    "rules",
     "claude-cortex",
     "claude",
     "cortex",
@@ -25,10 +26,6 @@
     "terminal UI",
     "CLI",
     "command line interface",
-    "recommendation engine",
-    "token management",
-    "memory management",
-    "markdown",
     "AI",
     "AI Agents",
     "automation",
@@ -36,9 +33,7 @@
     "developer tools",
     "productivity",
     "software development",
-    "python",
-    "machine learning",
-    "artificial intelligence"
+    "python"
   ],
   "mcpServers": "./.mcp.json",
   "lspServers": "./.lsp.json"

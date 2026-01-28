@@ -244,7 +244,7 @@ def install_docs(
 
 
 # Directories to copy from bundled assets to ~/.cortex
-BOOTSTRAP_DIRS = ["rules", "flags", "modes", "principles", "templates"]
+BOOTSTRAP_DIRS = ["rules", "templates"]
 
 
 def bootstrap(
@@ -255,8 +255,8 @@ def bootstrap(
 ) -> Tuple[int, str]:
     """Bootstrap ~/.cortex with bundled assets and default configuration.
 
-    Creates the cortex home directory structure and copies rules, flags,
-    modes, and principles from the bundled package assets.
+    Creates the cortex home directory structure and copies rules and templates
+    from the bundled package assets.
 
     Args:
         target_dir: Target directory (default: ~/.cortex)
@@ -286,7 +286,6 @@ def bootstrap(
             source = assets_root / dir_name
             if source.is_dir():
                 lines.append(f"  - {dir_name}/ ({len(list(source.glob('*')))} files)")
-        lines.extend(["", "Would create:", "  - cortex-config.json"])
         return 0, "\n".join(lines)
 
     # Create cortex home directory
@@ -313,52 +312,10 @@ def bootstrap(
         except OSError as exc:
             results.append(f"  ✗ Failed to copy {dir_name}/: {exc}")
 
-    # Create default config if it doesn't exist
-    config_path = cortex_home / "cortex-config.json"
-    if not config_path.exists() or force:
-        import json
-        default_config = {
-            "plugin_id": "cortex",
-            "rules": [p.stem for p in (cortex_home / "rules").glob("*.md")]
-            if (cortex_home / "rules").is_dir()
-            else [],
-            "flags": [],
-            "modes": [],
-            "principles": [p.stem for p in (cortex_home / "principles").glob("*.md")]
-            if (cortex_home / "principles").is_dir()
-            else [],
-            "claude_args": [],
-            "extra_plugin_dirs": [],
-        }
-        try:
-            config_path.write_text(
-                json.dumps(default_config, indent=2) + "\n", encoding="utf-8"
-            )
-            results.append("  ✓ Created cortex-config.json")
-        except OSError as exc:
-            results.append(f"  ✗ Failed to create config: {exc}")
-    else:
-        results.append("  Skipped cortex-config.json (exists)")
-
-    # Create FLAGS.md if it doesn't exist
-    flags_md = cortex_home / "FLAGS.md"
-    if not flags_md.exists():
-        try:
-            flags_md.write_text(
-                "# Active Flags\n\n"
-                "# Add flags below (one per line):\n"
-                "# @flags/mode-activation\n"
-                "# @flags/mcp-servers\n",
-                encoding="utf-8",
-            )
-            results.append("  ✓ Created FLAGS.md")
-        except OSError as exc:
-            results.append(f"  ✗ Failed to create FLAGS.md: {exc}")
-
     # Link rules into ~/.claude/rules/cortex/ if requested
     link_results: List[str] = []
     if link_rules:
-        from .launcher import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
+        from .core.rules import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
 
         rules_root = cortex_home
         active_rules = [p.stem for p in (cortex_home / "rules").glob("*.md")]
@@ -385,8 +342,8 @@ def bootstrap(
     summary.extend([
         "",
         "Next steps:",
-        "  1. Run 'cortex start' to launch Claude Code with Cortex",
-        "  2. Or run 'cortex tui' for the interactive interface",
+        "  1. Run 'claude' directly - rules are auto-discovered",
+        "  2. Run 'cortex agent list' to see available agents",
     ])
     return 0, "\n".join(summary)
 

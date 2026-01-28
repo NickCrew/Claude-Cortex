@@ -50,19 +50,6 @@ def _restart_notice() -> str:
     return RESTART_REQUIRED_MESSAGE
 
 
-def _build_mode_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    mode_parser = subparsers.add_parser("mode", help="Mode commands")
-    mode_sub = mode_parser.add_subparsers(dest="mode_command")
-    mode_sub.add_parser("list", help="List available modes")
-    mode_sub.add_parser("status", help="Show active modes")
-    mode_activate = mode_sub.add_parser("activate", help="Activate one or more modes")
-    mode_activate.add_argument("modes", nargs="+", help="Mode name(s) (without .md)")
-    mode_deactivate = mode_sub.add_parser(
-        "deactivate", help="Deactivate one or more modes"
-    )
-    mode_deactivate.add_argument("modes", nargs="+", help="Mode name(s) (without .md)")
-
-
 def _build_agent_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     agent_parser = subparsers.add_parser("agent", help="Agent commands")
     agent_sub = agent_parser.add_subparsers(dest="agent_command")
@@ -125,49 +112,6 @@ def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "deactivate", help="Deactivate one or more rule modules"
     )
     rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
-
-
-def _build_principles_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    principles_parser = subparsers.add_parser(
-        "principles", help="Principles snippet commands"
-    )
-    principles_sub = principles_parser.add_subparsers(dest="principles_command")
-    principles_sub.add_parser("list", help="List available principle snippets")
-    principles_sub.add_parser("status", help="Show active principle snippets")
-    principles_activate = principles_sub.add_parser(
-        "activate", help="Activate one or more principle snippets"
-    )
-    principles_activate.add_argument(
-        "principles", nargs="+", help="Snippet name(s) (without .md)"
-    )
-    principles_deactivate = principles_sub.add_parser(
-        "deactivate", help="Deactivate one or more principle snippets"
-    )
-    principles_deactivate.add_argument(
-        "principles", nargs="+", help="Snippet name(s) (without .md)"
-    )
-    principles_sub.add_parser(
-        "build", help="Build PRINCIPLES.md from active snippets"
-    )
-
-
-def _build_prompts_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    prompts_parser = subparsers.add_parser("prompts", help="Prompt library commands")
-    prompts_sub = prompts_parser.add_subparsers(dest="prompts_command")
-    prompts_sub.add_parser("list", help="List available prompts")
-    prompts_sub.add_parser("status", help="Show active prompts")
-    prompts_activate = prompts_sub.add_parser(
-        "activate", help="Activate one or more prompts"
-    )
-    prompts_activate.add_argument(
-        "slugs", nargs="+", help="Prompt slug(s) in category/name format"
-    )
-    prompts_deactivate = prompts_sub.add_parser(
-        "deactivate", help="Deactivate one or more prompts"
-    )
-    prompts_deactivate.add_argument(
-        "slugs", nargs="+", help="Prompt slug(s) in category/name format"
-    )
 
 
 def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -574,54 +518,6 @@ def _build_init_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
-def _build_profile_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    profile_parser = subparsers.add_parser("profile", help="Profile commands")
-    profile_sub = profile_parser.add_subparsers(dest="profile_command")
-    profile_sub.add_parser("list", help="List available profiles")
-    profile_save_parser = profile_sub.add_parser(
-        "save", help="Save current configuration to a profile"
-    )
-    profile_save_parser.add_argument("name", help="Profile name")
-
-    # Add subcommands for all built-in profiles
-    profile_descriptions = {
-        "minimal": "Load minimal profile (essential agents only)",
-        "frontend": "Load frontend profile (TypeScript + code review)",
-        "web-dev": "Load web-dev profile (full-stack web development)",
-        "backend": "Load backend profile (Python + security)",
-        "devops": "Load devops profile (infrastructure and deployment)",
-        "documentation": "Load documentation profile (documentation focused)",
-        "data-ai": "Load data-ai profile (data science and AI)",
-        "quality": "Load quality profile (code quality and security)",
-        "meta": "Load meta profile (meta-programming and tooling)",
-        "developer-experience": "Load developer-experience profile (DX optimization)",
-        "product": "Load product profile (product development)",
-        "full": "Load full profile (all available agents)",
-    }
-    for profile_name, description in profile_descriptions.items():
-        profile_sub.add_parser(profile_name, help=description)
-
-
-def _build_workflow_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    workflow_parser = subparsers.add_parser("workflow", help="Workflow commands")
-    workflow_sub = workflow_parser.add_subparsers(dest="workflow_command")
-    workflow_run_parser = workflow_sub.add_parser(
-        "run", help="Run a predefined workflow"
-    )
-    workflow_run_parser.add_argument("workflow", help="Workflow name")
-    workflow_sub.add_parser("list", help="List available workflows")
-    workflow_sub.add_parser("status", help="Show current workflow progress")
-    workflow_sub.add_parser("resume", help="Resume interrupted workflow")
-    workflow_stop_parser = workflow_sub.add_parser(
-        "stop", help="Stop the currently running workflow"
-    )
-    workflow_stop_parser.add_argument(
-        "workflow",
-        nargs="?",
-        help="Optional workflow name to confirm stopping",
-    )
-
-
 def _build_worktree_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     worktree_parser = subparsers.add_parser(
         "worktree", help="Git worktree management commands"
@@ -694,62 +590,6 @@ def _build_worktree_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         action="store_true",
         help="Clear the configured base directory",
     )
-
-
-def _build_orchestrate_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    orchestrate_parser = subparsers.add_parser(
-        "orchestrate", help="Scenario orchestration commands", aliases=["orch"]
-    )
-    orchestrate_sub = orchestrate_parser.add_subparsers(dest="orchestrate_command")
-    orchestrate_sub.add_parser("list", help="List available scenarios")
-    orchestrate_validate_parser = orchestrate_sub.add_parser(
-        "validate", help="Validate scenario metadata"
-    )
-    orchestrate_validate_parser.add_argument(
-        "scenarios",
-        nargs="*",
-        help="Scenario names to validate (default: all)",
-    )
-    orchestrate_validate_parser.add_argument(
-        "--all",
-        dest="validate_all",
-        action="store_true",
-        help="Validate all scenarios",
-    )
-    orchestrate_sub.add_parser("status", help="Show scenario execution status")
-    orchestrate_stop_parser = orchestrate_sub.add_parser(
-        "stop", help="Stop a running scenario"
-    )
-    orchestrate_stop_parser.add_argument("scenario", help="Scenario name")
-    orchestrate_run_parser = orchestrate_sub.add_parser("run", help="Run a scenario")
-    orchestrate_run_parser.add_argument("scenario", help="Scenario name")
-    orchestrate_run_parser.add_argument(
-        "mode_args",
-        nargs="*",
-        help="Additional run options (e.g., plan)",
-    )
-    orchestrate_run_parser.add_argument(
-        "--auto", dest="run_auto", action="store_true", help="Automatic mode"
-    )
-    orchestrate_run_parser.add_argument(
-        "--interactive",
-        dest="run_interactive",
-        action="store_true",
-        help="Interactive mode",
-    )
-    orchestrate_run_parser.add_argument(
-        "--plan", dest="run_plan", action="store_true", help="Plan mode"
-    )
-    orchestrate_run_parser.add_argument(
-        "--preview", dest="run_preview", action="store_true", help="Preview mode"
-    )
-    orchestrate_run_parser.add_argument(
-        "--validate", dest="run_validate", action="store_true", help="Alias for plan"
-    )
-    orchestrate_preview_parser = orchestrate_sub.add_parser(
-        "preview", help="Preview a scenario without executing"
-    )
-    orchestrate_preview_parser.add_argument("scenario", help="Scenario name")
 
 
 def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -1003,6 +843,21 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Also create symlinks in ~/.claude/rules/cortex/ for Claude discovery",
     )
 
+    # Sync rule symlinks
+    rules_parser = install_sub.add_parser(
+        "rules", help="Sync rule symlinks to ~/.claude/rules/cortex/"
+    )
+    rules_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be synced without making changes",
+    )
+    rules_parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="Remove all cortex rule symlinks",
+    )
+
     # Run all post-install steps
     post_parser = install_sub.add_parser(
         "post", help="Install completions, manpages, and docs"
@@ -1106,78 +961,6 @@ def _build_statusline_parser(
     statusline.add_statusline_arguments(statusline_parser)
 
 
-def _build_config_parser(
-    subparsers: argparse._SubParsersAction[Any],
-) -> None:
-    config_parser = subparsers.add_parser(
-        "config", help="Show the current Cortex launcher configuration"
-    )
-    config_parser.add_argument(
-        "--config",
-        type=Path,
-        default=None,
-        help="Path to cortex-config.json (default: ~/.cortex/cortex-config.json)",
-    )
-    config_parser.add_argument(
-        "--plugin-dir",
-        type=Path,
-        help="Path to Cortex plugin assets (commands, agents, skills, hooks)",
-    )
-    config_parser.add_argument(
-        "--raw",
-        action="store_true",
-        help="Print raw config file contents without applying defaults",
-    )
-    config_parser.add_argument(
-        "--json",
-        dest="config_json",
-        action="store_true",
-        help="Output configuration as JSON",
-    )
-
-
-def _add_start_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "--config",
-        type=Path,
-        default=None,
-        help="Path to cortex-config.json (default: ~/.cortex/cortex-config.json)",
-    )
-    parser.add_argument(
-        "--plugin-dir",
-        type=Path,
-        help="Path to Cortex plugin assets (commands, agents, skills, hooks)",
-    )
-    parser.add_argument(
-        "--claude-bin",
-        default="claude",
-        help="Claude Code binary to execute (default: claude)",
-    )
-    parser.add_argument(
-        "--settings",
-        type=Path,
-        help="Claude settings.json path (overrides config)",
-    )
-    parser.add_argument(
-        "--modes",
-        help="Comma-separated list of modes to append for this launch",
-    )
-    parser.add_argument(
-        "--flags",
-        help="Comma-separated list of flags to append for this launch",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be passed to Claude without launching",
-    )
-    parser.add_argument(
-        "claude_args",
-        nargs=argparse.REMAINDER,
-        help="Arguments passed through to Claude Code",
-    )
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cortex",
@@ -1203,30 +986,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command")
 
-    _build_mode_parser(subparsers)
     _build_agent_parser(subparsers)
     _build_rules_parser(subparsers)
-    _build_principles_parser(subparsers)
-    _build_prompts_parser(subparsers)
     _build_hooks_parser(subparsers)
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_init_parser(subparsers)
-    _build_profile_parser(subparsers)
-    _build_workflow_parser(subparsers)
     _build_worktree_parser(subparsers)
-    _build_orchestrate_parser(subparsers)
-    _build_config_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
-    start_parser = subparsers.add_parser(
-        "start", help="Launch Claude Code with Cortex configuration"
-    )
-    _add_start_arguments(start_parser)
-    claude_parser = subparsers.add_parser(
-        "claude", help="Alias for 'start'"
-    )
-    _add_start_arguments(claude_parser)
     tui_parser = subparsers.add_parser(
         "tui", help="Launch interactive TUI for agent management"
     )
@@ -1253,56 +1021,21 @@ def build_parser() -> argparse.ArgumentParser:
     _build_doctor_parser(subparsers)
     _build_memory_parser(subparsers)
     _build_setup_parser(subparsers)
-    subparsers.add_parser("onboard", help="Start the project onboarding assistant")
     subparsers.add_parser("dashboard", help="Launch web-based dashboard")
+    review_parser = subparsers.add_parser("review", help="Run review gate before task completion")
+    review_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what reviewers would be activated without activating",
+    )
+    review_parser.add_argument(
+        "--context", "-c",
+        action="append",
+        dest="review_contexts",
+        help="Additional context signals (e.g., -c debug -c feature)",
+    )
 
     return parser
-
-
-def _handle_onboard_command(args: argparse.Namespace) -> int:
-    from . import cmd_onboard
-
-    return cmd_onboard.onboard()
-
-
-def _handle_mode_command(args: argparse.Namespace) -> int:
-    if args.mode_command == "list":
-        _print(core.list_modes())
-        return 0
-    if args.mode_command == "status":
-        _print(core.mode_status())
-        return 0
-    if args.mode_command == "activate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for mode in args.modes:
-            exit_code, message = core.mode_activate(mode)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    if args.mode_command == "deactivate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for mode in args.modes:
-            exit_code, message = core.mode_deactivate(mode)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    return 1
 
 
 def _handle_agent_command(args: argparse.Namespace) -> int:
@@ -1390,265 +1123,6 @@ def _handle_rules_command(args: argparse.Namespace) -> int:
         if changed:
             _print(_restart_notice())
         return 0
-    return 1
-
-
-def _handle_principles_command(args: argparse.Namespace) -> int:
-    if args.principles_command == "list":
-        _print(core.list_principles())
-        return 0
-    if args.principles_command == "status":
-        _print(core.principles_status())
-        return 0
-    if args.principles_command == "activate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for name in args.principles:
-            exit_code, message = core.principles_activate(name)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    if args.principles_command == "deactivate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for name in args.principles:
-            exit_code, message = core.principles_deactivate(name)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    if args.principles_command == "build":
-        exit_code, message = core.principles_build()
-        _print(message)
-        return exit_code
-    return 1
-
-
-def _handle_start_command(args: argparse.Namespace, extra_args: List[str]) -> int:
-    from .launcher import resolve_config_path, start_claude
-
-    explicit_config = getattr(args, "config", None)
-    config_path = resolve_config_path(explicit_config)
-    claude_args = list(getattr(args, "claude_args", []) or [])
-    if extra_args:
-        claude_args.extend(extra_args)
-    if claude_args and claude_args[0] == "--":
-        claude_args = claude_args[1:]
-
-    try:
-        return start_claude(
-            config_path=config_path,
-            plugin_dir=getattr(args, "plugin_dir", None) or getattr(args, "plugin_root", None),
-            claude_bin=getattr(args, "claude_bin", "claude"),
-            settings_path=getattr(args, "settings", None),
-            modes_override=getattr(args, "modes", None),
-            flags_override=getattr(args, "flags", None),
-            extra_args=claude_args,
-            dry_run=getattr(args, "dry_run", False),
-        )
-    except RuntimeError as exc:
-        _print(str(exc))
-        return 1
-
-
-def _handle_config_command(args: argparse.Namespace) -> int:
-    from .launcher import (
-        resolve_config_path,
-        _read_json,
-        _resolve_flags_md,
-        _resolve_plugin_root,
-        load_launcher_config,
-    )
-    from .watch import load_watch_defaults
-
-    explicit_config = getattr(args, "config", None)
-    config_path = resolve_config_path(explicit_config)
-    config_exists = config_path.exists()
-    raw_config, warnings = _read_json(config_path)
-
-    if getattr(args, "raw", False):
-        payload = {
-            "config_path": str(config_path),
-            "config_exists": config_exists,
-            "config": raw_config,
-            "warnings": warnings,
-        }
-        if getattr(args, "config_json", False):
-            _print(json.dumps(payload, indent=2))
-            return 0
-
-        lines = ["=== Cortex Config (raw) ==="]
-        if config_exists:
-            lines.append(f"Config file: {config_path}")
-        else:
-            lines.append(f"Config file: {config_path} (missing)")
-        lines.append("")
-        lines.append(json.dumps(raw_config, indent=2) if raw_config else "{}")
-        if warnings:
-            lines.append("")
-            lines.append("Warnings:")
-            for warning in warnings:
-                lines.append(f"- {warning}")
-        _print("\n".join(lines))
-        return 0
-
-    plugin_dir = getattr(args, "plugin_dir", None) or getattr(args, "plugin_root", None)
-    plugin_root = _resolve_plugin_root(plugin_dir, raw_config)
-    if plugin_root is None or not plugin_root.exists():
-        _print(
-            "Unable to resolve plugin root. Provide --plugin-dir or set "
-            "`plugin_dir` in ~/.cortex/cortex-config.json."
-        )
-        return 1
-
-    content_root = config_path.parent
-    config, load_warnings = load_launcher_config(
-        config_path=config_path,
-        plugin_root=plugin_root,
-        content_root=content_root,
-        write_defaults=False,
-    )
-    warnings.extend(load_warnings)
-
-    flags_md = _resolve_flags_md(content_root, plugin_root, config_path.parent)
-    flags_source = f"FLAGS.md ({flags_md})" if flags_md else "config file"
-    watch_defaults = load_watch_defaults(config_path)
-
-    payload = {
-        "config_path": str(config_path),
-        "config_exists": config_exists,
-        "plugin_root": str(plugin_root),
-        "content_root": str(content_root),
-        "settings_path": str(config.settings_path) if config.settings_path else None,
-        "rules": config.rules,
-        "flags": config.flags,
-        "flags_source": flags_source,
-        "modes": config.modes,
-        "principles": config.principles,
-        "claude_args": config.claude_args,
-        "extra_plugin_dirs": [str(path) for path in config.extra_plugin_dirs],
-        "watch": {
-            "directories": [
-                str(path) for path in watch_defaults.directories or []
-            ],
-            "auto_activate": watch_defaults.auto_activate,
-            "threshold": watch_defaults.threshold,
-            "interval": watch_defaults.interval,
-            "warnings": watch_defaults.warnings,
-        },
-        "warnings": warnings,
-    }
-
-    if getattr(args, "config_json", False):
-        _print(json.dumps(payload, indent=2))
-        return 0
-
-    def _fmt_list(values: List[str]) -> str:
-        return ", ".join(values) if values else "None"
-
-    claude_args_display = (
-        " ".join(config.claude_args) if config.claude_args else "None"
-    )
-
-    lines = ["=== Cortex Config ==="]
-    if config_exists:
-        lines.append(f"Config file: {config_path}")
-    else:
-        lines.append(f"Config file: {config_path} (missing)")
-    lines.append(f"Plugin root: {plugin_root}")
-    lines.append(f"Content root: {content_root}")
-    lines.append(f"Settings path: {config.settings_path or 'None'}")
-    lines.append(f"Rules: {_fmt_list(config.rules)}")
-    lines.append(f"Flags: {_fmt_list(config.flags)}")
-    lines.append(f"Flags source: {flags_source}")
-    lines.append(f"Modes: {_fmt_list(config.modes)}")
-    lines.append(f"Principles: {_fmt_list(config.principles)}")
-    lines.append(f"Claude args: {claude_args_display}")
-    lines.append(
-        f"Extra plugin dirs: {_fmt_list([str(p) for p in config.extra_plugin_dirs])}"
-    )
-    if watch_defaults.directories:
-        lines.append(f"Watch directories: {_fmt_list([str(p) for p in watch_defaults.directories])}")
-    else:
-        lines.append("Watch directories: None")
-    if watch_defaults.auto_activate is not None:
-        lines.append(f"Watch auto-activate: {'ON' if watch_defaults.auto_activate else 'OFF'}")
-    else:
-        lines.append("Watch auto-activate: default")
-    if watch_defaults.threshold is not None:
-        lines.append(f"Watch threshold: {watch_defaults.threshold}")
-    else:
-        lines.append("Watch threshold: default")
-    if watch_defaults.interval is not None:
-        lines.append(f"Watch interval: {watch_defaults.interval}")
-    else:
-        lines.append("Watch interval: default")
-
-    if warnings:
-        lines.append("")
-        lines.append("Warnings:")
-        for warning in warnings:
-            lines.append(f"- {warning}")
-    if watch_defaults.warnings:
-        lines.append("")
-        lines.append("Watch config warnings:")
-        for warning in watch_defaults.warnings:
-            lines.append(f"- {warning}")
-
-    _print("\n".join(lines))
-    return 0
-
-
-def _handle_prompts_command(args: argparse.Namespace) -> int:
-    if args.prompts_command == "list":
-        _print(core.list_prompts())
-        return 0
-    if args.prompts_command == "status":
-        _print(core.prompt_status())
-        return 0
-    if args.prompts_command == "activate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for slug in args.slugs:
-            exit_code, message = core.prompt_activate(slug)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    if args.prompts_command == "deactivate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for slug in args.slugs:
-            exit_code, message = core.prompt_deactivate(slug)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
     return 1
 
 
@@ -1961,63 +1435,6 @@ def _handle_init_command(args: argparse.Namespace) -> int:
     return exit_code
 
 
-def _handle_profile_command(args: argparse.Namespace) -> int:
-    if args.profile_command == "list":
-        _print(core.profile_list())
-        return 0
-    if args.profile_command == "save":
-        exit_code, message = core.profile_save(args.name)
-        _print(message)
-        return exit_code
-
-    # Handle all built-in profile commands dynamically
-    profile_loaders = {
-        "minimal": core.profile_minimal,
-        "frontend": core.profile_frontend,
-        "web-dev": core.profile_web_dev,
-        "backend": core.profile_backend,
-        "devops": core.profile_devops,
-        "documentation": core.profile_documentation,
-        "data-ai": core.profile_data_ai,
-        "quality": core.profile_quality,
-        "meta": core.profile_meta,
-        "developer-experience": core.profile_developer_experience,
-        "product": core.profile_product,
-        "full": core.profile_full,
-    }
-    loader = profile_loaders.get(args.profile_command)
-    if loader:
-        exit_code, message = loader()
-        _print(message)
-        if exit_code == 0:
-            _print(_restart_notice())
-        return exit_code
-    return 1
-
-
-def _handle_workflow_command(args: argparse.Namespace) -> int:
-    if args.workflow_command == "run":
-        exit_code, message = core.workflow_run(args.workflow)
-        _print(message)
-        return exit_code
-    if args.workflow_command == "list":
-        _print(core.workflow_list())
-        return 0
-    if args.workflow_command == "status":
-        exit_code, message = core.workflow_status()
-        _print(message)
-        return exit_code
-    if args.workflow_command == "resume":
-        exit_code, message = core.workflow_resume()
-        _print(message)
-        return exit_code
-    if args.workflow_command == "stop":
-        exit_code, message = core.workflow_stop(getattr(args, "workflow", None))
-        _print(message)
-        return exit_code
-    return 1
-
-
 def _handle_worktree_command(args: argparse.Namespace) -> int:
     if args.worktree_command == "list":
         exit_code, message = core.worktree_list()
@@ -2067,45 +1484,6 @@ def _handle_worktree_command(args: argparse.Namespace) -> int:
             return 0
         _print("No worktree base directory configured")
         return 0
-    return 1
-
-
-def _handle_orchestrate_command(args: argparse.Namespace) -> int:
-    if args.orchestrate_command == "list":
-        _print(core.scenario_list())
-        return 0
-    if args.orchestrate_command == "validate":
-        targets = list(getattr(args, "scenarios", []) or [])
-        if getattr(args, "validate_all", False):
-            targets.insert(0, "--all")
-        exit_code, message = core.scenario_validate(*targets)
-        _print(message)
-        return exit_code
-    if args.orchestrate_command == "status":
-        _print(core.scenario_status())
-        return 0
-    if args.orchestrate_command == "stop":
-        exit_code, message = core.scenario_stop(args.scenario)
-        _print(message)
-        return exit_code
-    if args.orchestrate_command == "run":
-        options: List[str] = []
-        if getattr(args, "run_auto", False):
-            options.append("--auto")
-        if getattr(args, "run_interactive", False):
-            options.append("--interactive")
-        if getattr(args, "run_plan", False) or getattr(args, "run_validate", False):
-            options.append("--plan")
-        if getattr(args, "run_preview", False):
-            options.append("--preview")
-        options.extend(getattr(args, "mode_args", []) or [])
-        exit_code, message = core.scenario_run(args.scenario, *options)
-        _print(message)
-        return exit_code
-    if args.orchestrate_command == "preview":
-        exit_code, message = core.scenario_preview(args.scenario)
-        _print(message)
-        return exit_code
     return 1
 
 
@@ -2320,6 +1698,59 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.install_command == "rules":
+        from .core.base import _resolve_plugin_assets_root
+        from .core.rules import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
+
+        plugin_root = _resolve_plugin_assets_root()
+        if plugin_root is None:
+            _print("Unable to resolve plugin root.")
+            return 1
+
+        if args.clean:
+            # Remove all symlinks in target
+            if DEFAULT_RULES_SUBDIR.exists():
+                removed = 0
+                for link in DEFAULT_RULES_SUBDIR.glob("*.md"):
+                    if link.is_symlink():
+                        if args.dry_run:
+                            _print(f"Would remove: {link.name}")
+                        else:
+                            link.unlink()
+                            _print(f"Removed: {link.name}")
+                        removed += 1
+                if removed == 0:
+                    _print("No cortex rule symlinks found.")
+            else:
+                _print(f"Rules directory does not exist: {DEFAULT_RULES_SUBDIR}")
+            return 0
+
+        # Auto-discover all rules from rules/ directory
+        rules_source = plugin_root / "rules"
+        if not rules_source.is_dir():
+            _print(f"Rules directory not found: {rules_source}")
+            return 1
+
+        all_rules = [p.stem for p in sorted(rules_source.glob("*.md"))]
+        if not all_rules:
+            _print("No rule files found.")
+            return 0
+
+        if args.dry_run:
+            _print(f"Would link {len(all_rules)} rules to {DEFAULT_RULES_SUBDIR}:")
+            for rule in all_rules:
+                _print(f"  - {rule}.md")
+            return 0
+
+        _, messages = sync_rule_symlinks(
+            rules_root=plugin_root,
+            active_rules=all_rules,
+            target_dir=DEFAULT_RULES_SUBDIR,
+        )
+        for msg in messages:
+            _print(msg)
+        _print(f"✓ Synced {len(all_rules)} rules to {DEFAULT_RULES_SUBDIR}")
+        return 0
     if args.install_command == "post":
         from . import installer
 
@@ -2359,6 +1790,14 @@ def _handle_install_command(args: argparse.Namespace) -> int:
 def _handle_dashboard_command(args: argparse.Namespace) -> int:
     from . import cmd_dashboard
     return cmd_dashboard.dashboard()
+
+
+def _handle_review_command(args: argparse.Namespace) -> int:
+    from . import cmd_review
+    return cmd_review.main(
+        dry_run=getattr(args, "dry_run", False),
+        extra_context=getattr(args, "review_contexts", None),
+    )
 
 
 def _handle_docs_command(args: argparse.Namespace) -> int:
@@ -2700,21 +2139,13 @@ def main(argv: Iterable[str] | None = None) -> int:
             # Continue to execute the requested command after wizard
 
     handlers: Dict[str, Callable[[argparse.Namespace], int]] = {
-        "mode": _handle_mode_command,
         "agent": _handle_agent_command,
         "rules": _handle_rules_command,
-        "principles": _handle_principles_command,
-        "prompts": _handle_prompts_command,
         "hooks": _handle_hooks_command,
         "skills": _handle_skills_command,
         "mcp": _handle_mcp_command,
         "init": _handle_init_command,
-        "profile": _handle_profile_command,
-        "workflow": _handle_workflow_command,
         "worktree": _handle_worktree_command,
-        "orchestrate": _handle_orchestrate_command,
-        "orch": _handle_orchestrate_command,
-        "config": _handle_config_command,
         "ai": _handle_ai_command,
         "export": _handle_export_command,
         "completion": _handle_completion_command,
@@ -2724,14 +2155,14 @@ def main(argv: Iterable[str] | None = None) -> int:
         "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,
         "setup": _handle_setup_command,
-        "onboard": _handle_onboard_command,
         "dashboard": _handle_dashboard_command,
+        "review": _handle_review_command,
     }
 
     if args.command == "status":
         _print(core.show_status())
         return 0
-    
+
     if args.command == "tui":
         from .tui.main import main as tui_main
         return tui_main(
@@ -2739,9 +2170,6 @@ def main(argv: Iterable[str] | None = None) -> int:
             start_tour=getattr(args, "tour", False),
             start_view=getattr(args, "view", None),
         )
-
-    if args.command in ("start", "claude"):
-        return _handle_start_command(args, extra_args)
 
     if extra_args:
         parser.error(f"unrecognized arguments: {' '.join(extra_args)}")

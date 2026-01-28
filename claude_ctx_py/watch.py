@@ -21,8 +21,10 @@ from datetime import datetime
 from collections import deque
 
 from .intelligence import IntelligentAgent, AgentRecommendation
-from .launcher import DEFAULT_CONFIG_PATH
 from .core import _resolve_claude_dir, _resolve_cortex_root, agent_activate
+
+# Default config path - no longer used but kept for backwards compatibility
+DEFAULT_CONFIG_PATH = _resolve_cortex_root() / "cortex-config.json"
 
 
 WATCH_DAEMON_ENV = "CORTEX_WATCH_DAEMON"
