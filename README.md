@@ -1,9 +1,8 @@
 # Cortex
 
-This repository packages the Cortex (`cortex`) context management toolkit as a Claude Code plugin.
-It bundles the curated agents, commands, modes, rules, and supporting Python CLI + TUI so teams can install the complete experience through the plugin system or keep using the standalone `cortex` / `cortex-ui` scripts.
+Context orchestration toolkit for Claude Code. Bundles curated agents, skills, rules, and hooks with an optional Python CLI for advanced management.
 
-**Note:** The `claude-ctx` command  has been deprecated but will remain available for a while.  
+Install via Claude's plugin system or pip for the CLI.  
 
  📚 **Docs:** <https://cortex.atlascrew.dev/>
 
@@ -20,44 +19,30 @@ It bundles the curated agents, commands, modes, rules, and supporting Python CLI
 | Directory | Purpose |
 |-----------|---------|
 | `agents/` | Claude subagents with dependency metadata. Move to `inactive/agents/` to park. |
-| `commands/` | Slash command definitions (50+ curated commands) |
-| `skills/` | Reusable skill modules (80+ skills) with activation triggers and dependencies |
-| `modes/` | Behavioral context modules that toggle workflow defaults |
-| `rules/` | Rule sets symlinked to `~/.claude/rules/cortex/` on launch |
-| `flags/` | Modular token-efficient flag packs (22 categories, 3,380 tokens total) |
+| `skills/` | Reusable skill modules with activation triggers and dependencies |
+| `rules/` | Rule sets symlinked to `~/.claude/rules/cortex/` for Claude discovery |
 | `hooks/` | Automation hooks for pre/post tool execution and session events |
-
-### Orchestration & Templates
-
-| Directory | Purpose |
-|-----------|---------|
-| `profiles/` | Project type presets (frontend, backend, devops, etc.) |
-| `scenarios/` | Multi-step workflow scenarios |
-| `workflows/` | Complex workstream orchestration templates |
-| `prompts/` | Prompt templates: guidelines, personas, and reusable snippets |
+| `mcp/` | MCP server documentation |
 | `templates/` | Initialization templates for new projects |
-| `plugins/` | Additional plugin modules (accessibility, frontend, UX) |
 
 ### Python Package (`claude_ctx_py/`)
 
 | Module | Purpose |
 |--------|---------|
 | `cli.py` | Main CLI entrypoint with all subcommands |
-| `launcher.py` | `cortex start` implementation (plugin resolution, rules symlinking) |
-| `core/` | Core domain logic (agents, skills, modes, rules, hooks, backups) |
-| `tui/` | Textual-based terminal UI with 15+ specialized views |
+| `core/` | Core domain logic (agents, skills, rules, hooks, backups) |
+| `tui/` | Textual-based terminal UI for management |
 | `intelligence/` | AI recommendation engine and pattern learning |
-| `memory/` | Session memory and knowledge persistence |
-| `analytics.py` | Usage analytics and skill metrics |
+| `installer.py` | Bootstrap and rule syncing utilities |
 
 ### Supporting Files
 
 | Path | Purpose |
 |------|---------|
-| `.claude-plugin/plugin.json` | Plugin manifest for Claude Code marketplace |
+| `.claude-plugin/plugin.json` | Plugin manifest for Claude Code |
 | `docs/` | Documentation site (Jekyll-based) |
 | `tests/` | Test suite with pytest |
-| `schema/` | JSON schemas for validation |
+| `schemas/` | JSON schemas for validation |
 | `scripts/` | Helper scripts for installation and maintenance |
 
 ### 🆕 Latest Updates
@@ -409,81 +394,80 @@ The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects
 
 ## Installation
 
-### Quick Start
+### Option 1: Claude Plugin (Recommended)
+
+Install directly through Claude Code:
 
 ```bash
-# Install with pipx (recommended for CLI tools)
-pipx install claude-cortex
-
-# Or with uv
-uv tool install claude-cortex
-
-# Or with pip
-pip install claude-cortex
-
-# Initialize ~/.cortex with bundled assets (rules, flags, modes, etc.)
-cortex install bootstrap
-
-# Install shell completions and manpages
-cortex install post
-
-# Launch Claude Code with Cortex context
-cortex start
+claude install github:NickCrew/claude-cortex
 ```
 
-### Installation Options
+This installs agents, skills, rules, and hooks. Rules are automatically symlinked to `~/.claude/rules/cortex/`.
 
-**pipx (recommended)** – Isolated environment, no conflicts:
+After installation, just run Claude:
+
 ```bash
-pipx install claude-cortex
+claude
 ```
 
-**uv** – Fast, modern package manager:
-```bash
-uv tool install claude-cortex
-# Or in a project: uv pip install claude-cortex
-```
+### Option 2: With Python CLI
 
-**pip** – Standard installation:
+For additional management features (TUI, AI recommendations):
+
 ```bash
+# Install plugin first
+claude install github:NickCrew/claude-cortex
+
+# Then install Python CLI
 pip install claude-cortex
 ```
 
-**Development install** – Editable mode for contributors:
+Or install the CLI standalone:
+
+```bash
+# pipx (recommended for CLI tools)
+pipx install claude-cortex
+
+# uv
+uv tool install claude-cortex
+
+# pip
+pip install claude-cortex
+
+# Bootstrap and link rules
+cortex install bootstrap --link-rules
+```
+
+### Option 3: Development Install
+
 ```bash
 git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-cortex
-pipx install -e .
-# Or: uv pip install -e .[dev]
+pip install -e ".[dev]"
+cortex install bootstrap --link-rules
 ```
 
-### Post-Install Setup
+### Rule Syncing
 
-After installing the package, run these commands to complete setup:
+Rules are symlinked to `~/.claude/rules/cortex/` so Claude can discover them automatically.
 
-**1. Bootstrap ~/.cortex (required for first install):**
 ```bash
-cortex install bootstrap
+# Sync rules (if not using --link-rules during bootstrap)
+cortex install rules
+
+# Preview what would be synced
+cortex install rules --dry-run
+
+# Remove all cortex rule symlinks
+cortex install rules --clean
 ```
 
-This creates `~/.cortex/` and copies:
-- `rules/` – Rule markdown files
-- `flags/` – Flag category files (22 categories)
-- `modes/` – Behavioral mode files
-- `templates/` – Initialization templates
-- `cortex-config.json` – Default configuration
+### Optional: Shell Integrations
 
-Use `--force` to reinitialize: `cortex install bootstrap --force`
-
-**2. Install shell integrations (optional but recommended):**
 ```bash
+# Install completions, manpages, and docs
 cortex install post
 ```
-
-This installs:
-- Shell completions (bash/zsh/fish)
-- Manual pages (`man cortex`)
-- Local architecture documentation
 
 ---
 
