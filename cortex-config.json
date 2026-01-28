@@ -4,14 +4,11 @@
   "plugin_dir": null,
   "settings_path": "templates/settings.json",
   "claude_args": [],
-  "extra_plugin_dirs": ["plugins"],
   "rules": [
+    "execution-law",
     "workflow-rules",
     "git-rules",
-    "quality-rules",
-    "quality-gate-rules",
-    "efficiency-rules",
-    "parallel-execution-rules"
+    "quality-rules"
   ],
   "flags": [],
   "modes": [],
