@@ -1,7 +1,7 @@
 {
   "name": "claude-cortex",
   "version": "3.0.0",
-  "description": "Context orchestration plugin with curated agents, rules, skills, and CLI management tools.",
+  "description": "Context orchestration toolkit with curated agents, skills, rules, and hooks. Optional Python CLI for advanced management.",
   "author": {
     "name": "Nicholas Ferguson",
     "email": "ncf423@gmail.com",
@@ -11,30 +11,18 @@
   "homepage": "https://github.com/NickCrew/claude-cortex",
   "license": "MIT",
   "keywords": [
-    "context",
     "agents",
     "skills",
     "rules",
-    "claude-cortex",
-    "claude",
-    "cortex",
-    "claude code",
-    "claude skills",
-    "claude agents",
-    "claude plugin",
-    "TUI",
-    "terminal UI",
-    "CLI",
-    "command line interface",
-    "AI",
-    "AI Agents",
-    "automation",
+    "hooks",
+    "context",
     "orchestration",
-    "developer tools",
-    "productivity",
-    "software development",
-    "python"
+    "claude",
+    "claude-code",
+    "developer-tools",
+    "productivity"
   ],
   "mcpServers": "./.mcp.json",
-  "lspServers": "./.lsp.json"
+  "lspServers": "./.lsp.json",
+  "postInstall": "./scripts/post-install.sh"
 }

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shlex
 import shutil
@@ -23,6 +24,58 @@ DOC_FILES = [
     "VISUAL_SUMMARY.txt",
     "README.md",
 ]
+
+
+def _find_plugin_root() -> Optional[Path]:
+    """Find the Cortex plugin root directory.
+
+    Searches in order:
+    1. Check if running from within the plugin directory
+    2. Check Claude's installed plugins registry
+    3. Check common installation locations
+    """
+    # 1. Check if running from within plugin (development or editable install)
+    here = Path(__file__).resolve()
+    for parent in [here.parent, *here.parents]:
+        if (parent / ".claude-plugin" / "plugin.json").is_file():
+            return parent
+        # Also check for agent/skill directories as fallback
+        if (
+            (parent / "agents").is_dir()
+            and (parent / "skills").is_dir()
+            and (parent / "rules").is_dir()
+        ):
+            return parent
+
+    # 2. Check Claude's installed plugins registry
+    registry = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+    if registry.exists():
+        try:
+            data = json.loads(registry.read_text(encoding="utf-8"))
+            plugins = data.get("plugins", {})
+            for key, entries in plugins.items():
+                if "cortex" in key.lower():
+                    for entry in entries if isinstance(entries, list) else [entries]:
+                        if isinstance(entry, dict):
+                            path_str = entry.get("installPath", "")
+                            if path_str:
+                                path = Path(path_str).expanduser()
+                                if path.exists():
+                                    return path
+        except (json.JSONDecodeError, KeyError, TypeError):
+            pass
+
+    # 3. Check common locations
+    candidates = [
+        Path.home() / ".claude" / "plugins" / "claude-cortex",
+        Path.home() / ".cortex",
+    ]
+    for candidate in candidates:
+        if candidate.exists() and (candidate / "agents").is_dir():
+            return candidate
+
+    # 4. Fall back to bundled assets root
+    return _resolve_bundled_assets_root()
 
 
 def _find_repo_root(start: Path) -> Optional[Path]:
