@@ -1,6 +1,18 @@
 ---
 name: user-journey-mapping
 description: Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.
+keywords:
+  - user journey
+  - journey map
+  - customer experience
+  - touchpoints
+  - conversion funnel
+triggers:
+  - journey map
+  - user journey
+  - customer journey
+  - experience map
+  - conversion flow
 ---
 
 # User Journey Mapping

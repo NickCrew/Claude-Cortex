@@ -1,6 +1,18 @@
 ---
 name: design-system-architecture
 description: Build scalable design systems with design tokens, component APIs, and documentation. Use when creating or evolving component libraries.
+keywords:
+  - design system
+  - design tokens
+  - component library
+  - ui components
+  - theming
+triggers:
+  - design system
+  - component library
+  - design tokens
+  - theme architecture
+  - ui kit
 ---
 
 # Design System Architecture

@@ -1,28 +1,39 @@
 ---
-model: claude-opus-4-1
-allowed-tools: Task, Read, Write, Bash, Glob, Grep
-argument-hint: <proposal> [--intensity=<gentle|systematic|rigorous|paradigmatic>] [--alternatives=<count>]
-description: Structured disagreement to strengthen proposals through systematic challenge
+name: constructive-dissent
+description: Structured disagreement protocols to strengthen proposals through systematic challenge and alternative generation.
+keywords:
+  - critique
+  - challenge
+  - alternatives
+  - devil's advocate
+  - assumption testing
+triggers:
+  - challenge this
+  - devil's advocate
+  - what could go wrong
+  - stress test
+  - critique proposal
+  - question assumptions
 ---
 
-# Constructive Dissent Command
+# Constructive Dissent Skill
 
 Systematically challenge proposals through structured dissent protocols that expose weaknesses, test assumptions, and generate superior alternatives.
 
-## Overview
+## When to Use This Skill
 
-Transform potential conflicts into productive tension that leads to breakthrough thinking and robust implementation strategies.
-
-## Arguments
-
-**$1 (Required)**: The proposal or decision to challenge
-**--intensity**: Challenge level (gentle, systematic, rigorous, paradigmatic)
-**--alternatives**: Number of alternatives to generate (default: 3)
+- Before finalizing major decisions
+- Testing proposals for weaknesses
+- Generating alternative approaches
+- Assumption auditing
+- Stress-testing architectural decisions
+- Evaluating competing solutions
 
 ## Dissent Intensity Framework
 
 ### Gentle Level (Refinement-focused)
-[Extended thinking: Improve without fundamental challenge to core approach]
+
+**Purpose**: Improve without fundamental challenge to core approach
 
 **Challenge Characteristics**:
 - Assumption questioning with evidence requests
@@ -38,7 +49,8 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - "Have we considered the implications of..."
 
 ### Systematic Level (Methodology-challenging)
-[Extended thinking: Challenge underlying methods while respecting intent]
+
+**Purpose**: Challenge underlying methods while respecting intent
 
 **Challenge Characteristics**:
 - Methodology critique with alternatives
@@ -54,7 +66,8 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - "Long-term, this could lead to..."
 
 ### Rigorous Level (Premise-challenging)
-[Extended thinking: Attack fundamental premises, demand comprehensive justification]
+
+**Purpose**: Attack fundamental premises, demand comprehensive justification
 
 **Challenge Characteristics**:
 - Fundamental premise questioning
@@ -70,7 +83,8 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - "This prioritizes X, but shouldn't we prioritize Y because..."
 
 ### Paradigmatic Level (Worldview-challenging)
-[Extended thinking: Question fundamental worldview, propose radical alternatives]
+
+**Purpose**: Question fundamental worldview, propose radical alternatives
 
 **Challenge Characteristics**:
 - Worldview assumption identification
@@ -88,12 +102,14 @@ Transform potential conflicts into productive tension that leads to breakthrough
 ## Challenge Methodologies
 
 ### Assumption Audit
+
 1. **Explicit assumptions**: What's stated as given?
 2. **Implicit assumptions**: What's unstated but operating?
 3. **Structural assumptions**: What framework biases exist?
 4. **Temporal assumptions**: What time constraints are artificial?
 
 ### Edge Case Generation
+
 - **Scale extremes**: Minimum and maximum scenarios
 - **Performance limits**: Where does it break?
 - **User behavior extremes**: Best and worst case usage
@@ -101,6 +117,7 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - **Resource constraints**: Limited budget/time/people
 
 ### Alternative Generation Framework
+
 1. **Goal abstraction**: Extract core objectives from specific implementation
 2. **Constraint relaxation**: Temporarily remove limitations
 3. **Method inversion**: Consider opposite approaches
@@ -108,13 +125,14 @@ Transform potential conflicts into productive tension that leads to breakthrough
 5. **Future projection**: Design for different conditions
 
 ### Stakeholder Advocacy
+
 - **End user**: How does this affect people using it?
 - **Maintainer**: What's the ongoing cost?
 - **Security**: What risks does this introduce?
 - **Accessibility**: Who might be excluded?
 - **Future stakeholder**: Who isn't here yet?
 
-## Output Format
+## Output Template
 
 ```markdown
 ## Constructive Dissent Analysis: [Proposal Title]
@@ -160,22 +178,6 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - [Question requiring more information]
 ```
 
-## Examples
-
-```bash
-# Gentle challenge for refinement
-/constructive-dissent "Our API pagination strategy uses offset-based pagination" --intensity=gentle
-
-# Systematic challenge for major decision
-/constructive-dissent "Migrate to microservices architecture" --intensity=systematic --alternatives=3
-
-# Rigorous challenge for strategic direction
-/constructive-dissent "Build our own CMS instead of using existing solutions" --intensity=rigorous
-
-# Paradigmatic challenge for transformation
-/constructive-dissent "Our business model of per-seat licensing" --intensity=paradigmatic
-```
-
 ## Success Indicators
 
 - Identified assumptions that were previously invisible
@@ -183,5 +185,3 @@ Transform potential conflicts into productive tension that leads to breakthrough
 - Strengthened original proposal through challenge
 - Clear decision criteria for choosing approaches
 - Stakeholder perspectives adequately represented
-
-Invoke constructive challenge analysis with: $ARGUMENTS
