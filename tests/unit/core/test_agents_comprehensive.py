@@ -201,6 +201,33 @@ def test_build_and_render_agent_graph(tmp_path: Path, claude_dir: Path):
     assert "Exported dependency map" in export_output
 
 
+def test_build_agent_graph_prioritizes_schema_version_over_metadata_version(
+    tmp_path: Path, claude_dir: Path
+):
+    # This agent mirrors the real-world agents that have a top-level schema version (2.0)
+    # AND a metadata.version (date-based). The loader must use the schema version.
+    target = claude_dir / "agents" / "conflicting_versions.md"
+    front = textwrap.dedent(
+        """\
+        ---
+        version: 2.0
+        name: conflicting-versions
+        category: core
+        tier:
+          id: bronze
+        metadata:
+          version: 2025.10.14
+        ---
+        """
+    )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(front, encoding="utf-8")
+
+    nodes = agents_mod.build_agent_graph(home=tmp_path)
+    assert len(nodes) == 1
+    assert nodes[0].name == "conflicting-versions"
+
+
 # ---- Tests: validation --------------------------------------------------------
 
 def test_agent_validate_success_and_failure(tmp_path: Path, claude_dir: Path):

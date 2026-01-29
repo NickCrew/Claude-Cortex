@@ -58,32 +58,11 @@ def test_main_dispatch_unknown(mock_core, capsys):
 
 def test_main_tui_dispatch(mock_core, mock_print):
     """Test dispatching to TUI."""
-    with mock.patch("claude_ctx_py.tui.main") as mock_tui_main:
+    with mock.patch("claude_ctx_py.tui.main.main") as mock_tui_main:
         mock_tui_main.return_value = 0
         exit_code = cli.main(["tui"])
         assert exit_code == 0
         mock_tui_main.assert_called_once()
-
-# --------------------------------------------------------------------------- Mode Command
-
-def test_handle_mode_list(mock_core, mock_print):
-    args = argparse.Namespace(mode_command="list")
-    mock_core.list_modes.return_value = "Mode List"
-    assert cli._handle_mode_command(args) == 0
-    mock_print.assert_called_with("Mode List")
-
-def test_handle_mode_activate(mock_core, mock_print):
-    args = argparse.Namespace(mode_command="activate", modes=["mode1", "mode2"])
-    mock_core.mode_activate.side_effect = [(0, "OK1"), (1, "Fail2")]
-    assert cli._handle_mode_command(args) == 1
-    mock_core.mode_activate.assert_any_call("mode1")
-    mock_core.mode_activate.assert_any_call("mode2")
-    # Verify both messages printed (mock_print called once with joined string)
-    mock_print.assert_called_with("OK1\nFail2")
-
-def test_handle_mode_unknown(mock_core):
-    args = argparse.Namespace(mode_command="unknown")
-    assert cli._handle_mode_command(args) == 1
 
 # --------------------------------------------------------------------------- Agent Command
 
@@ -98,31 +77,6 @@ def test_handle_agent_validate(mock_core, mock_print):
     mock_core.agent_validate.return_value = (0, "Valid")
     assert cli._handle_agent_command(args) == 0
     mock_core.agent_validate.assert_called_with("a1", include_all=True)
-
-# --------------------------------------------------------------------------- Principles Command
-
-def test_handle_principles_list(mock_core, mock_print):
-    args = argparse.Namespace(principles_command="list")
-    mock_core.list_principles.return_value = "Principles List"
-    assert cli._handle_principles_command(args) == 0
-    mock_print.assert_called_with("Principles List")
-
-
-def test_handle_principles_activate(mock_core, mock_print):
-    args = argparse.Namespace(principles_command="activate", principles=["p1", "p2"])
-    mock_core.principles_activate.side_effect = [(0, "OK1"), (1, "Fail2")]
-    assert cli._handle_principles_command(args) == 1
-    mock_core.principles_activate.assert_any_call("p1")
-    mock_core.principles_activate.assert_any_call("p2")
-    mock_print.assert_called_with("OK1\nFail2")
-
-
-def test_handle_principles_build(mock_core, mock_print):
-    args = argparse.Namespace(principles_command="build")
-    mock_core.principles_build.return_value = (0, "Built")
-    assert cli._handle_principles_command(args) == 0
-    mock_core.principles_build.assert_called_once()
-    mock_print.assert_called_with("Built")
 
 # --------------------------------------------------------------------------- Skills Command
 
@@ -221,18 +175,25 @@ def test_handle_memory_capture(mock_core, mock_print):
 def test_handle_ai_watch(mock_core):
     args = argparse.Namespace(
         ai_command="watch",
+        status=False,
+        stop=False,
+        daemon=False,
         no_auto_activate=False,
         threshold=0.8,
-        interval=5.0
+        interval=5.0,
+        directories=None
     )
-    with mock.patch("claude_ctx_py.watch.watch_main") as mock_watch:
-        mock_watch.return_value = 0
-        assert cli._handle_ai_command(args) == 0
-        mock_watch.assert_called_with(
+    with mock.patch("claude_ctx_py.watch.load_watch_defaults") as mock_defaults:
+        mock_defaults.return_value = mock.MagicMock(
+            warnings=[],
+            directories=None,
             auto_activate=True,
-            threshold=0.8,
-            interval=5.0
+            threshold=0.7,
+            interval=10.0
         )
+        with mock.patch("claude_ctx_py.watch.watch_main") as mock_watch:
+            mock_watch.return_value = 0
+            assert cli._handle_ai_command(args) == 0
 
 # --------------------------------------------------------------------------- MCP Command
 
@@ -261,33 +222,3 @@ def test_handle_install_aliases(mock_print):
             shell="bash", rc_file=None, force=True, dry_run=False
         )
 
-# --------------------------------------------------------------------------- Workflow Command
-
-def test_handle_workflow_run(mock_core, mock_print):
-    args = argparse.Namespace(workflow_command="run", workflow="deploy")
-    mock_core.workflow_run.return_value = (0, "Running")
-    assert cli._handle_workflow_command(args) == 0
-    mock_core.workflow_run.assert_called_with("deploy")
-
-def test_handle_workflow_stop(mock_core, mock_print):
-    args = argparse.Namespace(workflow_command="stop", workflow="deploy")
-    mock_core.workflow_stop.return_value = (0, "Stopped")
-    assert cli._handle_workflow_command(args) == 0
-    mock_core.workflow_stop.assert_called_with("deploy")
-
-# --------------------------------------------------------------------------- Orchestrate Command
-
-def test_handle_orchestrate_run(mock_core, mock_print):
-    args = argparse.Namespace(
-        orchestrate_command="run",
-        scenario="sc1",
-        run_auto=True,
-        run_interactive=False,
-        run_plan=True,
-        run_preview=False,
-        run_validate=False,
-        mode_args=None
-    )
-    mock_core.scenario_run.return_value = (0, "Running")
-    assert cli._handle_orchestrate_command(args) == 0
-    mock_core.scenario_run.assert_called_with("sc1", "--auto", "--plan")

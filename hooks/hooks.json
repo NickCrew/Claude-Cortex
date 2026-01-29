@@ -32,15 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/context_pack_injector.py\""
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py\""
-          },
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/parallel-workflow-enforcer.sh\""
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/execution-enforcer.sh\""
           }
         ]
       }
@@ -52,10 +44,6 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/memory_auto_capture.py\""
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/changelog_gate.py\""
           }
         ]
       }

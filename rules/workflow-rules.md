@@ -4,10 +4,6 @@
 - Understand -> Plan -> TodoWrite (3+ tasks) -> Execute -> Track -> Validate.
 - Claims must be supported by tests, logs, or docs.
 
-## Execution Efficiency
-- Use the strongest available tool; batch independent reads/edits in parallel.
-- Use Task agents for multi-step or multi-file workstreams.
-
 ## Workspace Hygiene
 - Remove temporary files and debug artifacts.
 - Keep changes scoped to the request.
