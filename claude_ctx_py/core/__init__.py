@@ -8,11 +8,13 @@ The module is now organized as:
 - base.py: Utility functions and constants
 - agents.py: Agent management
 - skills.py: Skill management
-- modes.py: Mode management
 - rules.py: Rule management
-- workflows.py: Workflow management
-- scenarios.py: Scenario management
-- profiles.py: Profile and initialization functions
+- mcp.py: MCP server management
+- worktrees.py: Git worktree management
+- hooks.py: Hook management
+- backup.py: Backup management
+- doctor.py: System diagnostics
+- context_export.py: Context export functionality
 """
 
 # Re-export optional dependency handle for compatibility
@@ -85,7 +87,6 @@ from .base import (
     _parse_selection,
     _append_session_log,
     _list_available_agents,
-    _list_available_modes,
 )
 
 # Export all functions from agents
@@ -151,54 +152,12 @@ from .skills import (
     skill_community_search,
 )
 
-# Export all functions from modes
-from .modes import (
-    _mode_active_file,
-    _mode_inactive_dir,
-    _parse_claude_md_modes,
-    _get_active_modes,
-    mode_activate,
-    mode_deactivate,
-    list_modes,
-    mode_status,
-    mode_add_to_claude_md,
-)
-
 # Export all functions from rules
 from .rules import (
     rules_status,
     rules_activate,
     rules_deactivate,
     list_rules,
-)
-
-# Export all functions from principles
-from .principles import (
-    list_principles,
-    principles_status,
-    principles_activate,
-    principles_deactivate,
-    principles_build,
-)
-
-# Export all functions from prompts
-from .prompts import (
-    PromptInfo,
-    discover_prompts,
-    prompt_activate,
-    prompt_deactivate,
-    list_prompts,
-    prompt_status,
-    get_prompt_by_slug,
-)
-
-# Export all functions from workflows
-from .workflows import (
-    workflow_run,
-    workflow_list,
-    workflow_status,
-    workflow_resume,
-    workflow_stop,
 )
 
 # Export all functions from worktrees
@@ -213,54 +172,6 @@ from .worktrees import (
     worktree_add,
     worktree_remove,
     worktree_prune,
-)
-
-# Export all functions from scenarios
-from .scenarios import (
-    ScenarioPhase,
-    ScenarioMetadata,
-    _scenario_dirs,
-    _ensure_scenarios_dir,
-    _scenario_schema_path,
-    _scenario_lock_basename,
-    _scenario_init_state,
-    _scenario_update_phase_state,
-    _scenario_finalize_state,
-    _collect_scenario_targets,
-    _parse_scenario_metadata,
-    scenario_list,
-    scenario_validate,
-    scenario_status,
-    scenario_stop,
-    scenario_run,
-    scenario_preview,
-)
-
-# Export all functions from profiles
-from .profiles import (
-    _profile_reset,
-    profile_list,
-    profile_save,
-    profile_minimal,
-    profile_frontend,
-    profile_web_dev,
-    profile_backend,
-    profile_devops,
-    profile_documentation,
-    profile_data_ai,
-    profile_quality,
-    profile_meta,
-    profile_developer_experience,
-    profile_product,
-    profile_full,
-    init_detect,
-    init_minimal,
-    init_profile,
-    init_status,
-    init_reset,
-    init_resume,
-    init_wizard,
-    show_status,
 )
 
 # Export all functions from context_export
@@ -345,7 +256,6 @@ __all__ = [
     "FrontMatterToken",
     # Dataclasses
     "AgentGraphNode",
-    "ScenarioMetadata",
     # Base functions
     "_color",
     "_resolve_cortex_root",
@@ -399,7 +309,6 @@ __all__ = [
     "_parse_selection",
     "_append_session_log",
     "_list_available_agents",
-    "_list_available_modes",
     # Agent functions
     "_agent_basename",
     "_normalize_agent_filename",
@@ -456,38 +365,11 @@ __all__ = [
     "skill_community_validate",
     "skill_community_rate",
     "skill_community_search",
-    # Mode functions
-    "_mode_active_file",
-    "_mode_inactive_dir",
-    "mode_activate",
-    "mode_deactivate",
-    "list_modes",
-    "mode_status",
     # Rule functions
     "rules_status",
     "rules_activate",
     "rules_deactivate",
     "list_rules",
-    # Principles functions
-    "list_principles",
-    "principles_status",
-    "principles_activate",
-    "principles_deactivate",
-    "principles_build",
-    # Prompts functions
-    "PromptInfo",
-    "discover_prompts",
-    "prompt_activate",
-    "prompt_deactivate",
-    "list_prompts",
-    "prompt_status",
-    "get_prompt_by_slug",
-    # Workflow functions
-    "workflow_run",
-    "workflow_list",
-    "workflow_status",
-    "workflow_resume",
-    "workflow_stop",
     # Worktree functions
     "WorktreeInfo",
     "worktree_discover",
@@ -499,46 +381,6 @@ __all__ = [
     "worktree_add",
     "worktree_remove",
     "worktree_prune",
-    # Scenario functions
-    "_scenario_dirs",
-    "_ensure_scenarios_dir",
-    "_scenario_schema_path",
-    "_scenario_lock_basename",
-    "_scenario_init_state",
-    "_scenario_update_phase_state",
-    "_scenario_finalize_state",
-    "_collect_scenario_targets",
-    "_parse_scenario_metadata",
-    "scenario_list",
-    "scenario_validate",
-    "scenario_status",
-    "scenario_stop",
-    "scenario_run",
-    "scenario_preview",
-    # Profile and init functions
-    "_profile_reset",
-    "profile_list",
-    "profile_save",
-    "profile_minimal",
-    "profile_frontend",
-    "profile_web_dev",
-    "profile_backend",
-    "profile_devops",
-    "profile_documentation",
-    "profile_data_ai",
-    "profile_quality",
-    "profile_meta",
-    "profile_developer_experience",
-    "profile_product",
-    "profile_full",
-    "init_detect",
-    "init_minimal",
-    "init_profile",
-    "init_status",
-    "init_reset",
-    "init_resume",
-    "init_wizard",
-    "show_status",
     # Context export functions
     "collect_context_components",
     "export_context",

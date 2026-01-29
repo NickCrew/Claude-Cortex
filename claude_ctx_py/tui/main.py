@@ -25,7 +25,6 @@ from textual import events
 from textual.widgets import ContentSwitcher, DataTable, Header, Input, Static
 
 from .widgets import AdaptiveFooter
-from ..tui_extensions import ProfileViewMixin, ExportViewMixin, WizardViewMixin
 
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
@@ -35,20 +34,15 @@ ASSET_CATEGORY_ORDER = [
     "commands",
     "agents",
     "skills",
-    "modes",
-    "prompts",
-    "workflows",
     "flags",
     "rules",
-    "profiles",
-    "scenarios",
     "tasks",
     "settings",
 ]
 
 from .types import (
-    RuleNode, AgentTask, WorkflowInfo, ModeInfo, MCPDocInfo, ScenarioInfo, ScenarioRuntimeState,
-    AssetInfo, MemoryNote, WatchModeState, PrincipleSnippet, PromptInfo,
+    RuleNode, AgentTask, MCPDocInfo,
+    AssetInfo, MemoryNote, WatchModeState,
 )
 from .constants import (
     PROFILE_DESCRIPTIONS, EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
@@ -70,21 +64,8 @@ from ..core import (
     _tokenize_front_matter,
     _extract_scalar_from_paths,
     _extract_front_matter,
-    _ensure_scenarios_dir,
-    _scenario_lock_basename,
-    _parse_scenario_metadata,
     collect_context_components,
     export_context,
-    init_profile,
-    init_wizard,
-    init_minimal,
-    profile_save,
-    _profile_reset,
-    scenario_preview,
-    scenario_run,
-    scenario_validate,
-    scenario_status,
-    scenario_stop,
     skill_validate,
     skill_metrics,
     skill_metrics_reset,
@@ -105,7 +86,6 @@ from ..core import (
     skill_community_rate,
     skill_community_search,
     skill_recommend,
-    workflow_stop,
     WorktreeInfo,
     worktree_discover,
     worktree_default_path,
@@ -123,17 +103,6 @@ from ..core import (
     _write_active_entries,
 )
 from ..core.rules import rules_activate, rules_deactivate
-from ..core.principles import (
-    principles_activate,
-    principles_deactivate,
-    principles_build,
-)
-from ..core.modes import (
-    mode_activate,
-    mode_deactivate,
-    mode_activate_intelligent,
-    mode_deactivate_intelligent,
-)
 from ..core.base import (
     _iter_md_files,
     _parse_active_entries,
@@ -185,10 +154,8 @@ from .dialogs import (
     LLMProviderSettingsDialog,
     MemoryNoteCreateDialog,
     MemoryNoteDialog,
-    PrincipleCreateDialog,
 )
 from .dialogs.memory_dialogs import MemoryNoteCreateData
-from .dialogs.principle_dialogs import PrincipleCreateData
 from ..core.mcp_installer import install_and_configure
 from ..core.mcp_registry import get_server
 from ..core import _resolve_claude_dir
@@ -234,7 +201,7 @@ import threading
 
 
 
-class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
+class AgentTUI(App[None]):
     """Textual TUI for cortex management."""
 
     CATEGORY_PALETTE = {
@@ -290,23 +257,17 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.tour_manager = TourManager()
         self.agents: List[AgentGraphNode] = []
         self.rules: List[RuleNode] = []
-        self.modes: List[ModeInfo] = []
-        self.principles: List[PrincipleSnippet] = []
-        self.workflows: List[WorkflowInfo] = []
         self.worktrees: List[WorktreeInfo] = []
         self.worktree_repo_root: Optional[Path] = None
         self.worktree_error: Optional[str] = None
         self.worktree_base_dir: Optional[Path] = None
         self.worktree_base_source: Optional[str] = None
-        self.profiles: List[Dict[str, Optional[str]]] = []
         self.mcp_servers: List[MCPServerInfo] = []
         self.mcp_docs: List[MCPDocInfo] = []
-        self.prompts: List[PromptInfo] = []
         self.mcp_error: Optional[str] = None
         self.export_options: Dict[str, bool] = DEFAULT_EXPORT_OPTIONS.copy()
         self.export_agent_generic: bool = True
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
-        self.scenarios: List[ScenarioInfo] = []
         self.skills: List[Dict[str, Any]] = []
         self.slash_commands: List[SlashCommandInfo] = []
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
@@ -405,14 +366,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("ctrl+w", "worktree_remove", "Remove Worktree", show=False),
         Binding("ctrl+k", "worktree_prune", "Prune Worktrees", show=False),
         Binding("y", "copy_definition", "Copy Definition", show=False),
-        Binding("n", "profile_save_prompt", "Save Profile", show=False),
-        Binding("N", "principle_create", "New Principle", show=False),
         Binding("D", "context_delete", "Delete/Diagnose", show=False),
-        Binding("P", "scenario_preview", "Preview", show=False),
-        Binding("R", "run_selected", "Run", show=False),
-        Binding("s", "stop_selected", "Stop", show=False),
-        Binding("V", "scenario_validate_selected", "Validate Scenario", show=False),
-        Binding("H", "scenario_status_history", "Scenario Status", show=False),
         Binding("L", "task_open_source", "Open Log", show=False),
         Binding("O", "task_open_external", "Open File", show=False),
         # Asset Manager bindings
@@ -428,11 +382,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         Binding("O", "memory_open_note", "Open", show=False),
         # Agent bindings
         Binding("enter", "agent_view", "View Agent", show=False),
-        # Profile bindings
-        Binding("enter", "profile_edit", "View/Edit Profile", show=False),
-        # Setup Tools bindings (profiles view)
-        Binding("I", "setup_init_wizard", "Init Wizard", show=False),
-        Binding("m", "setup_init_minimal", "Init Minimal", show=False),
+        # Setup Tools bindings
         Binding("M", "setup_migration", "Migration", show=False),
         Binding("c", "setup_health_check", "Health Check", show=False),
         # CLAUDE.md Wizard
@@ -502,25 +452,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 rule = self.rules[index]
                 file_path = rule.path
                 item_name = rule.name
-        elif self.current_view == "modes":
-            # Assuming a _selected_mode() helper or direct access
-            index = self._table_cursor_index()
-            if index is not None and 0 <= index < len(self.modes):
-                mode = self.modes[index]
-                file_path = mode.path
-                item_name = mode.name
-        elif self.current_view == "prompts":
-            index = self._table_cursor_index()
-            if index is not None and 0 <= index < len(self.prompts):
-                prompt = self.prompts[index]
-                file_path = prompt.path
-                item_name = prompt.name
-        elif self.current_view == "principles":
-            index = self._table_cursor_index()
-            if index is not None and 0 <= index < len(self.principles):
-                snippet = self.principles[index]
-                file_path = snippet.path
-                item_name = snippet.name
         elif self.current_view == "skills":
             skill = self._selected_skill()
             if skill and "path" in skill:
@@ -576,15 +507,10 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         # Load data
         self.load_agents()
         self.load_rules()
-        self.load_modes()
-        self.load_principles()
         self.load_skills()
         self.load_slash_commands()
         self.load_agent_tasks()
-        self.load_workflows()
         self.load_worktrees()
-        self.load_scenarios()
-        self.load_profiles()
         self.load_mcp_servers()
 
         # Switch to start_view if specified, otherwise use default
@@ -674,15 +600,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         view_bindings = {
             "agents": {"toggle", "details_context", "validate_context", "edit_item", "copy_definition"},
             "rules": {"toggle", "edit_item", "copy_definition"},
-            "modes": {"toggle", "edit_item", "copy_definition"},
-            "principles": {
-                "toggle",
-                "edit_item",
-                "copy_definition",
-                "details_context",
-                "context_action",
-                "docs_context",
-            },
             "skills": {
                 "details_context",
                 "validate_context",
@@ -702,9 +619,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 "mcp_edit",
                 "mcp_remove",
             },
-            "profiles": {"toggle", "profile_save_prompt", "profile_delete", "setup_init_wizard", "setup_init_minimal", "setup_migration", "setup_health_check"},
+            "profiles": {"setup_migration", "setup_health_check"},
             "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
-            "workflows": {"run_selected", "stop_selected"},
             "worktrees": {
                 "worktree_add",
                 "worktree_open",
@@ -713,7 +629,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 "worktree_set_base_dir",
                 "details_context",
             },
-            "scenarios": {"scenario_preview", "run_selected", "stop_selected"},
             "ai_assistant": {
                 "auto_activate",
                 "consult_gemini",
@@ -761,58 +676,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         return subpath_resolved
 
-    def _validate_workflow_schema(self, workflow_data: Any, file_path: Path) -> bool:
-        """
-        Validate that a workflow YAML has the expected structure.
-
-        Args:
-            workflow_data: Parsed YAML data
-            file_path: Path to the workflow file (for error messages)
-
-        Returns:
-            True if valid, False otherwise
-        """
-        if not isinstance(workflow_data, dict):
-            return False
-
-        # Optional fields (can be missing or wrong type without failing)
-        # Just ensure they're the right type if present
-        if "name" in workflow_data and not isinstance(workflow_data["name"], str):
-            return False
-
-        if "description" in workflow_data and not isinstance(
-            workflow_data["description"], str
-        ):
-            return False
-
-        # Steps array is expected but can be empty
-        if "steps" in workflow_data:
-            if not isinstance(workflow_data["steps"], list):
-                return False
-            # Each step should be a dict with at least a name
-            for step in workflow_data["steps"]:
-                if not isinstance(step, dict):
-                    return False
-
-        return True
-
-    def _parse_iso_datetime(self, value: Optional[str]) -> Optional[datetime]:
-        """Parse ISO8601 timestamps produced by scenario state files."""
-        if not value:
-            return None
-        normalized = value.strip()
-        if not normalized:
-            return None
-        try:
-            if normalized.endswith("Z"):
-                normalized = normalized[:-1] + "+00:00"
-            dt = datetime.fromisoformat(normalized)
-            if dt.tzinfo is not None:
-                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
-            return dt
-        except Exception:
-            return None
-
     def _main_table(self) -> Optional[DataTable[Any]]:
         """Return the main DataTable widget if available."""
         try:
@@ -846,9 +709,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             assets = discover_plugin_assets()
             return max(0, len(assets.get("agents", [])) - 1)
         if self.wizard_step == 2:
-            assets = discover_plugin_assets()
-            return max(0, len(assets.get("modes", [])) - 1)
-        if self.wizard_step == 3:
             assets = discover_plugin_assets()
             return max(0, len(assets.get("rules", [])) - 1)
         return 0
@@ -960,14 +820,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         focused = self.focused
         return isinstance(focused, Input)
 
-    def _selected_profile(self) -> Optional[Dict[str, Optional[str]]]:
-        index = self._table_cursor_index()
-        if index is None or not self.profiles:
-            return None
-        if index < 0 or index >= len(self.profiles):
-            return None
-        return self.profiles[index]
-
     def _selected_export_meta(self) -> Optional[Tuple[str, Optional[str]]]:
         index = self._table_cursor_index()
         if index is None:
@@ -1037,13 +889,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             active.add(self._relative_slug(path, rules_dir))
         return active
 
-    def _active_mode_slugs(self, claude_dir: Path) -> Set[str]:
-        """Return active mode slugs from .active-modes file only."""
-        return {
-            self._normalize_slug(entry)
-            for entry in _parse_active_entries(claude_dir / ".active-modes")
-        }
-
     def _ensure_configured_mcp(self, server: MCPServerInfo, action: str) -> bool:
         """Ensure an MCP server is configured before running certain actions."""
         if getattr(server, "doc_only", False):
@@ -1054,24 +899,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             )
             return False
         return True
-
-    def _selected_workflow(self) -> Optional[WorkflowInfo]:
-        index = self._table_cursor_index()
-        workflows = self.workflows
-        if index is None or not workflows:
-            return None
-        if index < 0 or index >= len(workflows):
-            return None
-        return workflows[index]
-
-    def _selected_scenario(self) -> Optional[ScenarioInfo]:
-        index = self._table_cursor_index()
-        scenarios = self.scenarios
-        if index is None or not scenarios:
-            return None
-        if index < 0 or index >= len(scenarios):
-            return None
-        return scenarios[index]
 
     def _format_command_stack(self, command: SlashCommandInfo) -> str:
         """Summarize linked assets for a slash command."""
@@ -1144,61 +971,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             pass
 
         return False
-
-    def _apply_saved_profile(self, profile_path: Path) -> Tuple[int, str]:
-        """Apply a saved .profile file by activating listed agents/modes/rules."""
-        try:
-            content = profile_path.read_text(encoding="utf-8")
-        except Exception as exc:
-            return 1, f"Failed to read profile: {exc}"
-
-        agents = [
-            Path(entry).stem for entry in self._extract_profile_list(content, "AGENTS")
-        ]
-        modes = self._extract_profile_list(content, "MODES")
-        rules = self._extract_profile_list(content, "RULES")
-
-        exit_code, message = _profile_reset()
-        messages = []
-        if message:
-            messages.append(message)
-        if exit_code != 0:
-            return exit_code, "\n".join(messages)
-
-        for agent_name in filter(None, agents):
-            exit_code, agent_message = agent_activate(agent_name)
-            if agent_message:
-                messages.append(agent_message)
-            if exit_code != 0:
-                return exit_code, "\n".join(messages)
-
-        for mode_name in filter(None, modes):
-            exit_code, mode_message = mode_activate(mode_name)
-            if mode_message:
-                messages.append(mode_message)
-            if exit_code != 0 and (
-                not mode_message or "already active" not in mode_message.lower()
-            ):
-                return exit_code, "\n".join(messages)
-
-        for rule_name in filter(None, rules):
-            rule_message = rules_activate(rule_name)
-            if rule_message:
-                messages.append(rule_message)
-
-        messages.append(f"[green]Applied profile from {profile_path.name}[/green]")
-        return 0, "\n".join(messages)
-
-    def _extract_profile_list(self, content: str, key: str) -> List[str]:
-        """Extract a space-delimited list from profile metadata."""
-        pattern = re.compile(rf'{key}="([^"]*)"')
-        match = pattern.search(content)
-        if not match:
-            return []
-        value = match.group(1)
-        if not value:
-            return []
-        return [entry.strip() for entry in value.split() if entry.strip()]
 
     def _clean_ansi(self, text: str | None) -> str:
         """Remove ANSI escape codes for clean status messages."""
@@ -1629,13 +1401,13 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             "Template files are missing from CLAUDE_PLUGIN_ROOT:\n"
             f"{target_root}\n\n"
             f"Missing: {preview}\n\n"
-            "Initialize missing templates and launch the Init Wizard?",
+            "Initialize missing templates?",
             default=True,
         )
         confirm = await self.push_screen(dialog, wait_for_dismiss=True)
         if not confirm:
             self.notify(
-                "Templates missing. Run Init Wizard from Profiles when ready.",
+                "Templates missing. Run 'cortex install bootstrap' to initialize.",
                 severity="warning",
                 timeout=4,
             )
@@ -1654,8 +1426,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 severity="information",
                 timeout=2,
             )
-
-        await self._run_init_wizard()
 
     async def _maybe_prompt_for_skill_ratings(self) -> None:
         """Surface auto-prompts for recently used skills."""
@@ -1790,8 +1560,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 description,
             )
 
-    def _render_profiles_table(self, table: DataTable[Any]) -> None:
-        """Render profile management view with setup tools."""
+    def _render_setup_table(self, table: DataTable[Any]) -> None:
+        """Render setup tools view."""
         table.add_column("Item", width=28)
         table.add_column("Type", width=12)
         table.add_column("Description")
@@ -1828,35 +1598,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             "Run diagnostics and verify directory structure",
             "[dim]c[/dim]",
         )
-        table.add_row(
-            "[bold cyan]━━━ Profiles ━━━[/bold cyan]",
-            "",
-            "[dim]Enter to apply, n to save new[/dim]",
-            "",
-        )
-
-        if not self.profiles:
-            table.add_row("[dim]No profiles found[/dim]", "", "", "")
-            return
-
-        for profile in self.profiles:
-            name = profile.get("name", "unknown")
-            ptype = profile.get("type", "built-in")
-            description_value = profile.get("description") or ""
-            description = Format.truncate(description_value, 60)
-            updated = profile.get("modified") or "-"
-            icon = Icons.SUCCESS if ptype == "built-in" else Icons.DOC
-            if ptype == "built-in":
-                type_text = "[cyan]Built-in[/cyan]"
-            else:
-                type_text = "[magenta]Saved[/magenta]"
-
-            table.add_row(
-                f"{icon} {name}",
-                type_text,
-                f"[dim]{description}[/dim]" if description else "",
-                updated,
-            )
 
     def _render_export_table(self, table: DataTable[Any]) -> None:
         """Render export configuration view."""
@@ -2045,79 +1786,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.status_message = f"Error loading rules: {e}"
             self.rules = []
 
-    def load_principles(self) -> None:
-        """Load principles snippets from the system."""
-        try:
-            principles: List[PrincipleSnippet] = []
-            claude_dir = _resolve_claude_dir()
-            principles_dir = self._validate_path(claude_dir, claude_dir / "principles")
-
-            active_entries = _parse_active_entries(claude_dir / ".active-principles")
-            active_names = {
-                entry[:-3] if entry.endswith(".md") else entry
-                for entry in active_entries
-            }
-
-            if not active_names and principles_dir.is_dir():
-                active_names = {path.stem for path in _iter_md_files(principles_dir)}
-
-            if principles_dir.is_dir():
-                for path in _iter_md_files(principles_dir):
-                    status = "active" if path.stem in active_names else "inactive"
-                    node = self._parse_principle_file(path, status)
-                    if node:
-                        principles.append(node)
-
-            self.principles = principles
-            active_count = sum(1 for p in principles if p.status == "active")
-            self.status_message = (
-                f"Loaded {len(principles)} principles ({active_count} active)"
-            )
-            if hasattr(self, "metrics_collector"):
-                self.metrics_collector.record(
-                    "principles_active",
-                    float(active_count),
-                )
-        except Exception as e:
-            self.status_message = f"Error loading principles: {e}"
-            self.principles = []
-
-    def _parse_principle_file(
-        self,
-        path: Path,
-        status: str,
-    ) -> Optional[PrincipleSnippet]:
-        """Parse a principles snippet file into a PrincipleSnippet."""
-        try:
-            content = path.read_text(encoding="utf-8")
-            lines = content.splitlines()
-
-            title = path.stem
-            description = ""
-            for line in lines:
-                stripped = line.strip()
-                if not stripped or stripped.startswith("<!--"):
-                    continue
-                if stripped.startswith("#"):
-                    if title == path.stem:
-                        title = stripped.lstrip("#").strip()
-                    continue
-                description = stripped
-                break
-
-            if not description:
-                description = title
-
-            return PrincipleSnippet(
-                name=path.stem,
-                status=status,
-                title=title,
-                description=description,
-                path=path,
-            )
-        except Exception:
-            return None
-
     def _parse_rule_file(self, path: Path, status: str) -> Optional[RuleNode]:
         """Parse a rule file and return a RuleNode."""
         try:
@@ -2166,265 +1834,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         except Exception:
             return None
 
-    def load_modes(self) -> None:
-        """Load behavioral modes from the system."""
-        try:
-            modes: List[ModeInfo] = []
-            claude_dir = _resolve_claude_dir()
-            active_mode_slugs = self._active_mode_slugs(claude_dir)
-
-            # Load active modes from modes/ directory
-            modes_dir = self._validate_path(claude_dir, claude_dir / "modes")
-            if modes_dir.is_dir():
-                for path in _iter_md_files(modes_dir):
-                    if _is_disabled(path):
-                        continue
-                    slug = self._relative_slug(path, modes_dir)
-                    status = "active" if slug in active_mode_slugs else "inactive"
-                    node = self._parse_mode_file(path, status)
-                    if node:
-                        modes.append(node)
-
-            # Load inactive modes from inactive/modes/ directory (legacy dirs supported)
-            for inactive_dir in _inactive_dir_candidates(claude_dir, "modes"):
-                valid_dir = self._validate_path(claude_dir, inactive_dir)
-                if valid_dir.is_dir():
-                    for path in _iter_md_files(valid_dir):
-                        slug = self._relative_slug(path, valid_dir)
-                        status = "active" if slug in active_mode_slugs else "inactive"
-                        node = self._parse_mode_file(path, status)
-                        if node:
-                            modes.append(node)
-
-            # Sort by status (active first) and then by name
-            modes.sort(key=lambda m: (m.status != "active", m.name.lower()))
-
-            self.modes = modes
-            active_count = sum(1 for m in modes if m.status == "active")
-            self.status_message = f"Loaded {len(modes)} modes ({active_count} active)"
-
-            # Debug logging
-            print(f"[DEBUG] load_modes: Loaded {len(modes)} modes")
-            for mode in modes:
-                print(f"[DEBUG]   - {mode.name} ({mode.status}): {mode.purpose[:50]}...")
-
-            if hasattr(self, "metrics_collector"):
-                self.metrics_collector.record("modes_active", float(active_count))
-
-        except Exception as e:
-            import traceback
-            error_detail = traceback.format_exc()
-            self.status_message = f"Error loading modes: {e}"
-            self.modes = []
-            # Log full traceback for debugging
-            print(f"[DEBUG] Mode loading error:\n{error_detail}")
-
-    def _parse_mode_file(self, path: Path, status: str) -> Optional[ModeInfo]:
-        """Parse a mode file and return a ModeInfo."""
-        try:
-            name = path.stem
-
-            # Read the file to extract purpose and description
-            content = path.read_text(encoding="utf-8")
-            lines = content.split("\n")
-
-            # Extract mode information
-            display_name = name
-            purpose = ""
-            description = ""
-            subtitle = ""
-
-            found_title = False
-            for i, line in enumerate(lines):
-                line = line.strip()
-                if line.startswith("# ") and not found_title:
-                    # Extract title (e.g., "# Task Management Mode" -> "Task Management")
-                    # Only use the FIRST h1 heading
-                    title = line[2:].strip()
-                    if title.endswith(" Mode"):
-                        display_name = title[:-5]  # Remove " Mode" suffix
-                    else:
-                        display_name = title
-                    found_title = True
-                elif line.startswith("**Purpose**:"):
-                    # Extract purpose
-                    purpose = line.split("**Purpose**:")[1].strip()
-                elif not subtitle and line.startswith("**") and not line.startswith("**Purpose**") and ":" not in line:
-                    # Extract subtitle/tagline (e.g., "**Universal Visual Excellence Mode**")
-                    subtitle = line.replace("**", "").strip()
-                elif (
-                    line.startswith("## ")
-                    and "Activation" not in line
-                    and not description
-                ):
-                    # Use first non-activation h2 as description fallback
-                    description = line[3:].strip()
-
-            # Build final purpose: prefer explicit Purpose, then subtitle, then description
-            if not purpose:
-                purpose = subtitle or description
-
-            # Use purpose as description if available, otherwise use first description
-            final_description = purpose if purpose else description
-            if not final_description:
-                # Fallback: use first non-empty, non-heading, non-bold line
-                for line in lines:
-                    line = line.strip()
-                    if line and not line.startswith("#") and not line.startswith("**") and not line.startswith(">"):
-                        final_description = line[:100]  # Limit length
-                        break
-
-            return ModeInfo(
-                name=display_name,
-                status=status,
-                purpose=purpose or final_description or "Behavioral mode",
-                description=final_description or "No description available",
-                path=path,
-            )
-        except Exception as e:
-            # Return a placeholder instead of None so user can see something went wrong
-            return ModeInfo(
-                name=path.stem,
-                status=status,
-                purpose=f"Error parsing mode: {str(e)[:50]}",
-                description="Failed to parse mode file",
-                path=path,
-            )
-
-    def load_prompts(self) -> None:
-        """Load prompts from the prompt library."""
-        try:
-            from ..core.prompts import discover_prompts as core_discover_prompts
-
-            core_prompts = core_discover_prompts()
-
-            # Convert core PromptInfo to TUI PromptInfo
-            prompts: List[PromptInfo] = []
-            for cp in core_prompts:
-                prompts.append(PromptInfo(
-                    name=cp.name,
-                    slug=cp.slug,
-                    status=cp.status,
-                    category=cp.category,
-                    description=cp.description,
-                    tokens=cp.tokens,
-                    path=cp.path,
-                ))
-
-            # Sort by status (active first), then by category, then by name
-            prompts.sort(key=lambda p: (p.status != "active", p.category.lower(), p.name.lower()))
-
-            self.prompts = prompts
-            active_count = sum(1 for p in prompts if p.status == "active")
-            self.status_message = f"Loaded {len(prompts)} prompts ({active_count} active)"
-
-            if hasattr(self, "metrics_collector"):
-                self.metrics_collector.record("prompts_active", float(active_count))
-
-        except Exception as e:
-            import traceback
-            error_detail = traceback.format_exc()
-            self.status_message = f"Error loading prompts: {e}"
-            self.prompts = []
-            print(f"[DEBUG] Prompt loading error:\n{error_detail}")
-
-    def load_workflows(self) -> None:
-        """Load workflows from the workflows directory."""
-        workflows: List[WorkflowInfo] = []
-        try:
-            claude_dir = _resolve_claude_dir()
-            workflows_dir = self._validate_path(claude_dir, claude_dir / "workflows")
-            tasks_dir = self._validate_path(
-                claude_dir, claude_dir / "tasks" / "current"
-            )
-
-            # Load active workflow status if exists
-            active_workflow_file = tasks_dir / "active_workflow"
-            active_workflow = None
-            if active_workflow_file.is_file():
-                active_workflow = active_workflow_file.read_text(
-                    encoding="utf-8"
-                ).strip()
-
-            if workflows_dir.is_dir():
-                for workflow_file in sorted(workflows_dir.glob("*.yaml")):
-                    if workflow_file.stem == "README":
-                        continue
-
-                    try:
-                        content = workflow_file.read_text(encoding="utf-8")
-                        workflow_data = yaml.safe_load(content)
-
-                        # Validate YAML structure
-                        if not self._validate_workflow_schema(
-                            workflow_data, workflow_file
-                        ):
-                            # Skip malformed workflows
-                            continue
-
-                        name = workflow_data.get("name", workflow_file.stem)
-                        description = workflow_data.get("description", "")
-                        steps = [
-                            step.get("name", "")
-                            for step in workflow_data.get("steps", [])
-                        ]
-
-                        # Determine status
-                        status = "pending"
-                        progress = 0
-                        started = None
-                        current_step = None
-
-                        if active_workflow == workflow_file.stem:
-                            status_file = tasks_dir / "workflow_status"
-                            if status_file.is_file():
-                                status = status_file.read_text(encoding="utf-8").strip()
-
-                            started_file = tasks_dir / "workflow_started"
-                            if started_file.is_file():
-                                started = float(
-                                    started_file.read_text(encoding="utf-8").strip()
-                                )
-
-                            current_step_file = tasks_dir / "current_step"
-                            if current_step_file.is_file():
-                                current_step = current_step_file.read_text(
-                                    encoding="utf-8"
-                                ).strip()
-
-                            # Calculate progress based on current step
-                            if current_step and steps:
-                                try:
-                                    step_index = steps.index(current_step)
-                                    progress = int((step_index / len(steps)) * 100)
-                                except ValueError:
-                                    progress = 0
-
-                        workflows.append(
-                            WorkflowInfo(
-                                name=name,
-                                description=description,
-                                status=status,
-                                progress=progress,
-                                started=started,
-                                steps=steps,
-                                current_step=current_step,
-                                file_path=workflow_file,
-                            )
-                        )
-
-                    except Exception:
-                        # Skip malformed workflows
-                        continue
-
-        except Exception as e:
-            self.status_message = f"Error loading workflows: {e}"
-
-        self.workflows = workflows
-        if hasattr(self, "metrics_collector"):
-            running = sum(1 for w in workflows if w.status == "running")
-            self.metrics_collector.record("workflows_running", float(running))
-
     def load_worktrees(self) -> None:
         """Load git worktrees for the current repository."""
         try:
@@ -2454,172 +1863,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.worktree_base_dir = None
             self.worktree_base_source = None
             self.status_message = self.worktree_error
-
-    def load_scenarios(self) -> None:
-        """Load scenario metadata and runtime state."""
-        scenarios: List[ScenarioInfo] = []
-        try:
-            claude_dir = _resolve_claude_dir()
-            scenarios_dir, state_dir, lock_dir = _ensure_scenarios_dir(claude_dir)
-            scenarios_dir = self._validate_path(claude_dir, scenarios_dir)
-            state_dir = self._validate_path(claude_dir, state_dir)
-            lock_dir = self._validate_path(claude_dir, lock_dir)
-
-            # Cache latest state per scenario (by modification time)
-            state_cache: Dict[str, ScenarioRuntimeState] = {}
-            state_files = []
-            for state_file in state_dir.glob("*.json"):
-                try:
-                    mtime = state_file.stat().st_mtime
-                except OSError:
-                    mtime = 0
-                state_files.append((mtime, state_file))
-            for _mtime, state_file in sorted(state_files, key=lambda x: x[0], reverse=True):
-                try:
-                    data = json.loads(state_file.read_text(encoding="utf-8"))
-                except (OSError, json.JSONDecodeError):
-                    continue
-                scenario_name = str(data.get("scenario") or state_file.stem)
-                if scenario_name in state_cache:
-                    continue
-                state_cache[scenario_name] = {
-                    "status": str(data.get("status", "pending")),
-                    "started": self._parse_iso_datetime(data.get("started")),
-                    "completed": self._parse_iso_datetime(data.get("completed")),
-                }
-
-            lock_map: Dict[str, Optional[str]] = {}
-            for lock_file in lock_dir.glob("*.lock"):
-                try:
-                    exec_id = lock_file.read_text(encoding="utf-8").strip() or None
-                except OSError:
-                    exec_id = None
-                lock_map[lock_file.stem] = exec_id
-
-            for scenario_file in sorted(scenarios_dir.glob("*.yaml")):
-                if scenario_file.stem == "README":
-                    continue
-
-                code, metadata, error_msg = _parse_scenario_metadata(scenario_file)
-                if code != 0 or metadata is None:
-                    scenarios.append(
-                        ScenarioInfo(
-                            name=scenario_file.stem,
-                            description=error_msg or "Invalid scenario definition",
-                            priority="-",
-                            scenario_type="invalid",
-                            phase_names=[],
-                            agents=[],
-                            profiles=[],
-                            status="invalid",
-                            started_at=None,
-                            completed_at=None,
-                            lock_holder=None,
-                            file_path=scenario_file,
-                            error=error_msg or "Invalid scenario definition",
-                        )
-                    )
-                    continue
-
-                phase_names = [phase.name for phase in metadata.phases]
-                agents: List[str] = []
-                profiles: List[str] = []
-                for phase in metadata.phases:
-                    for agent in phase.agents:
-                        if agent not in agents:
-                            agents.append(agent)
-                    for profile in phase.profiles:
-                        if profile not in profiles:
-                            profiles.append(profile)
-
-                state_entry = state_cache.get(metadata.name)
-                if state_entry is not None:
-                    status = state_entry["status"]
-                    started_at = state_entry["started"]
-                    completed_at = state_entry["completed"]
-                else:
-                    status = "pending"
-                    started_at = None
-                    completed_at = None
-
-                lock_key = _scenario_lock_basename(metadata.name)
-                lock_holder = lock_map.get(lock_key)
-                if lock_holder is not None:
-                    status = "running"
-
-                scenarios.append(
-                    ScenarioInfo(
-                        name=metadata.name,
-                        description=metadata.description,
-                        priority=metadata.priority,
-                        scenario_type=metadata.scenario_type,
-                        phase_names=phase_names,
-                        agents=agents,
-                        profiles=profiles,
-                        status=status,
-                        started_at=started_at,
-                        completed_at=completed_at,
-                        lock_holder=lock_holder,
-                        file_path=scenario_file,
-                    )
-                )
-
-        except Exception as exc:  # pragma: no cover - defensive guard
-            self.scenarios = []
-            self.status_message = f"Error loading scenarios: {exc}"[:160]
-            return
-
-        self.scenarios = scenarios
-        if hasattr(self, "metrics_collector"):
-            self.metrics_collector.record("scenarios_total", float(len(scenarios)))
-            running = sum(1 for s in scenarios if s.status == "running")
-            self.metrics_collector.record("scenarios_running", float(running))
-
-    def load_profiles(self) -> List[Dict[str, Optional[str]]]:
-        """Load available profiles (built-in + saved)."""
-        try:
-            profiles: List[Dict[str, Optional[str]]] = []
-            claude_dir = _resolve_claude_dir()
-
-            for name in BUILT_IN_PROFILES:
-                profiles.append(
-                    {
-                        "name": name,
-                        "type": "built-in",
-                        "description": PROFILE_DESCRIPTIONS.get(
-                            name, "Built-in profile"
-                        ),
-                        "path": None,
-                        "modified": None,
-                    }
-                )
-
-            profiles_dir = claude_dir / "profiles"
-            if profiles_dir.is_dir():
-                for profile_file in sorted(profiles_dir.glob("*.profile")):
-                    modified_iso = None
-                    try:
-                        modified_iso = datetime.fromtimestamp(
-                            profile_file.stat().st_mtime
-                        ).strftime("%Y-%m-%d %H:%M")
-                    except OSError:
-                        modified_iso = None
-                    profiles.append(
-                        {
-                            "name": profile_file.stem,
-                            "type": "saved",
-                            "description": "Saved profile snapshot",
-                            "path": str(profile_file),
-                            "modified": modified_iso,
-                        }
-                    )
-
-            self.profiles = profiles
-            return profiles
-        except Exception as exc:
-            self.profiles = []
-            self.status_message = f"Error loading profiles: {exc}"[:160]
-            return []
 
     def load_mcp_servers(self) -> None:
         """Load MCP server definitions."""
@@ -2795,30 +2038,20 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         if self.current_view == "agents":
             self.show_agents_view(table)
-        elif self.current_view == "principles":
-            self.show_principles_view(table)
         elif self.current_view == "rules":
             self.show_rules_view(table)
-        elif self.current_view == "modes":
-            self.show_modes_view(table)
-        elif self.current_view == "prompts":
-            self.show_prompts_view(table)
         elif self.current_view == "skills":
             self.show_skills_view(table)
         elif self.current_view == "commands":
             self.show_commands_view(table)
-        elif self.current_view == "workflows":
-            self.show_workflows_view(table)
         elif self.current_view == "worktrees":
             self.show_worktrees_view(table)
-        elif self.current_view == "scenarios":
-            self.show_scenarios_view(table)
         elif self.current_view == "orchestrate":
             self.show_orchestrate_view(table)
         elif self.current_view == "mcp":
             self.show_mcp_view(table)
         elif self.current_view == "profiles":
-            self._render_profiles_table(table)
+            self._render_setup_table(table)
         elif self.current_view == "export":
             self._render_export_table(table)
         elif self.current_view == "ai_assistant":
@@ -3204,49 +2437,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         return flags
 
-    def show_principles_view(self, table: AnyDataTable) -> None:
-        """Show principles snippets view."""
-        table.add_column("Snippet", key="name", width=24)
-        table.add_column("Status", key="status", width=12)
-        table.add_column("Summary", key="summary")
-        table.add_column("Source", key="source", width=36)
-
-        if not hasattr(self, "principles") or not self.principles:
-            table.add_row("[dim]No principles found[/dim]", "", "", "")
-            table.add_row(
-                "[dim]Add snippets under principles/[/dim]",
-                "",
-                "",
-                "",
-            )
-            return
-
-        claude_dir = _resolve_claude_dir()
-
-        def _relpath(path: Path) -> str:
-            try:
-                return path.relative_to(claude_dir).as_posix()
-            except ValueError:
-                return path.as_posix()
-
-        for snippet in self.principles:
-            if snippet.status == "active":
-                status_text = "[bold green]● ACTIVE[/bold green]"
-                name = f"[bold]{Icons.DOC} {snippet.name}[/bold]"
-            else:
-                status_text = "[dim]○ inactive[/dim]"
-                name = f"[dim]{Icons.DOC} {snippet.name}[/dim]"
-
-            summary_parts = [snippet.title] if snippet.title else []
-            if snippet.description and snippet.description != snippet.title:
-                summary_parts.append(snippet.description)
-            summary_text = " — ".join(summary_parts) if summary_parts else "Snippet"
-            summary_text = Format.truncate(summary_text, 140).replace("[", "\\[")
-            summary = f"[dim]{summary_text}[/dim]"
-            source = f"[dim]{Format.truncate(_relpath(snippet.path), 60)}[/dim]"
-
-            table.add_row(name, status_text, summary, source)
-
     def show_rules_view(self, table: AnyDataTable) -> None:
         """Show rules table with enhanced colors."""
         table.add_column("Name", key="name", width=25)
@@ -3301,91 +2491,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 source,
             )
 
-    def show_modes_view(self, table: AnyDataTable) -> None:
-        """Show modes table with enhanced colors."""
-        table.add_column("Name", key="name", width=30)
-        table.add_column("Status", key="status", width=12)
-        table.add_column("Purpose", key="purpose")
-        table.add_column("Source", key="source", width=36)
-
-        # Debug logging
-        has_modes_attr = hasattr(self, "modes")
-        modes_value = getattr(self, "modes", None)
-        modes_count = len(modes_value) if modes_value else 0
-        print(f"[DEBUG] show_modes_view: has_attr={has_modes_attr}, modes={modes_value is not None}, count={modes_count}")
-
-        if not hasattr(self, "modes") or not self.modes:
-            table.add_row("[dim]No modes found[/dim]", "", "", "")
-            return
-
-        claude_dir = _resolve_claude_dir()
-        def _relpath(path: Path) -> str:
-            try:
-                return path.relative_to(claude_dir).as_posix()
-            except ValueError:
-                return path.as_posix()
-
-        for mode in self.modes:
-            # Color-coded status (match rules view styling)
-            if mode.status == "active":
-                status_text = f"[bold green]● ACTIVE[/bold green]"
-                name = f"[bold]{Icons.FILTER} {mode.name}[/bold]"
-            else:
-                status_text = f"[dim]○ inactive[/dim]"
-                name = f"[dim]{Icons.FILTER} {mode.name}[/dim]"
-
-            # Show more of the purpose - escape Rich markup characters
-            purpose_text = Format.truncate(mode.purpose, 150).replace("[", "\\[")
-            purpose = f"[dim italic]{purpose_text}[/dim italic]"
-
-            source = f"[dim]{Format.truncate(_relpath(mode.path), 60)}[/dim]"
-
-            table.add_row(
-                name,
-                status_text,
-                purpose,
-                source,
-            )
-
-    def show_prompts_view(self, table: AnyDataTable) -> None:
-        """Show prompts table with categories and status."""
-        table.add_column("Name", key="name", width=25)
-        table.add_column("Category", key="category", width=15)
-        table.add_column("Tokens", key="tokens", width=10)
-        table.add_column("Status", key="status", width=12)
-        table.add_column("Description", key="description")
-
-        if not hasattr(self, "prompts") or not self.prompts:
-            table.add_row(
-                "[dim]No prompts found[/dim]",
-                "",
-                "",
-                "",
-                "[dim]Create prompts in ~/.cortex/prompts/[/dim]",
-            )
-            return
-
-        for prompt in self.prompts:
-            # Color-coded status
-            if prompt.status == "active":
-                status_text = f"[bold green]● ACTIVE[/bold green]"
-                name = f"[bold]{Icons.DOCUMENT} {prompt.name}[/bold]"
-            else:
-                status_text = f"[dim]○ inactive[/dim]"
-                name = f"[dim]{Icons.DOCUMENT} {prompt.name}[/dim]"
-
-            category = f"[cyan]{prompt.category}[/cyan]" if prompt.category else "[dim]—[/dim]"
-            tokens = f"[dim]~{prompt.tokens}[/dim]" if prompt.tokens else "[dim]—[/dim]"
-            description = Format.truncate(prompt.description, 60).replace("[", "\\[")
-
-            table.add_row(
-                name,
-                category,
-                tokens,
-                status_text,
-                f"[dim italic]{description}[/dim italic]",
-            )
-
     def show_overview(self, table: AnyDataTable) -> None:
         """Show overview with high-energy ASCII dashboard."""
         table.add_column("Dashboard", key="dashboard")
@@ -3394,18 +2499,11 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             1 for a in getattr(self, "agents", []) if a.status == "active"
         )
         total_agents = len(getattr(self, "agents", []))
-        active_modes = sum(
-            1 for m in getattr(self, "modes", []) if m.status == "active"
-        )
-        total_modes = len(getattr(self, "modes", []))
         active_rules = sum(
             1 for r in getattr(self, "rules", []) if r.status == "active"
         )
         total_rules = len(getattr(self, "rules", []))
         total_skills = len(getattr(self, "skills", []))
-        running_workflows = sum(
-            1 for w in getattr(self, "workflows", []) if w.status == "running"
-        )
         flags_active, flags_total, flags_stats = self._get_flags_summary()
 
         def add_multiline(content: str) -> None:
@@ -3421,12 +2519,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         metrics_grid = EnhancedOverview.create_status_grid(
             active_agents,
             total_agents,
-            active_modes,
-            total_modes,
+            0,  # modes removed
+            0,  # modes removed
             active_rules,
             total_rules,
             total_skills,
-            running_workflows,
+            0,  # workflows removed
             flags_active,
             flags_total,
         )
@@ -4075,59 +3173,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
         stats_widget.update("\n".join(stats_lines))
 
-    def show_workflows_view(self, table: AnyDataTable) -> None:
-        """Show workflows table."""
-        table.add_column("Name", key="name")
-        table.add_column("Status", key="status")
-        table.add_column("Progress", key="progress")
-        table.add_column("Started", key="started")
-        table.add_column("Description", key="description")
-
-        if not hasattr(self, "workflows") or not self.workflows:
-            table.add_row("No workflows found", "", "", "", "")
-            return
-
-        for workflow in self.workflows:
-            # Use StatusIcon for better visual representation
-            if workflow.status == "complete":
-                status_text = StatusIcon.active()  # Reuse success icon
-            elif workflow.status == "running":
-                status_text = StatusIcon.running()
-            elif workflow.status == "error":
-                status_text = StatusIcon.error()
-            else:
-                status_text = StatusIcon.pending()
-
-            # Use ProgressBar utility for consistent visualization
-            progress_text = "-"
-            if workflow.status in ("running", "paused", "complete"):
-                progress_text = ProgressBar.simple_bar(workflow.progress, 100, width=10)
-
-            # Use Format.time_ago if timestamp is datetime
-            started_text = "-"
-            if workflow.started:
-                # Assuming started is a timestamp
-                started_dt = datetime.fromtimestamp(workflow.started)
-                started_text = Format.time_ago(started_dt)
-
-            # Use Format.truncate for description
-            description = (
-                Format.truncate(workflow.description, 40)
-                if workflow.description
-                else ""
-            )
-
-            # Add icon to name
-            name = f"{Icons.PLAY} {workflow.name}"
-
-            table.add_row(
-                name,
-                status_text,
-                progress_text,
-                started_text,
-                description,
-            )
-
     def show_worktrees_view(self, table: AnyDataTable) -> None:
         """Show git worktrees table."""
         table.add_column("Branch", key="branch", width=24)
@@ -4177,93 +3222,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             head = worktree.head[:8] if worktree.head else "-"
 
             table.add_row(branch, status, path_display, head)
-
-    def show_scenarios_view(self, table: AnyDataTable) -> None:
-        """Show scenario catalog."""
-        table.add_column("Scenario", key="scenario", width=32)
-        table.add_column("Status", key="status", width=14)
-        table.add_column("Priority", key="priority", width=12)
-        table.add_column("Phases", key="phases", width=18)
-        table.add_column("Agents", key="agents", width=24)
-        table.add_column("Last Run", key="last_run", width=14)
-        table.add_column("Description", key="description")
-
-        scenarios = getattr(self, "scenarios", [])
-        if not scenarios:
-            table.add_row("[dim]No scenarios found[/dim]", "", "", "", "", "", "")
-            table.add_row(
-                "[dim]Add YAML files under ~/.cortex/scenarios[/dim]",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-            )
-            return
-
-        priority_colors = {
-            "critical": "red",
-            "high": "yellow",
-            "medium": "green",
-            "normal": "green",
-            "low": "cyan",
-        }
-
-        for scenario in scenarios:
-            icon = Icons.PLAY if scenario.status != "invalid" else Icons.WARNING
-            name = f"{icon} {scenario.name}"
-
-            status_key = (scenario.status or "pending").lower()
-            if status_key == "running":
-                status_text = StatusIcon.running()
-            elif status_key in ("completed", "complete", "success"):
-                status_text = StatusIcon.active()
-            elif status_key in ("failed", "error"):
-                status_text = StatusIcon.error()
-            elif status_key == "invalid":
-                status_text = StatusIcon.warning()
-            else:
-                status_text = StatusIcon.pending()
-
-            priority_color = priority_colors.get(scenario.priority.lower(), "white")
-            priority_text = (
-                f"[{priority_color}]{scenario.priority}[/{priority_color}]"
-                if scenario.priority and scenario.priority != "-"
-                else "[dim]-[/dim]"
-            )
-
-            phases_preview = (
-                Format.list_items(scenario.phase_names, max_items=2)
-                if scenario.phase_names
-                else "-"
-            )
-            phases_text = f"{len(scenario.phase_names)} | {phases_preview}" if scenario.phase_names else "0"
-
-            agents_text = (
-                Format.list_items(scenario.agents, max_items=3)
-                if scenario.agents
-                else "-"
-            )
-
-            last_run_text = "-"
-            if scenario.completed_at:
-                last_run_text = Format.time_ago(scenario.completed_at)
-            elif scenario.started_at:
-                last_run_text = Format.time_ago(scenario.started_at)
-
-            description = scenario.description or scenario.error or ""
-            description = Format.truncate(description, 60) if description else ""
-
-            table.add_row(
-                name,
-                status_text,
-                priority_text,
-                phases_text,
-                agents_text,
-                last_run_text,
-                description,
-            )
 
     def show_orchestrate_view(self, table: AnyDataTable) -> None:
         """Show orchestration dashboard with active agents and metrics."""
@@ -5367,12 +4325,8 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             "commands": ("📝", "green"),
             "agents": ("🤖", "blue"),
             "skills": ("🎯", "yellow"),
-            "modes": ("🎨", "magenta"),
-            "workflows": ("🔄", "white"),
             "flags": ("🚩", "red"),
             "rules": ("🧭", "bright_blue"),
-            "profiles": ("👤", "bright_green"),
-            "scenarios": ("🎬", "bright_magenta"),
             "tasks": ("✅", "bright_yellow"),
             "settings": ("⚙️", "bright_cyan"),
         }
@@ -5475,24 +4429,11 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.status_message = "Switched to Agents"
         self.notify("🤖 Agents", severity="information", timeout=1)
 
-    def action_view_modes(self) -> None:
-        """Switch to modes view."""
-        self.current_view = "modes"
-        self.status_message = "Switched to Modes"
-        self.notify("🎨 Modes", severity="information", timeout=1)
-
     def action_view_rules(self) -> None:
         """Switch to rules view."""
         self.current_view = "rules"
         self.status_message = "Switched to Rules"
         self.notify("📜 Rules", severity="information", timeout=1)
-
-    def action_view_principles(self) -> None:
-        """Switch to principles view."""
-        self.current_view = "principles"
-        self.load_principles()
-        self.status_message = "Switched to Principles"
-        self.notify(f"{Icons.DOC} Principles", severity="information", timeout=1)
 
     def action_view_skills(self) -> None:
         """Switch to skills view."""
@@ -5507,25 +4448,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.status_message = "Switched to Slash Commands"
         self.notify("⌘ Slash Commands", severity="information", timeout=1)
 
-    def action_view_workflows(self) -> None:
-        """Switch to workflows view."""
-        self.current_view = "workflows"
-        self.status_message = "Switched to Workflows"
-        self.notify("🔄 Workflows", severity="information", timeout=1)
-
     def action_view_worktrees(self) -> None:
         """Switch to worktrees view."""
         self.current_view = "worktrees"
         self.load_worktrees()
         self.status_message = "Switched to Worktrees"
         self.notify("🌿 Worktrees", severity="information", timeout=1)
-
-    def action_view_scenarios(self) -> None:
-        """Switch to scenarios view."""
-        self.current_view = "scenarios"
-        self.load_scenarios()
-        self.status_message = "Switched to Scenarios"
-        self.notify("🗺 Scenarios", severity="information", timeout=1)
 
     def action_view_orchestrate(self) -> None:
         """Switch to orchestrate view."""
@@ -5540,13 +4468,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         self.load_mcp_docs()
         self.status_message = "Switched to MCP"
         self.notify("🛰 MCP Servers", severity="information", timeout=1)
-
-    def action_view_profiles(self) -> None:
-        """Switch to profiles view."""
-        self.current_view = "profiles"
-        self.load_profiles()
-        self.status_message = "Switched to Profiles"
-        self.notify("👤 Profiles", severity="information", timeout=1)
 
     async def action_view_docs(self) -> None:
         """Switch to documentation view."""
@@ -6867,302 +5788,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         except Exception as e:
             self.notify(f"Error deleting note: {e}", severity="error", timeout=5)
 
-    async def action_run_selected(self) -> None:
-        """Run the highlighted item in workflows or scenarios view."""
-        if self.current_view == "workflows":
-            await self._run_selected_workflow()
-            return
-        if self.current_view == "scenarios":
-            await self.action_scenario_run_auto()
-            return
-        self.notify(
-            "Run action is only available in Workflows or Scenarios views",
-            severity="warning",
-            timeout=2,
-        )
-
-    async def action_stop_selected(self) -> None:
-        """Stop the highlighted workflow or scenario."""
-        if self.current_view == "workflows":
-            await self._stop_selected_workflow()
-            return
-        if self.current_view == "scenarios":
-            await self._stop_selected_scenario()
-            return
-        self.notify(
-            "Stop action is only available in Workflows or Scenarios views",
-            severity="warning",
-            timeout=2,
-        )
-
-    async def action_scenario_preview(self) -> None:
-        """Preview the selected scenario definition."""
-        if self.current_view != "scenarios":
-            return
-        scenario = self._selected_scenario()
-        if not scenario:
-            self.notify("Select a scenario to preview", severity="warning", timeout=2)
-            return
-        exit_code, message = scenario_preview(scenario.file_path.stem)
-        cleaned = _strip_ansi_codes(message or "")
-        if exit_code != 0:
-            self.status_message = cleaned.split("\n")[0][:160]
-            self.notify(
-                f"✗ Failed to preview {scenario.name}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        await self.push_screen(
-            TextViewerDialog(f"Scenario Preview: {scenario.name}", cleaned)
-        )
-        self.status_message = f"Previewed {scenario.name}"
-
-    def action_principles_build(self) -> None:
-        """Rebuild PRINCIPLES.md from active snippets."""
-        if self.current_view != "principles":
-            self.action_view_principles()
-
-        exit_code, message = principles_build()
-        clean = self._clean_ansi(message)
-        if clean:
-            self.status_message = clean.split("\n")[0]
-
-        if exit_code == 0:
-            self.notify("✓ Principles rebuilt", severity="information", timeout=2)
-            self.load_principles()
-            self.update_view()
-        else:
-            self.notify(clean or "Build failed", severity="error", timeout=3)
-
-    def action_principle_create(self) -> None:
-        """Create a new principle snippet."""
-        if self.current_view != "principles":
-            self.action_view_principles()
-
-        dialog = PrincipleCreateDialog("New Principle")
-        self.push_screen(dialog, callback=self._handle_principle_create)
-
-    def _handle_principle_create(self, result: Optional[PrincipleCreateData]) -> None:
-        """Handle the result of the principle create dialog."""
-        if not result:
-            return
-
-        name = result.get("name", "").strip()
-        title = result.get("title", "").strip()
-        content = result.get("content", "").strip()
-
-        if not name:
-            self.notify("Principle name is required", severity="warning", timeout=2)
-            return
-
-        # Build the file content
-        claude_dir = _resolve_claude_dir()
-        principles_dir = claude_dir / "principles"
-
-        # Create directory if it doesn't exist
-        principles_dir.mkdir(parents=True, exist_ok=True)
-
-        # Build markdown content
-        file_content = ""
-        if title:
-            file_content = f"# {title}\n\n"
-        if content:
-            file_content += content
-        else:
-            file_content += f"<!-- Add your {name} principle here -->\n"
-
-        # Write the file
-        file_path = principles_dir / f"{name}.md"
-        if file_path.exists():
-            self.notify(
-                f"Principle '{name}' already exists",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        try:
-            file_path.write_text(file_content, encoding="utf-8")
-        except OSError as exc:
-            self.notify(
-                f"Failed to create principle: {exc}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        self.notify(f"✓ Created principle '{name}'", severity="information", timeout=2)
-        self.load_principles()
-        self.update_view()
-
-        # Automatically rebuild PRINCIPLES.md
-        exit_code, message = principles_build()
-        if exit_code == 0:
-            self.notify("✓ Rebuilt PRINCIPLES.md", severity="information", timeout=2)
-
-    async def action_scenario_run_auto(self) -> None:
-        """Run the selected scenario in automatic mode."""
-        if self.current_view != "scenarios":
-            return
-        scenario = self._selected_scenario()
-        if not scenario:
-            self.notify("Select a scenario to run", severity="warning", timeout=2)
-            return
-        if scenario.status == "invalid":
-            self.notify(
-                f"Cannot run invalid scenario '{scenario.name}'",
-                severity="error",
-                timeout=3,
-            )
-            return
-        if scenario.lock_holder:
-            self.notify(
-                f"Scenario '{scenario.name}' already running",
-                severity="warning",
-                timeout=2,
-            )
-            return
-
-        confirm = await self.push_screen(
-            ConfirmDialog(
-                "Run Scenario",
-                f"Execute scenario '{scenario.name}' in automatic mode?",
-                default=True,
-            ),
-            wait_for_dismiss=True,
-        )
-        if confirm is not True:
-            self.status_message = "Scenario run cancelled"
-            return
-
-        self.status_message = f"Running scenario: {scenario.name}"
-        
-        python_executable = sys.executable
-        command = [python_executable, "-m", "claude_ctx_py.cli", "orchestrate", "run", scenario.file_path.stem, "--auto"]
-
-        await self.app.push_screen(LogViewerScreen(command, title=f"Running Scenario: {scenario.name}"))
-        
-        self.notify(
-            f"Scenario '{scenario.name}' finished.",
-            severity="information",
-            timeout=3,
-        )
-        self.load_scenarios()
-        self.update_view()
-
-    async def _run_selected_workflow(self) -> None:
-        """Run the highlighted workflow and stream output in a log viewer."""
-        workflow = self._selected_workflow()
-        if not workflow:
-            self.notify("Select a workflow to run", severity="warning", timeout=2)
-            return
-
-        workflow_name = workflow.file_path.stem if workflow.file_path else workflow.name
-        self.status_message = f"Running workflow: {workflow.name}"
-
-        python_executable = sys.executable
-        command = [
-            python_executable,
-            "-m",
-            "claude_ctx_py.cli",
-            "workflow",
-            "run",
-            workflow_name,
-        ]
-
-        await self.app.push_screen(
-            LogViewerScreen(command, title=f"Running Workflow: {workflow.name}")
-        )
-
-        self.notify(
-            f"Workflow '{workflow.name}' finished.",
-            severity="information",
-            timeout=3,
-        )
-        self.load_workflows()
-        self.load_agent_tasks()
-        self.update_view()
-
-    async def _stop_selected_workflow(self) -> None:
-        workflow = self._selected_workflow()
-        if not workflow:
-            self.notify("Select a workflow to stop", severity="warning", timeout=2)
-            return
-
-        workflow_name = workflow.file_path.stem if workflow.file_path else workflow.name
-        exit_code, message = workflow_stop(workflow_name)
-        clean = self._clean_ansi(message)
-
-        if exit_code == 0:
-            self.notify(clean or f"Stopped {workflow.name}", severity="information", timeout=2)
-            self.status_message = clean or f"Stopped {workflow.name}"
-        else:
-            self.notify(clean or "Failed to stop workflow", severity="error", timeout=3)
-            self.status_message = clean or f"Failed to stop {workflow.name}"
-
-        self.load_workflows()
-        self.load_agent_tasks()
-        self.update_view()
-
-    async def _stop_selected_scenario(self) -> None:
-        scenario = self._selected_scenario()
-        if not scenario:
-            self.notify("Select a scenario to stop", severity="warning", timeout=2)
-            return
-
-        scenario_name = scenario.file_path.stem if scenario.file_path else scenario.name
-        exit_code, message = scenario_stop(scenario_name)
-        clean = self._clean_ansi(message)
-
-        if exit_code == 0:
-            self.notify(clean or f"Stopped {scenario.name}", severity="information", timeout=2)
-            self.status_message = clean or f"Stopped {scenario.name}"
-        else:
-            self.notify(clean or "Failed to stop scenario", severity="error", timeout=3)
-            self.status_message = clean or f"Failed to stop {scenario.name}"
-
-        self.load_scenarios()
-        self.update_view()
-
-    async def action_scenario_validate_selected(self) -> None:
-        """Validate the selected scenario against the schema."""
-        if self.current_view != "scenarios":
-            return
-        scenario = self._selected_scenario()
-        if not scenario:
-            self.notify("Select a scenario to validate", severity="warning", timeout=2)
-            return
-
-        exit_code, message = scenario_validate(scenario.file_path.stem)
-        cleaned = _strip_ansi_codes(message or "")
-        await self.push_screen(
-            TextViewerDialog(f"Scenario Validation: {scenario.name}", cleaned)
-        )
-
-        if exit_code == 0:
-            self.notify(
-                f"Scenario '{scenario.name}' is valid",
-                severity="information",
-                timeout=2,
-            )
-            self.status_message = f"Validated {scenario.name}"
-        else:
-            self.notify(
-                f"Scenario '{scenario.name}' failed validation",
-                severity="error",
-                timeout=3,
-            )
-            self.status_message = f"Validation errors for {scenario.name}"
-
-    async def action_scenario_status_history(self) -> None:
-        """Show scenario locks and recent executions."""
-        report = scenario_status()
-        cleaned = _strip_ansi_codes(report or "No scenario executions logged yet.")
-        await self.push_screen(TextViewerDialog("Scenario Status", cleaned))
-        self.status_message = "Scenario status displayed"
-
     def action_view_galaxy(self) -> None:
         """Switch to the agent galaxy visualization."""
         self.current_view = "galaxy"
@@ -7183,230 +5808,9 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         # Delegate to the existing details context action
         self.run_worker(self._show_selected_agent_definition(), exclusive=True)
 
-    def action_profile_apply(self) -> None:
-        """Apply the selected profile."""
-        if self.current_view != "profiles":
-            return
-
-        profile = self._selected_profile()
-        if not profile:
-            self.notify("Select a profile", severity="warning", timeout=2)
-            return
-
-        name = profile.get("name", "profile")
-        try:
-            if profile.get("type") == "built-in":
-                exit_code, message = init_profile(name)
-            else:
-                path_str = profile.get("path")
-                if not path_str:
-                    self.notify("Profile file missing", severity="error", timeout=2)
-                    return
-                exit_code, message = self._apply_saved_profile(Path(path_str))
-        except Exception as exc:
-            self.notify(f"Failed: {exc}", severity="error", timeout=3)
-            return
-
-        clean = self._clean_ansi(message)
-        if exit_code == 0:
-            self.status_message = clean.split("\n")[0] if clean else f"Applied {name}"
-            self.notify(f"✓ Applied {name}", severity="information", timeout=2)
-            self.load_agents()
-            self.load_modes()
-            self.load_rules()
-            self.load_profiles()
-            self.update_view()
-            self._show_restart_required()
-        else:
-            self.status_message = clean or f"Failed to apply {name}"
-            self.notify(self.status_message, severity="error", timeout=3)
-
-    async def action_profile_save_prompt(self) -> None:
-        """Prompt for a profile name and save current state."""
-        if self.current_view != "profiles":
-            self.action_view_profiles()
-
-        dialog = PromptDialog(
-            "Save Profile", "Enter profile name", placeholder="team-alpha"
-        )
-        name = await self.push_screen(dialog, wait_for_dismiss=True)
-        if not name:
-            return
-
-        exit_code, message = profile_save(name.strip())
-        clean = self._clean_ansi(message)
-        if exit_code == 0:
-            self.notify(clean or f"Saved profile {name}", severity="information", timeout=2)
-            self.load_profiles()
-            self.update_view()
-        else:
-            self.notify(clean or "Failed to save profile", severity="error", timeout=3)
-
-    async def action_profile_delete(self) -> None:
-        """Delete the selected saved profile."""
-        if self.current_view != "profiles":
-            return
-
-        profile = self._selected_profile()
-        if not profile or profile.get("type") != "saved":
-            self.notify(
-                "Select a saved profile to delete", severity="warning", timeout=2
-            )
-            return
-
-        confirm = await self.push_screen(
-            ConfirmDialog("Delete Profile", f"Remove {profile.get('name', '')}?"),
-            wait_for_dismiss=True,
-        )
-        if not confirm:
-            return
-
-        try:
-            path_str = profile.get("path")
-            if path_str:
-                Path(path_str).unlink(missing_ok=True)
-        except Exception as exc:
-            self.notify(f"Failed to delete: {exc}", severity="error", timeout=3)
-            return
-
-        self.load_profiles()
-        self.update_view()
-        self.notify("Deleted profile", severity="information", timeout=2)
-
-    def action_profile_edit(self) -> None:
-        """Open the profile editor dialog."""
-        if self.current_view != "profiles":
-            return
-
-        profile = self._selected_profile()
-        if not profile:
-            self.notify("Select a profile first", severity="warning", timeout=2)
-            return
-
-        name = profile.get("name") or ""
-        ptype = profile.get("type") or "built-in"
-        path_str = profile.get("path")
-
-        dialog = ProfileEditorDialog(name, ptype, path_str)
-        self.push_screen(dialog, callback=self._handle_profile_edit_result)
-
-    def _handle_profile_edit_result(self, config: Optional[ProfileConfig]) -> None:
-        """Handle the result from the profile editor dialog."""
-        if not config:
-            return
-
-        # Apply the edited profile configuration
-        try:
-            # First reset to minimal
-            exit_code, message = _profile_reset()
-            if exit_code != 0:
-                self.notify(f"Reset failed: {self._clean_ansi(message)}", severity="error", timeout=3)
-                return
-
-            # Activate selected agents
-            for agent_name in config.agents:
-                exit_code, msg = agent_activate(agent_name)
-                if exit_code != 0 and "already active" not in (msg or "").lower():
-                    self.notify(f"Agent {agent_name}: {self._clean_ansi(msg)}", severity="warning", timeout=2)
-
-            # Activate selected modes
-            for mode_name in config.modes:
-                exit_code, msg = mode_activate(mode_name)
-                if exit_code != 0 and "already active" not in (msg or "").lower():
-                    self.notify(f"Mode {mode_name}: {self._clean_ansi(msg)}", severity="warning", timeout=2)
-
-            # Activate selected rules
-            for rule_name in config.rules:
-                rules_activate(rule_name)
-
-            # Reload all views
-            self.load_agents()
-            self.load_modes()
-            self.load_rules()
-            self.load_profiles()
-            self.update_view()
-
-            self.status_message = f"Applied profile: {config.name}"
-            self.notify(f"Applied profile: {config.name}", severity="information", timeout=2)
-            self._show_restart_required()
-
-        except Exception as exc:
-            self.notify(f"Failed to apply: {exc}", severity="error", timeout=3)
-
     # ─────────────────────────────────────────────────────────────────────────
-    # Setup Tools Actions (profiles view)
+    # Setup Tools Actions
     # ─────────────────────────────────────────────────────────────────────────
-
-    async def _run_init_wizard(self) -> None:
-        """Run the interactive initialization wizard."""
-        self.notify("Starting Init Wizard...", severity="information", timeout=2)
-
-        try:
-            exit_code, message = init_wizard(cwd=Path.cwd())
-            clean_msg = self._clean_ansi(message)
-
-            if exit_code == 0:
-                self.notify("Init Wizard completed", severity="information", timeout=3)
-                # Reload all data
-                self.load_agents()
-                self.load_modes()
-                self.load_rules()
-                self.load_profiles()
-                self.update_view()
-            else:
-                self.notify("Wizard cancelled or failed", severity="warning", timeout=3)
-
-            await self._show_text_dialog("Init Wizard Result", clean_msg)
-            if exit_code == 0:
-                self._show_restart_required()
-
-        except Exception as exc:
-            self.notify(f"Init Wizard failed: {exc}", severity="error", timeout=3)
-
-    async def action_setup_init_wizard(self) -> None:
-        """Launch the interactive initialization wizard."""
-        if self.current_view != "profiles":
-            return
-
-        await self._run_init_wizard()
-
-    async def action_setup_init_minimal(self) -> None:
-        """Apply minimal configuration quickly."""
-        if self.current_view != "profiles":
-            return
-
-        confirm = await self.push_screen(
-            ConfirmDialog(
-                "Init Minimal",
-                "Apply minimal configuration? This will reset to essential agents only."
-            ),
-            wait_for_dismiss=True,
-        )
-        if not confirm:
-            return
-
-        try:
-            exit_code, message = init_minimal()
-            clean_msg = self._clean_ansi(message)
-
-            if exit_code == 0:
-                self.notify("Minimal configuration applied", severity="information", timeout=3)
-                # Reload all data
-                self.load_agents()
-                self.load_modes()
-                self.load_rules()
-                self.load_profiles()
-                self.update_view()
-            else:
-                self.notify(f"Init failed: {clean_msg[:100]}", severity="error", timeout=3)
-
-            # Show full output
-            await self._show_text_dialog("Init Minimal Result", clean_msg)
-            if exit_code == 0:
-                self._show_restart_required()
-
-        except Exception as exc:
-            self.notify(f"Init Minimal failed: {exc}", severity="error", timeout=3)
 
     async def action_setup_migration(self) -> None:
         """Migrate from comment-based to file-based activation."""
@@ -7435,9 +5839,7 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
 
             # Reload all data
             self.load_agents()
-            self.load_modes()
             self.load_rules()
-            self.load_profiles()
             self.update_view()
 
             # Show full output
@@ -7876,8 +6278,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             await self.action_skill_community()
         elif self.current_view == "mcp":
             await self.action_mcp_snippet()
-        elif self.current_view == "principles":
-            self.action_principles_build()
         else:
             self.notify("No contextual action", severity="warning", timeout=2)
 
@@ -7885,8 +6285,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Context-aware docs shortcut."""
         if self.current_view == "mcp":
             await self.action_mcp_docs()
-        elif self.current_view == "principles":
-            self.action_principles_open()
         else:
             await self.push_screen(DocsScreen())
 
@@ -7895,9 +6293,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         if self.current_view == "agents":
             # Running in a worker ensures push_screen wait semantics work reliably
             self.run_worker(self._show_selected_agent_definition(), exclusive=True)
-            return
-        elif self.current_view == "principles":
-            self.run_worker(self._show_selected_principle_definition(), exclusive=True)
             return
         elif self.current_view == "mcp":
             await self.action_mcp_details()
@@ -7931,88 +6326,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             return
         else:
             self.notify("Details not available", severity="warning", timeout=2)
-
-    async def _show_selected_principle_definition(self) -> None:
-        """Open the selected principles snippet for review."""
-        index = self._table_cursor_index()
-        if index is None or not self.principles:
-            self.notify(
-                "Select a principles snippet to view details",
-                severity="warning",
-                timeout=2,
-            )
-            return
-        if index < 0 or index >= len(self.principles):
-            return
-
-        snippet = self.principles[index]
-        try:
-            claude_dir = _resolve_claude_dir()
-            snippet_path = self._validate_path(claude_dir, snippet.path)
-        except ValueError:
-            snippet_path = snippet.path
-
-        try:
-            body = snippet_path.read_text(encoding="utf-8")
-        except Exception as exc:
-            self.notify(
-                f"Failed to load {snippet.name}: {exc}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        meta_lines = [
-            f"Snippet : {snippet.name}",
-            f"Title   : {snippet.title}",
-            f"Status  : {snippet.status}",
-            f"Path    : {snippet.path}",
-            "",
-        ]
-        meta_lines.append(body)
-        await self._show_text_dialog(
-            f"Principles Snippet · {snippet.name}",
-            "\n".join(meta_lines),
-        )
-        self.status_message = f"Viewing principles snippet {snippet.name}"
-        self.refresh_status_bar()
-
-    def action_principles_open(self) -> None:
-        """Open the generated PRINCIPLES.md for review."""
-        self.run_worker(self._show_principles_output(), exclusive=True)
-
-    async def _show_principles_output(self) -> None:
-        if self.current_view != "principles":
-            self.action_view_principles()
-
-        claude_dir = _resolve_claude_dir()
-        principles_path = claude_dir / "PRINCIPLES.md"
-
-        if not principles_path.is_file():
-            exit_code, message = principles_build()
-            clean = self._clean_ansi(message)
-            if exit_code != 0:
-                self.notify(
-                    clean or "Failed to build PRINCIPLES.md",
-                    severity="error",
-                    timeout=3,
-                )
-                return
-            self.notify("✓ Built PRINCIPLES.md", severity="information", timeout=2)
-
-        try:
-            body = principles_path.read_text(encoding="utf-8")
-        except Exception as exc:
-            self.notify(
-                f"Failed to read PRINCIPLES.md: {exc}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        await self._show_text_dialog("PRINCIPLES.md", body)
-        self.status_message = "Viewing PRINCIPLES.md"
-        self.refresh_status_bar()
 
     async def _show_selected_agent_definition(self) -> None:
         """Open the full agent definition for the selected agent."""
@@ -8092,10 +6405,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         try:
             if self.current_view == "agents":
                 await self._copy_agent_definition()
-            elif self.current_view == "modes":
-                await self._copy_mode_definition()
-            elif self.current_view == "principles":
-                await self._copy_principle_definition()
             elif self.current_view == "rules":
                 await self._copy_rule_definition()
             elif self.current_view == "skills":
@@ -8149,96 +6458,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                 timeout=2,
             )
             self.status_message = f"Copied {agent.name} definition"
-        else:
-            self.notify(
-                "Failed to copy to clipboard",
-                severity="error",
-                timeout=3,
-            )
-
-    async def _copy_mode_definition(self) -> None:
-        """Copy the selected mode's definition to clipboard."""
-        index = self._table_cursor_index()
-        if index is None or not self.modes:
-            self.notify(
-                "Select a mode to copy",
-                severity="warning",
-                timeout=2,
-            )
-            return
-
-        if index < 0 or index >= len(self.modes):
-            return
-
-        mode = self.modes[index]
-        try:
-            claude_dir = _resolve_claude_dir()
-            mode_path = self._validate_path(claude_dir, mode.path)
-        except ValueError:
-            mode_path = mode.path
-
-        try:
-            definition = mode_path.read_text(encoding="utf-8")
-        except Exception as exc:
-            self.notify(
-                f"Failed to read {mode.name}: {exc}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        if self._copy_to_clipboard(definition):
-            self.notify(
-                f"✓ Copied {mode.name} mode to clipboard",
-                severity="information",
-                timeout=2,
-            )
-            self.status_message = f"Copied {mode.name} mode"
-        else:
-            self.notify(
-                "Failed to copy to clipboard",
-                severity="error",
-                timeout=3,
-            )
-
-    async def _copy_principle_definition(self) -> None:
-        """Copy the selected principles snippet to clipboard."""
-        index = self._table_cursor_index()
-        if index is None or not self.principles:
-            self.notify(
-                "Select a principles snippet to copy",
-                severity="warning",
-                timeout=2,
-            )
-            return
-
-        if index < 0 or index >= len(self.principles):
-            return
-
-        snippet = self.principles[index]
-        try:
-            claude_dir = _resolve_claude_dir()
-            snippet_path = self._validate_path(claude_dir, snippet.path)
-        except ValueError:
-            snippet_path = snippet.path
-
-        try:
-            definition = snippet_path.read_text(encoding="utf-8")
-        except Exception as exc:
-            self.notify(
-                f"Failed to read {snippet.name}: {exc}",
-                severity="error",
-                timeout=3,
-            )
-            return
-
-        if self._copy_to_clipboard(definition):
-            self.notify(
-                f"✓ Copied {snippet.name} snippet to clipboard",
-                severity="information",
-                timeout=2,
-            )
-            self.status_message = f"Copied {snippet.name} snippet"
         else:
             self.notify(
                 "Failed to copy to clipboard",
@@ -8853,9 +7072,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Contextual delete/diagnose handler for D."""
         if self.current_view == "mcp":
             await self.action_mcp_diagnose()
-            return
-        if self.current_view == "profiles":
-            await self.action_profile_delete()
             return
         if self.current_view == "memory":
             self.action_memory_delete_note()
@@ -9686,10 +7902,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             self.action_flag_manager_toggle()
             return
 
-        if self.current_view == "profiles":
-            self.action_profile_apply()
-            return
-
         if self.current_view == "watch_mode":
             # Toggle watch mode start/stop
             if self.watch_mode_instance and self.watch_mode_instance.running:
@@ -9855,221 +8067,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
                                 f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                             )
 
-        elif self.current_view == "modes":
-            table = self.query_one(DataTable)
-            if table.cursor_row is not None:
-                # Save current cursor position
-                saved_cursor_row = table.cursor_row
-
-                row_key = table.get_row_at(table.cursor_row)
-                if row_key and len(row_key) > 0:
-                    # Get plain text from first column (strip Rich markup and icons)
-                    from rich.text import Text
-
-                    raw_name = str(row_key[0])
-                    # Use Rich to strip markup, then remove icon emoji
-                    plain_text = Text.from_markup(raw_name).plain
-                    # Remove the icon (first character if it's an emoji)
-                    mode_name = plain_text.strip()
-                    if mode_name and len(mode_name) > 0 and ord(mode_name[0]) > 127:
-                        mode_name = mode_name[1:].strip()
-
-                    mode = next((m for m in self.modes if m.name == mode_name), None)
-                    if mode:
-                        try:
-                            if mode.status == "active":
-                                # Use intelligent deactivation
-                                exit_code, message, affected_modes = mode_deactivate_intelligent(
-                                    mode.path.stem
-                                )
-                            else:
-                                # Use intelligent activation
-                                exit_code, message, deactivated_modes = mode_activate_intelligent(
-                                    mode.path.stem
-                                )
-
-                            # Remove ANSI codes
-                            import re
-
-                            clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
-                            self.status_message = clean_message.split("\n")[0]
-
-                            if exit_code == 0:
-                                if mode.status == "active":
-                                    # Deactivation successful
-                                    notify_msg = f"✓ Deactivated {mode.name}"
-                                    if affected_modes:
-                                        notify_msg += f" (affects: {', '.join(affected_modes)})"
-                                    self.notify(
-                                        notify_msg,
-                                        severity="warning"
-                                        if affected_modes
-                                        else "information",
-                                        timeout=3 if affected_modes else 2,
-                                    )
-                                else:
-                                    # Activation successful
-                                    notify_msg = f"✓ Activated {mode.name}"
-                                    if deactivated_modes:
-                                        notify_msg += f" (auto-deactivated: {', '.join(deactivated_modes)})"
-                                    self.notify(
-                                        notify_msg,
-                                        severity="information",
-                                        timeout=3 if deactivated_modes else 2,
-                                    )
-                                self.load_modes()
-                                self.update_view()
-
-                                # Restore cursor to same position (showing next mode)
-                                table = self.query_one(DataTable)
-                                if table.row_count > 0:
-                                    new_cursor_row = min(
-                                        saved_cursor_row, table.row_count - 1
-                                    )
-                                    table.move_cursor(row=new_cursor_row)
-                                self._show_restart_required()
-                            else:
-                                # Show error message
-                                self.notify(
-                                    f"✗ {clean_message}",
-                                    severity="error",
-                                    timeout=5,
-                                )
-                        except Exception as e:
-                            self.status_message = f"Error: {e}"
-                            self.notify(
-                                f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
-                            )
-
-        elif self.current_view == "prompts":
-            table = self.query_one(DataTable)
-            if table.cursor_row is not None:
-                saved_cursor_row = table.cursor_row
-                index = table.cursor_row
-                if 0 <= index < len(self.prompts):
-                    prompt = self.prompts[index]
-                    try:
-                        from ..core.prompts import prompt_activate, prompt_deactivate
-
-                        if prompt.status == "active":
-                            exit_code, message = prompt_deactivate(prompt.slug)
-                        else:
-                            exit_code, message = prompt_activate(prompt.slug)
-
-                        # Remove ANSI codes
-                        import re
-                        clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
-                        self.status_message = clean_message.split("\n")[0]
-
-                        if exit_code == 0:
-                            if prompt.status == "active":
-                                self.notify(
-                                    f"✓ Deactivated prompt: {prompt.slug}",
-                                    severity="information",
-                                    timeout=2,
-                                )
-                            else:
-                                self.notify(
-                                    f"✓ Activated prompt: {prompt.slug}",
-                                    severity="information",
-                                    timeout=2,
-                                )
-                            self.load_prompts()
-                            self.update_view()
-
-                            # Restore cursor position
-                            table = self.query_one(DataTable)
-                            if table.row_count > 0:
-                                new_cursor_row = min(saved_cursor_row, table.row_count - 1)
-                                table.move_cursor(row=new_cursor_row)
-                            self._show_restart_required()
-                        else:
-                            self.notify(
-                                f"✗ {clean_message}",
-                                severity="error",
-                                timeout=5,
-                            )
-                    except Exception as e:
-                        self.status_message = f"Error: {e}"
-                        self.notify(
-                            f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
-                        )
-
-        elif self.current_view == "principles":
-            table = self.query_one(DataTable)
-            if table.cursor_row is not None:
-                saved_cursor_row = table.cursor_row
-                row_key = table.get_row_at(table.cursor_row)
-                if row_key and len(row_key) > 0:
-                    from rich.text import Text
-
-                    raw_name = str(row_key[0])
-                    plain_text = Text.from_markup(raw_name).plain
-                    snippet_name = plain_text.strip()
-                    if (
-                        snippet_name
-                        and len(snippet_name) > 0
-                        and ord(snippet_name[0]) > 127
-                    ):
-                        snippet_name = snippet_name[1:].strip()
-
-                    snippet = next(
-                        (p for p in self.principles if p.name == snippet_name),
-                        None,
-                    )
-                    if snippet:
-                        try:
-                            if snippet.status == "active":
-                                exit_code, message = principles_deactivate(
-                                    snippet.path.stem
-                                )
-                            else:
-                                exit_code, message = principles_activate(
-                                    snippet.path.stem
-                                )
-
-                            import re
-
-                            clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
-                            self.status_message = clean_message.split("\n")[0]
-
-                            if exit_code == 0:
-                                if snippet.status == "active":
-                                    self.notify(
-                                        f"✓ Deactivated {snippet.name}",
-                                        severity="information",
-                                        timeout=2,
-                                    )
-                                else:
-                                    self.notify(
-                                        f"✓ Activated {snippet.name}",
-                                        severity="information",
-                                        timeout=2,
-                                    )
-                                self.load_principles()
-                                self.update_view()
-
-                                table = self.query_one(DataTable)
-                                if table.row_count > 0:
-                                    new_cursor_row = min(
-                                        saved_cursor_row, table.row_count - 1
-                                    )
-                                    table.move_cursor(row=new_cursor_row)
-                                self._show_restart_required()
-                            else:
-                                self.notify(
-                                    f"✗ {clean_message}",
-                                    severity="error",
-                                    timeout=3,
-                                )
-                        except Exception as e:
-                            self.status_message = f"Error: {e}"
-                            self.notify(
-                                f"✗ Error: {str(e)[:50]}",
-                                severity="error",
-                                timeout=3,
-                            )
-
         elif self.current_view == "mcp":
             table = self.query_one(DataTable)
             if table.cursor_row is not None:
@@ -10142,24 +8139,14 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         """Refresh current view."""
         if self.current_view == "agents":
             self.load_agents()
-        elif self.current_view == "principles":
-            self.load_principles()
         elif self.current_view == "rules":
             self.load_rules()
-        elif self.current_view == "modes":
-            self.load_modes()
-        elif self.current_view == "prompts":
-            self.load_prompts()
         elif self.current_view == "skills":
             self.load_skills()
         elif self.current_view == "commands":
             self.load_slash_commands()
-        elif self.current_view == "workflows":
-            self.load_workflows()
         elif self.current_view == "worktrees":
             self.load_worktrees()
-        elif self.current_view == "scenarios":
-            self.load_scenarios()
         elif self.current_view == "orchestrate":
             self.load_agent_tasks()
         elif self.current_view == "tasks":
@@ -10167,8 +8154,6 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
         elif self.current_view == "mcp":
             self.load_mcp_servers()
             self.load_mcp_docs()
-        elif self.current_view == "profiles":
-            self.load_profiles()
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
@@ -10267,13 +8252,12 @@ class AgentTUI(App[None], ProfileViewMixin, ExportViewMixin, WizardViewMixin):
             # Write new content
             claude_md_path.write_text(content)
 
-            # Sync rules and modes on disk to match wizard selection
+            # Sync rules on disk to match wizard selection
             _sync_components("rules", {r.removesuffix(".md") for r in config.rules})
-            _sync_components("modes", {m.removesuffix(".md") for m in config.modes})
 
             self.notify(
                 f"✓ CLAUDE.md updated ({len(config.core_files)} core, "
-                f"{len(config.rules)} rules, {len(config.modes)} modes, "
+                f"{len(config.rules)} rules, "
                 f"{len(config.mcp_docs)} MCP docs)",
                 severity="information",
                 timeout=4,

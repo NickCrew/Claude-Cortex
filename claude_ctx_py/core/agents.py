@@ -254,8 +254,8 @@ def build_agent_graph(home: Path | None = None) -> List[AgentGraphNode]:
             version = _extract_scalar_from_paths(
                 tokens,
                 (
-                    ("metadata", "version"),
                     ("version",),
+                    ("metadata", "version"),
                 ),
             )
             if str(version) != "2.0":

@@ -437,15 +437,6 @@ class PatternLearner:
 
         # Multi-review recommendations
         if context.files_changed:
-            # Always request a quality review when there are changes.
-            add_review(
-                "quality-engineer",
-                0.85,
-                "Changes detected - quality review recommended",
-                ["changeset"],
-                urgency="medium",
-                auto_activate=True,
-            )
             # Always request a code review when there are changes.
             add_review(
                 "code-reviewer",
@@ -455,6 +446,28 @@ class PatternLearner:
                 urgency="low",
                 auto_activate=True,
             )
+
+            # Python review
+            if ".py" in file_types:
+                add_review(
+                    "python-pro",
+                    0.85,
+                    "Python changes detected - review recommended",
+                    ["python"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
+
+            # Rust review
+            if ".rs" in file_types or has_any(["cargo.toml", "cargo.lock"]):
+                add_review(
+                    "rust-pro",
+                    0.85,
+                    "Rust changes detected - review recommended",
+                    ["rust"],
+                    urgency="medium",
+                    auto_activate=True,
+                )
 
             # TypeScript review
             if ".ts" in file_types or ".tsx" in file_types:
@@ -552,17 +565,45 @@ class PatternLearner:
                 )
             )
 
-        # Performance recommendations
-        if (
+        # Performance recommendations - detect perf-sensitive patterns
+        perf_signals = [
+            # Explicit performance keywords
+            "performance", "perf", "benchmark", "latency", "throughput",
+            # Caching
+            "cache", "redis", "memcache",
+            # Async/concurrency
+            "async", "concurrent", "parallel", "thread", "worker",
+            # Database performance
+            "index", "query", "n+1", "batch",
+            # Memory
+            "memory", "heap", "gc", "allocation",
+            # Network
+            "http", "grpc", "websocket", "streaming",
+            # Profiling
+            "profile", "flamegraph", "trace",
+        ]
+        perf_dirs = [
+            "/perf/", "/benchmark/", "/profiling/", "/optimization/",
+        ]
+        
+        has_perf_signal = (
             context.has_database
             or context.has_api
-            or has_any(["performance", "perf", "benchmark", "latency", "throughput", "cache"])
-        ):
+            or has_any(perf_signals)
+            or dir_has_any(perf_dirs)
+            # Large changesets often have perf implications
+            or len(context.files_changed) >= 10
+        )
+        
+        if has_perf_signal:
+            # Higher confidence if explicit perf keywords found
+            confidence = 0.85 if has_any(["performance", "perf", "benchmark", "latency"]) else 0.7
             add_review(
                 "performance-engineer",
-                0.7,
+                confidence,
                 "Performance-sensitive changes detected - performance review recommended",
                 ["performance"],
+                urgency="medium" if confidence >= 0.8 else "low",
                 auto_activate=True,
             )
 
