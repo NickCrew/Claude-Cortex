@@ -2342,74 +2342,75 @@ class AgentTUI(App[None]):
     def _build_workflow_task_fallback(self, tasks_dir: Path) -> List[AgentTask]:
         """Generate synthetic tasks from workflow + active project sessions."""
         fallback: List[AgentTask] = []
+
+        # Only create a workflow task if there's an actual active_workflow file
         active_file = tasks_dir / "active_workflow"
-        workflow_name = ""
         if active_file.is_file():
             try:
                 workflow_name = active_file.read_text(encoding="utf-8").strip()
             except OSError:
                 workflow_name = ""
 
-        workflow_name = workflow_name or "Active Workflow"
-        status_file = tasks_dir / "workflow_status"
-        try:
-            status_raw = status_file.read_text(encoding="utf-8").strip()
-        except OSError:
-            status_raw = ""
+            if workflow_name:
+                status_file = tasks_dir / "workflow_status"
+                try:
+                    status_raw = status_file.read_text(encoding="utf-8").strip()
+                except OSError:
+                    status_raw = ""
 
-        status_normalized = (status_raw or "running").lower()
-        if status_normalized in {"done", "completed"}:
-            status_normalized = "complete"
+                status_normalized = (status_raw or "running").lower()
+                if status_normalized in {"done", "completed"}:
+                    status_normalized = "complete"
 
-        started_file = tasks_dir / "workflow_started"
-        started: Optional[float] = None
-        if started_file.is_file():
-            try:
-                started = float(started_file.read_text(encoding="utf-8").strip())
-            except ValueError:
-                started = None
+                started_file = tasks_dir / "workflow_started"
+                started: Optional[float] = None
+                if started_file.is_file():
+                    try:
+                        started = float(started_file.read_text(encoding="utf-8").strip())
+                    except ValueError:
+                        started = None
 
-        current_step_file = tasks_dir / "current_step"
-        try:
-            current_step = current_step_file.read_text(encoding="utf-8").strip()
-        except OSError:
-            current_step = ""
+                current_step_file = tasks_dir / "current_step"
+                try:
+                    current_step = current_step_file.read_text(encoding="utf-8").strip()
+                except OSError:
+                    current_step = ""
 
-        progress_lookup = {
-            "pending": 5,
-            "running": 45,
-            "paused": 30,
-            "complete": 100,
-            "error": 0,
-        }
-        progress = progress_lookup.get(status_normalized, 10)
-        display_name = workflow_name
-        if current_step:
-            display_name = f"{workflow_name} · {current_step}"
+                progress_lookup = {
+                    "pending": 5,
+                    "running": 45,
+                    "paused": 30,
+                    "complete": 100,
+                    "error": 0,
+                }
+                progress = progress_lookup.get(status_normalized, 10)
+                display_name = workflow_name
+                if current_step:
+                    display_name = f"{workflow_name} · {current_step}"
 
-        description_bits = [f"Status: {status_normalized.title()}"]
-        if current_step:
-            description_bits.append(f"Current step: {current_step}")
-        if started:
-            started_dt = datetime.fromtimestamp(started)
-            description_bits.append(f"Started {Format.time_ago(started_dt)}")
-        description_text = " • ".join(description_bits)
+                description_bits = [f"Status: {status_normalized.title()}"]
+                if current_step:
+                    description_bits.append(f"Current step: {current_step}")
+                if started:
+                    started_dt = datetime.fromtimestamp(started)
+                    description_bits.append(f"Started {Format.time_ago(started_dt)}")
+                description_text = " • ".join(description_bits)
 
-        fallback.append(
-            AgentTask(
-                agent_id=f"workflow::{workflow_name.lower().replace(' ', '-')}",
-                agent_name=display_name,
-                workstream="workflow",
-                status=status_normalized,
-                progress=progress,
-                category="workflow",
-                started=started,
-                completed=None,
-                description=description_text,
-                raw_notes=f"Workflow file: {tasks_dir}",
-                source_path=str(tasks_dir / "workflow_status"),
-            )
-        )
+                fallback.append(
+                    AgentTask(
+                        agent_id=f"workflow::{workflow_name.lower().replace(' ', '-')}",
+                        agent_name=display_name,
+                        workstream="workflow",
+                        status=status_normalized,
+                        progress=progress,
+                        category="workflow",
+                        started=started,
+                        completed=None,
+                        description=description_text,
+                        raw_notes=f"Workflow file: {tasks_dir}",
+                        source_path=str(tasks_dir / "workflow_status"),
+                    )
+                )
 
         project_tasks = self._collect_project_agent_tasks()
         seen_ids = {task.agent_id for task in fallback}
