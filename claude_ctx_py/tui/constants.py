@@ -19,6 +19,7 @@ PRIMARY_VIEW_BINDINGS = [
     ("C", "worktrees", "Worktrees"),
     ("5", "mcp", "MCP"),
     ("6", "docs", "Docs"),
+    ("7", "tasks", "Tasks"),
     ("E", "export", "Export"),
     ("0", "ai_assistant", "AI Assistant"),
     ("w", "watch_mode", "Watch Mode"),
