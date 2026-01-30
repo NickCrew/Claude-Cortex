@@ -11,7 +11,7 @@
 
 ### 2. **TUI_VISUAL_ANALYSIS.md** - Comprehensive Reference
 
-- Detailed breakdown of all 10 views (Overview, Agents, Modes, Rules, Skills, Workflows, Orchestrate, Profile, Export, Help)
+- Detailed breakdown of all 13 views
 - Component documentation (tables, panels, layouts)
 - Color schemes and styling system
 - Keyboard navigation and interaction patterns
@@ -28,9 +28,8 @@
 
 ### 4. **tui/tui-entity-guide.md** - Entity Relationships in the TUI
 
-- Explains how profiles, modes, workflows, scenarios, and agents differ
+- Explains how agents, rules, skills, and tasks relate
 - Shows which TUI view or hotkey manages each entity
-- Maps how scenarios trigger profiles/modes and feed workflows
 - Includes practical end-to-end flow for staying oriented
 
 ---
@@ -41,8 +40,8 @@
 
 - Clean 3-part layout (header/body/footer)
 - Consistent color scheme (6 main colors + modifiers)
-- 10+ views with specialized functionality
-- Good keyboard navigation (1-9 for views, arrow keys for navigation)
+- 13 views with specialized functionality
+- Good keyboard navigation (1-7, 0, letter keys for views)
 - Helpful status messages and context-aware hints
 - Rich library provides excellent rendering
 
@@ -60,11 +59,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Code | ~2,500 lines |
-| Views | 10+ |
+| Total Code | ~6,000 lines |
+| Views | 13 |
 | Color Palette | 6 colors + 4 modifiers |
-| Keyboard Shortcuts | 20+ |
-| Hard-Coded Colors | 1,000+ references |
+| Keyboard Shortcuts | 30+ |
 | Dependencies | Rich 13.0+, Textual 0.47+, PyYAML 6.0+ |
 
 ---
@@ -89,58 +87,77 @@ REVERSE     - Selected rows
 ### Overview (1)
 
 - Dashboard with system status
-- Agent/Mode/Rule/Skill counts
+- Agent/Rule/Skill counts
 - Quick action hints
 
 ### Agents (2)
 
-- Table with toggle capability
+- Agent catalog with activation status
 - Details panel on Enter
-- Filter on /
+- Validation (v), Edit (^e)
 
-### Modes (3)
-
-- Behavioral mode list
-- Toggle activation
-- Details panel
-
-### Rules (4)
+### Rules (3)
 
 - Execution rules with categories
-- Toggle activation
+- Toggle activation with Space
 - Enabled rules live in `rules/`; disabling moves them to `inactive/rules/`
-- Details panel
 
-### Skills (5)
+### Skills (4)
 
 - Installed skills with metrics
-- Validation (v), Metrics (m), Community (c)
+- Validation (v), Metrics (m)
 - Token savings and usage stats
 
-### Workflows (6)
+### MCP (5)
 
-- Workflow list with progress bars
-- Status indicators and elapsed time
-- Step-by-step tracking
+- MCP server status and management
+- Browse/Install (B), Test (^t), Diagnose (D)
+- Add new servers (^a)
 
-### Orchestrate (7)
+### Tasks (6)
 
-- Parallel execution dashboard
-- Workstream layout diagram
-- Agent task table with progress
-- Parallel efficiency metrics
+- Multi-LLM task orchestration
+- Dispatch to Gemini/OpenAI/Qwen (K)
+- Request reviews (Y)
 
-### Profile (8)
+### Commands (7)
 
-- Available profiles (built-in + saved)
-- Apply, save, delete operations
-- Type indicators (built-in vs saved)
+- Slash command catalog
+- View command details
+- Edit command files
 
-### Export (9)
+### AI Assistant (0)
+
+- AI-powered recommendations
+- Auto-activate suggestions
+- Gemini consult (J)
+
+### Worktrees (C)
+
+- Git worktree management
+- Create, open, remove worktrees
+- Prune stale worktrees
+
+### Export (E)
 
 - Export options with checkboxes
 - Format selector (JSON/XML/Markdown)
 - Preview of export content
+
+### Watch Mode (w)
+
+- File watching mode
+- Toggle watched paths
+
+### Assets (A)
+
+- Asset manager for plugins
+- Install, uninstall, update assets
+
+### Memory (M)
+
+- Memory vault for notes
+- View, open, delete notes
 
 ### Help (?)
 
