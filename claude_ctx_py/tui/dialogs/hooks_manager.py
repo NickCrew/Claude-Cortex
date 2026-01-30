@@ -160,12 +160,14 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
         """Load available and installed hooks."""
         try:
             self.available_hooks = get_available_hooks(self.plugin_dir)
-        except Exception:
+        except Exception as e:
             self.available_hooks = []
+            self.notify(f"Failed to load available hooks: {e}", severity="error", timeout=3)
         try:
             self.installed_hooks = get_installed_hooks()
-        except Exception:
+        except Exception as e:
             self.installed_hooks = []
+            self.notify(f"Failed to load installed hooks: {e}", severity="error", timeout=3)
         self._validate_plugin_hooks_config()
         self._update_lists()
 
@@ -197,8 +199,8 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
                     label = f"{status}{hook.name} [dim]({hook.event})[/dim]"
                     item = ListItem(Label(label), id=f"avail-{self._sanitize_id(hook.name)}")
                     available_list.append(item)
-        except Exception:
-            pass
+        except Exception as e:
+            self.notify(f"Failed to update available list: {e}", severity="error", timeout=3)
 
         # Update installed hooks list
         try:
@@ -211,12 +213,12 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
                 for inst_hook in self.installed_hooks:
                     # Extract hook name from command
                     cmd = inst_hook.command
-                    name = cmd.split("/")[-1].replace(".py", "") if "/" in cmd else cmd
+                    name = cmd.split("/")[-1].replace(".py", "").replace(".sh", "") if "/" in cmd else cmd
                     label = f"[green]●[/green] {name} [dim]({inst_hook.event})[/dim]"
                     item = ListItem(Label(label), id=f"inst-{self._sanitize_id(name)}")
                     installed_list.append(item)
-        except Exception:
-            pass
+        except Exception as e:
+            self.notify(f"Failed to update installed list: {e}", severity="error", timeout=3)
 
     def _sanitize_id(self, name: str) -> str:
         """Sanitize a name for use as a widget ID."""
