@@ -2175,7 +2175,8 @@ class AgentTUI(App[None]):
         )
         total_rules = len(getattr(self, "rules", []))
         total_skills = len(getattr(self, "skills", []))
-        flags_active, flags_total, flags_stats = self._get_flags_summary()
+        tasks = getattr(self, "agent_tasks", [])
+        active_tasks = sum(1 for t in tasks if t.status in ("running", "pending"))
 
         def add_multiline(content: str) -> None:
             for line in content.split("\n"):
@@ -2190,14 +2191,10 @@ class AgentTUI(App[None]):
         metrics_grid = EnhancedOverview.create_status_grid(
             active_agents,
             total_agents,
-            0,  # modes removed
-            0,  # modes removed
             active_rules,
             total_rules,
             total_skills,
-            0,  # workflows removed
-            flags_active,
-            flags_total,
+            active_tasks,
         )
         add_multiline(metrics_grid)
         table.add_row("")
@@ -2218,48 +2215,13 @@ class AgentTUI(App[None]):
         try:
             category_stats, total_stats = get_active_context_tokens()
             table.add_row("")
-            combined_total = total_stats + flags_stats
             token_display = EnhancedOverview.create_token_usage(
                 category_stats,
-                combined_total,
-                flags_stats=flags_stats,
+                total_stats,
             )
             add_multiline(token_display)
         except Exception:
             pass  # Silently skip if token counting fails
-
-    def _get_flags_summary(self) -> tuple[int, int, TokenStats]:
-        """Get active/total flag counts and token stats for active flags."""
-        claude_dir = _resolve_claude_dir()
-        flags_dir = claude_dir / "flags"
-        flags_md = claude_dir / "FLAGS.md"
-
-        total_flags = len(list(flags_dir.glob("*.md"))) if flags_dir.exists() else 0
-        active_flags: set[str] = set()
-
-        if flags_md.exists():
-            try:
-                content = flags_md.read_text(encoding="utf-8")
-                for line in content.splitlines():
-                    stripped = line.strip()
-                    if stripped.startswith("@flags/"):
-                        name = stripped.replace("@flags/", "").strip()
-                        if name:
-                            active_flags.add(name)
-            except OSError:
-                pass
-
-        stats = TokenStats(files=0, chars=0, words=0, tokens=0)
-        for name in active_flags:
-            if not name.endswith(".md"):
-                filename = f"{name}.md"
-            else:
-                filename = name
-            path = flags_dir / filename
-            if path.exists():
-                stats = stats + count_file_tokens(path)
-
-        return len(active_flags), total_flags, stats
 
     def _normalize_agent_dependency(self, value: str) -> Optional[str]:
         if not value:

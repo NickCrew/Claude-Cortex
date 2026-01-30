@@ -1,13 +1,13 @@
-"""Enhanced Overview Dashboard - KAMEHAMEHA EDITION!"""
+"""Enhanced Overview Dashboard."""
 
 from __future__ import annotations
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from .tui_icons import Icons
 from .token_counter import TokenStats
 
 
 class EnhancedOverview:
-    """Enhanced overview dashboard with MAXIMUM visual impact."""
+    """Enhanced overview dashboard with visual metrics."""
 
     @staticmethod
     def create_hero_banner(active_agents: int, total_agents: int) -> str:
@@ -41,88 +41,45 @@ class EnhancedOverview:
         return banner.strip()
 
     @staticmethod
-    def create_metric_card(
-        title: str,
-        value: str,
-        subtitle: str,
-        icon: str,
-        color: str = "cyan",
-        progress: Optional[float] = None,
-    ) -> str:
-        """Create a compact metric card with visual flair."""
-
-        # Create progress bar if percentage provided
-        progress_bar = ""
-        if progress is not None:
-            filled = int(progress / 10)  # 10 blocks for 100%
-            bar = f"[{color}]{'█' * filled}[/{color}][dim]{'░' * (10 - filled)}[/dim]"
-            progress_bar = f"\n  {bar} [dim]{progress:.0f}%[/dim]"
-
-        card = f"""
-[{color}]{icon}[/{color}] [bold]{title}[/bold]
-[bold white]{value}[/bold white]
-[dim]{subtitle}[/dim]{progress_bar}
-"""
-        return card.strip()
-
-    @staticmethod
     def create_status_grid(
         agents_active: int,
         agents_total: int,
-        modes_active: int,
-        modes_total: int,
         rules_active: int,
         rules_total: int,
         skills_total: int,
-        workflows_running: int,
-        flags_active: int,
-        flags_total: int,
+        tasks_active: int,
     ) -> str:
         """Create a grid of status cards."""
 
         # Calculate percentages
         agent_pct = (agents_active / agents_total * 100) if agents_total > 0 else 0
-        mode_pct = (modes_active / modes_total * 100) if modes_total > 0 else 0
         rule_pct = (rules_active / rules_total * 100) if rules_total > 0 else 0
-        flag_pct = (flags_active / flags_total * 100) if flags_total > 0 else 0
 
-        # Format content with proper padding (box interior is 26 chars for left, 28 for right)
+        # Format content
         agent_status = f"{agents_active}/{agents_total} Active"
-        mode_status = f"{modes_active}/{modes_total} Active"
         rule_status = f"{rules_active}/{rules_total} Active"
         skills_status = f"{skills_total} Installed"
-        flags_status = f"{flags_active}/{flags_total} Active"
-        workflow_status = f"{workflows_running} Running"
+        tasks_status = f"{tasks_active} Running"
 
         # Color selection for progress bars
         agent_color = (
             "green" if agent_pct >= 75 else "yellow" if agent_pct >= 50 else "cyan"
         )
-        mode_color = (
-            "green" if mode_pct >= 75 else "yellow" if mode_pct >= 50 else "cyan"
-        )
         rule_color = (
             "green" if rule_pct >= 75 else "yellow" if rule_pct >= 50 else "cyan"
         )
-        flag_color = (
-            "green" if flag_pct >= 75 else "yellow" if flag_pct >= 50 else "cyan"
-        )
-        workflow_color = "green" if workflows_running > 0 else "dim"
+        tasks_color = "green" if tasks_active > 0 else "dim"
 
         # Progress bars
         agent_bar = f"[{agent_color}]{'█' * int(agent_pct/5)}[/{agent_color}][dim]{'░' * (20 - int(agent_pct/5))}[/dim]"
-        mode_bar = f"[{mode_color}]{'█' * int(mode_pct/5)}[/{mode_color}][dim]{'░' * (20 - int(mode_pct/5))}[/dim]"
         rule_bar = f"[{rule_color}]{'█' * int(rule_pct/5)}[/{rule_color}][dim]{'░' * (20 - int(rule_pct/5))}[/dim]"
         skills_bar = f"[green]{'█' * 15}[/green][dim]{'░' * 5}[/dim]"
-        flags_bar = f"[{flag_color}]{'█' * int(flag_pct/5)}[/{flag_color}][dim]{'░' * (20 - int(flag_pct/5))}[/dim]"
-        workflow_bar = f"[{workflow_color}]{'█' * (10 if workflows_running > 0 else 0)}[/{workflow_color}][dim]{'░' * (10 if workflows_running == 0 else 10)}[/dim]"
+        tasks_bar = f"[{tasks_color}]{'█' * (10 if tasks_active > 0 else 0)}[/{tasks_color}][dim]{'░' * (10 if tasks_active == 0 else 10)}[/dim]"
 
         # Status messages
         agent_msg = f"{agent_pct:.0f}% operational"
-        mode_msg = f"{mode_pct:.0f}% enabled"
         rule_msg = f"{rule_pct:.0f}% enforced"
-        flag_msg = f"{flag_pct:.0f}% enabled" if flags_total > 0 else "No flags"
-        workflow_msg = "Active tasks" if workflows_running > 0 else "No active tasks"
+        tasks_msg = "Active tasks" if tasks_active > 0 else "No active tasks"
 
         def strip_rich(text: str) -> str:
             import re
@@ -137,25 +94,20 @@ class EnhancedOverview:
             "[bold cyan]📊 SYSTEM METRICS[/bold cyan]",
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
-            two_col("  [cyan]⚡ AGENTS[/cyan]", "  [magenta]🎨 MODES[/magenta]"),
-            two_col(f"  [bold white]{agent_status}[/bold white]", f"[bold white]{mode_status}[/bold white]"),
-            two_col(f"  {agent_bar}", f"{mode_bar}"),
-            two_col(f"  [dim]{agent_msg}[/dim]", f"[dim]{mode_msg}[/dim]"),
+            two_col("  [cyan]⚡ AGENTS[/cyan]", "  [blue]📜 RULES[/blue]"),
+            two_col(f"  [bold white]{agent_status}[/bold white]", f"[bold white]{rule_status}[/bold white]"),
+            two_col(f"  {agent_bar}", f"{rule_bar}"),
+            two_col(f"  [dim]{agent_msg}[/dim]", f"[dim]{rule_msg}[/dim]"),
             "",
-            two_col("  [blue]📜 RULES[/blue]", "  [green]💎 SKILLS[/green]"),
-            two_col(f"  [bold white]{rule_status}[/bold white]", f"[bold white]{skills_status}[/bold white]"),
-            two_col(f"  {rule_bar}", f"{skills_bar}"),
-            two_col(f"  [dim]{rule_msg}[/dim]", f"[dim]Ready for use[/dim]"),
-            "",
-            two_col("  [white]🏁 FLAGS[/white]", "  [yellow]🏃 WORKFLOWS[/yellow]"),
-            two_col(f"  [bold white]{flags_status}[/bold white]", f"[bold white]{workflow_status}[/bold white]"),
-            two_col(f"  {flags_bar}", f"{workflow_bar}"),
-            two_col(f"  [dim]{flag_msg}[/dim]", f"[dim]{workflow_msg}[/dim]"),
+            two_col("  [green]💎 SKILLS[/green]", "  [yellow]✅ TASKS[/yellow]"),
+            two_col(f"  [bold white]{skills_status}[/bold white]", f"[bold white]{tasks_status}[/bold white]"),
+            two_col(f"  {skills_bar}", f"{tasks_bar}"),
+            two_col(f"  [dim]Ready for use[/dim]", f"[dim]{tasks_msg}[/dim]"),
             "",
             two_col("  ", "  [red]⚡ QUICK ACTIONS[/red]"),
             two_col("  ", "  [dim cyan]Press [white]2[/white] → Manage Agents[/dim cyan]"),
-            two_col("  ", "  [dim cyan]Press [white]3[/white] → Toggle Modes[/dim cyan]"),
-            two_col("  ", "  [dim cyan]Press [white]4[/white] → View Rules[/dim cyan]"),
+            two_col("  ", "  [dim cyan]Press [white]3[/white] → View Rules[/dim cyan]"),
+            two_col("  ", "  [dim cyan]Press [white]4[/white] → Browse Skills[/dim cyan]"),
             two_col("  ", "  [dim cyan]Press [white]Ctrl+P[/white] → Commands[/dim cyan]"),
         ]
 
@@ -169,8 +121,8 @@ class EnhancedOverview:
 [dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
 
   [green]●[/green] [dim]Agent activated[/dim]          [dim white]2 minutes ago[/dim white]
-  [yellow]●[/yellow] [dim]Mode toggled[/dim]            [dim white]5 minutes ago[/dim white]
-  [cyan]●[/cyan] [dim]Rules updated[/dim]           [dim white]12 minutes ago[/dim white]
+  [yellow]●[/yellow] [dim]Rule toggled[/dim]            [dim white]5 minutes ago[/dim white]
+  [cyan]●[/cyan] [dim]Skill invoked[/dim]           [dim white]12 minutes ago[/dim white]
   [blue]●[/blue] [dim]Context exported[/dim]        [dim white]1 hour ago[/dim white]
 """
         return timeline.strip()
@@ -195,7 +147,6 @@ class EnhancedOverview:
     def create_token_usage(
         category_stats: Dict[str, TokenStats],
         total_stats: TokenStats,
-        flags_stats: Optional[TokenStats] = None,
     ) -> str:
         """Create a token usage visualization.
 
@@ -209,16 +160,10 @@ class EnhancedOverview:
         category_names = {
             "core": ("Core", "cyan"),
             "rules": ("Rules", "blue"),
-            "modes": ("Modes", "magenta"),
             "agents": ("Agents", "green"),
             "mcp_docs": ("MCP", "yellow"),
             "skills": ("Skills", "red"),
         }
-
-        if flags_stats and flags_stats.files > 0:
-            category_stats = dict(category_stats)
-            category_stats["flags"] = flags_stats
-            category_names["flags"] = ("Flags", "white")
 
         # Calculate bar widths proportional to token count
         max_tokens = max(
