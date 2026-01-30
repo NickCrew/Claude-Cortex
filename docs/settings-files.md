@@ -81,8 +81,7 @@ reads or writes. For detailed documentation with schemas and examples, see the
 | `schemas/skill-rules.schema.json` | Skill rules validation | [Docs](reference/configuration.md#skill-rulesjson) |
 | `schemas/recommendation-rules.schema.json` | Recommendation rules validation | [Docs](reference/configuration.md#recommendation-rulesjson) |
 | `schemas/onboarding-state.schema.json` | Onboarding state validation | [Docs](reference/configuration.md#onboarding-statejson) |
-| `schema/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
-| `schema/scenario-schema-v1.yaml` | Scenario validation schema | Used by validators |
+| `schemas/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
 
 ## Auto-Managed Data (for reference)
 

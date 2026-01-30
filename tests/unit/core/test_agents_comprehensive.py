@@ -78,7 +78,7 @@ def _write_schema(claude_dir: Path) -> Path:
             },
         },
     }
-    schema_path = claude_dir / "schema" / "agent-schema-v2.yaml"
+    schema_path = claude_dir / "schemas" / "agent-schema-v2.yaml"
     schema_path.write_text(yaml.safe_dump(schema, sort_keys=False), encoding="utf-8")
     return schema_path
 
@@ -246,7 +246,7 @@ def test_agent_validate_success_and_failure(tmp_path: Path, claude_dir: Path):
     assert "missing required field 'category'" in message_bad
 
     # Missing schema yields error
-    (claude_dir / "schema" / "agent-schema-v2.yaml").unlink()
+    (claude_dir / "schemas" / "agent-schema-v2.yaml").unlink()
     code_missing, msg_missing = agents_mod.agent_validate(home=tmp_path)
     assert code_missing == 1
     assert "Schema file missing" in msg_missing
