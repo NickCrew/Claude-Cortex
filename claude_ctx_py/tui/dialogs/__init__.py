@@ -12,11 +12,6 @@ from .memory_dialogs import (
     MemoryNoteCreateDialog,
 )
 
-from .principle_dialogs import (
-    PrincipleCreateDialog,
-    PrincipleCreateData,
-)
-
 from .mcp_install_dialogs import (
     MCPBrowseDialog,
     MCPInstallDialog,
@@ -26,11 +21,6 @@ from .claude_md_wizard import (
     ClaudeMdWizard,
     WizardConfig,
     generate_claude_md,
-)
-
-from .profile_editor import (
-    ProfileEditorDialog,
-    ProfileConfig,
 )
 
 from .hooks_manager import (
@@ -52,15 +42,11 @@ __all__ = [
     "BulkInstallDialog",
     "MemoryNoteDialog",
     "MemoryNoteCreateDialog",
-    "PrincipleCreateDialog",
-    "PrincipleCreateData",
     "MCPBrowseDialog",
     "MCPInstallDialog",
     "ClaudeMdWizard",
     "WizardConfig",
     "generate_claude_md",
-    "ProfileEditorDialog",
-    "ProfileConfig",
     "HooksManagerDialog",
     "BackupManagerDialog",
     "LLMProviderSettingsDialog",
