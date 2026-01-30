@@ -60,7 +60,7 @@ def test_project(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         "      activation_strategy:\n"
         "        enum: [auto]\n"
     )
-    (claude_dir / "schema" / "agent-schema-v2.yaml").write_text(schema, encoding="utf-8")
+    (claude_dir / "schemas" / "agent-schema-v2.yaml").write_text(schema, encoding="utf-8")
 
     # Ensure CLI resolves to this .claude
     monkeypatch.setenv("CLAUDE_PLUGIN_ROOT", str(claude_dir))

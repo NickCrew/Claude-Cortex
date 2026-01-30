@@ -311,8 +311,7 @@ Notes:
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
-| `schema/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
-| `schema/scenario-schema-v1.yaml` | Scenario validation schema | Used by validators |
+| `schemas/agent-schema-v2.yaml` | Agent validation schema | Used by validators |
 
 ### Auto-Managed Data (for reference)
 

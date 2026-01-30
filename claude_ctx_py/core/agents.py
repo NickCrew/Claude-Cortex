@@ -463,7 +463,7 @@ def _resolve_agent_validation_target(claude_dir: Path, target: str) -> Optional[
 
 
 def _load_agent_schema(claude_dir: Path) -> Tuple[int, Optional[Dict[str, Any]], str]:
-    schema_path = claude_dir / "schema" / "agent-schema-v2.yaml"
+    schema_path = claude_dir / "schemas" / "agent-schema-v2.yaml"
     if not schema_path.is_file():
         message = f"[ERROR] Schema file missing: {schema_path}"
         return 1, None, message
