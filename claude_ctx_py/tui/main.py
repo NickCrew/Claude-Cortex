@@ -186,7 +186,6 @@ from ..tui_dialogs import (
 )
 from ..messages import RESTART_REQUIRED_MESSAGE, RESTART_REQUIRED_TITLE
 from ..tui_log_viewer import LogViewerScreen
-from .screens.docs import DocsScreen
 from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
@@ -3967,10 +3966,6 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to MCP"
         self.notify("🛰 MCP Servers", severity="information", timeout=1)
 
-    async def action_view_docs(self) -> None:
-        """Switch to documentation view."""
-        await self.push_screen(DocsScreen())
-
     def action_view_export(self) -> None:
         """Switch to export view."""
         self.current_view = "export"
@@ -5339,7 +5334,7 @@ class AgentTUI(App[None]):
         if self.current_view == "mcp":
             await self.action_mcp_docs()
         else:
-            await self.push_screen(DocsScreen())
+            self.notify("Docs only available in MCP view", severity="warning", timeout=2)
 
     async def action_details_context(self) -> None:
         """Context-aware details shortcut."""
