@@ -849,8 +849,15 @@ class AgentTUI(App[None]):
             for entry in _parse_active_entries(claude_dir / ".active-rules")
         }
         rules_dir = claude_dir / "rules"
+        # Check files directly in rules_dir
         for path in _iter_md_files(rules_dir):
             active.add(self._relative_slug(path, rules_dir))
+        # Also check immediate subdirectories (e.g., rules/cortex/)
+        if rules_dir.is_dir():
+            for subdir in rules_dir.iterdir():
+                if subdir.is_dir():
+                    for path in _iter_md_files(subdir):
+                        active.add(self._relative_slug(path, subdir))
         return active
 
     def _ensure_configured_mcp(self, server: MCPServerInfo, action: str) -> bool:
