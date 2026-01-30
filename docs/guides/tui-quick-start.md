@@ -37,8 +37,8 @@ cortex tui
 ├─────────────────────────────────────┤
 │ → Show Agents      View and manage  │
 │   Show Skills      Browse available  │
-│   Show Modes       View active modes │
 │   Show Rules       View active rules │
+│   Show Tasks       Task orchestration│
 │   ...                                │
 └─────────────────────────────────────┘
 ↑/↓ Navigate  ✓ Select  Esc Close
@@ -66,10 +66,9 @@ cortex tui
 System Overview
 
 💻 Agents      13/78 active
-⚑ Modes        3/9 active
 📝 Rules       3/6 active
 💻 Skills      54 installed
-⏳ Workflows   0 running
+✅ Tasks       0 running
 
 Performance Metrics
 ⏳ 5m 23s │ 📊 45MB │ CPU 12% │ ├─ 8 threads
@@ -83,9 +82,9 @@ Performance Metrics
 
 ### 4. All Views Enhanced
 Every view now has:
-- **Icons**: 💻 📝 ⚑ ▶ for visual clarity
+- **Icons**: 💻 📝 ✅ for visual clarity
 - **Status Indicators**: ✓ Active, ○ Ready, ⏳ Running, ✗ Failed
-- **Progress Bars**: Visual progress in Workflows and Orchestrate views
+- **Progress Bars**: Visual progress in Tasks view
 - **Smart Truncation**: Long text is trimmed with `...`
 - **Relative Time**: "5m ago" instead of timestamps
 
@@ -95,23 +94,24 @@ Every view now has:
 
 | Key | Action |
 |-----|--------|
-| `Ctrl+P` | **Command Palette** (NEW!) |
-| `1-9` | Switch primary views |
+| `Ctrl+P` | **Command Palette** |
+| `1` | Overview |
+| `2` | Agents |
+| `3` | Rules |
+| `4` | Skills |
+| `5` | MCP Servers |
+| `6` | Tasks |
+| `7` | Commands |
 | `0` | AI Assistant |
-| `A` | Asset Manager |
 | `C` | Worktrees |
-| `F` | Flags |
-| `M` | Memory Vault |
+| `E` | Export |
 | `w` | Watch Mode |
-| `S` | Scenarios |
-| `o` | Orchestrate |
-| `Alt+g` | Galaxy |
-| `t` | Tasks |
-| `/` | Slash Commands catalog |
-| `R` | Refresh current view |
+| `A` | Asset Manager |
+| `M` | Memory Vault |
+| `r` | Refresh current view |
 | `Space` | Toggle selected item |
 | `?` | Show help |
-| `Q` | Quit |
+| `q` | Quit |
 
 ---
 
@@ -190,7 +190,7 @@ uv pip install -e . --force-reinstall
 | **Performance Monitor** | Real-time memory/CPU in status bar |
 | **Dashboard Cards** | Visual stats with icons in Overview |
 | **Enhanced Icons** | Professional Unicode icons everywhere |
-| **Progress Bars** | Visual progress in Workflows/Orchestrate |
+| **Progress Bars** | Visual progress in Tasks view |
 | **Smart Formatting** | Better time display, text truncation |
 
 ---
@@ -224,7 +224,7 @@ Workflow: workflow-1 | running | 75 | 1699123456
 
 4. **Fuzzy Search**: Don't type full words
    - "agt" finds "Show Agents"
-   - "wf" finds "Show Workflows"
+   - "tsk" finds "Show Tasks"
 
 ---
 

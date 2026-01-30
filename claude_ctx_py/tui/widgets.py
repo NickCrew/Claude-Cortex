@@ -327,12 +327,14 @@ class AdaptiveFooter(Widget):
     def _get_view_shortcuts(self, view: str) -> List[Tuple[str, str]]:
         """Get view-specific shortcuts as (key, label) tuples."""
         mapping = {
+            "overview": [("^p", "Palette")],
             "agents": [("s", "Details"), ("v", "Validate"), ("^e", "Edit")],
-            "skills": [("s", "Details"), ("v", "Validate"), ("m", "Metrics"), ("d", "Docs")],
+            "rules": [("Spc", "Toggle"), ("^e", "Edit")],
+            "skills": [("s", "Details"), ("v", "Validate"), ("m", "Metrics")],
             "mcp": [("B", "Browse/Install"), ("^t", "Test"), ("D", "Diagnose"), ("^a", "Add")],
-            "profiles": [("Spc", "Apply"), ("n", "Save"), ("D", "Delete")],
+            "tasks": [("a", "Add"), ("L", "Log"), ("O", "Open"), ("K", "LLM Tasks")],
+            "commands": [("Enter", "View"), ("^e", "Edit")],
             "export": [("f", "Format"), ("e", "Export"), ("x", "Copy")],
-            "workflows": [("R", "Run"), ("s", "Details")],
             "worktrees": [
                 ("^n", "New"),
                 ("^o", "Open"),
@@ -340,22 +342,10 @@ class AdaptiveFooter(Widget):
                 ("^k", "Prune"),
                 ("B", "Base Dir"),
             ],
-            "scenarios": [("R", "Run"), ("P", "Preview"), ("V", "Validate")],
-            "tasks": [("a", "Add"), ("L", "Log"), ("O", "Open")],
+            "ai_assistant": [("a", "Auto-Activate"), ("J", "Gemini"), ("Y", "Reviews")],
+            "watch_mode": [("Spc", "Toggle")],
             "assets": [("i", "Install"), ("u", "Uninstall"), ("U", "Update All"), ("I", "Install All")],
             "memory": [("Enter", "View"), ("O", "Open"), ("D", "Delete")],
-            "modes": [("Spc", "Toggle"), ("^e", "Edit")],
-            "rules": [("Spc", "Toggle"), ("^e", "Edit")],
-            "principles": [
-                ("N", "New"),
-                ("Spc", "Toggle"),
-                ("s", "Details"),
-                ("c", "Build"),
-                ("d", "Open"),
-                ("^e", "Edit"),
-            ],
-            "ai_assistant": [("a", "Auto-Activate"), ("J", "Gemini"), ("Y", "Request Reviews")],
-            "commands": [("Enter", "View"), ("^e", "Edit")],
         }
         return mapping.get(view, [])
 
@@ -386,7 +376,7 @@ class AdaptiveFooter(Widget):
         essentials = [("?", "Help"), ("q", "Quit")]
 
         # Navigation hint
-        nav = ("1-0,A,M", "Views")
+        nav = ("1-7,0,C,E,w,A,M", "Views")
 
         # Actions
         actions = [("Spc", "Toggle"), ("r", "Refresh")]
