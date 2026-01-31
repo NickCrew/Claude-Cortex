@@ -196,12 +196,12 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
             self.notify(f"Found {len(self.available_hooks)} available hooks", severity="information", timeout=2)
 
             if not self.available_hooks:
-                available_list.append(ListItem(Label("[dim]No hooks found[/dim]")))
+                available_list.append(ListItem(Static("[dim]No hooks found[/dim]")))
             else:
                 for hook in self.available_hooks:
-                    status = "✓ " if hook.is_installed else "○ "
-                    label_text = f"{status}{hook.name} ({hook.event})"
-                    item = ListItem(Label(label_text), id=f"avail-{self._sanitize_id(hook.name)}")
+                    status = "[green]✓[/green] " if hook.is_installed else "[dim]○[/dim] "
+                    label_text = f"{status}{hook.name} [dim]({hook.event})[/dim]"
+                    item = ListItem(Static(label_text), id=f"avail-{self._sanitize_id(hook.name)}")
                     available_list.append(item)
         except Exception as e:
             self.notify(f"Failed to update available list: {e}", severity="error", timeout=3)
@@ -212,14 +212,14 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
             installed_list.clear()
 
             if not self.installed_hooks:
-                installed_list.append(ListItem(Label("[dim]No hooks installed[/dim]")))
+                installed_list.append(ListItem(Static("[dim]No hooks installed[/dim]")))
             else:
                 for inst_hook in self.installed_hooks:
                     # Extract hook name from command
                     cmd = inst_hook.command
                     name = cmd.split("/")[-1].replace(".py", "").replace(".sh", "") if "/" in cmd else cmd
-                    label_text = f"● {name} ({inst_hook.event})"
-                    item = ListItem(Label(label_text), id=f"inst-{self._sanitize_id(name)}")
+                    label_text = f"[green]●[/green] {name} [dim]({inst_hook.event})[/dim]"
+                    item = ListItem(Static(label_text), id=f"inst-{self._sanitize_id(name)}")
                     installed_list.append(item)
         except Exception as e:
             self.notify(f"Failed to update installed list: {e}", severity="error", timeout=3)
