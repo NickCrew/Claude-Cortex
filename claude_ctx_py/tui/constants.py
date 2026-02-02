@@ -5,7 +5,6 @@ EXPORT_CATEGORIES: List[Tuple[str, str, str]] = [
     ("core", "Core Framework", "RULES"),
     ("rules", "Rules", "Active rule modules"),
     ("agents", "Agents", "All available agents"),
-    ("mcp_docs", "MCP Docs", "Model Context Protocol docs"),
     ("skills", "Skills", "Local skill definitions"),
 ]
 
@@ -17,9 +16,8 @@ PRIMARY_VIEW_BINDINGS = [
     ("3", "rules", "Rules"),
     ("4", "skills", "Skills"),
     ("C", "worktrees", "Worktrees"),
-    ("5", "mcp", "MCP"),
-    ("6", "tasks", "Tasks"),
-    ("7", "commands", "Commands"),
+    ("5", "tasks", "Tasks"),
+    ("6", "commands", "Commands"),
     ("E", "export", "Export"),
     ("0", "ai_assistant", "AI Assistant"),
     ("w", "watch_mode", "Watch Mode"),
@@ -34,7 +32,6 @@ VIEW_TITLES: Dict[str, str] = {
     "commands": f"{Icons.DOC} Slash Commands",
     "skills": f"{Icons.CODE} Skills",
     "worktrees": f"{Icons.FOLDER} Worktrees",
-    "mcp": f"{Icons.METRICS} MCP Servers",
     "export": f"{Icons.FILE} Export",
     "ai_assistant": "🤖 AI Assistant",
     "watch_mode": "🔍 Watch Mode",

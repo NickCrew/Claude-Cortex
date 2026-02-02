@@ -281,12 +281,6 @@ class AgentCommandProvider(Provider):
                 CATEGORY_SYSTEM,
             ),
             (
-                f"[cyan]🩺[/] [bold]Health Check[/bold] [dim cyan]✚[/dim cyan]",
-                f"[dim]Run doctor diagnostics [dim white]│[/dim white] Hotkey: [white]c[/white] (in Profiles)[/dim]",
-                "run_health_check",
-                CATEGORY_SYSTEM,
-            ),
-            (
                 f"[blue]🔄[/] [bold]Setup Migration[/bold] [dim blue]⟳[/dim blue]",
                 f"[dim]Migrate activation files [dim white]│[/dim white] Hotkey: [white]M[/white] (in Profiles)[/dim]",
                 "run_migration",

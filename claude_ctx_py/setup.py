@@ -10,20 +10,17 @@ from typing import Optional, Tuple
 from rich.console import Console
 from rich.prompt import Confirm
 
-from .core.base import _resolve_cortex_root
+from .core.base import _resolve_cortex_root, _resolve_plugin_assets_root
 
 
 def _get_rules_source() -> Optional[Path]:
     """Find the rules directory in the package."""
-    # Check relative to this file (installed package)
-    pkg_root = Path(__file__).parent.parent
-    candidates = [
-        pkg_root / "rules",
-        _resolve_cortex_root() / "rules",
-    ]
-    for candidate in candidates:
-        if candidate.is_dir() and list(candidate.glob("*.md")):
-            return candidate
+    # Use plugin assets root (finds the repo)
+    plugin_root = _resolve_plugin_assets_root()
+    if plugin_root and (plugin_root / "rules").is_dir():
+        rules_dir = plugin_root / "rules"
+        if list(rules_dir.glob("*.md")):
+            return rules_dir
     return None
 
 

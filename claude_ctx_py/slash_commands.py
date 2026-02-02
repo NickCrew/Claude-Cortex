@@ -1,4 +1,4 @@
-"""Utilities for discovering slash command metadata."""
+"""Utilities for discovering slash command metadata from skills."""
 
 from __future__ import annotations
 
@@ -37,23 +37,27 @@ class SlashCommandInfo:
 
 
 def scan_slash_commands(
-    commands_dir: Path, *, home_dir: Optional[Path] = None
+    skills_dir: Path, *, home_dir: Optional[Path] = None
 ) -> List[SlashCommandInfo]:
-    """Scan a commands directory and return parsed slash command metadata."""
-
+    """Scan a skills directory and return parsed slash command metadata.
+    
+    Scans for SKILL.md files in the skills directory. Supports both:
+    - Flat skills: skills/foo/SKILL.md → /ctx:foo
+    - Nested skills: skills/namespace/foo/SKILL.md → /namespace:foo
+    
+    The command can be overridden via front matter `command:` field.
+    """
     if home_dir is None:
         home_dir = _resolve_claude_dir()
 
-    if not commands_dir.is_dir():
+    if not skills_dir.is_dir():
         return []
 
     commands: List[SlashCommandInfo] = []
-    for path in sorted(commands_dir.rglob("*.md")):
-        if path.name.lower() == "readme.md":
-            continue
+    for path in sorted(skills_dir.rglob("SKILL.md")):
         if _is_disabled(path):
             continue
-        info = _parse_slash_command(path, commands_dir, home_dir)
+        info = _parse_skill_command(path, skills_dir, home_dir)
         if info:
             commands.append(info)
 
@@ -61,26 +65,28 @@ def scan_slash_commands(
     return commands
 
 
-def _parse_slash_command(
-    path: Path, commands_dir: Path, home_dir: Optional[Path]
+def _parse_skill_command(
+    path: Path, skills_dir: Path, home_dir: Optional[Path]
 ) -> Optional[SlashCommandInfo]:
+    """Parse a SKILL.md file into slash command info."""
     try:
         content = path.read_text(encoding="utf-8")
     except OSError:
         return None
 
     front_matter = _extract_front_matter(content)
-    if not front_matter:
-        return None
+    tokens = {}
+    if front_matter:
+        tokens = _tokenize_front_matter(front_matter.strip().splitlines())
 
-    tokens = _tokenize_front_matter(front_matter.strip().splitlines())
-
-    name = _extract_scalar_from_paths(tokens, (("name",),)) or path.stem
+    # Extract metadata from front matter
+    name = _extract_scalar_from_paths(tokens, (("name",),)) or ""
     description = _clean_text(
         _extract_scalar_from_paths(tokens, (("description",),)) or ""
     )
     category = _extract_scalar_from_paths(tokens, (("category",),)) or "general"
     complexity = _extract_scalar_from_paths(tokens, (("complexity",),)) or "standard"
+    explicit_command = _extract_scalar_from_paths(tokens, (("command",),)) or ""
 
     agents = _extract_values_from_paths(tokens, (("agents",),)) or []
     personas = _extract_values_from_paths(tokens, (("personas",),)) or []
@@ -91,15 +97,37 @@ def _parse_slash_command(
         or []
     )
 
-    namespace = _detect_namespace(content, path, commands_dir)
-    slug = name.strip() or path.stem
+    # Determine command from explicit field or derive from path
+    if explicit_command:
+        # Use explicit command from front matter
+        match = COMMAND_PATTERN.match(explicit_command)
+        if match:
+            namespace = match.group(1).lower()
+            slug = match.group(2).lower()
+            command = explicit_command
+        else:
+            # Malformed command, derive from path
+            namespace, slug = _derive_command_from_path(path, skills_dir)
+            command = f"/{namespace}:{slug}"
+    else:
+        # Derive from path
+        namespace, slug = _derive_command_from_path(path, skills_dir)
+        command = f"/{namespace}:{slug}"
+
+    # Use front matter name if no slug
+    if not slug and name:
+        slug = _slugify(name)
+        command = f"/{namespace}:{slug}"
+
+    if not slug:
+        return None
 
     location = "user"
     if home_dir and home_dir not in path.parents:
         location = "project"
 
     return SlashCommandInfo(
-        command=f"/{namespace}:{slug}",
+        command=command,
         namespace=namespace,
         name=slug,
         description=description,
@@ -113,29 +141,46 @@ def _parse_slash_command(
     )
 
 
-def _detect_namespace(content: str, path: Path, commands_dir: Path) -> str:
-    match = COMMAND_PATTERN.search(content)
-    if match:
-        return match.group(1).lower()
-
+def _derive_command_from_path(path: Path, skills_dir: Path) -> tuple[str, str]:
+    """Derive namespace and slug from skill path.
+    
+    Examples:
+        skills/foo/SKILL.md → ("ctx", "foo")
+        skills/collaboration/pre_mortem/SKILL.md → ("collaboration", "pre-mortem")
+        skills/dev-workflows/SKILL.md → ("ctx", "dev-workflows")
+    """
     try:
-        relative_parts = path.relative_to(commands_dir).parts
+        relative = path.relative_to(skills_dir)
     except ValueError:
-        relative_parts = path.parts
+        return ("ctx", path.parent.name)
 
-    if len(relative_parts) > 1:
-        candidate = relative_parts[0]
+    parts = relative.parts[:-1]  # Exclude SKILL.md
+
+    if len(parts) == 0:
+        return ("ctx", "unknown")
+    elif len(parts) == 1:
+        # Flat skill: skills/foo/SKILL.md → /ctx:foo
+        return ("ctx", _slugify(parts[0]))
     else:
-        candidate = path.parent.name
+        # Nested skill: skills/namespace/foo/SKILL.md → /namespace:foo
+        namespace = _slugify(parts[0])
+        slug = _slugify(parts[-1])
+        return (namespace, slug)
 
-    candidate = candidate or "ctx"
-    candidate = candidate.lower()
-    if candidate == "commands":
-        candidate = "ctx"
-    return candidate
+
+def _slugify(text: str) -> str:
+    """Convert text to a slug suitable for commands."""
+    # Replace underscores with hyphens, lowercase
+    slug = text.lower().replace("_", "-")
+    # Remove any non-alphanumeric characters except hyphens
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+    # Collapse multiple hyphens
+    slug = re.sub(r"-+", "-", slug)
+    return slug.strip("-")
 
 
 def _clean_text(value: str) -> str:
+    """Clean description text."""
     stripped = value.strip()
     if not stripped:
         return "No description provided"

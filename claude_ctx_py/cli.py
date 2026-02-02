@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Iterable, List, cast, Dict, Any, Callable
 
 from . import core
-from .core.migration import migrate_to_file_activation, migrate_commands_layout
 from .messages import RESTART_REQUIRED_MESSAGE
 
 
@@ -127,27 +126,6 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
-def _build_setup_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    setup_parser = subparsers.add_parser("setup", help="Setup and migration commands")
-    setup_sub = setup_parser.add_subparsers(dest="setup_command")
-    setup_sub.add_parser(
-        "migrate",
-        help="Migrate CLAUDE.md comment-based activation to file-based rules/modes",
-    )
-    migrate_cmds = setup_sub.add_parser(
-        "migrate-commands",
-        help="Flatten legacy commands/ namespaces into a single directory",
-    )
-    migrate_cmds.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show planned moves without changing files",
-    )
-    migrate_cmds.add_argument(
-        "--force",
-        action="store_true",
-        help="Overwrite existing targets (backs up overwritten files)",
-    )
 
 
 def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -439,83 +417,6 @@ def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     mcp_snippet_parser.add_argument("server", help="Server name")
 
 
-def _build_init_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    init_parser = subparsers.add_parser("init", help="Initialization commands")
-    init_parser.add_argument(
-        "--interactive",
-        "-i",
-        dest="init_interactive",
-        action="store_true",
-        help="Run initialization wizard",
-    )
-    init_parser.add_argument(
-        "--resume",
-        dest="init_resume_flag",
-        action="store_true",
-        help="Resume the last initialization session",
-    )
-    init_sub = init_parser.add_subparsers(dest="init_command")
-
-    init_detect = init_sub.add_parser(
-        "detect",
-        help="Detect project context and refresh init cache",
-    )
-    init_detect.add_argument(
-        "path",
-        nargs="?",
-        help="Target project directory (defaults to current working directory)",
-    )
-
-    init_sub.add_parser(
-        "minimal",
-        help="Apply minimal defaults via the init system",
-    )
-
-    init_profile = init_sub.add_parser(
-        "profile",
-        help="Capture profile selection for init",
-    )
-    init_profile.add_argument(
-        "name",
-        nargs="?",
-        help="Profile name to activate",
-    )
-
-    init_status = init_sub.add_parser(
-        "status",
-        help="Show stored init state for a project",
-    )
-    init_status.add_argument(
-        "target",
-        nargs="?",
-        help="Project path or slug",
-    )
-    init_status.add_argument(
-        "--json",
-        action="store_true",
-        help="Emit detection JSON instead of summary output",
-    )
-
-    init_reset = init_sub.add_parser("reset", help="Clear init state for a project")
-    init_reset.add_argument(
-        "target",
-        nargs="?",
-        help="Project path or slug (defaults to current working directory)",
-    )
-
-    init_resume = init_sub.add_parser("resume", help="Resume last init session")
-    init_resume.add_argument(
-        "target",
-        nargs="?",
-        help="Project path or slug (defaults to current working directory)",
-    )
-
-    init_wizard = init_sub.add_parser("wizard", help="Run initialization wizard")
-    init_wizard.add_argument(
-        "target",
-        nargs="?",
-        help="Project path (defaults to current working directory)",
-    )
 
 
 def _build_worktree_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -705,18 +606,6 @@ def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
-def _build_completion_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    completion_parser = subparsers.add_parser(
-        "completion", help="Generate shell completion scripts"
-    )
-    completion_parser.add_argument(
-        "shell", choices=["bash", "zsh", "fish"], help="Shell type (bash, zsh, or fish)"
-    )
-    completion_parser.add_argument(
-        "--install", action="store_true", help="Show installation instructions"
-    )
-
-
 def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     install_parser = subparsers.add_parser(
         "install", help="Install CLI integrations and optional extras"
@@ -803,64 +692,9 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without writing files",
     )
 
-    # Install architecture docs
-    docs_parser = install_sub.add_parser(
-        "docs", help="Install architecture docs to ~/.cortex/docs"
-    )
-    docs_parser.add_argument(
-        "--target",
-        dest="docs_target",
-        type=Path,
-        help="Target docs directory (overrides default)",
-    )
-    docs_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be done without writing files",
-    )
-
-    # Bootstrap ~/.cortex with bundled assets
-    bootstrap_parser = install_sub.add_parser(
-        "bootstrap", help="Initialize ~/.cortex with bundled assets and config"
-    )
-    bootstrap_parser.add_argument(
-        "--target",
-        dest="bootstrap_target",
-        type=Path,
-        help="Target directory (default: ~/.cortex)",
-    )
-    bootstrap_parser.add_argument(
-        "--force", action="store_true", help="Overwrite existing directories"
-    )
-    bootstrap_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be done without writing files",
-    )
-    bootstrap_parser.add_argument(
-        "--link-rules",
-        action="store_true",
-        help="Also create symlinks in ~/.claude/rules/cortex/ for Claude discovery",
-    )
-
-    # Sync rule symlinks
-    rules_parser = install_sub.add_parser(
-        "rules", help="Sync rule symlinks to ~/.claude/rules/cortex/"
-    )
-    rules_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be synced without making changes",
-    )
-    rules_parser.add_argument(
-        "--clean",
-        action="store_true",
-        help="Remove all cortex rule symlinks",
-    )
-
     # Run all post-install steps
     post_parser = install_sub.add_parser(
-        "post", help="Install completions, manpages, and docs"
+        "post", help="Install completions and manpages"
     )
     post_parser.add_argument(
         "--shell",
@@ -880,12 +714,6 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Override manpage directory",
     )
     post_parser.add_argument(
-        "--docs-target",
-        dest="docs_target",
-        type=Path,
-        help="Override docs target directory",
-    )
-    post_parser.add_argument(
         "--system",
         action="store_true",
         help="Use system paths for completions/manpages",
@@ -899,55 +727,31 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without writing files",
     )
 
-    # Install package via pip/uv/pipx
-    package_parser = install_sub.add_parser(
-        "package", help="Install the package via pip, uv, or pipx"
+    # Link bundled content into ~/.claude
+    link_parser = install_sub.add_parser(
+        "link", help="Symlink bundled content (agents, skills, rules, hooks) into ~/.claude"
     )
-    package_parser.add_argument(
-        "--manager",
-        choices=["pip", "uv", "pipx"],
-        default="pip",
-        help="Package manager to use",
-    )
-    package_parser.add_argument(
-        "--path",
+    link_parser.add_argument(
+        "--source",
+        dest="link_source",
         type=Path,
-        help="Local path to install (defaults to current directory when used)",
+        help="Source directory (default: auto-detect plugin root)",
     )
-    package_parser.add_argument(
-        "--name",
-        default="claude-cortex",
-        help="Package name for non-path installs",
+    link_parser.add_argument(
+        "--target",
+        dest="link_target",
+        type=Path,
+        help="Target directory (default: ~/.claude)",
     )
-    package_parser.add_argument(
-        "--editable",
-        action="store_true",
-        help="Install in editable mode (local paths only)",
+    link_parser.add_argument(
+        "--force", action="store_true", help="Replace existing directories/symlinks"
     )
-    package_parser.add_argument(
-        "--dev",
-        action="store_true",
-        help="Install with [dev] extras",
-    )
-    package_parser.add_argument(
-        "--upgrade",
-        action="store_true",
-        help="Upgrade if already installed",
-    )
-    package_parser.add_argument(
+    link_parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would be installed without running",
+        help="Show what would be done without making changes",
     )
 
-
-def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    docs_parser = subparsers.add_parser("docs", help="Documentation viewer")
-    docs_parser.add_argument(
-        "page",
-        nargs="?",
-        help="Documentation page to view (e.g., architecture/overview). Lists pages if omitted.",
-    )
 
 
 def _build_statusline_parser(
@@ -991,7 +795,6 @@ def build_parser() -> argparse.ArgumentParser:
     _build_hooks_parser(subparsers)
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
-    _build_init_parser(subparsers)
     _build_worktree_parser(subparsers)
     subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
@@ -1015,13 +818,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _build_ai_parser(subparsers)
     _build_export_parser(subparsers)
-    _build_completion_parser(subparsers)
     _build_install_parser(subparsers)
-    _build_docs_parser(subparsers)
-    _build_doctor_parser(subparsers)
     _build_memory_parser(subparsers)
-    _build_setup_parser(subparsers)
-    subparsers.add_parser("dashboard", help="Launch web-based dashboard")
     review_parser = subparsers.add_parser("review", help="Run review gate before task completion")
     review_parser.add_argument(
         "--dry-run",
@@ -1357,84 +1155,6 @@ def _handle_mcp_command(args: argparse.Namespace) -> int:
     return 1
 
 
-def _handle_init_command(args: argparse.Namespace) -> int:
-    init_command = getattr(args, "init_command", None)
-    if init_command == "detect":
-        exit_code, message = core.init_detect(
-            getattr(args, "path", None),
-            cwd=Path.cwd(),
-        )
-        if message:
-            _print(message)
-        return exit_code
-    if init_command == "minimal":
-        exit_code, message = core.init_minimal()
-        if message:
-            _print(message)
-        if exit_code == 0:
-            _print(_restart_notice())
-        return exit_code
-    if init_command == "profile":
-        exit_code, message = core.init_profile(getattr(args, "name", None))
-        if message:
-            _print(message)
-        if exit_code == 0:
-            _print(_restart_notice())
-        return exit_code
-    if init_command == "status":
-        exit_code, output, warnings = core.init_status(
-            getattr(args, "target", None),
-            json_output=getattr(args, "json", False),
-            cwd=Path.cwd(),
-        )
-        if warnings:
-            if not warnings.endswith("\n"):
-                warnings = warnings + "\n"
-            sys.stderr.write(warnings)
-        if output:
-            if getattr(args, "json", False):
-                sys.stdout.write(output)
-                if not output.endswith("\n"):
-                    sys.stdout.write("\n")
-            else:
-                _print(output)
-        return exit_code
-    if init_command == "reset":
-        exit_code, message = core.init_reset(
-            getattr(args, "target", None),
-            cwd=Path.cwd(),
-        )
-        if message:
-            _print(message)
-        return exit_code
-    if init_command == "resume":
-        exit_code, message = core.init_resume(
-            getattr(args, "target", None),
-            cwd=Path.cwd(),
-        )
-        if message:
-            _print(message)
-        return exit_code
-    if init_command == "wizard":
-        exit_code, message = core.init_wizard(
-            getattr(args, "target", None),
-            cwd=Path.cwd(),
-        )
-        if message:
-            _print(message)
-        return exit_code
-
-    if getattr(args, "init_resume_flag", False):
-        exit_code, message = core.init_resume(cwd=Path.cwd())
-    else:
-        exit_code, message = core.init_wizard(cwd=Path.cwd())
-    if message:
-        _print(message)
-    if exit_code == 0:
-        _print(_restart_notice())
-    return exit_code
-
-
 def _handle_worktree_command(args: argparse.Namespace) -> int:
     if args.worktree_command == "list":
         exit_code, message = core.worktree_list()
@@ -1612,24 +1332,6 @@ def _handle_export_command(args: argparse.Namespace) -> int:
     return 1
 
 
-def _handle_completion_command(args: argparse.Namespace) -> int:
-    from . import completions
-
-    try:
-        if args.install:
-            # Show installation instructions
-            instructions = completions.get_installation_instructions(args.shell)
-            _print(instructions)
-        else:
-            # Generate completion script
-            script = completions.get_completion_script(args.shell)
-            _print(script)
-        return 0
-    except ValueError as e:
-        _print(f"Error: {e}")
-        return 1
-
-
 def _handle_install_command(args: argparse.Namespace) -> int:
     if args.install_command == "aliases":
         from . import shell_integration
@@ -1678,79 +1380,6 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
-    if args.install_command == "docs":
-        from . import installer
-
-        exit_code, message = installer.install_docs(
-            target_dir=args.docs_target,
-            dry_run=args.dry_run,
-        )
-        _print(message)
-        return exit_code
-    if args.install_command == "bootstrap":
-        from . import installer
-
-        exit_code, message = installer.bootstrap(
-            target_dir=args.bootstrap_target,
-            force=args.force,
-            dry_run=args.dry_run,
-            link_rules=args.link_rules,
-        )
-        _print(message)
-        return exit_code
-    if args.install_command == "rules":
-        from .core.base import _resolve_plugin_assets_root
-        from .core.rules import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
-
-        plugin_root = _resolve_plugin_assets_root()
-        if plugin_root is None:
-            _print("Unable to resolve plugin root.")
-            return 1
-
-        if args.clean:
-            # Remove all symlinks in target
-            if DEFAULT_RULES_SUBDIR.exists():
-                removed = 0
-                for link in DEFAULT_RULES_SUBDIR.glob("*.md"):
-                    if link.is_symlink():
-                        if args.dry_run:
-                            _print(f"Would remove: {link.name}")
-                        else:
-                            link.unlink()
-                            _print(f"Removed: {link.name}")
-                        removed += 1
-                if removed == 0:
-                    _print("No cortex rule symlinks found.")
-            else:
-                _print(f"Rules directory does not exist: {DEFAULT_RULES_SUBDIR}")
-            return 0
-
-        # Auto-discover all rules from rules/ directory
-        rules_source = plugin_root / "rules"
-        if not rules_source.is_dir():
-            _print(f"Rules directory not found: {rules_source}")
-            return 1
-
-        all_rules = [p.stem for p in sorted(rules_source.glob("*.md"))]
-        if not all_rules:
-            _print("No rule files found.")
-            return 0
-
-        if args.dry_run:
-            _print(f"Would link {len(all_rules)} rules to {DEFAULT_RULES_SUBDIR}:")
-            for rule in all_rules:
-                _print(f"  - {rule}.md")
-            return 0
-
-        _, messages = sync_rule_symlinks(
-            rules_root=plugin_root,
-            active_rules=all_rules,
-            target_dir=DEFAULT_RULES_SUBDIR,
-        )
-        for msg in messages:
-            _print(msg)
-        _print(f"✓ Synced {len(all_rules)} rules to {DEFAULT_RULES_SUBDIR}")
-        return 0
     if args.install_command == "post":
         from . import installer
 
@@ -1758,27 +1387,20 @@ def _handle_install_command(args: argparse.Namespace) -> int:
             shell=args.shell,
             completion_path=args.completion_path,
             manpath=args.manpath,
-            docs_target=args.docs_target,
             system=args.system,
             force=args.force,
             dry_run=args.dry_run,
         )
         _print(message)
         return exit_code
-    if args.install_command == "package":
+    if args.install_command == "link":
         from . import installer
 
-        path = args.path
-        if path is None and args.editable:
-            path = Path(".")
-        exit_code, message = installer.install_package(
-            manager=args.manager,
-            path=path,
-            name=args.name,
-            editable=args.editable,
-            dev=args.dev,
-            upgrade=args.upgrade,
-            dry_run=args.dry_run,
+        exit_code, message = installer.link_content(
+            source_dir=getattr(args, "link_source", None),
+            target_dir=getattr(args, "link_target", None),
+            force=getattr(args, "force", False),
+            dry_run=getattr(args, "dry_run", False),
         )
         _print(message)
         return exit_code
@@ -1787,30 +1409,12 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         return 1
 
 
-def _handle_dashboard_command(args: argparse.Namespace) -> int:
-    from . import cmd_dashboard
-    return cmd_dashboard.dashboard()
-
-
 def _handle_review_command(args: argparse.Namespace) -> int:
     from . import cmd_review
     return cmd_review.main(
         dry_run=getattr(args, "dry_run", False),
         extra_context=getattr(args, "review_contexts", None),
     )
-
-
-def _handle_docs_command(args: argparse.Namespace) -> int:
-    from . import cmd_docs
-
-    if args.page:
-        exit_code, message = cmd_docs.view_doc(args.page)
-    else:
-        exit_code, message = cmd_docs.list_docs()
-    
-    if message:
-        _print(message)
-    return exit_code
 
 
 def _handle_statusline_command(args: argparse.Namespace) -> int:
@@ -1971,39 +1575,6 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     memory_sub.add_parser("stats", help="Show vault statistics")
 
 
-def _build_doctor_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    doctor_parser = subparsers.add_parser(
-        "doctor", help="Diagnose and fix context issues"
-    )
-    doctor_parser.add_argument(
-        "--fix", action="store_true", help="Attempt to auto-fix issues"
-    )
-
-
-def _handle_doctor_command(args: argparse.Namespace) -> int:
-    exit_code, message = core.doctor_run(fix=args.fix)
-    _print(message)
-    return exit_code
-
-
-def _handle_setup_command(args: argparse.Namespace) -> int:
-    """Handle setup/migration commands."""
-    if args.setup_command == "migrate":
-        exit_code, message = migrate_to_file_activation()
-        _print(message)
-        if _message_indicates_change(message):
-            _print(_restart_notice())
-        return exit_code
-    if args.setup_command == "migrate-commands":
-        exit_code, message = migrate_commands_layout(
-            dry_run=getattr(args, "dry_run", False),
-            force=getattr(args, "force", False),
-        )
-        _print(message)
-        return exit_code
-    return 1
-
-
 def _handle_memory_command(args: argparse.Namespace) -> int:
     """Handle memory subcommands for persistent knowledge capture."""
     from . import memory
@@ -2144,18 +1715,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         "hooks": _handle_hooks_command,
         "skills": _handle_skills_command,
         "mcp": _handle_mcp_command,
-        "init": _handle_init_command,
         "worktree": _handle_worktree_command,
         "ai": _handle_ai_command,
         "export": _handle_export_command,
-        "completion": _handle_completion_command,
         "install": _handle_install_command,
-        "docs": _handle_docs_command,
         "statusline": _handle_statusline_command,
-        "doctor": _handle_doctor_command,
         "memory": _handle_memory_command,
-        "setup": _handle_setup_command,
-        "dashboard": _handle_dashboard_command,
         "review": _handle_review_command,
     }
 

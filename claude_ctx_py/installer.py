@@ -68,7 +68,6 @@ def _find_plugin_root() -> Optional[Path]:
     # 3. Check common locations
     candidates = [
         Path.home() / ".claude" / "plugins" / "claude-cortex",
-        Path.home() / ".cortex",
     ]
     for candidate in candidates:
         if candidate.exists() and (candidate / "agents").is_dir():
@@ -125,7 +124,7 @@ def _default_completion_path(shell: str, system: bool) -> Path:
         return (
             Path("/usr/local/share/zsh/site-functions/_cortex")
             if system
-            else home / ".zsh" / "completions" / "_cortex"
+            else home / ".cache" / "zsh" / "completions" / "_cortex"
         )
     if shell == "fish":
         return (
@@ -297,7 +296,7 @@ def install_docs(
 
 
 # Directories to copy from bundled assets to ~/.cortex
-BOOTSTRAP_DIRS = ["rules", "templates"]
+BOOTSTRAP_DIRS = ["rules"]
 
 
 def bootstrap(
@@ -405,12 +404,11 @@ def install_post(
     shell: Optional[str] = None,
     completion_path: Optional[Path] = None,
     manpath: Optional[Path] = None,
-    docs_target: Optional[Path] = None,
     system: bool = False,
     force: bool = False,
     dry_run: bool = False,
 ) -> Tuple[int, str]:
-    """Run all post-install steps (completions, manpages, docs)."""
+    """Run post-install steps (completions and manpages)."""
     results = []
     exit_code = 0
 
@@ -432,14 +430,211 @@ def install_post(
     results.append(message)
     exit_code = max(exit_code, code)
 
-    code, message = install_docs(
-        target_dir=docs_target,
-        dry_run=dry_run,
-    )
-    results.append(message)
-    exit_code = max(exit_code, code)
-
     return exit_code, "\n\n".join(results)
+
+
+# Directories to symlink into ~/.claude
+LINK_DIRS = ["agents", "skills", "rules", "inactive"]
+
+
+def _link_commands_from_skills(
+    skills_dir: Path,
+    commands_dir: Path,
+    force: bool = False,
+    dry_run: bool = False,
+) -> List[str]:
+    """Generate commands/ symlinks from skills/ directory.
+
+    Creates symlinks like:
+        commands/collaboration/pre-mortem.md -> skills/collaboration/pre_mortem/SKILL.md
+        commands/ctx/canvas-design.md -> skills/canvas-design/SKILL.md
+
+    Args:
+        skills_dir: Source skills directory
+        commands_dir: Target commands directory
+        force: Remove existing commands_dir before linking
+        dry_run: Show what would be done
+
+    Returns:
+        List of result messages
+    """
+    import re
+
+    results: List[str] = []
+
+    if not skills_dir.is_dir():
+        return [f"  - commands/ (skills directory not found)"]
+
+    # Collect all SKILL.md files
+    skill_files = list(skills_dir.rglob("SKILL.md"))
+    if not skill_files:
+        return [f"  - commands/ (no skills found)"]
+
+    if dry_run:
+        return [f"  commands/ (would create {len(skill_files)} symlinks from skills)"]
+
+    # Handle existing commands dir
+    if commands_dir.exists() or commands_dir.is_symlink():
+        if not force:
+            return [f"  - commands/ (exists, use --force to replace)"]
+        try:
+            if commands_dir.is_symlink():
+                commands_dir.unlink()
+            else:
+                shutil.rmtree(commands_dir)
+        except OSError as exc:
+            return [f"  ✗ commands/ (failed to remove: {exc})"]
+
+    # Create commands directory
+    try:
+        commands_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return [f"  ✗ commands/ (failed to create: {exc})"]
+
+    def slugify(text: str) -> str:
+        slug = text.lower().replace("_", "-")
+        slug = re.sub(r"[^a-z0-9-]", "", slug)
+        slug = re.sub(r"-+", "-", slug)
+        return slug.strip("-")
+
+    created = 0
+    for skill_path in skill_files:
+        try:
+            relative = skill_path.relative_to(skills_dir)
+        except ValueError:
+            continue
+
+        parts = relative.parts[:-1]  # Exclude SKILL.md
+
+        if len(parts) == 0:
+            continue
+        elif len(parts) == 1:
+            # Flat skill: skills/foo/SKILL.md -> commands/ctx/foo.md
+            namespace = "ctx"
+            slug = slugify(parts[0])
+        else:
+            # Nested skill: skills/collaboration/pre_mortem/SKILL.md -> commands/collaboration/pre-mortem.md
+            namespace = slugify(parts[0])
+            slug = slugify(parts[-1])
+
+        if not slug:
+            continue
+
+        # Create namespace dir
+        namespace_dir = commands_dir / namespace
+        namespace_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create symlink
+        link_path = namespace_dir / f"{slug}.md"
+        if link_path.exists() or link_path.is_symlink():
+            if force:
+                link_path.unlink()
+            else:
+                continue
+
+        try:
+            link_path.symlink_to(skill_path.resolve())
+            created += 1
+        except OSError:
+            pass
+
+    results.append(f"  ✓ commands/ ({created} symlinks from skills)")
+    return results
+
+def link_content(
+    source_dir: Optional[Path] = None,
+    target_dir: Optional[Path] = None,
+    force: bool = False,
+    dry_run: bool = False,
+) -> Tuple[int, str]:
+    """Symlink bundled content (agents, skills, rules, hooks) into ~/.claude.
+
+    Args:
+        source_dir: Source directory with content (default: auto-detect plugin root)
+        target_dir: Target directory (default: ~/.claude)
+        force: Remove existing symlinks/directories before linking
+        dry_run: Show what would be done without making changes
+    """
+    # Find source
+    source = source_dir or _find_plugin_root()
+    if source is None:
+        return 1, (
+            "Could not find cortex content directory.\n"
+            "Set CLAUDE_PLUGIN_ROOT or run from within the cortex repo."
+        )
+
+    # Verify source has content
+    found_dirs = [d for d in LINK_DIRS if (source / d).is_dir()]
+    if not found_dirs:
+        return 1, f"No content directories found in {source}"
+
+    # Target is ~/.claude
+    target = target_dir or _resolve_cortex_root()
+
+    if dry_run:
+        lines = [
+            f"Would link content from: {source}",
+            f"To: {target}",
+            "",
+            "Directories to link:",
+        ]
+        for dir_name in found_dirs:
+            src = source / dir_name
+            count = len(list(src.glob("*")))
+            lines.append(f"  {dir_name}/ ({count} items)")
+        return 0, "\n".join(lines)
+
+    # Create target if needed
+    try:
+        target.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return 1, f"Failed to create {target}: {exc}"
+
+    results: List[str] = []
+    for dir_name in found_dirs:
+        src = source / dir_name
+        dst = target / dir_name
+
+        # Handle existing
+        if dst.exists() or dst.is_symlink():
+            if not force:
+                if dst.is_symlink() and dst.resolve() == src.resolve():
+                    results.append(f"  ✓ {dir_name}/ (already linked)")
+                else:
+                    results.append(f"  - {dir_name}/ (exists, use --force to replace)")
+                continue
+            # Remove existing
+            try:
+                if dst.is_symlink():
+                    dst.unlink()
+                elif dst.is_dir():
+                    shutil.rmtree(dst)
+                else:
+                    dst.unlink()
+            except OSError as exc:
+                results.append(f"  ✗ {dir_name}/ (failed to remove: {exc})")
+                continue
+
+        # Create symlink
+        try:
+            dst.symlink_to(src)
+            results.append(f"  ✓ {dir_name}/ -> {src}")
+        except OSError as exc:
+            results.append(f"  ✗ {dir_name}/ (failed: {exc})")
+
+    # Generate commands/ from skills/
+    skills_dir = target / "skills"
+    commands_dir = target / "commands"
+    cmd_results = _link_commands_from_skills(skills_dir, commands_dir, force=force, dry_run=dry_run)
+    results.extend(cmd_results)
+
+    summary = [
+        f"Linked content to: {target}",
+        f"Source: {source}",
+        "",
+        *results,
+    ]
+    return 0, "\n".join(summary)
 
 
 def install_package(

@@ -11,7 +11,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm
 
-from .core.base import _resolve_cortex_root
 from . import shell_integration
 
 
@@ -22,37 +21,23 @@ def should_run_wizard() -> bool:
     if not sys.stdin.isatty():
         return False
     
-    # Check if rules are already symlinked
-    claude_rules = Path.home() / ".claude" / "rules" / "cortex"
-    return not claude_rules.exists()
+    # Check if rules are already linked (either as symlink or cortex subdir)
+    claude_rules = Path.home() / ".claude" / "rules"
+    if claude_rules.is_symlink():
+        return False
+    if (claude_rules / "cortex").exists():
+        return False
+    return True
 
 
 def _symlink_rules(console: Console, dry_run: bool = False) -> Tuple[int, str]:
-    """Symlink rules to ~/.claude/rules/cortex/."""
-    cortex_root = _resolve_cortex_root()
-    rules_source = cortex_root / "rules"
-    
-    if not rules_source.is_dir():
-        return 1, f"Rules directory not found: {rules_source}"
-    
-    claude_rules = Path.home() / ".claude" / "rules" / "cortex"
+    """Symlink content directories to ~/.claude/."""
+    from .installer import link_content
     
     if dry_run:
-        return 0, f"Would symlink {rules_source} → {claude_rules}"
+        return link_content(dry_run=True)
     
-    try:
-        claude_rules.parent.mkdir(parents=True, exist_ok=True)
-        
-        if claude_rules.is_symlink():
-            claude_rules.unlink()
-        elif claude_rules.exists():
-            import shutil
-            shutil.rmtree(claude_rules)
-        
-        claude_rules.symlink_to(rules_source)
-        return 0, f"✓ Linked rules: {claude_rules} → {rules_source}"
-    except OSError as e:
-        return 1, f"Failed to symlink rules: {e}"
+    return link_content(force=False)
 
 
 def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
@@ -68,7 +53,7 @@ def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
     console.print(Panel(
         "[bold]Cortex Setup[/bold]\n\n"
         "This will:\n"
-        "  • Symlink rules to ~/.claude/rules/cortex/\n"
+        "  • Symlink agents, skills, rules, mcp to ~/.claude/\n"
         "  • Optionally install shell completions",
         border_style="cyan",
     ))

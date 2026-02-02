@@ -2,7 +2,6 @@
 name: idea-lab
 description: Timeboxed divergent ideation that outputs ranked options plus day-one experiments.
 license: MIT
-command: /ctx:idea-lab
 ---
 
 # `/collaboration:idea-lab`

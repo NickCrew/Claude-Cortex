@@ -34,7 +34,7 @@ def _hook_log_path() -> Path:
         value = os.getenv(name, "").strip()
         if value:
             return Path(value).expanduser()
-    return Path.home() / ".cortex" / "logs" / "hooks.log"
+    return Path.home() / ".claude" / "logs" / "hooks.log"
 
 
 def _log_hook(message: str) -> None:

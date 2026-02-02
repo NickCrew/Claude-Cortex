@@ -3,6 +3,8 @@
 ## Task Flow
 - Understand -> Plan -> TodoWrite (3+ tasks) -> Execute -> Track -> Validate.
 - Claims must be supported by tests, logs, or docs.
+- Use 'bd' for task tracking
+- Each beads ('bd') issue closed should have a dedicated commit. 
 
 ## Workspace Hygiene
 - Remove temporary files and debug artifacts.
@@ -17,7 +19,3 @@
 - Diagrams: `docs/diagrams/` (or a local `diagrams/` next to the doc)
 - Archive: `docs/archive/`
 
-## Git Workflow
-- Use feature branches or worktrees for parallel work.
-- Start with `git status` and review `git diff` before staging.
-- Follow @rules/git-rules.md for commit standards and attribution.

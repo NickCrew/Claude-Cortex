@@ -62,14 +62,14 @@ def _resolve_cortex_root(home: Path | None = None) -> Path:
 
     1. Explicit ``CORTEX_ROOT`` environment variable
     2. Caller-provided ``home`` argument
-    3. ``$HOME/.cortex`` fallback
+    3. ``$HOME/.claude`` fallback (where Claude Code looks)
     """
     env_root = os.environ.get(_CORTEX_ROOT_ENV)
     if env_root:
         return Path(env_root).expanduser().resolve()
 
     base = Path(home) if home is not None else Path(os.environ.get("HOME", str(Path.home())))
-    return base / ".cortex"
+    return base / ".claude"
 
 
 def _resolve_bundled_assets_root() -> Path | None:
@@ -102,7 +102,8 @@ def _resolve_plugin_assets_root() -> Path:
 
     this_file = Path(__file__).resolve()
     repo_root = this_file.parent.parent.parent
-    if (repo_root / "agents").is_dir() and (repo_root / "commands").is_dir():
+    # Check for directories that indicate this is the cortex repo
+    if (repo_root / "agents").is_dir() and (repo_root / "hooks").is_dir():
         return repo_root
 
     bundled = _resolve_bundled_assets_root()

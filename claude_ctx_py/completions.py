@@ -6,45 +6,26 @@ from __future__ import annotations
 def generate_bash_completion() -> str:
     """Generate bash completion script."""
     return """# Bash completion for cortex
-# Source this file or add it to ~/.bash_completion.d/
-
 _cortex_completion() {
-    local cur prev opts base
+    local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    # Top-level commands
-    local commands="mode agent rules principles hooks skills mcp init profile workflow start claude config tui version completion install help doctor setup"
+    local commands="agent rules hooks skills mcp worktree ai export memory review tui status install version"
 
-    # Complete top-level commands
     if [[ ${COMP_CWORD} -eq 1 ]]; then
         COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
         return 0
     fi
 
-    # Get the main command
     local cmd="${COMP_WORDS[1]}"
 
     case "${cmd}" in
-        mode)
-            local mode_cmds="list status activate deactivate"
-            if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${mode_cmds}" -- ${cur}))
-            elif [[ ${prev} == "activate" ]] || [[ ${prev} == "deactivate" ]]; then
-                # Complete with available modes
-                local modes=$(cortex mode list 2>/dev/null | grep -v "^Available" | grep -v "^  " | awk '{print $1}')
-                COMPREPLY=($(compgen -W "${modes}" -- ${cur}))
-            fi
-            ;;
         agent)
             local agent_cmds="list status activate deactivate deps graph validate"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${agent_cmds}" -- ${cur}))
-            elif [[ ${prev} == "activate" ]] || [[ ${prev} == "deactivate" ]] || [[ ${prev} == "deps" ]]; then
-                # Complete with available agents
-                local agents=$(cortex agent list 2>/dev/null | grep -v "^Available" | sed 's/ .*//' | awk '{print $1}')
-                COMPREPLY=($(compgen -W "${agents}" -- ${cur}))
             fi
             ;;
         rules)
@@ -53,79 +34,56 @@ _cortex_completion() {
                 COMPREPLY=($(compgen -W "${rules_cmds}" -- ${cur}))
             fi
             ;;
-        principles)
-            local principles_cmds="list status activate deactivate build"
-            if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${principles_cmds}" -- ${cur}))
-            fi
-            ;;
         hooks)
-            local hooks_cmds="validate"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${hooks_cmds}" -- ${cur}))
-            elif [[ ${prev} == "validate" ]]; then
-                COMPREPLY=($(compgen -W "--path" -- ${cur}))
+                COMPREPLY=($(compgen -W "validate" -- ${cur}))
             fi
             ;;
         skills)
-            local skills_cmds="list info validate analyze suggest metrics deps agents compose versions analytics report trending community"
+            local skills_cmds="list info validate analyze suggest metrics deps agents compose versions analytics report trending recommend feedback rate ratings top-rated export-ratings community"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${skills_cmds}" -- ${cur}))
             fi
             ;;
         mcp)
-            local mcp_cmds="list show docs test diagnose snippet"
+            local mcp_cmds="list list-docs status activate deactivate show docs test diagnose snippet"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${mcp_cmds}" -- ${cur}))
             fi
             ;;
-        init)
-            local init_cmds="detect minimal profile status reset resume wizard"
+        worktree)
+            local worktree_cmds="list add remove prune dir"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${init_cmds}" -- ${cur}))
+                COMPREPLY=($(compgen -W "${worktree_cmds}" -- ${cur}))
             fi
             ;;
-        setup)
-            local setup_cmds="migrate migrate-commands"
+        ai)
+            local ai_cmds="recommend auto-activate export record watch"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${setup_cmds}" -- ${cur}))
-            elif [[ ${prev} == "migrate-commands" ]]; then
-                COMPREPLY=($(compgen -W "--dry-run --force" -- ${cur}))
+                COMPREPLY=($(compgen -W "${ai_cmds}" -- ${cur}))
             fi
             ;;
-        config)
-            local config_opts="--config --plugin-dir --raw --json"
-            COMPREPLY=($(compgen -W "${config_opts}" -- ${cur}))
-            ;;
-        profile)
-            local profile_cmds="list apply create edit show"
+        export)
+            local export_cmds="list context"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${profile_cmds}" -- ${cur}))
+                COMPREPLY=($(compgen -W "${export_cmds}" -- ${cur}))
             fi
             ;;
-        workflow)
-            local workflow_cmds="list run resume stop status"
+        memory)
+            local memory_cmds="remember project capture fix auto list search stats"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${workflow_cmds}" -- ${cur}))
-            fi
-            ;;
-        completion)
-            local shells="bash zsh fish"
-            if [[ ${COMP_CWORD} -eq 2 ]]; then
-                COMPREPLY=($(compgen -W "${shells}" -- ${cur}))
+                COMPREPLY=($(compgen -W "${memory_cmds}" -- ${cur}))
             fi
             ;;
         install)
-            local install_cmds="aliases completions manpage docs post package"
+            local install_cmds="link aliases completions manpage post"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${install_cmds}" -- ${cur}))
             fi
             ;;
     esac
-
     return 0
 }
-
 complete -F _cortex_completion cortex
 """
 
@@ -133,128 +91,37 @@ complete -F _cortex_completion cortex
 def generate_zsh_completion() -> str:
     """Generate zsh completion script."""
     return """#compdef cortex
-# Zsh completion for cortex
-
 _cortex() {
     local -a commands
     commands=(
-        'mode:Mode management commands'
-        'agent:Agent management commands'
-        'rules:Rule management commands'
-        'principles:Principles snippet commands'
+        'agent:Agent management'
+        'rules:Rule management'
         'hooks:Hook commands'
-        'skills:Skill management commands'
+        'skills:Skill management'
         'mcp:MCP server management'
-        'init:Initialize project configuration'
-        'setup:Setup and migration commands'
-        'profile:Profile management'
-        'workflow:Workflow management'
-        'start:Launch Claude Code with Cortex configuration'
-        'claude:Alias for start'
-        'config:Show configuration'
+        'worktree:Git worktree management'
+        'ai:AI assistant commands'
+        'export:Export context'
+        'memory:Memory vault commands'
+        'review:Run review gate'
         'tui:Launch terminal UI'
-        'doctor:Diagnose and fix context issues'
-        'version:Show version information'
-        'completion:Generate shell completions'
-        'install:Install integrations and extras'
-        'help:Show help information'
+        'status:Show overall status'
+        'install:Install integrations'
+        'version:Show version'
     )
 
-    local -a mode_commands
-    mode_commands=(
-        'list:List available modes'
-        'status:Show active modes'
-        'activate:Activate one or more modes'
-        'deactivate:Deactivate one or more modes'
-    )
+    local -a agent_commands=('list' 'status' 'activate' 'deactivate' 'deps' 'graph' 'validate')
+    local -a rules_commands=('list' 'status' 'activate' 'deactivate')
+    local -a hooks_commands=('validate')
+    local -a skills_commands=('list' 'info' 'validate' 'analyze' 'suggest' 'metrics' 'deps' 'agents' 'compose' 'versions' 'analytics' 'report' 'trending' 'recommend' 'feedback' 'rate' 'ratings' 'top-rated' 'export-ratings' 'community')
+    local -a mcp_commands=('list' 'list-docs' 'status' 'activate' 'deactivate' 'show' 'docs' 'test' 'diagnose' 'snippet')
+    local -a worktree_commands=('list' 'add' 'remove' 'prune' 'dir')
+    local -a ai_commands=('recommend' 'auto-activate' 'export' 'record' 'watch')
+    local -a export_commands=('list' 'context')
+    local -a memory_commands=('remember' 'project' 'capture' 'fix' 'auto' 'list' 'search' 'stats')
+    local -a install_commands=('link' 'aliases' 'completions' 'manpage' 'post')
 
-    local -a agent_commands
-    agent_commands=(
-        'list:List available agents'
-        'status:Show active agents'
-        'activate:Activate one or more agents'
-        'deactivate:Deactivate one or more agents'
-        'deps:Show agent dependencies'
-        'graph:Display dependency graph'
-        'validate:Validate agent metadata'
-    )
-
-    local -a rules_commands
-    rules_commands=(
-        'list:List available rules'
-        'status:Show active rules'
-        'activate:Activate one or more rules'
-        'deactivate:Deactivate one or more rules'
-    )
-
-    local -a principles_commands
-    principles_commands=(
-        'list:List available principle snippets'
-        'status:Show active principle snippets'
-        'activate:Activate one or more principle snippets'
-        'deactivate:Deactivate one or more principle snippets'
-        'build:Build PRINCIPLES.md from active snippets'
-    )
-
-    local -a hooks_commands
-    hooks_commands=(
-        'validate:Validate hooks.json configuration'
-    )
-
-    local -a skills_commands
-    skills_commands=(
-        'list:List available skills'
-        'info:Show skill details'
-        'validate:Validate skill metadata'
-        'analyze:Analyze text for skill suggestions'
-        'suggest:Suggest skills for project'
-        'metrics:Show skill usage metrics'
-        'deps:Show which agents use a skill'
-        'agents:Show which agents use a skill'
-        'compose:Show dependency tree'
-        'versions:Show version information'
-        'analytics:Show effectiveness analytics'
-        'report:Generate analytics report'
-        'trending:Show trending skills'
-        'community:Community skill commands'
-    )
-
-    local -a mcp_commands
-    mcp_commands=(
-        'list:List all MCP servers'
-        'show:Show detailed server info'
-        'docs:Display server documentation'
-        'test:Test server configuration'
-        'diagnose:Diagnose server issues'
-        'snippet:Generate config snippet'
-    )
-
-    local -a completion_shells
-    completion_shells=(
-        'bash:Generate bash completion'
-        'zsh:Generate zsh completion'
-        'fish:Generate fish completion'
-    )
-
-    local -a install_commands
-    install_commands=(
-        'aliases:Install shell aliases'
-        'completions:Install shell completions'
-        'manpage:Install manpages'
-        'docs:Install architecture docs'
-        'post:Run all post-install steps'
-        'package:Install via pip/uv/pipx'
-    )
-
-    local -a setup_commands
-    setup_commands=(
-        'migrate:Migrate CLAUDE.md activation to file-based rules/modes'
-        'migrate-commands:Flatten legacy commands layout'
-    )
-
-    _arguments -C \
-        '1: :->command' \
-        '*::arg:->args'
+    _arguments -C '1: :->command' '*::arg:->args'
 
     case $state in
         command)
@@ -262,115 +129,20 @@ _cortex() {
             ;;
         args)
             case $words[1] in
-                mode)
-                    _arguments \
-                        '1: :->mode_command' \
-                        '*::mode_arg:->mode_args'
-                    case $state in
-                        mode_command)
-                            _describe -t mode_commands 'mode command' mode_commands
-                            ;;
-                    esac
-                    ;;
-                agent)
-                    _arguments \
-                        '1: :->agent_command' \
-                        '*::agent_arg:->agent_args'
-                    case $state in
-                        agent_command)
-                            _describe -t agent_commands 'agent command' agent_commands
-                            ;;
-                    esac
-                    ;;
-                rules)
-                    _arguments \
-                        '1: :->rules_command' \
-                        '*::rules_arg:->rules_args'
-                    case $state in
-                        rules_command)
-                            _describe -t rules_commands 'rules command' rules_commands
-                            ;;
-                    esac
-                    ;;
-                principles)
-                    _arguments \
-                        '1: :->principles_command' \
-                        '*::principles_arg:->principles_args'
-                    case $state in
-                        principles_command)
-                            _describe -t principles_commands 'principles command' principles_commands
-                            ;;
-                    esac
-                    ;;
-                hooks)
-                    _arguments \
-                        '1: :->hooks_command' \
-                        '*::hooks_arg:->hooks_args'
-                    case $state in
-                        hooks_command)
-                            _describe -t hooks_commands 'hooks command' hooks_commands
-                            ;;
-                    esac
-                    ;;
-                skills)
-                    _arguments \
-                        '1: :->skills_command' \
-                        '*::skills_arg:->skills_args'
-                    case $state in
-                        skills_command)
-                            _describe -t skills_commands 'skills command' skills_commands
-                            ;;
-                    esac
-                    ;;
-                mcp)
-                    _arguments \
-                        '1: :->mcp_command' \
-                        '*::mcp_arg:->mcp_args'
-                    case $state in
-                        mcp_command)
-                            _describe -t mcp_commands 'mcp command' mcp_commands
-                            ;;
-                    esac
-                    ;;
-                completion)
-                    _arguments \
-                        '1: :->shell'
-                    case $state in
-                        shell)
-                            _describe -t completion_shells 'shell' completion_shells
-                            ;;
-                    esac
-                    ;;
-                setup)
-                    _arguments \
-                        '1: :->setup_command'
-                    case $state in
-                        setup_command)
-                            _describe -t setup_commands 'setup command' setup_commands
-                            ;;
-                    esac
-                    ;;
-                config)
-                    _arguments \
-                        '--config[Path to cortex-config.json]:config file:_files' \
-                        '--plugin-dir[Path to Cortex plugin assets]:plugin dir:_files -/' \
-                        '--raw[Print raw config file contents]' \
-                        '--json[Output configuration as JSON]'
-                    ;;
-                install)
-                    _arguments \
-                        '1: :->install_command'
-                    case $state in
-                        install_command)
-                            _describe -t install_commands 'install command' install_commands
-                            ;;
-                    esac
-                    ;;
+                agent) _describe -t agent_commands 'agent command' agent_commands ;;
+                rules) _describe -t rules_commands 'rules command' rules_commands ;;
+                hooks) _describe -t hooks_commands 'hooks command' hooks_commands ;;
+                skills) _describe -t skills_commands 'skills command' skills_commands ;;
+                mcp) _describe -t mcp_commands 'mcp command' mcp_commands ;;
+                worktree) _describe -t worktree_commands 'worktree command' worktree_commands ;;
+                ai) _describe -t ai_commands 'ai command' ai_commands ;;
+                export) _describe -t export_commands 'export command' export_commands ;;
+                memory) _describe -t memory_commands 'memory command' memory_commands ;;
+                install) _describe -t install_commands 'install command' install_commands ;;
             esac
             ;;
     esac
 }
-
 _cortex "$@"
 """
 
@@ -380,120 +152,55 @@ def generate_fish_completion() -> str:
     return """# Fish completion for cortex
 
 # Top-level commands
-complete -c cortex -f -n "__fish_use_subcommand" -a "mode" -d "Mode management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "agent" -d "Agent management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "rules" -d "Rule management"
-complete -c cortex -f -n "__fish_use_subcommand" -a "principles" -d "Principles snippet management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "hooks" -d "Hook commands"
 complete -c cortex -f -n "__fish_use_subcommand" -a "skills" -d "Skill management"
 complete -c cortex -f -n "__fish_use_subcommand" -a "mcp" -d "MCP server management"
-complete -c cortex -f -n "__fish_use_subcommand" -a "init" -d "Initialize project"
-complete -c cortex -f -n "__fish_use_subcommand" -a "setup" -d "Setup and migration commands"
-complete -c cortex -f -n "__fish_use_subcommand" -a "profile" -d "Profile management"
-complete -c cortex -f -n "__fish_use_subcommand" -a "workflow" -d "Workflow management"
-complete -c cortex -f -n "__fish_use_subcommand" -a "start" -d "Launch Claude Code with Cortex configuration"
-complete -c cortex -f -n "__fish_use_subcommand" -a "claude" -d "Alias for start"
-complete -c cortex -f -n "__fish_use_subcommand" -a "config" -d "Show configuration"
+complete -c cortex -f -n "__fish_use_subcommand" -a "worktree" -d "Git worktree management"
+complete -c cortex -f -n "__fish_use_subcommand" -a "ai" -d "AI assistant commands"
+complete -c cortex -f -n "__fish_use_subcommand" -a "export" -d "Export context"
+complete -c cortex -f -n "__fish_use_subcommand" -a "memory" -d "Memory vault commands"
+complete -c cortex -f -n "__fish_use_subcommand" -a "review" -d "Run review gate"
 complete -c cortex -f -n "__fish_use_subcommand" -a "tui" -d "Launch terminal UI"
-complete -c cortex -f -n "__fish_use_subcommand" -a "doctor" -d "System diagnostics"
-complete -c cortex -f -n "__fish_use_subcommand" -a "version" -d "Show version"
-complete -c cortex -f -n "__fish_use_subcommand" -a "completion" -d "Generate completions"
+complete -c cortex -f -n "__fish_use_subcommand" -a "status" -d "Show overall status"
 complete -c cortex -f -n "__fish_use_subcommand" -a "install" -d "Install integrations"
-complete -c cortex -f -n "__fish_use_subcommand" -a "help" -d "Show help"
-
-# Doctor subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from doctor" -l "fix" -d "Attempt auto-fix"
-
-# Config options
-complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "config" -r -d "Path to cortex-config.json"
-complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "plugin-dir" -r -d "Path to Cortex plugin assets"
-complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "raw" -d "Print raw config file contents"
-complete -c cortex -f -n "__fish_seen_subcommand_from config" -l "json" -d "Output configuration as JSON"
-
-# Mode subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available modes"
-complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active modes"
-complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate modes"
-complete -c cortex -f -n "__fish_seen_subcommand_from mode; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate modes"
+complete -c cortex -f -n "__fish_use_subcommand" -a "version" -d "Show version"
 
 # Agent subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "list" -d "List available agents"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "status" -d "Show active agents"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "activate" -d "Activate agents"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deactivate" -d "Deactivate agents"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "deps" -d "Show dependencies"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "graph" -d "Display graph"
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and not __fish_seen_subcommand_from list status activate deactivate deps graph validate" -a "validate" -d "Validate metadata"
-
-# Agent deactivate flags
-complete -c cortex -f -n "__fish_seen_subcommand_from agent; and __fish_seen_subcommand_from deactivate" -l "force" -d "Override dependency checks"
-
-# Setup subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from setup; and not __fish_seen_subcommand_from migrate migrate-commands" -a "migrate" -d "Migrate CLAUDE.md activation"
-complete -c cortex -f -n "__fish_seen_subcommand_from setup; and not __fish_seen_subcommand_from migrate migrate-commands" -a "migrate-commands" -d "Flatten legacy commands layout"
-complete -c cortex -f -n "__fish_seen_subcommand_from setup; and __fish_seen_subcommand_from migrate-commands" -l "dry-run" -d "Preview changes"
-complete -c cortex -f -n "__fish_seen_subcommand_from setup; and __fish_seen_subcommand_from migrate-commands" -l "force" -d "Overwrite existing targets"
+complete -c cortex -f -n "__fish_seen_subcommand_from agent" -a "list status activate deactivate deps graph validate"
 
 # Rules subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "list" -d "List available rules"
-complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "status" -d "Show active rules"
-complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "activate" -d "Activate rules"
-complete -c cortex -f -n "__fish_seen_subcommand_from rules; and not __fish_seen_subcommand_from list status activate deactivate" -a "deactivate" -d "Deactivate rules"
-
-# Principles subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "list" -d "List available principle snippets"
-complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "status" -d "Show active principle snippets"
-complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "activate" -d "Activate principle snippets"
-complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "deactivate" -d "Deactivate principle snippets"
-complete -c cortex -f -n "__fish_seen_subcommand_from principles; and not __fish_seen_subcommand_from list status activate deactivate build" -a "build" -d "Build PRINCIPLES.md"
+complete -c cortex -f -n "__fish_seen_subcommand_from rules" -a "list status activate deactivate"
 
 # Hooks subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from hooks; and not __fish_seen_subcommand_from validate" -a "validate" -d "Validate hooks.json configuration"
+complete -c cortex -f -n "__fish_seen_subcommand_from hooks" -a "validate"
 
 # Skills subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "list" -d "List skills"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "info" -d "Show skill details"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "validate" -d "Validate metadata"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "analyze" -d "Analyze text"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "suggest" -d "Suggest skills"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "metrics" -d "Show metrics"
-complete -c cortex -f -n "__fish_seen_subcommand_from skills; and not __fish_seen_subcommand_from list info validate analyze suggest metrics deps agents compose versions analytics report trending community" -a "community" -d "Community skills"
+complete -c cortex -f -n "__fish_seen_subcommand_from skills" -a "list info validate analyze suggest metrics deps agents compose versions analytics report trending recommend feedback rate ratings top-rated export-ratings community"
 
 # MCP subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "list" -d "List servers"
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "show" -d "Show server info"
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "docs" -d "Show documentation"
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "test" -d "Test configuration"
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "diagnose" -d "Diagnose issues"
-complete -c cortex -f -n "__fish_seen_subcommand_from mcp; and not __fish_seen_subcommand_from list show docs test diagnose snippet" -a "snippet" -d "Config snippet"
+complete -c cortex -f -n "__fish_seen_subcommand_from mcp" -a "list list-docs status activate deactivate show docs test diagnose snippet"
 
-# Completion shells
-complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "bash" -d "Bash completion"
-complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "zsh" -d "Zsh completion"
-complete -c cortex -f -n "__fish_seen_subcommand_from completion" -a "fish" -d "Fish completion"
+# Worktree subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from worktree" -a "list add remove prune dir"
+
+# AI subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from ai" -a "recommend auto-activate export record watch"
+
+# Export subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from export" -a "list context"
+
+# Memory subcommands
+complete -c cortex -f -n "__fish_seen_subcommand_from memory" -a "remember project capture fix auto list search stats"
 
 # Install subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "aliases" -d "Install aliases"
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "completions" -d "Install shell completions"
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "manpage" -d "Install manpages"
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "docs" -d "Install architecture docs"
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "post" -d "Run all post-install steps"
-complete -c cortex -f -n "__fish_seen_subcommand_from install; and not __fish_seen_subcommand_from aliases completions manpage docs post package" -a "package" -d "Install via pip/uv/pipx"
+complete -c cortex -f -n "__fish_seen_subcommand_from install" -a "link aliases completions manpage post"
 """
 
 
 def get_completion_script(shell: str) -> str:
-    """Get completion script for the specified shell.
-
-    Args:
-        shell: Shell name (bash, zsh, or fish)
-
-    Returns:
-        Completion script content
-
-    Raises:
-        ValueError: If shell is not supported
-    """
+    """Get completion script for the specified shell."""
     shell = shell.lower()
     if shell == "bash":
         return generate_bash_completion()
@@ -502,77 +209,4 @@ def get_completion_script(shell: str) -> str:
     elif shell == "fish":
         return generate_fish_completion()
     else:
-        raise ValueError(
-            f"Unsupported shell: {shell}. Supported shells: bash, zsh, fish"
-        )
-
-
-def get_installation_instructions(shell: str) -> str:
-    """Get installation instructions for the specified shell.
-
-    Args:
-        shell: Shell name (bash, zsh, or fish)
-
-    Returns:
-        Installation instructions
-    """
-    shell = shell.lower()
-
-    if shell == "bash":
-        return """
-# Bash Completion Installation
-
-## Option 1: System-wide (requires sudo)
-sudo cortex completion bash > /etc/bash_completion.d/cortex
-
-## Option 2: User-specific
-mkdir -p ~/.bash_completion.d
-cortex completion bash > ~/.bash_completion.d/cortex
-
-# Then add to ~/.bashrc:
-if [ -f ~/.bash_completion.d/cortex ]; then
-    . ~/.bash_completion.d/cortex
-fi
-
-# Reload your shell:
-source ~/.bashrc
-"""
-
-    elif shell == "zsh":
-        return """
-# Zsh Completion Installation
-
-## Option 1: Using fpath (recommended)
-# Create completion directory if it doesn't exist
-mkdir -p ~/.zsh/completions
-
-# Generate completion file
-cortex completion zsh > ~/.zsh/completions/_cortex
-
-# Add to ~/.zshrc (before compinit):
-fpath=(~/.zsh/completions $fpath)
-autoload -Uz compinit
-compinit
-
-## Option 2: Direct sourcing
-cortex completion zsh > ~/.zsh/_cortex
-echo 'source ~/.zsh/_cortex' >> ~/.zshrc
-
-# Reload your shell:
-source ~/.zshrc
-"""
-
-    elif shell == "fish":
-        return """
-# Fish Completion Installation
-
-## Automatic installation
-cortex completion fish > ~/.config/fish/completions/cortex.fish
-
-# Completions are loaded automatically on next shell start
-# Or reload immediately:
-source ~/.config/fish/completions/cortex.fish
-"""
-
-    else:
-        return f"No installation instructions for shell: {shell}"
+        raise ValueError(f"Unsupported shell: {shell}. Supported: bash, zsh, fish")

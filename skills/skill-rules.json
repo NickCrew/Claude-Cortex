@@ -3,9 +3,9 @@
   "version": "2025-12-14",
   "rules": [
     {
-      "name": "brainstorm",
-      "command": "/ctx:brainstorm",
-      "description": "Kick off Supersaiyan ideation before coding",
+      "name": "brainstorming",
+      "command": "/collaboration:brainstorming",
+      "description": "Kick off ideation before coding",
       "keywords": [
         "brainstorm",
         "idea",
@@ -93,160 +93,166 @@
       ]
     },
     {
-      "name": "plan-writing",
-      "command": "/ctx:plan",
+      "name": "writing-plans",
+      "command": "/collaboration:writing-plans",
       "description": "Structure workstreams and seed the Task TUI",
       "keywords": ["plan", "approach", "workstream", "how do we do this"]
     },
     {
-      "name": "execute-plan",
-      "command": "/ctx:execute-plan",
+      "name": "executing-plans",
+      "command": "/collaboration:executing-plans",
       "description": "Drive the plan through tasks + verification",
       "keywords": ["execute plan", "start implementing", "follow plan"]
     },
     {
       "name": "testing",
-      "command": "/dev:test",
+      "command": "/ctx:dev-workflows",
       "description": "Run project test suites / coverage gates",
       "keywords": ["test", "unit", "coverage", "pytest", "npm test"]
     },
     {
       "name": "review",
-      "command": "/dev:code-review",
+      "command": "/ctx:code-quality-workflow",
       "description": "Trigger docs/code review agents before merge",
       "keywords": ["review", "quality", "ready to merge", "needs feedback"]
     },
     {
       "name": "canvas-design",
-      "command": "/ctx:skill canvas-design",
+      "command": "/ctx:canvas-design",
       "description": "Create visual art and designs.",
       "keywords": ["canvas", "design", "art", "visual", "poster"]
     },
     {
       "name": "internal-comms",
-      "command": "/ctx:skill internal-comms",
+      "command": "/ctx:internal-comms",
       "description": "Generate internal communications.",
       "keywords": ["internal comms", "status report", "newsletter", "FAQ"]
     },
     {
       "name": "skill-creator",
-      "command": "/ctx:skill skill-creator",
+      "command": "/ctx:skill-creator",
       "description": "Guide for creating new skills.",
       "keywords": ["create skill", "new skill", "skill development"]
     },
     {
       "name": "template-skill",
-      "command": "/ctx:skill template-skill",
+      "command": "/ctx:template-skill",
       "description": "Template for new skills.",
       "keywords": ["skill template", "boilerplate"]
     },
     {
       "name": "webapp-testing",
-      "command": "/ctx:skill webapp-testing",
+      "command": "/ctx:webapp-testing",
       "description": "Test web applications with Playwright.",
       "keywords": ["webapp testing", "playwright", "frontend test"]
     },
     {
       "name": "condition-based-waiting",
-      "command": "/ctx:skill condition-based-waiting",
+      "command": "/ctx:condition-based-waiting",
       "description": "Handle asynchronous operations with conditions.",
       "keywords": ["condition", "wait", "polling", "asynchronous"]
     },
     {
       "name": "defense-in-depth",
-      "command": "/ctx:skill defense-in-depth",
+      "command": "/ctx:defense-in-depth",
       "description": "Implement layered security strategies.",
       "keywords": ["defense in depth", "layered security", "security strategy"]
     },
     {
       "name": "dispatching-parallel-agents",
-      "command": "/ctx:skill dispatching-parallel-agents",
+      "command": "/ctx:dispatching-parallel-agents",
       "description": "Orchestrate parallel agent tasks.",
       "keywords": ["parallel agents", "multi-agent", "orchestration"]
     },
     {
       "name": "finishing-a-development-branch",
-      "command": "/ctx:skill finishing-a-development-branch",
+      "command": "/ctx:finishing-a-development-branch",
       "description": "Guide for completing development branches.",
       "keywords": ["finish branch", "merge branch", "pull request"]
     },
     {
       "name": "receiving-code-review",
-      "command": "/ctx:skill receiving-code-review",
+      "command": "/ctx:receiving-code-review",
       "description": "Address feedback from code reviews.",
       "keywords": ["receive review", "code review feedback"]
     },
     {
       "name": "requesting-code-review",
-      "command": "/ctx:skill requesting-code-review",
+      "command": "/ctx:requesting-code-review",
       "description": "Submit code for review.",
       "keywords": ["request review", "submit code", "pull request"]
     },
     {
       "name": "root-cause-tracing",
-      "command": "/ctx:skill root-cause-tracing",
+      "command": "/ctx:root-cause-tracing",
       "description": "Trace and identify root causes of issues.",
       "keywords": ["root cause", "debugging", "troubleshooting"]
     },
     {
       "name": "sharing-skills",
-      "command": "/ctx:skill sharing-skills",
+      "command": "/ctx:sharing-skills",
       "description": "Share and distribute skills.",
       "keywords": ["share skill", "export skill", "skill distribution"]
     },
     {
       "name": "subagent-driven-development",
-      "command": "/ctx:skill subagent-driven-development",
+      "command": "/ctx:subagent-driven-development",
       "description": "Develop using modular subagents.",
       "keywords": ["subagent", "agent development", "modular agent"]
     },
     {
       "name": "systematic-debugging",
-      "command": "/ctx:skill systematic-debugging",
+      "command": "/ctx:systematic-debugging",
       "description": "Apply systematic debugging techniques.",
       "keywords": ["systematic debug", "debug process", "bug fix"]
     },
     {
       "name": "test-driven-development",
-      "command": "/ctx:skill test-driven-development",
+      "command": "/ctx:test-driven-development",
       "description": "Practice Test-Driven Development.",
       "keywords": ["TDD", "test driven", "unit test"]
     },
     {
       "name": "testing-anti-patterns",
-      "command": "/ctx:skill testing-anti-patterns",
+      "command": "/ctx:testing-anti-patterns",
       "description": "Identify and avoid testing anti-patterns.",
       "keywords": ["testing anti-patterns", "bad tests", "test smells"]
     },
     {
       "name": "testing-skills-with-subagents",
-      "command": "/ctx:skill testing-skills-with-subagents",
+      "command": "/ctx:testing-skills-with-subagents",
       "description": "Test skills using subagents.",
       "keywords": ["test skills", "subagent testing", "skill validation"]
     },
     {
       "name": "using-git-worktrees",
-      "command": "/ctx:skill using-git-worktrees",
+      "command": "/ctx:using-git-worktrees",
       "description": "Manage multiple Git branches with worktrees.",
       "keywords": ["git worktree", "multiple branches", "git workflow"]
     },
     {
       "name": "using-superpowers",
-      "command": "/ctx:skill using-superpowers",
+      "command": "/ctx:using-superpowers",
       "description": "Leverage the Superpowers framework.",
       "keywords": ["superpowers", "framework usage", "agent capabilities"]
     },
     {
       "name": "verification-before-completion",
-      "command": "/ctx:skill verification-before-completion",
+      "command": "/ctx:verification-before-completion",
       "description": "Perform verification steps before task completion.",
       "keywords": ["verify", "pre-completion check", "validation step"]
     },
     {
       "name": "writing-skills",
-      "command": "/ctx:skill writing-skills",
+      "command": "/ctx:writing-skills",
       "description": "Guide for writing effective skills.",
       "keywords": ["write skill", "create skill", "skill authoring"]
+    },
+    {
+      "name": "codanna-codebase-intelligence",
+      "command": "/ctx:codanna-codebase-intelligence",
+      "description": "Use codanna MCP tools for semantic search, call graphs, and impact analysis.",
+      "keywords": ["codanna", "semantic search", "find symbol", "find callers", "analyze impact", "call graph", "who calls", "what calls", "refactor", "dependencies", "codebase"]
     }
   ]
 }

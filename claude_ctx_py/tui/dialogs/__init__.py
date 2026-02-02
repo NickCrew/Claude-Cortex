@@ -17,12 +17,6 @@ from .mcp_install_dialogs import (
     MCPInstallDialog,
 )
 
-from .claude_md_wizard import (
-    ClaudeMdWizard,
-    WizardConfig,
-    generate_claude_md,
-)
-
 from .hooks_manager import (
     HooksManagerDialog,
 )
@@ -44,9 +38,6 @@ __all__ = [
     "MemoryNoteCreateDialog",
     "MCPBrowseDialog",
     "MCPInstallDialog",
-    "ClaudeMdWizard",
-    "WizardConfig",
-    "generate_claude_md",
     "HooksManagerDialog",
     "BackupManagerDialog",
     "LLMProviderSettingsDialog",

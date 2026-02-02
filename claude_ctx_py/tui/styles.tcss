@@ -13,6 +13,22 @@
 
     Screen {
         background: $surface;
+        color: $text;
+    }
+
+    ListView {
+        background: $surface;
+        color: $text;
+    }
+
+    ListItem {
+        background: $surface;
+        color: $text;
+    }
+
+    ListItem > Label,
+    ListItem > Static {
+        color: $text;
     }
 
     DataTable {
