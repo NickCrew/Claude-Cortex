@@ -2,11 +2,22 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/workspace_validator.py\""
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety_pre_tool_guard.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent_output_validator.py\""
           }
         ]
       }
@@ -33,17 +44,14 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/execution-enforcer.sh\""
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "matcher": "",
-        "hooks": [
+          },
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/memory_auto_capture.py\""
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/auto-reviewer.sh\""
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py\""
           }
         ]
       }
