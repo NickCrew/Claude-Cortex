@@ -15,13 +15,14 @@ import sys
 import threading
 from pathlib import Path
 from types import FrameType
-from typing import Any, Callable, Deque, Dict, List, Optional, Set, Iterable
+from typing import Any, Callable, Deque, Dict, List, Optional, Set, Iterable, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from collections import deque
 
 from .intelligence import IntelligentAgent, AgentRecommendation
 from .core import _resolve_claude_dir, _resolve_cortex_root, agent_activate
+from .core.base import _resolve_plugin_assets_root
 
 # Default config path - no longer used but kept for backwards compatibility
 DEFAULT_CONFIG_PATH = _resolve_cortex_root() / "cortex-config.json"
@@ -45,6 +46,283 @@ class WatchDefaults:
     interval: Optional[float] = None
     warnings: List[str] = field(default_factory=list)
 
+
+@dataclass
+class SkillSuggestion:
+    """A suggested skill based on context."""
+
+    name: str
+    command: str
+    description: str
+    hits: int  # Number of keyword matches
+
+
+# File pattern → keyword mappings for enhanced matching
+FILE_PATTERNS: Dict[str, List[str]] = {
+    # Test files
+    r"test_.*\.py$": ["test", "pytest", "unit"],
+    r".*_test\.py$": ["test", "pytest", "unit"],
+    r".*\.test\.(ts|tsx|js|jsx)$": ["test", "jest", "unit"],
+    r".*\.spec\.(ts|tsx|js|jsx)$": ["test", "spec", "unit"],
+    r".*_test\.go$": ["test", "go test"],
+    # Config files
+    r"dockerfile$": ["docker", "container", "deployment"],
+    r"docker-compose\.ya?ml$": ["docker", "container", "orchestration"],
+    r"k8s/.*\.ya?ml$": ["kubernetes", "k8s", "deployment"],
+    r"terraform/.*\.tf$": ["terraform", "infrastructure"],
+    r"\.github/workflows/.*\.ya?ml$": ["ci", "github actions", "workflow"],
+    r"jenkinsfile$": ["ci", "jenkins", "pipeline"],
+    # Security
+    r".*auth.*\.(py|ts|js|go)$": ["auth", "security"],
+    r".*security.*\.(py|ts|js|go)$": ["security", "audit"],
+    # API
+    r".*api.*\.(py|ts|js|go)$": ["api", "endpoint"],
+    r".*routes?.*\.(py|ts|js|go)$": ["api", "routing"],
+    r"openapi\.ya?ml$": ["api", "openapi", "swagger"],
+    # Frontend
+    r".*\.(tsx|jsx)$": ["react", "frontend", "component"],
+    r".*\.vue$": ["vue", "frontend", "component"],
+    r".*\.svelte$": ["svelte", "frontend", "component"],
+    # Database
+    r".*migrations?/.*\.(py|sql)$": ["database", "migration"],
+    r".*models?\.py$": ["database", "orm", "model"],
+    r".*schema.*\.(py|ts|graphql)$": ["schema", "database"],
+}
+
+# Directory name → keyword mappings
+DIR_PATTERNS: Dict[str, List[str]] = {
+    "tests": ["test", "testing", "pytest"],
+    "test": ["test", "testing"],
+    "__tests__": ["test", "jest"],
+    "spec": ["test", "spec"],
+    "e2e": ["e2e", "playwright", "end-to-end"],
+    "integration": ["integration", "test"],
+    "api": ["api", "endpoint", "rest"],
+    "routes": ["api", "routing"],
+    "controllers": ["api", "controller"],
+    "components": ["react", "frontend", "component"],
+    "pages": ["frontend", "routing", "page"],
+    "views": ["frontend", "view"],
+    "models": ["database", "orm", "model"],
+    "migrations": ["database", "migration"],
+    "schemas": ["schema", "validation"],
+    "auth": ["auth", "security", "authentication"],
+    "security": ["security", "audit"],
+    "utils": ["utility", "helper"],
+    "lib": ["library", "shared"],
+    "hooks": ["react", "hooks"],
+    "services": ["service", "business logic"],
+    "infra": ["infrastructure", "terraform", "deployment"],
+    "deploy": ["deployment", "ci", "release"],
+    "k8s": ["kubernetes", "k8s", "deployment"],
+    "docker": ["docker", "container"],
+    ".github": ["ci", "github", "workflow"],
+    "workflows": ["workflow", "ci"],
+    "scripts": ["script", "automation"],
+    "docs": ["documentation", "docs"],
+}
+
+# Extension → keyword mappings
+EXT_PATTERNS: Dict[str, List[str]] = {
+    ".py": ["python"],
+    ".ts": ["typescript"],
+    ".tsx": ["typescript", "react"],
+    ".js": ["javascript"],
+    ".jsx": ["javascript", "react"],
+    ".go": ["go", "golang"],
+    ".rs": ["rust"],
+    ".rb": ["ruby"],
+    ".java": ["java"],
+    ".kt": ["kotlin"],
+    ".swift": ["swift"],
+    ".tf": ["terraform", "infrastructure"],
+    ".sql": ["sql", "database"],
+    ".graphql": ["graphql", "api"],
+    ".proto": ["protobuf", "grpc"],
+    ".yaml": ["yaml", "config"],
+    ".yml": ["yaml", "config"],
+    ".json": ["json", "config"],
+    ".toml": ["toml", "config"],
+    ".md": ["markdown", "documentation"],
+    ".css": ["css", "styling"],
+    ".scss": ["scss", "styling"],
+    ".html": ["html", "frontend"],
+}
+
+
+def _load_skill_rules() -> List[Dict[str, Any]]:
+    """Load skill rules from skill-rules.json."""
+    candidates = [
+        _resolve_plugin_assets_root() / "skills" / "skill-rules.json",
+        Path.home() / ".claude" / "skills" / "skill-rules.json",
+    ]
+    
+    for path in candidates:
+        if path and path.exists():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                return data.get("rules", [])
+            except (OSError, json.JSONDecodeError):
+                continue
+    return []
+
+
+def _extract_file_context(files: List[Path]) -> Set[str]:
+    """Extract contextual keywords from file paths.
+    
+    Uses file patterns, directory names, and extensions to derive
+    additional keywords beyond just the filename.
+    
+    Args:
+        files: List of file paths
+        
+    Returns:
+        Set of derived keywords
+    """
+    import re
+    
+    keywords: Set[str] = set()
+    
+    for file_path in files:
+        path_str = str(file_path).lower()
+        filename = file_path.name.lower()
+        
+        # Check file patterns (regex)
+        for pattern, pattern_keywords in FILE_PATTERNS.items():
+            if re.search(pattern, path_str, re.IGNORECASE):
+                keywords.update(pattern_keywords)
+        
+        # Check directory names
+        for part in file_path.parts:
+            part_lower = part.lower()
+            if part_lower in DIR_PATTERNS:
+                keywords.update(DIR_PATTERNS[part_lower])
+        
+        # Check file extension
+        ext = file_path.suffix.lower()
+        if ext in EXT_PATTERNS:
+            keywords.update(EXT_PATTERNS[ext])
+        
+        # Add filename words (split on common separators)
+        name_parts = re.split(r'[_\-./]', file_path.stem.lower())
+        keywords.update(p for p in name_parts if len(p) > 2)
+    
+    return keywords
+
+
+def _get_git_context(directories: List[Path]) -> Set[str]:
+    """Extract keywords from recent git activity.
+    
+    Args:
+        directories: Directories to check for git repos
+        
+    Returns:
+        Set of keywords from commit messages and branch names
+    """
+    import subprocess
+    
+    keywords: Set[str] = set()
+    
+    for directory in directories:
+        # Get current branch name
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True,
+                text=True,
+                cwd=str(directory),
+                timeout=5,
+            )
+            if result.returncode == 0:
+                branch = result.stdout.strip().lower()
+                # Extract keywords from branch name (feature/add-auth -> add, auth)
+                import re
+                parts = re.split(r'[/_\-]', branch)
+                keywords.update(p for p in parts if len(p) > 2 and p not in ('feature', 'fix', 'bug', 'hotfix', 'release', 'main', 'master', 'develop'))
+        except (subprocess.TimeoutExpired, OSError):
+            pass
+        
+        # Get last few commit messages
+        try:
+            result = subprocess.run(
+                ["git", "log", "--oneline", "-5", "--format=%s"],
+                capture_output=True,
+                text=True,
+                cwd=str(directory),
+                timeout=5,
+            )
+            if result.returncode == 0:
+                import re
+                for line in result.stdout.strip().split('\n'):
+                    # Extract significant words from commit messages
+                    words = re.findall(r'\b[a-z]{3,}\b', line.lower())
+                    # Filter out common git words
+                    skip = {'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into', 'update', 'updated', 'add', 'added', 'fix', 'fixed', 'remove', 'removed', 'change', 'changed', 'merge', 'commit'}
+                    keywords.update(w for w in words if w not in skip)
+        except (subprocess.TimeoutExpired, OSError):
+            pass
+    
+    return keywords
+
+
+def _match_skills(
+    files: List[Path],
+    rules: List[Dict[str, Any]],
+    max_results: int = 5,
+    directories: Optional[List[Path]] = None,
+) -> List[SkillSuggestion]:
+    """Match skills based on changed files and context.
+
+    Uses multiple signals:
+    - File names and paths
+    - File patterns (test files, config files, etc.)
+    - Directory context (tests/, api/, etc.)
+    - File extensions
+    - Git branch names and recent commits
+
+    Args:
+        files: List of changed file paths
+        rules: Skill rules from skill-rules.json
+        max_results: Maximum suggestions to return
+        directories: Optional directories for git context
+
+    Returns:
+        List of skill suggestions sorted by relevance
+    """
+    if not files or not rules:
+        return []
+
+    # Gather all context keywords
+    context_keywords = _extract_file_context(files)
+    
+    # Add git context if directories provided
+    if directories:
+        context_keywords.update(_get_git_context(directories))
+    
+    # Build searchable text from files (original behavior)
+    file_text = " ".join(f.name.lower() for f in files)
+    dir_text = " ".join(p.parent.name.lower() for p in files if p.parent.name)
+    search_text = f"{file_text} {dir_text} {' '.join(context_keywords)}"
+
+    matches: List[Tuple[int, Dict[str, Any]]] = []
+    for rule in rules:
+        keywords = [k.lower() for k in rule.get("keywords", [])]
+        hits = sum(1 for kw in keywords if kw in search_text)
+        if hits > 0:
+            matches.append((hits, rule))
+
+    # Sort by hits (descending), then name
+    matches.sort(key=lambda x: (-x[0], x[1].get("name", "")))
+
+    return [
+        SkillSuggestion(
+            name=rule.get("name", "unknown"),
+            command=rule.get("command", ""),
+            description=rule.get("description", "").strip(),
+            hits=hits,
+        )
+        for hits, rule in matches[:max_results]
+    ]
 
 def _read_config(path: Path) -> tuple[Dict[str, Any], List[str]]:
     """Read cortex-config.json safely."""
@@ -339,6 +617,11 @@ class WatchMode:
         self.auto_activations = 0
         self.start_time = datetime.now()
 
+        # Skill suggestions
+        self.skill_rules = _load_skill_rules()
+        self.last_skill_suggestions: List[SkillSuggestion] = []
+        self.skills_suggested = 0
+
         # Thread safety
         self._state_lock = threading.Lock()
         self._refresh_git_heads()
@@ -502,10 +785,12 @@ class WatchMode:
         print(f"  Auto-activate: {'ON' if self.auto_activate else 'OFF'}")
         print(f"  Threshold: {self.notification_threshold * 100:.0f}% confidence")
         print(f"  Check interval: {self.check_interval}s")
+        print(f"  Skill rules loaded: {len(self.skill_rules)}")
         print("\n  Monitoring:")
         print("    • Git changes (commits, staged, unstaged)")
         print("    • File modifications")
         print("    • Context changes")
+        print("    • Skill suggestions")
         if len(self.directories) == 1:
             print(f"    • Directory: {self.directories[0]}")
         else:
@@ -586,16 +871,31 @@ class WatchMode:
         # Analyze context
         context = self.intelligent_agent.analyze_context(changed_files)
 
-        # Get recommendations
+        # Get agent recommendations
         recommendations = self.intelligent_agent.get_recommendations()
 
-        # Check if recommendations changed significantly
-        if self._recommendations_changed(recommendations):
-            self.last_recommendations = recommendations
-            self.recommendations_made += 1
+        # Get skill suggestions (with git context from watched directories)
+        skill_suggestions = _match_skills(
+            changed_files,
+            self.skill_rules,
+            directories=self.directories,
+        )
 
-            # Show recommendations
-            self._show_recommendations(recommendations, context)
+        # Check if anything changed
+        recs_changed = self._recommendations_changed(recommendations)
+        skills_changed = self._skills_changed(skill_suggestions)
+
+        if recs_changed or skills_changed:
+            self.last_recommendations = recommendations
+            self.last_skill_suggestions = skill_suggestions
+            
+            if recs_changed:
+                self.recommendations_made += 1
+            if skills_changed and skill_suggestions:
+                self.skills_suggested += 1
+
+            # Show recommendations and skills
+            self._show_recommendations(recommendations, context, skill_suggestions)
 
             # Auto-activate if enabled
             if self.auto_activate:
@@ -604,6 +904,14 @@ class WatchMode:
             return True
 
         return False
+
+    def _skills_changed(self, new_skills: List[SkillSuggestion]) -> bool:
+        """Check if skill suggestions changed."""
+        if not self.last_skill_suggestions:
+            return bool(new_skills)
+        old_names = {s.name for s in self.last_skill_suggestions}
+        new_names = {s.name for s in new_skills}
+        return old_names != new_names
 
     def _recommendations_changed(self, new_recs: List[AgentRecommendation]) -> bool:
         """Check if recommendations changed significantly.
@@ -625,15 +933,19 @@ class WatchMode:
         return old_agents != new_agents
 
     def _show_recommendations(
-        self, recommendations: List[AgentRecommendation], context: Any
+        self,
+        recommendations: List[AgentRecommendation],
+        context: Any,
+        skill_suggestions: Optional[List[SkillSuggestion]] = None,
     ) -> None:
-        """Display recommendations.
+        """Display recommendations and skill suggestions.
 
         Args:
-            recommendations: List of recommendations
+            recommendations: List of agent recommendations
             context: Session context
+            skill_suggestions: Optional list of skill suggestions
         """
-        if not recommendations:
+        if not recommendations and not skill_suggestions:
             self._print_notification(
                 "💤",
                 "No recommendations",
@@ -666,13 +978,13 @@ class WatchMode:
             "cyan",
         )
 
-        # Show top recommendations
+        # Show agent recommendations
         high_confidence = [
             r for r in recommendations if r.confidence >= self.notification_threshold
         ]
 
         if high_confidence:
-            print(f"  💡 Recommendations:\n")
+            print(f"  💡 Agent Recommendations:\n")
             for rec in high_confidence[:5]:
                 # Urgency icon
                 urgency_icons = {
@@ -689,6 +1001,14 @@ class WatchMode:
                 print(f"     {icon} {rec.agent_name}{auto_badge}")
                 print(f"        {rec.confidence * 100:.0f}% - {rec.reason}")
 
+            print()
+
+        # Show skill suggestions
+        if skill_suggestions:
+            print(f"  📚 Skill Suggestions:\n")
+            for skill in skill_suggestions:
+                print(f"     🔹 {skill.command}")
+                print(f"        {skill.description} ({skill.hits} keyword match{'es' if skill.hits != 1 else ''})")
             print()
 
     def _handle_auto_activation(
@@ -763,7 +1083,8 @@ class WatchMode:
         print("─" * 70)
         print(f"  Duration: {hours}h {minutes}m")
         print(f"  Checks performed: {self.checks_performed}")
-        print(f"  Recommendations: {self.recommendations_made}")
+        print(f"  Agent recommendations: {self.recommendations_made}")
+        print(f"  Skill suggestions: {self.skills_suggested}")
         print(f"  Auto-activations: {self.auto_activations}")
         print(f"  Agents activated: {len(self.activated_agents)}")
         if self.activated_agents:

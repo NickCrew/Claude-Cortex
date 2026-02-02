@@ -48,13 +48,15 @@ generate-manpages:
 
 regen-manpages: generate-manpages
 
-update-completions: install-completions
+update-completions:
+    @CORTEX_SKIP_WIZARD=1 cortex install completions --force
+    @echo "✓ Completions updated"
 
 install-manpage: generate-manpages
-    @./scripts/deprecated/install-manpage.sh
+    @CORTEX_SKIP_WIZARD=1 cortex install manpage
 
 install-completions:
-    @./scripts/deprecated/install.sh --no-package --no-manpage
+    @CORTEX_SKIP_WIZARD=1 cortex install completions --force
 
 uninstall:
     @pip uninstall -y cortex-py

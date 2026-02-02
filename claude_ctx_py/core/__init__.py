@@ -13,7 +13,6 @@ The module is now organized as:
 - worktrees.py: Git worktree management
 - hooks.py: Hook management
 - backup.py: Backup management
-- doctor.py: System diagnostics
 - context_export.py: Context export functionality
 """
 
@@ -211,8 +210,6 @@ from .mcp import (
     mcp_docs_status,
 )
 
-# Export doctor function
-from .doctor import doctor_run
 
 # Export hooks functions
 from .hooks import (
@@ -411,8 +408,6 @@ __all__ = [
     "mcp_deactivate",
     "mcp_list_docs",
     "mcp_docs_status",
-    # Doctor functions
-    "doctor_run",
     # Hooks functions
     "HookDefinition",
     "InstalledHook",

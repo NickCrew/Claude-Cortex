@@ -71,16 +71,6 @@ class ModeInfo:
 
 
 @dataclass
-class MCPDocInfo:
-    """Represents an MCP documentation file."""
-
-    name: str
-    status: str  # "active" or "inactive"
-    description: str
-    path: Path
-
-
-@dataclass
 class ScenarioInfo:
     """Represents a scenario definition and its runtime metadata."""
 

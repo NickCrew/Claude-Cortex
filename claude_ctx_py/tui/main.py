@@ -40,7 +40,7 @@ ASSET_CATEGORY_ORDER = [
 ]
 
 from .types import (
-    RuleNode, AgentTask, MCPDocInfo,
+    RuleNode, AgentTask,
     AssetInfo, MemoryNote, WatchModeState,
 )
 from .constants import (
@@ -110,8 +110,6 @@ from ..core.base import (
     _find_missing_template_files,
     _ensure_template_files,
 )
-from ..core.migration import migrate_to_file_activation
-from ..core.doctor import doctor_run
 from ..core.mcp import (
     discover_servers,
     validate_server_config,
@@ -143,9 +141,6 @@ from .dialogs import (
     BulkInstallDialog,
     MCPBrowseDialog,
     MCPInstallDialog,
-    ClaudeMdWizard,
-    WizardConfig,
-    generate_claude_md,
     HooksManagerDialog,
     BackupManagerDialog,
     LLMProviderSettingsDialog,
@@ -369,8 +364,6 @@ class AgentTUI(App[None]):
         # Setup Tools bindings
         Binding("M", "setup_migration", "Migration", show=False),
         Binding("c", "setup_health_check", "Health Check", show=False),
-        # CLAUDE.md Wizard
-        Binding("W", "claude_md_wizard", "Configure CLAUDE.md", show=False),
         # Hooks Manager
         Binding("h", "hooks_manager", "Manage Hooks", show=False),
         # Backup Manager
@@ -1155,21 +1148,21 @@ class AgentTUI(App[None]):
             self.skills = []
 
     def load_slash_commands(self) -> None:
-        """Load slash command metadata from the commands directory."""
+        """Load slash command metadata from the skills directory."""
         try:
             claude_dir = _resolve_claude_dir()
-            commands_dir = self._validate_path(claude_dir, claude_dir / "commands")
+            skills_dir = self._validate_path(claude_dir, claude_dir / "skills")
         except ValueError:
             claude_dir = _resolve_claude_dir()
-            commands_dir = claude_dir / "commands"
+            skills_dir = claude_dir / "skills"
 
-        if not commands_dir.exists():
+        if not skills_dir.exists():
             self.slash_commands = []
-            self.status_message = "Commands directory not found"
+            self.status_message = "Skills directory not found"
             return
 
         try:
-            commands = scan_slash_commands(commands_dir, home_dir=claude_dir)
+            commands = scan_slash_commands(skills_dir, home_dir=claude_dir)
         except Exception as exc:
             self.slash_commands = []
             self.status_message = f"Error loading slash commands: {exc}"[:160]
@@ -1179,12 +1172,12 @@ class AgentTUI(App[None]):
         namespace_count = len({cmd.namespace for cmd in commands})
         if commands:
             self.status_message = (
-                f"Loaded {len(commands)} slash commands"
+                f"Loaded {len(commands)} slash commands from skills"
                 if namespace_count <= 1
                 else f"Loaded {len(commands)} slash commands across {namespace_count} namespaces"
             )
         else:
-            self.status_message = "No slash commands found"
+            self.status_message = "No skills with commands found"
 
     def _parse_skill_file(
         self, skill_file: Path, claude_dir: Path
@@ -7207,78 +7200,10 @@ class AgentTUI(App[None]):
         overlay = TourOverlay(QUICK_TOUR, on_view_change=on_view_change)
         self.push_screen(overlay, callback=handle_tour_result)
 
-    def action_claude_md_wizard(self) -> None:
-        """Open the CLAUDE.md configuration wizard."""
-        wizard = ClaudeMdWizard()
-        self.push_screen(wizard, callback=self._handle_claude_md_wizard_result)
-
-    def _handle_claude_md_wizard_result(self, config: Optional[WizardConfig]) -> None:
-        """Handle result from CLAUDE.md wizard."""
-        if config is None:
-            return
-
-        # Generate CLAUDE.md content
-        content = generate_claude_md(config)
-
-        # Write to file
-        claude_dir = _resolve_claude_dir()
-        claude_md_path = claude_dir / "CLAUDE.md"
-
-        def _sync_components(category: str, desired: Set[str]) -> None:
-            """Ensure filesystem matches desired active set for a category."""
-            active_dir = claude_dir / category
-            inactive_dir = _inactive_category_dir(claude_dir, category)
-            active_dir.mkdir(parents=True, exist_ok=True)
-            inactive_dir.mkdir(parents=True, exist_ok=True)
-
-            # Deactivate anything not desired
-            for path in list(active_dir.glob("*.md")):
-                if path.stem not in desired:
-                    target = inactive_dir / path.name
-                    if target.exists():
-                        target.unlink()
-                    path.rename(target)
-
-            # Activate desired items (promote from inactive if present)
-            for name in desired:
-                active_path = active_dir / name
-                inactive_path = inactive_dir / name
-                if active_path.exists():
-                    continue
-                if inactive_path.exists():
-                    inactive_path.rename(active_path)
-
-            # Update tracking file
-            _write_active_entries(claude_dir / f".active-{category}", [n for n in desired])
-
-        try:
-            # Backup existing file
-            if claude_md_path.exists():
-                backup_path = claude_dir / "CLAUDE.md.backup"
-                backup_path.write_text(claude_md_path.read_text())
-
-            # Write new content
-            claude_md_path.write_text(content)
-
-            # Sync rules on disk to match wizard selection
-            _sync_components("rules", {r.removesuffix(".md") for r in config.rules})
-
-            self.notify(
-                f"✓ CLAUDE.md updated ({len(config.core_files)} core, "
-                f"{len(config.rules)} rules, "
-                f"{len(config.mcp_docs)} MCP docs)",
-                severity="information",
-                timeout=4,
-            )
-            self._show_restart_required()
-        except Exception as e:
-            self.notify(f"Failed to write CLAUDE.md: {e}", severity="error", timeout=5)
-
     def action_hooks_manager(self) -> None:
         """Open the hooks manager dialog."""
         # Find plugin directory for available hooks
-        import claude_ctx_py
-        plugin_dir = Path(claude_ctx_py.__file__).parent.parent
+        plugin_dir = _resolve_plugin_assets_root()
 
         dialog = HooksManagerDialog(plugin_dir)
         self.push_screen(dialog, callback=self._handle_hooks_manager_result)

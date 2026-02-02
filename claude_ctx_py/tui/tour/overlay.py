@@ -25,14 +25,14 @@ class TourOverlay(ModalScreen[Optional[str]]):
     CSS = """
     TourOverlay {
         align: center middle;
-        background: rgba(5, 7, 20, 0.85);
+        background: rgba(0, 0, 0, 0.4);
     }
 
     TourOverlay #tour-container {
-        width: 70;
-        max-width: 90%;
+        width: 60;
+        max-width: 80%;
         height: auto;
-        max-height: 80%;
+        max-height: 70%;
         background: $surface;
         border: thick $primary;
         padding: 1 2;

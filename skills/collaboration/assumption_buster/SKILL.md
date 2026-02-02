@@ -2,7 +2,6 @@
 name: assumption-buster
 description: Flip, remove, or exaggerate assumptions to unlock new solution angles.
 license: MIT
-command: /ctx:assumption-buster
 ---
 
 # `/collaboration:assumption-buster`

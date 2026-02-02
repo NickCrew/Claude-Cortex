@@ -128,6 +128,7 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
         self.available_hooks: List[HookDefinition] = []
         self.installed_hooks: List[InstalledHook] = []
         self.selected_hook: Optional[HookDefinition] = None
+        self._id_counter = 0
 
     def compose(self) -> ComposeResult:
         with Container(id="dialog"):
@@ -154,11 +155,11 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
                 yield Button("Uninstall", variant="warning", id="uninstall")
                 yield Button("Close", variant="default", id="close")
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         """Load hooks when mounted."""
-        self._load_hooks()
+        await self._load_hooks()
 
-    def _load_hooks(self) -> None:
+    async def _load_hooks(self) -> None:
         """Load available and installed hooks."""
         try:
             self.available_hooks = get_available_hooks(self.plugin_dir)
@@ -171,7 +172,7 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
             self.installed_hooks = []
             self.notify(f"Failed to load installed hooks: {e}", severity="error", timeout=3)
         self._validate_plugin_hooks_config()
-        self._update_lists()
+        await self._update_lists()
 
     def _validate_plugin_hooks_config(self) -> None:
         """Validate plugin hooks.json for mutual exclusivity issues."""
@@ -186,45 +187,41 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
         message = "Hooks config issues: " + "; ".join(errors)
         self.notify(message, severity="warning", timeout=4)
 
-    def _update_lists(self) -> None:
+    async def _update_lists(self) -> None:
         """Update the hook lists."""
+        # Increment counter for unique IDs
+        self._id_counter += 1
+        c = self._id_counter
+
         # Update available hooks list
         try:
             available_list = self.query_one("#available-list", ListView)
-            available_list.clear()
+            await available_list.clear()
 
-            self.notify(f"Found {len(self.available_hooks)} available hooks", severity="information", timeout=2)
-
-            items: List[ListItem] = []
             if not self.available_hooks:
-                items.append(ListItem(Static("[dim]No hooks found[/dim]")))
+                available_list.append(ListItem(Static("[dim]No hooks found[/dim]")))
             else:
-                for hook in self.available_hooks:
+                for idx, hook in enumerate(self.available_hooks):
                     status = "[green]✓[/green] " if hook.is_installed else "[dim]○[/dim] "
                     label_text = f"{status}{hook.name} [dim]({hook.event})[/dim]"
-                    items.append(ListItem(Static(label_text), id=f"avail-{self._sanitize_id(hook.name)}"))
-
-            available_list.extend(items)
+                    available_list.append(ListItem(Static(label_text), id=f"avail-{c}-{idx}"))
         except Exception as e:
             self.notify(f"Failed to update available list: {e}", severity="error", timeout=3)
 
         # Update installed hooks list
         try:
             installed_list = self.query_one("#installed-list", ListView)
-            installed_list.clear()
+            await installed_list.clear()
 
-            items = []
             if not self.installed_hooks:
-                items.append(ListItem(Static("[dim]No hooks installed[/dim]")))
+                installed_list.append(ListItem(Static("[dim]No hooks installed[/dim]")))
             else:
-                for inst_hook in self.installed_hooks:
+                for idx, inst_hook in enumerate(self.installed_hooks):
                     # Extract hook name from command
                     cmd = inst_hook.command
                     name = cmd.split("/")[-1].replace(".py", "").replace(".sh", "") if "/" in cmd else cmd
                     label_text = f"[green]●[/green] {name} [dim]({inst_hook.event})[/dim]"
-                    items.append(ListItem(Static(label_text), id=f"inst-{self._sanitize_id(name)}"))
-
-            installed_list.extend(items)
+                    installed_list.append(ListItem(Static(label_text), id=f"inst-{c}-{idx}"))
         except Exception as e:
             self.notify(f"Failed to update installed list: {e}", severity="error", timeout=3)
 
@@ -237,13 +234,17 @@ class HooksManagerDialog(ModalScreen[Optional[str]]):
         item_id = event.item.id or ""
 
         if item_id.startswith("avail-"):
-            # Find the selected available hook
-            hook_name = item_id.replace("avail-", "")
-            for hook in self.available_hooks:
-                if self._sanitize_id(hook.name) == hook_name:
-                    self.selected_hook = hook
-                    self._show_hook_details(hook)
-                    break
+            # ID format: avail-{counter}-{index}
+            parts = item_id.split("-")
+            if len(parts) >= 3:
+                try:
+                    idx = int(parts[-1])
+                    if 0 <= idx < len(self.available_hooks):
+                        hook = self.available_hooks[idx]
+                        self.selected_hook = hook
+                        self._show_hook_details(hook)
+                except (ValueError, IndexError):
+                    pass
 
     def _show_hook_details(self, hook: HookDefinition) -> None:
         """Show details for selected hook."""
@@ -256,7 +257,7 @@ Event: [cyan]{hook.event}[/cyan]
 """
         details.update(text)
 
-    def action_install(self) -> None:
+    async def action_install(self) -> None:
         """Install the selected hook."""
         if not self.selected_hook:
             return
@@ -268,11 +269,11 @@ Event: [cyan]{hook.event}[/cyan]
         success, msg = install_hook(self.selected_hook)
         if success:
             self.notify(msg, severity="information", timeout=2)
-            self._load_hooks()
+            await self._load_hooks()
         else:
             self.notify(msg, severity="error", timeout=3)
 
-    def action_uninstall(self) -> None:
+    async def action_uninstall(self) -> None:
         """Uninstall the selected hook."""
         if not self.selected_hook:
             return
@@ -284,24 +285,24 @@ Event: [cyan]{hook.event}[/cyan]
         success, msg = uninstall_hook(self.selected_hook)
         if success:
             self.notify(msg, severity="information", timeout=2)
-            self._load_hooks()
+            await self._load_hooks()
         else:
             self.notify(msg, severity="error", timeout=3)
 
-    def action_refresh(self) -> None:
+    async def action_refresh(self) -> None:
         """Refresh the hooks lists."""
-        self._load_hooks()
+        await self._load_hooks()
         self.notify("Refreshed", severity="information", timeout=1)
 
     def action_close(self) -> None:
         """Close the dialog."""
         self.dismiss(None)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "install":
-            self.action_install()
+            await self.action_install()
         elif event.button.id == "uninstall":
-            self.action_uninstall()
+            await self.action_uninstall()
         elif event.button.id == "close":
             self.action_close()

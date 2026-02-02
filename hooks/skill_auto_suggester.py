@@ -19,13 +19,107 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 
 HOOK_LOG_ENV = ("CORTEX_HOOK_LOG_PATH", "CLAUDE_HOOK_LOG_PATH")
+
+# File pattern → keyword mappings for enhanced matching
+FILE_PATTERNS: Dict[str, List[str]] = {
+    # Test files
+    r"test_.*\.py$": ["test", "pytest", "unit"],
+    r".*_test\.py$": ["test", "pytest", "unit"],
+    r".*\.test\.(ts|tsx|js|jsx)$": ["test", "jest", "unit"],
+    r".*\.spec\.(ts|tsx|js|jsx)$": ["test", "spec", "unit"],
+    r".*_test\.go$": ["test", "go test"],
+    # Config files
+    r"dockerfile$": ["docker", "container", "deployment"],
+    r"docker-compose\.ya?ml$": ["docker", "container", "orchestration"],
+    r"k8s/.*\.ya?ml$": ["kubernetes", "k8s", "deployment"],
+    r"terraform/.*\.tf$": ["terraform", "infrastructure"],
+    r"\.github/workflows/.*\.ya?ml$": ["ci", "github actions", "workflow"],
+    r"jenkinsfile$": ["ci", "jenkins", "pipeline"],
+    # Security
+    r".*auth.*\.(py|ts|js|go)$": ["auth", "security"],
+    r".*security.*\.(py|ts|js|go)$": ["security", "audit"],
+    # API
+    r".*api.*\.(py|ts|js|go)$": ["api", "endpoint"],
+    r".*routes?.*\.(py|ts|js|go)$": ["api", "routing"],
+    r"openapi\.ya?ml$": ["api", "openapi", "swagger"],
+    # Frontend
+    r".*\.(tsx|jsx)$": ["react", "frontend", "component"],
+    r".*\.vue$": ["vue", "frontend", "component"],
+    r".*\.svelte$": ["svelte", "frontend", "component"],
+    # Database
+    r".*migrations?/.*\.(py|sql)$": ["database", "migration"],
+    r".*models?\.py$": ["database", "orm", "model"],
+    r".*schema.*\.(py|ts|graphql)$": ["schema", "database"],
+}
+
+# Directory name → keyword mappings
+DIR_PATTERNS: Dict[str, List[str]] = {
+    "tests": ["test", "testing", "pytest"],
+    "test": ["test", "testing"],
+    "__tests__": ["test", "jest"],
+    "spec": ["test", "spec"],
+    "e2e": ["e2e", "playwright", "end-to-end"],
+    "integration": ["integration", "test"],
+    "api": ["api", "endpoint", "rest"],
+    "routes": ["api", "routing"],
+    "controllers": ["api", "controller"],
+    "components": ["react", "frontend", "component"],
+    "pages": ["frontend", "routing", "page"],
+    "views": ["frontend", "view"],
+    "models": ["database", "orm", "model"],
+    "migrations": ["database", "migration"],
+    "schemas": ["schema", "validation"],
+    "auth": ["auth", "security", "authentication"],
+    "security": ["security", "audit"],
+    "utils": ["utility", "helper"],
+    "lib": ["library", "shared"],
+    "hooks": ["react", "hooks"],
+    "services": ["service", "business logic"],
+    "infra": ["infrastructure", "terraform", "deployment"],
+    "deploy": ["deployment", "ci", "release"],
+    "k8s": ["kubernetes", "k8s", "deployment"],
+    "docker": ["docker", "container"],
+    ".github": ["ci", "github", "workflow"],
+    "workflows": ["workflow", "ci"],
+    "scripts": ["script", "automation"],
+    "docs": ["documentation", "docs"],
+}
+
+# Extension → keyword mappings
+EXT_PATTERNS: Dict[str, List[str]] = {
+    ".py": ["python"],
+    ".ts": ["typescript"],
+    ".tsx": ["typescript", "react"],
+    ".js": ["javascript"],
+    ".jsx": ["javascript", "react"],
+    ".go": ["go", "golang"],
+    ".rs": ["rust"],
+    ".rb": ["ruby"],
+    ".java": ["java"],
+    ".kt": ["kotlin"],
+    ".swift": ["swift"],
+    ".tf": ["terraform", "infrastructure"],
+    ".sql": ["sql", "database"],
+    ".graphql": ["graphql", "api"],
+    ".proto": ["protobuf", "grpc"],
+    ".yaml": ["yaml", "config"],
+    ".yml": ["yaml", "config"],
+    ".json": ["json", "config"],
+    ".toml": ["toml", "config"],
+    ".md": ["markdown", "documentation"],
+    ".css": ["css", "styling"],
+    ".scss": ["scss", "styling"],
+    ".html": ["html", "frontend"],
+}
 
 
 def _hook_log_path() -> Path:
@@ -33,7 +127,7 @@ def _hook_log_path() -> Path:
         value = os.getenv(name, "").strip()
         if value:
             return Path(value).expanduser()
-    return Path.home() / ".cortex" / "logs" / "hooks.log"
+    return Path.home() / ".claude" / "logs" / "hooks.log"
 
 
 def _log_hook(message: str) -> None:
@@ -54,7 +148,7 @@ def candidate_rule_paths() -> List[Path]:
         paths.append(Path(os.environ["CLAUDE_SKILL_RULES"]).expanduser())
 
     script_path = Path(__file__).resolve()
-    repo_rules = script_path.parents[2] / "skills" / "skill-rules.json"
+    repo_rules = script_path.parents[1] / "skills" / "skill-rules.json"
     paths.append(repo_rules)
 
     home_rules = Path.home() / ".claude" / "skills" / "skill-rules.json"
@@ -83,29 +177,126 @@ def split_changed_files(raw: str) -> List[str]:
     """Parse CLAUDE_CHANGED_FILES into a list."""
     if not raw:
         return []
-    # Colon is the typical separator; fall back to newline/space.
-    parts: Iterable[str] = raw.split(":")
-    files: List[str] = []
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        files.append(part)
-    return files
+    parts = raw.split(":")
+    return [p.strip() for p in parts if p.strip()]
 
 
-def match_rules(prompt: str, files: List[str], rules: list) -> List[Tuple[int, dict]]:
-    """Return rules with at least one keyword match, sorted by hit count."""
-    prompt_l = prompt.lower()
-    files_l = " ".join(f.lower() for f in files)
+def extract_file_context(files: List[str]) -> Set[str]:
+    """Extract contextual keywords from file paths."""
+    keywords: Set[str] = set()
+
+    for file_str in files:
+        file_path = Path(file_str)
+        path_lower = file_str.lower()
+
+        # Check file patterns (regex)
+        for pattern, pattern_keywords in FILE_PATTERNS.items():
+            if re.search(pattern, path_lower, re.IGNORECASE):
+                keywords.update(pattern_keywords)
+
+        # Check directory names
+        for part in file_path.parts:
+            part_lower = part.lower()
+            if part_lower in DIR_PATTERNS:
+                keywords.update(DIR_PATTERNS[part_lower])
+
+        # Check file extension
+        ext = file_path.suffix.lower()
+        if ext in EXT_PATTERNS:
+            keywords.update(EXT_PATTERNS[ext])
+
+        # Add filename words (split on common separators)
+        name_parts = re.split(r"[_\-./]", file_path.stem.lower())
+        keywords.update(p for p in name_parts if len(p) > 2)
+
+    return keywords
+
+
+def get_git_context() -> Set[str]:
+    """Extract keywords from git branch name and recent commits."""
+    keywords: Set[str] = set()
+
+    # Get current branch name
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            branch = result.stdout.strip().lower()
+            parts = re.split(r"[/_\-]", branch)
+            skip_branch = {"feature", "fix", "bug", "hotfix", "release", "main", "master", "develop"}
+            keywords.update(p for p in parts if len(p) > 2 and p not in skip_branch)
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+    # Get last few commit messages
+    try:
+        result = subprocess.run(
+            ["git", "log", "--oneline", "-5", "--format=%s"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            skip_commit = {
+                "the", "and", "for", "with", "this", "that", "from", "into",
+                "update", "updated", "add", "added", "fix", "fixed",
+                "remove", "removed", "change", "changed", "merge", "commit",
+            }
+            for line in result.stdout.strip().split("\n"):
+                words = re.findall(r"\b[a-z]{3,}\b", line.lower())
+                keywords.update(w for w in words if w not in skip_commit)
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+    return keywords
+
+
+def match_rules(
+    prompt: str,
+    files: List[str],
+    rules: list,
+    max_results: int = 5,
+) -> List[Tuple[int, dict]]:
+    """Return rules with keyword matches, sorted by hit count.
+    
+    Uses multiple signals:
+    - User prompt text
+    - File names and paths
+    - File patterns (test files, config files, etc.)
+    - Directory context (tests/, api/, etc.)
+    - File extensions
+    - Git branch name and recent commits
+    """
+    if not rules:
+        return []
+
+    # Gather all context
+    prompt_lower = prompt.lower()
+    file_text = " ".join(f.lower() for f in files)
+    
+    # Enhanced context from file patterns
+    file_keywords = extract_file_context(files)
+    
+    # Git context
+    git_keywords = get_git_context()
+    
+    # Combine all searchable text
+    all_keywords = file_keywords | git_keywords
+    search_text = f"{prompt_lower} {file_text} {' '.join(all_keywords)}"
+
     matches: List[Tuple[int, dict]] = []
     for rule in rules:
         keywords = [k.lower() for k in rule.get("keywords", [])]
-        hits = sum(1 for kw in keywords if kw in prompt_l or kw in files_l)
+        hits = sum(1 for kw in keywords if kw in search_text)
         if hits > 0:
             matches.append((hits, rule))
+
     matches.sort(key=lambda item: (-item[0], item[1].get("name", "")))
-    return matches[:5]
+    return matches[:max_results]
 
 
 def print_suggestions(matches: List[Tuple[int, dict]]) -> None:
@@ -114,10 +305,9 @@ def print_suggestions(matches: List[Tuple[int, dict]]) -> None:
         return
     print("Skill suggestions:")
     for hits, rule in matches:
-        name = rule.get("name", "unknown")
         cmd = rule.get("command", "")
         desc = rule.get("description", "").strip()
-        print(f"- {cmd} — {desc} (matched {hits} keyword{'s' if hits != 1 else ''})")
+        print(f"  {cmd} — {desc}")
 
 
 def main() -> int:
@@ -126,7 +316,6 @@ def main() -> int:
     rules = load_rules()
 
     if not rules:
-        # Fail silently to avoid breaking the submit flow.
         return 0
 
     matches = match_rules(prompt, changed_files, rules)

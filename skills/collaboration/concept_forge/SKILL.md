@@ -2,7 +2,6 @@
 name: concept-forge
 description: Score concepts on impact/delight/effort and pick a 1-day spike.
 license: MIT
-command: /ctx:concept-forge
 ---
 
 # `/collaboration:concept-forge`

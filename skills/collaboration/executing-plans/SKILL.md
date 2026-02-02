@@ -1,11 +1,10 @@
 ---
-name: ctx-plan-execution
+name: executing-plans
 description: Execution discipline skill adapted from obra/superpowers. Ensures plans translate into tracked tasks, orchestration, and verification runs.
 license: MIT (obra/superpowers)
-command: /ctx:execute-plan
 ---
 
-# `/ctx:execute-plan`
+# `/collaboration:executing-plans`
 
 Locks in the plan and drives it through cortex’s orchestration + verification stack.
 

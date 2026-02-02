@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -10,6 +11,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from .asset_discovery import find_claude_directories
 from .base import _resolve_claude_dir
+
+# Set up file logging for debugging hook installation
+_log_path = Path.home() / ".claude" / "hook_install.log"
+_log_path.parent.mkdir(parents=True, exist_ok=True)
+_logger = logging.getLogger("hooks")
+_logger.setLevel(logging.DEBUG)
+_handler = logging.FileHandler(_log_path)
+_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+_logger.addHandler(_handler)
 
 
 # Hook event types supported by Claude Code
@@ -20,15 +30,14 @@ HOOK_EVENTS = [
     "Stop",
     "SubagentStop",
     "UserPromptSubmit",
+    "SessionStart",
+    "SessionEnd",
+    "PreCompact",
 ]
 
 # Hook names that cannot be installed together.
-MUTUALLY_EXCLUSIVE_HOOK_GROUPS = [
-    {
-        "parallel-workflow-enforcer",
-        "implementation-quality-gate",
-        "implementation-quality-gates",
-    },
+MUTUALLY_EXCLUSIVE_HOOK_GROUPS: List[set[str]] = [
+    # Add mutually exclusive hook groups here if needed
 ]
 
 
@@ -250,29 +259,34 @@ def get_available_hooks(plugin_dir: Optional[Path] = None) -> List[HookDefinitio
     candidate_dirs = [base_hooks_dir, base_hooks_dir / "examples"]
     seen: set[str] = set()
 
+    # Scan for both Python and shell scripts
+    patterns = ["*.py", "*.sh"]
+
     for hooks_dir in candidate_dirs:
         if not hooks_dir.is_dir():
             continue
-        for hook_file in sorted(hooks_dir.glob("*.py")):
-            if hook_file.stem in seen:
-                continue
-            hook_def = parse_hook_file(hook_file)
-            if hook_def:
-                hooks.append(hook_def)
-                seen.add(hook_file.stem)
+        for pattern in patterns:
+            for hook_file in sorted(hooks_dir.glob(pattern)):
+                if hook_file.stem in seen:
+                    continue
+                hook_def = parse_hook_file(hook_file)
+                if hook_def:
+                    hooks.append(hook_def)
+                    seen.add(hook_file.stem)
 
     # Also check user's hooks directory
     claude_dir = _resolve_claude_dir()
     user_hooks_dir = claude_dir / "hooks"
     if user_hooks_dir.is_dir():
-        for hook_file in sorted(user_hooks_dir.glob("*.py")):
-            # Skip if already in examples
-            if any(h.name == hook_file.stem for h in hooks):
-                continue
-            hook_def = parse_hook_file(hook_file)
-            if hook_def:
-                hook_def.is_installed = True
-                hooks.append(hook_def)
+        for pattern in patterns:
+            for hook_file in sorted(user_hooks_dir.glob(pattern)):
+                # Skip if already in examples
+                if any(h.name == hook_file.stem for h in hooks):
+                    continue
+                hook_def = parse_hook_file(hook_file)
+                if hook_def:
+                    hook_def.is_installed = True
+                    hooks.append(hook_def)
 
     # Mark installed hooks
     installed = get_installed_hooks()
@@ -287,16 +301,56 @@ def get_available_hooks(plugin_dir: Optional[Path] = None) -> List[HookDefinitio
 def parse_hook_file(hook_file: Path) -> Optional[HookDefinition]:
     """Parse a hook file to extract metadata.
 
-    Expects docstring at top with:
-    - First line: description
-    - Usage section with hook event type
+    For Python files: Expects docstring at top with first line as description.
+    For shell scripts: Expects # comments at top with first non-shebang line as description.
     """
     try:
         content = hook_file.read_text(encoding="utf-8")
     except OSError:
         return None
 
-    # Extract docstring
+    suffix = hook_file.suffix.lower()
+    
+    if suffix == ".sh":
+        return _parse_shell_hook(hook_file, content)
+    else:
+        return _parse_python_hook(hook_file, content)
+
+
+def _parse_shell_hook(hook_file: Path, content: str) -> Optional[HookDefinition]:
+    """Parse a shell script hook file."""
+    lines = content.split("\n")
+    comment_lines: List[str] = []
+    
+    for line in lines:
+        stripped = line.strip()
+        # Skip shebang
+        if stripped.startswith("#!"):
+            continue
+        # Collect comment lines
+        if stripped.startswith("#"):
+            comment_lines.append(stripped[1:].strip())
+        elif stripped:  # Stop at first non-comment, non-empty line
+            break
+    
+    # First comment line is description
+    description = comment_lines[0] if comment_lines else "No description"
+    full_comments = "\n".join(comment_lines).lower()
+    
+    # Detect event type from comments
+    event = _detect_event_from_text(full_comments)
+    
+    return HookDefinition(
+        name=hook_file.stem,
+        description=description,
+        event=event,
+        command=f"bash {hook_file}",
+        source_path=hook_file,
+    )
+
+
+def _parse_python_hook(hook_file: Path, content: str) -> Optional[HookDefinition]:
+    """Parse a Python hook file."""
     lines = content.split("\n")
     in_docstring = False
     docstring_lines: List[str] = []
@@ -325,23 +379,9 @@ def parse_hook_file(hook_file: Path) -> Optional[HookDefinition]:
             source_path=hook_file,
         )
 
-    # Parse docstring
     description = docstring_lines[0].strip() if docstring_lines else "No description"
-
-    # Try to find event type from docstring
-    event = "UserPromptSubmit"  # Default
     full_docstring = "\n".join(docstring_lines).lower()
-
-    if "session-end" in full_docstring or "stop" in full_docstring:
-        event = "Stop"
-    elif "pretooluse" in full_docstring or "pre-tool" in full_docstring:
-        event = "PreToolUse"
-    elif "posttooluse" in full_docstring or "post-tool" in full_docstring:
-        event = "PostToolUse"
-    elif "notification" in full_docstring:
-        event = "Notification"
-    elif "subagent" in full_docstring:
-        event = "SubagentStop"
+    event = _detect_event_from_text(full_docstring)
 
     return HookDefinition(
         name=hook_file.stem,
@@ -352,6 +392,32 @@ def parse_hook_file(hook_file: Path) -> Optional[HookDefinition]:
     )
 
 
+def _detect_event_from_text(text: str) -> str:
+    """Detect hook event type from description text."""
+    text = text.lower()
+    
+    if "sessionend" in text or "session-end" in text or "session end" in text:
+        return "SessionEnd"
+    if "sessionstart" in text or "session-start" in text or "session start" in text:
+        return "SessionStart"
+    if "precompact" in text or "pre-compact" in text or "pre compact" in text:
+        return "PreCompact"
+    if "stop" in text and "subagent" not in text:
+        return "Stop"
+    if "pretooluse" in text or "pre-tool" in text or "pre tool" in text:
+        return "PreToolUse"
+    if "posttooluse" in text or "post-tool" in text or "post tool" in text:
+        return "PostToolUse"
+    if "notification" in text:
+        return "Notification"
+    if "subagent" in text:
+        return "SubagentStop"
+    if "userpromptsubmit" in text or "user prompt" in text or "userprompt" in text:
+        return "UserPromptSubmit"
+    
+    return "UserPromptSubmit"  # Default
+
+
 def install_hook(
     hook: HookDefinition,
     target_dir: Optional[Path] = None,
@@ -360,56 +426,95 @@ def install_hook(
 
     Args:
         hook: Hook definition to install
-        target_dir: Target directory for hooks. Defaults to ~/.cortex/hooks/
+        target_dir: Target directory for hooks. Defaults to ~/.claude/hooks/
 
     Returns:
         Tuple of (success, message)
     """
-    claude_dir = _resolve_claude_dir()
-    hooks_dir = target_dir or (claude_dir / "hooks")
-    hooks_dir.mkdir(parents=True, exist_ok=True)
+    _logger.info(f"install_hook called: hook.name={hook.name}, hook.event={hook.event}, source_path={hook.source_path}")
 
-    # Copy hook file if it has a source path
-    installed_path = hooks_dir / f"{hook.name}.py"
-    if hook.source_path and hook.source_path.exists():
-        try:
-            shutil.copy2(hook.source_path, installed_path)
-        except OSError as e:
-            return False, f"Failed to copy hook: {e}"
+    try:
+        claude_dir = _resolve_claude_dir()
+        hooks_dir = target_dir or (claude_dir / "hooks")
+        _logger.debug(f"claude_dir={claude_dir}, hooks_dir={hooks_dir}")
+        hooks_dir.mkdir(parents=True, exist_ok=True)
 
-    # Update settings.json
-    settings = load_settings()
-    conflict = _find_hook_conflict(settings, hook.name)
-    if conflict:
-        return (
-            False,
-            f"Hook '{hook.name}' conflicts with '{conflict}'. Uninstall '{conflict}' first.",
+        # Determine file extension and interpreter from source
+        if hook.source_path:
+            suffix = hook.source_path.suffix
+        else:
+            # Guess from command
+            suffix = ".sh" if hook.command.startswith("bash") else ".py"
+
+        interpreter = "bash" if suffix == ".sh" else "python3"
+        _logger.debug(f"suffix={suffix}, interpreter={interpreter}")
+
+        # Copy hook file if it has a source path
+        installed_path = hooks_dir / f"{hook.name}{suffix}"
+        _logger.debug(f"installed_path={installed_path}")
+
+        if hook.source_path and hook.source_path.exists():
+            # Check if source and destination are the same file (e.g., symlinks)
+            try:
+                if installed_path.exists() and hook.source_path.resolve() == installed_path.resolve():
+                    _logger.debug(f"Source and destination are the same file, skipping copy")
+                else:
+                    _logger.debug(f"Copying {hook.source_path} to {installed_path}")
+                    shutil.copy2(hook.source_path, installed_path)
+                # Make executable
+                installed_path.chmod(0o755)
+                _logger.debug("Copy successful or skipped (same file)")
+            except OSError as e:
+                _logger.error(f"Failed to copy hook: {e}")
+                return False, f"Failed to copy hook: {e}"
+        else:
+            _logger.warning(f"No source_path or file doesn't exist: {hook.source_path}")
+
+        # Update settings.json
+        settings = load_settings()
+        _logger.debug(f"Loaded settings, hooks config: {settings.get('hooks', {}).keys()}")
+
+        conflict = _find_hook_conflict(settings, hook.name)
+        if conflict:
+            _logger.error(f"Hook conflict found: {conflict}")
+            return (
+                False,
+                f"Hook '{hook.name}' conflicts with '{conflict}'. Uninstall '{conflict}' first.",
+            )
+        if "hooks" not in settings:
+            settings["hooks"] = {}
+
+        if hook.event not in settings["hooks"]:
+            settings["hooks"][hook.event] = []
+
+        # Check if already installed
+        command = f"{interpreter} {installed_path}"
+        _logger.debug(f"Checking if command already installed: {command}")
+
+        for matcher_entry in settings["hooks"][hook.event]:
+            for existing_hook in matcher_entry.get("hooks", []):
+                if existing_hook.get("command") == command:
+                    _logger.info(f"Hook already installed: {hook.name}")
+                    return True, f"Hook {hook.name} already installed"
+
+        # Add new hook
+        _logger.info(f"Adding new hook entry for {hook.name} on event {hook.event}")
+        settings["hooks"][hook.event].append(
+            {
+                "matcher": hook.matcher,
+                "hooks": [{"type": "command", "command": command}],
+            }
         )
-    if "hooks" not in settings:
-        settings["hooks"] = {}
-
-    if hook.event not in settings["hooks"]:
-        settings["hooks"][hook.event] = []
-
-    # Check if already installed
-    command = f"python3 {installed_path}"
-    for matcher_entry in settings["hooks"][hook.event]:
-        for existing_hook in matcher_entry.get("hooks", []):
-            if existing_hook.get("command") == command:
-                return True, f"Hook {hook.name} already installed"
-
-    # Add new hook
-    settings["hooks"][hook.event].append(
-        {
-            "matcher": hook.matcher,
-            "hooks": [{"type": "command", "command": command}],
-        }
-    )
-
-    success, msg = save_settings(settings)
-    if success:
-        return True, f"Installed hook: {hook.name}"
-    return False, msg
+        _logger.debug("Saving settings...")
+        success, msg = save_settings(settings)
+        if success:
+            _logger.info(f"Successfully installed hook: {hook.name}")
+            return True, f"Installed hook: {hook.name}"
+        _logger.error(f"Failed to save settings: {msg}")
+        return False, msg
+    except Exception as e:
+        _logger.exception(f"Unexpected error in install_hook: {e}")
+        return False, f"Unexpected error: {e}"
 
 
 def uninstall_hook(hook: HookDefinition) -> Tuple[bool, str]:
@@ -473,7 +578,8 @@ def create_hook_template(name: str, event: str, target_dir: Optional[Path] = Non
 
     hook_path = hooks_dir / f"{name}.py"
     if hook_path.exists():
-        return False, f"Hook {name} already exists", None
+        # File exists - return the path so caller can still register it in settings
+        return True, f"Hook file already exists at {hook_path}", hook_path
 
     template = f'''#!/usr/bin/env python3
 """Custom hook: {name}
@@ -491,7 +597,7 @@ Usage:
             "hooks": [
               {{
                 "type": "command",
-                "command": "python3 ~/.cortex/hooks/{name}.py"
+                "command": "python3 ~/.claude/hooks/{name}.py"
               }}
             ]
           }}

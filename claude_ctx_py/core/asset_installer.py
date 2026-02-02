@@ -13,8 +13,19 @@ import tempfile
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import logging
 from .asset_discovery import Asset, AssetCategory
 from .base import _update_with_backup, _extract_front_matter
+from .hooks import parse_hook_file
+
+# Set up file logging for debugging
+_log_path = Path.home() / ".claude" / "hook_install.log"
+_logger = logging.getLogger("asset_installer")
+_logger.setLevel(logging.DEBUG)
+if not _logger.handlers:
+    _handler = logging.FileHandler(_log_path)
+    _handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+    _logger.addHandler(_handler)
 
 
 # Color codes for output
@@ -145,21 +156,54 @@ def _install_skill(asset: Asset, target_dir: Path) -> Tuple[int, str]:
 
 
 def _install_hook(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a hook and optionally register in settings.json."""
-    hooks_dir = target_dir / "hooks"
-    hooks_dir.mkdir(parents=True, exist_ok=True)
+    """Install a hook and register in settings.json."""
+    _logger.info(f"_install_hook called: asset.name={asset.name}, target_dir={target_dir}")
 
-    target_path = hooks_dir / asset.source_path.name
+    try:
+        hooks_dir = target_dir / "hooks"
+        hooks_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy file
-    shutil.copy2(asset.source_path, target_path)
+        target_path = hooks_dir / asset.source_path.name
+        _logger.debug(f"target_path={target_path}")
 
-    # Make executable
-    target_path.chmod(target_path.stat().st_mode | 0o111)
+        # Copy file
+        _logger.debug(f"Copying {asset.source_path} to {target_path}")
+        shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+        # Make executable
+        target_path.chmod(target_path.stat().st_mode | 0o111)
+        _logger.debug("Made executable")
 
-    return 0, _color(f"Installed hook: {asset.name}", GREEN)
+        _add_commented_reference(target_dir, target_path)
+
+        # Parse the hook file to get the event type
+        hook_def = parse_hook_file(target_path)
+        _logger.debug(f"Parsed hook_def: {hook_def}")
+
+        if hook_def:
+            # Determine interpreter from file extension
+            interpreter = "bash" if target_path.suffix == ".sh" else "python3"
+            hook_command = f"{interpreter} {target_path}"
+            _logger.debug(f"hook_command={hook_command}, event={hook_def.event}")
+
+            # Register in settings.json
+            settings_path = target_dir / "settings.json"
+            _logger.info(f"Registering hook in settings: {settings_path}")
+            exit_code, reg_msg = register_hook_in_settings(
+                asset.name, hook_command, hook_def.event, settings_path
+            )
+            _logger.info(f"register_hook_in_settings returned: exit_code={exit_code}, msg={reg_msg}")
+
+            if exit_code != 0:
+                return 0, _color(f"Installed hook: {asset.name} (settings registration failed: {reg_msg})", YELLOW)
+        else:
+            _logger.warning("Could not parse hook file, skipping settings registration")
+
+        _logger.info(f"Successfully installed hook: {asset.name}")
+        return 0, _color(f"Installed hook: {asset.name}", GREEN)
+    except Exception as e:
+        _logger.exception(f"Exception in _install_hook: {e}")
+        return 1, _color(f"Failed to install hook: {e}", RED)
 
 
 def _install_command(asset: Asset, target_dir: Path) -> Tuple[int, str]:

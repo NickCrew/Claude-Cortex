@@ -22,8 +22,8 @@ QUICK_TOUR = TourDefinition(
             id="welcome",
             title="Welcome to Cortex",
             description=(
-                "Cortex enhances Claude Code with reusable rules, modes, "
-                "agents, and skills.\n\n"
+                "Cortex enhances Claude Code with reusable rules, "
+                "agents, skills, and MCP servers.\n\n"
                 "This quick tour will show you the key features. "
                 "You can navigate using:\n"
                 "  * [n] Next step\n"
@@ -53,41 +53,37 @@ QUICK_TOUR = TourDefinition(
             action_hint="Press [2] to switch to Agents view anytime",
         ),
         TourStep(
-            id="profiles_view",
-            title="Profiles",
+            id="rules_view",
+            title="Rules View",
             description=(
-                "Profiles are quick configuration presets that activate "
-                "groups of agents.\n\n"
-                "Available profiles:\n"
-                "  * minimal - Essential agents only\n"
-                "  * frontend - React, Vue, TypeScript\n"
-                "  * backend - Python, Go, APIs\n"
-                "  * full - All agents enabled\n\n"
-                "Apply a profile with [Space] to instantly configure "
-                "your environment."
+                "Rules define constraints and guidelines for Claude.\n\n"
+                "Key features:\n"
+                "  * Toggle rules with [Space]\n"
+                "  * View and edit with [Enter] or [Ctrl+e]\n"
+                "  * Active rules are enforced in Claude Code\n\n"
+                "Rules help maintain consistency and quality "
+                "in your codebase."
             ),
-            target_view="profiles",
+            target_view="rules",
             target_widget="main-table",
             position="right",
-            action_hint="Press [8] to switch to Profiles view",
+            action_hint="Press [3] to switch to Rules view",
         ),
         TourStep(
-            id="ai_assistant",
-            title="AI Assistant",
+            id="skills_view",
+            title="Skills View",
             description=(
-                "The AI Assistant provides intelligent recommendations "
-                "based on your project.\n\n"
-                "Features:\n"
-                "  * Suggests relevant agents for your codebase\n"
-                "  * Auto-activate recommendations with [a]\n"
-                "  * Get task-specific suggestions\n\n"
-                "This uses semantic analysis to match your project "
-                "with the best agents."
+                "Skills are reusable workflows invoked with slash commands.\n\n"
+                "Key features:\n"
+                "  * Browse available skills\n"
+                "  * View skill details with [Enter]\n"
+                "  * Skills are invoked via /skill-name in Claude Code\n\n"
+                "Skills extend Claude's capabilities with specialized workflows."
             ),
-            target_view="ai_assistant",
+            target_view="skills",
             target_widget="main-table",
             position="right",
-            action_hint="Press [0] to access AI Assistant",
+            action_hint="Press [4] to switch to Skills view",
         ),
         TourStep(
             id="export",
@@ -106,7 +102,7 @@ QUICK_TOUR = TourDefinition(
             target_view="export",
             target_widget="main-table",
             position="right",
-            action_hint="Press [9] to access Export view",
+            action_hint="Press [E] to access Export view",
         ),
     ],
 )

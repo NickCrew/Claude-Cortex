@@ -2,7 +2,6 @@
 name: mashup
 description: Force-fit patterns from other domains to spark novel concepts.
 license: MIT
-command: /ctx:mashup
 ---
 
 # `/collaboration:mashup`

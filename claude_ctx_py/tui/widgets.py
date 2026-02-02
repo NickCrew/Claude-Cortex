@@ -57,24 +57,10 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("E", "Edit", priority=23),
         ShortcutDef("X", "Remove", priority=24),
     ],
-    "profiles": [
-        ShortcutDef("n", "Save", priority=20),
-        ShortcutDef("D", "Delete", priority=21),
-    ],
     "export": [
         ShortcutDef("f", "Format", priority=20),
         ShortcutDef("e", "Export", priority=21),
         ShortcutDef("x", "Copy", priority=22),
-    ],
-    "workflows": [
-        ShortcutDef("R", "Run", priority=20),
-        ShortcutDef("s", "Stop", priority=21),
-    ],
-    "scenarios": [
-        ShortcutDef("R", "Run", priority=20),
-        ShortcutDef("s", "Stop", priority=21),
-        ShortcutDef("P", "Preview", priority=22),
-        ShortcutDef("V", "Validate", priority=23),
     ],
     "tasks": [
         ShortcutDef("L", "Log", priority=20),
@@ -89,9 +75,6 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("d", "Diff", priority=25),
     ],
     "rules": [
-        ShortcutDef("^e", "Edit", priority=20),
-    ],
-    "modes": [
         ShortcutDef("^e", "Edit", priority=20),
     ],
     "memory": [
@@ -113,14 +96,11 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
 
 # Additional nav shortcuts (lower priority, shown if space)
 EXTRA_NAV_SHORTCUTS: List[ShortcutDef] = [
-    ShortcutDef("S", "Scenarios", priority=30),
-    ShortcutDef("o", "Orchestrate", priority=31),
-    ShortcutDef("Alt+g", "Galaxy", priority=32),
-    ShortcutDef("t", "Tasks", priority=33),
-    ShortcutDef("/", "Cmds", priority=34),
-    ShortcutDef("gg/G", "Top/Bottom", priority=35),
-    ShortcutDef("^b/^f", "Page", priority=36),
-    ShortcutDef("^u/^d", "Half Page", priority=37),
+    ShortcutDef("6", "Tasks", priority=30),
+    ShortcutDef("7", "Commands", priority=31),
+    ShortcutDef("gg/G", "Top/Bottom", priority=32),
+    ShortcutDef("^b/^f", "Page", priority=33),
+    ShortcutDef("^u/^d", "Half Page", priority=34),
 ]
 
 
