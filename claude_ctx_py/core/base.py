@@ -24,6 +24,8 @@ BLUE = "\033[0;34m"
 GREEN = "\033[0;32m"
 YELLOW = "\033[0;33m"
 RED = "\033[0;31m"
+CYAN = "\033[0;36m"
+DIM = "\033[2m"
 NC = "\033[0m"
 
 
@@ -1015,3 +1017,415 @@ def _list_available_modes(claude_dir: Path) -> List[str]:
                     continue
                 modes.add(path.stem)
     return sorted(modes)
+
+
+def _build_progress_bar(percentage: float, width: int = 20) -> str:
+    """Build a text-based progress bar.
+
+    Args:
+        percentage: Completion percentage (0-100)
+        width: Bar width in characters
+
+    Returns:
+        ANSI-colored progress bar string
+    """
+    filled = int((percentage / 100) * width)
+    filled = max(0, min(filled, width))
+
+    # Choose color based on percentage
+    if percentage >= 75:
+        color = GREEN
+    elif percentage >= 50:
+        color = YELLOW
+    else:
+        color = CYAN
+
+    bar = f"{color}{'█' * filled}{NC}{DIM}{'░' * (width - filled)}{NC}"
+    return bar
+
+
+def _get_status_level(percentage: float) -> Tuple[str, str]:
+    """Determine status level and color based on activation percentage.
+
+    Args:
+        percentage: Activation percentage (0-100)
+
+    Returns:
+        Tuple of (status_text, color)
+    """
+    if percentage >= 75:
+        return "OPTIMAL", GREEN
+    elif percentage >= 50:
+        return "ACTIVE", YELLOW
+    elif percentage > 0:
+        return "PARTIAL", CYAN
+    else:
+        return "IDLE", DIM
+
+
+def _get_recent_activity(claude_dir: Path, max_items: int = 3) -> List[str]:
+    """Get recent activity from git or file timestamps.
+
+    Args:
+        claude_dir: Path to cortex directory
+        max_items: Maximum number of items to show
+
+    Returns:
+        List of activity strings
+    """
+    activities = []
+
+    # Try to get recent git commits if in a git repo
+    try:
+        result = subprocess.run(
+            ["git", "log", "--oneline", "--max-count=5", "--",
+             "agents/", "rules/", "skills/"],
+            cwd=claude_dir,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+        if result.returncode == 0 and result.stdout:
+            for line in result.stdout.strip().split('\n')[:max_items]:
+                if line:
+                    # Extract just the commit message
+                    parts = line.split(' ', 1)
+                    if len(parts) > 1:
+                        activities.append(parts[1])
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+
+    # Fallback: show recent file modifications
+    if not activities:
+        try:
+            all_files = []
+            for pattern in ["agents/*.md", "rules/*.md", "skills/*/SKILL.md"]:
+                for f in claude_dir.glob(pattern):
+                    if f.is_file():
+                        all_files.append((f, f.stat().st_mtime))
+
+            # Sort by modification time, newest first
+            all_files.sort(key=lambda x: x[1], reverse=True)
+
+            for f, mtime in all_files[:max_items]:
+                age_seconds = time.time() - mtime
+                if age_seconds < 60:
+                    age_str = "now"
+                elif age_seconds < 3600:
+                    age_str = f"{int(age_seconds/60)}m ago"
+                elif age_seconds < 86400:
+                    age_str = f"{int(age_seconds/3600)}h ago"
+                else:
+                    age_str = f"{int(age_seconds/86400)}d ago"
+                activities.append(f"{f.relative_to(claude_dir)} ({age_str})")
+        except Exception:
+            pass
+
+    return activities
+
+
+def _get_system_health(claude_dir: Path) -> Tuple[List[str], List[str]]:
+    """Check system health and return status messages.
+
+    Args:
+        claude_dir: Path to cortex directory
+
+    Returns:
+        Tuple of (healthy_items, warnings)
+    """
+    healthy = []
+    warnings = []
+
+    # Check directory exists
+    if claude_dir.exists():
+        healthy.append("Configuration directory accessible")
+    else:
+        warnings.append("Configuration directory missing")
+
+    # Check for critical directories
+    required_dirs = ["agents", "rules"]
+    for dirname in required_dirs:
+        dir_path = claude_dir / dirname
+        if dir_path.is_dir():
+            healthy.append(f"{dirname.capitalize()} directory available")
+        else:
+            warnings.append(f"{dirname.capitalize()} directory missing")
+
+    # Check for .init (internal state)
+    init_dir = claude_dir / ".init"
+    if init_dir.exists():
+        healthy.append("State directory initialized")
+
+    return healthy, warnings
+
+
+def _get_context_tokens(claude_dir: Path) -> Optional[Dict[str, Any]]:
+    """Get token usage for context categories.
+
+    Args:
+        claude_dir: Path to cortex directory
+
+    Returns:
+        Dict with token stats or None if unavailable
+    """
+    try:
+        from .. import token_counter
+        category_stats, total_stats = token_counter.get_active_context_tokens(claude_dir)
+
+        # Calculate usage percentage (200K context window)
+        context_limit = 200000
+        usage_pct = (total_stats.tokens / context_limit) * 100 if context_limit > 0 else 0
+
+        return {
+            "total_tokens": total_stats.tokens,
+            "total_files": total_stats.files,
+            "usage_pct": usage_pct,
+            "categories": {k: v.tokens for k, v in category_stats.items() if v.tokens > 0},
+        }
+    except Exception:
+        return None
+
+
+def show_status(home: Path | None = None, use_rich: bool = False) -> str:
+    """Show overall cortex status summary with enhanced metrics.
+
+    Args:
+        home: Optional path to cortex directory
+        use_rich: Use Rich markup instead of ANSI colors
+
+    Returns:
+        Formatted status string (ANSI or Rich markup)
+    """
+    claude_dir = _resolve_claude_dir(home)
+    lines: List[str] = []
+
+    # Count agents and rules
+    agents_dir = claude_dir / "agents"
+    active_agents = []
+    if agents_dir.is_dir():
+        active_agents = [p.stem for p in agents_dir.glob("*.md") if p.is_file()]
+
+    inactive_agent_count = 0
+    for directory in _inactive_dir_candidates(claude_dir, "agents"):
+        if directory.is_dir():
+            inactive_agent_count += sum(1 for p in directory.glob("*.md") if p.is_file())
+
+    total_agents = len(active_agents) + inactive_agent_count
+    agent_pct = (len(active_agents) / total_agents * 100) if total_agents > 0 else 0
+
+    rules_dir = claude_dir / "rules"
+    active_rules = []
+    if rules_dir.is_dir():
+        active_rules = [p.stem for p in rules_dir.glob("*.md") if p.is_file()]
+
+    inactive_rule_count = 0
+    for directory in _inactive_dir_candidates(claude_dir, "rules"):
+        if directory.is_dir():
+            inactive_rule_count += sum(1 for p in directory.glob("*.md") if p.is_file())
+
+    total_rules = len(active_rules) + inactive_rule_count
+    rule_pct = (len(active_rules) / total_rules * 100) if total_rules > 0 else 0
+
+    skills_dir = claude_dir / "skills"
+    skill_count = 0
+    if skills_dir.is_dir():
+        skill_count = sum(1 for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
+
+    if use_rich:
+        return _show_status_rich(
+            claude_dir, len(active_agents), total_agents, agent_pct,
+            len(active_rules), total_rules, rule_pct, skill_count
+        )
+    else:
+        return _show_status_ansi(
+            claude_dir, len(active_agents), total_agents, agent_pct,
+            len(active_rules), total_rules, rule_pct, skill_count
+        )
+
+
+def _show_status_ansi(
+    claude_dir: Path,
+    active_agents: int,
+    total_agents: int,
+    agent_pct: float,
+    active_rules: int,
+    total_rules: int,
+    rule_pct: float,
+    skill_count: int,
+) -> str:
+    """Generate status output using ANSI colors.
+
+    Args:
+        claude_dir: Path to cortex directory
+        active_agents: Count of active agents
+        total_agents: Total agent count
+        agent_pct: Agent activation percentage
+        active_rules: Count of active rules
+        total_rules: Total rule count
+        rule_pct: Rule activation percentage
+        skill_count: Count of skills
+
+    Returns:
+        Formatted status string with ANSI colors
+    """
+    lines: List[str] = []
+
+    # Header
+    lines.append(_color("CORTEX STATUS", BLUE))
+    lines.append(_color("=" * 60, DIM))
+
+    # Status indicator
+    agent_status, agent_color = _get_status_level(agent_pct)
+    lines.append(f"\n{_color('Status:', BLUE)} {_color(agent_status, agent_color)}")
+
+    # Agents section
+    agent_bar = _build_progress_bar(agent_pct)
+    lines.append(f"\n{_color('⚡ AGENTS', CYAN)}")
+    lines.append(f"  {active_agents}/{total_agents} active {agent_bar} {agent_pct:.0f}%")
+
+    # Rules section
+    rule_bar = _build_progress_bar(rule_pct)
+    lines.append(f"\n{_color('📜 RULES', BLUE)}")
+    lines.append(f"  {active_rules}/{total_rules} active {rule_bar} {rule_pct:.0f}%")
+
+    # Skills section
+    lines.append(f"\n{_color('💎 SKILLS', GREEN)}")
+    lines.append(f"  {skill_count} installed")
+
+    # Recent activity
+    activities = _get_recent_activity(claude_dir, max_items=2)
+    if activities:
+        lines.append(f"\n{_color('📈 RECENT ACTIVITY', CYAN)}")
+        for activity in activities:
+            lines.append(f"  • {activity}")
+
+    # System health
+    healthy, warnings = _get_system_health(claude_dir)
+    if healthy or warnings:
+        lines.append(f"\n{_color('✓ SYSTEM HEALTH', GREEN)}")
+        for item in healthy:
+            lines.append(f"  {_color('●', GREEN)} {item}")
+        for warning in warnings:
+            lines.append(f"  {_color('●', YELLOW)} {warning}")
+
+    # Token usage
+    token_info = _get_context_tokens(claude_dir)
+    if token_info:
+        usage_color = (
+            GREEN if token_info["usage_pct"] < 25
+            else YELLOW if token_info["usage_pct"] < 50
+            else CYAN if token_info["usage_pct"] < 75
+            else RED
+        )
+        token_bar = _build_progress_bar(token_info["usage_pct"])
+        lines.append(f"\n{_color('📊 CONTEXT TOKENS', CYAN)}")
+        lines.append(f"  {token_info['total_tokens']:,} tokens / 200K {token_bar}")
+        usage_text = _color(f"{token_info['usage_pct']:.0f}% usage", usage_color)
+        lines.append(f"  {usage_text} ({token_info['total_files']} files)")
+
+    # Directory info
+    lines.append(f"\n{_color('Directory:', DIM)} {claude_dir}")
+
+    return "\n".join(lines)
+
+
+def _show_status_rich(
+    claude_dir: Path,
+    active_agents: int,
+    total_agents: int,
+    agent_pct: float,
+    active_rules: int,
+    total_rules: int,
+    rule_pct: float,
+    skill_count: int,
+) -> str:
+    """Generate status output using Rich markup.
+
+    Args:
+        claude_dir: Path to cortex directory
+        active_agents: Count of active agents
+        total_agents: Total agent count
+        agent_pct: Agent activation percentage
+        active_rules: Count of active rules
+        total_rules: Total rule count
+        rule_pct: Rule activation percentage
+        skill_count: Count of skills
+
+    Returns:
+        Formatted status string with Rich markup
+    """
+    lines: List[str] = []
+
+    # Determine agent status color
+    if agent_pct >= 75:
+        agent_color, status = "green", "OPTIMAL"
+    elif agent_pct >= 50:
+        agent_color, status = "yellow", "ACTIVE"
+    elif agent_pct > 0:
+        agent_color, status = "cyan", "PARTIAL"
+    else:
+        agent_color, status = "dim", "IDLE"
+
+    # Build progress bars using Rich-style
+    agent_filled = int((agent_pct / 100) * 20)
+    agent_bar = f"[{agent_color}]{'█' * agent_filled}[/{agent_color}][dim]{'░' * (20 - agent_filled)}[/dim]"
+
+    rule_filled = int((rule_pct / 100) * 20)
+    rule_bar = f"[{agent_color if rule_pct >= 75 else 'yellow' if rule_pct >= 50 else 'cyan'}]{'█' * rule_filled}[/{agent_color if rule_pct >= 75 else 'yellow' if rule_pct >= 50 else 'cyan'}][dim]{'░' * (20 - rule_filled)}[/dim]"
+
+    # Header
+    lines.append("[bold blue]CORTEX STATUS[/bold blue]")
+    lines.append("[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]")
+
+    # Status indicator
+    lines.append(f"[blue]Status:[/blue] [bold {agent_color}]{status}[/bold {agent_color}]")
+
+    # Agents section
+    lines.append(f"\n[bold cyan]⚡ AGENTS[/bold cyan]")
+    lines.append(f"  [bold white]{active_agents}[/bold white][dim]/[/dim][white]{total_agents}[/white] active {agent_bar} [white]{agent_pct:.0f}%[/white]")
+
+    # Rules section
+    lines.append(f"\n[bold blue]📜 RULES[/bold blue]")
+    lines.append(f"  [bold white]{active_rules}[/bold white][dim]/[/dim][white]{total_rules}[/white] active {rule_bar} [white]{rule_pct:.0f}%[/white]")
+
+    # Skills section
+    lines.append(f"\n[bold green]💎 SKILLS[/bold green]")
+    lines.append(f"  [white]{skill_count}[/white] installed")
+
+    # Recent activity
+    activities = _get_recent_activity(claude_dir, max_items=2)
+    if activities:
+        lines.append(f"\n[bold cyan]📈 RECENT ACTIVITY[/bold cyan]")
+        for activity in activities:
+            lines.append(f"  [green]●[/green] [dim]{activity}[/dim]")
+
+    # System health
+    healthy, warnings = _get_system_health(claude_dir)
+    if healthy or warnings:
+        lines.append(f"\n[bold green]✓ SYSTEM HEALTH[/bold green]")
+        for item in healthy:
+            lines.append(f"  [green]●[/green] {item}")
+        for warning in warnings:
+            lines.append(f"  [yellow]●[/yellow] {warning}")
+
+    # Token usage
+    token_info = _get_context_tokens(claude_dir)
+    if token_info:
+        usage_pct = token_info["usage_pct"]
+        usage_color = (
+            "green" if usage_pct < 25
+            else "yellow" if usage_pct < 50
+            else "cyan" if usage_pct < 75
+            else "red"
+        )
+        token_filled = int((usage_pct / 100) * 20)
+        token_bar = f"[{usage_color}]{'█' * token_filled}[/{usage_color}][dim]{'░' * (20 - token_filled)}[/dim]"
+
+        lines.append(f"\n[bold cyan]📊 CONTEXT TOKENS[/bold cyan]")
+        lines.append(f"  [white]{token_info['total_tokens']:,}[/white] tokens / 200K {token_bar}")
+        lines.append(f"  [{usage_color}]{usage_pct:.0f}% usage[/{usage_color}] ([white]{token_info['total_files']}[/white] files)")
+
+    # Directory info
+    lines.append(f"\n[dim]Directory:[/dim] {claude_dir}")
+
+    return "\n".join(lines)

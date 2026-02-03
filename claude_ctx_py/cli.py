@@ -796,7 +796,6 @@ def build_parser() -> argparse.ArgumentParser:
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_worktree_parser(subparsers)
-    subparsers.add_parser("status", help="Show overall status")
     _build_statusline_parser(subparsers)
     tui_parser = subparsers.add_parser(
         "tui", help="Launch interactive TUI for agent management"
@@ -820,6 +819,12 @@ def build_parser() -> argparse.ArgumentParser:
     _build_export_parser(subparsers)
     _build_install_parser(subparsers)
     _build_memory_parser(subparsers)
+    status_parser = subparsers.add_parser("status", help="Show overall status")
+    status_parser.add_argument(
+        "--rich",
+        action="store_true",
+        help="Use Rich markup instead of ANSI colors",
+    )
     review_parser = subparsers.add_parser("review", help="Run review gate before task completion")
     review_parser.add_argument(
         "--dry-run",
@@ -1725,7 +1730,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     }
 
     if args.command == "status":
-        _print(core.show_status())
+        use_rich = getattr(args, "rich", False)
+        _print(core.show_status(use_rich=use_rich))
         return 0
 
     if args.command == "tui":
