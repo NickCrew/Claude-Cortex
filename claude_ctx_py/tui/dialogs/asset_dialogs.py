@@ -529,13 +529,8 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
             "commands": "📝",
             "agents": "🤖",
             "skills": "🎯",
-            "modes": "🎨",
-            "workflows": "🔄",
             "rules": "🧭",
-            "profiles": "👤",
-            "scenarios": "🎬",
             "tasks": "✅",
-            "flags": "🚩",
             "settings": "⚙️",
         }
 
