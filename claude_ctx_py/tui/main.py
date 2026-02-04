@@ -7385,6 +7385,14 @@ class AgentTUI(App[None]):
         if self.current_view != "codex_skills":
             return
 
+        table = self.query_one(DataTable)
+        if table.cursor_row is None:
+            self.status_message = "No skill selected"
+            return
+
+        # Save current cursor position to move to next after toggle
+        saved_cursor_row = table.cursor_row
+
         skill = self._selected_skill()
         if not skill:
             self.status_message = "No skill selected"
@@ -7403,6 +7411,13 @@ class AgentTUI(App[None]):
             self.notify(msg, severity="information", timeout=2)
             self.load_codex_skills_status()
             self.update_view()
+
+            # Move cursor to next item after update
+            table = self.query_one(DataTable)
+            if table.row_count > 0:
+                # Move to next row, or stay at last if we were at the end
+                next_cursor_row = min(saved_cursor_row + 1, table.row_count - 1)
+                table.move_cursor(row=next_cursor_row)
         else:
             self.notify(msg, severity="error", timeout=3)
 
