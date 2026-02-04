@@ -4160,6 +4160,34 @@ class AgentTUI(App[None]):
         if self._vi_g_pending:
             self._vi_g_pending = False
 
+        # Handle codex_skills view specific keybindings
+        if self.current_view == "codex_skills":
+            if event.key == "l":
+                self.action_toggle_codex_skill()
+                event.prevent_default()
+                event.stop()
+                return
+            elif event.key == "shift+l":
+                self.action_link_all_codex_skills()
+                event.prevent_default()
+                event.stop()
+                return
+            elif event.key == "shift+u":
+                self.action_unlink_all_codex_skills()
+                event.prevent_default()
+                event.stop()
+                return
+            elif event.key == "c":
+                self.run_worker(self.action_link_by_category(), exclusive=True)
+                event.prevent_default()
+                event.stop()
+                return
+            elif event.key == "ctrl+c":
+                self.run_worker(self.action_unlink_by_category(), exclusive=True)
+                event.prevent_default()
+                event.stop()
+                return
+
     # ─────────────────────────────────────────────────────────────────────
     # Watch Mode Actions
     # ─────────────────────────────────────────────────────────────────────
@@ -7216,6 +7244,9 @@ class AgentTUI(App[None]):
                                 self.notify(
                                     f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                                 )
+
+        elif self.current_view == "codex_skills":
+            self.action_toggle_codex_skill()
 
     def action_refresh(self) -> None:
         """Refresh current view."""
