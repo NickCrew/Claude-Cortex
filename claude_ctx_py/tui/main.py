@@ -100,6 +100,13 @@ from ..core import (
     _resolve_plugin_assets_root,
     validate_hooks_config_file,
     _write_active_entries,
+    scan_codex_skill_status,
+    link_codex_skill,
+    unlink_codex_skill,
+    link_codex_skills_by_category,
+    unlink_codex_skills_by_category,
+    link_all_codex_skills,
+    unlink_all_codex_skills,
 )
 from ..core.rules import rules_activate, rules_deactivate
 from ..core.base import (
@@ -139,6 +146,7 @@ from .dialogs import (
     AssetDetailDialog,
     DiffViewerDialog,
     BulkInstallDialog,
+    BulkSkillOperationDialog,
     MCPBrowseDialog,
     MCPInstallDialog,
     HooksManagerDialog,
@@ -260,6 +268,7 @@ class AgentTUI(App[None]):
         self.export_agent_generic: bool = True
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
         self.skills: List[Dict[str, Any]] = []
+        self.codex_skills_status: Dict[str, bool] = {}
         self.slash_commands: List[SlashCommandInfo] = []
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
@@ -608,6 +617,14 @@ class AgentTUI(App[None]):
             },
             "watch_mode": {"toggle", "watch_change_directory", "watch_toggle_auto", "watch_adjust_threshold", "watch_adjust_interval"},
             "tasks": {"details_context", "edit_item", "task_open_source", "task_open_external"},
+            "codex_skills": {
+                "toggle_codex_skill",
+                "link_all_codex_skills",
+                "unlink_all_codex_skills",
+                "link_by_category",
+                "unlink_by_category",
+                "refresh_codex_status",
+            },
         }
 
         # Get the set of keys to show for the current view, default to empty set
@@ -1147,6 +1164,14 @@ class AgentTUI(App[None]):
             self.status_message = f"Error loading skills: {e}"
             self.skills = []
 
+    def load_codex_skills_status(self) -> None:
+        """Load Codex skills linked status from filesystem."""
+        try:
+            self.codex_skills_status = scan_codex_skill_status()
+        except Exception as e:
+            self.codex_skills_status = {}
+            self.log(f"Error loading Codex skills status: {e}")
+
     def load_slash_commands(self) -> None:
         """Load slash command metadata from the skills directory."""
         try:
@@ -1467,6 +1492,51 @@ class AgentTUI(App[None]):
                 location_text,
                 description,
             )
+
+    def show_codex_skills_view(self, table: DataTable[Any]) -> None:
+        """Show Codex skills with symlink status."""
+        table.add_column("Name", key="name", width=30)
+        table.add_column("Category", key="category", width=18)
+        table.add_column("Linked", key="linked", width=10)
+        table.add_column("Description", key="description")
+
+        if not hasattr(self, "skills") or not self.skills:
+            table.add_row("[dim]No skills found[/dim]", "", "", "")
+            return
+
+        # Load registry for category metadata
+        try:
+            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry = yaml.safe_load(registry_path.read_text())
+            categories = registry.get("categories", {})
+        except Exception:
+            categories = {}
+
+        for skill in self.skills:
+            skill_name = skill["slug"]
+
+            # Get category icon
+            category_key = skill["category"]
+            category_data = categories.get(category_key, {})
+            icon = category_data.get("icon", "📦")
+
+            # Format name with icon
+            name = f"{icon} [bold]{skill['name']}[/bold]"
+
+            # Category with color
+            category_text = f"[cyan]{skill['category']}[/cyan]"
+
+            # Linked status
+            is_linked = self.codex_skills_status.get(skill_name, False)
+            linked_text = (
+                "[green]✓ Yes[/green]" if is_linked
+                else "[dim]○ No[/dim]"
+            )
+
+            # Description truncated
+            desc = skill["description"][:100].replace("[", "\\[")
+
+            table.add_row(name, category_text, linked_text, f"[dim]{desc}[/dim]")
 
     def show_commands_view(self, table: AnyDataTable) -> None:
         """Render slash command catalog."""
@@ -1978,6 +2048,8 @@ class AgentTUI(App[None]):
             self.show_rules_view(table)
         elif self.current_view == "skills":
             self.show_skills_view(table)
+        elif self.current_view == "codex_skills":
+            self.show_codex_skills_view(table)
         elif self.current_view == "commands":
             self.show_commands_view(table)
         elif self.current_view == "worktrees":
@@ -3906,6 +3978,13 @@ class AgentTUI(App[None]):
         self.current_view = "skills"
         self.status_message = "Switched to Skills"
         self.notify("💎 Skills", severity="information", timeout=1)
+
+    def action_view_codex_skills(self) -> None:
+        """Switch to Codex skills linking view."""
+        self.load_codex_skills_status()
+        self.current_view = "codex_skills"
+        self.status_message = "Switched to Codex Skills"
+        self.notify("🔗 Codex Skills", severity="information", timeout=1)
 
     def action_view_commands(self) -> None:
         """Switch to slash commands view."""
@@ -7155,6 +7234,8 @@ class AgentTUI(App[None]):
         elif self.current_view == "mcp":
             self.load_mcp_servers()
             self.load_mcp_docs()
+        elif self.current_view == "codex_skills":
+            self.load_codex_skills_status()
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
@@ -7267,6 +7348,172 @@ class AgentTUI(App[None]):
                     severity="error",
                     timeout=5
                 )
+
+    def action_toggle_codex_skill(self) -> None:
+        """Toggle link/unlink for selected skill."""
+        if self.current_view != "codex_skills":
+            return
+
+        skill = self._selected_skill()
+        if not skill:
+            self.status_message = "No skill selected"
+            return
+
+        skill_name = skill["slug"]
+        is_linked = self.codex_skills_status.get(skill_name, False)
+
+        if is_linked:
+            exit_code, msg = unlink_codex_skill(skill_name)
+        else:
+            exit_code, msg = link_codex_skill(skill_name)
+
+        self.status_message = msg
+        if exit_code == 0:
+            self.notify(msg, severity="information", timeout=2)
+            self.load_codex_skills_status()
+            self.update_view()
+        else:
+            self.notify(msg, severity="error", timeout=3)
+
+    def action_link_all_codex_skills(self) -> None:
+        """Link all Codex skills."""
+        if self.current_view != "codex_skills":
+            return
+
+        try:
+            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry = yaml.safe_load(registry_path.read_text())
+        except Exception as e:
+            self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
+            return
+
+        success_count, messages = link_all_codex_skills(registry)
+
+        self.status_message = f"Linked {success_count} skills"
+        self.notify(f"✓ Linked {success_count} skills", severity="information", timeout=2)
+        self.load_codex_skills_status()
+        self.update_view()
+
+    def action_unlink_all_codex_skills(self) -> None:
+        """Unlink all Codex skills."""
+        if self.current_view != "codex_skills":
+            return
+
+        success_count, messages = unlink_all_codex_skills()
+
+        self.status_message = f"Unlinked {success_count} skills"
+        self.notify(f"○ Unlinked {success_count} skills", severity="information", timeout=2)
+        self.load_codex_skills_status()
+        self.update_view()
+
+    async def action_link_by_category(self) -> None:
+        """Show dialog to link skills by category."""
+        if self.current_view != "codex_skills":
+            return
+
+        try:
+            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry = yaml.safe_load(registry_path.read_text())
+        except Exception as e:
+            self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
+            return
+
+        categories_data = registry.get("categories", {})
+        skills_data = registry.get("skills", {})
+
+        # Count skills per category
+        category_counts = {}
+        for skill_name, skill_info in skills_data.items():
+            cats = skill_info.get("categories", [])
+            for cat in cats:
+                category_counts[cat] = category_counts.get(cat, 0) + 1
+
+        # Build category list with icons
+        category_list = []
+        for cat_key, cat_info in categories_data.items():
+            if cat_key in category_counts:
+                icon = cat_info.get("icon", "📦")
+                count = category_counts[cat_key]
+                category_list.append((cat_key, icon, count))
+
+        if not category_list:
+            self.notify("No categories found", severity="warning", timeout=2)
+            return
+
+        # Show dialog
+        dialog = BulkSkillOperationDialog(category_list, operation="link")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result and "link" in result:
+            total_linked = 0
+            for category in result["link"]:
+                count, messages = link_codex_skills_by_category(category, registry)
+                total_linked += count
+
+            self.status_message = f"Linked {total_linked} skills"
+            self.notify(f"✓ Linked {total_linked} skills", severity="information", timeout=2)
+            self.load_codex_skills_status()
+            self.update_view()
+
+    async def action_unlink_by_category(self) -> None:
+        """Show dialog to unlink skills by category."""
+        if self.current_view != "codex_skills":
+            return
+
+        try:
+            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry = yaml.safe_load(registry_path.read_text())
+        except Exception as e:
+            self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
+            return
+
+        categories_data = registry.get("categories", {})
+        skills_data = registry.get("skills", {})
+
+        # Count LINKED skills per category
+        category_counts = {}
+        for skill_name, skill_info in skills_data.items():
+            if not self.codex_skills_status.get(skill_name, False):
+                continue  # Skip not linked
+            cats = skill_info.get("categories", [])
+            for cat in cats:
+                category_counts[cat] = category_counts.get(cat, 0) + 1
+
+        # Build category list
+        category_list = []
+        for cat_key, cat_info in categories_data.items():
+            if cat_key in category_counts:
+                icon = cat_info.get("icon", "📦")
+                count = category_counts[cat_key]
+                category_list.append((cat_key, icon, count))
+
+        if not category_list:
+            self.notify("No linked skills to unlink", severity="warning", timeout=2)
+            return
+
+        # Show dialog
+        dialog = BulkSkillOperationDialog(category_list, operation="unlink")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result and "unlink" in result:
+            total_unlinked = 0
+            for category in result["unlink"]:
+                count, messages = unlink_codex_skills_by_category(category, registry)
+                total_unlinked += count
+
+            self.status_message = f"Unlinked {total_unlinked} skills"
+            self.notify(f"○ Unlinked {total_unlinked} skills", severity="information", timeout=2)
+            self.load_codex_skills_status()
+            self.update_view()
+
+    def action_refresh_codex_status(self) -> None:
+        """Refresh Codex skills link status from filesystem."""
+        if self.current_view != "codex_skills":
+            return
+
+        self.load_codex_skills_status()
+        self.update_view()
+        self.notify("Refreshed link status", severity="information", timeout=1)
 
 
 def main(
