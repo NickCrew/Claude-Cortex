@@ -86,6 +86,7 @@ from .base import (
     _parse_selection,
     _append_session_log,
     _list_available_agents,
+    show_status,
 )
 
 # Export all functions from agents
@@ -157,6 +158,17 @@ from .rules import (
     rules_activate,
     rules_deactivate,
     list_rules,
+)
+
+# Export all functions from codex_skills
+from .codex_skills import (
+    scan_codex_skill_status,
+    link_codex_skill,
+    unlink_codex_skill,
+    link_codex_skills_by_category,
+    unlink_codex_skills_by_category,
+    link_all_codex_skills,
+    unlink_all_codex_skills,
 )
 
 # Export all functions from worktrees
@@ -306,6 +318,7 @@ __all__ = [
     "_parse_selection",
     "_append_session_log",
     "_list_available_agents",
+    "show_status",
     # Agent functions
     "_agent_basename",
     "_normalize_agent_filename",
@@ -367,6 +380,14 @@ __all__ = [
     "rules_activate",
     "rules_deactivate",
     "list_rules",
+    # Codex skills functions
+    "scan_codex_skill_status",
+    "link_codex_skill",
+    "unlink_codex_skill",
+    "link_codex_skills_by_category",
+    "unlink_codex_skills_by_category",
+    "link_all_codex_skills",
+    "unlink_all_codex_skills",
     # Worktree functions
     "WorktreeInfo",
     "worktree_discover",
