@@ -29,6 +29,10 @@ from .llm_provider_settings import (
     LLMProviderSettingsDialog,
 )
 
+from .codex_skills_dialogs import (
+    BulkSkillOperationDialog,
+)
+
 __all__ = [
     "TargetSelectorDialog",
     "AssetDetailDialog",
@@ -41,4 +45,5 @@ __all__ = [
     "HooksManagerDialog",
     "BackupManagerDialog",
     "LLMProviderSettingsDialog",
+    "BulkSkillOperationDialog",
 ]
