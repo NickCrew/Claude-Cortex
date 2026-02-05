@@ -303,11 +303,8 @@ def print_suggestions(matches: List[Tuple[int, dict]]) -> None:
     """Emit suggestions in a compact, readable format."""
     if not matches:
         return
-    print("Skill suggestions:")
-    for hits, rule in matches:
-        cmd = rule.get("command", "")
-        desc = rule.get("description", "").strip()
-        print(f"  {cmd} — {desc}")
+    names = [rule.get("name", "unknown") for _, rule in matches]
+    print(f"Suggested skills: {', '.join(names)}")
 
 
 def main() -> int:

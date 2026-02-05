@@ -141,9 +141,14 @@ def test_ai_recommend_with_data(monkeypatch: pytest.MonkeyPatch, capsys):
     assert dummy.analyzed is True
 
 
-def test_ai_auto_activate_handles_success_and_failure(monkeypatch: pytest.MonkeyPatch, capsys):
+def test_ai_auto_activate_handles_success_and_failure(monkeypatch: pytest.MonkeyPatch, capsys, tmp_path: Path):
     dummy = DummyAgent(auto=["a1", "a2"])
     monkeypatch.setattr(cmd_ai, "IntelligentAgent", lambda *_a, **_k: dummy)
+
+    # Mock agents_dir so neither agent appears active on disk
+    agents_dir = tmp_path / "agents"
+    agents_dir.mkdir()
+    monkeypatch.setattr(cmd_ai, "_resolve_claude_dir", lambda: tmp_path)
 
     def fake_activate(name):
         return (0, "ok") if name == "a1" else (1, "boom")
@@ -154,9 +159,10 @@ def test_ai_auto_activate_handles_success_and_failure(monkeypatch: pytest.Monkey
     out = capsys.readouterr().out
 
     assert code == 1  # because one failed
-    assert "Auto-activating 2 agents" in out
+    assert "Activating 2 agents" in out
     assert "✓ a1" in out
     assert "✗ a2" in out
+    assert "Restart required" in out or "next Claude session" in out
     assert dummy.auto_marked == ["a1"]
 
 
