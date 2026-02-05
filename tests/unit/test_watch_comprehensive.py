@@ -44,7 +44,7 @@ class TestWatchMode:
         )
 
         watch = WatchMode()
-        head = watch._get_git_head()
+        head = watch._get_git_head(tmp_path)
 
         assert head == "abc123def456"
 
@@ -56,7 +56,7 @@ class TestWatchMode:
         mock_run.side_effect = Exception("Git error")
 
         watch = WatchMode()
-        head = watch._get_git_head()
+        head = watch._get_git_head(tmp_path)
 
         assert head is None
 

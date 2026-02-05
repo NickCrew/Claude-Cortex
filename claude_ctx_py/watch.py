@@ -52,7 +52,7 @@ class SkillSuggestion:
     """A suggested skill based on context."""
 
     name: str
-    command: str
+    path: str
     description: str
     hits: int  # Number of keyword matches
 
@@ -317,7 +317,7 @@ def _match_skills(
     return [
         SkillSuggestion(
             name=rule.get("name", "unknown"),
-            command=rule.get("command", ""),
+            path=rule.get("path", rule.get("name", "unknown")),
             description=rule.get("description", "").strip(),
             hits=hits,
         )
@@ -1005,10 +1005,8 @@ class WatchMode:
 
         # Show skill suggestions
         if skill_suggestions:
-            print(f"  📚 Skill Suggestions:\n")
-            for skill in skill_suggestions:
-                print(f"     🔹 {skill.command}")
-                print(f"        {skill.description} ({skill.hits} keyword match{'es' if skill.hits != 1 else ''})")
+            names = [skill.name for skill in skill_suggestions]
+            print(f"  📚 Suggested skills: {', '.join(names)}")
             print()
 
     def _handle_auto_activation(
@@ -1028,22 +1026,56 @@ class WatchMode:
         if not auto_agents:
             return
 
-        self._print_notification(
-            "⚡", f"Auto-activating {len(auto_agents)} agents...", "", "green"
-        )
+        # Check which agents are already active on disk
+        claude_dir = _resolve_claude_dir()
+        agents_dir = claude_dir / "agents"
+
+        already_active = []
+        to_activate = []
 
         for agent_name in auto_agents:
+            agent_file = agents_dir / f"{agent_name}.md"
+            if agent_file.is_file():
+                already_active.append(agent_name)
+                self.activated_agents.add(agent_name)  # Track so we don't check again
+            else:
+                to_activate.append(agent_name)
+
+        # Report already active (no action needed)
+        if already_active:
+            self._print_notification(
+                "✓", f"{len(already_active)} agent(s) already active",
+                ", ".join(already_active), "dim"
+            )
+
+        if not to_activate:
+            return
+
+        self._print_notification(
+            "⚡", f"Auto-activating {len(to_activate)} agents...", "", "green"
+        )
+
+        newly_activated = []
+        for agent_name in to_activate:
             try:
                 exit_code, message = agent_activate(agent_name)
                 if exit_code == 0:
                     self.activated_agents.add(agent_name)
                     self.auto_activations += 1
+                    newly_activated.append(agent_name)
                     print(f"     ✓ {agent_name}")
                 else:
                     print(f"     ✗ {agent_name}: Failed")
             except Exception as e:
                 print(f"     ✗ {agent_name}: {str(e)}")
 
+        if newly_activated:
+            print()
+            self._print_notification(
+                "⚠️", "Restart required",
+                f"Newly activated agents ({', '.join(newly_activated)}) will be available in your next Claude session.",
+                "yellow"
+            )
         print()
 
     def _check_for_changes(self) -> None:

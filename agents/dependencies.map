@@ -9,6 +9,7 @@ context-manager::knowledge-synthesizer,multi-agent-coordinator
 database-admin::database-optimizer,security-auditor
 database-optimizer:database-admin:data-engineer
 debugger::error-detective,test-automator
+docs-architect::technical-writer,api-documenter,reference-builder
 frontend-optimizer::react-specialist,performance-engineer
 interaction-designer::ui-ux-designer,react-specialist
 javascript-pro::typescript-pro,test-automator,docs-architect
@@ -29,6 +30,7 @@ product-strategist::ui-ux-designer,user-researcher
 prompt-engineer::ai-engineer,ml-engineer
 python-pro::test-automator,docs-architect
 react-specialist:typescript-pro:ui-ux-designer,performance-engineer,quality-engineer
+reference-builder::docs-architect,api-documenter
 refiner::code-reviewer,quality-engineer
 rest-expert::api-documenter,backend-architect,security-auditor
 rust-pro::performance-engineer,test-automator
@@ -64,7 +66,6 @@ deployment-engineer::cloud-architect,kubernetes-architect,terraform-specialist
 devops-architect::cloud-architect,kubernetes-architect,terraform-specialist
 devops-troubleshooter:incident-responder:error-detective,performance-engineer
 docker-expert::devops-architect,deployment-engineer,security-auditor
-docs-architect::technical-writer,api-documenter,reference-builder
 dx-optimizer::docs-architect,tooling-engineer
 electron-pro:javascript-pro,build-engineer:security-auditor,ui-ux-designer
 error-coordinator:context-manager,incident-responder:devops-troubleshooter,root-cause-analyst
@@ -104,7 +105,6 @@ pytorch-expert::ml-engineer,mlops-engineer,data-scientist
 quality-engineer::test-automator,performance-engineer,security-auditor
 react-specialist:typescript-pro:ui-ux-designer,performance-engineer,quality-engineer
 refactoring-expert::test-automator,code-reviewer
-reference-builder::docs-architect,api-documenter
 requirements-analyst::product-manager,business-analyst
 root-cause-analyst::context-manager,devops-troubleshooter,incident-responder
 rust-pro::performance-engineer,test-automator

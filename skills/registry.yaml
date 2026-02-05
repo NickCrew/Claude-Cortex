@@ -941,6 +941,47 @@ skills:
   # WORKFLOW & META
   # ============================================================================
 
+  beads-dispatch:
+    title: Beads Issue Dispatch
+    description: Dispatch beads issues to AI agents based on complexity labels (agent:haiku, agent:sonnet, agent:opus)
+    path: beads-dispatch/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-02"
+    updated: "2026-02-02"
+    categories:
+      - workflow
+    tags:
+      - beads
+      - issue-tracking
+      - swarm
+      - automation
+      - dispatch
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-02"
+          notes: Initial release
+          changes:
+            - Agent labeling system (haiku/sonnet/opus)
+            - Dispatch manifest generation
+            - Task prompt generation
+    activation:
+      keywords:
+        - beads dispatch
+        - issue dispatch
+        - agent swarm
+        - haiku issues
+        - sonnet issues
+        - opus issues
+        - dispatch issues
+        - swarm dispatch
+    dependencies:
+      - dispatching-parallel-agents
+    status: active
+    license: MIT
+
   skill-creator:
     title: Skill Creator
     description: Guide for creating effective skills that extend Claude's capabilities with specialized knowledge and workflows

@@ -112,7 +112,7 @@ def ai_auto_activate() -> int:
     Returns:
         Exit code (0 for success)
     """
-    from .core import agent_activate
+    from .core import agent_activate, _resolve_claude_dir as resolve_dir
 
     # Initialize intelligent agent
     claude_dir = _resolve_claude_dir()
@@ -129,12 +129,35 @@ def ai_auto_activate() -> int:
         print("   Current context doesn't warrant automatic changes.")
         return 0
 
-    print(f"🤖 Auto-activating {len(auto_agents)} agents...\n")
+    # Check which agents are already active
+    agents_dir = claude_dir / "agents"
+    already_active = []
+    to_activate = []
+
+    for agent_name in auto_agents:
+        agent_file = agents_dir / f"{agent_name}.md"
+        if agent_file.is_file():
+            already_active.append(agent_name)
+        else:
+            to_activate.append(agent_name)
+
+    # Report already active agents
+    if already_active:
+        print(f"🤖 Already active ({len(already_active)} agents):")
+        for agent_name in already_active:
+            print(f"   ✓ {agent_name}")
+        print()
+
+    if not to_activate:
+        print("No new agents to activate.")
+        return 0
+
+    print(f"🤖 Activating {len(to_activate)} agents...\n")
 
     activated = []
     failed = []
 
-    for agent_name in auto_agents:
+    for agent_name in to_activate:
         try:
             exit_code, message = agent_activate(agent_name)
             if exit_code == 0:
@@ -148,9 +171,10 @@ def ai_auto_activate() -> int:
             failed.append(agent_name)
             print(f"✗ {agent_name}: {str(e)}")
 
-    print(f"\n✓ Activated {len(activated)}/{len(auto_agents)} agents")
     if activated:
-        print(RESTART_REQUIRED_MESSAGE)
+        print(f"\n✓ Activated {len(activated)} agent(s)")
+        print(f"\n⚠️  {RESTART_REQUIRED_MESSAGE}")
+        print("   Newly activated agents will be available in your next Claude session.")
 
     if failed:
         print(f"✗ Failed: {', '.join(failed)}")
