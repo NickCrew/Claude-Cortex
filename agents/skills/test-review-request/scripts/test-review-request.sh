@@ -22,9 +22,16 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_DIR="$(dirname "$SCRIPT_DIR")"
-REPO_ROOT="$(cd "$SKILL_DIR/../.." && pwd)"
+# Resolve physical paths to handle symlink invocation (e.g. ~/.codex/skills/...)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
+
+# Find repo root via git (works regardless of symlink depth)
+REPO_ROOT="$(cd "$SKILL_DIR" && git rev-parse --show-toplevel 2>/dev/null)" || {
+    echo "Error: Could not determine repository root from $SKILL_DIR" >&2
+    exit 1
+}
+
 PROMPT_TEMPLATE="$SKILL_DIR/references/audit-prompt.md"
 
 # Reference files baked into the prompt
