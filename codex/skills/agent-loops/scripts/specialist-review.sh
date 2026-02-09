@@ -3,25 +3,30 @@
 # specialist-review.sh — Invoke a multi-perspective specialist review via Claude CLI
 #
 # Usage:
-#   specialist-review.sh <diff-file> [output-dir]
-#   specialist-review.sh --git [base-ref] [output-dir]
-#   cat changes.diff | specialist-review.sh - [output-dir]
+#   specialist-review.sh [options] [-- path...]
+#   specialist-review.sh <diff-file> [--output <dir>]
+#   cat changes.diff | specialist-review.sh - [--output <dir>]
+#
+# Options:
+#   --git [base-ref]   Diff against base-ref (default: HEAD~1)
+#   --output <dir>     Output directory (default: .beads/reviews)
+#   -- path...         Limit git diff to these paths (passed to git diff)
 #
 # Examples:
-#   # Review a diff file
-#   specialist-review.sh /tmp/changes.diff
-#
-#   # Review current uncommitted changes
+#   # Review current changes vs last commit
 #   specialist-review.sh --git
 #
-#   # Review changes since a specific ref
-#   specialist-review.sh --git origin/main
+#   # Review only files you touched
+#   specialist-review.sh --git -- src/parser/ src/auth.rs
+#
+#   # Review changes since a specific ref, scoped to a directory
+#   specialist-review.sh --git origin/main -- claude_ctx_py/
 #
 #   # Pipe a diff in
-#   git diff HEAD~3..HEAD | specialist-review.sh -
+#   git diff HEAD~3..HEAD -- src/ | specialist-review.sh -
 #
-#   # Specify output directory
-#   specialist-review.sh /tmp/changes.diff .beads/reviews
+#   # Review a diff file
+#   specialist-review.sh /tmp/changes.diff
 #
 # Output:
 #   Writes review to <output-dir>/review-<timestamp>.md
@@ -36,18 +41,43 @@ PROMPT_TEMPLATE="$SKILL_DIR/references/review-prompt.md"
 
 # --- Argument parsing ---
 
-DIFF_SOURCE="${1:---git}"
-OUTPUT_DIR=""
-BASE_REF=""
+DIFF_SOURCE="--git"
+OUTPUT_DIR=".beads/reviews"
+BASE_REF="HEAD~1"
+PATH_FILTERS=()
 
-if [[ "$DIFF_SOURCE" == "--git" ]]; then
-    BASE_REF="${2:-HEAD~1}"
-    OUTPUT_DIR="${3:-.beads/reviews}"
-elif [[ "$DIFF_SOURCE" == "-" ]]; then
-    OUTPUT_DIR="${2:-.beads/reviews}"
-else
-    OUTPUT_DIR="${2:-.beads/reviews}"
-fi
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --git)
+            DIFF_SOURCE="--git"
+            shift
+            # Next arg is base-ref if it doesn't start with -- or -
+            if [[ $# -gt 0 && ! "$1" =~ ^- ]]; then
+                BASE_REF="$1"
+                shift
+            fi
+            ;;
+        --output)
+            shift
+            OUTPUT_DIR="${1:-.beads/reviews}"
+            shift
+            ;;
+        --)
+            shift
+            PATH_FILTERS=("$@")
+            break
+            ;;
+        -)
+            DIFF_SOURCE="-"
+            shift
+            ;;
+        *)
+            # Positional: treat as diff file
+            DIFF_SOURCE="$1"
+            shift
+            ;;
+    esac
+done
 
 # --- Resolve diff content ---
 
@@ -56,10 +86,24 @@ PROMPT_FILE=$(mktemp /tmp/specialist-review-prompt.XXXXXX)
 trap 'rm -f "$DIFF_FILE" "$PROMPT_FILE"' EXIT
 
 if [[ "$DIFF_SOURCE" == "--git" ]]; then
-    if ! git diff "$BASE_REF"..HEAD > "$DIFF_FILE" 2>/dev/null; then
-        git diff > "$DIFF_FILE"
+    GIT_DIFF_ARGS=("$BASE_REF"..HEAD)
+    if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+        GIT_DIFF_ARGS+=(-- "${PATH_FILTERS[@]}")
     fi
-    git diff --cached >> "$DIFF_FILE" 2>/dev/null || true
+    if ! git diff "${GIT_DIFF_ARGS[@]}" > "$DIFF_FILE" 2>/dev/null; then
+        # Fallback: uncommitted changes only
+        if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+            git diff -- "${PATH_FILTERS[@]}" > "$DIFF_FILE"
+        else
+            git diff > "$DIFF_FILE"
+        fi
+    fi
+    # Also include staged changes
+    if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+        git diff --cached -- "${PATH_FILTERS[@]}" >> "$DIFF_FILE" 2>/dev/null || true
+    else
+        git diff --cached >> "$DIFF_FILE" 2>/dev/null || true
+    fi
 elif [[ "$DIFF_SOURCE" == "-" ]]; then
     cat > "$DIFF_FILE"
 else

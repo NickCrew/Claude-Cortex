@@ -70,27 +70,33 @@ Non-Claude agents do not have access to these skills.
 #### How to Invoke
 
 ```bash
-# Review current changes vs last commit
+# Review only the files you changed (RECOMMENDED)
+scripts/specialist-review.sh --git -- src/parser/ src/auth.rs
+
+# Review changes since a specific ref, scoped to a directory
+scripts/specialist-review.sh --git origin/main -- claude_ctx_py/
+
+# Review all changes vs last commit (use sparingly in monorepos)
 scripts/specialist-review.sh --git
 
-# Review changes since a specific ref
-scripts/specialist-review.sh --git origin/main
+# Pipe in a pre-filtered diff
+git diff HEAD~3..HEAD -- src/ | scripts/specialist-review.sh -
 
 # Review a diff file
 scripts/specialist-review.sh /path/to/changes.diff
 
-# Pipe in a diff
-git diff HEAD~5..HEAD | scripts/specialist-review.sh -
-
 # Custom output directory
-scripts/specialist-review.sh --git HEAD~1 ./my-reviews
+scripts/specialist-review.sh --git --output ./my-reviews -- src/
 ```
 
 Read the output file path printed to stdout:
 ```bash
-REVIEW_FILE=$(scripts/specialist-review.sh --git origin/main)
+REVIEW_FILE=$(scripts/specialist-review.sh --git -- src/parser/)
 cat "$REVIEW_FILE"
 ```
+
+**Always scope to the files you touched.** In a monorepo, an unscoped `--git` sends
+the entire repo diff to Claude, wasting tokens and risking timeouts.
 
 #### Anti-Patterns
 
@@ -192,8 +198,8 @@ ENTRY: Task spec or ticket describing the required change.
        │
        ▼
 ┌──────────────────┐
-│ specialist-review│ ← Run: scripts/specialist-review.sh --git
-└──────┬───────────┘   Script diffs HEAD, sends to Claude, returns findings
+│ specialist-review│ ← Run: scripts/specialist-review.sh --git -- <files>
+└──────┬───────────┘   Script diffs your changed files, sends to Claude
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
@@ -209,9 +215,9 @@ ENTRY: Task spec or ticket describing the required change.
                                                  │
                                                  ▼
                                           ┌──────────────────┐
-                                          │ specialist-review│ ← Run script again
-                                          └──────┬───────────┘   Script diffs remediated
-                                                 │               code, Claude re-evaluates
+                                          │ specialist-review│ ← Run script again (same paths)
+                                          └──────┬───────────┘   Script diffs remediated files,
+                                                 │               Claude re-evaluates
                                                  └── Loop back to findings check
 ```
 
@@ -444,7 +450,7 @@ After both loops exit, file issues for everything that was deferred.
 - Writing implementation code
 - Writing test code
 - Running tests locally and verifying they pass
-- Running `scripts/specialist-review.sh --git` after implementation and each code remediation
+- Running `scripts/specialist-review.sh --git -- <your-files>` after implementation and each code remediation
 - Running `scripts/test-review-request.sh <module>` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
 - Filing P2/P3 issues when loop exits
@@ -496,7 +502,7 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
        ▼
 2. CODE CHANGE LOOP
    ├── You: implement
-   ├── scripts/specialist-review.sh --git → Claude reviews diff (max 3 cycles)
+   ├── scripts/specialist-review.sh --git -- <files> → Claude reviews diff (max 3 cycles)
    ├── You: remediate P0/P1
    ├── File issues for P2/P3
    └── Exit with clean code
