@@ -21,7 +21,7 @@ report — not test code.
 
 ## Pipeline
 
-This skill is a two-phase pipeline. Execute the phases in order. Do not skip
+This skill is a three-phase pipeline. Execute the phases in order. Do not skip
 Phase 1 — the standards must be loaded before reviewing any test code.
 
 ### Phase 1: Load the Standards
@@ -44,22 +44,78 @@ This file defines:
 must reference a specific standard from this file. Do not invent standards — use
 the ones defined here.
 
-### Phase 2: Execute the Audit
+### Phase 2: Discovery (Haiku Agent)
 
-Read the audit workflow and follow it step by step:
+Spawn a **Haiku sub-agent** to perform the mechanical discovery work — Steps 1
+and 2 of the audit workflow. This keeps the main context clean for analysis.
+
+Read the audit workflow first so you understand what the agent needs to do:
 
 ```
 cat skills/test-review/references/audit-workflow.md
 ```
 
-This file defines the four-step audit process:
-1. **Map the public contract** — list every behavior the module promises
-2. **Map existing test coverage** — mark each behavior as covered, shallow, or missing
-3. **Adversarial analysis** — probe input boundaries, error handling, state, integration seams
-4. **Produce the gap report** — prioritized findings in the format defined in the file
+Then launch a Haiku agent with a prompt that includes:
+1. The module path(s) to audit
+2. Instructions to execute **Step 1: Map the Public Contract** — read all source
+   files and produce the plain-English behavior list
+3. Instructions to execute **Step 2: Map Existing Test Coverage** — read all test
+   files, map each test to a behavior from Step 1, and mark each behavior as
+   Covered, Shallow, or Missing
 
-Follow the process exactly as written. The output format (gap report with P0/P1/P2
-priority tiers) is defined in TEST-AUDIT.md. Use it.
+The agent prompt must tell it to return a structured inventory:
+- The complete behavior list from Step 1
+- The coverage mapping from Step 2 with status markers
+- A list of all source files and test files it read
+
+**Do not ask the Haiku agent to analyze, prioritize, or judge.** Its job is to
+read code and produce a factual inventory. Analysis happens in Phase 3.
+
+Example agent launch (adapt paths to the actual module):
+
+```
+Task tool:
+  subagent_type: Explore
+  model: haiku
+  prompt: |
+    Read the audit workflow at skills/test-review/references/audit-workflow.md.
+    Then execute Steps 1 and 2 for the module at [MODULE_PATH].
+
+    Step 1 - Map the Public Contract:
+    Read every source file in the module. List every public behavior it promises
+    as plain-English statements (see audit-workflow.md for format and examples).
+
+    Step 2 - Map Existing Test Coverage:
+    Read every test file that covers this module. For each test, record what
+    behavior it exercises and whether assertions are meaningful. Mark each
+    behavior from Step 1 as:
+    - Covered: at least one test verifies this with meaningful assertions
+    - Shallow: a test touches this but doesn't properly verify it
+    - Missing: no test exercises this behavior
+
+    Return:
+    1. Source files read (paths)
+    2. Test files read (paths)
+    3. Complete behavior list with coverage status markers
+    4. For each Shallow entry, note what the test does and why it's insufficient
+
+    Do NOT prioritize, analyze risk, or produce a gap report. Just inventory.
+```
+
+### Phase 3: Analysis and Report
+
+Using the Haiku agent's inventory, **you** (the main agent) perform the deeper
+analysis work — Steps 3 and 4 of the audit workflow:
+
+- **Step 3: Adversarial analysis** — probe input boundaries, error handling,
+  state, integration seams. Use the questions from audit-workflow.md against the
+  behavior inventory. You may need to read specific source files to answer them.
+- **Step 4: Produce the gap report** — assign P0/P1/P2 priorities using the
+  criteria defined in audit-workflow.md, cite testing-standards.md rules, and
+  produce the full report in the format specified.
+
+The adversarial analysis and priority assignment require judgment that only the
+main agent should perform. Do not delegate these to a sub-agent.
 
 ## Operating Rules
 
@@ -85,14 +141,14 @@ priority tiers) is defined in TEST-AUDIT.md. Use it.
 
 ### Full Audit (default)
 
-Execute both phases completely. Produces the full gap report.
+Execute all three phases. Produces the full gap report.
 
 Use when: "audit tests for module X", "review test coverage", preparing for production.
 
 ### Quick Review
 
 Load testing-standards.md, then review specific test files against the anti-patterns and
-self-check checklist only. Skip the full contract-mapping and adversarial analysis.
+self-check checklist only. Skip Phase 2 (Haiku discovery) and the adversarial analysis.
 
 Use when: reviewing a PR's test changes, spot-checking a single test file,
 "are these tests ok?"
