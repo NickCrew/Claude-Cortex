@@ -2,21 +2,17 @@ You are performing a test coverage audit. Follow these instructions exactly.
 
 ## CRITICAL CONSTRAINTS
 
-1. **Load the test-review skill first.** Read it before doing anything else:
+1. **Do NOT spawn sub-agents.** You are running in a CLI invocation with a fresh context. Do all work directly — reading files, mapping behaviors, analyzing gaps. Sub-agents add latency and indirection you don't need here.
 
-```
-cat skills/test-review/SKILL.md
-```
+2. **Write the report to disk.** The report MUST be saved to a file using the Write tool.
 
-2. **Follow the skill pipeline exactly.** The test-review skill defines a three-phase pipeline. Execute all three phases in order.
-
-3. **Write the report to disk.** The report MUST be saved to a file using the Write tool.
+3. **Stay focused on the target module.** Do not audit the entire codebase. Only audit the specified module and its tests.
 
 ## PROCEDURE
 
-### Phase 1: Load the Standards
+### Step 1: Load the Standards
 
-As specified by the test-review skill, read the testing standards:
+Read the testing standards so you know what good tests look like:
 
 ```
 cat skills/test-review/references/testing-standards.md
@@ -24,33 +20,50 @@ cat skills/test-review/references/testing-standards.md
 
 Internalize the anti-patterns, required test categories, and quality criteria before reading any test code.
 
-### Phase 2: Discovery (Haiku Agent)
+### Step 2: Load the Audit Workflow
 
-As specified by the test-review skill, spawn a Haiku sub-agent (using the Task tool with `model: haiku` and `subagent_type: Explore`) to perform the mechanical discovery work.
+Read the audit workflow so you know the gap report format and priority criteria:
 
-The agent should:
-1. Read the audit workflow: `skills/test-review/references/audit-workflow.md`
-2. Execute **Step 1: Map the Public Contract** for the module at: `{{MODULE_PATH}}`
-3. Execute **Step 2: Map Existing Test Coverage** using test files at: `{{TEST_PATH}}`
-4. Return the structured inventory (behavior list with coverage status markers)
+```
+cat skills/test-review/references/audit-workflow.md
+```
 
-Do NOT ask the Haiku agent to analyze, prioritize, or judge. Its job is factual inventory only.
+### Step 3: Map the Public Contract
 
-### Phase 3: Analysis and Report
+Read the source files at `{{MODULE_PATH}}` and list every public behavior:
+- Public functions/methods with their signatures
+- Error conditions and edge cases
+- State transitions and side effects
+- Integration points (external calls, I/O)
 
-Using the Haiku agent's inventory, perform the deeper analysis:
+### Step 4: Map Existing Test Coverage
 
-1. **Adversarial analysis** (Step 3 of audit-workflow.md) — probe input boundaries, error handling, state, integration seams using the questions defined in the workflow
-2. **Produce the gap report** (Step 4 of audit-workflow.md) — assign P0/P1/P2 priorities using the criteria in audit-workflow.md, cite testing-standards.md rules
+Read the test files at `{{TEST_PATH}}` and mark each behavior from Step 3 as:
+- **Covered** — a test exercises this behavior with meaningful assertions
+- **Shallow** — a test touches this code path but assertions are weak (mirror test, trivial assert, no edge case)
+- **Missing** — no test exercises this behavior
 
-### Phase 4: Save
+### Step 5: Analyze and Prioritize
+
+For each Missing or Shallow behavior:
+1. Assess risk: what happens if this behavior breaks silently?
+2. Assign priority per audit-workflow.md criteria (P0/P1/P2)
+3. For Shallow tests, note the specific quality issue (mirror, flaky, trivial, etc.)
+
+### Step 6: Write the Report
 
 Write the COMPLETE gap report to this file:
 ```
 {{OUTPUT_FILE}}
 ```
 
-Use the Write tool to save the report. The file must contain the full gap report in the format defined by audit-workflow.md. After writing, confirm by stating the output file path.
+Use the Write tool to save the report. The report must include:
+- Behavior inventory (all public behaviors with coverage status)
+- Prioritized gap list (P0 first, then P1, then P2)
+- For each gap: what's missing, why it matters, suggested test approach
+- For shallow tests: what's wrong and how to fix it
+
+After writing, confirm by stating the output file path.
 
 ## AUDIT TARGET
 
