@@ -1,23 +1,32 @@
 ---
 name: multi-perspective-analysis
-description: Assemble and coordinate virtual expert teams for complex problem analysis from multiple perspectives.
+description: Adopt multiple expert personas sequentially for complex problem analysis from diverse perspectives. Single-agent only — do NOT spawn sub-agents.
 keywords:
-  - orchestration
   - multi-perspective
-  - expert team
+  - expert personas
   - synthesis
-  - collaboration
+  - diverse viewpoints
 triggers:
   - multiple perspectives
   - expert analysis
-  - team review
   - diverse viewpoints
-  - orchestrate
+  - different angles
 ---
 
 # Multi-Perspective Analysis Skill
 
-Assemble and coordinate teams of virtual expert personas to analyze complex problems from multiple perspectives, generating insights unavailable from any single viewpoint.
+Adopt multiple expert personas sequentially to analyze complex problems from
+diverse perspectives, generating insights unavailable from any single viewpoint.
+
+## NO SUB-AGENTS
+
+**You are a single agent who adopts different expert perspectives one at a time.
+Do NOT use the Task tool. Do NOT spawn sub-agents, teammates, or parallel workers.
+Each "expert" is a lens you look through — not a separate process.**
+
+The orchestration patterns below describe the ORDER in which you adopt perspectives,
+not a delegation strategy. "Parallel" means you analyze independently from each
+perspective before synthesizing — not that multiple agents run simultaneously.
 
 ## When to Use This Skill
 
@@ -31,64 +40,63 @@ Assemble and coordinate teams of virtual expert personas to analyze complex prob
 
 ### Complexity Scaling
 
-| Complexity | Team Size | Structure |
-|------------|-----------|-----------|
-| Simple | 3-4 experts | Single-phase analysis, direct synthesis |
-| Moderate | 5-6 experts | Two-phase analysis, structured disagreement |
-| Complex | 7-9 experts | Multi-phase with hierarchical synthesis |
-| Enterprise | 10+ experts | Teams-of-teams coordination |
+| Complexity | Perspectives | Structure |
+|------------|-------------|-----------|
+| Simple | 3-4 | Single pass through each, then synthesize |
+| Moderate | 5-6 | Two passes (initial + challenge round), then synthesize |
+| Complex | 7-9 | Group into layers, synthesize per layer, then overall |
 
-### Team Composition Template
+### Persona Definition Template
 
 ```markdown
-## [Problem Domain] Expert Team
+## [Problem Domain] Perspectives
 
-**Mission**: [Clear statement of team purpose]
+**Mission**: [Clear statement of analysis purpose]
 
-### Team Composition
+### Perspectives
 
-#### [Expert Title] (ID)
-**Background**: [Relevant expertise]
-**Domain Vocabulary**: [5-7 key terms]
-**Characteristic Question**: "[What they always ask]"
-**Analytical Lens**: [Unique perspective]
+#### [Expert Title]
+**Background**: [Relevant expertise you adopt]
+**Domain Vocabulary**: [5-7 key terms to use in this lens]
+**Characteristic Question**: "[What this persona always asks]"
+**Analytical Lens**: [Unique perspective this persona brings]
 ```
 
-## Orchestration Patterns
+## Perspective Ordering Patterns
 
-### Sequential Pattern
+These describe the order in which YOU adopt each perspective. You are one agent
+switching lenses — not multiple agents running in parallel.
+
+### Sequential
 Best for: Problems with clear dependency chains
 ```
-Expert A → Expert B → Expert C → Synthesis
-(Each builds on previous insights)
+Adopt Perspective A → Adopt Perspective B → Adopt Perspective C → Synthesize
+(Each perspective builds on insights from the previous one)
 ```
 
-### Parallel Pattern
-Best for: Problems needing diverse simultaneous perspectives
+### Independent-then-Synthesize
+Best for: Problems needing diverse unbiased perspectives
 ```
-Expert A ─┐
-Expert B ─┼→ Synthesis
-Expert C ─┘
-(Independent analysis, combined insights)
+Adopt Perspective A (record findings)
+Adopt Perspective B (record findings, don't reference A's)
+Adopt Perspective C (record findings, don't reference A's or B's)
+→ Synthesize all findings together
 ```
 
-### Dialectical Pattern
+### Dialectical
 Best for: Problems with competing valid approaches
 ```
-Thesis (Expert A) ←→ Antithesis (Expert B) → Synthesis
-(Structured opposition yields breakthrough)
+Adopt Perspective A (thesis) → Adopt Perspective B (challenge A's findings)
+→ Synthesize the tension into a resolution
 ```
 
-### Hierarchical Pattern
+### Layered
 Best for: Complex multi-level decisions
 ```
-Strategic Layer (Experts A, B)
-        ↓
-Tactical Layer (Experts C, D, E)
-        ↓
-Operational Layer (Experts F, G)
-        ↓
-    Synthesis
+Adopt strategic perspectives (A, B) → synthesize strategic layer
+Adopt tactical perspectives (C, D, E) → synthesize tactical layer
+Adopt operational perspectives (F, G) → synthesize operational layer
+→ Final synthesis across all layers
 ```
 
 ## Voice Differentiation Guidelines
@@ -99,12 +107,12 @@ Each expert maintains distinct:
 - **Metaphors**: Teaching analogies from their field
 - **Reasoning**: Characteristic analytical patterns
 
-## Expert Contribution Template
+## Per-Perspective Output Template
 
 ```markdown
 ### [Expert Title] Perspective
 
-Looking at this through my lens as a [role], I notice...
+Adopting the lens of a [role], I notice...
 
 **Key Insight**: [Primary contribution from this perspective]
 **Trade-off Identified**: [What this view reveals about tensions]
@@ -135,7 +143,7 @@ Looking at this through my lens as a [role], I notice...
 ## Synthesis Template
 
 ```markdown
-## Expert Team Synthesis
+## Multi-Perspective Synthesis
 
 ### Convergent Insights
 [Where experts agree and why this matters]
@@ -159,8 +167,8 @@ Looking at this through my lens as a [role], I notice...
 
 ## Success Indicators
 
-- Generation of insights unavailable from single perspectives
-- Successful assumption challenging leading to better solutions
-- Effective voice differentiation across experts
-- Productive disagreement resolved into robust outcomes
+- Insights that only emerged from combining multiple perspectives
+- Assumptions challenged and resolved into better solutions
+- Distinct voice and vocabulary for each adopted perspective
+- Productive tensions resolved into robust outcomes
 - Clear actionable recommendations with trade-off awareness
