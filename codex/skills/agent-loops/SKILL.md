@@ -192,8 +192,8 @@ ENTRY: Task spec or ticket describing the required change.
        │
        ▼
 ┌──────────────────┐
-│ specialist-review│ ← Invoke skill: send changed files + spec to Claude
-└──────┬───────────┘   Claude returns findings with severities
+│ specialist-review│ ← Run: scripts/specialist-review.sh --git
+└──────┬───────────┘   Script diffs HEAD, sends to Claude, returns findings
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
@@ -209,9 +209,9 @@ ENTRY: Task spec or ticket describing the required change.
                                                  │
                                                  ▼
                                           ┌──────────────────┐
-                                          │ specialist-review│ ← Invoke skill again
-                                          └──────┬───────────┘   Send ONLY the remediated
-                                                 │               files + prior findings
+                                          │ specialist-review│ ← Run script again
+                                          └──────┬───────────┘   Script diffs remediated
+                                                 │               code, Claude re-evaluates
                                                  └── Loop back to findings check
 ```
 
@@ -327,8 +327,8 @@ The audit does double duty: it finds missing coverage AND flags bad tests (mirro
 ENTRY: Code change loop has exited cleanly.
 
 ┌──────────────────────┐
-│  AUDIT               │ ← Invoke test-review-request for changed modules
-└──────┬───────────────┘   Output: gap report (missing + bad tests)
+│  AUDIT               │ ← Run: scripts/test-review-request.sh <module>
+└──────┬───────────────┘   Script sends module + tests to Claude, returns gap report
        │
        ▼
 ┌──────────────────────┐
@@ -348,9 +348,9 @@ ENTRY: Code change loop has exited cleanly.
        │                   3. Actually exercise the code (not no-ops)
        ▼
 ┌──────────────────────┐
-│  RE-AUDIT            │ ← Invoke test-review-request again
-└──────┬───────────────┘   Same module, same test path
-       │                   Checks: gaps closed? new tests good?
+│  RE-AUDIT            │ ← Run: scripts/test-review-request.sh <module>
+└──────┬───────────────┘   Same module path — script re-reads source + tests
+       │                   Claude checks: gaps closed? new tests good?
        │
        ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
        │                                   Exit loop ✅
@@ -444,8 +444,8 @@ After both loops exit, file issues for everything that was deferred.
 - Writing implementation code
 - Writing test code
 - Running tests locally and verifying they pass
-- Invoking `specialist-review` after implementation and each code remediation
-- Invoking `test-review-request` for initial audit and each re-audit
+- Running `scripts/specialist-review.sh --git` after implementation and each code remediation
+- Running `scripts/test-review-request.sh <module>` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
 - Filing P2/P3 issues when loop exits
 - Escalating when circuit breaker triggers
@@ -460,7 +460,7 @@ After both loops exit, file issues for everything that was deferred.
 If Claude flags something you believe is incorrect:
 1. Do NOT silently ignore the finding.
 2. In your remediation response, explicitly state: `Disputed P1-003: [your reasoning]`
-3. Send back to `specialist-review` / `test-review-request` with the dispute noted.
+3. Run the script again with the dispute noted in your commit/changes.
 4. Claude will either accept your reasoning or reaffirm the finding with additional context.
 5. If still disputed after 2 cycles, escalate to human — do not loop forever on a disagreement.
 
@@ -496,18 +496,18 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
        ▼
 2. CODE CHANGE LOOP
    ├── You: implement
-   ├── specialist-review → Claude reviews (max 3 cycles)
+   ├── scripts/specialist-review.sh --git → Claude reviews diff (max 3 cycles)
    ├── You: remediate P0/P1
    ├── File issues for P2/P3
    └── Exit with clean code
        │
        ▼
 3. TEST WRITING LOOP
-   ├── test-review-request → Claude audits (gaps + quality)
+   ├── scripts/test-review-request.sh <module> → Claude audits (gaps + quality)
    ├── Human: scope approval (P0/P1 auto-approved)
    ├── You: write tests (testing-standards.md)
    ├── You: verify tests pass locally
-   ├── test-review-request → Claude re-audits (max 3 cycles)
+   ├── scripts/test-review-request.sh <module> → Claude re-audits (max 3 cycles)
    ├── You: remediate P0/P1 gaps and bad tests
    ├── File issues for P2/P3
    └── Exit with tested code
