@@ -101,6 +101,8 @@ from ..core import (
     validate_hooks_config_file,
     _write_active_entries,
     scan_codex_skill_status,
+    scan_codex_native_skills,
+    _resolve_codex_native_skills_dir,
     link_codex_skill,
     unlink_codex_skill,
     link_codex_skills_by_category,
@@ -269,6 +271,7 @@ class AgentTUI(App[None]):
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
         self.skills: List[Dict[str, Any]] = []
         self.codex_skills_status: Dict[str, bool] = {}
+        self.codex_native_skills: List[Dict[str, Any]] = []
         self.slash_commands: List[SlashCommandInfo] = []
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
@@ -821,6 +824,22 @@ class AgentTUI(App[None]):
 
     def _selected_skill(self) -> Optional[Dict[str, Any]]:
         index = self._table_cursor_index()
+        # In codex_skills view, index into combined list (codex-native first)
+        if self.current_view == "codex_skills":
+            combined: List[Dict[str, Any]] = []
+            for s in getattr(self, "codex_native_skills", []):
+                entry = dict(s)
+                entry["source"] = "codex"
+                combined.append(entry)
+            for s in self.skills:
+                entry = dict(s)
+                entry.setdefault("source", "claude")
+                combined.append(entry)
+            if index is None or not combined:
+                return None
+            if index < 0 or index >= len(combined):
+                return None
+            return combined[index]
         skills = self.skills
         if index is None or not skills:
             return None
@@ -1172,6 +1191,31 @@ class AgentTUI(App[None]):
             self.codex_skills_status = {}
             self.log(f"Error loading Codex skills status: {e}")
 
+    def load_codex_native_skills(self) -> None:
+        """Load codex-native skills from codex/skills/ directory."""
+        try:
+            native_dir = _resolve_codex_native_skills_dir()
+            claude_dir = _resolve_claude_dir()
+            results: List[Dict[str, Any]] = []
+
+            if native_dir.exists():
+                for skill_dir in sorted(native_dir.iterdir()):
+                    if not skill_dir.is_dir():
+                        continue
+                    skill_file = skill_dir / "SKILL.md"
+                    if not skill_file.is_file():
+                        continue
+
+                    skill_data = self._parse_skill_file(skill_file, claude_dir)
+                    if skill_data:
+                        skill_data["source"] = "codex"
+                        results.append(skill_data)
+
+            self.codex_native_skills = results
+        except Exception as e:
+            self.codex_native_skills = []
+            self.log(f"Error loading codex-native skills: {e}")
+
     def load_slash_commands(self) -> None:
         """Load slash command metadata from the skills directory."""
         try:
@@ -1495,13 +1539,17 @@ class AgentTUI(App[None]):
 
     def show_codex_skills_view(self, table: DataTable[Any]) -> None:
         """Show Codex skills with symlink status."""
+        table.add_column("Source", key="source", width=10)
         table.add_column("Name", key="name", width=30)
         table.add_column("Category", key="category", width=18)
         table.add_column("Linked", key="linked", width=10)
         table.add_column("Description", key="description")
 
-        if not hasattr(self, "skills") or not self.skills:
-            table.add_row("[dim]No skills found[/dim]", "", "", "")
+        has_claude = hasattr(self, "skills") and self.skills
+        has_codex = hasattr(self, "codex_native_skills") and self.codex_native_skills
+
+        if not has_claude and not has_codex:
+            table.add_row("[dim]No skills found[/dim]", "", "", "", "")
             return
 
         # Load registry for category metadata
@@ -1512,13 +1560,35 @@ class AgentTUI(App[None]):
         except Exception:
             categories = {}
 
-        for skill in self.skills:
-            skill_name = skill["slug"]
+        # Build combined skill list: codex-native first, then claude
+        combined: List[Dict[str, Any]] = []
 
-            # Get category icon
-            category_key = skill["category"]
-            category_data = categories.get(category_key, {})
-            icon = category_data.get("icon", "📦")
+        # Codex-native skills (from codex/skills/)
+        for skill in getattr(self, "codex_native_skills", []):
+            entry = dict(skill)
+            entry["source"] = "codex"
+            combined.append(entry)
+
+        # Claude skills (from skills/ registry)
+        for skill in getattr(self, "skills", []):
+            entry = dict(skill)
+            entry.setdefault("source", "claude")
+            combined.append(entry)
+
+        for skill in combined:
+            skill_name = skill["slug"]
+            source = skill.get("source", "claude")
+
+            # Source label
+            if source == "codex":
+                source_text = "[magenta]codex[/magenta]"
+                icon = "🤖"
+            else:
+                source_text = "[cyan]claude[/cyan]"
+                # Get category icon from registry
+                category_key = skill["category"]
+                category_data = categories.get(category_key, {})
+                icon = category_data.get("icon", "📦")
 
             # Format name with icon
             name = f"{icon} [bold]{skill['name']}[/bold]"
@@ -1526,8 +1596,22 @@ class AgentTUI(App[None]):
             # Category with color
             category_text = f"[cyan]{skill['category']}[/cyan]"
 
-            # Linked status
+            # Linked status — check codex_skills_status for both types
             is_linked = self.codex_skills_status.get(skill_name, False)
+            # For codex-native, also check via scan_codex_native_skills data
+            if source == "codex":
+                for ns in getattr(self, "codex_native_skills", []):
+                    if ns.get("slug") == skill_name:
+                        # Re-check from the native scan which has is_linked
+                        native_dir = _resolve_codex_native_skills_dir()
+                        codex_target = Path.home() / ".codex" / "skills" / skill_name
+                        native_source = native_dir / skill_name
+                        is_linked = (
+                            codex_target.is_symlink()
+                            and codex_target.resolve() == native_source.resolve()
+                        )
+                        break
+
             linked_text = (
                 "[green]✓ Yes[/green]" if is_linked
                 else "[dim]○ No[/dim]"
@@ -1536,7 +1620,9 @@ class AgentTUI(App[None]):
             # Description truncated
             desc = skill["description"][:100].replace("[", "\\[")
 
-            table.add_row(name, category_text, linked_text, f"[dim]{desc}[/dim]")
+            table.add_row(
+                source_text, name, category_text, linked_text, f"[dim]{desc}[/dim]"
+            )
 
     def show_commands_view(self, table: AnyDataTable) -> None:
         """Render slash command catalog."""
@@ -3982,8 +4068,13 @@ class AgentTUI(App[None]):
     def action_view_codex_skills(self) -> None:
         """Switch to Codex skills linking view."""
         self.load_codex_skills_status()
+        self.load_codex_native_skills()
         self.current_view = "codex_skills"
-        self.status_message = "Switched to Codex Skills"
+        claude_count = len(self.skills)
+        codex_count = len(self.codex_native_skills)
+        self.status_message = (
+            f"Loaded {claude_count} claude skills, {codex_count} codex skills"
+        )
         self.notify("🔗 Codex Skills", severity="information", timeout=1)
 
     def action_view_commands(self) -> None:
@@ -7267,6 +7358,7 @@ class AgentTUI(App[None]):
             self.load_mcp_docs()
         elif self.current_view == "codex_skills":
             self.load_codex_skills_status()
+            self.load_codex_native_skills()
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
@@ -7399,17 +7491,30 @@ class AgentTUI(App[None]):
             return
 
         skill_name = skill["slug"]
-        is_linked = self.codex_skills_status.get(skill_name, False)
+        source = skill.get("source", "claude")
+
+        # Determine source dir and linked status
+        if source == "codex":
+            source_dir = _resolve_codex_native_skills_dir()
+            codex_target = Path.home() / ".codex" / "skills" / skill_name
+            is_linked = (
+                codex_target.is_symlink()
+                and codex_target.resolve() == (source_dir / skill_name).resolve()
+            )
+        else:
+            source_dir = None  # uses default cortex skills root
+            is_linked = self.codex_skills_status.get(skill_name, False)
 
         if is_linked:
             exit_code, msg = unlink_codex_skill(skill_name)
         else:
-            exit_code, msg = link_codex_skill(skill_name)
+            exit_code, msg = link_codex_skill(skill_name, source_dir=source_dir)
 
         self.status_message = msg
         if exit_code == 0:
             self.notify(msg, severity="information", timeout=2)
             self.load_codex_skills_status()
+            self.load_codex_native_skills()
             self.update_view()
 
             # Move cursor to next item after update
