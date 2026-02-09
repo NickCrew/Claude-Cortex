@@ -4,33 +4,52 @@
 #
 # Behavior controlled by env vars:
 #   MOCK_CLAUDE_MODE        - "success" | "no_report" | "fail" | "hang"
-#   MOCK_CLAUDE_PROMPT_DUMP - If set, dump the received prompt to this path
+#   MOCK_CLAUDE_PROMPT_DUMP - If set, dump the system prompt to this path
 #
-# In "success" mode, extracts the output file path from the prompt by
-# finding the line after "Write the COMPLETE gap report to this file:"
-# that contains a file path (test-audit-*.md pattern).
-#
-# Modes:
-#   "success"    - Create report at extracted path, exit 0
-#   "no_report"  - Exit 0 but don't create the report
-#   "fail"       - Exit 1
-#   "hang"       - Sleep forever (for timeout testing)
+# Parses --append-system-prompt to extract the system prompt content.
+# In "success" mode, extracts the output file path from the system prompt
+# (looks for test-audit-*.md pattern).
 
 MODE="${MOCK_CLAUDE_MODE:-success}"
-PROMPT="${@: -1}"
 
-# Optionally capture the prompt for inspection
+# Parse args to find --append-system-prompt value
+SYSTEM_PROMPT=""
+USER_PROMPT=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --append-system-prompt)
+            shift
+            SYSTEM_PROMPT="$1"
+            shift
+            ;;
+        --print|--dangerously-skip-permissions|--verbose)
+            shift
+            ;;
+        --max-turns|--tools|--model|--system-prompt)
+            shift; shift
+            ;;
+        -*)
+            shift
+            ;;
+        *)
+            USER_PROMPT="$1"
+            shift
+            ;;
+    esac
+done
+
+# Optionally capture the system prompt for inspection
 if [[ -n "${MOCK_CLAUDE_PROMPT_DUMP:-}" ]]; then
-    echo "$PROMPT" > "$MOCK_CLAUDE_PROMPT_DUMP"
+    echo "$SYSTEM_PROMPT" > "$MOCK_CLAUDE_PROMPT_DUMP"
 fi
 
 case "$MODE" in
     success)
-        # Extract the output file path — it's the line containing "test-audit-"
-        OUTPUT_FILE=$(echo "$PROMPT" | grep -o '[^ ]*test-audit-[^ ]*\.md' | head -1)
+        # Extract the output file path from the system prompt
+        OUTPUT_FILE=$(echo "$SYSTEM_PROMPT" | grep -o '[^ ]*test-audit-[^ ]*\.md' | head -1)
 
         if [[ -z "$OUTPUT_FILE" ]]; then
-            echo "mock_claude: could not extract output file path from prompt" >&2
+            echo "mock_claude: could not extract output file path from system prompt" >&2
             exit 1
         fi
 

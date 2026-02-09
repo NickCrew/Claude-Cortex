@@ -1,72 +1,57 @@
-You are performing a test coverage audit. Follow these instructions exactly.
+You are performing a test coverage audit. All source code, test code, and reference standards are provided below. Do NOT read any files — everything you need is in this prompt.
 
-## CRITICAL CONSTRAINTS
+Your ONLY tool call should be the final Write to save the report.
 
-1. **Do NOT spawn sub-agents.** You are running in a CLI invocation with a fresh context. Do all work directly — reading files, mapping behaviors, analyzing gaps. Sub-agents add latency and indirection you don't need here.
+## CONSTRAINTS
 
-2. **Write the report to disk.** The report MUST be saved to a file using the Write tool.
+1. **Do NOT read files.** All content is inlined below.
+2. **Do NOT spawn sub-agents.**
+3. **Write the report to disk** using the Write tool.
+4. **Stay focused.** Only audit the provided module and tests.
 
-3. **Stay focused on the target module.** Do not audit the entire codebase. Only audit the specified module and its tests.
+## TESTING STANDARDS
 
-## PROCEDURE
+{{TESTING_STANDARDS}}
 
-### Step 1: Load the Standards
+## AUDIT WORKFLOW
 
-Read the testing standards so you know what good tests look like:
+{{AUDIT_WORKFLOW}}
 
-```
-cat skills/test-review/references/testing-standards.md
-```
+## SOURCE CODE
 
-Internalize the anti-patterns, required test categories, and quality criteria before reading any test code.
+**Module:** `{{MODULE_PATH}}`
 
-### Step 2: Load the Audit Workflow
+{{SOURCE_CONTENT}}
 
-Read the audit workflow so you know the gap report format and priority criteria:
+## TEST CODE
 
-```
-cat skills/test-review/references/audit-workflow.md
-```
+**Tests:** `{{TEST_PATH}}`
 
-### Step 3: Map the Public Contract
+{{TEST_CONTENT}}
 
-Read the source files at `{{MODULE_PATH}}` and list every public behavior:
-- Public functions/methods with their signatures
-- Error conditions and edge cases
-- State transitions and side effects
-- Integration points (external calls, I/O)
+## YOUR TASK
 
-### Step 4: Map Existing Test Coverage
+1. **Map the public contract** from the source code above — list every public function/method, its error conditions, edge cases, state transitions, and integration points.
 
-Read the test files at `{{TEST_PATH}}` and mark each behavior from Step 3 as:
-- **Covered** — a test exercises this behavior with meaningful assertions
-- **Shallow** — a test touches this code path but assertions are weak (mirror test, trivial assert, no edge case)
-- **Missing** — no test exercises this behavior
+2. **Map existing test coverage** from the test code above — mark each behavior as:
+   - **Covered** — a test exercises it with meaningful assertions
+   - **Shallow** — a test touches it but assertions are weak (mirror test, trivial assert, no edge case)
+   - **Missing** — no test exercises it
 
-### Step 5: Analyze and Prioritize
+3. **Analyze and prioritize** each Missing or Shallow behavior:
+   - P0: Security flaw or silent incorrect behavior if untested
+   - P1: Reliability risk, missing error handling, edge cases
+   - P2: Completeness improvement, nice-to-have coverage
 
-For each Missing or Shallow behavior:
-1. Assess risk: what happens if this behavior breaks silently?
-2. Assign priority per audit-workflow.md criteria (P0/P1/P2)
-3. For Shallow tests, note the specific quality issue (mirror, flaky, trivial, etc.)
-
-### Step 6: Write the Report
-
-Write the COMPLETE gap report to this file:
+4. **Write the report** to this file using the Write tool:
 ```
 {{OUTPUT_FILE}}
 ```
 
-Use the Write tool to save the report. The report must include:
-- Behavior inventory (all public behaviors with coverage status)
+The report must include:
+- Behavior inventory table (all public behaviors with coverage status)
 - Prioritized gap list (P0 first, then P1, then P2)
 - For each gap: what's missing, why it matters, suggested test approach
 - For shallow tests: what's wrong and how to fix it
 
-After writing, confirm by stating the output file path.
-
-## AUDIT TARGET
-
-- **Module path:** `{{MODULE_PATH}}`
-- **Test path:** `{{TEST_PATH}}`
-- **Mode:** {{MODE}}
+**Mode:** {{MODE}}
