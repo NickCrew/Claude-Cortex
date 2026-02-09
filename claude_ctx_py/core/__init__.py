@@ -163,6 +163,8 @@ from .rules import (
 # Export all functions from codex_skills
 from .codex_skills import (
     scan_codex_skill_status,
+    scan_codex_native_skills,
+    _resolve_codex_native_skills_dir,
     link_codex_skill,
     unlink_codex_skill,
     link_codex_skills_by_category,
@@ -382,6 +384,8 @@ __all__ = [
     "list_rules",
     # Codex skills functions
     "scan_codex_skill_status",
+    "scan_codex_native_skills",
+    "_resolve_codex_native_skills_dir",
     "link_codex_skill",
     "unlink_codex_skill",
     "link_codex_skills_by_category",

@@ -25,6 +25,11 @@ def _resolve_cortex_skills_root() -> Path:
     return _resolve_plugin_assets_root() / "skills"
 
 
+def _resolve_codex_native_skills_dir() -> Path:
+    """Resolve bundled codex-native skills directory (codex/skills/)."""
+    return _resolve_plugin_assets_root() / "codex" / "skills"
+
+
 def _ensure_skill_symlink(source: Path, target: Path) -> Optional[str]:
     """Create a skill symlink, returning warning if it fails.
 
@@ -39,6 +44,37 @@ def _ensure_skill_symlink(source: Path, target: Path) -> Optional[str]:
             return f"Skipping non-symlink file: {target}"
     target.symlink_to(source)
     return None
+
+
+def scan_codex_native_skills() -> List[Dict[str, str | bool]]:
+    """Scan codex/skills/ for codex-native skills.
+
+    Returns:
+        List of dicts with keys: name, path, is_linked
+    """
+    native_dir = _resolve_codex_native_skills_dir()
+    codex_skills_dir = _resolve_codex_skills_dir()
+    results: List[Dict[str, str | bool]] = []
+
+    if not native_dir.exists():
+        return results
+
+    for skill_dir in sorted(native_dir.iterdir()):
+        if not skill_dir.is_dir() or not (skill_dir / "SKILL.md").exists():
+            continue
+
+        target = codex_skills_dir / skill_dir.name
+        is_linked = (
+            target.is_symlink()
+            and target.resolve() == skill_dir.resolve()
+        )
+        results.append({
+            "name": skill_dir.name,
+            "path": str(skill_dir),
+            "is_linked": is_linked,
+        })
+
+    return results
 
 
 def scan_codex_skill_status() -> Dict[str, bool]:
@@ -72,12 +108,20 @@ def scan_codex_skill_status() -> Dict[str, bool]:
     return status
 
 
-def link_codex_skill(skill_name: str) -> Tuple[int, str]:
-    """Create symlink for a single skill."""
-    cortex_skills_root = _resolve_cortex_skills_root()
+def link_codex_skill(
+    skill_name: str, source_dir: Optional[Path] = None
+) -> Tuple[int, str]:
+    """Create symlink for a single skill.
+
+    Args:
+        skill_name: Name of the skill directory.
+        source_dir: Optional override for the skills source directory.
+                    Defaults to the bundled cortex skills root.
+    """
+    skills_root = source_dir or _resolve_cortex_skills_root()
     codex_skills_dir = _resolve_codex_skills_dir()
 
-    source = cortex_skills_root / skill_name
+    source = skills_root / skill_name
     target = codex_skills_dir / skill_name
 
     if not source.exists():
