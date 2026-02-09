@@ -10,19 +10,22 @@
 #   --tests <path>    Specify test directory (default: auto-discover)
 #   --output <dir>    Output directory (default: .beads/reviews)
 #   --quick           Quick review mode (anti-patterns only, no full audit)
+#   --debug           Save prompt and Claude output to log files for debugging
+#
+# Environment:
+#   CLAUDE_TIMEOUT     Timeout in seconds (default: 600)
+#   CLAUDE_MAX_TURNS   Max agent turns (default: 40)
+#   CLAUDE_DEBUG=1     Same as --debug flag
 #
 # Examples:
 #   # Full audit of a module
 #   test-review-request.sh src/parser
 #
-#   # Full audit with explicit test path
-#   test-review-request.sh src/parser --tests tests/parser
+#   # Debug mode — saves logs next to the report
+#   test-review-request.sh src/parser --debug
 #
 #   # Quick review of specific test files
 #   test-review-request.sh --quick tests/test_parser.py
-#
-#   # Custom output directory
-#   test-review-request.sh src/parser --output ./reports
 #
 # Output:
 #   Writes gap report to <output-dir>/test-audit-<timestamp>.md
@@ -40,6 +43,7 @@ MODULE_PATH=""
 TEST_PATH=""
 OUTPUT_DIR=".beads/reviews"
 MODE="full"
+DEBUG="${CLAUDE_DEBUG:-0}"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -59,6 +63,10 @@ while [[ $# -gt 0 ]]; do
         --output)
             shift
             OUTPUT_DIR="${1:-$OUTPUT_DIR}"
+            shift
+            ;;
+        --debug)
+            DEBUG=1
             shift
             ;;
         *)
@@ -118,6 +126,16 @@ mkdir -p "$OUTPUT_DIR"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 OUTPUT_FILE="$OUTPUT_DIR/test-audit-$TIMESTAMP.md"
 
+# --- Debug logging setup ---
+
+if [[ "$DEBUG" == "1" ]]; then
+    PROMPT_LOG="$OUTPUT_DIR/test-audit-$TIMESTAMP.prompt.md"
+    CLAUDE_LOG="$OUTPUT_DIR/test-audit-$TIMESTAMP.claude.log"
+else
+    PROMPT_LOG=""
+    CLAUDE_LOG=""
+fi
+
 # --- Build the prompt ---
 
 PROMPT_FILE=$(mktemp /tmp/test-review-request-prompt.XXXXXX)
@@ -133,6 +151,12 @@ sed \
 
 PROMPT=$(cat "$PROMPT_FILE")
 
+# Save prompt to debug log
+if [[ -n "$PROMPT_LOG" ]]; then
+    cp "$PROMPT_FILE" "$PROMPT_LOG"
+    echo "Debug: prompt saved to $PROMPT_LOG" >&2
+fi
+
 # --- Invoke Claude CLI ---
 
 TIMEOUT="${CLAUDE_TIMEOUT:-600}"
@@ -143,20 +167,51 @@ echo "Module: $MODULE_PATH" >&2
 echo "Tests: $TEST_PATH" >&2
 echo "Output: $OUTPUT_FILE" >&2
 echo "Timeout: ${TIMEOUT}s, Max turns: $MAX_TURNS" >&2
+if [[ "$DEBUG" == "1" ]]; then
+    echo "Debug: claude output → $CLAUDE_LOG" >&2
+fi
 
-if timeout "$TIMEOUT" claude --print --dangerously-skip-permissions --max-turns "$MAX_TURNS" "$PROMPT" > /dev/null 2>&1; then
+# Route Claude output to log file in debug mode, /dev/null otherwise
+if [[ -n "$CLAUDE_LOG" ]]; then
+    CLAUDE_STDOUT="$CLAUDE_LOG"
+else
+    CLAUDE_STDOUT="/dev/null"
+fi
+
+START_TIME=$(date +%s)
+
+if timeout "$TIMEOUT" claude --print --dangerously-skip-permissions --max-turns "$MAX_TURNS" "$PROMPT" > "$CLAUDE_STDOUT" 2>&1; then
+    ELAPSED=$(( $(date +%s) - START_TIME ))
+    echo "Claude finished in ${ELAPSED}s" >&2
+
     if [[ -f "$OUTPUT_FILE" ]]; then
         echo "$OUTPUT_FILE"
     else
         echo "Error: Claude completed but report was not created at $OUTPUT_FILE" >&2
+        if [[ -n "$CLAUDE_LOG" ]]; then
+            echo "Debug: check Claude output at $CLAUDE_LOG" >&2
+        fi
         exit 1
     fi
 else
     EXIT_CODE=$?
+    ELAPSED=$(( $(date +%s) - START_TIME ))
+
     if [[ "$EXIT_CODE" -eq 124 ]]; then
-        echo "Error: Claude CLI timed out after ${TIMEOUT}s" >&2
+        echo "Error: Claude CLI timed out after ${ELAPSED}s (limit: ${TIMEOUT}s)" >&2
     else
-        echo "Error: Claude CLI invocation failed (exit $EXIT_CODE)" >&2
+        echo "Error: Claude CLI invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+    fi
+
+    if [[ -n "$CLAUDE_LOG" ]]; then
+        echo "Debug: check Claude output at $CLAUDE_LOG" >&2
+        # Show the tail of Claude's output for quick diagnosis
+        if [[ -f "$CLAUDE_LOG" && -s "$CLAUDE_LOG" ]]; then
+            echo "Debug: last 20 lines of Claude output:" >&2
+            tail -20 "$CLAUDE_LOG" >&2
+        else
+            echo "Debug: Claude produced no output" >&2
+        fi
     fi
     exit 1
 fi

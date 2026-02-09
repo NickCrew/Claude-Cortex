@@ -258,18 +258,65 @@ test_timeout() {
     assert_contains "$out" "timed out" "prints timeout error"
 }
 
+test_debug_mode() {
+    echo "# Debug mode saves prompt and claude log"
+    local outdir="$TMPDIR_BASE/out_debug"
+    export MOCK_CLAUDE_MODE="success"
+    export CLAUDE_DEBUG=1
+
+    local stderr_file="$TMPDIR_BASE/stderr_debug"
+    local stdout
+    stdout=$(bash "$SCRIPT" "$TMPDIR_BASE/src/parser" --output "$outdir" 2>"$stderr_file") || true
+    unset CLAUDE_DEBUG
+
+    local stderr
+    stderr=$(cat "$stderr_file")
+
+    # Prompt log should exist
+    local prompt_log
+    prompt_log=$(find "$outdir" -name '*.prompt.md' | head -1)
+    if [[ -n "$prompt_log" && -f "$prompt_log" ]]; then
+        pass "prompt log saved in debug mode"
+    else
+        fail "prompt log saved in debug mode" "no .prompt.md file in $outdir"
+    fi
+
+    # Claude log should exist
+    local claude_log
+    claude_log=$(find "$outdir" -name '*.claude.log' | head -1)
+    if [[ -n "$claude_log" && -f "$claude_log" ]]; then
+        pass "claude log saved in debug mode"
+    else
+        fail "claude log saved in debug mode" "no .claude.log file in $outdir"
+    fi
+
+    assert_contains "$stderr" "Debug:" "stderr shows debug messages"
+}
+
+test_debug_flag() {
+    echo "# --debug flag works like CLAUDE_DEBUG=1"
+    local outdir="$TMPDIR_BASE/out_debug_flag"
+    export MOCK_CLAUDE_MODE="success"
+
+    local stderr_file="$TMPDIR_BASE/stderr_debug_flag"
+    bash "$SCRIPT" "$TMPDIR_BASE/src/parser" --debug --output "$outdir" 2>"$stderr_file" 1>/dev/null || true
+
+    local stderr
+    stderr=$(cat "$stderr_file")
+    assert_contains "$stderr" "Debug:" "--debug flag enables debug output"
+}
+
 test_temp_file_cleanup() {
     echo "# Temp prompt file cleaned up"
-    # Count existing temp files before
-    local before after
-    before=$(ls /tmp/test-review-request-prompt.* 2>/dev/null | wc -l || echo 0)
     export MOCK_CLAUDE_MODE="fail"
     bash "$SCRIPT" "$TMPDIR_BASE/src/parser" --output "$TMPDIR_BASE/out_cleanup" 2>/dev/null || true
-    after=$(ls /tmp/test-review-request-prompt.* 2>/dev/null | wc -l || echo 0)
-    if [[ "$after" -le "$before" ]]; then
+    # Check that no temp files were left behind
+    local leftover
+    leftover=$(find /tmp -maxdepth 1 -name 'test-review-request-prompt.*' 2>/dev/null | head -5)
+    if [[ -z "$leftover" ]]; then
         pass "temp file cleaned up after failure"
     else
-        fail "temp file cleaned up after failure" "found leftover temp files ($before before, $after after)"
+        fail "temp file cleaned up after failure" "found leftover: $leftover"
     fi
 }
 
@@ -305,6 +352,10 @@ main() {
     test_output_dir_created
     echo ""
     test_timeout
+    echo ""
+    test_debug_mode
+    echo ""
+    test_debug_flag
     echo ""
     test_temp_file_cleanup
 
