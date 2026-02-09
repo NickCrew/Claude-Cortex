@@ -135,12 +135,16 @@ PROMPT=$(cat "$PROMPT_FILE")
 
 # --- Invoke Claude CLI ---
 
+TIMEOUT="${CLAUDE_TIMEOUT:-300}"
+MAX_TURNS="${CLAUDE_MAX_TURNS:-25}"
+
 echo "Starting test coverage audit ($MODE mode)..." >&2
 echo "Module: $MODULE_PATH" >&2
 echo "Tests: $TEST_PATH" >&2
 echo "Output: $OUTPUT_FILE" >&2
+echo "Timeout: ${TIMEOUT}s, Max turns: $MAX_TURNS" >&2
 
-if claude --print --dangerously-skip-permissions "$PROMPT" > /dev/null 2>&1; then
+if timeout "$TIMEOUT" claude --print --dangerously-skip-permissions --max-turns "$MAX_TURNS" "$PROMPT" > /dev/null 2>&1; then
     if [[ -f "$OUTPUT_FILE" ]]; then
         echo "$OUTPUT_FILE"
     else
@@ -148,6 +152,11 @@ if claude --print --dangerously-skip-permissions "$PROMPT" > /dev/null 2>&1; the
         exit 1
     fi
 else
-    echo "Error: Claude CLI invocation failed" >&2
+    EXIT_CODE=$?
+    if [[ "$EXIT_CODE" -eq 124 ]]; then
+        echo "Error: Claude CLI timed out after ${TIMEOUT}s" >&2
+    else
+        echo "Error: Claude CLI invocation failed (exit $EXIT_CODE)" >&2
+    fi
     exit 1
 fi
