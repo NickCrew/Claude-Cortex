@@ -135,8 +135,8 @@ PROMPT=$(cat "$PROMPT_FILE")
 
 # --- Invoke Claude CLI ---
 
-TIMEOUT="${CLAUDE_TIMEOUT:-300}"
-MAX_TURNS="${CLAUDE_MAX_TURNS:-25}"
+TIMEOUT="${CLAUDE_TIMEOUT:-600}"
+MAX_TURNS="${CLAUDE_MAX_TURNS:-40}"
 
 echo "Starting test coverage audit ($MODE mode)..." >&2
 echo "Module: $MODULE_PATH" >&2
