@@ -119,7 +119,7 @@ PROMPT=$(cat "$PROMPT_FILE")
 
 # --- Invoke Claude CLI ---
 
-TIMEOUT="${CLAUDE_TIMEOUT:-300}"
+TIMEOUT="${CLAUDE_TIMEOUT:-600}"
 MAX_TURNS="${CLAUDE_MAX_TURNS:-25}"
 
 echo "Starting specialist review ($DIFF_LINES lines)..." >&2
