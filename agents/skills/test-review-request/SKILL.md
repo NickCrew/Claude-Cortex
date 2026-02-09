@@ -28,16 +28,16 @@ The script invokes a Claude CLI instance with full access.
 
 ```bash
 # Full audit of a module (default)
-skills/test-review-request/scripts/test-review-request.sh /path/to/module
+agents/skills/test-review-request/scripts/test-review-request.sh /path/to/module
 
 # Full audit with specific test directory
-skills/test-review-request/scripts/test-review-request.sh /path/to/module --tests /path/to/tests
+agents/skills/test-review-request/scripts/test-review-request.sh /path/to/module --tests /path/to/tests
 
 # Quick review of specific test files only
-skills/test-review-request/scripts/test-review-request.sh --quick /path/to/test_file.py
+agents/skills/test-review-request/scripts/test-review-request.sh --quick /path/to/test_file.py
 
 # Custom output directory
-skills/test-review-request/scripts/test-review-request.sh /path/to/module --output ./my-reports
+agents/skills/test-review-request/scripts/test-review-request.sh /path/to/module --output ./my-reports
 ```
 
 ### Step 2: Read the result
@@ -45,7 +45,7 @@ skills/test-review-request/scripts/test-review-request.sh /path/to/module --outp
 The script prints the output file path to stdout on success. Read that file.
 
 ```bash
-REPORT_FILE=$(skills/test-review-request/scripts/test-review-request.sh src/parser)
+REPORT_FILE=$(agents/skills/test-review-request/scripts/test-review-request.sh src/parser)
 cat "$REPORT_FILE"
 ```
 
