@@ -37,8 +37,7 @@ skills. You never grade your own homework.
 |------|-------|-----|
 | **Implementer** | Codex or Gemini | Writes code changes and test code |
 | **Code Reviewer** | Claude | Invoked via `specialist-review` skill |
-| **Test Reviewer** | Claude | Invoked via `test-review-request` skill |
-| **Test Auditor** | Claude | Uses `test-review` skill internally |
+| **Test Auditor** | Claude | Invoked via `test-review-request` skill — finds gaps AND flags bad tests |
 | **Remediator** | Codex or Gemini | Fixes findings from Claude's reviews |
 
 **Critical rule:** Codex and Gemini NEVER self-review. Every review step means invoking a skill to send work to Claude. If you cannot invoke the review skill, STOP and escalate — do not substitute your own review.
@@ -53,11 +52,11 @@ skills. You never grade your own homework.
 **What to send:** The changed files (full content or diff), the task spec, and the iteration number.
 **What you get back:** Findings with severity levels (P0-P3) and a verdict (BLOCKED / PASS WITH ISSUES / CLEAN).
 
-### `test-review-request` — Request Test Review from Claude
+### `test-review-request` — Request Test Audit from Claude
 
-**When:** After writing tests, after each test remediation cycle.
-**What to send:** The test files, the source files they test, and the gap report (if from audit loop).
-**What you get back:** Findings on test quality per `references/testing-standards.md` standards, with severity and specific remediation guidance.
+**When:** Initial audit (before writing tests) and re-audit (after writing/fixing tests).
+**What to send:** The module path and test path. The script handles the rest.
+**What you get back:** A gap report covering both missing coverage AND test quality issues (mirror tests, flaky assertions, etc.), with P0/P1/P2 severity.
 
 ---
 
@@ -73,8 +72,8 @@ There are two primary loops. They run sequentially — the code loop completes b
 │  Output: clean code + issues filed for P2+                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                        TEST WRITING LOOP                        │
-│  Audit → Write Tests → test-review-request → Remediate → ...   │
-│  Exit: all P0/P1 gaps covered                                   │
+│  Audit → Write Tests → Verify → Re-audit → Remediate → ...    │
+│  Exit: all P0/P1 gaps covered, no bad tests                    │
 │  Output: tests passing + issues filed for P2+                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -223,13 +222,14 @@ When fixing findings from Claude's review:
 
 This loop runs after the code change loop exits cleanly. It ensures the new (and existing) code has adequate test coverage.
 
+The audit does double duty: it finds missing coverage AND flags bad tests (mirror tests, flaky assertions, etc.). A bad test doesn't close a gap, so a single audit pass catches both problems. No separate quality review step needed.
+
 ### Roles
 
 | Role | Agent | Skill |
 |------|-------|-------|
-| **Auditor** | Claude | `test-review` (internal) — discovers gaps per `references/audit-workflow.md` |
+| **Auditor** | Claude | `test-review-request` — finds gaps and flags bad tests per `references/audit-workflow.md` |
 | **Test Writer** | Codex or Gemini | Writes tests per `references/testing-standards.md` standards |
-| **Test Reviewer** | Claude | `test-review-request` — reviews test quality |
 
 ### The Loop
 
@@ -237,9 +237,9 @@ This loop runs after the code change loop exits cleanly. It ensures the new (and
 ENTRY: Code change loop has exited cleanly.
 
 ┌──────────────────────┐
-│   AUDIT              │ ← Claude runs audit-workflow.md process
-└──────┬───────────────┘   via test-review skill against changed modules
-       │                   Output: prioritized gap report
+│  AUDIT               │ ← Invoke test-review-request for changed modules
+└──────┬───────────────┘   Output: gap report (missing + bad tests)
+       │
        ▼
 ┌──────────────────────┐
 │  SCOPE APPROVAL      │ ← Human reviews gap report
@@ -252,83 +252,60 @@ ENTRY: Code change loop has exited cleanly.
        │
        ▼
 ┌──────────────────────┐
-│  VERIFY TESTS        │ ← You: run the tests locally. They must:
+│  VERIFY              │ ← You: run the tests locally. They must:
 └──────┬───────────────┘   1. Compile / pass lint
        │                   2. All pass (no test is born failing)
        │                   3. Actually exercise the code (not no-ops)
        ▼
 ┌──────────────────────┐
-│ test-review-request  │ ← Invoke skill: send test files + source files
-└──────┬───────────────┘   + gap report to Claude for review
+│  RE-AUDIT            │ ← Invoke test-review-request again
+└──────┬───────────────┘   Same module, same test path
+       │                   Checks: gaps closed? new tests good?
        │
-       ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
-       │                                                   │
-       │                        No ──► File P2/P3 issues   │
-       │                               Proceed ▼           │
-       │                                                   │
-       │   No findings ──► Proceed ▼                       │
-       │                                                   │
-       │                                                   ▼
-       │                                   ┌──────────────────┐
-       │                                   │  REMEDIATE       │ ← You: fix cited findings
-       │                                   └──────┬───────────┘
-       │                                          │
-       │                                          ▼
-       │                                   ┌──────────────────┐
-       │                                   │ test-review-     │ ← Invoke skill again
-       │                                   │ request          │
-       │                                   └──────┬───────────┘
-       │                                          │
-       │                                          └── Loop back
-       ▼
-┌──────────────────────┐
-│  GAP CHECK           │ ← Claude re-runs audit on the same modules
-└──────┬───────────────┘   Compare against original gap report
+       ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
+       │                                   Exit loop ✅
        │
-       ├── All P0/P1 gaps covered? ──► Yes ──► Exit loop
-       │                                       File issues for P2+
-       │
-       └── No ──► Back to WRITE TESTS for remaining gaps
+       └── No ──► Any P0/P1 remaining?
+                  │
+                  ▼
+           ┌──────────────────┐
+           │  REMEDIATE       │ ← You: fix/rewrite the flagged tests
+           └──────┬───────────┘   or write tests for remaining gaps
+                  │
+                  └── Back to VERIFY
 ```
 
-### Test Review Checklist (Claude's Criteria)
+### What the Audit Catches
 
-Claude evaluates against these criteria via `test-review-request`. Understand these so you write tests that pass review on the first cycle.
+The audit report covers both gap analysis and quality in a single pass:
 
-**Anti-pattern detection:**
-- [ ] No mirror testing — expected values are hardcoded, not computed from implementation
-- [ ] No happy-path-only — each tested behavior has at least one edge case or failure test
-- [ ] No over-mocking — mocks only at external boundaries (network, fs, time)
-- [ ] No trivial assertions — every assertion tests a meaningful contract
-- [ ] No framework plumbing tests — setup is not >60% of the test body
+**Coverage gaps (missing tests):**
+- Behaviors in the public contract with no corresponding test
+- Error paths with no failure test
+- Edge cases (empty input, boundary values, unicode) not exercised
 
-**Coverage quality:**
-- [ ] Every P0 gap from the audit has a corresponding test
-- [ ] Every P1 gap from the audit has a corresponding test
-- [ ] Test names describe scenario and expected outcome
-- [ ] Error tests check specific error types/messages, not just `is_err()`
-- [ ] Async tests use real connections where practical (not all mocked)
+**Test quality issues (bad tests):**
+- Mirror tests — expected values computed from implementation, not hardcoded
+- Trivial assertions — `assert(true)`, assertions that can never fail
+- Happy-path-only — tested behavior has no edge case or failure test
+- Over-mocking — mocks at internal boundaries, not just external (network, fs, time)
+- Flaky patterns — timing-dependent assertions, hardcoded ports, shared state
 
-**Test hygiene:**
-- [ ] Tests are independent (no ordering dependency, no shared mutable state)
-- [ ] Tests clean up after themselves (no leaked listeners, temp files, etc.)
-- [ ] Tests run in <5 seconds individually (no unnecessary sleeps)
-- [ ] Flaky conditions are handled (retry, deterministic ports, controlled time)
+A bad test shows up as an unclosed gap. A mirror test for behavior X means X is still "Missing" in the gap report, not "Covered". This is why one audit pass is sufficient.
 
-### Test Review Severity
+### Audit Severity
 
 | Severity | Meaning | Example |
 |----------|---------|---------|
-| P0 | Test provides false confidence — looks like it covers a behavior but doesn't actually verify it | Mirror test, assertion that can never fail, test that passes with implementation deleted |
-| P1 | Test is meaningful but incomplete or fragile | Happy path only, hardcoded port that could conflict, timing-dependent assertion |
-| P2 | Test works but could be improved | Poor naming, verbose setup that should be a helper, missing error context in assertion |
-| P3 | Stylistic | Ordering of assertions, test grouping |
+| P0 | Critical gap or false confidence | Missing auth test, mirror test on security path, assertion that passes with implementation deleted |
+| P1 | Meaningful gap or fragile test | No error path test, happy-path-only, hardcoded port, timing-dependent assertion |
+| P2 | Coverage improvement or test hygiene | Missing edge case, poor naming, verbose setup that should be a helper |
 
 ### Circuit Breaker
 
-**Maximum iterations: 3 `test-review-request` cycles.**
+**Maximum iterations: 3 audit cycles** (initial audit + 2 re-audits).
 
-If the audit still shows P0/P1 gaps after 3 write/review cycles, escalate to human with a summary of what's proving difficult to test and why (usually indicates the code needs refactoring to be testable — that's a design problem, not a test problem).
+If P0/P1 gaps remain after 3 cycles, escalate to human with a summary of what's proving difficult to test and why. This usually indicates the code needs refactoring to be testable — that's a design problem, not a test problem.
 
 ---
 
@@ -377,16 +354,15 @@ After both loops exit, file issues for everything that was deferred.
 - Writing implementation code
 - Writing test code
 - Running tests locally and verifying they pass
-- Invoking `specialist-review` after implementation and each remediation
-- Invoking `test-review-request` after writing tests and each remediation
+- Invoking `specialist-review` after implementation and each code remediation
+- Invoking `test-review-request` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
 - Filing P2/P3 issues when loop exits
 - Escalating when circuit breaker triggers
 
 **You are NOT responsible for:**
 - Reviewing your own code (Claude does this)
-- Reviewing your own tests (Claude does this)
-- Auditing test gaps (Claude does this)
+- Judging your own test coverage or quality (Claude does this via audit)
 - Deciding whether a finding is valid (if you disagree, note it in the remediation and let Claude re-evaluate — do not silently skip findings)
 
 ### Disagreeing with Claude's Findings
@@ -437,13 +413,12 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
        │
        ▼
 3. TEST WRITING LOOP
-   ├── Claude: audit gaps (audit-workflow.md)
+   ├── test-review-request → Claude audits (gaps + quality)
    ├── Human: scope approval (P0/P1 auto-approved)
    ├── You: write tests (testing-standards.md)
    ├── You: verify tests pass locally
-   ├── test-review-request → Claude reviews (max 3 cycles)
-   ├── You: remediate P0/P1
-   ├── Claude: gap check (re-audit)
+   ├── test-review-request → Claude re-audits (max 3 cycles)
+   ├── You: remediate P0/P1 gaps and bad tests
    ├── File issues for P2/P3
    └── Exit with tested code
        │
