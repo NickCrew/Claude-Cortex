@@ -29,8 +29,9 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SKILL_DIR="$(dirname "$SCRIPT_DIR")"
+# Resolve physical paths to handle symlink invocation (e.g. ~/.codex/skills/...)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
 PROMPT_TEMPLATE="$SKILL_DIR/references/review-prompt.md"
 
 # --- Argument parsing ---
