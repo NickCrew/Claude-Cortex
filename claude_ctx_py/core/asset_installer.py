@@ -19,7 +19,7 @@ from .base import _update_with_backup, _extract_front_matter
 from .hooks import parse_hook_file
 
 # Set up file logging for debugging
-_log_path = Path.home() / ".claude" / "hook_install.log"
+_log_path = Path.home() / ".cortex" / "logs" / "asset_copy.log"
 _logger = logging.getLogger("asset_installer")
 _logger.setLevel(logging.DEBUG)
 if not _logger.handlers:
@@ -88,48 +88,53 @@ def install_asset(
     asset: Asset,
     target_dir: Path,
     activate: bool = True,
+    *,
+    add_claude_refs: bool = True,
+    register_hooks: bool = True,
 ) -> Tuple[int, str]:
-    """Install an asset to a cortex directory.
+    """Copy an asset to a target directory.
 
     Args:
-        asset: Asset to install
-        target_dir: Target cortex directory
+        asset: Asset to copy
+        target_dir: Target directory
         activate: For agents/modes, whether to install as active
+        add_claude_refs: When True, append commented reference to CLAUDE.md
+        register_hooks: When True, register hooks in settings.json
 
     Returns:
         Tuple of (exit_code, message)
     """
     try:
         if asset.category == AssetCategory.SKILLS:
-            return _install_skill(asset, target_dir)
+            return _install_skill(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.HOOKS:
-            return _install_hook(asset, target_dir)
+            return _install_hook(asset, target_dir, add_claude_refs=add_claude_refs, register_hooks=register_hooks)
         elif asset.category == AssetCategory.COMMANDS:
-            return _install_command(asset, target_dir)
+            return _install_command(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.AGENTS:
-            return _install_agent(asset, target_dir, activate)
+            return _install_agent(asset, target_dir, activate, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.MODES:
-            return _install_mode(asset, target_dir, activate)
+            return _install_mode(asset, target_dir, activate, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.WORKFLOWS:
-            return _install_workflow(asset, target_dir)
+            return _install_workflow(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.RULES:
-            return _install_rule(asset, target_dir)
+            return _install_rule(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.FLAGS:
             return _install_flag(asset, target_dir)
         elif asset.category == AssetCategory.PROFILES:
-            return _install_profile(asset, target_dir)
+            return _install_profile(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.SCENARIOS:
-            return _install_scenario(asset, target_dir)
+            return _install_scenario(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.TASKS:
-            return _install_task(asset, target_dir)
+            return _install_task(asset, target_dir, add_claude_refs=add_claude_refs)
         else:
             return _install_setting(asset, target_dir)
     except Exception as e:
-        return 1, _color(f"Installation failed: {e}", RED)
+        return 1, _color(f"Copy failed: {e}", RED)
 
 
-def _install_skill(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a skill (directory copy)."""
+def _install_skill(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a skill (directory copy)."""
     skills_dir = target_dir / "skills"
     skills_dir.mkdir(parents=True, exist_ok=True)
 
@@ -150,13 +155,14 @@ def _install_skill(asset: Asset, target_dir: Path) -> Tuple[int, str]:
         shutil.move(str(temp_path), str(target_skill_dir))
 
     # Add commented reference to SKILL.md for easy activation
-    _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
 
-    return 0, _color(f"Installed skill: {asset.name}", GREEN)
+    return 0, _color(f"Copied skill: {asset.name}", GREEN)
 
 
-def _install_hook(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a hook and register in settings.json."""
+def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True, register_hooks: bool = True) -> Tuple[int, str]:
+    """Copy a hook and optionally register in settings.json."""
     _logger.info(f"_install_hook called: asset.name={asset.name}, target_dir={target_dir}")
 
     try:
@@ -174,40 +180,42 @@ def _install_hook(asset: Asset, target_dir: Path) -> Tuple[int, str]:
         target_path.chmod(target_path.stat().st_mode | 0o111)
         _logger.debug("Made executable")
 
-        _add_commented_reference(target_dir, target_path)
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_path)
 
-        # Parse the hook file to get the event type
-        hook_def = parse_hook_file(target_path)
-        _logger.debug(f"Parsed hook_def: {hook_def}")
+        if register_hooks:
+            # Parse the hook file to get the event type
+            hook_def = parse_hook_file(target_path)
+            _logger.debug(f"Parsed hook_def: {hook_def}")
 
-        if hook_def:
-            # Determine interpreter from file extension
-            interpreter = "bash" if target_path.suffix == ".sh" else "python3"
-            hook_command = f"{interpreter} {target_path}"
-            _logger.debug(f"hook_command={hook_command}, event={hook_def.event}")
+            if hook_def:
+                # Determine interpreter from file extension
+                interpreter = "bash" if target_path.suffix == ".sh" else "python3"
+                hook_command = f"{interpreter} {target_path}"
+                _logger.debug(f"hook_command={hook_command}, event={hook_def.event}")
 
-            # Register in settings.json
-            settings_path = target_dir / "settings.json"
-            _logger.info(f"Registering hook in settings: {settings_path}")
-            exit_code, reg_msg = register_hook_in_settings(
-                asset.name, hook_command, hook_def.event, settings_path
-            )
-            _logger.info(f"register_hook_in_settings returned: exit_code={exit_code}, msg={reg_msg}")
+                # Register in settings.json
+                settings_path = target_dir / "settings.json"
+                _logger.info(f"Registering hook in settings: {settings_path}")
+                exit_code, reg_msg = register_hook_in_settings(
+                    asset.name, hook_command, hook_def.event, settings_path
+                )
+                _logger.info(f"register_hook_in_settings returned: exit_code={exit_code}, msg={reg_msg}")
 
-            if exit_code != 0:
-                return 0, _color(f"Installed hook: {asset.name} (settings registration failed: {reg_msg})", YELLOW)
-        else:
-            _logger.warning("Could not parse hook file, skipping settings registration")
+                if exit_code != 0:
+                    return 0, _color(f"Copied hook: {asset.name} (settings registration failed: {reg_msg})", YELLOW)
+            else:
+                _logger.warning("Could not parse hook file, skipping settings registration")
 
-        _logger.info(f"Successfully installed hook: {asset.name}")
-        return 0, _color(f"Installed hook: {asset.name}", GREEN)
+        _logger.info(f"Successfully copied hook: {asset.name}")
+        return 0, _color(f"Copied hook: {asset.name}", GREEN)
     except Exception as e:
         _logger.exception(f"Exception in _install_hook: {e}")
-        return 1, _color(f"Failed to install hook: {e}", RED)
+        return 1, _color(f"Failed to copy hook: {e}", RED)
 
 
-def _install_command(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a slash command."""
+def _install_command(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a slash command."""
     commands_dir = target_dir / "commands"
 
     if asset.namespace:
@@ -220,13 +228,14 @@ def _install_command(asset: Asset, target_dir: Path) -> Tuple[int, str]:
 
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed command: {asset.display_name}", GREEN)
+    return 0, _color(f"Copied command: {asset.display_name}", GREEN)
 
 
-def _install_agent(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int, str]:
-    """Install an agent."""
+def _install_agent(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy an agent."""
     if activate:
         agents_dir = target_dir / "agents"
     else:
@@ -237,14 +246,15 @@ def _install_agent(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int,
 
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
     status = "active" if activate else "inactive"
-    return 0, _color(f"Installed agent ({status}): {asset.name}", GREEN)
+    return 0, _color(f"Copied agent ({status}): {asset.name}", GREEN)
 
 
-def _install_mode(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int, str]:
-    """Install a mode."""
+def _install_mode(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a mode."""
     if activate:
         modes_dir = target_dir / "modes"
     else:
@@ -255,94 +265,100 @@ def _install_mode(asset: Asset, target_dir: Path, activate: bool) -> Tuple[int, 
 
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
     status = "active" if activate else "inactive"
-    return 0, _color(f"Installed mode ({status}): {asset.name}", GREEN)
+    return 0, _color(f"Copied mode ({status}): {asset.name}", GREEN)
 
 
-def _install_workflow(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a workflow."""
+def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a workflow."""
     workflows_dir = target_dir / "workflows"
     workflows_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = workflows_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed workflow: {asset.name}", GREEN)
+    return 0, _color(f"Copied workflow: {asset.name}", GREEN)
 
 
-def _install_rule(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a recommendation/config rules file under skills/."""
+def _install_rule(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a recommendation/config rules file under skills/."""
     skills_dir = target_dir / "skills"
     skills_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = skills_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed rules: {asset.name}", GREEN)
+    return 0, _color(f"Copied rules: {asset.name}", GREEN)
 
 
 def _install_flag(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a flag file into flags/ (does not auto-enable)."""
+    """Copy a flag file into flags/ (does not auto-enable)."""
     flags_dir = target_dir / "flags"
     flags_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = flags_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    return 0, _color(f"Installed flag: {asset.name}", GREEN)
+    return 0, _color(f"Copied flag: {asset.name}", GREEN)
 
 
-def _install_profile(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a profile markdown file."""
+def _install_profile(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a profile markdown file."""
     profiles_dir = target_dir / "profiles"
     profiles_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = profiles_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed profile: {asset.name}", GREEN)
+    return 0, _color(f"Copied profile: {asset.name}", GREEN)
 
 
-def _install_scenario(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a scenario markdown file."""
+def _install_scenario(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a scenario markdown file."""
     scenarios_dir = target_dir / "scenarios"
     scenarios_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = scenarios_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed scenario: {asset.name}", GREEN)
+    return 0, _color(f"Copied scenario: {asset.name}", GREEN)
 
 
-def _install_task(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a task template markdown file."""
+def _install_task(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy a task template markdown file."""
     tasks_dir = target_dir / "tasks"
     tasks_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = tasks_dir / asset.source_path.name
     shutil.copy2(asset.source_path, target_path)
 
-    _add_commented_reference(target_dir, target_path)
+    if add_claude_refs:
+        _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Installed task: {asset.name}", GREEN)
+    return 0, _color(f"Copied task: {asset.name}", GREEN)
 
 
 def _install_setting(asset: Asset, target_dir: Path) -> Tuple[int, str]:
-    """Install a shared settings/config file."""
+    """Copy a shared settings/config file."""
     target_path = target_dir / asset.install_target
     target_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(asset.source_path, target_path)
-    return 0, _color(f"Installed settings: {asset.name}", GREEN)
+    return 0, _color(f"Copied settings: {asset.name}", GREEN)
 
 
 def uninstall_asset(
@@ -649,13 +665,18 @@ def bulk_install(
     assets: List[Asset],
     target_dir: Path,
     activate: bool = True,
+    *,
+    add_claude_refs: bool = True,
+    register_hooks: bool = True,
 ) -> List[Tuple[Asset, int, str]]:
-    """Install multiple assets.
+    """Copy multiple assets.
 
     Args:
-        assets: List of assets to install
-        target_dir: Target cortex directory
+        assets: List of assets to copy
+        target_dir: Target directory
         activate: For agents/modes, whether to install as active
+        add_claude_refs: When True, append commented reference to CLAUDE.md
+        register_hooks: When True, register hooks in settings.json
 
     Returns:
         List of (asset, exit_code, message) tuples
@@ -663,7 +684,11 @@ def bulk_install(
     results = []
 
     for asset in assets:
-        exit_code, message = install_asset(asset, target_dir, activate)
+        exit_code, message = install_asset(
+            asset, target_dir, activate,
+            add_claude_refs=add_claude_refs,
+            register_hooks=register_hooks,
+        )
         results.append((asset, exit_code, message))
 
     return results
