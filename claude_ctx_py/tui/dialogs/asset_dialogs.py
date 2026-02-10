@@ -9,7 +9,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Vertical, VerticalScroll, Horizontal
 from textual.screen import ModalScreen
-from textual.widgets import Button, Static, RadioSet, RadioButton, Checkbox
+from textual.widgets import Button, Input, Static, RadioSet, RadioButton, Checkbox
 
 from ...tui_icons import Icons
 from ...tui_format import Format
@@ -17,7 +17,7 @@ from ...core.asset_discovery import Asset, ClaudeDir, AssetCategory, InstallStat
 
 
 class TargetSelectorDialog(ModalScreen[Optional[Path]]):
-    """Dialog for selecting installation target directory."""
+    """Dialog for selecting copy target directory."""
 
     CSS = """
     TargetSelectorDialog {
@@ -42,6 +42,15 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
     TargetSelectorDialog RadioSet {
         width: 100%;
         padding: 1;
+    }
+
+    TargetSelectorDialog #custom-path-label {
+        padding: 1 0 0 0;
+        color: $text-muted;
+    }
+
+    TargetSelectorDialog #custom-path {
+        width: 100%;
     }
 
     TargetSelectorDialog #dialog-buttons {
@@ -72,7 +81,7 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
         with Container(id="dialog", classes="visible"):
             with Vertical():
                 yield Static(
-                    f"{Icons.FOLDER} [bold]Select Installation Target[/bold]",
+                    f"{Icons.FOLDER} [bold]Select Target Directory[/bold]",
                     id="dialog-title",
                 )
 
@@ -89,6 +98,15 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
                         is_current = self.current and cd.path == self.current
                         yield RadioButton(label, value=bool(is_current))
 
+                yield Static(
+                    "[dim]Or enter a custom path (takes precedence):[/dim]",
+                    id="custom-path-label",
+                )
+                yield Input(
+                    placeholder="/path/to/target/directory",
+                    id="custom-path",
+                )
+
                 with Container(id="dialog-buttons"):
                     yield Button("Select", variant="primary", id="select")
                     yield Button("Cancel", variant="default", id="cancel")
@@ -99,6 +117,21 @@ class TargetSelectorDialog(ModalScreen[Optional[Path]]):
 
     def action_select(self) -> None:
         """Confirm selection."""
+        # Custom path takes precedence when non-empty
+        custom_input = self.query_one("#custom-path", Input)
+        custom_value = custom_input.value.strip()
+        if custom_value:
+            custom_path = Path(custom_value).expanduser()
+            if not custom_path.is_dir():
+                self.notify(
+                    f"Directory does not exist: {custom_path}",
+                    severity="warning",
+                    timeout=3,
+                )
+                return
+            self.dismiss(custom_path)
+            return
+
         radio_set = self.query_one("#target-radio", RadioSet)
         if radio_set.pressed_index is not None and radio_set.pressed_index < len(self.directories):
             self.dismiss(self.directories[radio_set.pressed_index].path)
@@ -281,18 +314,18 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
 
                 # Keyboard shortcuts hint
                 if self.status == InstallStatus.NOT_INSTALLED:
-                    hint = "[dim][i] Install • [esc] Close[/dim]"
+                    hint = "[dim][i] Copy • [esc] Close[/dim]"
                 else:
-                    hint = "[dim][i] Update • [u] Uninstall • [d] View Diff • [esc] Close[/dim]"
+                    hint = "[dim][i] Update • [u] Remove • [d] View Diff • [esc] Close[/dim]"
                 yield Static(hint, id="dialog-hint")
 
                 with Horizontal(id="dialog-buttons"):
                     # Show appropriate buttons based on status
                     if self.status == InstallStatus.NOT_INSTALLED:
-                        yield Button("Install [i]", variant="success", id="install")
+                        yield Button("Copy [i]", variant="success", id="install")
                     else:
                         yield Button("Update [i]", variant="primary", id="install")
-                        yield Button("Uninstall [u]", variant="error", id="uninstall")
+                        yield Button("Remove [u]", variant="error", id="uninstall")
                         # Show diff button for any installed asset
                         diff_variant: Literal["default", "primary", "success", "warning", "error"] = "warning" if self.status == InstallStatus.INSTALLED_DIFFERENT else "default"
                         yield Button("View Diff [d]", variant=diff_variant, id="diff")
@@ -537,12 +570,12 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
         with Container(id="dialog", classes="visible"):
             with Vertical():
                 yield Static(
-                    f"{Icons.FOLDER} [bold]Bulk Install Assets[/bold]",
+                    f"{Icons.FOLDER} [bold]Bulk Copy Assets[/bold]",
                     id="dialog-title",
                 )
 
                 yield Static(
-                    "[dim]Select categories to install all available assets:[/dim]"
+                    "[dim]Select categories to copy all available assets:[/dim]"
                 )
 
                 with VerticalScroll(id="category-list"):
@@ -556,12 +589,12 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
                         )
 
                 yield Static(
-                    "[dim]Space to toggle • [i] or Enter to install selected[/dim]",
+                    "[dim]Space to toggle • [i] or Enter to copy selected[/dim]",
                     id="dialog-hint",
                 )
 
                 with Horizontal(id="dialog-buttons"):
-                    yield Button("Install Selected [i]", variant="success", id="install")
+                    yield Button("Copy Selected [i]", variant="success", id="install")
                     yield Button("Cancel [esc]", variant="default", id="cancel")
 
     def action_cancel(self) -> None:
