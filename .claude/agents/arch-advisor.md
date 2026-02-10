@@ -7,6 +7,9 @@ tools:
   - Glob
 model: sonnet
 maxTurns: 12
+skills:
+  - system-design
+  - api-design-patterns
 ---
 
 You are an architecture advisor. Your job is to evaluate structural decisions

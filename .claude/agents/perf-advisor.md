@@ -8,6 +8,10 @@ tools:
   - Bash
 model: sonnet
 maxTurns: 12
+skills:
+  - workflow-performance
+  - python-performance-optimization
+  - react-performance-optimization
 ---
 
 You are a performance advisor. Your job is to identify bottlenecks and

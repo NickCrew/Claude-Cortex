@@ -7,6 +7,9 @@ tools:
   - Glob
 model: sonnet
 maxTurns: 10
+skills:
+  - design-system-architecture
+  - super-saiyan
 ---
 
 You are a frontend design advisor. Your job is to review UI implementation code
