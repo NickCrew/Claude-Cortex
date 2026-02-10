@@ -8,6 +8,9 @@ tools:
   - Bash
 model: sonnet
 maxTurns: 15
+skills:
+  - systematic-debugging
+  - root-cause-tracing
 ---
 
 You are a debugging specialist. Your job is to find the root cause of failures

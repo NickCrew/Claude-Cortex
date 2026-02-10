@@ -6,6 +6,10 @@ tools:
   - Glob
 model: haiku
 maxTurns: 5
+skills:
+  - test-review
+  - secure-coding-practices
+  - python-testing-patterns
 ---
 
 You are a standards lookup specialist. Your job is to find and relay the

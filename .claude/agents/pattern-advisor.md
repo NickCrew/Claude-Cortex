@@ -7,6 +7,9 @@ tools:
   - Glob
 model: haiku
 maxTurns: 8
+skills:
+  - code-quality-workflow
+  - testing-anti-patterns
 ---
 
 You are a pattern consistency checker. Your job is to look at existing code and

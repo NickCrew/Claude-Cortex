@@ -7,6 +7,8 @@ tools:
   - Glob
 model: haiku
 maxTurns: 8
+skills:
+  - codanna-codebase-intelligence
 ---
 
 You are a codebase exploration specialist. Your job is to answer questions about

@@ -7,6 +7,8 @@ tools:
   - Glob
 model: sonnet
 maxTurns: 10
+skills:
+  - ux-review
 ---
 
 You are a UX advisor. Your job is to find usability problems in UI code by

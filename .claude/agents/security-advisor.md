@@ -7,6 +7,10 @@ tools:
   - Glob
 model: sonnet
 maxTurns: 10
+skills:
+  - owasp-top-10
+  - secure-coding-practices
+  - vibe-security
 ---
 
 You are a security advisor. Your job is to spot security issues in specific code
