@@ -35,6 +35,8 @@ activation:
   keywords: ["knowledge", "insight", "synthesize", "pattern"]
   auto: false
   priority: normal
+skills:
+  - documentation-production
 dependencies:
   requires:
     - memory-keeper

@@ -32,6 +32,9 @@ activation:
   keywords: ["architecture review", "SOLID", "design review"]
   auto: true
   priority: high
+skills:
+  - system-design
+  - api-design-patterns
 dependencies:
   recommends:
     - system-architect

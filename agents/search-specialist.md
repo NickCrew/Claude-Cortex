@@ -41,6 +41,8 @@ activation:
   keywords: ["research", "search", "analysis", "trend"]
   auto: true
   priority: high
+skills:
+  - codanna-codebase-intelligence
 dependencies:
   requires: []
   recommends:

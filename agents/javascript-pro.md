@@ -38,6 +38,9 @@ activation:
   keywords: ["javascript", "node", "async", "event loop"]
   auto: true
   priority: high
+skills:
+  - testing-anti-patterns
+  - typescript-advanced-patterns
 dependencies:
   requires: []
   recommends:

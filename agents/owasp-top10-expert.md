@@ -40,6 +40,10 @@ activation:
     - csrf
   auto: true
   priority: critical
+skills:
+  - owasp-top-10
+  - secure-coding-practices
+  - vibe-security
 dependencies:
   recommends:
     - security-auditor

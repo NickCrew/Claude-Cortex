@@ -30,6 +30,9 @@ activation:
   keywords: ["design system", "component library", "design tokens", "atomic design", "component API"]
   auto: false
   priority: normal
+skills:
+  - design-system-architecture
+  - typescript-advanced-patterns
 dependencies:
   recommends:
     - react-specialist

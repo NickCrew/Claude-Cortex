@@ -31,6 +31,9 @@ activation:
   keywords: ["performance", "web vitals", "LCP", "bundle size", "optimization", "lighthouse"]
   auto: false
   priority: normal
+skills:
+  - react-performance-optimization
+  - design-system-architecture
 dependencies:
   recommends:
     - react-specialist

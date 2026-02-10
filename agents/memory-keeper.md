@@ -44,6 +44,8 @@ activation:
   keywords: ["remember", "save", "recall", "memory", "vault", "record"]
   auto: true
   priority: high
+skills:
+  - session-management
 dependencies:
   requires: []
   recommends:

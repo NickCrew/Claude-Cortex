@@ -33,6 +33,8 @@ activation:
   keywords: ["slow query", "index", "database performance"]
   auto: true
   priority: high
+skills:
+  - database-design-patterns
 dependencies:
   requires:
     - database-admin

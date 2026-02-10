@@ -36,6 +36,10 @@ activation:
   keywords: ["pentest", "exploit", "red team", "offensive"]
   auto: false
   priority: critical
+skills:
+  - security-testing-patterns
+  - owasp-top-10
+  - threat-modeling-techniques
 dependencies:
   requires:
     - security-auditor

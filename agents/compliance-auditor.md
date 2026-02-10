@@ -37,6 +37,9 @@ activation:
   keywords: ["compliance", "audit", "regulatory", "evidence"]
   auto: false
   priority: high
+skills:
+  - secure-coding-practices
+  - owasp-top-10
 dependencies:
   requires:
     - security-auditor

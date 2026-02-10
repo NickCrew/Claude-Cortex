@@ -36,6 +36,10 @@ activation:
   keywords: ["cloud", "aws", "azure", "gcp", "architecture"]
   auto: true
   priority: critical
+skills:
+  - terraform-best-practices
+  - kubernetes-deployment-patterns
+  - gitops-workflows
 dependencies:
   recommends:
     - terraform-specialist

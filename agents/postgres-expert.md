@@ -39,6 +39,8 @@ activation:
     - index
   auto: true
   priority: high
+skills:
+  - database-design-patterns
 dependencies:
   requires:
     - database-admin

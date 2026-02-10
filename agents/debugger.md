@@ -41,6 +41,9 @@ activation:
   keywords: ["error", "stack trace", "bug", "failure"]
   auto: true
   priority: high
+skills:
+  - systematic-debugging
+  - root-cause-tracing
 dependencies:
   requires: []
   recommends:

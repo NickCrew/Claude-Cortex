@@ -45,6 +45,9 @@ activation:
   keywords: ["plan", "orchestrate", "coordinate", "break down", "delegate"]
   auto: true
   priority: high
+skills:
+  - task-orchestration
+  - dispatching-parallel-agents
 dependencies:
   requires: []
   recommends:

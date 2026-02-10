@@ -40,6 +40,8 @@ activation:
   keywords: ["mermaid", "diagram", "flowchart", "sequence", "erd", "state diagram", "gantt", "architecture"]
   auto: false
   priority: medium
+skills:
+  - documentation-production
 dependencies:
   requires: []
   recommends:

@@ -38,6 +38,8 @@ activation:
   keywords: ["teach", "explain", "learning", "lesson", "eli5", "concept", "tutorial"]
   auto: false
   priority: medium
+skills:
+  - code-explanation
 dependencies:
   requires: []
   recommends:

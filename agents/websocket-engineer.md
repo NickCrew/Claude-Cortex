@@ -38,6 +38,8 @@ activation:
   keywords: ["websocket", "real-time", "socket", "pubsub"]
   auto: false
   priority: high
+skills:
+  - event-driven-architecture
 dependencies:
   requires: []
   recommends:

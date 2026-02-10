@@ -32,6 +32,8 @@ activation:
   keywords: ["context", "memory", "handoff", "summary"]
   auto: true
   priority: critical
+skills:
+  - session-management
 dependencies:
   recommends:
     - knowledge-synthesizer
