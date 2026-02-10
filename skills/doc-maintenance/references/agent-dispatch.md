@@ -95,6 +95,45 @@ Use Glob with patterns like "docs/**/*.md" and "manual/**/*.md" to
 discover all files, then classify each by its parent folder.
 ```
 
+### Diagram Opportunity Agent
+
+**Purpose:** Find ASCII diagrams to convert and prose sections that need diagrams.
+
+**Task tool parameters:**
+```
+subagent_type: "Explore"
+model: "haiku"
+description: "Scan docs for diagram opportunities"
+```
+
+**Prompt template:**
+```
+Scan all markdown files under docs/, manual/, and README.md for two things:
+
+1. ASCII/TEXT DIAGRAMS TO CONVERT:
+   Look for code blocks or indented sections containing box-drawing characters
+   (─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼), arrow notation (-->, <--, ==>), pipe-based tables
+   used as diagrams, or indented tree structures. Only flag diagrams that have
+   more than a few simple nodes — trivial 2-3 node diagrams can stay as ASCII.
+   Report the file path, line range, and suggest the Mermaid diagram type
+   (flowchart, sequenceDiagram, stateDiagram, erDiagram, gantt, etc.).
+
+2. SECTIONS THAT NEED DIAGRAMS:
+   Look for prose that describes multi-step flows, architecture relationships,
+   state transitions, request/response sequences, data models with relationships,
+   or decision trees — where no diagram exists nearby. Only flag sections where
+   a diagram would meaningfully improve comprehension (not every list of steps
+   needs a diagram). Report the file path, line range, a brief description of
+   what the diagram should show, and the suggested Mermaid diagram type.
+
+Output format for each finding:
+- File: [path]
+- Lines: [start]-[end]
+- Type: CONVERT or NEW
+- Diagram type: [flowchart|sequenceDiagram|stateDiagram|erDiagram|etc.]
+- Description: [what the diagram should depict]
+```
+
 ---
 
 ## Remediation Agents (Phase 3)
@@ -220,6 +259,61 @@ Findings to address:
 Read the current guide and the relevant source code.
 Fix only the identified issues. Maintain the existing
 progressive-disclosure structure and user-friendly tone.
+```
+
+### mermaid-expert
+
+**Use for:** Converting ASCII/text diagrams to Mermaid and creating new diagrams
+where prose would benefit from visual representation. Diagrams are inlined into
+the markdown file as fenced mermaid code blocks.
+
+**Task tool parameters:**
+```
+subagent_type: "mermaid-expert"
+description: "Create/convert Mermaid diagram"
+```
+
+**Prompt template (convert ASCII to Mermaid):**
+```
+Convert the ASCII/text diagram in [DOC_PATH] at lines [LINE_RANGE] to a
+Mermaid diagram.
+
+Read the file and understand the diagram's intent from the surrounding context.
+Replace the ASCII diagram with a fenced mermaid code block:
+
+    ```mermaid
+    [diagram code]
+    ```
+
+Requirements:
+- Preserve all nodes, edges, and labels from the original
+- Choose the most appropriate Mermaid diagram type: [SUGGESTED_TYPE]
+- Keep the diagram readable — use short node labels with longer descriptions
+  in the surrounding prose if needed
+- Remove the original ASCII diagram after inserting the Mermaid block
+- Do not change any other content in the file
+```
+
+**Prompt template (create new diagram):**
+```
+Add a Mermaid diagram to [DOC_PATH] near line [LINE_NUMBER] to illustrate
+the [DESCRIPTION] described in that section.
+
+Read the file and the surrounding context. Insert an inline fenced mermaid
+code block:
+
+    ```mermaid
+    [diagram code]
+    ```
+
+Requirements:
+- Diagram type: [SUGGESTED_TYPE]
+- Capture the key relationships/flow described in the prose
+- Keep diagrams focused — 5-15 nodes is ideal, avoid overwhelming detail
+- Place the diagram immediately after the prose paragraph it illustrates
+- Do not duplicate information already clear from the text — the diagram
+  should complement the prose, not repeat it verbatim
+- Do not change any other content in the file
 ```
 
 ### docs-architect (Quality Gate)
