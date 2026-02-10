@@ -12,10 +12,12 @@ from claude_ctx_py.core.asset_discovery import (
     AssetCategory,
     ClaudeDir,
     InstallStatus,
+    discover_assets,
     discover_plugin_assets,
     find_claude_directories,
     get_installed_assets,
     check_installation_status,
+    get_default_source_root,
     get_plugin_root,
 )
 from claude_ctx_py.core.asset_installer import (
@@ -103,22 +105,27 @@ class TestClaudeDir:
         assert claude_dir.installed_assets == {"agents": ["test"]}
 
 
-class TestPluginRoot:
-    """Tests for plugin root detection."""
+class TestDefaultSourceRoot:
+    """Tests for default source root detection."""
 
-    def test_get_plugin_root(self):
-        """Test that plugin root is detected."""
-        root = get_plugin_root()
+    def test_get_default_source_root(self):
+        """Test that default source root is detected."""
+        root = get_default_source_root()
         assert root is not None
         assert root.exists()
+
+    def test_get_plugin_root_alias(self):
+        """Test backward-compatible alias."""
+        assert get_plugin_root() == get_default_source_root()
 
 
 class TestAssetDiscovery:
     """Tests for asset discovery functions."""
 
-    def test_discover_plugin_assets(self):
-        """Test full asset discovery."""
-        assets = discover_plugin_assets()
+    def test_discover_assets(self):
+        """Test full asset discovery with explicit root."""
+        root = get_default_source_root()
+        assets = discover_assets(root)
         assert isinstance(assets, dict)
         # Should have at least some categories
         for category in [
@@ -136,6 +143,12 @@ class TestAssetDiscovery:
             "settings",
         ]:
             assert category in assets
+
+    def test_discover_plugin_assets_delegates(self):
+        """Test that discover_plugin_assets delegates to discover_assets."""
+        assets = discover_plugin_assets()
+        assert isinstance(assets, dict)
+        assert "agents" in assets
 
     def test_discover_hooks(self):
         """Test hook discovery via discover_plugin_assets."""
@@ -353,7 +366,7 @@ class TestAssetInstaller:
 
             exit_code, message = install_asset(asset, target_dir, activate=True)
             assert exit_code == 0
-            assert "Installed agent" in message
+            assert "Copied agent" in message
 
             # Verify file was created
             installed = target_dir / "agents" / "test-agent.md"
@@ -577,3 +590,87 @@ class TestAssetInstaller:
 
             path = get_installed_path(asset, tmp_path)
             assert path is None
+
+
+class TestDiscoverAssetsFromRoot:
+    """Tests for discover_assets() with arbitrary source directories."""
+
+    def test_discover_from_project_root(self):
+        """Test discovering assets from a project root with skills/, hooks/, .claude/agents/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            # Create skills/
+            skill_dir = root / "skills" / "my-skill"
+            skill_dir.mkdir(parents=True)
+            (skill_dir / "SKILL.md").write_text("---\ndescription: Test skill\n---\n# My Skill")
+
+            # Create hooks/ with .sh file
+            hooks_dir = root / "hooks"
+            hooks_dir.mkdir()
+            (hooks_dir / "my-hook.sh").write_text("#!/bin/bash\n# My hook script")
+
+            # Create .claude/agents/
+            agents_dir = root / ".claude" / "agents"
+            agents_dir.mkdir(parents=True)
+            (agents_dir / "my-agent.md").write_text("---\nsummary: Test agent\n---\n# My Agent")
+
+            assets = discover_assets(root)
+            skill_names = [a.name for a in assets["skills"]]
+            hook_names = [a.name for a in assets["hooks"]]
+            agent_names = [a.name for a in assets["agents"]]
+
+            assert "my-skill" in skill_names
+            assert "my-hook" in hook_names
+            assert "my-agent" in agent_names
+
+    def test_discover_hooks_direct_scan(self):
+        """Test that hooks at root/hooks/ are found without needing hooks/examples/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            hooks_dir = root / "hooks"
+            hooks_dir.mkdir()
+            (hooks_dir / "direct.py").write_text('"""A direct hook."""')
+
+            assets = discover_assets(root)
+            hook_names = [a.name for a in assets["hooks"]]
+            assert "direct" in hook_names
+
+    def test_discover_agents_dual_path(self):
+        """Test that agents are discovered from both agents/ and .claude/agents/."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            # Agent in root/agents/
+            agents1 = root / "agents"
+            agents1.mkdir()
+            (agents1 / "alpha.md").write_text("---\nsummary: Alpha\n---\n# Alpha")
+
+            # Agent in root/.claude/agents/
+            agents2 = root / ".claude" / "agents"
+            agents2.mkdir(parents=True)
+            (agents2 / "beta.md").write_text("---\nsummary: Beta\n---\n# Beta")
+
+            assets = discover_assets(root)
+            agent_names = [a.name for a in assets["agents"]]
+            assert "alpha" in agent_names
+            assert "beta" in agent_names
+
+    def test_discover_agents_dedup(self):
+        """Test that duplicate agent names are deduplicated (first wins)."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+
+            # Same name in both locations
+            agents1 = root / "agents"
+            agents1.mkdir()
+            (agents1 / "same.md").write_text("---\nsummary: First\n---")
+
+            agents2 = root / ".claude" / "agents"
+            agents2.mkdir(parents=True)
+            (agents2 / "same.md").write_text("---\nsummary: Second\n---")
+
+            assets = discover_assets(root)
+            matching = [a for a in assets["agents"] if a.name == "same"]
+            assert len(matching) == 1
+            assert "First" in matching[0].description

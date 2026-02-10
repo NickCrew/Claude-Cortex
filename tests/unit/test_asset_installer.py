@@ -255,4 +255,42 @@ def test_install_asset_exception_handling(temp_claude_dir):
     asset = Asset(name="bad", category=AssetCategory.AGENTS, source_path=Path("/nonexistent"), description="desc")
     exit_code, msg = asset_installer.install_asset(asset, temp_claude_dir)
     assert exit_code == 1
-    assert "Installation failed" in msg
+    assert "Copy failed" in msg
+
+
+# --------------------------------------------------------------------------- conditional kwargs
+
+def test_install_asset_no_claude_refs(temp_claude_dir, mock_source_dir):
+    """Test that add_claude_refs=False skips CLAUDE.md modification."""
+    (temp_claude_dir / "CLAUDE.md").write_text("# CLAUDE\n")
+    asset = create_mock_asset(mock_source_dir, AssetCategory.AGENTS, "no-ref-agent")
+
+    exit_code, msg = asset_installer.install_asset(
+        asset, temp_claude_dir, add_claude_refs=False
+    )
+    assert exit_code == 0
+    assert (temp_claude_dir / "agents" / "no-ref-agent.md").exists()
+    # CLAUDE.md should NOT have been updated
+    claude_md = (temp_claude_dir / "CLAUDE.md").read_text()
+    assert "no-ref-agent" not in claude_md
+
+
+def test_install_hook_no_registration(temp_claude_dir, mock_source_dir):
+    """Test that register_hooks=False skips settings.json modification."""
+    hook_file = mock_source_dir / "test-hook.sh"
+    hook_file.write_text("#!/bin/bash\n# A test hook\necho hello")
+    asset = Asset(
+        name="test-hook",
+        category=AssetCategory.HOOKS,
+        source_path=hook_file,
+        description="Test hook",
+    )
+
+    exit_code, msg = asset_installer.install_asset(
+        asset, temp_claude_dir, register_hooks=False
+    )
+    assert exit_code == 0
+    assert (temp_claude_dir / "hooks" / "test-hook.sh").exists()
+    # settings.json should NOT exist (no registration happened)
+    settings_path = temp_claude_dir / "settings.json"
+    assert not settings_path.exists()
