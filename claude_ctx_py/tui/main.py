@@ -139,7 +139,8 @@ from ..core.mcp import (
 from ..core.agents import BUILT_IN_PROFILES
 from ..core.asset_discovery import (
     Asset, ClaudeDir, AssetCategory, InstallStatus,
-    discover_plugin_assets, find_claude_directories, check_installation_status,
+    discover_assets, discover_plugin_assets, find_claude_directories,
+    check_installation_status,
 )
 from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
 from ..core.hooks import detect_settings_files, get_settings_path, get_settings_scope
@@ -148,6 +149,7 @@ from .dialogs import (
     AssetDetailDialog,
     DiffViewerDialog,
     BulkInstallDialog,
+    SourcePathDialog,
     BulkSkillOperationDialog,
     MCPBrowseDialog,
     MCPInstallDialog,
@@ -277,10 +279,11 @@ class AgentTUI(App[None]):
         self.skill_rating_error: Optional[str] = None
         self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
         self._tasks_state_signature: Optional[str] = None
-        # Asset manager state
+        # Asset browser state
         self.available_assets: Dict[str, List[Asset]] = {}
         self.claude_directories: List[ClaudeDir] = []
         self.selected_target_dir: Optional[Path] = None
+        self.asset_source_root: Path = Path.cwd()
         # Memory vault state
         self.memory_notes: List[MemoryNote] = []
         # Watch mode state
@@ -360,11 +363,12 @@ class AgentTUI(App[None]):
         Binding("D", "context_delete", "Delete/Diagnose", show=False),
         Binding("L", "task_open_source", "Open Log", show=False),
         Binding("O", "task_open_external", "Open File", show=False),
-        # Asset Manager bindings
-        Binding("i", "asset_install", "Install", show=False),
-        Binding("u", "asset_uninstall", "Uninstall", show=False),
+        # Asset Browser bindings
+        Binding("i", "asset_install", "Copy", show=False),
+        Binding("u", "asset_uninstall", "Remove", show=False),
+        Binding("S", "asset_change_source", "Source", show=False),
         Binding("T", "asset_change_target", "Target", show=False),
-        Binding("I", "asset_bulk_install", "Bulk Install", show=False),
+        Binding("I", "asset_bulk_install", "Bulk Copy", show=False),
         Binding("U", "asset_update_all", "Update All", show=False),
         Binding("enter", "asset_details", "Details", show=False),
         # Memory Vault bindings
@@ -2036,9 +2040,9 @@ class AgentTUI(App[None]):
             self.status_message = f"Error loading MCP docs: {e}"
 
     def load_assets(self) -> None:
-        """Load available assets from the plugin."""
+        """Load available assets from the configured source root."""
         try:
-            self.available_assets = discover_plugin_assets()
+            self.available_assets = discover_assets(self.asset_source_root)
             self.claude_directories = find_claude_directories(Path.cwd())
 
             # Set default target dir (respect explicit scope overrides)
@@ -2066,7 +2070,7 @@ class AgentTUI(App[None]):
             active_settings = get_settings_path()
             settings_scope = get_settings_scope(active_settings)
             self.status_message = (
-                f"Loaded {total} assets from plugin | settings: {settings_scope} "
+                f"Loaded {total} assets from {self.asset_source_root} | settings: {settings_scope} "
                 f"({active_settings})"
             )
         except Exception as e:
@@ -3933,6 +3937,15 @@ class AgentTUI(App[None]):
             )
             return
 
+        # Show source directory info
+        source_text = str(self.asset_source_root)
+        table.add_row(
+            "[bold magenta]Source[/bold magenta]",
+            f"[dim]{source_text}[/dim]",
+            "",
+            "[dim]Press [white]S[/white] to change source[/dim]",
+        )
+
         # Show target directory info
         target_text = str(self.selected_target_dir) if self.selected_target_dir else "Not set"
         table.add_row(
@@ -4118,8 +4131,8 @@ class AgentTUI(App[None]):
         """Switch to assets view."""
         self.load_assets()
         self.current_view = "assets"
-        self.status_message = "Switched to Asset Manager"
-        self.notify("📦 Asset Manager", severity="information", timeout=1)
+        self.status_message = "Switched to Asset Browser"
+        self.notify("📦 Asset Browser", severity="information", timeout=1)
 
     def action_view_memory(self) -> None:
         """Switch to memory view."""
@@ -4535,9 +4548,9 @@ class AgentTUI(App[None]):
 
         table = self.query_one("#main-table", DataTable)
 
-        # Skip header rows (target info row and blank row)
+        # Skip header rows (source, target, and blank row)
         row_idx = table.cursor_row
-        if row_idx < 2:  # Header rows
+        if row_idx < 3:  # Header rows
             return None
 
         # Flatten assets list
@@ -4545,13 +4558,34 @@ class AgentTUI(App[None]):
         for category in ASSET_CATEGORY_ORDER:
             all_assets.extend(self.available_assets.get(category, []))
 
-        asset_idx = row_idx - 2  # Adjust for header rows
+        asset_idx = row_idx - 3  # Adjust for header rows
         if 0 <= asset_idx < len(all_assets):
             return all_assets[asset_idx]
         return None
 
+    def action_asset_change_source(self) -> None:
+        """Change the asset source root directory."""
+        if self.current_view != "assets":
+            return
+
+        dialog = SourcePathDialog(self.asset_source_root)
+        self.push_screen(dialog, callback=self._handle_source_change)
+
+    def _handle_source_change(self, result: Optional[Path]) -> None:
+        """Handle source root change callback."""
+        try:
+            if result:
+                self.asset_source_root = result
+                self.load_assets()
+                total = sum(len(a) for a in self.available_assets.values())
+                self.status_message = f"Source: {result} ({total} assets)"
+                self.notify(f"Source set to {result}", severity="information", timeout=2)
+                self.update_view()
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
     def action_asset_change_target(self) -> None:
-        """Change the installation target directory."""
+        """Change the copy target directory."""
         if self.current_view != "assets":
             return
 
@@ -4606,6 +4640,12 @@ class AgentTUI(App[None]):
         dialog = AssetDetailDialog(asset, status, self.selected_target_dir)
         self.push_screen(dialog, callback=self._handle_asset_detail_action)
 
+    @staticmethod
+    def _is_managed_target(target_dir: Path) -> bool:
+        """Check if the target looks like a .claude or .cortex directory."""
+        name = target_dir.name
+        return name in (".claude", ".cortex")
+
     def _handle_asset_detail_action(self, action: Optional[str]) -> None:
         """Handle action from asset detail dialog."""
         try:
@@ -4617,9 +4657,14 @@ class AgentTUI(App[None]):
             asset = self._current_asset
 
             if action == "install":
-                exit_code, message = install_asset(asset, self.selected_target_dir)
+                managed = self._is_managed_target(self.selected_target_dir)
+                exit_code, message = install_asset(
+                    asset, self.selected_target_dir,
+                    add_claude_refs=managed,
+                    register_hooks=managed,
+                )
                 if exit_code == 0:
-                    self.notify(f"✓ Installed {asset.display_name}", severity="information", timeout=2)
+                    self.notify(f"✓ Copied {asset.display_name}", severity="information", timeout=2)
                     if self._asset_triggers_restart(asset):
                         self._show_restart_required()
                 else:
@@ -4700,7 +4745,12 @@ class AgentTUI(App[None]):
 
             saved_cursor_row = self._table_cursor_index()
             asset = self._diff_asset_pending
-            exit_code, message = install_asset(asset, self.selected_target_dir)
+            managed = self._is_managed_target(self.selected_target_dir)
+            exit_code, message = install_asset(
+                asset, self.selected_target_dir,
+                add_claude_refs=managed,
+                register_hooks=managed,
+            )
             if exit_code == 0:
                 self.notify(f"✓ Updated {asset.display_name}", severity="information", timeout=2)
                 if self._asset_triggers_restart(asset):
@@ -4764,7 +4814,7 @@ class AgentTUI(App[None]):
         self.push_screen(dialog, callback=self._handle_bulk_install)
 
     def _handle_bulk_install(self, selected: Optional[List[str]]) -> None:
-        """Handle bulk install dialog callback."""
+        """Handle bulk copy dialog callback."""
         try:
             if not selected:
                 self.notify("No categories selected", severity="warning", timeout=2)
@@ -4773,27 +4823,32 @@ class AgentTUI(App[None]):
                 return
 
             saved_cursor_row = self._table_cursor_index()
-            installed_count = 0
+            copied_count = 0
             failed_count = 0
             restart_needed = False
+            managed = self._is_managed_target(self.selected_target_dir)
 
             for cat_name in selected:
                 assets = self.available_assets.get(cat_name, [])
                 for asset in assets:
                     if check_installation_status(asset, self.selected_target_dir) == InstallStatus.NOT_INSTALLED:
-                        exit_code, _ = install_asset(asset, self.selected_target_dir)
+                        exit_code, _ = install_asset(
+                            asset, self.selected_target_dir,
+                            add_claude_refs=managed,
+                            register_hooks=managed,
+                        )
                         if exit_code == 0:
-                            installed_count += 1
+                            copied_count += 1
                             if self._asset_triggers_restart(asset):
                                 restart_needed = True
                         else:
                             failed_count += 1
 
             if failed_count == 0:
-                self.notify(f"✓ Installed {installed_count} assets", severity="information", timeout=2)
+                self.notify(f"✓ Copied {copied_count} assets", severity="information", timeout=2)
             else:
                 self.notify(
-                    f"Installed {installed_count}, failed {failed_count}",
+                    f"Copied {copied_count}, failed {failed_count}",
                     severity="warning",
                     timeout=3,
                 )

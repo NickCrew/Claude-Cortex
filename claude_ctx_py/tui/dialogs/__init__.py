@@ -5,6 +5,7 @@ from .asset_dialogs import (
     AssetDetailDialog,
     DiffViewerDialog,
     BulkInstallDialog,
+    SourcePathDialog,
 )
 
 from .memory_dialogs import (
@@ -38,6 +39,7 @@ __all__ = [
     "AssetDetailDialog",
     "DiffViewerDialog",
     "BulkInstallDialog",
+    "SourcePathDialog",
     "MemoryNoteDialog",
     "MemoryNoteCreateDialog",
     "MCPBrowseDialog",
