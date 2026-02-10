@@ -44,34 +44,51 @@ This file defines:
 must reference a specific standard from this file. Do not invent standards — use
 the ones defined here.
 
-### Phase 2: Discovery (Haiku Agent)
+### Phase 2: Discovery (Haiku Agents)
 
-Spawn a **Haiku sub-agent** to perform the mechanical discovery work — Steps 1
-and 2 of the audit workflow. This keeps the main context clean for analysis.
+Spawn Haiku sub-agents to perform the mechanical discovery work — Steps 1 and 2
+of the audit workflow. This keeps the main context clean for analysis.
 
-Read the audit workflow first so you understand what the agent needs to do:
+Read the audit workflow first so you understand what the agents need to do:
 
 ```
 cat skills/test-review/references/audit-workflow.md
 ```
 
-Then launch a Haiku agent with a prompt that includes:
-1. The module path(s) to audit
-2. Instructions to execute **Step 1: Map the Public Contract** — read all source
-   files and produce the plain-English behavior list
-3. Instructions to execute **Step 2: Map Existing Test Coverage** — read all test
-   files, map each test to a behavior from Step 1, and mark each behavior as
-   Covered, Shallow, or Missing
+#### Step 2a: Scope the work
 
-The agent prompt must tell it to return a structured inventory:
-- The complete behavior list from Step 1
-- The coverage mapping from Step 2 with status markers
-- A list of all source files and test files it read
+Before spawning agents, determine how many files are involved:
 
-**Do not ask the Haiku agent to analyze, prioritize, or judge.** Its job is to
+```
+Glob tool: **/*.{py,rs,ts,tsx,js,jsx,go,rb} under [MODULE_PATH]
+Glob tool: **/*.{test,spec}.* or **/test_*.* or **/tests/**  under [TEST_PATH]
+```
+
+Count the source files and test files. This determines the fan-out strategy.
+
+#### Step 2b: Choose fan-out strategy
+
+| Source files | Strategy | Agents |
+|---|---|---|
+| ≤ 15 | **Single agent** — one Haiku handles everything | 1 |
+| 16–60 | **Partition by directory** — one agent per top-level subdirectory (or logical grouping) | 2–4 |
+| 60+ | **Partition by file chunks** — split the file list into roughly equal chunks of ~15 files each | up to 6 |
+
+**Partitioning rules:**
+- Each agent gets a subset of **source files** to inventory (Step 1)
+- Each agent also gets the **full test file list** (tests may cross-cut source boundaries)
+- Each agent only produces inventory for its assigned source files
+- Partitions should respect directory boundaries when possible (keep related files together)
+
+#### Step 2c: Launch agents in parallel
+
+Launch all Haiku agents in a **single message** so they run concurrently. Each
+agent gets the same instructions but a different file partition.
+
+**Do not ask Haiku agents to analyze, prioritize, or judge.** Their job is to
 read code and produce a factual inventory. Analysis happens in Phase 3.
 
-Example agent launch (adapt paths to the actual module):
+**Single agent** (≤ 15 source files):
 
 ```
 Task tool:
@@ -102,9 +119,66 @@ Task tool:
     Do NOT prioritize, analyze risk, or produce a gap report. Just inventory.
 ```
 
+**Multiple agents** (16+ source files):
+
+Launch all agents in the same message. Each gets a partition of source files
+but the full list of test files.
+
+```
+# Agent 1 of N — launched in parallel with all other agents
+Task tool:
+  subagent_type: Explore
+  model: haiku
+  prompt: |
+    Read the audit workflow at skills/test-review/references/audit-workflow.md.
+    Then execute Steps 1 and 2 for the following SOURCE FILES ONLY:
+    [LIST OF FILES IN THIS PARTITION]
+
+    The test files that may cover these sources are at:
+    [FULL TEST FILE LIST OR TEST DIRECTORY PATH]
+
+    Step 1 - Map the Public Contract:
+    Read ONLY the source files listed above. List every public behavior each
+    promises as plain-English statements (see audit-workflow.md for format).
+
+    Step 2 - Map Existing Test Coverage:
+    Read the test files and identify which tests exercise behaviors from YOUR
+    source files. Mark each behavior as:
+    - Covered: at least one test verifies this with meaningful assertions
+    - Shallow: a test touches this but doesn't properly verify it
+    - Missing: no test exercises this behavior
+
+    Return:
+    1. Source files you read (paths)
+    2. Test files you read (paths)
+    3. Complete behavior list with coverage status markers
+    4. For each Shallow entry, note what the test does and why it's insufficient
+
+    Do NOT prioritize, analyze risk, or produce a gap report. Just inventory.
+
+# Agent 2 of N — same structure, different file partition
+# ...
+# Agent N of N
+```
+
+#### Step 2d: Merge inventories
+
+Once all agents return, merge their results into one unified inventory:
+
+1. **Concatenate** all behavior lists (each agent covers different source files,
+   so there should be minimal overlap)
+2. **Deduplicate** any behaviors that appear in multiple agents' results (can
+   happen when source files in different partitions share interfaces)
+3. **Prefer the more-specific status** when merging duplicates: if one agent
+   says Covered and another says Shallow for the same behavior, keep Shallow
+   (investigate the discrepancy in Phase 3)
+4. **Compile** the full list of source files and test files read across all agents
+
+The merged inventory feeds into Phase 3 exactly as if a single agent produced it.
+
 ### Phase 3: Analysis and Report
 
-Using the Haiku agent's inventory, **you** (the main agent) perform the deeper
+Using the merged Haiku inventory, **you** (the main agent) perform the deeper
 analysis work — Steps 3 and 4 of the audit workflow:
 
 - **Step 3: Adversarial analysis** — probe input boundaries, error handling,
