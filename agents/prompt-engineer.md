@@ -35,6 +35,8 @@ activation:
   keywords: ["prompt", "system prompt", "LLM instructions", "test cases", "synthetic data"]
   auto: true
   priority: high
+skills:
+  - writing-skills
 dependencies:
   recommends:
     - ai-engineer

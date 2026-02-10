@@ -32,6 +32,10 @@ activation:
   keywords: ["wireframe", "prototype", "design system", "user flow"]
   auto: true
   priority: normal
+skills:
+  - ux-review
+  - accessibility-audit
+  - design-system-architecture
 dependencies:
   recommends:
     - product-manager

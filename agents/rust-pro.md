@@ -34,6 +34,8 @@ activation:
   keywords: ["rust", "ownership", "borrowing", "async"]
   auto: true
   priority: high
+skills:
+  - test-driven-development
 dependencies:
   recommends:
     - performance-engineer

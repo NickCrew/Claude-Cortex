@@ -43,6 +43,10 @@ activation:
   keywords: ["test", "coverage", "automation", "qa"]
   auto: true
   priority: high
+skills:
+  - test-review
+  - python-testing-patterns
+  - testing-anti-patterns
 dependencies:
   requires: []
   recommends:

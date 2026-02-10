@@ -39,6 +39,8 @@ activation:
     - jwe
   auto: true
   priority: high
+skills:
+  - secure-coding-practices
 dependencies:
   recommends:
     - security-auditor

@@ -37,6 +37,10 @@ activation:
   keywords: ["react", "hooks", "jsx", "concurrent"]
   auto: false
   priority: high
+skills:
+  - react-performance-optimization
+  - typescript-advanced-patterns
+  - testing-anti-patterns
 dependencies:
   requires:
     - typescript-pro

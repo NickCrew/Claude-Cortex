@@ -31,6 +31,9 @@ activation:
   keywords: ["documentation", "guide", "tutorial", "write"]
   auto: true
   priority: normal
+skills:
+  - documentation-production
+  - code-explanation
 dependencies:
   recommends:
     - docs-architect

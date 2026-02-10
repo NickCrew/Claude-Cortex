@@ -30,6 +30,9 @@ activation:
   keywords: ["interaction", "micro-interaction", "animation", "state", "flow", "gesture"]
   auto: false
   priority: normal
+skills:
+  - ux-review
+  - accessibility-audit
 dependencies:
   recommends:
     - ui-ux-designer

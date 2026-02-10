@@ -38,6 +38,9 @@ activation:
   keywords: ["tutorial", "workshop", "guide", "walkthrough", "hands-on", "lab"]
   auto: false
   priority: medium
+skills:
+  - documentation-production
+  - code-explanation
 dependencies:
   requires: []
   recommends:

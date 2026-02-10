@@ -30,6 +30,8 @@ activation:
   keywords: ["product strategy", "roadmap", "prioritization", "feature planning", "OKRs"]
   auto: false
   priority: normal
+skills:
+  - user-journey-mapping
 dependencies:
   recommends:
     - ui-ux-designer

@@ -44,6 +44,8 @@ activation:
   keywords: ["refine", "optimize", "polish", "improve", "iterate"]
   auto: false
   priority: normal
+skills:
+  - code-quality-workflow
 dependencies:
   requires: []
   recommends:

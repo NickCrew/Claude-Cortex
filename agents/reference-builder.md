@@ -32,6 +32,8 @@ activation:
   keywords: ["reference", "API doc", "spec", "configuration"]
   auto: true
   priority: high
+skills:
+  - documentation-production
 dependencies:
   recommends:
     - docs-architect

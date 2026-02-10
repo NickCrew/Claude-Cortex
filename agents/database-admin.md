@@ -32,6 +32,8 @@ activation:
   keywords: ["database", "backup", "replication", "recovery"]
   auto: true
   priority: high
+skills:
+  - database-design-patterns
 dependencies:
   recommends:
     - database-optimizer

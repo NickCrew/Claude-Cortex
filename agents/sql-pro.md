@@ -33,6 +33,8 @@ activation:
   keywords: ["sql", "query", "database", "postgres", "mysql", "sqlite", "optimize query"]
   auto: true
   priority: high
+skills:
+  - database-design-patterns
 dependencies:
   requires: []
   recommends:

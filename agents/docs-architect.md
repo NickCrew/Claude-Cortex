@@ -43,6 +43,9 @@ activation:
   keywords: ["documentation", "manual", "architecture", "guide"]
   auto: true
   priority: high
+skills:
+  - documentation-production
+  - code-explanation
 dependencies:
   requires: []
   recommends:

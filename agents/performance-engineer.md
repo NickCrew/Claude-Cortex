@@ -33,6 +33,10 @@ activation:
   keywords: ["performance", "latency", "profiling", "benchmark"]
   auto: true
   priority: high
+skills:
+  - workflow-performance
+  - python-performance-optimization
+  - react-performance-optimization
 dependencies:
   recommends:
     - devops-troubleshooter

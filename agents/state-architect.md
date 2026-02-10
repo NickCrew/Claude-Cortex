@@ -31,6 +31,9 @@ activation:
   keywords: ["state management", "redux", "zustand", "tanstack query", "global state", "server state"]
   auto: false
   priority: normal
+skills:
+  - react-performance-optimization
+  - typescript-advanced-patterns
 dependencies:
   recommends:
     - react-specialist

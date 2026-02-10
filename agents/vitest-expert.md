@@ -38,6 +38,8 @@ activation:
     - testing
   auto: true
   priority: medium
+skills:
+  - testing-anti-patterns
 dependencies:
   recommends:
     - test-automator

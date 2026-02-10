@@ -39,6 +39,8 @@ activation:
     - status code
   auto: true
   priority: medium
+skills:
+  - api-design-patterns
 dependencies:
   recommends:
     - api-documenter

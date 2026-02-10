@@ -39,6 +39,9 @@ activation:
     - postcss
   auto: false
   priority: medium
+skills:
+  - design-system-architecture
+  - accessibility-audit
 dependencies:
   recommends:
     - ui-ux-designer

@@ -31,6 +31,9 @@ activation:
   keywords: ["user research", "usability testing", "interviews", "survey", "persona"]
   auto: false
   priority: normal
+skills:
+  - ux-review
+  - user-journey-mapping
 dependencies:
   recommends:
     - product-strategist

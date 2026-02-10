@@ -42,6 +42,10 @@ activation:
   keywords: ["code review", "PR", "diff", "configuration"]
   auto: true
   priority: critical
+skills:
+  - code-quality-workflow
+  - testing-anti-patterns
+  - secure-coding-practices
 dependencies:
   requires: []
   recommends:

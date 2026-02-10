@@ -36,6 +36,8 @@ activation:
   keywords: ["monitor", "metrics", "observability", "anomaly"]
   auto: false
   priority: high
+skills:
+  - workflow-performance
 dependencies:
   requires:
     - context-manager
