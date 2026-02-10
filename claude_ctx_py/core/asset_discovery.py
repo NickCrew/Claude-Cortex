@@ -146,23 +146,28 @@ class ClaudeDir:
                 return f"{self.path} ({self.scope})"
 
 
-def get_plugin_root() -> Path:
-    """Get the root directory of the plugin installation.
+def get_default_source_root() -> Path:
+    """Get the default source root (plugin installation directory).
 
     Returns:
-        Path to the plugin root directory
+        Path to the default source root directory
     """
     return _resolve_plugin_assets_root()
 
 
-def discover_plugin_assets() -> Dict[str, List[Asset]]:
-    """Discover all available assets from the plugin.
+# Backward-compatible alias
+get_plugin_root = get_default_source_root
+
+
+def discover_assets(root: Path) -> Dict[str, List[Asset]]:
+    """Discover all available assets from an arbitrary source directory.
+
+    Args:
+        root: Directory to scan for assets
 
     Returns:
         Dict mapping category names to lists of Asset objects
     """
-    plugin_root = get_plugin_root()
-
     assets: Dict[str, List[Asset]] = {
         "hooks": [],
         "commands": [],
@@ -179,26 +184,45 @@ def discover_plugin_assets() -> Dict[str, List[Asset]]:
     }
 
     # Discover each category
-    assets["hooks"] = _discover_hooks(plugin_root)
-    assets["commands"] = _discover_commands(plugin_root)
-    assets["agents"] = _discover_agents(plugin_root)
-    assets["skills"] = _discover_skills(plugin_root)
-    assets["modes"] = _discover_modes(plugin_root)
-    assets["workflows"] = _discover_workflows(plugin_root)
-    assets["flags"] = _discover_flags(plugin_root)
-    assets["rules"] = _discover_rules(plugin_root)
-    assets["profiles"] = _discover_profiles(plugin_root)
-    assets["scenarios"] = _discover_scenarios(plugin_root)
-    assets["tasks"] = _discover_tasks(plugin_root)
-    assets["settings"] = _discover_settings(plugin_root)
+    assets["hooks"] = _discover_hooks(root)
+    assets["commands"] = _discover_commands(root)
+    assets["agents"] = _discover_agents(root)
+    assets["skills"] = _discover_skills(root)
+    assets["modes"] = _discover_modes(root)
+    assets["workflows"] = _discover_workflows(root)
+    assets["flags"] = _discover_flags(root)
+    assets["rules"] = _discover_rules(root)
+    assets["profiles"] = _discover_profiles(root)
+    assets["scenarios"] = _discover_scenarios(root)
+    assets["tasks"] = _discover_tasks(root)
+    assets["settings"] = _discover_settings(root)
 
     return assets
+
+
+def discover_plugin_assets() -> Dict[str, List[Asset]]:
+    """Discover all available assets from the plugin.
+
+    Thin wrapper around :func:`discover_assets` using the default plugin root.
+
+    Returns:
+        Dict mapping category names to lists of Asset objects
+    """
+    return discover_assets(get_default_source_root())
 
 
 def _discover_hooks(plugin_root: Path) -> List[Asset]:
     """Discover available hooks."""
     hooks: List[Asset] = []
-    hooks_dir = plugin_root / "hooks" / "examples"
+
+    # Scan root/hooks/ directly; fall back to root/hooks/examples/ for compat
+    hooks_dir = plugin_root / "hooks"
+    if hooks_dir.exists() and any(
+        f.suffix in (".py", ".sh") for f in hooks_dir.iterdir() if f.is_file()
+    ):
+        pass  # use hooks_dir as-is
+    else:
+        hooks_dir = plugin_root / "hooks" / "examples"
 
     if not hooks_dir.exists():
         return hooks
@@ -333,101 +357,129 @@ def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]
 
 
 def _discover_agents(plugin_root: Path) -> List[Asset]:
-    """Discover available agents."""
+    """Discover available agents.
+
+    Scans both ``root/agents/`` and ``root/.claude/agents/`` so that
+    pointing the source at a project root picks up agents from either
+    location.
+    """
     agents: List[Asset] = []
-    agents_dir = plugin_root / "agents"
+    seen_names: set[str] = set()
 
-    if not agents_dir.exists():
-        return agents
+    agent_dirs = [
+        plugin_root / "agents",
+        plugin_root / ".claude" / "agents",
+    ]
 
-    for path in agents_dir.glob("*.md"):
-        if path.name in ("README.md", "dependencies.map"):
+    for agents_dir in agent_dirs:
+        if not agents_dir.exists():
             continue
 
-        try:
-            content = path.read_text(encoding="utf-8")
-            front_matter_str = _extract_front_matter(content)
+        for path in agents_dir.glob("*.md"):
+            if path.name in ("README.md", "dependencies.map"):
+                continue
+            if path.stem in seen_names:
+                continue
 
-            # Parse YAML front matter
-            front_matter: Dict[str, Any] = {}
-            if front_matter_str:
-                try:
-                    import yaml
-                    front_matter = yaml.safe_load(front_matter_str) or {}
-                except Exception:
-                    pass
+            try:
+                content = path.read_text(encoding="utf-8")
+                front_matter_str = _extract_front_matter(content)
 
-            description = front_matter.get("summary", front_matter.get("description", ""))
-            if not description:
-                description = f"Agent: {path.stem}"
+                # Parse YAML front matter
+                front_matter: Dict[str, Any] = {}
+                if front_matter_str:
+                    try:
+                        import yaml
+                        front_matter = yaml.safe_load(front_matter_str) or {}
+                    except Exception:
+                        pass
 
-            agents.append(Asset(
-                name=path.stem,
-                category=AssetCategory.AGENTS,
-                source_path=path,
-                description=description[:100] + "..." if len(description) > 100 else description,
-                version=front_matter.get("version"),
-                metadata=front_matter,
-            ))
-        except OSError:
-            continue
+                description = front_matter.get("summary", front_matter.get("description", ""))
+                if not description:
+                    description = f"Agent: {path.stem}"
+
+                agents.append(Asset(
+                    name=path.stem,
+                    category=AssetCategory.AGENTS,
+                    source_path=path,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    version=front_matter.get("version"),
+                    metadata=front_matter,
+                ))
+                seen_names.add(path.stem)
+            except OSError:
+                continue
 
     return sorted(agents, key=lambda a: a.name)
 
 
 def _discover_skills(plugin_root: Path) -> List[Asset]:
-    """Discover available skills."""
+    """Discover available skills.
+
+    Scans both ``root/skills/`` and ``root/.claude/skills/`` so that
+    pointing the source at a project root picks up skills from either
+    location.
+    """
     skills: List[Asset] = []
-    skills_dir = plugin_root / "skills"
+    seen_names: set[str] = set()
 
-    if not skills_dir.exists():
-        return skills
+    skill_dirs = [
+        plugin_root / "skills",
+        plugin_root / ".claude" / "skills",
+    ]
 
-    for item in skills_dir.iterdir():
-        if not item.is_dir():
-            continue
-        if item.name.startswith(".") or item.name in ("community", "__pycache__"):
-            continue
-
-        # Look for SKILL.md
-        skill_file = item / "SKILL.md"
-        if not skill_file.exists():
+    for skills_dir in skill_dirs:
+        if not skills_dir.exists():
             continue
 
-        try:
-            content = skill_file.read_text(encoding="utf-8")
-            front_matter_str = _extract_front_matter(content)
+        for item in skills_dir.iterdir():
+            if not item.is_dir():
+                continue
+            if item.name.startswith(".") or item.name in ("community", "__pycache__"):
+                continue
+            if item.name in seen_names:
+                continue
 
-            # Parse YAML front matter
-            front_matter: Dict[str, Any] = {}
-            if front_matter_str:
-                try:
-                    import yaml
-                    front_matter = yaml.safe_load(front_matter_str) or {}
-                except Exception:
-                    pass
+            # Look for SKILL.md
+            skill_file = item / "SKILL.md"
+            if not skill_file.exists():
+                continue
 
-            description = front_matter.get("description", "")
-            if not description:
-                # Try to get from first paragraph
-                lines = content.split("\n")
-                for line in lines:
-                    if line.startswith("#"):
-                        continue
-                    if line.strip() and not line.startswith("---"):
-                        description = line.strip()
-                        break
+            try:
+                content = skill_file.read_text(encoding="utf-8")
+                front_matter_str = _extract_front_matter(content)
 
-            skills.append(Asset(
-                name=item.name,
-                category=AssetCategory.SKILLS,
-                source_path=item,
-                description=description[:100] + "..." if len(description) > 100 else description,
-                version=front_matter.get("version"),
-                metadata=front_matter,
-            ))
-        except OSError:
-            continue
+                # Parse YAML front matter
+                front_matter: Dict[str, Any] = {}
+                if front_matter_str:
+                    try:
+                        import yaml
+                        front_matter = yaml.safe_load(front_matter_str) or {}
+                    except Exception:
+                        pass
+
+                description = front_matter.get("description", "")
+                if not description:
+                    # Try to get from first paragraph
+                    lines = content.split("\n")
+                    for line in lines:
+                        if line.startswith("#"):
+                            continue
+                        if line.strip() and not line.startswith("---"):
+                            description = line.strip()
+                            break
+
+                skills.append(Asset(
+                    name=item.name,
+                    category=AssetCategory.SKILLS,
+                    source_path=item,
+                    description=description[:100] + "..." if len(description) > 100 else description,
+                    version=front_matter.get("version"),
+                    metadata=front_matter,
+                ))
+                seen_names.add(item.name)
+            except OSError:
+                continue
 
     return sorted(skills, key=lambda a: a.name)
 
