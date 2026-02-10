@@ -37,7 +37,7 @@ VIEW_TITLES: Dict[str, str] = {
     "ai_assistant": "🤖 AI Assistant",
     "watch_mode": "🔍 Watch Mode",
     "tasks": f"{Icons.TEST} Tasks",
-    "assets": "📦 Asset Manager",
+    "assets": "📦 Asset Browser",
     "memory": "🧠 Memory Vault",
     "codex_skills": "🔗 Codex Skills",
 }

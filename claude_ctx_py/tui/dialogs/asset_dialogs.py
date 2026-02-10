@@ -620,3 +620,100 @@ class BulkInstallDialog(ModalScreen[Optional[List[str]]]):
             self.action_install()
         else:
             self.action_cancel()
+
+
+class SourcePathDialog(ModalScreen[Optional[Path]]):
+    """Dialog for entering a source directory path."""
+
+    CSS = """
+    SourcePathDialog {
+        align: center middle;
+    }
+
+    SourcePathDialog #dialog {
+        width: 70;
+        max-width: 90%;
+        padding: 1 2;
+        background: $surface;
+        border: thick $primary;
+        opacity: 1;
+    }
+
+    SourcePathDialog #dialog-title {
+        text-align: center;
+        text-style: bold;
+        padding-bottom: 1;
+    }
+
+    SourcePathDialog #source-path {
+        width: 100%;
+    }
+
+    SourcePathDialog #dialog-buttons {
+        width: 100%;
+        align: center middle;
+        padding-top: 1;
+    }
+    """
+
+    BINDINGS = [
+        Binding("escape", "cancel", "Cancel"),
+    ]
+
+    def __init__(self, current_path: Path):
+        super().__init__()
+        self.current_path = current_path
+
+    def compose(self) -> ComposeResult:
+        with Container(id="dialog", classes="visible"):
+            with Vertical():
+                yield Static(
+                    f"{Icons.FOLDER} [bold]Set Asset Source Root[/bold]",
+                    id="dialog-title",
+                )
+                yield Static(
+                    "[dim]Enter the directory to scan for assets:[/dim]"
+                )
+                yield Input(
+                    value=str(self.current_path),
+                    id="source-path",
+                )
+                with Horizontal(id="dialog-buttons"):
+                    yield Button("Set", variant="primary", id="set")
+                    yield Button("Cancel", variant="default", id="cancel")
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "set":
+            input_widget = self.query_one("#source-path", Input)
+            value = input_widget.value.strip()
+            if value:
+                path = Path(value).expanduser()
+                if not path.is_dir():
+                    self.notify(
+                        f"Directory does not exist: {path}",
+                        severity="warning",
+                        timeout=3,
+                    )
+                    return
+                self.dismiss(path)
+            else:
+                self.dismiss(None)
+        else:
+            self.action_cancel()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        """Handle Enter key in the input field."""
+        value = event.value.strip()
+        if value:
+            path = Path(value).expanduser()
+            if not path.is_dir():
+                self.notify(
+                    f"Directory does not exist: {path}",
+                    severity="warning",
+                    timeout=3,
+                )
+                return
+            self.dismiss(path)
