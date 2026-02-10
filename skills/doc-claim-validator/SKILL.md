@@ -91,8 +91,10 @@ text of the claim.
 Run the verification script on the extracted claims:
 
 ```bash
-python3 skills/doc-claim-validator/scripts/verify_claims.py [--json] [--root PATH] [--claims-file PATH]
+python3 skills/doc-claim-validator/scripts/verify_claims.py [--json] [--root PATH] [--claims-file PATH] [--check-staleness]
 ```
+
+Pass `--check-staleness` to enable git-based drift analysis (see below).
 
 The script checks each claim type differently:
 
@@ -127,6 +129,25 @@ parameter names, return types, and import paths match the current codebase. Repo
 examples that would fail if copy-pasted.
 
 Launch all three agents in parallel.
+
+### Step 2c — Git staleness scoring
+
+For claims that **pass** existence checks, compute a drift score to surface likely-stale claims:
+
+```bash
+python3 skills/doc-claim-validator/scripts/verify_claims.py --check-staleness
+```
+
+For each passing claim, the script:
+1. Gets the doc file's last git modification timestamp
+2. Gets the target file(s) last git modification timestamp
+3. Counts how many commits touched the target *after* the doc was last edited
+4. Assigns a drift score: low (1-3 commits), medium (4-9), high (10+)
+
+High-drift claims are the best candidates for AI review — the target changed heavily
+but the doc didn't, so the doc is probably describing outdated behavior.
+
+The staleness report is appended as a ranked table, sorted by score descending.
 
 ---
 

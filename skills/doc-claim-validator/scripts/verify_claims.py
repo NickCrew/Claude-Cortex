@@ -31,10 +31,11 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Tuple
 
 
 # --- Configuration ---
@@ -145,6 +146,110 @@ def grep_codebase(pattern, root, file_extensions=None):
         return []
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return []
+
+
+# --- Git Staleness ---
+
+# Cache for git timestamps to avoid repeated calls
+_git_timestamp_cache: Dict[str, Optional[int]] = {}
+
+
+def git_last_modified_ts(filepath, root):
+    """Get Unix timestamp of last git modification. Cached."""
+    key = str(filepath)
+    if key in _git_timestamp_cache:
+        return _git_timestamp_cache[key]
+
+    try:
+        rel = str(Path(filepath).relative_to(root))
+    except ValueError:
+        rel = str(filepath)
+
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", rel],
+            capture_output=True,
+            text=True,
+            cwd=root,
+            timeout=5,
+        )
+        ts_str = result.stdout.strip()
+        ts = int(ts_str) if ts_str else None
+    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+        ts = None
+
+    _git_timestamp_cache[key] = ts
+    return ts
+
+
+def git_commit_count_since(filepath, since_ts, root):
+    """Count commits touching filepath after a given timestamp."""
+    try:
+        rel = str(Path(filepath).relative_to(root))
+    except ValueError:
+        rel = str(filepath)
+
+    try:
+        result = subprocess.run(
+            ["git", "log", "--oneline", f"--since={since_ts}", "--", rel],
+            capture_output=True,
+            text=True,
+            cwd=root,
+            timeout=5,
+        )
+        lines = [l for l in result.stdout.strip().splitlines() if l]
+        return len(lines)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return 0
+
+
+def compute_staleness(claim, target_files, root):
+    """Compute staleness score for a claim that passed existence checks.
+
+    Returns (score, detail_dict) where:
+      score = 0    -> no evidence of staleness
+      score = 1-3  -> low drift (target changed 1-3 times since doc edit)
+      score = 4-9  -> medium drift
+      score = 10+  -> high drift (target changed heavily, doc didn't)
+
+    The score is the total number of commits touching any target file
+    after the doc file's last modification.
+    """
+    doc_ts = git_last_modified_ts(root / claim["source_file"], root)
+    if doc_ts is None:
+        return 0, {}
+
+    total_commits = 0
+    drift_details = {}
+
+    for tf in target_files:
+        target_ts = git_last_modified_ts(root / tf, root)
+        if target_ts is None:
+            continue
+
+        # Only interesting if target was modified after the doc
+        if target_ts > doc_ts:
+            commits = git_commit_count_since(root / tf, doc_ts, root)
+            if commits > 0:
+                total_commits += commits
+                days_ahead = (target_ts - doc_ts) // 86400
+                drift_details[tf] = {
+                    "commits_since_doc": commits,
+                    "days_ahead": days_ahead,
+                }
+
+    return total_commits, drift_details
+
+
+def staleness_label(score):
+    """Convert numeric staleness score to human label."""
+    if score == 0:
+        return None
+    if score <= 3:
+        return "low"
+    if score <= 9:
+        return "medium"
+    return "high"
 
 
 def read_dep_manifests(root):
@@ -615,6 +720,46 @@ def generate_markdown_report(results, root):
     return "\n".join(lines)
 
 
+def generate_staleness_report(stale_results):
+    """Generate a dedicated staleness section for the markdown report."""
+    if not stale_results:
+        return ""
+
+    lines = [
+        "",
+        "## Likely Stale Claims (Git Drift Analysis)",
+        "",
+        "Claims that passed existence checks but whose targets changed significantly",
+        "after the doc was last edited. Higher scores = more likely outdated.",
+        "",
+        "| Score | Drift | Source | Line | Type | Claim | Details |",
+        "|-------|-------|--------|------|------|-------|---------|",
+    ]
+
+    for r in stale_results:
+        score = r.details.get("staleness_score", 0)
+        drift = r.details.get("drift", "?")
+        targets = r.details.get("targets", {})
+        # Build a compact details string
+        detail_parts = []
+        for tf, info in targets.items():
+            detail_parts.append(
+                f"{tf}: {info['commits_since_doc']} commits, {info['days_ahead']}d ahead"
+            )
+        detail_str = "; ".join(detail_parts[:2])
+        if len(detail_parts) > 2:
+            detail_str += f" (+{len(detail_parts) - 2} more)"
+
+        escaped = r.literal.replace("|", "\\|")[:50]
+        detail_str = detail_str.replace("|", "\\|")
+        lines.append(
+            f"| **{score}** | {drift} | `{r.source_file}` | {r.line_number} | {r.claim_type} | `{escaped}` | {detail_str} |"
+        )
+
+    lines.append("")
+    return "\n".join(lines)
+
+
 def generate_json_report(results, root):
     """Generate a JSON-formatted verification report."""
     report = {
@@ -640,6 +785,7 @@ def main():
     parser.add_argument("--root", type=str, default=None, help="Project root path")
     parser.add_argument("--claims-file", type=str, default=None, help="JSON claims file from extractor")
     parser.add_argument("--check-urls", action="store_true", help="Enable URL verification")
+    parser.add_argument("--check-staleness", action="store_true", help="Enable git-based staleness scoring")
     parser.add_argument(
         "--scope",
         choices=["docs", "manual", "all"],
@@ -712,10 +858,86 @@ def main():
                 reason=f"No automated verifier for claim type: {ct}",
             ))
 
-    # Sort: failures first, then by severity
+    # --- Staleness scoring pass ---
+    stale_results = []
+    if args.check_staleness:
+        print("Running git staleness analysis...", file=sys.stderr)
+        passed_results = [r for r in results if r.status == "pass"]
+        # Build a map from (source_file, claim) -> target files for staleness
+        claim_lookup = {
+            (c["source_file"], c["line_number"], c["literal"]): c
+            for c in claims
+        }
+
+        for r in passed_results:
+            claim = claim_lookup.get((r.source_file, r.line_number, r.literal))
+            if not claim:
+                continue
+
+            # Determine target files to check for drift
+            target_files = []
+            ct = r.claim_type
+
+            if ct == "file_path":
+                # The literal is the file path
+                candidate = r.literal
+                if (root / candidate).exists():
+                    target_files.append(candidate)
+                else:
+                    # Try relative to source file
+                    source_dir = Path(r.source_file).parent
+                    rel = str(source_dir / candidate)
+                    if (root / rel).exists():
+                        target_files.append(rel)
+
+            elif ct == "code_ref" and r.details.get("found_in"):
+                # Use the files where the symbol was found
+                for f in r.details["found_in"][:3]:
+                    # grep -l output is relative paths
+                    target_files.append(f)
+
+            elif ct == "config" and r.details.get("found_in"):
+                for f in r.details["found_in"][:3]:
+                    target_files.append(f)
+
+            elif ct == "command":
+                # For script-path commands, check the script file
+                literal = r.literal
+                base_cmd = literal.split()[0]
+                if "/" in base_cmd:
+                    script = base_cmd.lstrip("./")
+                    if (root / script).exists():
+                        target_files.append(script)
+
+            if not target_files:
+                continue
+
+            score, drift_details = compute_staleness(claim, target_files, root)
+            label = staleness_label(score)
+
+            if label:
+                stale_results.append(VerificationResult(
+                    claim_type=r.claim_type,
+                    source_file=r.source_file,
+                    line_number=r.line_number,
+                    literal=r.literal,
+                    status="stale",
+                    reason=f"Target changed {score}x since doc was last edited (drift: {label})",
+                    severity="P2" if label == "high" else "P3" if label == "medium" else "P4",
+                    category="likely_stale",
+                    details={"staleness_score": score, "drift": label, "targets": drift_details},
+                ))
+
+        if stale_results:
+            # Sort stale results by score descending
+            stale_results.sort(key=lambda r: -r.details.get("staleness_score", 0))
+            print(f"  Found {len(stale_results)} likely stale claims.", file=sys.stderr)
+
+    # Sort: failures first, then stale, then by severity
     severity_order = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "P4": 4, "": 9}
-    status_order = {"fail": 0, "warn": 1, "skip": 2, "pass": 3}
-    results.sort(key=lambda r: (
+    status_order = {"fail": 0, "warn": 1, "stale": 2, "skip": 3, "pass": 4}
+    all_results = results + stale_results
+    all_results.sort(key=lambda r: (
         status_order.get(r.status, 9),
         severity_order.get(r.severity, 9),
         r.source_file,
@@ -724,18 +946,25 @@ def main():
 
     # Output
     if args.json:
-        print(generate_json_report(results, root))
+        print(generate_json_report(all_results, root))
     else:
-        print(generate_markdown_report(results, root))
+        report = generate_markdown_report(all_results, root)
+        if stale_results:
+            report += generate_staleness_report(stale_results)
+        print(report)
 
     # Summary to stderr
-    failed = sum(1 for r in results if r.status == "fail")
-    warned = sum(1 for r in results if r.status == "warn")
-    passed = sum(1 for r in results if r.status == "pass")
-    print(f"\nVerification complete: {passed} passed, {failed} failed, {warned} warnings.", file=sys.stderr)
+    failed = sum(1 for r in all_results if r.status == "fail")
+    warned = sum(1 for r in all_results if r.status == "warn")
+    passed = sum(1 for r in all_results if r.status == "pass")
+    stale = sum(1 for r in all_results if r.status == "stale")
+    parts = [f"{passed} passed", f"{failed} failed", f"{warned} warnings"]
+    if stale:
+        parts.append(f"{stale} likely stale")
+    print(f"\nVerification complete: {', '.join(parts)}.", file=sys.stderr)
 
     # Exit code: non-zero if P0 or P1 failures
-    has_critical = any(r.status == "fail" and r.severity in ("P0", "P1") for r in results)
+    has_critical = any(r.status == "fail" and r.severity in ("P0", "P1") for r in all_results)
     sys.exit(1 if has_critical else 0)
 
 
