@@ -64,7 +64,15 @@ current signatures/behavior. Report mismatches.
 Compare current `docs/` and `manual/` layout against the prescribed folder structure
 in `references/folder-structure.md`. Report missing folders, misplaced files, naming violations.
 
-Launch all three agents in parallel.
+**Agent 4 — Diagram opportunity scan** (`subagent_type: "Explore"`, `model: "haiku"`):
+Scan all markdown files for ASCII/text diagrams (box-drawing characters, arrow notation,
+indented tree structures beyond a few simple nodes) that should be converted to Mermaid.
+Also identify sections describing flows, architectures, state machines, sequences, or
+relationships where a diagram would add clarity but none exists. Report the file path,
+line range, diagram type (flowchart, sequence, state, ER, etc.), and whether it is a
+conversion or a net-new diagram.
+
+Launch all four agents in parallel.
 
 ### Step 1c — Merge results
 
@@ -85,6 +93,8 @@ Classify each finding into one of these action categories:
 | **misplaced** | Doc exists but is in the wrong folder | Tutorial sitting in `docs/architecture/` |
 | **irrelevant** | Doc covers removed functionality | Guide for a deleted feature |
 | **structural** | Folder structure deviates from prescribed layout | Missing `docs/security/` folder |
+| **diagram-convert** | ASCII/text diagram should be Mermaid | Complex box-drawing flowchart in architecture doc |
+| **diagram-missing** | Section would benefit from a diagram | Multi-step process described only in prose |
 
 Assign severity:
 - **P0** — User-facing doc is factually wrong (manual/)
@@ -112,6 +122,8 @@ prompt templates.
 | User-facing how-to guides | `learning-guide` | `manual/guides/` |
 | User-facing getting started | `learning-guide` | `manual/getting-started/` |
 | Plans and proposals | `technical-writer` | `docs/plans/` |
+| ASCII diagram conversion | `mermaid-expert` | Inline in existing doc |
+| New diagrams for prose sections | `mermaid-expert` | Inline in existing doc |
 
 **Parallel dispatch:** Group independent remediation tasks and dispatch them simultaneously.
 Only serialize when one doc depends on another (e.g., an API reference needed before a tutorial
