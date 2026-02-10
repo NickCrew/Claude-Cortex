@@ -615,6 +615,17 @@ skills:
       - "test cleanup"
       - "archive sprint"
 
+  doc-claim-validator:
+    keywords:
+      - "validate docs"
+      - "verify documentation"
+      - "doc claims"
+      - "docs are wrong"
+      - "documentation accuracy"
+      - "check docs against code"
+      - "doc verification"
+      - "claim validation"
+
   code-quality-workflow:
     keywords:
       - "code quality"
