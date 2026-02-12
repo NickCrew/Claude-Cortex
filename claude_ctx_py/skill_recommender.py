@@ -47,6 +47,8 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("threat-modeling-techniques", 0.9),
         ("secure-coding-practices", 0.85),
         ("security-testing-patterns", 0.8),
+        ("compliance-audit", 0.75),
+        ("workflow-security-audit", 0.75),
     ],
     "kubernetes-architect": [
         ("kubernetes-deployment-patterns", 0.95),
@@ -63,22 +65,74 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("typescript-advanced-patterns", 0.9),
         ("react-performance-optimization", 0.85),
     ],
-    "terraform-specialist": [
-        ("terraform-best-practices", 0.95),
-        ("cloud-architect-patterns", 0.8),
-    ],
     "cloud-architect": [
-        ("cloud-design-patterns", 0.9),
-        ("terraform-best-practices", 0.85),
-        ("kubernetes-deployment-patterns", 0.8),
+        ("terraform-best-practices", 0.9),
+        ("kubernetes-deployment-patterns", 0.85),
+        ("microservices-patterns", 0.8),
     ],
     "code-reviewer": [
-        ("code-quality-patterns", 0.85),
+        ("code-quality-workflow", 0.85),
         ("testing-anti-patterns", 0.8),
     ],
     "debugger": [
         ("systematic-debugging", 0.9),
         ("root-cause-tracing", 0.85),
+    ],
+    "rest-expert": [
+        ("api-design-patterns", 0.9),
+        ("openapi-specification", 0.85),
+        ("api-gateway-patterns", 0.8),
+    ],
+    "docs-architect": [
+        ("documentation-production", 0.9),
+        ("reference-documentation", 0.85),
+    ],
+    "test-automator": [
+        ("test-driven-development", 0.9),
+        ("testing-anti-patterns", 0.85),
+        ("test-generation", 0.8),
+    ],
+    "postgres-expert": [
+        ("database-design-patterns", 0.9),
+    ],
+    "database-optimizer": [
+        ("database-design-patterns", 0.9),
+        ("workflow-performance", 0.75),
+    ],
+    "ui-ux-designer": [
+        ("interaction-design", 0.9),
+        ("user-journey-mapping", 0.85),
+        ("accessibility-audit", 0.8),
+    ],
+    "react-specialist": [
+        ("react-performance-optimization", 0.9),
+        ("design-system-architecture", 0.8),
+    ],
+    "frontend-optimizer": [
+        ("react-performance-optimization", 0.9),
+        ("workflow-performance", 0.8),
+    ],
+    "orchestrator": [
+        ("task-orchestration", 0.9),
+        ("microservices-patterns", 0.8),
+    ],
+    "websocket-engineer": [
+        ("event-driven-architecture", 0.9),
+        ("microservices-patterns", 0.8),
+    ],
+    "vitest-expert": [
+        ("test-driven-development", 0.9),
+        ("testing-anti-patterns", 0.85),
+    ],
+    "sql-pro": [
+        ("database-design-patterns", 0.9),
+    ],
+    "component-architect": [
+        ("design-system-architecture", 0.9),
+        ("interaction-design", 0.8),
+    ],
+    "tailwind-expert": [
+        ("design-system-architecture", 0.85),
     ],
 }
 
@@ -214,7 +268,7 @@ class SkillRecommender:
             },
             {
                 "trigger": {
-                    "file_patterns": ["**/k8s/**", "**/kubernetes/**", "**/*.yaml"]
+                    "file_patterns": ["**/k8s/**", "**/kubernetes/**"]
                 },
                 "recommend": [
                     {
@@ -228,7 +282,72 @@ class SkillRecommender:
                         "reason": "K8s security review recommended"
                     }
                 ]
-            }
+            },
+            {
+                "trigger": {
+                    "file_patterns": ["**/.github/workflows/**"]
+                },
+                "recommend": [
+                    {
+                        "skill": "github-actions-workflows",
+                        "confidence": 0.95,
+                        "reason": "GitHub Actions workflow files detected"
+                    }
+                ]
+            },
+            {
+                "trigger": {
+                    "file_patterns": ["**/*openapi*.yml", "**/*openapi*.yaml", "**/*openapi*.json", "**/*swagger*.*"]
+                },
+                "recommend": [
+                    {
+                        "skill": "openapi-specification",
+                        "confidence": 0.9,
+                        "reason": "OpenAPI/Swagger spec files detected"
+                    },
+                    {
+                        "skill": "api-design-patterns",
+                        "confidence": 0.8,
+                        "reason": "API specification work detected"
+                    }
+                ]
+            },
+            {
+                "trigger": {
+                    "file_patterns": ["**/routes/**", "**/controllers/**", "**/api/**"]
+                },
+                "recommend": [
+                    {
+                        "skill": "api-design-patterns",
+                        "confidence": 0.85,
+                        "reason": "API route/controller files detected"
+                    }
+                ]
+            },
+            {
+                "trigger": {
+                    "file_patterns": ["**/migrations/**", "**/schema.sql", "**/*.sql"]
+                },
+                "recommend": [
+                    {
+                        "skill": "database-design-patterns",
+                        "confidence": 0.85,
+                        "reason": "Database migration/schema files detected"
+                    }
+                ]
+            },
+            {
+                "trigger": {
+                    "file_patterns": ["**/docs/**", "**/README.md", "**/*.mdx"]
+                },
+                "recommend": [
+                    {
+                        "skill": "documentation-production",
+                        "confidence": 0.8,
+                        "reason": "Documentation files detected"
+                    }
+                ]
+            },
         ]
 
     def _save_rules(self) -> None:
