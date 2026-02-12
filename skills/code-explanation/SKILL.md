@@ -21,6 +21,7 @@ Avoid when:
 | Task | Load reference |
 | --- | --- |
 | Explanation workflow | `skills/code-explanation/references/explain.md` |
+| **Pedagogical Methodology** | `skills/code-explanation/references/pedagogical-methodology.md` |
 
 ## Workflow
 1. Identify target, audience level, and format.

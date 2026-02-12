@@ -21,6 +21,7 @@ Avoid when:
 | Task | Load reference |
 | --- | --- |
 | Git operations | `skills/git-ops/references/git.md` |
+| **Branching Strategies** | `skills/git-ops/references/branching-strategies.md` |
 
 ## Workflow
 1. Confirm repository state and intent.
