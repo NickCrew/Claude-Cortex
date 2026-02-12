@@ -23,6 +23,8 @@ Avoid when:
 | Orchestrated brainstorming | `skills/task-orchestration/references/brainstorm.md` |
 | Spawn orchestration | `skills/task-orchestration/references/spawn.md` |
 | Task orchestration | `skills/task-orchestration/references/task.md` |
+| **Process Patterns** | `skills/task-orchestration/references/process-patterns.md` |
+| **Task Decomposition** | `skills/task-orchestration/references/task-decomposition.md` |
 
 ## Workflow
 1. Choose the orchestration mode (brainstorm, spawn, task).

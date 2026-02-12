@@ -27,6 +27,12 @@ Comprehensive guide to creating user journey maps that reveal pain points, oppor
 - Discovering optimization opportunities
 - Aligning teams around user perspective
 
+## Quick Reference
+
+| Task | Load reference |
+| --- | --- |
+| **Research Methods** | `skills/user-journey-mapping/references/research-methods.md` |
+
 ## Journey Map Components
 
 ### 1. Stages

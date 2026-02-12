@@ -8,7 +8,7 @@
 # Legacy files (activation.yaml, versions.yaml, composition.yaml) remain for backward compatibility.
 
 schema_version: "1.0.0"
-last_updated: "2026-01-05"
+last_updated: "2026-02-11"
 
 # Category Definitions
 categories:
@@ -318,6 +318,95 @@ skills:
     status: active
     license: MIT
 
+  openapi-specification:
+    title: OpenAPI Specification
+    description: OpenAPI 3.x specification design, schema patterns, and validation for REST API contracts
+    path: openapi-specification/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - architecture
+      - development
+    tags:
+      - openapi
+      - swagger
+      - api
+      - documentation
+      - rest
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from openapi-expert agent conversion
+          changes:
+            - OpenAPI 3.x specification design
+            - Schema patterns and validation
+            - API contract documentation
+            - Swagger integration
+    activation:
+      keywords:
+        - OpenAPI
+        - Swagger
+        - API specification
+        - OAS
+        - API contract
+        - OpenAPI schema
+        - API documentation
+        - swagger definition
+        - API validation
+        - specification design
+    dependencies:
+      - api-design-patterns
+    status: active
+    license: MIT
+
+  interaction-design:
+    title: Interaction Design
+    description: User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions
+    path: interaction-design/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - architecture
+      - development
+    tags:
+      - interaction-design
+      - micro-interactions
+      - state-transitions
+      - user-flows
+      - animation
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from interaction-designer agent conversion
+          changes:
+            - User flow design patterns
+            - Micro-interaction guidelines
+            - State management for UI conditions
+            - Feedback pattern design
+    activation:
+      keywords:
+        - interaction design
+        - micro-interaction
+        - loading state
+        - error state
+        - user flow
+        - state transition
+        - animation pattern
+        - feedback design
+        - interface behavior
+        - hover state
+    dependencies: []
+    status: active
+    license: MIT
+
   # ============================================================================
   # INFRASTRUCTURE
   # ============================================================================
@@ -545,6 +634,93 @@ skills:
     status: active
     license: MIT
 
+  build-optimization:
+    title: Build Optimization
+    description: Build system optimization covering compilation, caching, incremental builds, and developer tooling
+    path: build-optimization/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - devops
+      - development
+    tags:
+      - build
+      - compilation
+      - caching
+      - incremental-builds
+      - developer-tooling
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from build-engineer and tooling-engineer agent conversion
+          changes:
+            - Build system optimization
+            - Caching strategies
+            - Incremental build patterns
+            - Developer tooling guidance
+    activation:
+      keywords:
+        - build optimization
+        - build time
+        - compilation speed
+        - incremental build
+        - build cache
+        - CI pipeline
+        - developer tooling
+        - build system
+        - parallel build
+        - build performance
+    dependencies: []
+    status: active
+    license: MIT
+
+  github-actions-workflows:
+    title: GitHub Actions Workflows
+    description: GitHub Actions workflow patterns for CI/CD including matrix builds, reusable workflows, secrets management, and caching strategies
+    path: github-actions-workflows/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - devops
+    tags:
+      - github-actions
+      - ci-cd
+      - workflows
+      - automation
+      - matrix-builds
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from github-actions-expert agent conversion
+          changes:
+            - Matrix build patterns
+            - Reusable workflows
+            - Secrets management
+            - Caching strategies
+    activation:
+      keywords:
+        - GitHub Actions
+        - workflow
+        - CI/CD
+        - matrix build
+        - reusable workflow
+        - composite action
+        - secrets management
+        - GitHub CI
+        - actions cache
+        - deployment automation
+    dependencies: []
+    status: active
+    license: MIT
+
   # ============================================================================
   # SECURITY
   # ============================================================================
@@ -719,6 +895,95 @@ skills:
     dependencies:
       - owasp-top-10
       - secure-coding-practices
+    status: active
+    license: MIT
+
+  compliance-audit:
+    title: Compliance Audit
+    description: Regulatory compliance auditing across GDPR, HIPAA, PCI DSS, SOC 2, and ISO frameworks with automated evidence collection and gap analysis
+    path: compliance-audit/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - security
+    tags:
+      - compliance
+      - audit
+      - regulatory
+      - privacy
+      - gdpr
+      - hipaa
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from compliance-auditor agent conversion
+          changes:
+            - GDPR compliance assessment
+            - HIPAA assessment workflows
+            - PCI DSS certification guidance
+            - SOC 2 and ISO framework support
+    activation:
+      keywords:
+        - compliance audit
+        - regulatory assessment
+        - GDPR compliance
+        - HIPAA assessment
+        - PCI DSS
+        - SOC 2
+        - ISO compliance
+        - regulatory controls
+        - evidence collection
+        - gap analysis
+    dependencies:
+      - owasp-top-10
+    status: active
+    license: MIT
+
+  incident-response:
+    title: Incident Response
+    description: Incident triage, cascade prevention, and postmortem methodology for handling production incidents and designing resilience patterns
+    path: incident-response/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - security
+      - workflow
+    tags:
+      - incident
+      - triage
+      - postmortem
+      - resilience
+      - chaos-engineering
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from incident-responder and error-coordinator agent conversion
+          changes:
+            - Incident triage workflows
+            - Cascade prevention patterns
+            - Postmortem methodology
+            - Chaos engineering exercises
+    activation:
+      keywords:
+        - incident response
+        - production incident
+        - outage
+        - postmortem
+        - chaos engineering
+        - circuit breaker
+        - cascade failure
+        - incident triage
+        - resilience pattern
+        - bulkhead
+    dependencies: []
     status: active
     license: MIT
 
@@ -933,6 +1198,94 @@ skills:
         - React optimization
         - re-render
         - bundle size
+    dependencies: []
+    status: active
+    license: MIT
+
+  prompt-engineering:
+    title: Prompt Engineering
+    description: Optimize prompts for LLMs and AI systems with structured techniques, evaluation patterns, and synthetic test data generation
+    path: prompt-engineering/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - development
+      - meta
+    tags:
+      - prompt-engineering
+      - llm
+      - system-prompt
+      - few-shot
+      - chain-of-thought
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from prompt-engineer agent conversion
+          changes:
+            - Prompt optimization techniques
+            - Evaluation patterns
+            - Synthetic test data generation
+            - System prompt design
+    activation:
+      keywords:
+        - prompt engineering
+        - system prompt
+        - LLM optimization
+        - prompt template
+        - few-shot
+        - chain-of-thought
+        - prompt design
+        - AI prompt
+        - prompt tuning
+        - instruction design
+    dependencies: []
+    status: active
+    license: MIT
+
+  evaluator-optimizer:
+    title: Evaluator-Optimizer
+    description: Iterative refinement workflow for polishing code, documentation, or designs through systematic evaluation and improvement cycles
+    path: evaluator-optimizer/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - refinement
+      - iteration
+      - evaluation
+      - optimization
+      - quality
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from refiner agent conversion
+          changes:
+            - Iterative evaluation cycles
+            - Quality improvement workflows
+            - Code and documentation refinement
+            - Systematic optimization patterns
+    activation:
+      keywords:
+        - refine this
+        - polish this
+        - optimize this
+        - improve iteratively
+        - evaluation cycle
+        - quality refinement
+        - iterative improvement
+        - systematic polish
+        - code refinement
+        - draft refinement
     dependencies: []
     status: active
     license: MIT
@@ -1168,20 +1521,409 @@ skills:
     status: active
     license: MIT
 
+  tutorial-design:
+    title: Tutorial Design
+    description: Design and write hands-on tutorials with progressive disclosure, exercises, and troubleshooting sections
+    path: tutorial-design/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - tutorials
+      - pedagogy
+      - learning
+      - workshops
+      - documentation
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from tutorial-engineer agent conversion
+          changes:
+            - Tutorial structure design
+            - Progressive disclosure patterns
+            - Exercise creation
+            - Troubleshooting sections
+    activation:
+      keywords:
+        - write tutorial
+        - create workshop
+        - step-by-step guide
+        - hands-on walkthrough
+        - learning content
+        - lab exercise
+        - tutorial design
+        - progressive disclosure
+        - workshop material
+        - guided learning
+    dependencies: []
+    status: active
+    license: MIT
+
+  reference-documentation:
+    title: Reference Documentation
+    description: Create exhaustive technical references, API documentation, and searchable reference materials
+    path: reference-documentation/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - documentation
+      - reference
+      - api
+      - specification
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from reference-builder agent conversion
+          changes:
+            - API documentation patterns
+            - Configuration reference templates
+            - Technical specification structure
+            - Schema documentation
+    activation:
+      keywords:
+        - API documentation
+        - reference docs
+        - configuration reference
+        - technical specification
+        - schema documentation
+        - parameter reference
+        - reference material
+        - API reference
+        - command reference
+        - exhaustive docs
+    dependencies: []
+    status: active
+    license: MIT
+
+  mermaid-diagramming:
+    title: Mermaid Diagramming
+    description: Mermaid diagram creation covering flowcharts, sequence diagrams, ERDs, state machines, Gantt charts, and architecture views
+    path: mermaid-diagramming/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - mermaid
+      - diagrams
+      - visualization
+      - documentation
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from mermaid-expert agent conversion
+          changes:
+            - Flowchart patterns
+            - Sequence diagram design
+            - ERD creation
+            - State machine diagrams
+    activation:
+      keywords:
+        - mermaid diagram
+        - flowchart
+        - sequence diagram
+        - entity relationship diagram
+        - state diagram
+        - gantt chart
+        - architecture diagram
+        - ERD
+        - class diagram
+        - diagram creation
+    dependencies: []
+    status: active
+    license: MIT
+
+  knowledge-synthesis:
+    title: Knowledge Synthesis
+    description: Extract insights from multi-agent interactions, identify patterns, and build collective intelligence through cross-agent learning and knowledge management
+    path: knowledge-synthesis/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - knowledge-management
+      - insights
+      - patterns
+      - synthesis
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from knowledge-synthesizer agent conversion
+          changes:
+            - Insight extraction patterns
+            - Cross-agent learning
+            - Knowledge base construction
+            - Pattern identification
+    activation:
+      keywords:
+        - synthesize knowledge
+        - extract patterns
+        - build knowledge base
+        - cross-agent learning
+        - collective intelligence
+        - knowledge management
+        - insight extraction
+        - pattern synthesis
+        - knowledge distillation
+        - learning aggregation
+    dependencies: []
+    status: active
+    license: MIT
+
+  research-methodology:
+    title: Research Methodology
+    description: Structured research using sophisticated query design, source vetting, and synthesis techniques
+    path: research-methodology/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - research
+      - analysis
+      - fact-checking
+      - synthesis
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from search-specialist agent conversion
+          changes:
+            - Query design techniques
+            - Source vetting methodology
+            - Research synthesis
+            - Competitive analysis patterns
+    activation:
+      keywords:
+        - research topic
+        - competitive analysis
+        - market scan
+        - trend analysis
+        - fact verification
+        - investigate
+        - research methodology
+        - source vetting
+        - literature review
+        - structured research
+    dependencies: []
+    status: active
+    license: MIT
+
+  socratic-questioning:
+    title: Socratic Questioning
+    description: Guide discovery through questioning techniques and pattern recognition for Clean Code, GoF design patterns, and architectural decisions
+    path: socratic-questioning/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - meta
+    tags:
+      - education
+      - coaching
+      - socratic
+      - design-patterns
+      - clean-code
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from socratic-mentor agent conversion
+          changes:
+            - Socratic questioning techniques
+            - Design pattern discovery
+            - Clean Code coaching
+            - Facilitated design discussions
+    activation:
+      keywords:
+        - socratic method
+        - guide discovery
+        - teach through questions
+        - coach developer
+        - facilitate design discussion
+        - questioning technique
+        - pattern recognition
+        - design coaching
+        - clean code guidance
+        - architectural discussion
+    dependencies: []
+    status: active
+    license: MIT
+
+  legacy-modernization:
+    title: Legacy Modernization
+    description: Modernize legacy systems using proven migration patterns like strangler fig, feature flags, and incremental refactoring
+    path: legacy-modernization/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+      - development
+    tags:
+      - migration
+      - modernization
+      - strangler-fig
+      - refactoring
+      - technical-debt
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from legacy-modernizer agent conversion
+          changes:
+            - Strangler fig pattern
+            - Feature flag strategies
+            - Incremental refactoring
+            - Framework migration guidance
+    activation:
+      keywords:
+        - legacy modernization
+        - strangler fig
+        - system migration
+        - framework migration
+        - technical debt
+        - monolith decomposition
+        - legacy code
+        - modernize system
+        - incremental refactoring
+        - migration strategy
+    dependencies: []
+    status: active
+    license: MIT
+
+  requirements-discovery:
+    title: Requirements Discovery
+    description: Stakeholder interviews, PRD structure, and scope definition for software requirements elicitation
+    path: requirements-discovery/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+    tags:
+      - requirements
+      - stakeholder
+      - prd
+      - scope
+      - elicitation
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from requirements-analyst agent conversion
+          changes:
+            - Stakeholder interview techniques
+            - PRD structure templates
+            - Scope definition methodology
+            - Requirements elicitation patterns
+    activation:
+      keywords:
+        - requirements discovery
+        - stakeholder interview
+        - PRD
+        - product requirements
+        - scope definition
+        - requirements gathering
+        - feature specification
+        - project scope
+        - requirements elicitation
+        - needs analysis
+    dependencies: []
+    status: active
+    license: MIT
+
+  product-strategy:
+    title: Product Strategy
+    description: Product vision, roadmap development, and go-to-market execution with structured prioritization frameworks
+    path: product-strategy/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-02-11"
+    updated: "2026-02-11"
+    categories:
+      - workflow
+    tags:
+      - product-strategy
+      - roadmap
+      - prioritization
+      - product-market-fit
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-02-11"
+          notes: Initial release from product-strategist agent conversion
+          changes:
+            - Product vision frameworks
+            - Roadmap development
+            - Go-to-market strategies
+            - Prioritization methodologies
+    activation:
+      keywords:
+        - product strategy
+        - roadmap planning
+        - feature prioritization
+        - go-to-market
+        - product vision
+        - OKRs
+        - product-market fit
+        - product roadmap
+        - strategic planning
+        - feature evaluation
+    dependencies: []
+    status: active
+    license: MIT
+
 # Registry Statistics (auto-calculated)
 statistics:
-  total_skills: 26
-  active_skills: 26
+  total_skills: 44
+  active_skills: 44
   deprecated_skills: 0
   archived_skills: 0
   total_authors: 2
   by_category:
-    architecture: 6
-    development: 6
-    infrastructure: 4
-    security: 5
-    devops: 2
+    architecture: 8
+    development: 12
+    infrastructure: 5
+    security: 7
+    devops: 7
     testing: 3
-    workflow: 4
-    meta: 3
+    workflow: 17
+    meta: 11
     experimental: 0

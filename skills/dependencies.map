@@ -1,16 +1,8 @@
 # Skill Dependencies Map
-# Generated: 2025-10-17T07:35:00
+# Generated: 2026-02-11T00:00:00
 # Shows which agents use which skills
 
 ## Agent → Skills
-
-backend-architect:
-  - api-design-patterns
-  - microservices-patterns
-  - event-driven-architecture
-  - database-design-patterns
-  - api-gateway-patterns
-  - cqrs-event-sourcing
 
 python-pro:
   - async-python-patterns
@@ -27,9 +19,6 @@ kubernetes-architect:
   - helm-chart-patterns
   - gitops-workflows
 
-terraform-specialist:
-  - terraform-best-practices
-
 security-auditor:
   - owasp-top-10
   - secure-coding-practices
@@ -39,22 +28,34 @@ security-auditor:
 ## Skill → Agents (Reverse Lookup)
 
 api-design-patterns:
-  - backend-architect
+  - (standalone)
 
 api-gateway-patterns:
-  - backend-architect
+  - (standalone)
 
 async-python-patterns:
   - python-pro
 
+build-optimization:
+  - (standalone)
+
+compliance-audit:
+  - (standalone)
+
 cqrs-event-sourcing:
-  - backend-architect
+  - (standalone)
 
 database-design-patterns:
-  - backend-architect
+  - (standalone)
+
+evaluator-optimizer:
+  - (standalone)
 
 event-driven-architecture:
-  - backend-architect
+  - (standalone)
+
+github-actions-workflows:
+  - (standalone)
 
 gitops-workflows:
   - kubernetes-architect
@@ -62,17 +63,41 @@ gitops-workflows:
 helm-chart-patterns:
   - kubernetes-architect
 
+incident-response:
+  - (standalone)
+
+interaction-design:
+  - (standalone)
+
+knowledge-synthesis:
+  - (standalone)
+
 kubernetes-deployment-patterns:
   - kubernetes-architect
 
 kubernetes-security-policies:
   - kubernetes-architect
 
+legacy-modernization:
+  - (standalone)
+
+mermaid-diagramming:
+  - (standalone)
+
 microservices-patterns:
-  - backend-architect
+  - (standalone)
+
+openapi-specification:
+  - (standalone)
 
 owasp-top-10:
   - security-auditor
+
+product-strategy:
+  - (standalone)
+
+prompt-engineering:
+  - (standalone)
 
 python-performance-optimization:
   - python-pro
@@ -83,17 +108,32 @@ python-testing-patterns:
 react-performance-optimization:
   - typescript-pro
 
+reference-documentation:
+  - (standalone)
+
+requirements-discovery:
+  - (standalone)
+
+research-methodology:
+  - (standalone)
+
 secure-coding-practices:
   - security-auditor
 
 security-testing-patterns:
   - security-auditor
 
+socratic-questioning:
+  - (standalone)
+
 terraform-best-practices:
-  - terraform-specialist
+  - (standalone)
 
 threat-modeling-techniques:
   - security-auditor
+
+tutorial-design:
+  - (standalone)
 
 typescript-advanced-patterns:
   - typescript-pro
