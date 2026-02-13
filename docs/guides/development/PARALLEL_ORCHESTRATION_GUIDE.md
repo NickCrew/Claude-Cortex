@@ -271,7 +271,7 @@ For every code change, ALL must pass:
 - `/rules/parallel-execution-rules.md` - Complete parallel execution guide
 - `/rules/quality-gate-rules.md` - Complete quality gate guide
 - `/modes/Parallel_Orchestration.md` - Orchestration mode details
-- `/rules/workflow-rules.md` - General workflow patterns
+- `/rules/git-rules.md` - Git workflow and commit rules
 
 ---
 

@@ -94,8 +94,8 @@ The Cortex is a **comprehensive context management and intelligent automation sy
 ```
 70 Python modules
 ~10,000 lines of production code
-74 agent definitions
-50+ skill definitions
+29 agent definitions
+100+ skill definitions
 20+ modes and profiles
 9 TUI views
 30+ CLI commands
@@ -2656,8 +2656,8 @@ The central configuration file uses a custom markdown format:
 
 ```markdown
 # Core Rules
-@rules/workflow-rules.md
-@rules/quality-gate-rules.md
+@rules/git-rules.md
+@rules/quality-rules.md
 
 # Active Modes
 @modes/Brainstorming.md
@@ -3399,7 +3399,6 @@ cortex mode list  # Sees team modes
 ```bash
 # Check if agent exists
 $ ls ~/.claude/agents/ | grep -i X
-$ ls ~/.claude/inactive/agents/ | grep -i X
 
 # Check CLAUDE_PLUGIN_ROOT (if you are running via Claude Code/plugin)
 $ echo $CLAUDE_PLUGIN_ROOT

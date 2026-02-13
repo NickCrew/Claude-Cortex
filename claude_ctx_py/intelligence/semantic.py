@@ -345,6 +345,11 @@ class SemanticMatcher:
         if isinstance(agents, list):
             parts.extend([f"agent:{a}" for a in agents])
 
+        # Skills used (strong signal for skill recommendations)
+        skills = session.get("skills", [])
+        if isinstance(skills, list):
+            parts.extend([f"skill:{s}" for s in skills])
+
         # File types
         file_types = context.get("file_types", [])
         if isinstance(file_types, list):

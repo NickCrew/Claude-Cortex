@@ -144,6 +144,7 @@ def main() -> int:
             print(f"  - {path}", file=sys.stderr)
         if len(missing_claimed) > 5:
             print(f"  ... and {len(missing_claimed) - 5} more", file=sys.stderr)
+        return 1
 
     if len(missing_refs) >= WARNING_THRESHOLD:
         _log_hook(f"PATH WARNING: {len(missing_refs)} referenced paths don't exist: {missing_refs[:5]}")

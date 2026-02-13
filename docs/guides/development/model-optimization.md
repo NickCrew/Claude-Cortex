@@ -76,44 +76,29 @@ Sonnet 4.5 remains available as a fallback option but is generally superseded by
 
 All agents requiring reasoning now default to **Opus with `effort: medium`** for cost-effective, high-quality output. Escalate to `effort: high` for critical scenarios.
 
-**Architecture & Design (11 agents):**
-- `backend-architect` - API and service design decisions
-- `system-architect` - System-level architecture
+**Architecture & Design (5 agents):**
 - `cloud-architect` - Cloud infrastructure design
-- `hybrid-cloud-architect` - Multi-cloud strategy
-- `devops-architect` - DevOps pipeline design
-- `frontend-architect` - Frontend architecture
-- `data-architect` - Data modeling and governance
-- `ml-architect` - ML system design
-- `architect-reviewer` - Architecture review
-- `legacy-modernizer` - Legacy system redesign
-- `dx-optimizer` - Developer experience strategy
+- `architect-review` - Architecture review
+- `component-architect` - Component and module design
+- `state-architect` - State management architecture
+- `orchestrator` - System orchestration and coordination
 
-**Security & Compliance (5 agents):**
+**Security (1 agent):**
 - `security-auditor` - Security vulnerability analysis
-- `compliance-auditor` - Regulatory compliance
-- `penetration-tester` - Security testing strategy
-- `legal-advisor` - Legal review and risk assessment
-- `privacy-engineer` - Privacy compliance
 
-**Incident & Troubleshooting (4 agents):**
+**Troubleshooting (2 agents):**
 - `debugger` - Complex debugging and root cause analysis
-- `incident-responder` - Incident coordination and decision-making
-- `devops-troubleshooter` - Production issue diagnosis
-- `error-coordinator` - Error pattern analysis
+- `performance-monitor` - Performance monitoring and optimization
 
-**Code Review & Quality (3 agents):**
+**Code Review & Quality (1 agent):**
 - `code-reviewer` - Code review with architectural considerations
-- `quality-engineer` - Quality strategy and test planning
-- `performance-engineer` - Performance optimization strategy
 
-**Business & Product (4 agents):**
-- `product-manager` - Product strategy and prioritization
-- `requirements-analyst` - Requirements discovery and specification
-- `business-analyst` - Business analysis and insights
-- `search-specialist` - Research and information synthesis
+**Data (3 agents):**
+- `database-admin` - Database administration and management
+- `database-optimizer` - Query optimization and schema design
+- `postgres-expert` - PostgreSQL-specific expertise
 
-**Total Opus: 27 agents** (previously Sonnet, now upgraded to Opus)
+**Total Opus: 12 agents** (previously Sonnet, now upgraded to Opus)
 
 **Effort Escalation Triggers:**
 ```yaml
@@ -129,71 +114,43 @@ All agents requiring reasoning now default to **Opus with `effort: medium`** for
 
 ### Haiku Agents (Speed Tier)
 
-**Code Generation (8 agents):**
+**Code Generation (6 agents):**
 - `python-pro` - Python code generation from specs
 - `typescript-pro` - TypeScript code generation
 - `javascript-pro` - JavaScript implementation
-- `golang-pro` - Go implementation
 - `rust-pro` - Rust implementation
 - `react-specialist` - React component generation
-- `fastapi-pro` - FastAPI service generation
-- `django-pro` - Django application generation
+- `frontend-optimizer` - Frontend performance optimization
 
-**Testing (3 agents):**
+**Testing (2 agents):**
 - `test-automator` - Test generation (pytest, Jest, etc.)
-- `quality-automator` - Automated quality checks
-- `integration-tester` - Integration test generation
+- `vitest-expert` - Vitest test generation and configuration
 
-**Infrastructure as Code (4 agents):**
-- `terraform-specialist` - Terraform module generation
+**Infrastructure as Code (1 agent):**
 - `kubernetes-architect` - K8s manifest generation
-- `helm-specialist` - Helm chart scaffolding
-- `ansible-specialist` - Ansible playbook generation
 
-**Documentation (4 agents):**
+**Documentation (1 agent):**
 - `docs-architect` - Documentation structure (when following template)
-- `api-documenter` - OpenAPI/GraphQL schema generation
-- `reference-builder` - API reference generation
-- `technical-writer` - Technical content (when following style guide)
 
-**Build & Deployment (4 agents):**
-- `deployment-engineer` - Deployment pipeline execution
-- `build-engineer` - Build optimization (deterministic)
-- `cli-developer` - CLI command implementation
-- `tooling-engineer` - Tool development
-
-**Data Processing (3 agents):**
-- `data-engineer` - ETL pipeline implementation
+**Specialized (7 agents):**
 - `sql-pro` - SQL query optimization
-- `data-validator` - Data validation rules
-
-**Specialized (5 agents):**
-- `git-workflow-manager` - Git operations and workflows
-- `mermaid-expert` - Diagram generation
-- `electron-pro` - Electron app scaffolding
+- `rest-expert` - REST API design and implementation
 - `websocket-engineer` - WebSocket implementation
-- `graphql-specialist` - GraphQL schema implementation
+- `tailwind-expert` - Tailwind CSS styling
+- `ui-ux-designer` - UI/UX design and implementation
+- `memory-keeper` - Context and memory management
+- `context-manager` - Context extraction and management
 
-**Total Haiku: 31 agents**
+**Total Haiku: 17 agents**
 
 ---
 
-### Context-Dependent (9 agents)
+### Context-Dependent (1 agent)
 
-These agents switch between Opus and Haiku based on task complexity:
+This agent switches between Opus and Haiku based on task complexity:
 
 **Default Haiku, Escalate to Opus:**
 - `database-optimizer` - Query rewriting (Haiku), schema redesign (Opus)
-- `refactoring-expert` - Simple refactors (Haiku), architectural refactors (Opus)
-- `workflow-orchestrator` - Workflow execution (Haiku), workflow design (Opus)
-- `multi-agent-coordinator` - Task routing (Haiku), coordination strategy (Opus)
-- `context-manager` - Context extraction (Haiku), context strategy (Opus)
-
-**Default Opus, Fast Path to Haiku:**
-- `learning-guide` - Curriculum design (Opus), example generation (Haiku)
-- `tutorial-engineer` - Tutorial design (Opus), code examples (Haiku)
-- `socratic-mentor` - Question formulation (Opus), fact retrieval (Haiku)
-- `prompt-engineer` - Prompt strategy (Opus), prompt variations (Haiku)
 
 ---
 
@@ -454,13 +411,33 @@ effort: high only for critical/complex scenarios
 |-------|----------|-------|--------|-----------|
 | `python-pro` | Code Gen | **haiku** | N/A | Deterministic code generation, 4x faster |
 | `typescript-pro` | Code Gen | **haiku** | N/A | Pattern-based TypeScript, 3.3x faster |
-| `terraform-specialist` | IaC | **haiku** | N/A | Deterministic Terraform, 3.5x faster |
+| `rust-pro` | Code Gen | **haiku** | N/A | Rust code generation from specs |
+| `javascript-pro` | Code Gen | **haiku** | N/A | JavaScript implementation |
+| `react-specialist` | Code Gen | **haiku** | N/A | React component generation |
+| `frontend-optimizer` | Code Gen | **haiku** | N/A | Frontend performance optimization |
+| `test-automator` | Testing | **haiku** | N/A | Test generation (pytest, vitest, etc.) |
+| `vitest-expert` | Testing | **haiku** | N/A | Vitest-specific test generation |
 | `kubernetes-architect` | IaC | **haiku** | N/A | YAML manifest generation |
-| `deployment-engineer` | CI/CD | **haiku** | N/A | Pipeline configuration |
+| `docs-architect` | Documentation | **haiku** | N/A | Documentation structure |
+| `sql-pro` | Data | **haiku** | N/A | SQL query optimization |
+| `rest-expert` | API | **haiku** | N/A | REST API implementation |
+| `websocket-engineer` | API | **haiku** | N/A | WebSocket implementation |
+| `tailwind-expert` | UI | **haiku** | N/A | Tailwind CSS styling |
+| `ui-ux-designer` | UI | **haiku** | N/A | UI/UX design |
+| `memory-keeper` | Context | **haiku** | N/A | Memory management |
+| `context-manager` | Context | **haiku** | N/A | Context extraction |
 | `cloud-architect` | Architecture | **opus** | medium → high | Daily driver, escalate for multi-cloud |
+| `architect-review` | Architecture | **opus** | medium | Architecture review |
+| `component-architect` | Architecture | **opus** | medium | Component design |
+| `state-architect` | Architecture | **opus** | medium | State management design |
+| `orchestrator` | Architecture | **opus** | medium | System orchestration |
 | `security-auditor` | Security | **opus** | medium → high | Daily driver, escalate for breaches |
 | `code-reviewer` | Quality | **opus** | medium | Architectural review |
 | `debugger` | Troubleshooting | **opus** | medium → high | Daily driver, escalate for distributed |
+| `performance-monitor` | Troubleshooting | **opus** | medium | Performance monitoring |
+| `database-admin` | Data | **opus** | medium | Database administration |
+| `database-optimizer` | Data | **haiku → opus** | medium | Query rewrite (Haiku), schema design (Opus) |
+| `postgres-expert` | Data | **opus** | medium | PostgreSQL expertise |
 
 ### Effort Escalation Triggers
 
@@ -469,8 +446,8 @@ effort: high only for critical/complex scenarios
 | `cloud-architect` | Multi-cloud migration, >10 services | Platform impact |
 | `security-auditor` | Security breach, critical CVE | Security critical |
 | `debugger` | Distributed system, >3 service boundaries | Complex debugging |
-| `system-architect` | Platform rewrite, legacy modernization | Long-horizon |
-| `incident-responder` | P0 incident, revenue impact | Critical path |
+| `database-optimizer` | Schema redesign, platform-wide migration | Database architecture |
+| `performance-monitor` | Multi-system performance issue | Complex diagnostics |
 
 **Strategy**: Opus @ `effort: medium` as daily driver, Haiku for speed tier
 **Token Efficiency**: 76% fewer tokens vs Sonnet at medium effort

@@ -1,7 +1,7 @@
 # AI Intelligence System: Technical Architecture
 
-**Version**: 1.0  
-**Last Updated**: 2025-12-05  
+**Version**: 1.1
+**Last Updated**: 2026-02-12
 **Status**: Current
 
 ---
@@ -38,10 +38,11 @@ The **AI Intelligence System** provides autonomous, learning-based automation th
 
 - **Pattern Learning**: Learns from historical session data
 - **Context-Aware**: Analyzes files, directories, and code signals
-- **Multi-Strategy**: Rule-based + Pattern-based + Agent-based recommendations
+- **Multi-Strategy**: Semantic + Rule-based + Pattern-based + Agent-based recommendations
 - **Confidence-Scored**: All recommendations include confidence metrics (0.0-1.0)
 - **Auto-Activation**: High-confidence recommendations auto-activate (≥80% confidence)
 - **Feedback Loop**: Improves from user feedback via SQLite storage
+- **Review Learning**: Specialist review outcomes feed back into recommendations via `review_parser`
 
 ### Design Philosophy
 
@@ -75,10 +76,15 @@ The system prioritizes **learning from real usage** over hardcoded rules, **cont
 ├─────────────────────────────────────────────────────────┤
 │                                                          │
 │  IntelligentAgent          SkillRecommender             │
-│  ├─ Context analysis       ├─ Rule-based recs           │
-│  ├─ Recommendations        ├─ Agent-based recs          │
-│  ├─ Auto-activation        ├─ Pattern-based recs        │
-│  └─ Session recording      └─ Feedback learning         │
+│  ├─ Context analysis       ├─ Semantic similarity recs  │
+│  ├─ Recommendations        ├─ Rule-based recs           │
+│  ├─ Auto-activation        ├─ Agent-based recs          │
+│  └─ Session recording      ├─ Pattern-based recs        │
+│                             └─ Review learning           │
+│                                                          │
+│  ReviewParser (review_parser.py)                        │
+│  ├─ Parse review outcomes  → map perspectives to skills │
+│  └─ Feed into record_skill_success()                    │
 │                                                          │
 └────────────┬─────────────────────────────────────────────┘
              ↓
@@ -1041,6 +1047,27 @@ $ cortex ai record-success "all tests passing"
 
 💡 This session will improve future recommendations!
 ```
+
+### ai ingest-review
+
+Ingest a specialist review into skill learning:
+
+```bash
+$ cortex ai ingest-review .agents/reviews/review-20260209-135121.md
+
+Review ingested (APPROVE WITH CHANGES)
+  Productive perspectives: 4
+  Skills recorded: ['owasp-top-10', 'secure-coding-practices', ...]
+```
+
+Parses review markdown, identifies productive perspectives (those with findings),
+maps them to skills, and calls `record_skill_success()`. Only reviews with
+`APPROVE WITH CHANGES` or `REQUEST CHANGES` verdicts contribute to learning.
+
+Called automatically by `specialist-review.sh` after each review.
+See [Skill Recommendation & Review Learning](skill-recommendation-system.md) for details.
+
+---
 
 ### ai export
 

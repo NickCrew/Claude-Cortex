@@ -1401,39 +1401,6 @@ skills:
     status: active
     license: MIT
 
-  context-health:
-    title: Context Health Check
-    description: Diagnose and optimize the cortex environment for consistency, duplicates, and redundancy
-    path: context-health/SKILL.md
-    authors:
-      - nferguson
-    created: "2025-10-17"
-    updated: "2025-10-17"
-    categories:
-      - meta
-      - workflow
-    tags:
-      - diagnostics
-      - health-check
-      - optimization
-    version:
-      current: "1.0.0"
-    activation:
-      keywords:
-        - cortex doctor
-        - claude ctx doctor
-        - context health
-        - context health check
-        - context diagnostic
-        - environment check
-        - consistency check
-        - duplicate agents
-        - redundancy check
-        - claude ctx health
-    dependencies: []
-    status: active
-    license: MIT
-
   git-ops:
     title: Git Operations
     description: Safe git workflow guidance, validation checks, and conventional commit formatting

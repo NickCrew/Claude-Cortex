@@ -10,20 +10,37 @@ permalink: /tutorials/
 
 Hands-on tutorials to help you master cortex from beginner to advanced.
 
-## 🎓 Learning Path
+## Learning Paths
 
-### Getting Started
+Structured progressions that connect tutorials into a guided journey.
+
+<div class="doc-grid">
+  <a href="learning-paths/onboarding/" class="doc-card">
+    <h3>Onboarding: Zero to Productive</h3>
+    <p>Install cortex, learn the core loop (agents, skills, modes), run your first workflow, and pick your next direction. Start here if you're new.</p>
+    <span class="doc-card__arrow">Start Path &rarr;</span>
+    <div class="doc-card__meta">
+      <span>~40 minutes</span>
+      <span>5 stages</span>
+      <span>Beginner</span>
+    </div>
+  </a>
+</div>
+
+---
+
+## Featured Tutorial
 
 <div class="doc-grid">
   <a href="getting-started-tui/" class="doc-card">
-    <h3>📖 Getting Started with Cortex TUI</h3>
+    <h3>Getting Started with Cortex TUI</h3>
     <p>Master the Terminal User Interface in 20-30 minutes. Learn navigation, agent management, workflows, and when to use CLI vs TUI.</p>
     <p class="muted"><strong>Topics:</strong> TUI Navigation • Agents & Modes • Skills & Workflows • Command Palette • Export • AI Assistant • MCP Servers • Profiles</p>
-    <span class="doc-card__arrow">Start Tutorial →</span>
+    <span class="doc-card__arrow">Start Tutorial &rarr;</span>
     <div class="doc-card__meta">
-      <span>⏱️ 20-30 minutes</span>
-      <span>✅ 15+ checkpoints</span>
-      <span>🎯 60+ examples</span>
+      <span>20-30 minutes</span>
+      <span>15+ checkpoints</span>
+      <span>60+ examples</span>
     </div>
   </a>
 </div>

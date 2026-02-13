@@ -67,3 +67,6 @@ PRINCIPLES.md
 .codanna/
 .codannaignore
 .fastembed_cache
+
+# Session-generated skill context
+.claude/skill-context.md

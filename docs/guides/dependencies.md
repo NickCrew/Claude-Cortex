@@ -135,13 +135,7 @@ sudo ln -sf $(which bun) /usr/local/bin/bun
 
 ## Verifying Dependencies
 
-Run the doctor command to check your setup:
-
-```bash
-cortex doctor
-```
-
-Or check manually:
+Check your dependencies manually:
 
 ```bash
 # Core

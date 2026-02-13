@@ -57,7 +57,7 @@ Install via Claude's plugin system or pip for the CLI.
 
 ### ✅ Stability Update: AI + Context Management
 
-We’ve fixed major issues across AI recommendations and context state tracking. Auto-activation and watch mode are more reliable, and context activation now uses `.active-*` state files with `cortex doctor` and `cortex setup migrate` to keep everything consistent.
+We've fixed major issues across AI recommendations and context state tracking. Auto-activation and watch mode are more reliable, and context activation now uses `.active-*` state files with `cortex setup migrate` to keep everything consistent.
 
 ### 🔥 New: Super Saiyan Mode
 

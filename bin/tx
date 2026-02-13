@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# tx - tmux helper for agents
+# Simple commands for interacting with tmux windows during development
+
+SESSION="${TMUX_SESSION:-labs}"
+DEFAULT_LINES=50
+
+usage() {
+  cat <<EOF
+tx - tmux helper for agents
+
+Usage: tx <command> [args]
+
+Window Management:
+  list                      List windows in session
+  new <window>              Create new window
+  kill <window>             Kill window
+
+Commands:
+  send <window> <cmd>       Send command to window (with Enter)
+  type <window> <text>      Type text without pressing Enter
+  keys <window> <keys>      Send key sequence (e.g., C-c, Enter, Up)
+  interrupt <window>        Send Ctrl-C to window
+
+Reading Output:
+  read <window> [lines]     Capture last N lines (default: $DEFAULT_LINES)
+  tail <window> [lines]     Alias for read
+  dump <window>             Dump entire scrollback buffer
+  watch <window> [pattern]  Wait for pattern to appear (or prompt if no pattern)
+
+Status:
+  status <window>           Check if window exists and show last line
+  running <window>          Exit 0 if command appears running, 1 if at prompt
+  wait <window> [timeout]   Wait for command to complete (default: 60s)
+
+Examples:
+  tx send synapse-pingora "cargo build"
+  tx read synapse-pingora 20
+  tx wait synapse-pingora 120
+  tx interrupt synapse-pingora
+  tx watch synapse-pingora "Finished"
+  tx running synapse-pingora && echo "still running"
+EOF
+  exit 1
+}
+
+ensure_session() {
+  if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+    echo "error: session '$SESSION' not found" >&2
+    echo "hint: run 'just tmux-new' or set TMUX_SESSION" >&2
+    exit 1
+  fi
+}
+
+ensure_window() {
+  local window="$1"
+  if ! tmux list-windows -t "$SESSION" -F "#{window_name}" | grep -qx "$window"; then
+    echo "error: window '$window' not found in session '$SESSION'" >&2
+    echo "available windows:" >&2
+    tmux list-windows -t "$SESSION" -F "  #{window_name}" >&2
+    exit 1
+  fi
+}
+
+# List windows
+cmd_list() {
+  ensure_session
+  tmux list-windows -t "$SESSION" -F "#{window_index}: #{window_name} #{?window_active,(active),}"
+}
+
+# Create new window
+cmd_new() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  tmux new-window -t "$SESSION" -n "$window"
+  echo "created window: $window"
+}
+
+# Kill window
+cmd_kill() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux kill-window -t "$SESSION:$window"
+  echo "killed window: $window"
+}
+
+# Send command (with Enter)
+cmd_send() {
+  local window="${1:-}"
+  shift || true
+  local cmd="$*"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  [[ -z "$cmd" ]] && { echo "error: command required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  
+  # Clear any partial input first
+  tmux send-keys -t "$SESSION:$window" C-c 2>/dev/null || true
+  sleep 0.1
+  tmux send-keys -t "$SESSION:$window" "$cmd" Enter
+}
+
+# Type text (no Enter)
+cmd_type() {
+  local window="${1:-}"
+  shift || true
+  local text="$*"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux send-keys -t "$SESSION:$window" "$text"
+}
+
+# Send key sequence
+cmd_keys() {
+  local window="${1:-}"
+  shift || true
+  local keys="$*"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  [[ -z "$keys" ]] && { echo "error: keys required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux send-keys -t "$SESSION:$window" $keys
+}
+
+# Send Ctrl-C
+cmd_interrupt() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux send-keys -t "$SESSION:$window" C-c
+  echo "sent interrupt to: $window"
+}
+
+# Capture last N lines
+cmd_read() {
+  local window="${1:-}"
+  local lines="${2:-$DEFAULT_LINES}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux capture-pane -t "$SESSION:$window" -p -S -"$lines"
+}
+
+# Dump entire scrollback
+cmd_dump() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  tmux capture-pane -t "$SESSION:$window" -p -S -
+}
+
+# Check window status
+cmd_status() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  
+  echo "window: $window"
+  echo "last output:"
+  tmux capture-pane -t "$SESSION:$window" -p -S -3 | tail -3
+}
+
+# Check if command is running (vs at prompt)
+cmd_running() {
+  local window="${1:-}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  
+  local last_line
+  last_line=$(tmux capture-pane -t "$SESSION:$window" -p | grep -v '^$' | tail -1)
+  
+  # Check for common prompt patterns
+  if [[ "$last_line" =~ (\$|❯|›|>|#)[[:space:]]*$ ]]; then
+    # Looks like a prompt
+    exit 1
+  elif [[ "$last_line" =~ ^[[:space:]]*$ ]]; then
+    # Empty - probably running
+    exit 0
+  else
+    # Has content - probably running
+    exit 0
+  fi
+}
+
+# Wait for command to complete
+cmd_wait() {
+  local window="${1:-}"
+  local timeout="${2:-60}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  
+  local elapsed=0
+  local interval=1
+  
+  while (( elapsed < timeout )); do
+    if ! cmd_running "$window" 2>/dev/null; then
+      echo "command completed in ${elapsed}s"
+      return 0
+    fi
+    sleep "$interval"
+    (( elapsed += interval ))
+  done
+  
+  echo "timeout after ${timeout}s (command may still be running)" >&2
+  return 1
+}
+
+# Watch for pattern (or prompt)
+cmd_watch() {
+  local window="${1:-}"
+  local pattern="${2:-}"
+  local timeout="${3:-120}"
+  [[ -z "$window" ]] && { echo "error: window name required" >&2; exit 1; }
+  ensure_session
+  ensure_window "$window"
+  
+  local elapsed=0
+  local interval=1
+  
+  while (( elapsed < timeout )); do
+    local output
+    output=$(tmux capture-pane -t "$SESSION:$window" -p -S -20)
+    
+    if [[ -n "$pattern" ]]; then
+      if echo "$output" | grep -q "$pattern"; then
+        echo "pattern '$pattern' found after ${elapsed}s"
+        return 0
+      fi
+    else
+      # No pattern - wait for prompt
+      if ! cmd_running "$window" 2>/dev/null; then
+        echo "prompt detected after ${elapsed}s"
+        return 0
+      fi
+    fi
+    
+    sleep "$interval"
+    (( elapsed += interval ))
+  done
+  
+  echo "timeout after ${timeout}s" >&2
+  return 1
+}
+
+main() {
+  [[ $# -lt 1 ]] && usage
+  
+  local cmd="$1"
+  shift
+  
+  case "$cmd" in
+    list)       cmd_list "$@" ;;
+    new)        cmd_new "$@" ;;
+    kill)       cmd_kill "$@" ;;
+    send)       cmd_send "$@" ;;
+    type)       cmd_type "$@" ;;
+    keys)       cmd_keys "$@" ;;
+    interrupt)  cmd_interrupt "$@" ;;
+    read|tail)  cmd_read "$@" ;;
+    dump)       cmd_dump "$@" ;;
+    status)     cmd_status "$@" ;;
+    running)    cmd_running "$@" ;;
+    wait)       cmd_wait "$@" ;;
+    watch)      cmd_watch "$@" ;;
+    -h|--help|help) usage ;;
+    *) echo "unknown command: $cmd" >&2; usage ;;
+  esac
+}
+
+main "$@"

@@ -883,9 +883,7 @@ BACKEND_AGENTS = [
 
 DEVOPS_AGENTS = [
     "cloud-architect",
-    "deployment-engineer",
     "kubernetes-architect",
-    "terraform-specialist",
 ]
 
 DOCUMENTATION_AGENTS = [
@@ -922,9 +920,7 @@ FULL_AGENTS = [
     "python-pro",
     "security-auditor",
     "cloud-architect",
-    "deployment-engineer",
     "kubernetes-architect",
-    "terraform-specialist",
 ]
 
 BUILT_IN_PROFILES = [

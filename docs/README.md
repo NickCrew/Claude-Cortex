@@ -35,17 +35,24 @@ cat ~/.cortex/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 
 **[Agent Catalog](./guides/agents.md)** - Complete agent reference
 
-- 13 agents organized by category
-- Model assignments (Haiku/Sonnet)
+- 29 agents organized by category
+- Model assignments (Opus/Haiku)
 - Dependencies and relationships
 - Use cases and activation patterns
 
 **[Agent Skills](./guides/skills.md)** - Progressive disclosure system
 
-- 54 available skills
+- 100+ available skills
 - Creating new skills with templates
 - Token efficiency metrics and activation guidance
 - Integration with agents
+
+**[Skill Recommendation & Review Learning](./guides/development/skill-recommendation-system.md)** - Self-improving feedback loop
+
+- Four recommendation strategies (semantic, rule-based, agent-based, pattern-based)
+- Review outcome parsing and skill learning
+- CLI commands for recommendations and feedback
+- Review gate integration
 
 **[Flags Management](./guides/FLAGS_MANAGEMENT.md)** - Context flag modules
 
@@ -76,7 +83,7 @@ cortex is a context orchestration framework that provides:
 
 ### Key Concepts
 
-**Agents**: Specialized AI agents with focused responsibilities (13 total)
+**Agents**: Specialized AI agents with focused responsibilities (29 total)
 
 - Auto-activation supported via `agents/triggers.yaml`
 - Activate/deactivate in the TUI or CLI
@@ -84,7 +91,7 @@ cortex is a context orchestration framework that provides:
 
 **Skills**: Modular knowledge packages that load progressively
 
-- 54 available skills
+- 100+ available skills
 - Shared across multiple agents
 - Progressive disclosure keeps context lean
 
@@ -123,11 +130,9 @@ python-pro / typescript-pro (Haiku) → Implement fix
 ```
 cloud-architect (Sonnet) → Design infrastructure
   ↓
-terraform-specialist (Haiku) → Write IaC
-  ↓
 kubernetes-architect (Haiku) → K8s architecture
   ↓
-deployment-engineer (Haiku) → CI/CD pipelines
+docs-architect (Haiku) → Document infrastructure
 ```
 
 ### Documentation & Enablement
@@ -199,15 +204,6 @@ cortex profile backend
 # Show all status
 cortex status
 
-### Diagnostics
-```bash
-# Run system check
-cortex doctor
-
-# Attempt auto-fix
-cortex doctor --fix
-```
-
 ```
 
 ---
@@ -244,7 +240,7 @@ cortex doctor --fix
 ┌─────────────────────────────────────┐
 │      Context Storage                │
 │  agents/    skills/    modes/       │
-│  13 total   54 skills  9 modes      │
+│  29 total   100+ skills 9 modes     │
 │  flags/     rules/     profiles/    │
 │  22 flags   6 rules    5 profiles   │
 └─────────────────────────────────────┘

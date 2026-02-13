@@ -12,6 +12,8 @@ Technical reference documentation for cortex configuration, APIs, and CLI.
 ## Contents
 
 - [Configuration Reference](configuration.md) - All configuration files with schemas and examples
+- [bin/ Utilities](bin-utilities.md) - Agent-facing tools for routine development (`tx`, `browser_tools`, `committer`, etc.)
+- [scripts/ Utilities](scripts-utilities.md) - Project-internal maintenance scripts (manpages, registry validation, uninstall)
 - [Manpages](README.md) - CLI manpage generation
 - [Settings Files Catalog](../settings-files.md) - Complete file listing
 

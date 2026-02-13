@@ -599,7 +599,7 @@ class PatternLearner:
             # Higher confidence if explicit perf keywords found
             confidence = 0.85 if has_any(["performance", "perf", "benchmark", "latency"]) else 0.7
             add_review(
-                "performance-engineer",
+                "performance-monitor",
                 confidence,
                 "Performance-sensitive changes detected - performance review recommended",
                 ["performance"],
@@ -611,7 +611,7 @@ class PatternLearner:
         if context.has_api and len(context.files_changed) >= 3:
             recommendations.append(
                 AgentRecommendation(
-                    agent_name="api-documenter",
+                    agent_name="docs-architect",
                     confidence=0.75,
                     reason="API changes detected - documentation update needed",
                     urgency="medium",
@@ -872,6 +872,38 @@ class ContextDetector:
             return []
 
 
+def get_current_context(
+    files: list[Path] | None = None,
+    active_agents: list[str] | None = None,
+    active_modes: list[str] | None = None,
+    active_rules: list[str] | None = None,
+) -> SessionContext:
+    """Build a SessionContext from git changes and runtime state.
+
+    Centralizes context detection so all recommendation systems share
+    the same view of the project.
+
+    Args:
+        files: Changed files (auto-detected from git if None)
+        active_agents: Currently active agent names
+        active_modes: Currently active mode names
+        active_rules: Currently active rule names
+
+    Returns:
+        Populated SessionContext
+    """
+    if files is None:
+        files = ContextDetector.detect_from_git()
+    context = ContextDetector.detect_from_files(files)
+    if active_agents is not None:
+        context.active_agents = list(active_agents)
+    if active_modes is not None:
+        context.active_modes = list(active_modes)
+    if active_rules is not None:
+        context.active_rules = list(active_rules)
+    return context
+
+
 class IntelligentAgent:
     """Main intelligent automation agent that orchestrates everything."""
 
@@ -901,10 +933,7 @@ class IntelligentAgent:
         Returns:
             Session context
         """
-        if files is None:
-            files = self.context_detector.detect_from_git()
-
-        self.current_context = self.context_detector.detect_from_files(files)
+        self.current_context = get_current_context(files=files)
         return self.current_context
 
     def get_recommendations(self) -> List[AgentRecommendation]:

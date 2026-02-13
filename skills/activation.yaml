@@ -435,19 +435,6 @@ skills:
       - "skill development"
       - "skill authoring"
 
-  context-health:
-    keywords:
-      - "cortex doctor"
-      - "claude ctx doctor"
-      - "context health"
-      - "context health check"
-      - "context diagnostic"
-      - "environment check"
-      - "consistency check"
-      - "duplicate agents"
-      - "redundancy check"
-      - "claude ctx health"
-
   code-explanation:
     keywords:
       - "explain code"

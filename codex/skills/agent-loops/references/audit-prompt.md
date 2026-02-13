@@ -1,13 +1,12 @@
 You are performing a test coverage audit. All source code, test code, and reference standards are provided below. Do NOT read any files — everything you need is in this prompt.
 
-Your ONLY tool call should be the final Write to save the report.
+Output the COMPLETE report as a single markdown document to stdout.
 
 ## CONSTRAINTS
 
-1. **Do NOT read files.** All content is inlined below.
+1. **No tools.** Do not use Read, Write, Bash, or any other tools. Output the report directly.
 2. **Do NOT spawn sub-agents.**
-3. **Write the report to disk** using the Write tool.
-4. **Stay focused.** Only audit the provided module and tests.
+3. **Stay focused.** Only audit the provided module and tests.
 
 ## TESTING STANDARDS
 
@@ -43,12 +42,7 @@ Your ONLY tool call should be the final Write to save the report.
    - P1: Reliability risk, missing error handling, edge cases
    - P2: Completeness improvement, nice-to-have coverage
 
-4. **Write the report** to this file using the Write tool:
-```
-{{OUTPUT_FILE}}
-```
-
-The report must include:
+4. **Output the report** directly to stdout. The report must include:
 - Behavior inventory table (all public behaviors with coverage status)
 - Prioritized gap list (P0 first, then P1, then P2)
 - For each gap: what's missing, why it matters, suggested test approach

@@ -20,6 +20,7 @@ from claude_ctx_py.intelligence.base import (
     PatternLearner,
     SessionContext,
     WorkflowPrediction,
+    get_current_context,
 )
 
 __all__ = [
@@ -29,6 +30,7 @@ __all__ = [
     "PatternLearner",
     "SessionContext",
     "WorkflowPrediction",
+    "get_current_context",
 ]
 
 # Optional semantic intelligence (requires fastembed)

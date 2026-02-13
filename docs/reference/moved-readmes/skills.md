@@ -234,7 +234,7 @@ In addition to the core skills, the following skills have been integrated from p
 **Size**: ~2,600 tokens
 
 ##### terraform-best-practices
-**Agents**: terraform-specialist
+**Agents**: kubernetes-architect
 **Triggers**: Terraform, IaC, infrastructure automation
 **Content**: Module design, state management, workspaces, security, testing
 **Size**: ~2,400 tokens

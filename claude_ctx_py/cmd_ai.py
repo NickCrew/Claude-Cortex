@@ -219,6 +219,29 @@ def ai_export_json(output_file: str = "ai-recommendations.json") -> int:
     return 0
 
 
+def ai_ingest_review(review_file: str) -> int:
+    """Ingest a specialist review into skill learning.
+
+    Args:
+        review_file: Path to review markdown file
+
+    Returns:
+        Exit code (0 for success)
+    """
+    from .review_parser import ingest_review
+
+    review_path = Path(review_file)
+    if not review_path.exists():
+        print(f"Error: Review file not found: {review_path}")
+        return 1
+
+    result = ingest_review(review_path)
+    print(f"Review ingested ({result['verdict']})")
+    print(f"  Productive perspectives: {result['perspectives_found']}")
+    print(f"  Skills recorded: {result['skills_recorded']}")
+    return 0
+
+
 def ai_record_success(outcome: str = "success") -> int:
     """Record the current session as successful for learning.
 
@@ -255,6 +278,14 @@ def ai_record_success(outcome: str = "success") -> int:
     agent.record_session_success(
         agents_used=active_agents, duration=duration, outcome=outcome
     )
+
+    # Bridge into skill learning so skill recommendations also improve
+    try:
+        from .skill_recommender import SkillRecommender
+        recommender = SkillRecommender()
+        recommender.record_skill_success(context, active_agents)
+    except Exception:
+        pass  # Best-effort — don't block agent recording
 
     print(f"✓ Recorded successful session for learning")
     print(f"  Context: {len(context.files_changed)} files changed")

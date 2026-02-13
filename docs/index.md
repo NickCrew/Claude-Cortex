@@ -43,9 +43,9 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
 
 <div class="metrics-row">
   <div class="metric-box">
-    <div class="metric-value">107</div>
+    <div class="metric-value">29</div>
     <div class="metric-label">Total Agents</div>
-    <div class="metric-sublabel">19 active • 88 inactive</div>
+    <div class="metric-sublabel">29 active</div>
   </div>
   <div class="metric-box">
     <div class="metric-value">49</div>
@@ -58,7 +58,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
     <div class="metric-sublabel">Toggle via FLAGS.md</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">54</div>
+    <div class="metric-value">100+</div>
     <div class="metric-label">Skills Available</div>
     <div class="metric-sublabel">Progressive disclosure packs</div>
   </div>
@@ -259,24 +259,6 @@ cortex ai record-success --outcome "feature complete"
 
 ---
 
-## 🩺 System Diagnostics {#diagnostics}
-
-**New in November 2025** - Keep your context healthy and optimized.
-
-```bash
-# Run system health check
-cortex doctor
-
-# Attempt to auto-fix issues
-cortex doctor --fix
-```
-
-Checks performed:
-
-- **Consistency**: Verifies active agents/modes/rules exist.
-- **Duplicates**: Finds duplicate agent definitions.
-- **Optimization**: Identifies large files or unused resources.
-
 ---
 
 ## 📦 Asset Manager {#asset-manager}
@@ -457,31 +439,41 @@ claude-cortex/
 │   ├── test/          # Test generation
 │   └── tools/         # Tool selection and optimization
 │
-├── agents/            # Active specialized agents (19 agents)
+├── agents/            # Active specialized agents (29 agents)
+│   ├── architect-review.md
 │   ├── cloud-architect.md
 │   ├── code-reviewer.md
+│   ├── component-architect.md
+│   ├── context-manager.md
+│   ├── database-admin.md
+│   ├── database-optimizer.md
 │   ├── debugger.md
-│   ├── deployment-engineer.md
-│   ├── dx-optimizer.md
-│   ├── knowledge-synthesizer.md
+│   ├── docs-architect.md
+│   ├── frontend-optimizer.md
+│   ├── javascript-pro.md
 │   ├── kubernetes-architect.md
-│   ├── learning-guide.md
 │   ├── memory-keeper.md
-│   ├── mermaid-expert.md
 │   ├── orchestrator.md
-│   ├── prompt-engineer.md
+│   ├── performance-monitor.md
+│   ├── postgres-expert.md
 │   ├── python-pro.md
-│   ├── refiner.md
+│   ├── react-specialist.md
+│   ├── rest-expert.md
+│   ├── rust-pro.md
 │   ├── security-auditor.md
 │   ├── sql-pro.md
-│   ├── terraform-specialist.md
-│   ├── tutorial-engineer.md
+│   ├── state-architect.md
+│   ├── tailwind-expert.md
+│   ├── test-automator.md
 │   ├── typescript-pro.md
+│   ├── ui-ux-designer.md
+│   ├── vitest-expert.md
+│   ├── websocket-engineer.md
 │   ├── dependencies.map         # Agent dependency graph
 │   └── triggers.yaml            # Agent activation triggers
 │
 ├── inactive/
-│   └── agents/        # Disabled agents library (88 agents available)
+│   └── agents/        # Disabled agents library (available for activation)
 │
 ├── modes/             # Behavioral modes (9 core)
 │   ├── Amphetamine.md
@@ -500,7 +492,7 @@ claude-cortex/
 ├── tasks/             # Task tracking and logs
 │
 ├── rules/             # Reusable rule sets
-│   ├── workflow-rules.md       # Git workflow, task patterns
+│   ├── git-rules.md            # Git workflow and commit rules
 │   ├── quality-rules.md        # Code organization, failure investigation
 │   └── efficiency-rules.md     # Tool optimization, workspace hygiene
 │
@@ -727,35 +719,44 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 ### 2. Agent System
 
 **Location**: `agents/` and `inactive/agents/`
-**Active Agents**: 19 | **Available**: 107
+**Active Agents**: 29
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
 
 - **Dependency Management**: `dependencies.map` tracks agent relationships
 - **Trigger System**: `triggers.yaml` defines automatic activation patterns
-- **Activation Control**: Move between `agents/` and `inactive/agents/` to control availability
 
 **Active Agents**:
 
+- `architect-review` - Architecture review and validation
 - `cloud-architect` - Cloud infrastructure design
 - `code-reviewer` - Code quality analysis
+- `component-architect` - Component design and architecture
+- `context-manager` - Context and session management
+- `database-admin` - Database administration and operations
+- `database-optimizer` - Database performance optimization
 - `debugger` - Issue diagnosis and resolution
-- `deployment-engineer` - Release engineering
-- `dx-optimizer` - Developer experience and workflow tooling
-- `knowledge-synthesizer` - Cross-agent pattern synthesis
+- `docs-architect` - Documentation architecture and structure
+- `frontend-optimizer` - Frontend performance optimization
+- `javascript-pro` - JavaScript expertise
 - `kubernetes-architect` - K8s orchestration
-- `learning-guide` - Guided explanations and onboarding
 - `memory-keeper` - Memory vault curation
-- `mermaid-expert` - Architecture diagrams and visuals
 - `orchestrator` - High-level planning and delegation
-- `prompt-engineer` - Prompt optimization
+- `performance-monitor` - Performance monitoring and analysis
+- `postgres-expert` - PostgreSQL expertise
 - `python-pro` - Python expertise
-- `refiner` - Iterative improvements
+- `react-specialist` - React expertise and best practices
+- `rest-expert` - REST API design and implementation
+- `rust-pro` - Rust expertise
 - `security-auditor` - Security assessment
 - `sql-pro` - SQL expertise
-- `terraform-specialist` - Infrastructure as code
-- `tutorial-engineer` - Hands-on tutorials
+- `state-architect` - State management architecture
+- `tailwind-expert` - Tailwind CSS expertise
+- `test-automator` - Test automation and generation
 - `typescript-pro` - TypeScript expertise
+- `ui-ux-designer` - UI/UX design and user experience
+- `vitest-expert` - Vitest testing framework expertise
+- `websocket-engineer` - WebSocket implementation
 
 **Reference**: [Agent Documentation](guides/agents.md)
 
@@ -808,7 +809,7 @@ Reusable rule sets that define behavioral constraints and best practices.
 
 **Rule Sets**:
 
-- `workflow-rules.md` - Task patterns, git workflow, implementation completeness
+- `git-rules.md` - Git workflow and commit rules
 - `quality-rules.md` - Code organization, naming conventions, failure investigation
 - `efficiency-rules.md` - Tool optimization, parallel operations, workspace hygiene
 
@@ -850,7 +851,7 @@ Python CLI for managing context components outside of Claude Code.
 - AI recommendations, watch mode, and export
 - Init detection and profile setup
 - Worktree management (list/add/remove/prune/base dir)
-- Migration helpers (`setup migrate`) and diagnostics (`doctor`)
+- Migration helpers (`setup migrate`)
 - Agent dependency visualization and context export
 
 **Reference**: [CLI Documentation](CLI.md)
@@ -874,11 +875,11 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
 
   <a href="guides/agents.html" class="doc-card">
     <h3>Agent Catalog</h3>
-    <p>Catalog of 107 agents (19 active, 88 inactive) organized by category with model assignments, dependencies, workflows, and activation criteria.</p>
+    <p>Agent reference with 29 active agents organized by category with model assignments, dependencies, workflows, and activation criteria.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>23KB reference</span>
-      <span>107 agents</span>
+      <span>29 agents</span>
     </div>
   </a>
 
@@ -888,7 +889,7 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>16KB guide</span>
-      <span>54 skills</span>
+      <span>100+ skills</span>
     </div>
   </a>
 
@@ -1225,17 +1226,16 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Adding Commands
 
-1. Pick a namespace and command name (e.g., `analyze:doctor`)
-2. Create a markdown file in `commands/` (colon replaced with dash, e.g., `commands/analyze-doctor.md`)
-3. Set `name: "analyze:doctor"` in front matter
+1. Pick a namespace and command name (e.g., `analyze:code`)
+2. Create a markdown file in `commands/` (colon replaced with dash, e.g., `commands/analyze-code.md`)
+3. Set `name: "analyze:code"` in front matter
 4. Update command count in this index if needed
 
 ### Creating Agents
 
-1. Create markdown file in `inactive/agents/`
+1. Create markdown file in `agents/`
 2. Define triggers in `triggers.yaml`
 3. Add dependencies to `dependencies.map`
-4. Move to `agents/` when ready for activation
 
 ### Defining Workflows
 
@@ -1259,7 +1259,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 **Agent System**
 
-- [Agent Catalog](guides/agents.html) - Agent reference with 107 documented agents
+- [Agent Catalog](guides/agents.html) - Agent reference with 29 active agents
 - [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
 - [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 

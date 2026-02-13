@@ -10,3 +10,7 @@
 - Review `git status` and `git diff` before staging or committing.
 
 Example: `fix(auth): prevent token refresh race`
+
+## Github 
+
+- Do NOT submit PRs or comments or push changes onto an existing PR without my explicit consent. 

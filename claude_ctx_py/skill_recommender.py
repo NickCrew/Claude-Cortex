@@ -140,13 +140,24 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
 class SkillRecommender:
     """AI-powered skill recommendation engine."""
 
-    def __init__(self, home: Path | None = None):
+    def __init__(self, home: Path | None = None, enable_semantic: bool = True):
         """Initialize recommender with optional home directory."""
         self.home = _resolve_claude_dir(home)
         self.db_path = self.home / "data" / "skill-recommendations.db"
         self.rules_path = self.home / "skills" / "recommendation-rules.json"
         self._init_database()
         self._load_rules()
+
+        # Optional semantic matcher for similarity-based recommendations
+        self.semantic_matcher = None
+        if enable_semantic:
+            try:
+                from .intelligence.semantic import SemanticMatcher
+                self.semantic_matcher = SemanticMatcher(
+                    self.home / "data" / "skill_semantic_cache"
+                )
+            except ImportError:
+                pass
 
     def _init_database(self) -> None:
         """Initialize SQLite database for recommendations and feedback."""
@@ -377,10 +388,20 @@ class SkillRecommender:
         """
         recommendations: Dict[str, SkillRecommendation] = {}
 
+        # Strategy 0: Semantic similarity recommendations (highest quality)
+        semantic_recs = self._semantic_skill_recommendations(context)
+        for rec in semantic_recs:
+            recommendations[rec.skill_name] = rec
+
         # Strategy 1: Rule-based recommendations
         rule_recs = self._rule_based_recommendations(context)
         for rec in rule_recs:
-            recommendations[rec.skill_name] = rec
+            if rec.skill_name in recommendations:
+                existing = recommendations[rec.skill_name]
+                existing.confidence = min(0.99, existing.confidence + 0.05)
+                existing.triggers.extend(rec.triggers)
+            else:
+                recommendations[rec.skill_name] = rec
 
         # Strategy 2: Agent-based recommendations
         agent_recs = self._agent_based_recommendations(context)
@@ -472,6 +493,68 @@ class SkillRecommender:
                     recommendations.append(rec)
 
         return recommendations
+
+    def _semantic_skill_recommendations(
+        self,
+        context: SessionContext,
+    ) -> List[SkillRecommendation]:
+        """Generate recommendations using semantic similarity matching.
+
+        Finds past sessions with similar context and aggregates which skills
+        were successful in those sessions.
+        """
+        if not self.semantic_matcher:
+            return []
+
+        context_dict = self._skill_session_to_text(context)
+        similar = self.semantic_matcher.find_similar(
+            context_dict, top_k=10, min_similarity=0.6
+        )
+        if not similar:
+            return []
+
+        # Aggregate skill scores from similar sessions
+        skill_scores: Dict[str, float] = {}
+        for session_data, similarity in similar:
+            skills = session_data.get("skills", [])
+            if isinstance(skills, list):
+                for skill in skills:
+                    skill_scores[skill] = skill_scores.get(skill, 0) + similarity
+
+        recommendations = []
+        for skill, score in sorted(
+            skill_scores.items(), key=lambda x: x[1], reverse=True
+        )[:10]:
+            confidence = min(score / 5.0, 1.0)
+            if confidence >= 0.3:
+                recommendations.append(
+                    SkillRecommendation(
+                        skill_name=skill,
+                        confidence=confidence,
+                        reason=f"Used in semantically similar sessions (match: {confidence:.0%})",
+                        triggers=["semantic_match"],
+                        related_agents=[],
+                        estimated_value=self._estimate_value(confidence),
+                        auto_activate=False,
+                    )
+                )
+
+        return recommendations
+
+    def _skill_session_to_text(
+        self,
+        context: SessionContext,
+        skills_used: List[str] | None = None,
+    ) -> Dict[str, Any]:
+        """Convert SessionContext into the dict format SemanticMatcher expects."""
+        result: Dict[str, Any] = {
+            "files": context.files_changed,
+            "context": context.to_dict(),
+            "agents": context.active_agents,
+        }
+        if skills_used:
+            result["skills"] = skills_used
+        return result
 
     def _pattern_based_recommendations(
         self,
@@ -593,7 +676,8 @@ class SkillRecommender:
         skill: str,
         was_helpful: bool,
         context_hash: str,
-        comment: Optional[str] = None
+        comment: Optional[str] = None,
+        context: Optional[SessionContext] = None,
     ) -> None:
         """Update recommendation model based on user feedback."""
         timestamp = datetime.now().isoformat()
@@ -626,6 +710,80 @@ class SkillRecommender:
                 """, (rec_id, timestamp, was_helpful, comment))
 
                 conn.commit()
+
+        # Feed positive feedback back into learning
+        if was_helpful and context is not None:
+            self._upsert_context_pattern(context, [skill])
+            if self.semantic_matcher:
+                session_dict = self._skill_session_to_text(context, skills_used=[skill])
+                try:
+                    self.semantic_matcher.add_session(session_dict)
+                except Exception:
+                    pass
+
+    def record_skill_success(
+        self,
+        context: SessionContext,
+        skills_used: List[str],
+    ) -> None:
+        """Record a successful session for skill learning.
+
+        Updates context_patterns and adds to SemanticMatcher embeddings so
+        future sessions with similar context get these skills recommended.
+
+        Args:
+            context: Session context when success was recorded
+            skills_used: Skills that contributed to the successful session
+        """
+        if not skills_used:
+            return
+
+        self._upsert_context_pattern(context, skills_used)
+
+        if self.semantic_matcher:
+            session_dict = self._skill_session_to_text(context, skills_used=skills_used)
+            try:
+                self.semantic_matcher.add_session(session_dict)
+            except Exception:
+                pass
+
+    def _upsert_context_pattern(
+        self,
+        context: SessionContext,
+        skills: List[str],
+    ) -> None:
+        """Insert or update a context_patterns row with successful skills."""
+        context_hash = self._compute_context_hash(context)
+        timestamp = datetime.now().isoformat()
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute(
+                "SELECT successful_skills, success_rate FROM context_patterns WHERE context_hash = ?",
+                (context_hash,),
+            )
+            row = cursor.fetchone()
+
+            if row:
+                existing_skills = set(json.loads(row[0])) if row[0] else set()
+                existing_skills.update(skills)
+                new_rate = min(1.0, (row[1] or 0.5) + 0.1)
+                conn.execute(
+                    "UPDATE context_patterns SET successful_skills = ?, success_rate = ?, last_updated = ? WHERE context_hash = ?",
+                    (json.dumps(sorted(existing_skills)), new_rate, timestamp, context_hash),
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO context_patterns (context_hash, file_patterns, active_agents, successful_skills, success_rate, last_updated) VALUES (?, ?, ?, ?, ?, ?)",
+                    (
+                        context_hash,
+                        json.dumps(sorted(context.file_types)),
+                        json.dumps(context.active_agents),
+                        json.dumps(skills),
+                        0.8,
+                        timestamp,
+                    ),
+                )
+            conn.commit()
 
     def get_recommendation_stats(
         self,

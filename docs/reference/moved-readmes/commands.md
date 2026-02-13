@@ -6,7 +6,7 @@ slash command (`/namespace:command`). For plugin discovery, command files are fl
 
 ## Namespace Overview (current)
 
-- `/analyze`: `code`, `doctor`, `estimate`, `explain`, `security-scan`, `troubleshoot`
+- `/analyze`: `code`, `estimate`, `explain`, `security-scan`, `troubleshoot`
 - `/cleanup`: `archive-sprint`, `code-cleanup`, `deps-cleanup`, `docs-cleanup`, `test-cleanup`
 - `/collaboration`: `assumption-buster`, `concept-forge`, `idea-lab`, `mashup`, `pre-mortem`
 - `/ctx`: `brainstorm`, `plan`, `execute-plan`
