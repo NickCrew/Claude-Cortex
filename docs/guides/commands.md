@@ -689,7 +689,7 @@ Complete API documentation for all slash commands in the Cortex Plugin.
 
 **Category**: deployment
 
-**Agents**: deployment-engineer, quality-engineer
+**Agents**: cloud-architect, code-reviewer
 
 **Triggers**:
 

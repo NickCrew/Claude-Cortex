@@ -211,7 +211,7 @@ flowchart TD
     SetupOutputs --> Step1[Step 1: Architecture Design]
 
     Step1 --> LoadMode1[Load Required Mode:<br/>Deep_Analysis]
-    LoadMode1 --> Agent1[Activate Agent:<br/>system-architect]
+    LoadMode1 --> Agent1[Activate Agent:<br/>cloud-architect]
     Agent1 --> Execute1[Execute Step 1]
     Execute1 --> Validate1{Outputs<br/>Valid?}
 
@@ -221,7 +221,7 @@ flowchart TD
     Update1 --> Checkpoint1[Save Checkpoint]
     Checkpoint1 --> Step2[Step 2: Implementation Planning]
 
-    Step2 --> Agent2[Activate Agent:<br/>requirements-analyst]
+    Step2 --> Agent2[Activate Agent:<br/>orchestrator]
     Agent2 --> Execute2[Execute Step 2<br/>with Step 1 Outputs]
     Execute2 --> Update2[Update TodoWrite: ✅]
 
@@ -402,7 +402,7 @@ pie title System Components Distribution
     "Slash Commands" : 43
     "Modes" : 8
     "Workflows" : 9
-    "Agents" : 25
+    "Agents" : 29
     "MCP Servers" : 3
 ```
 
@@ -412,7 +412,7 @@ graph LR
         A[16 Command Namespaces]
         B[8 Behavioral Modes]
         C[9 Workflow Types]
-        D[25+ Specialized Agents]
+        D[29 Specialized Agents]
         E[3 MCP Servers]
     end
 

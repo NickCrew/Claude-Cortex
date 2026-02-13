@@ -42,8 +42,8 @@ The Cortex is a comprehensive context management system for Claude Code, providi
 │ agents   │  skills  │  modes   │  rules   │profiles │scenarios │
 │  .py     │   .py    │   .py    │   .py    │  .py    │   .py    │
 ├──────────┼──────────┼──────────┼──────────┼─────────┼──────────┤
-│ workflows│   mcp    │  base    │ context_ │doctor   │components│
-│   .py    │   .py    │   .py    │ export.py│  .py    │   .py    │
+│ workflows│   mcp    │  base    │ context_ │         │components│
+│   .py    │   .py    │   .py    │ export.py│         │   .py    │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ▼
@@ -228,12 +228,6 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 - Export formatting
 - Clipboard integration
 
-**`doctor.py`** - System diagnostics
-
-- Health checks
-- Configuration validation
-- Issue detection
-
 ### 4. Data Layer
 
 #### File System Structure
@@ -250,7 +244,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 │   ├── test-automator.md
 │   └── ...
 ├── rules/                 # Rule modules
-│   ├── workflow-rules.md
+│   ├── git-rules.md
 │   ├── quality-gate-rules.md
 │   └── ...
 ├── skills/                # Skill definitions

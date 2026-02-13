@@ -156,8 +156,8 @@ phases:
     description: Analyze requirements and plan implementation
     condition: manual
     agents:
-      - architect-reviewer
-      - system-architect
+      - architect-review
+      - cloud-architect
     profiles:
       - development
     success_criteria:
@@ -190,7 +190,7 @@ phases:
     description: Integration testing and deployment prep
     condition: after:backend,frontend
     agents:
-      - quality-engineer
+      - code-reviewer
       - test-automator
     success_criteria:
       - All integration tests pass
@@ -250,7 +250,7 @@ cortex orchestrate preview full-stack-feature
 #
 # Phases:
 #   1. analysis [manual]
-#      Agents: architect-reviewer, system-architect
+#      Agents: architect-review, cloud-architect
 #
 #   2. backend [after:analysis]
 #      Agents: python-pro, database-admin
@@ -259,7 +259,7 @@ cortex orchestrate preview full-stack-feature
 #      Agents: react-specialist, ui-ux-designer
 #
 #   4. integration [after:backend,frontend]
-#      Agents: quality-engineer, test-automator
+#      Agents: code-reviewer, test-automator
 #
 # Estimated phases: 4
 # Parallel opportunities: 1 (backend + frontend)
@@ -375,7 +375,7 @@ phases:
     description: Identify service boundaries
     condition: manual
     agents:
-      - system-architect
+      - cloud-architect
     success_criteria:
       - Service boundary diagram created
       - Dependencies mapped
@@ -384,7 +384,7 @@ phases:
     description: Define API contracts
     condition: after:identify
     agents:
-      - api-documenter
+      - docs-architect
     success_criteria:
       - OpenAPI spec created
       - Breaking changes documented
@@ -403,7 +403,7 @@ phases:
     description: Connect to existing system
     condition: after:extract
     agents:
-      - quality-engineer
+      - code-reviewer
     success_criteria:
       - All endpoints working
       - Latency within SLA
@@ -422,7 +422,7 @@ phases:
     description: Generate changelog and bump version
     condition: auto
     agents:
-      - technical-writer
+      - docs-architect
     success_criteria:
       - CHANGELOG.md updated
       - Version bumped correctly
@@ -443,7 +443,7 @@ phases:
     condition: auto
     parallel: true
     agents:
-      - api-documenter
+      - docs-architect
     success_criteria:
       - API docs current
       - Migration guide ready
@@ -471,7 +471,7 @@ phases:
     description: Initial assessment and stabilization
     condition: auto
     agents:
-      - performance-engineer
+      - performance-monitor
     success_criteria:
       - Issue categorized
       - Impact assessed
@@ -499,7 +499,7 @@ phases:
     description: Document lessons learned
     condition: after:fix
     agents:
-      - technical-writer
+      - docs-architect
     success_criteria:
       - Postmortem document complete
       - Prevention measures identified

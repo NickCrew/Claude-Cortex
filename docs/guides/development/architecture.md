@@ -75,8 +75,8 @@ Auto-detect project type, language, and framework to activate relevant agents an
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  agents/ │  │  skills/ │  │  modes/  │  │ profiles/│   │
 │  │          │  │          │  │          │  │          │   │
-│  │ 11 active│  │ 2 skills │  │ 3 modes  │  │ 3 saved  │   │
-│  │ 67 inact │  │          │  │ 4 inact  │  │          │   │
+│  │ 29 active│  │100+ skill│  │ 3 modes  │  │ 3 saved  │   │
+│  │ 0 inact  │  │          │  │ 4 inact  │  │          │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -94,8 +94,7 @@ agents/
 └── dependencies.map           # Dependency graph export
 
 inactive/
-└── agents/
-    └── agent-name.md          # Inactive (can be activated via CLI)
+└── agents/                    # Empty (agents were converted to skills)
 ```
 
 **Agent Frontmatter (v2.0):**
@@ -157,21 +156,19 @@ metrics:
 **Dependency Graph:**
 ```
 cloud-architect
-├── recommends: terraform-specialist
+├── recommends: docs-architect
 ├── recommends: kubernetes-architect
 └── workflow: assessment → architecture → enablement
 
 backend-architect
 ├── recommends: database-optimizer
 ├── recommends: security-auditor
-├── recommends: performance-engineer
+├── recommends: performance-monitor
 ├── skills: api-design-patterns, microservices-patterns
 └── workflow: discovery → design → evolution
 
-deployment-engineer
-├── requires: cloud-architect
-├── recommends: kubernetes-architect
-├── recommends: terraform-specialist
+kubernetes-architect
+├── recommends: cloud-architect
 └── workflow: assessment → implementation → verification
 ```
 
@@ -529,14 +526,14 @@ Cost: ~40% less than all-Sonnet
 
 ### Hybrid Strategy
 
-**Sonnet 4.5 (27 agents):**
+**Opus (reasoning agents):**
 - Architecture & Design
 - Security & Compliance
 - Incident & Troubleshooting
 - Code Review (with architectural considerations)
 - Business & Product
 
-**Haiku 4 (31 agents):**
+**Haiku (deterministic agents):**
 - Code Generation
 - Testing
 - Infrastructure as Code
@@ -544,8 +541,8 @@ Cost: ~40% less than all-Sonnet
 - Build & Deployment
 - Data Processing
 
-**Context-Dependent (9 agents):**
-- Default to Haiku, escalate to Sonnet for complex cases
+**Context-Dependent:**
+- Default to Haiku, escalate to Sonnet/Opus for complex cases
 
 **Cost Savings:**
 ```
@@ -571,8 +568,8 @@ Savings: 68%
 
 | Metric | Current | Target |
 |--------|---------|--------|
-| Total agents | 78 | 100+ |
-| Active agents | 11 | 20-30 typical |
+| Total agents | 29 | 40+ |
+| Active agents | 29 | 20-30 typical |
 | Skills per agent | 0-3 | 2-5 |
 | Context size | 5-15K tokens | Target <10K |
 

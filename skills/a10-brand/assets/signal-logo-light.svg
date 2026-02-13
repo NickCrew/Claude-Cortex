@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="80"
+   height="80"
+   viewBox="0 0 80 80"
+   version="1.1"
+   id="svg184"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs184" />
+  <!-- Dark Background Section -->
+  <!-- Light Background Section -->
+  <g
+     id="g184"
+     transform="translate(-491.99995,-731)">
+    <rect
+       width="80"
+       height="80"
+       fill="#0057b8"
+       id="rect16-41"
+       x="492"
+       y="731" />
+    <rect
+       x="497.60001"
+       y="736.59998"
+       width="68.800003"
+       height="68.800003"
+       fill="#001e62"
+       id="rect17-8" />
+    <line
+       x1="505"
+       y1="767"
+       x2="559"
+       y2="767"
+       stroke="#ffffff"
+       stroke-width="2"
+       id="line17" />
+    <circle
+       cx="532"
+       cy="767"
+       r="5"
+       fill="#e35205"
+       id="circle17" />
+    <path
+       d="m 506,767 a 26,24 0 0 1 52,0"
+       stroke="#d62598"
+       stroke-width="2.2"
+       fill="none"
+       id="path17-0" />
+    <path
+       d="m 512,767 a 20,18 0 0 1 40,0"
+       stroke="#519dec"
+       stroke-width="2.2"
+       fill="none"
+       id="path18-8" />
+    <path
+       d="m 518,767 a 14,13 0 0 1 28,0"
+       stroke="#d62598"
+       stroke-width="2.2"
+       fill="none"
+       id="path19-8" />
+    <path
+       d="m 523,767 a 9,8 0 0 1 18,0"
+       stroke="#519dec"
+       stroke-width="2.2"
+       fill="none"
+       id="path20-17" />
+    <line
+       x1="532"
+       y1="772"
+       x2="512"
+       y2="799"
+       stroke="#519dec"
+       stroke-width="2"
+       stroke-linecap="round"
+       id="line20" />
+    <line
+       x1="532"
+       y1="772"
+       x2="552"
+       y2="799"
+       stroke="#519dec"
+       stroke-width="2"
+       stroke-linecap="round"
+       id="line21" />
+    <line
+       x1="532"
+       y1="772"
+       x2="505"
+       y2="793"
+       stroke="#d62598"
+       stroke-width="2"
+       stroke-linecap="round"
+       id="line22" />
+    <line
+       x1="532"
+       y1="772"
+       x2="559"
+       y2="793"
+       stroke="#d62598"
+       stroke-width="2"
+       stroke-linecap="round"
+       id="line23-2" />
+  </g>
+  <!-- ========== DARK SECTION ========== -->
+  <!-- Horizontal Primary - 80px icon (0.8 scale) -->
+  <!-- Horizontal with Tagline -->
+  <!-- Stacked -->
+  <!-- Stacked with Tagline -->
+  <!-- Wordmark Only -->
+  <!-- With ThreatX Endorsement - 60px icon (0.6 scale) -->
+  <!-- Size Variations -->
+  <!-- 64px (0.64 scale) -->
+  <!-- 44px (0.44 scale) -->
+  <!-- 28px (0.28 scale) -->
+  <!-- 20px (0.2 scale) -->
+  <!-- Fleet Status Badge - light blue border -->
+  <!-- Compact Badge -->
+  <!-- ========== LIGHT SECTION ========== -->
+  <!-- Horizontal Primary Light - 80px icon -->
+  <!-- Horizontal with Tagline Light -->
+  <!-- Stacked Light -->
+  <!-- Wordmark Only Light -->
+  <!-- With Endorsement Light - 60px icon -->
+  <!-- Size Variations Light -->
+  <!-- 64px Light -->
+  <!-- 44px Light -->
+  <!-- 28px Light -->
+  <!-- 20px Light -->
+  <!-- Compact Badge Light -->
+  <!-- Footer -->
+</svg>

@@ -3071,8 +3071,7 @@ class AgentTUI(App[None]):
             "architect-review",
             "code-reviewer",
             "database-optimizer",
-            "performance-engineer",
-            "quality-engineer",
+            "performance-monitor",
             "react-specialist",
             "security-auditor",
             "sql-pro",
@@ -3706,29 +3705,10 @@ class AgentTUI(App[None]):
         try:
             from .. import skill_recommender
 
-            # Create context from current project
-            cwd = Path.cwd()
-            python_files = list(cwd.glob("**/*.py"))[:20]
-
-            context = SessionContext(
-                files_changed=[str(f.relative_to(cwd)) for f in python_files] if python_files else [],
-                file_types={f.suffix for f in python_files} if python_files else set(),
-                directories={str(f.parent.relative_to(cwd)) for f in python_files} if python_files else set(),
-                has_tests=any('test' in str(f) for f in python_files) if python_files else False,
-                has_auth=any('auth' in str(f) for f in python_files) if python_files else False,
-                has_api=any('api' in str(f) for f in python_files) if python_files else False,
-                has_frontend=(cwd / 'src').exists() or (cwd / 'frontend').exists(),
-                has_backend=(cwd / 'backend').exists() or (cwd / 'server').exists(),
-                has_database=any('db' in str(f) or 'database' in str(f) for f in python_files) if python_files else False,
-                errors_count=0,
-                test_failures=0,
-                build_failures=0,
-                session_start=datetime.now(timezone.utc),
-                last_activity=datetime.now(timezone.utc),
-                active_agents=[],
-                active_modes=[],
-                active_rules=[],
-            )
+            # Reuse context already built by intelligent_agent at startup
+            context = self.intelligent_agent.current_context
+            if context is None:
+                context = self.intelligent_agent.analyze_context()
 
             recommender = skill_recommender.SkillRecommender()
             skill_recommendations = recommender.recommend_for_context(context)

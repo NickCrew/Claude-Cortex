@@ -31,7 +31,7 @@ Tier 3: Resources (loaded on deep-dive)
 
 ## Available Skills
 
-The framework now includes 54 skills covering a wide range of domains, including:
+The framework now includes 100+ skills covering a wide range of domains, including:
 - **Architecture & Design:** API design, microservices, event-driven architecture, etc.
 - **Infrastructure:** Kubernetes, Helm, Terraform, GitOps.
 - **Development:** Python, TypeScript, React, testing patterns, and more.
@@ -503,7 +503,7 @@ All planned phases for skill development and integration are now **COMPLETED**. 
 | backend-architect | 8,000 tokens | 4,800 tokens | 40% |
 | kubernetes-architect | 7,500 tokens | ~4,500 tokens | 40% |
 | security-auditor | 6,800 tokens | ~4,500 tokens | 34% |
-| deployment-engineer | 7,200 tokens | ~4,800 tokens | 33% |
+| cloud-architect | 7,200 tokens | ~4,800 tokens | 33% |
 
 **Aggregate Savings**: 35-40% across heavyweight agents
 

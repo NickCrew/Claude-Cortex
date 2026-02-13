@@ -523,11 +523,6 @@
       },
       "recommend": [
         {
-          "skill": "context-health",
-          "confidence": 0.78,
-          "reason": "Core context changes should trigger health checks"
-        },
-        {
           "skill": "subagent-driven-development",
           "confidence": 0.84,
           "reason": "Agent/mode changes benefit from modular subagent guidance"

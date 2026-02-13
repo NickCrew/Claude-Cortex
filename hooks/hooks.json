@@ -33,6 +33,10 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/large_file_gate.py\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/post-edit-check.sh\""
           }
         ]
       }
@@ -44,18 +48,6 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/execution-enforcer.sh\""
-          },
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/auto-reviewer.sh\""
-          },
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/review-gate.sh\""
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py\""
           }
         ]
       }

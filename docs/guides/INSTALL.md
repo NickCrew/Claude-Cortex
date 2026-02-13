@@ -342,27 +342,6 @@ Claude Desktop config is outside `.claude` but is read for MCP server setup:
 
 ## Troubleshooting
 
-### Run Doctor First
-
-Before diving into specific issues, run the diagnostic command:
-
-```bash
-cortex doctor
-```
-
-This checks:
-- Directory structure and required files
-- Consistency between active state and filesystem
-- External dependencies (git, python, node, uv, bun, etc.)
-
-To auto-fix issues where possible:
-
-```bash
-cortex doctor --fix
-```
-
-See [Dependencies Guide](dependencies.md) for installation instructions for missing tools.
-
 ### TUI not updating after code changes
 
 ```bash
@@ -428,13 +407,7 @@ pipx install .
    pipx install .
    ```
 
-2. Verify your setup:
-   ```bash
-   cortex doctor
-   ```
-   This checks dependencies (git, python, node, etc.) and directory structure.
-
-3. Launch the TUI:
+2. Launch the TUI:
    ```bash
    cortex tui
    ```

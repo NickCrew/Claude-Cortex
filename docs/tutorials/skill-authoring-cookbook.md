@@ -398,8 +398,8 @@ passing_threshold: 3.5
 ### Self-Auditing Your Skill
 
 ```bash
-# If audit script exists
-python scripts/audit_skill.py ~/.cortex/skills/my-first-skill
+# Validate skill metadata and structure
+cortex skills validate my-first-skill
 ```
 
 **Checkpoint:** You can create a rubric and understand quality dimensions.
@@ -565,7 +565,7 @@ All 47 patterns: `@references/pattern-catalog.md`
 Run the quality audit:
 
 ```bash
-python scripts/audit_skill.py ~/.cortex/skills/your-skill
+cortex skills validate your-skill
 ```
 
 **Required**:

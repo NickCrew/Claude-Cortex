@@ -1,4 +1,4 @@
-.TH CORTEX 1 "2026-01-17" "cortex 2.0.0" "User Commands"
+.TH CORTEX 1 "2026-02-06" "cortex 2.0.0" "User Commands"
 .SH NAME
 cortex \- Python implementation of cortex list and status commands
 .SH SYNOPSIS
@@ -23,89 +23,47 @@ is Python implementation of cortex list and status commands
 .SH COMMANDS
 Available commands:
 .TP
-.B mode
-Mode commands
-.TP
 .B agent
 Agent commands
 .TP
 .B rules
 Rule commands
 .TP
-.B principles
-Principles snippet commands
-.TP
-.B prompts
-Prompt library commands
-.TP
 .B hooks
 Hook commands
 .TP
 .B skills
-Skill commands
+Skill commands (list, info, validate, recommend, feedback, context, rate, ratings, analytics, trending, report)
 .TP
 .B mcp
 MCP server commands
 .TP
-.B init
-Initialization commands
-.TP
-.B profile
-Profile commands
-.TP
-.B workflow
-Workflow commands
-.TP
 .B worktree
 Git worktree management commands
 .TP
-.B orchestrate
-Scenario orchestration commands
-.TP
-.B orch
-Mode commands
-.TP
-.B config
-Show the current Cortex launcher configuration
-.TP
-.B status
-Show overall status
-.TP
 .B statusline
 Render Claude Code status line
-.TP
-.B start
-Launch Claude Code with Cortex configuration
-.TP
-.B claude
-Alias for 'start'
 .TP
 .B tui
 Launch interactive TUI for agent management
 .TP
 .B ai
-AI assistant commands
+AI assistant commands (recommend, auto\-activate, record\-success, ingest\-review, export, watch)
 .TP
 .B export
 Export context commands
 .TP
-.B completion
-Generate shell completion scripts
-.TP
 .B install
 Install CLI integrations and optional extras
-.TP
-.B docs
-Documentation viewer
-.TP
-.B doctor
-Diagnose and fix context issues
 .TP
 .B memory
 Memory capture commands for persistent knowledge storage
 .TP
-.B setup
-Setup and migration commands
+.B status
+Show overall status
+.TP
+.B review
+Run review gate before task completion
 .TP
 .SH OPTIONS
 .TP

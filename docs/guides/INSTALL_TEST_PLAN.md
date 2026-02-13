@@ -123,13 +123,13 @@ rm -rf /tmp/test-cortex
 
 ```bash
 # Modify a file
-echo "# Modified" >> ~/.cortex/rules/workflow-rules.md
+echo "# Modified" >> ~/.cortex/rules/git-rules.md
 
 # Run bootstrap with --force
 cortex install bootstrap --force
 
 # Verify file was reset
-head -5 ~/.cortex/rules/workflow-rules.md
+head -5 ~/.cortex/rules/git-rules.md
 ```
 
 ### Expected Results

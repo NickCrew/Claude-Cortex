@@ -247,6 +247,13 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         dest="feedback_comment",
         help="Optional comment explaining your feedback",
     )
+    skills_context_parser = skills_sub.add_parser(
+        "context", help="Generate skill context for current session"
+    )
+    skills_context_parser.add_argument(
+        "--no-write", action="store_true",
+        help="Print to stdout only, skip writing .claude/skill-context.md"
+    )
     # Rating commands
     skills_rate_parser = skills_sub.add_parser(
         "rate", help="Rate a skill with stars and optional review"
@@ -514,6 +521,10 @@ def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         default="success",
         help="Outcome description (default: success)",
     )
+    ai_ingest = ai_sub.add_parser(
+        "ingest-review", help="Ingest specialist review into skill learning"
+    )
+    ai_ingest.add_argument("file", help="Path to review markdown file")
     ai_watch = ai_sub.add_parser(
         "watch", help="Watch mode - real-time monitoring and recommendations"
     )
@@ -1014,6 +1025,11 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         exit_code, message = core.skill_trending(days)
         _print(message)
         return exit_code
+    if args.skills_command == "context":
+        no_write = getattr(args, "no_write", False)
+        exit_code, message = core.skill_context(write=not no_write)
+        _print(message)
+        return exit_code
     if args.skills_command == "recommend":
         exit_code, message = core.skill_recommend()
         _print(message)
@@ -1223,6 +1239,8 @@ def _handle_ai_command(args: argparse.Namespace) -> int:
         return cmd_ai.ai_export_json(args.output)
     elif args.ai_command == "record-success":
         return cmd_ai.ai_record_success(args.outcome)
+    elif args.ai_command == "ingest-review":
+        return cmd_ai.ai_ingest_review(args.file)
     elif args.ai_command == "watch":
         from . import watch
 

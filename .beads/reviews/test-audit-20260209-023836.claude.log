@@ -1,0 +1,12 @@
+Report written to `/Users/nferguson/Developer/claude-cortex/.beads/reviews/test-audit-20260209-023836.md`.
+
+**Key findings:**
+
+1. **0% coverage** — The test file (`test_skills.py`) tests `claude_ctx_py.core.skills`, not `validate_registry.py`. These are entirely different modules. Every behavior in the source is **Missing**.
+
+2. **17 gaps identified** across 3 priority levels:
+   - **P0 (2):** Untested cycle detection (with a potential bug — fresh `rec_stack` per top-level DFS call can miss cycles in certain graph topologies) and untested schema validation against malformed input
+   - **P1 (7):** File loading error handling, `run()` early-exit, `check_paths` behavioral difference, missing-key edge cases
+   - **P2 (8):** CLI argument parsing, return codes, verbose/non-verbose output, empty registry edge case
+
+3. **Potential bug found** in `validate_dependencies`: the cycle detection algorithm creates a fresh `rec_stack` per top-level DFS iteration while sharing `visited`, which can miss cycles where the entry node was already visited by a prior DFS traversal from a different component.
