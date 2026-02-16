@@ -8,16 +8,16 @@ permalink: /tutorials/getting-started-tui/
 
 # Getting Started with Cortex
 
-Welcome! This tutorial will help you master the **cortex TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, workflows, and more.
+Welcome! This tutorial will help you master the **cortex TUI** (Terminal User Interface) — an interactive dashboard for managing Claude agents, skills, MCP servers, and more.
 
 ## 📋 What You'll Learn
 
 By the end of this tutorial, you'll be able to:
 
 - Launch and navigate the TUI
-- Activate/deactivate agents and modes
+- Activate/deactivate agents
 - Browse and validate skills
-- Run workflows and orchestrate scenarios
+- Manage MCP servers
 - Export context bundles
 - Use CLI commands for advanced operations
 
@@ -30,7 +30,7 @@ You'll set up a working Cortex environment and learn to:
 
 1. Navigate between views using keyboard shortcuts
 2. Activate an agent configuration that matches your project type
-3. Run your first workflow
+3. Configure MCP servers for extended capabilities
 4. Export a context bundle for Claude
 
 ---
@@ -41,25 +41,21 @@ You'll set up a working Cortex environment and learn to:
 
 Choose your installation method:
 
-**Quick Install (Recommended):**
+**Installation:**
 
 ```bash
-cd /path/to/cortex-plugin
-./scripts/deprecated/install.sh
+cd /path/to/claude-cortex
+pip install -e ".[dev]"
+cortex install link
+cortex install post
 ```
 
 This installs:
 
 - ✅ The `cortex` CLI tool
+- ✅ Links content to ~/.claude/
 - ✅ Shell completions (bash/zsh/fish)
 - ✅ Man pages for documentation
-
-**Manual Installation:**
-
-```bash
-cd /path/to/cortex-plugin
-python3 -m pip install -e .
-```
 
 **Verify Installation:**
 
@@ -85,16 +81,15 @@ cortex tui
 │ System Overview                                             │
 │ ───────────────────────────────────────────────              │
 │ 💻 Agents      5/12 active                                  │
-│ ⚑ Modes        3/8 active                                   │
 │ 📝 Rules       7/15 active                                  │
 │ 💻 Skills      24 installed                                 │
-│ ⏳ Workflows   2 available                                  │
+│ 🔌 MCP         3 servers configured                         │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
 │ [View: Agents] Welcome to cortex TUI │ 25MB 0%        │
 ├─────────────────────────────────────────────────────────────┤
-│ 1 Overview  2 Agents  3 Modes  4 Rules  5 Skills  6 Workflows │
-│ 7 MCP  8 Profiles  9 Export  0 AI  ? Help  Q Quit          │
+│ 1 Overview  2 Agents  3 Rules  4 Skills  5 Tasks  6 Commands │
+│ 7 MCP  C Worktrees  E Export  0 AI  ? Help  Q Quit         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -154,10 +149,11 @@ The TUI has three main sections:
 **✅ Practice Exercise:**
 
 1. Press `2` → You should see the Agents view
-2. Press `3` → You should see the Modes view
-3. Press `1` → Return to Overview
-4. Press `?` → Help overlay appears
-5. Press `?` or `Esc` → Help closes
+2. Press `3` → You should see the Rules view
+3. Press `4` → You should see the Skills view
+4. Press `1` → Return to Overview
+5. Press `?` → Help overlay appears
+6. Press `?` or `Esc` → Help closes
 
 ---
 
@@ -390,96 +386,77 @@ cortex skills community rate awesome-k8s --stars 5
 
 ---
 
-## Part 5: Running Workflows
+## Part 5: Managing MCP Servers
 
-Workflows are multi-step automation sequences (like "test-and-deploy" or "code-review").
+MCP (Model Context Protocol) servers provide additional tools and context to Claude.
 
-### Step 1: View Available Workflows
+### Step 1: View MCP Servers
 
 ```bash
-# Press 6 to open Workflows view
+# Press 7 to open MCP view
 ```
 
 **What You'll See:**
 
 ```
 ╭──────────────────────────────────────────────────╮
-│ Name              Status    Progress  Started   │
+│ Name          Status    Tools  Description      │
 ├──────────────────────────────────────────────────┤
-│ test-and-deploy   ⏳ Running  █████░░░ 65%  5m ago│
-│ code-review       ○ Ready    ░░░░░░░░  0%  -     │
-│ security-audit    ✓ Complete ████████ 100% 2h ago│
+│ codanna       ✓ Active  12     Code intelligence │
+│ context7      ✓ Active  3      Documentation     │
+│ sequential    ○ Ready   5      Thinking tools    │
 ╰──────────────────────────────────────────────────╯
 ```
 
-### Step 2: Run a Workflow
+### Step 2: Test an MCP Server
 
-**Goal:** Run the "code-review" workflow
+**Goal:** Verify an MCP server is working
 
-1. Navigate to "code-review"
-2. Press `Shift+R` (capital R = run)
+1. Navigate to a server (e.g., "codanna")
+2. Press `t` (test)
+3. Wait for connection test
 
-**What Happens:**
-
-- Workflow starts immediately
-- Status changes to `⏳ Running`
-- Progress bar shows completion percentage
-
-### Step 3: Monitor Progress
-
-With workflow selected:
-
-- Progress bar updates in real-time
-- Press `Enter` to see step details
-
-**Step Details:**
+**Test Results:**
 
 ```
 ┌─────────────────────────────────────┐
-│ Workflow: code-review               │
+│ MCP Test: codanna                   │
 ├─────────────────────────────────────┤
-│ Steps:                              │
-│ ✓ Load files                        │
-│ ✓ Run linter                        │
-│ → Check style        (current)      │
-│ ○ Generate report    (pending)      │
+│ ✓ Connection successful             │
+│ ✓ 12 tools available                │
+│ ✓ Response time: 45ms               │
 │                                     │
-│ Elapsed: 2m 15s                     │
+│ Available tools:                    │
+│ - semantic_search_docs              │
+│ - find_symbol                       │
+│ - find_callers                      │
+│ ...                                 │
 └─────────────────────────────────────┘
 ```
 
-**Symbols:**
+### Step 3: View Server Details
 
-- `✓` Step complete
-- `→` Current step
-- `○` Pending step
-- `✗` Failed step
+Press `Enter` on any server to see:
 
-### Step 4: Stop a Workflow
-
-If you need to cancel:
-
-1. Select the running workflow
-2. Press `s` (stop)
-3. Confirm in dialog
+- Full tool list
+- Server configuration
+- Connection status
+- Documentation links
 
 ### 🔧 CLI Alternatives
 
 ```bash
-# List workflows (CLI-only: shows all metadata)
-cortex workflow list
+# List MCP servers
+cortex mcp list
 
-# Run workflow from command line (CLI-only: scripting)
-cortex workflow run code-review
+# Test specific server
+cortex mcp test codanna
 
-# Check workflow status (CLI-only: JSON output)
-cortex workflow status
+# Diagnose all servers
+cortex mcp diagnose
 
-# Resume paused workflow (CLI-only: state management)
-cortex workflow resume
-
-# Stop specific workflow (CLI-only: by name)
-cortex workflow stop code-review
+# View server documentation
+cortex mcp docs codanna
 ```
 
 ---
@@ -502,9 +479,9 @@ Press `Ctrl+P`
 ├───────────────────────────────────────┤
 │ → Show Agents      View and manage    │
 │   Show Skills      Browse available   │
-│   Show Modes       View active modes  │
 │   Show Rules       View active rules  │
-│   Run Workflow     Execute workflow   │
+│   Show MCP         MCP servers        │
+│   Export Context   Create bundle      │
 │   ...                                 │
 └───────────────────────────────────────┘
 ```
@@ -517,7 +494,7 @@ Press `Ctrl+P`
 |------|---------|--------|
 | `agent` | "Show **Agent**s" | Opens Agents view |
 | `val` | "**Val**idate Skill" | Validates current skill |
-| `wf` | "Run **W**orkflow" | Workflow picker |
+| `mcp` | "Show **MCP**" | MCP servers view |
 | `exp` | "**Exp**ort Context" | Export dialog |
 
 **The Magic:** You don't need to type full words!
@@ -539,12 +516,12 @@ Press `Ctrl+P`
 
 ## Part 7: Exporting Context
 
-Export creates a Markdown bundle of your active agents, modes, and rules for Claude.
+Export creates a Markdown bundle of your active agents and rules for Claude.
 
 ### Step 1: Open Export View
 
 ```bash
-# Press 9 to open Export view
+# Press E to open Export view
 ```
 
 **What You'll See:**
@@ -554,10 +531,9 @@ Export creates a Markdown bundle of your active agents, modes, and rules for Cla
 │ Category         Include   Count     │
 ├──────────────────────────────────────┤
 │ [✓] Agents       Yes       5 active  │
-│ [✓] Modes        Yes       3 active  │
 │ [✓] Rules        Yes       7 active  │
 │ [✓] Skills       Yes       24 total  │
-│ [ ] Workflows    No        2 total   │
+│ [ ] Assets       No        12 total  │
 ╰──────────────────────────────────────╯
 
 Format: Agent Generic (press 'f' to change)
@@ -565,7 +541,7 @@ Format: Agent Generic (press 'f' to change)
 
 ### Step 2: Choose What to Export
 
-1. Navigate to category (e.g., "Workflows")
+1. Navigate to category (e.g., "Skills")
 2. Press `Space` to toggle inclusion
    - `[✓]` = Include
    - `[ ]` = Exclude
@@ -615,7 +591,7 @@ cortex export list
 
 # Export to file (CLI-only: advanced filtering)
 cortex export context ~/my-export.md \
-  --exclude workflows \
+  --exclude skills \
   --exclude-file some-agent.md
 
 # Include only specific categories
@@ -758,37 +734,6 @@ Watch mode monitors file changes and recommends agents in real-time!
 ╰────────────────────────────────────────────╯
 ```
 
-### Profiles — Quick Configurations
-
-**Profiles** are pre-configured agent sets for common scenarios.
-
-```bash
-# Press 8 to open Profiles view
-```
-
-**Built-in Profiles:**
-
-- `frontend` — React, Vue, Angular development
-- `backend` — API, database, server-side
-- `devops` — Infrastructure, CI/CD
-- `data-ai` — ML, data science
-- `full` — Everything enabled
-
-**Apply Profile:**
-
-1. Select profile (e.g., "frontend")
-2. Press `Space`
-3. All associated agents/modes activate
-
-**Save Custom Profile:**
-
-1. Activate your desired agents/modes
-2. Press `n` (new)
-3. Enter profile name
-4. Press `Enter`
-
-Your custom profile is saved for reuse!
-
 ---
 
 ## Part 10: Troubleshooting & Tips
@@ -860,12 +805,12 @@ pip install psutil
 ├────────────────┼───────────────────────┤
 │ 1 Overview     │ Space  Toggle         │
 │ 2 Agents       │ Enter  Details        │
-│ 3 Modes        │ /      Filter         │
-│ 4 Rules        │ Esc    Clear/Cancel   │
-│ 5 Skills       │ r      Refresh        │
-│ 6 Workflows    │ ?      Help           │
+│ 3 Rules        │ /      Filter         │
+│ 4 Skills       │ Esc    Clear/Cancel   │
+│ 5 Tasks        │ r      Refresh        │
+│ 6 Commands     │ ?      Help           │
 │ 7 MCP          │ q      Quit           │
-│ 8 Profiles     │ Ctrl+P Palette        │
+│ C Worktrees    │ Ctrl+P Palette        │
 │ 9 Export       │ ↑↓ jk  Navigate       │
 │ 0 AI           │                       │
 └────────────────┴───────────────────────┘
@@ -879,20 +824,20 @@ pip install psutil
 
 **Beginner Level:** ✅ You are here!
 
-- Explore each view (`1-9, 0`)
+- Explore each view (1-7, C, E, 0, w, A, M, X)
 - Practice activating agents
-- Run a simple workflow
+- Test MCP server connections
 
 **Intermediate Level:**
 
-- Create custom profiles for your projects
-- Set up AI watch mode for your workflow
+- Set up AI watch mode for your projects
+- Configure custom MCP servers
 - Export and use context bundles with Claude
 
 **Advanced Level:**
 
-- Write custom workflows (YAML)
 - Create custom skills
+- Write custom agents
 - Integrate with CI/CD pipelines
 
 ### 📚 Documentation Resources
@@ -1013,10 +958,10 @@ You've completed the getting started tutorial! You now know how to:
 |------|-----|-----|
 | Launch interface | `cortex tui` | N/A |
 | Activate agent | Press `2`, `Space` | `cortex agent activate <name>` |
-| Run workflow | Press `6`, `Shift+R` | `cortex workflow run <name>` |
-| Export context | Press `9`, `e` | `cortex export context <path>` |
+| Test MCP server | Press `7`, `t` | `cortex mcp test <name>` |
+| Export context | Press `E`, `e` | `cortex export context <path>` |
 | AI recommendations | Press `0` | `cortex ai recommend` |
-| Watch mode | N/A (CLI-only) | `cortex ai watch` |
+| Watch mode | Press `w` | `cortex ai watch` |
 | Batch operations | N/A (CLI better) | `cortex agent activate a b c` |
 
 ### When to Use TUI vs CLI
@@ -1065,8 +1010,9 @@ You've completed the getting started tutorial! You now know how to:
 # Launch
 cortex tui
 
-# Views: 1=Overview, 2=Agents, 3=Modes, 4=Rules, 5=Skills
-#        6=Workflows, 7=MCP, 8=Profiles, 9=Export, 0=AI
+# Views: 1=Overview, 2=Agents, 3=Rules, 4=Skills, 5=Tasks
+#        6=Commands, 7=MCP, C=Worktrees, E=Export, 0=AI
+#        w=Watch, A=Assets, M=Memory, X=Codex
 
 # Actions: Space=Toggle, Enter=Details, /=Filter, r=Refresh
 #          Ctrl+P=Palette, ?=Help, q=Quit
@@ -1088,11 +1034,6 @@ cortex agent graph --export map.md  # Dependency graph
 cortex skills list               # List all skills
 cortex skills info <skill>       # Show details
 cortex skills validate --all     # Validate all
-
-# Workflows
-cortex workflow list             # Available workflows
-cortex workflow run <name>       # Execute workflow
-cortex workflow status           # Check progress
 
 # AI Assistant
 cortex ai recommend              # Get recommendations
