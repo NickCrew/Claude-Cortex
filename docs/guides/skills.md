@@ -465,7 +465,7 @@ Recent Reviews:
 **Privacy:**
 - Ratings are anonymous (SHA-256 hash of machine ID + username)
 - No personal data collected
-- Stored locally in `~/.cortex/data/skill-ratings.db`
+- Stored locally in `~/.claude/data/skill-ratings.db`
 
 ---
 

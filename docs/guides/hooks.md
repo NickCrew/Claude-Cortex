@@ -112,7 +112,7 @@ Refer to `archive/implementation-reports/HOOK_DOCUMENTATION.md` for the full wor
 
 ## Hook logging
 
-Hook failures are now captured in `~/.cortex/logs/hooks.log` to make debugging easier. You can override the log location by setting `CORTEX_HOOK_LOG_PATH` (or `CLAUDE_HOOK_LOG_PATH`) in your environment.
+Hook failures are now captured in `~/.claude/logs/hooks.log` to make debugging easier. You can override the log location by setting `CORTEX_HOOK_LOG_PATH` (or `CLAUDE_HOOK_LOG_PATH`) in your environment.
 
 ---
 

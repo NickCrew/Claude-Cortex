@@ -9,7 +9,7 @@ The LLM Intelligence feature uses Claude API to provide advanced reasoning about
 ### 1. Installation
 
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 ```
 
 This installs the Anthropic SDK for Claude API access.
@@ -270,7 +270,7 @@ cortex stats --by agent --source llm
 **Solution**:
 ```bash
 # Install package
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 
 # Set API key
 export ANTHROPIC_API_KEY=sk-ant-...

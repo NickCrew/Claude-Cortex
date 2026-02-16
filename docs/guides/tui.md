@@ -359,7 +359,7 @@ redefine variables like `$primary`, `$accent`, `$surface`, etc.
 
 1. `cortex tui --theme /path/to/theme.tcss`
 2. `CORTEX_TUI_THEME=/path/to/theme.tcss`
-3. `~/.cortex/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
+3. `~/.claude/tui/theme.tcss` (or `$CLAUDE_PLUGIN_ROOT/tui/theme.tcss`)
 
 **Example override:**
 

@@ -51,7 +51,7 @@ The Cortex is a comprehensive context management system for Claude Code, providi
 │                         Data Layer                               │
 ├─────────────────────────────────────────────────────────────────┤
 │  File System:                                                    │
-│  - ~/.cortex/ (user config)                                     │
+│  - ~/.claude/ (user config)                                     │
 │  - modes/, agents/, rules/, skills/ (markdown files)            │
 │  - inactive/ (disabled components)                              │
 │  - data/ (metrics, sessions, ratings)                           │
@@ -233,7 +233,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 #### File System Structure
 
 ```
-~/.cortex/
+~/.claude/
 ├── CLAUDE.md              # Main config (active components)
 ├── modes/                 # Available modes
 │   ├── Brainstorming.md

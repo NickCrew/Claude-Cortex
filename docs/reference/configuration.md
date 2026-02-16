@@ -9,7 +9,7 @@ nav_order: 1
 
 This guide documents all cortex configuration files, their schemas, and usage examples.
 
-All paths are relative to the cortex root directory (default `~/.cortex/`). You can override this with `CORTEX_ROOT`, `CLAUDE_PLUGIN_ROOT`, or use project-local `.claude/` via `--scope project`.
+All paths are relative to the cortex root directory (default `~/.claude/`). You can override this with `CORTEX_ROOT`, `CLAUDE_PLUGIN_ROOT`, or use project-local `.claude/` via `--scope project`.
 
 ## Quick Reference
 
@@ -27,7 +27,7 @@ All paths are relative to the cortex root directory (default `~/.cortex/`). You 
 
 Main configuration file for the cortex CLI and launcher. Controls which rules, modes, flags, and plugins are active.
 
-**Location:** `~/.cortex/cortex-config.json` or project `.claude/cortex-config.json`
+**Location:** `~/.claude/cortex-config.json` or project `.claude/cortex-config.json`
 
 **Schema:** [`schemas/cortex-config.schema.json`](https://github.com/NickCrew/claude-cortex/blob/main/schemas/cortex-config.schema.json)
 
@@ -89,7 +89,7 @@ Main configuration file for the cortex CLI and launcher. Controls which rules, m
 The launcher reads this file when running `cortex start`:
 
 ```bash
-# Uses ~/.cortex/cortex-config.json
+# Uses ~/.claude/cortex-config.json
 cortex start
 
 # Uses project-local config
@@ -105,7 +105,7 @@ CORTEX_ROOT=/path/to/config cortex start
 
 Configuration for the memory vault and automatic session capture.
 
-**Location:** `~/.cortex/memory-config.json`
+**Location:** `~/.claude/memory-config.json`
 
 **Schema:** [`schemas/memory-config.schema.json`](https://github.com/NickCrew/claude-cortex/blob/main/schemas/memory-config.schema.json)
 
@@ -132,7 +132,7 @@ Configuration for the memory vault and automatic session capture.
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `vault_path` | string | `"~/.cortex/memory-vault"` | Path to memory vault directory (supports `~`) |
+| `vault_path` | string | `"~/.claude/memory-vault"` | Path to memory vault directory (supports `~`) |
 | `auto_capture.enabled` | boolean | `true` | Enable automatic session capture |
 | `auto_capture.min_session_length` | integer | `5` | Minimum exchanges before capturing |
 | `auto_capture.exclude_patterns` | string[] | `[]` | Patterns to exclude from capture |
@@ -145,7 +145,7 @@ Configuration for the memory vault and automatic session capture.
 ```json
 {
   "$schema": "../schemas/memory-config.schema.json",
-  "vault_path": "~/.cortex/memory-vault",
+  "vault_path": "~/.claude/memory-vault",
   "auto_capture": {
     "enabled": true,
     "min_session_length": 5,
@@ -179,7 +179,7 @@ cortex memory search "authentication bug"
 
 Defines keyword-based rules for recommending skills based on user intent.
 
-**Location:** `~/.cortex/skills/skill-rules.json`
+**Location:** `~/.claude/skills/skill-rules.json`
 
 **Schema:** [`schemas/skill-rules.schema.json`](https://github.com/NickCrew/claude-cortex/blob/main/schemas/skill-rules.schema.json)
 
@@ -253,7 +253,7 @@ When a user's message contains keywords from a rule, cortex suggests the corresp
 
 Defines file pattern-based rules for recommending skills based on which files are being modified.
 
-**Location:** `~/.cortex/skills/recommendation-rules.json`
+**Location:** `~/.claude/skills/recommendation-rules.json`
 
 **Schema:** [`schemas/recommendation-rules.schema.json`](https://github.com/NickCrew/claude-cortex/blob/main/schemas/recommendation-rules.schema.json)
 
@@ -346,7 +346,7 @@ Skills are ranked by confidence score, with higher confidence recommendations sh
 
 Tracks wizard completion state. This file is auto-managed by the setup wizard.
 
-**Location:** `~/.cortex/.onboarding-state.json`
+**Location:** `~/.claude/.onboarding-state.json`
 
 **Schema:** [`schemas/onboarding-state.schema.json`](https://github.com/NickCrew/claude-cortex/blob/main/schemas/onboarding-state.schema.json)
 
@@ -393,7 +393,7 @@ This file is created automatically when running the setup wizard:
 cortex init wizard
 
 # Reset wizard state (re-run wizard on next start)
-rm ~/.cortex/.onboarding-state.json
+rm ~/.claude/.onboarding-state.json
 ```
 
 ---

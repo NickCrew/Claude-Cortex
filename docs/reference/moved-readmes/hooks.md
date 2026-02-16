@@ -124,7 +124,7 @@ Add to `hooks/hooks.json`:
 
 ## Hook Logging
 
-Hook failures are captured in `~/.cortex/logs/hooks.log`. To override the log location, set `CORTEX_HOOK_LOG_PATH` (or `CLAUDE_HOOK_LOG_PATH`) before running Claude Code.
+Hook failures are captured in `~/.claude/logs/hooks.log`. To override the log location, set `CORTEX_HOOK_LOG_PATH` (or `CLAUDE_HOOK_LOG_PATH`) before running Claude Code.
 
 ### Activate Required Agents
 
@@ -298,7 +298,7 @@ CODE_REVIEW_REQUIRED=false
 
 **Check 1:** File is executable
 ```bash
-ls -l ~/.cortex/hooks/implementation-quality-gate.sh
+ls -l ~/.claude/hooks/implementation-quality-gate.sh
 # Should show -rwxr-xr-x
 ```
 

@@ -1103,7 +1103,7 @@ Core behavioral rules with priority system:
 
 ```toml
 [project]
-name = "cortex-py"
+name = "claude-cortex"
 version = "0.1.0"
 requires-python = ">=3.9"
 
@@ -1216,7 +1216,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### CLI Issues
 
-1. Verify installation: `python3 -m pip show cortex-py`
+1. Verify installation: `python3 -m pip show claude-cortex`
 2. Check Python version: `python3 --version` (>=3.9 required)
 3. Reinstall: `python3 -m pip install --force-reinstall .`
 

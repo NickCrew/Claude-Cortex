@@ -301,16 +301,16 @@ All workflows enforce quality standards:
 ?  →  Help
 
 # View detailed diagrams
-cat ~/.cortex/docs/architecture-diagrams.md
+cat ~/.claude/docs/architecture-diagrams.md
 
 # List all commands
-ls ~/.cortex/commands/*.md
+ls ~/.claude/commands/*.md
 
 # List all modes
-ls ~/.cortex/modes/
+ls ~/.claude/modes/
 
 # List all workflows
-ls ~/.cortex/workflows/
+ls ~/.claude/workflows/
 ```
 
 ---

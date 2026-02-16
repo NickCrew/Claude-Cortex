@@ -142,7 +142,7 @@ Jump to [Troubleshooting](LLM_INTELLIGENCE_GUIDE.md#troubleshooting) in main gui
 
 ### Minimum (Conservative)
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
 cortex config set ai.use_llm true
 cortex config set ai.llm_threshold 0.2  # Only use LLM if very uncertain
@@ -150,7 +150,7 @@ cortex config set ai.llm_threshold 0.2  # Only use LLM if very uncertain
 
 ### Recommended (Balanced)
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
 cortex config set ai.use_llm true
 cortex config set ai.llm_threshold 0.5    # Default
@@ -160,7 +160,7 @@ cortex config set ai.llm_budget_limit 10.00  # Monthly budget
 
 ### Maximum (Quality-Focused)
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=sk-ant-...
 cortex config set ai.use_llm true
 cortex config set ai.llm_threshold 0.8    # Use LLM more often

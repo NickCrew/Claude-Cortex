@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Install
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 
 # 2. Add API key
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -53,7 +53,7 @@ cortex session list --since "7 days ago" | grep llm
 
 | Issue | Solution |
 |-------|----------|
-| "LLM not available" | `pip install cortex-py[llm]` then restart |
+| "LLM not available" | `pip install claude-cortex[llm]` then restart |
 | "Invalid API key" | Check https://console.anthropic.com/account/api-keys |
 | "Rate limited" | Increase `llm_threshold` to 0.2 |
 | "Model not found" | Use `claude-sonnet-4-20250514` (default valid model) |

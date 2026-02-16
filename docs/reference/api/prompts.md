@@ -2,7 +2,7 @@
 
 **Module:** `claude_ctx_py.core.prompts`
 
-The prompts module provides functions for managing reusable prompt templates in the cortex framework. Prompts are organized in subdirectories under `~/.cortex/prompts/`.
+The prompts module provides functions for managing reusable prompt templates in the cortex framework. Prompts are organized in subdirectories under `~/.claude/prompts/`.
 
 ## Overview
 
@@ -37,7 +37,7 @@ PromptInfo(
     description="Standards for reviewing pull requests",
     category="guidelines",
     tokens=450,
-    path=Path("~/.cortex/prompts/guidelines/code-review.md"),
+    path=Path("~/.claude/prompts/guidelines/code-review.md"),
     status="active"
 )
 ```
@@ -50,7 +50,7 @@ PromptInfo(
 def discover_prompts(home: Path | None = None) -> List[PromptInfo]
 ```
 
-Discover all prompts from `~/.cortex/prompts/` directory.
+Discover all prompts from `~/.claude/prompts/` directory.
 
 **Parameters:**
 - `home` (Path, optional): Override home directory for testing
@@ -235,9 +235,9 @@ tokens: 450
 
 | File | Purpose |
 |------|---------|
-| `~/.cortex/prompts/` | Root directory for all prompts |
-| `~/.cortex/prompts/{category}/` | Category subdirectories |
-| `~/.cortex/.active-prompts` | List of active prompt slugs |
+| `~/.claude/prompts/` | Root directory for all prompts |
+| `~/.claude/prompts/{category}/` | Category subdirectories |
+| `~/.claude/.active-prompts` | List of active prompt slugs |
 
 ## CLI Integration
 

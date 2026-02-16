@@ -91,11 +91,11 @@ from claude_ctx_py.intelligence import PatternLearner
 learner = PatternLearner(history_file, enable_semantic=False)
 
 # Level 2: + Semantic matching (with fastembed)
-pip install cortex-py[ai]
+pip install claude-cortex[ai]
 learner = PatternLearner(history_file, enable_semantic=True)
 
 # Level 3: + LLM analysis (with anthropic)
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=...
 ```
 
@@ -146,13 +146,13 @@ Recommendations
 ### Base Install (Rule-Based Only)
 
 ```bash
-pip install cortex-py
+pip install claude-cortex
 ```
 
 ### Semantic Intelligence (Recommended)
 
 ```bash
-pip install cortex-py[ai]
+pip install claude-cortex[ai]
 ```
 
 Adds:
@@ -162,7 +162,7 @@ Adds:
 ### LLM Intelligence (Optional)
 
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=your_key
 ```
 
@@ -172,7 +172,7 @@ Adds:
 ### All Features
 
 ```bash
-pip install cortex-py[all]
+pip install claude-cortex[all]
 ```
 
 ## Usage Examples
@@ -236,7 +236,7 @@ for session, similarity in similar:
 ```python
 from claude_ctx_py.intelligence.semantic import LLMIntelligence
 
-# Requires: pip install cortex-py[llm]
+# Requires: pip install claude-cortex[llm]
 # And: export ANTHROPIC_API_KEY=...
 
 llm = LLMIntelligence(available_agents)

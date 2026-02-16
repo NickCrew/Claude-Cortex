@@ -49,7 +49,7 @@ and a rich terminal user interface for Claude Code.
 │             │ • ...and 9 more specialized modules                         │
 ├─────────────┼─────────────────────────────────────────────────────────────┤
 │ Data        │ File-based storage with YAML frontmatter                    │
-│ (files)     │ • ~/.cortex/CLAUDE.md: Main configuration                   │
+│ (files)     │ • ~/.claude/CLAUDE.md: Main configuration                   │
 │             │ • *.md files: Agents, modes, skills, rules                  │
 │             │ • data/: JSON metrics, SQLite ratings DB                    │
 └─────────────┴─────────────────────────────────────────────────────────────┘
@@ -132,7 +132,7 @@ and a rich terminal user interface for Claude Code.
   │
   └── Configuration files (pyproject.toml, pytest.ini, etc.)
 
-  User Configuration (~/.cortex/):
+  User Configuration (~/.claude/):
   │
   ├── CLAUDE.md                   Main config (active components)
   ├── modes/                      Available modes

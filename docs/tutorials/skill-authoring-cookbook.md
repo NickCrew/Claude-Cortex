@@ -21,7 +21,7 @@ By the end of this tutorial, you'll be able to:
 - Publish skills that meet quality standards
 
 **Time Estimate:** 30-45 minutes
-**Prerequisites:** Basic Markdown, familiarity with `~/.cortex/` structure
+**Prerequisites:** Basic Markdown, familiarity with `~/.claude/` structure
 
 ---
 
@@ -37,10 +37,10 @@ A skill is a reusable knowledge module that provides Claude with domain-specific
 
 ### Directory Anatomy
 
-Every skill lives in `~/.cortex/skills/` with this structure:
+Every skill lives in `~/.claude/skills/` with this structure:
 
 ```
-~/.cortex/skills/your-skill-name/
+~/.claude/skills/your-skill-name/
 ├── SKILL.md              # Required: Main skill definition
 ├── examples/             # Optional: Code examples
 │   ├── basic.py
@@ -112,12 +112,12 @@ Let's create a minimal skill step by step.
 ### Step 1: Create the Directory
 
 ```bash
-mkdir -p ~/.cortex/skills/my-first-skill
+mkdir -p ~/.claude/skills/my-first-skill
 ```
 
 ### Step 2: Create SKILL.md
 
-Create `~/.cortex/skills/my-first-skill/SKILL.md`:
+Create `~/.claude/skills/my-first-skill/SKILL.md`:
 
 ```markdown
 ---
@@ -613,7 +613,7 @@ You've learned how to:
 
 ## Next Steps
 
-- Browse existing skills in `~/.cortex/skills/` for inspiration
+- Browse existing skills in `~/.claude/skills/` for inspiration
 - Create a skill for a domain you know well
 - Contribute improvements to existing skills
 

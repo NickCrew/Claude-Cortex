@@ -170,7 +170,7 @@ npx -y @upstash/context7-mcp --help
 uvx mcp-memory-py --help
 
 # Check MCP configuration
-cat ~/.cortex/.mcp.json
+cat ~/.claude/.mcp.json
 ```
 
 ### Missing Python Dependencies
