@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cortex.dev/schemas/versions.schema.json",
+  "title": "Skills Version Tracking",
+  "description": "Maintains version history and compatibility information for skills",
+  "type": "object",
+  "required": ["skills"],
+  "properties": {
+    "skills": {
+      "type": "object",
+      "description": "Map of skill IDs to their version information",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "$ref": "#/$defs/skillVersion"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "skillVersion": {
+      "type": "object",
+      "required": ["current", "versions"],
+      "properties": {
+        "current": {
+          "type": "string",
+          "description": "Current active version (semver)",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "versions": {
+          "type": "array",
+          "description": "List of all released versions",
+          "items": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "compatibility": {
+          "type": "object",
+          "description": "Compatibility information per version",
+          "patternProperties": {
+            "^\\d+\\.\\d+\\.\\d+$": {
+              "$ref": "#/$defs/versionInfo"
+            }
+          }
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "Whether this skill is deprecated",
+          "default": false
+        },
+        "deprecated_version": {
+          "type": "string",
+          "description": "Version at which deprecation started",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "replacement": {
+          "type": "string",
+          "description": "Skill ID that replaces this deprecated skill",
+          "pattern": "^[a-z0-9-]+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "versionInfo": {
+      "type": "object",
+      "required": ["release_date"],
+      "properties": {
+        "release_date": {
+          "type": "string",
+          "description": "Release date (YYYY-MM-DD)",
+          "format": "date"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Release notes or summary"
+        },
+        "changes": {
+          "type": "array",
+          "description": "List of changes in this version",
+          "items": {
+            "type": "string"
+          }
+        },
+        "breaking_changes": {
+          "type": "array",
+          "description": "Breaking changes in this version",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compatible_with": {
+          "type": "array",
+          "description": "List of compatible skill versions",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requires": {
+          "type": "object",
+          "description": "Minimum versions of dependencies",
+          "patternProperties": {
+            "^[a-z0-9-]+$": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

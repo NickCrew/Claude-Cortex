@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cortex.dev/schemas/hooks.schema.json",
+  "title": "Hook Configuration",
+  "description": "Defines event hooks for Claude Code tool execution and lifecycle events",
+  "type": "object",
+  "required": ["hooks"],
+  "properties": {
+    "hooks": {
+      "type": "object",
+      "description": "Map of hook events to their configurations",
+      "properties": {
+        "PreToolUse": {
+          "$ref": "#/$defs/hookList"
+        },
+        "PostToolUse": {
+          "$ref": "#/$defs/hookList"
+        },
+        "SubagentStop": {
+          "$ref": "#/$defs/hookList"
+        },
+        "SubagentStart": {
+          "$ref": "#/$defs/hookList"
+        },
+        "UserPromptSubmit": {
+          "$ref": "#/$defs/hookList"
+        },
+        "ConversationStart": {
+          "$ref": "#/$defs/hookList"
+        },
+        "ConversationEnd": {
+          "$ref": "#/$defs/hookList"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/hookList"
+      }
+    }
+  },
+  "$defs": {
+    "hookList": {
+      "type": "array",
+      "description": "List of hook configurations for this event",
+      "items": {
+        "$ref": "#/$defs/hookConfig"
+      }
+    },
+    "hookConfig": {
+      "type": "object",
+      "required": ["matcher", "hooks"],
+      "properties": {
+        "matcher": {
+          "type": "string",
+          "description": "Pattern to match tool names or events (empty string matches all)"
+        },
+        "hooks": {
+          "type": "array",
+          "description": "List of hooks to execute",
+          "items": {
+            "$ref": "#/$defs/hook"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "hook": {
+      "type": "object",
+      "required": ["type", "command"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Hook type",
+          "enum": ["command", "script", "python", "node"]
+        },
+        "command": {
+          "type": "string",
+          "description": "Command to execute (supports ${CLAUDE_PLUGIN_ROOT} and other variables)"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Timeout in milliseconds",
+          "minimum": 0,
+          "default": 30000
+        },
+        "async": {
+          "type": "boolean",
+          "description": "Run hook asynchronously without blocking",
+          "default": false
+        },
+        "env": {
+          "type": "object",
+          "description": "Additional environment variables",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "on_error": {
+          "type": "string",
+          "description": "Action on hook failure",
+          "enum": ["ignore", "warn", "abort"],
+          "default": "warn"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

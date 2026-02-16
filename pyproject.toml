@@ -69,18 +69,6 @@ include-package-data = true
 where = ["."]
 include = ["claude_ctx_py*"]
 
-[tool.setuptools.package-data]
-"" = [
-    "agents/**/*",
-    "skills/**/*",
-    "hooks/**/*",
-    "rules/**/*",
-    "schemas/**/*",
-    "scripts/**/*",
-    "bin/**/*",
-    "codex/**/*",
-]
-
 [tool.setuptools.data-files]
 "share/man/man1" = [
     "docs/reference/cortex.1",
