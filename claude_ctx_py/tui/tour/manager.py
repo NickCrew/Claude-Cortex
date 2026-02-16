@@ -34,10 +34,12 @@ class TourManager:
         """Initialize the tour manager.
 
         Args:
-            state_path: Path to state file. Defaults to ~/.cortex/tour-state.json.
+            state_path: Path to state file. Defaults to ~/.claude/tour-state.json.
         """
         if state_path is None:
-            state_path = _resolve_cortex_root() / "tour-state.json"
+            from ...core.base import _resolve_claude_dir
+            claude_dir = _resolve_claude_dir(Path.home(), scope=None, cwd=Path.cwd())
+            state_path = claude_dir / "tour-state.json"
         self._state_path = state_path
         self._state: TourState = self._load_state()
 

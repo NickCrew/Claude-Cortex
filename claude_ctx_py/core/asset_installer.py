@@ -162,30 +162,36 @@ def _install_skill(asset: Asset, target_dir: Path, *, add_claude_refs: bool = Tr
 
 
 def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True, register_hooks: bool = True) -> Tuple[int, str]:
-    """Copy a hook and optionally register in settings.json."""
+    """Symlink a hook to ~/.claude/hooks/ and register in settings.json."""
     _logger.info(f"_install_hook called: asset.name={asset.name}, target_dir={target_dir}")
 
     try:
+        if not asset.source_path.exists():
+            _logger.error(f"Hook source file not found: {asset.source_path}")
+            return 1, _color(f"Hook source file not found: {asset.source_path}", RED)
+
         hooks_dir = target_dir / "hooks"
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
         target_path = hooks_dir / asset.source_path.name
         _logger.debug(f"target_path={target_path}")
 
-        # Copy file
-        _logger.debug(f"Copying {asset.source_path} to {target_path}")
-        shutil.copy2(asset.source_path, target_path)
+        # Remove existing file or symlink if present
+        if target_path.exists() or target_path.is_symlink():
+            _logger.debug(f"Removing existing file/symlink at {target_path}")
+            target_path.unlink()
 
-        # Make executable
-        target_path.chmod(target_path.stat().st_mode | 0o111)
-        _logger.debug("Made executable")
+        # Create symlink
+        _logger.debug(f"Creating symlink from {target_path} to {asset.source_path}")
+        target_path.symlink_to(asset.source_path)
+        _logger.debug("Symlink created successfully")
 
         if add_claude_refs:
             _add_commented_reference(target_dir, target_path)
 
         if register_hooks:
             # Parse the hook file to get the event type
-            hook_def = parse_hook_file(target_path)
+            hook_def = parse_hook_file(asset.source_path)
             _logger.debug(f"Parsed hook_def: {hook_def}")
 
             if hook_def:
@@ -203,15 +209,15 @@ def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = Tru
                 _logger.info(f"register_hook_in_settings returned: exit_code={exit_code}, msg={reg_msg}")
 
                 if exit_code != 0:
-                    return 0, _color(f"Copied hook: {asset.name} (settings registration failed: {reg_msg})", YELLOW)
+                    return 0, _color(f"Installed hook: {asset.name} (settings registration failed: {reg_msg})", YELLOW)
             else:
                 _logger.warning("Could not parse hook file, skipping settings registration")
 
-        _logger.info(f"Successfully copied hook: {asset.name}")
-        return 0, _color(f"Copied hook: {asset.name}", GREEN)
+        _logger.info(f"Successfully installed hook: {asset.name}")
+        return 0, _color(f"Installed hook: {asset.name}", GREEN)
     except Exception as e:
         _logger.exception(f"Exception in _install_hook: {e}")
-        return 1, _color(f"Failed to copy hook: {e}", RED)
+        return 1, _color(f"Failed to install hook: {e}", RED)
 
 
 def _install_command(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:

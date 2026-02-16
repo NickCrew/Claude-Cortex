@@ -14,7 +14,7 @@ from typing import List, Optional, Tuple
 
 from . import completions
 from . import shell_integration
-from .core.base import _resolve_bundled_assets_root, _resolve_cortex_root
+from .core.base import _resolve_cortex_root
 
 PACKAGE_NAME = "claude-cortex"
 DOC_FILES = [
@@ -26,12 +26,12 @@ DOC_FILES = [
 ]
 
 
-def _find_plugin_root() -> Optional[Path]:
-    """Find the Cortex plugin root directory.
+def _find_cortex_root() -> Optional[Path]:
+    """Find the cortex package root directory.
 
     Searches in order:
-    1. Check if running from within the plugin directory
-    2. Check Claude's installed plugins registry
+    1. Check if running from within the package directory (development)
+    2. Check Claude's installed plugins registry (legacy)
     3. Check common installation locations
     """
     # 1. Check if running from within plugin (development or editable install)
@@ -74,7 +74,7 @@ def _find_plugin_root() -> Optional[Path]:
             return candidate
 
     # 4. Fall back to bundled assets root
-    return _resolve_bundled_assets_root()
+    return _resolve_cortex_root()
 
 
 def _find_repo_root(start: Path) -> Optional[Path]:
@@ -305,31 +305,31 @@ def bootstrap(
     dry_run: bool = False,
     link_rules: bool = False,
 ) -> Tuple[int, str]:
-    """Bootstrap ~/.cortex with bundled assets and default configuration.
+    """Bootstrap ~/.claude with bundled assets and default configuration.
 
-    Creates the cortex home directory structure and copies rules and templates
-    from the bundled package assets.
+    Creates the .claude directory structure and copies rules and templates
+    from the bundled cortex package assets.
 
     Args:
-        target_dir: Target directory (default: ~/.cortex)
+        target_dir: Target directory (default: ~/.claude)
         force: Overwrite existing directories
         dry_run: Show what would be done without writing files
         link_rules: Also create symlinks in ~/.claude/rules/cortex/
     """
-    assets_root = _resolve_bundled_assets_root()
+    assets_root = _resolve_cortex_root()
     if assets_root is None:
         return 1, (
             "Bundled assets not found. This may indicate a broken installation.\n"
             "Try reinstalling: pipx install --force claude-cortex"
         )
 
-    cortex_home = target_dir or _resolve_cortex_root()
+    claude_home = target_dir or (Path.home() / ".claude")
     results: List[str] = []
     copied_dirs: List[str] = []
 
     if dry_run:
         lines = [
-            f"Would bootstrap cortex home at: {cortex_home}",
+            f"Would bootstrap cortex home at: {claude_home}",
             f"Using assets from: {assets_root}",
             "",
             "Directories to copy:",
@@ -342,14 +342,14 @@ def bootstrap(
 
     # Create cortex home directory
     try:
-        cortex_home.mkdir(parents=True, exist_ok=True)
+        claude_home.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
-        return 1, f"Failed to create {cortex_home}: {exc}"
+        return 1, f"Failed to create {claude_home}: {exc}"
 
     # Copy directories from assets
     for dir_name in BOOTSTRAP_DIRS:
         source = assets_root / dir_name
-        target = cortex_home / dir_name
+        target = claude_home / dir_name
         if not source.is_dir():
             continue
         if target.exists() and not force:
@@ -369,8 +369,8 @@ def bootstrap(
     if link_rules:
         from .core.rules import sync_rule_symlinks, DEFAULT_RULES_SUBDIR
 
-        rules_root = cortex_home
-        active_rules = [p.stem for p in (cortex_home / "rules").glob("*.md")]
+        rules_root = claude_home
+        active_rules = [p.stem for p in (claude_home / "rules").glob("*.md")]
         if dry_run:
             link_results.append(f"Would symlink {len(active_rules)} rules to {DEFAULT_RULES_SUBDIR}")
         else:
@@ -383,7 +383,7 @@ def bootstrap(
             link_results.append(f"  ✓ Linked rules to {DEFAULT_RULES_SUBDIR}")
 
     summary = [
-        f"✓ Bootstrapped cortex at: {cortex_home}",
+        f"✓ Bootstrapped cortex at: {claude_home}",
         f"  Assets from: {assets_root}",
         "",
         "Results:",
@@ -556,7 +556,7 @@ def link_content(
         dry_run: Show what would be done without making changes
     """
     # Find source
-    source = source_dir or _find_plugin_root()
+    source = source_dir or _find_cortex_root()
     if source is None:
         return 1, (
             "Could not find cortex content directory.\n"

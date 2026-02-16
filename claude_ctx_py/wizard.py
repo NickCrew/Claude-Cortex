@@ -85,10 +85,21 @@ def run_wizard(console: Optional[Console] = None) -> Tuple[int, str]:
                 rc_file=rc_path,
             )
             console.print(msg.split('\n')[0])
-            
+
     except RuntimeError:
         console.print("[dim]Shell not detected, skipping shell integration[/dim]")
-    
+
+    # 3. Statusline configuration (optional)
+    console.print()
+    console.print("Cortex provides a custom statusline for Claude Code")
+    console.print("that shows git, kubernetes, AWS, Docker, and environment context.")
+    console.print()
+
+    if Confirm.ask("Configure Claude Code to use cortex statusline?", default=True, console=console):
+        from .core.hooks import configure_statusline
+        code, msg = configure_statusline(command="cortex statusline --color", force=False)
+        console.print(msg.split('\n')[0])  # Just first line
+
     # Done
     console.print()
     console.print(Panel(

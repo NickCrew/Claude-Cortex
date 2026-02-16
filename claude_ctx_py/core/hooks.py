@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -116,6 +115,37 @@ def save_settings(settings: Dict[str, Any]) -> Tuple[bool, str]:
         return True, "Settings saved"
     except OSError as e:
         return False, f"Failed to save settings: {e}"
+
+
+def configure_statusline(
+    command: str = "cortex statusline --color",
+    force: bool = False,
+) -> Tuple[int, str]:
+    """Configure Claude Code statusline in settings.json.
+
+    Args:
+        command: The statusline command to use (default: "cortex statusline --color")
+        force: Overwrite existing statusline configuration
+
+    Returns:
+        (exit_code, message) tuple
+    """
+    settings = _load_settings()
+
+    # Check if statusline already configured
+    if "statusLine" in settings and not force:
+        current = settings["statusLine"]
+        return 0, f"Statusline already configured: {current}\nUse --force to overwrite"
+
+    # Set the statusline
+    settings["statusLine"] = command
+    success, msg = save_settings(settings)
+
+    if success:
+        settings_path = get_settings_path()
+        return 0, f"✓ Configured statusline in {settings_path}\n  Command: {command}"
+    else:
+        return 1, f"Failed to configure statusline: {msg}"
 
 
 def _hook_name_matches(hook_name: str, command: str, args: Optional[List[Any]] = None) -> bool:
@@ -422,7 +452,7 @@ def install_hook(
     hook: HookDefinition,
     target_dir: Optional[Path] = None,
 ) -> Tuple[bool, str]:
-    """Install a hook by copying to hooks dir and registering in settings.
+    """Install a hook by symlinking to ~/.claude/hooks/ and registering in settings.
 
     Args:
         hook: Hook definition to install
@@ -434,41 +464,36 @@ def install_hook(
     _logger.info(f"install_hook called: hook.name={hook.name}, hook.event={hook.event}, source_path={hook.source_path}")
 
     try:
+        if not hook.source_path or not hook.source_path.exists():
+            _logger.error(f"No valid source_path for hook: {hook.source_path}")
+            return False, f"Hook source file not found: {hook.source_path}"
+
         claude_dir = _resolve_claude_dir()
         hooks_dir = target_dir or (claude_dir / "hooks")
         _logger.debug(f"claude_dir={claude_dir}, hooks_dir={hooks_dir}")
         hooks_dir.mkdir(parents=True, exist_ok=True)
 
-        # Determine file extension and interpreter from source
-        if hook.source_path:
-            suffix = hook.source_path.suffix
-        else:
-            # Guess from command
-            suffix = ".sh" if hook.command.startswith("bash") else ".py"
-
+        # Determine interpreter from file extension
+        suffix = hook.source_path.suffix
         interpreter = "bash" if suffix == ".sh" else "python3"
         _logger.debug(f"suffix={suffix}, interpreter={interpreter}")
 
-        # Copy hook file if it has a source path
-        installed_path = hooks_dir / f"{hook.name}{suffix}"
+        # Create symlink in hooks directory
+        installed_path = hooks_dir / hook.source_path.name
         _logger.debug(f"installed_path={installed_path}")
 
-        if hook.source_path and hook.source_path.exists():
-            # Check if source and destination are the same file (e.g., symlinks)
-            try:
-                if installed_path.exists() and hook.source_path.resolve() == installed_path.resolve():
-                    _logger.debug(f"Source and destination are the same file, skipping copy")
-                else:
-                    _logger.debug(f"Copying {hook.source_path} to {installed_path}")
-                    shutil.copy2(hook.source_path, installed_path)
-                # Make executable
-                installed_path.chmod(0o755)
-                _logger.debug("Copy successful or skipped (same file)")
-            except OSError as e:
-                _logger.error(f"Failed to copy hook: {e}")
-                return False, f"Failed to copy hook: {e}"
+        # Check if source and destination are the same file (e.g., already linked)
+        if installed_path.exists() and hook.source_path.resolve() == installed_path.resolve():
+            _logger.debug(f"Source and destination are the same file, skipping symlink creation")
         else:
-            _logger.warning(f"No source_path or file doesn't exist: {hook.source_path}")
+            # Remove existing file or symlink if present
+            if installed_path.exists() or installed_path.is_symlink():
+                _logger.debug(f"Removing existing file/symlink at {installed_path}")
+                installed_path.unlink()
+
+            _logger.debug(f"Creating symlink from {installed_path} to {hook.source_path}")
+            installed_path.symlink_to(hook.source_path)
+            _logger.debug("Symlink created successfully")
 
         # Update settings.json
         settings = load_settings()
@@ -487,7 +512,7 @@ def install_hook(
         if hook.event not in settings["hooks"]:
             settings["hooks"][hook.event] = []
 
-        # Check if already installed
+        # Register hook command with symlink path
         command = f"{interpreter} {installed_path}"
         _logger.debug(f"Checking if command already installed: {command}")
 

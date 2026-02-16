@@ -36,7 +36,6 @@ from .base import (
 from .base import (
     _color,
     _resolve_cortex_root,
-    _resolve_plugin_assets_root,
     _resolve_claude_dir,
     _resolve_init_dirs,
     _ensure_claude_structure,
@@ -272,7 +271,6 @@ __all__ = [
     "_color",
     "_resolve_cortex_root",
     "_resolve_claude_dir",
-    "_resolve_plugin_assets_root",
     "_resolve_init_dirs",
     "_ensure_claude_structure",
     "_init_slug_for_path",

@@ -41,7 +41,6 @@ except ImportError:  # pragma: no cover
 
 _CORTEX_SCOPE_ENV = "CORTEX_SCOPE"
 _CORTEX_ROOT_ENV = "CORTEX_ROOT"
-_CORTEX_ASSETS_ENV = "CORTEX_ASSETS_ROOT"
 
 
 def _find_project_claude_dir(start: Path) -> Path | None:
@@ -57,61 +56,42 @@ def _find_project_claude_dir(start: Path) -> Path | None:
     return None
 
 
-def _resolve_cortex_root(home: Path | None = None) -> Path:
-    """Resolve the global Cortex root directory.
+def _resolve_cortex_root() -> Path:
+    """Resolve the cortex package root directory (where assets are bundled).
+
+    This is where cortex's bundled agents, skills, hooks, rules live.
 
     Preference order:
 
-    1. Explicit ``CORTEX_ROOT`` environment variable
-    2. Caller-provided ``home`` argument
-    3. ``$HOME/.claude`` fallback (where Claude Code looks)
+    1. Explicit ``CORTEX_ROOT`` environment variable (for local development)
+    2. Auto-detect from repository structure (development mode)
+    3. Bundled assets in Python package installation
     """
+    # Check for explicit override (development mode)
     env_root = os.environ.get(_CORTEX_ROOT_ENV)
-    if env_root:
-        return Path(env_root).expanduser().resolve()
-
-    base = Path(home) if home is not None else Path(os.environ.get("HOME", str(Path.home())))
-    return base / ".claude"
-
-
-def _resolve_bundled_assets_root() -> Path | None:
-    """Resolve the bundled assets root shipped with the Python package."""
-    env_root = os.environ.get(_CORTEX_ASSETS_ENV)
     if env_root:
         path = Path(env_root).expanduser().resolve()
         if path.exists():
             return path
 
+    # Auto-detect repository root (development mode)
+    this_file = Path(__file__).resolve()
+    repo_root = this_file.parent.parent.parent
+    if (repo_root / "agents").is_dir() and (repo_root / "hooks").is_dir():
+        return repo_root
+
+    # Check for bundled assets in package
     module_root = Path(__file__).resolve().parents[1]
     candidate = module_root / "assets"
     if candidate.is_dir():
         return candidate
 
+    # Check system installation location
     data_root = Path(sysconfig.get_path("data")) / "share" / "claude-cortex" / "assets"
     if data_root.is_dir():
         return data_root
 
-    return None
-
-
-def _resolve_plugin_assets_root() -> Path:
-    """Resolve the root directory containing bundled plugin assets."""
-    env_root = os.environ.get("CLAUDE_PLUGIN_ROOT") or os.environ.get("CORTEX_PLUGIN_ROOT")
-    if env_root:
-        path = Path(env_root).expanduser().resolve()
-        if path.exists():
-            return path
-
-    this_file = Path(__file__).resolve()
-    repo_root = this_file.parent.parent.parent
-    # Check for directories that indicate this is the cortex repo
-    if (repo_root / "agents").is_dir() and (repo_root / "hooks").is_dir():
-        return repo_root
-
-    bundled = _resolve_bundled_assets_root()
-    if bundled is not None:
-        return bundled
-
+    # Fallback to repo root
     return repo_root
 
 
@@ -120,44 +100,42 @@ def _resolve_claude_dir(
     scope: str | None = None,
     cwd: Path | None = None,
 ) -> Path:
-    """Resolve the working Cortex directory.
+    """Resolve the .claude directory for user configuration.
 
-    Preference order:
+    Uses CORTEX_SCOPE to determine which .claude to use:
+    - "project" or "local": Look for .claude in current directory tree
+    - "global" or "home": Use ~/.claude/
+    - "auto" (default): Search up for .claude, fallback to ~/.claude/
 
-    1. Explicit scope selection via ``CORTEX_SCOPE`` / ``scope`` argument
-    2. Plugin runtime via ``CLAUDE_PLUGIN_ROOT`` (set by Claude Code when
-       commands execute inside a plugin sandbox)
-    3. Caller-provided ``home`` argument
-    4. ``$CORTEX_ROOT`` / ``$HOME/.cortex`` fallback
+    Args:
+        home: Optional home directory override
+        scope: Explicit scope override
+        cwd: Current working directory for project scope search
+
+    Returns:
+        Path to the .claude directory to use
     """
+    scope_value = (scope or os.environ.get(_CORTEX_SCOPE_ENV) or "auto").strip().lower()
 
-    scope_value = (scope or os.environ.get(_CORTEX_SCOPE_ENV) or "").strip().lower()
-    if scope_value:
-        if scope_value in ("project", "local"):
-            base = cwd or Path.cwd()
-            found = _find_project_claude_dir(base)
-            return found if found is not None else base / ".claude"
-        if scope_value in ("global", "home"):
-            return _resolve_cortex_root(home)
-        if scope_value in ("plugin", "plugin_root"):
-            override = os.environ.get("CLAUDE_PLUGIN_ROOT")
-            if override:
-                path = Path(override).expanduser().resolve()
-                if path.exists():
-                    return path
-            return _resolve_cortex_root(home)
-        # Treat unknown scope as auto.
+    if scope_value in ("project", "local"):
+        # Use project-local .claude
+        base = cwd or Path.cwd()
+        found = _find_project_claude_dir(base)
+        return found if found is not None else base / ".claude"
 
-    if os.environ.get(_CORTEX_ROOT_ENV):
-        return _resolve_cortex_root(home)
+    if scope_value in ("global", "home"):
+        # Use global ~/.claude/
+        base = Path(home) if home is not None else Path.home()
+        return base / ".claude"
 
-    override = os.environ.get("CLAUDE_PLUGIN_ROOT")
-    if override:
-        path = Path(override).expanduser().resolve()
-        if path.exists():
-            return path
+    # Auto mode: search up for .claude, fallback to ~/.claude/
+    base = cwd or Path.cwd()
+    found = _find_project_claude_dir(base)
+    if found is not None:
+        return found
 
-    return _resolve_cortex_root(home)
+    base = Path(home) if home is not None else Path.home()
+    return base / ".claude"
 
 
 def _resolve_init_dirs(claude_dir: Path) -> Tuple[Path, Path, Path]:
@@ -212,52 +190,6 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
             file_path.touch()
             created.append(str(file_path))
 
-    return created
-
-
-def _get_builtin_templates_dir() -> Path:
-    """Get the bundled templates directory shipped with the plugin."""
-    return _resolve_plugin_assets_root() / "templates"
-
-
-def _list_template_files(template_dir: Path) -> List[Path]:
-    """Return all template files under the given directory."""
-    if not template_dir.is_dir():
-        return []
-    return sorted(path for path in template_dir.rglob("*") if path.is_file())
-
-
-def _find_missing_template_files(target_root: Path) -> List[Path]:
-    """Find template files missing from the target root's templates/ directory."""
-    source_dir = _get_builtin_templates_dir()
-    if not source_dir.is_dir():
-        return []
-
-    target_dir = target_root / "templates"
-    missing: List[Path] = []
-    for src in _list_template_files(source_dir):
-        rel_path = src.relative_to(source_dir)
-        if not (target_dir / rel_path).exists():
-            missing.append(rel_path)
-    return missing
-
-
-def _ensure_template_files(target_root: Path) -> List[str]:
-    """Copy any missing template files into target_root/templates."""
-    source_dir = _get_builtin_templates_dir()
-    if not source_dir.is_dir():
-        return []
-
-    created: List[str] = []
-    target_dir = target_root / "templates"
-    for src in _list_template_files(source_dir):
-        rel_path = src.relative_to(source_dir)
-        dest = target_dir / rel_path
-        if dest.exists():
-            continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, dest)
-        created.append(str(dest))
     return created
 
 

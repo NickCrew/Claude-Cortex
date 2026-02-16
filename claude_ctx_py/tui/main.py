@@ -97,7 +97,7 @@ from ..core import (
     _parse_claude_md_refs,
     _inactive_dir_candidates,
     _inactive_category_dir,
-    _resolve_plugin_assets_root,
+    _resolve_cortex_root,
     validate_hooks_config_file,
     _write_active_entries,
     scan_codex_skill_status,
@@ -116,8 +116,6 @@ from ..core.base import (
     _parse_active_entries,
     _strip_ansi_codes,
     _ensure_claude_structure,
-    _find_missing_template_files,
-    _ensure_template_files,
 )
 from ..core.mcp import (
     discover_servers,
@@ -523,10 +521,10 @@ class AgentTUI(App[None]):
     def _validate_plugin_hooks_startup(self) -> None:
         """Warn if plugin hooks.json has conflicting entries."""
         try:
-            plugin_root = _resolve_plugin_assets_root()
+            cortex_root = _resolve_cortex_root()
         except Exception:
             return
-        config_path = plugin_root / "hooks" / "hooks.json"
+        config_path = cortex_root / "hooks" / "hooks.json"
         if not config_path.is_file():
             return
         is_valid, errors = validate_hooks_config_file(config_path)
@@ -1390,7 +1388,6 @@ class AgentTUI(App[None]):
         """Run startup prompts after the UI has mounted."""
         # Check for tour (either requested via --tour or first-time offer)
         await self._maybe_show_tour()
-        await self._maybe_prompt_for_missing_templates()
         await self._maybe_prompt_for_skill_ratings()
 
     async def _maybe_show_tour(self) -> None:
@@ -1413,55 +1410,9 @@ class AgentTUI(App[None]):
             )
             if result:
                 self.action_start_tour()
-
-    async def _maybe_prompt_for_missing_templates(self) -> None:
-        """Offer to initialize missing template files in CLAUDE_PLUGIN_ROOT."""
-        explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-        if not explicit_root:
-            return
-
-        target_root = Path(explicit_root).expanduser()
-        if not target_root.exists():
-            return
-
-        missing = _find_missing_template_files(target_root)
-        if not missing:
-            return
-
-        preview = ", ".join(str(path) for path in missing[:5])
-        if len(missing) > 5:
-            preview += f" (+{len(missing) - 5} more)"
-
-        dialog = ConfirmDialog(
-            "Initialize Templates",
-            "Template files are missing from CLAUDE_PLUGIN_ROOT:\n"
-            f"{target_root}\n\n"
-            f"Missing: {preview}\n\n"
-            "Initialize missing templates?",
-            default=True,
-        )
-        confirm = await self.push_screen(dialog, wait_for_dismiss=True)
-        if not confirm:
-            self.notify(
-                "Templates missing. Run 'cortex install bootstrap' to initialize.",
-                severity="warning",
-                timeout=4,
-            )
-            return
-
-        created = _ensure_template_files(target_root)
-        if created:
-            self.notify(
-                f"Initialized {len(created)} template files",
-                severity="information",
-                timeout=3,
-            )
-        else:
-            self.notify(
-                "Templates already present",
-                severity="information",
-                timeout=2,
-            )
+            else:
+                # User declined - mark as skipped so we don't ask again
+                self.tour_manager.mark_tour_skipped("quick_tour")
 
     async def _maybe_prompt_for_skill_ratings(self) -> None:
         """Surface auto-prompts for recently used skills."""
@@ -1558,7 +1509,7 @@ class AgentTUI(App[None]):
 
         # Load registry for category metadata
         try:
-            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
             categories = registry.get("categories", {})
         except Exception:
@@ -7442,7 +7393,7 @@ class AgentTUI(App[None]):
     def action_hooks_manager(self) -> None:
         """Open the hooks manager dialog."""
         # Find plugin directory for available hooks
-        plugin_dir = _resolve_plugin_assets_root()
+        plugin_dir = _resolve_cortex_root()
 
         dialog = HooksManagerDialog(plugin_dir)
         self.push_screen(dialog, callback=self._handle_hooks_manager_result)
@@ -7567,7 +7518,7 @@ class AgentTUI(App[None]):
             return
 
         try:
-            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
         except Exception as e:
             self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
@@ -7598,7 +7549,7 @@ class AgentTUI(App[None]):
             return
 
         try:
-            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
         except Exception as e:
             self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
@@ -7647,7 +7598,7 @@ class AgentTUI(App[None]):
             return
 
         try:
-            registry_path = _resolve_plugin_assets_root() / "skills" / "registry.yaml"
+            registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
         except Exception as e:
             self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)

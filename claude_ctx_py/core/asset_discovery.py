@@ -26,7 +26,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from .base import _extract_front_matter, _resolve_claude_dir, _resolve_plugin_assets_root
+from .base import _extract_front_matter, _resolve_claude_dir, _resolve_cortex_root
 
 
 _SETTINGS_RELATIVE_PATHS = [
@@ -152,7 +152,7 @@ def get_default_source_root() -> Path:
     Returns:
         Path to the default source root directory
     """
-    return _resolve_plugin_assets_root()
+    return _resolve_cortex_root()
 
 
 # Backward-compatible alias

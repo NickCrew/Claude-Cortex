@@ -22,7 +22,7 @@ from collections import deque
 
 from .intelligence import IntelligentAgent, AgentRecommendation
 from .core import _resolve_claude_dir, _resolve_cortex_root, agent_activate
-from .core.base import _resolve_plugin_assets_root
+from .core.base import _resolve_cortex_root
 
 # Default config path - no longer used but kept for backwards compatibility
 DEFAULT_CONFIG_PATH = _resolve_cortex_root() / "cortex-config.json"
@@ -153,7 +153,7 @@ EXT_PATTERNS: Dict[str, List[str]] = {
 def _load_skill_rules() -> List[Dict[str, Any]]:
     """Load skill rules from skill-rules.json."""
     candidates = [
-        _resolve_plugin_assets_root() / "skills" / "skill-rules.json",
+        _resolve_cortex_root() / "skills" / "skill-rules.json",
         Path.home() / ".claude" / "skills" / "skill-rules.json",
     ]
     

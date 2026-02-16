@@ -70,3 +70,9 @@ PRINCIPLES.md
 
 # Session-generated skill context
 .claude/skill-context.md
+
+# Extracted skill commands (generated at project root)
+/commands/
+
+# Tour state (should be in ~/.claude/)
+/tour-state.json
