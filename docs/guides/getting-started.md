@@ -17,7 +17,7 @@ This repository packages the `cortex` context management toolkit as a Claude Cod
 - `flags/` – modular context packs toggled via `FLAGS.md`
 - `hooks/` – optional automation hooks
 - `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
-- `claude_ctx_py/` and `cortex-py` – Python CLI entrypoint mirroring the original `cortex`
+- `claude_ctx_py/` and `claude-cortex` – Python CLI entrypoint mirroring the original `cortex`
 - `schema/` and `scripts/` – validation schemas and helper scripts
 
 The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.

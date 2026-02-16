@@ -18,10 +18,10 @@ The Prompt Library is a feature for managing reusable prompts, guidelines, and t
 
 ## Directory Structure
 
-Prompts are organized in subdirectories under `~/.cortex/prompts/`:
+Prompts are organized in subdirectories under `~/.claude/prompts/`:
 
 ```
-~/.cortex/prompts/
+~/.claude/prompts/
 ├── guidelines/
 │   ├── code-review.md
 │   ├── security-checklist.md
@@ -68,9 +68,9 @@ tokens: 450
 
 Prompts use a `category/name` slug format based on their directory structure:
 
-- `~/.cortex/prompts/guidelines/code-review.md` → `guidelines/code-review`
-- `~/.cortex/prompts/templates/pr-description.md` → `templates/pr-description`
-- `~/.cortex/prompts/personas/senior-architect.md` → `personas/senior-architect`
+- `~/.claude/prompts/guidelines/code-review.md` → `guidelines/code-review`
+- `~/.claude/prompts/templates/pr-description.md` → `templates/pr-description`
+- `~/.claude/prompts/personas/senior-architect.md` → `personas/senior-architect`
 
 ## CLI Commands
 
@@ -147,7 +147,7 @@ Active prompts are automatically injected into CLAUDE.md using `@prompts/` refer
 ```
 
 When a prompt is activated:
-1. Its slug is added to `~/.cortex/.active-prompts`
+1. Its slug is added to `~/.claude/.active-prompts`
 2. CLAUDE.md is regenerated with the new `@prompts/` reference
 3. Claude Code loads the prompt content on next context refresh
 
@@ -165,15 +165,15 @@ The CLAUDE.md Wizard includes a dedicated step for selecting prompts:
 ### 1. Create the directory structure
 
 ```bash
-mkdir -p ~/.cortex/prompts/guidelines
-mkdir -p ~/.cortex/prompts/templates
-mkdir -p ~/.cortex/prompts/personas
+mkdir -p ~/.claude/prompts/guidelines
+mkdir -p ~/.claude/prompts/templates
+mkdir -p ~/.claude/prompts/personas
 ```
 
 ### 2. Create a prompt file
 
 ```bash
-cat > ~/.cortex/prompts/guidelines/my-guideline.md << 'EOF'
+cat > ~/.claude/prompts/guidelines/my-guideline.md << 'EOF'
 ---
 name: My Custom Guideline
 description: Project-specific coding guidelines
@@ -215,7 +215,7 @@ cortex prompts activate guidelines/my-guideline
 
 ## Activation Persistence
 
-The `.active-prompts` file in `~/.cortex/` persists your prompt selections across sessions:
+The `.active-prompts` file in `~/.claude/` persists your prompt selections across sessions:
 
 ```
 guidelines/code-review
@@ -238,7 +238,7 @@ This file is managed automatically by the CLI and TUI - avoid editing it directl
 
 ### Prompt not appearing in list
 
-- Verify the file exists in `~/.cortex/prompts/` subdirectory
+- Verify the file exists in `~/.claude/prompts/` subdirectory
 - Check file has `.md` extension
 - Ensure file is not named `README.md` (excluded by convention)
 

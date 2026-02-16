@@ -496,7 +496,7 @@ an import error, or a database problem, the review output is still delivered.
 
 ### SQLite Tables
 
-Located at `~/.cortex/data/skill-recommendations.db`:
+Located at `~/.claude/data/skill-recommendations.db`:
 
 **`recommendations_history`** — Every recommendation made:
 ```sql
@@ -579,7 +579,7 @@ Add to the `_get_default_rules()` method in `claude_ctx_py/skill_recommender.py`
 }
 ```
 
-Or add directly to `~/.cortex/skills/recommendation-rules.json` for
+Or add directly to `~/.claude/skills/recommendation-rules.json` for
 user-specific rules.
 
 ### Adding a New Agent Mapping

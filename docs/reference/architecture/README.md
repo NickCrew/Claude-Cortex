@@ -244,10 +244,10 @@ These documentation files are automatically installed with cortex.
 
 **Installation** copies them to:
 ```
-~/.cortex/docs/architecture-diagrams.md
-~/.cortex/docs/quick-reference.md
-~/.cortex/docs/DIAGRAMS_README.md
-~/.cortex/docs/VISUAL_SUMMARY.txt
+~/.claude/docs/architecture-diagrams.md
+~/.claude/docs/quick-reference.md
+~/.claude/docs/DIAGRAMS_README.md
+~/.claude/docs/VISUAL_SUMMARY.txt
 ```
 
 **To reinstall/update documentation**:
@@ -256,7 +256,7 @@ These documentation files are automatically installed with cortex.
 just install
 
 # Or manually copy
-cp docs/reference/architecture/* ~/.cortex/docs/
+cp docs/reference/architecture/* ~/.claude/docs/
 ```
 
 ---
@@ -267,7 +267,7 @@ cp docs/reference/architecture/* ~/.cortex/docs/
 ```bash
 cat docs/reference/architecture/VISUAL_SUMMARY.txt
 # Or from installed location
-cat ~/.cortex/docs/VISUAL_SUMMARY.txt
+cat ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
 
 ### Markdown (Any Editor)
@@ -327,9 +327,9 @@ When adding new components:
 - `../../guides/` - Step-by-step guides and tutorials
 - `../../README.md` - Main documentation index
 - `../../../README.md` - Project README
-- `~/.cortex/commands/` - Slash command definitions
-- `~/.cortex/modes/` - Behavioral mode definitions
-- `~/.cortex/workflows/` - Workflow definitions
+- `~/.claude/commands/` - Slash command definitions
+- `~/.claude/modes/` - Behavioral mode definitions
+- `~/.claude/workflows/` - Workflow definitions
 
 ---
 
@@ -341,7 +341,7 @@ To improve these diagrams:
 2. **Test rendering** with Mermaid preview
 3. **Update statistics** if component counts changed
 4. **Commit changes** with descriptive message
-5. **Reinstall** to update `~/.cortex/docs/`
+5. **Reinstall** to update `~/.claude/docs/`
 
 ---
 

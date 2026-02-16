@@ -66,21 +66,21 @@ The CLI binary is `cortex`. `cortex` remains as a deprecated alias.
 
 - What: Behavioral state that modifies Claude's approach
 - Example: `Token_Efficiency` optimizes for concise output
-- Location: `~/.cortex/modes/` or project `.claude/modes/`
+- Location: `~/.claude/modes/` or project `.claude/modes/`
 - Activation: `cortex mode activate [name]`
 
 **Rule**
 
 - What: Mandatory behavior Claude must follow
 - Example: `quality-gate-rules.md` requires review + tests + docs
-- Location: `~/.cortex/rules/` or project `.claude/rules/`
+- Location: `~/.claude/rules/` or project `.claude/rules/`
 - Activation: active when the file is in `rules/`; move to `inactive/rules/` (or use `cortex rules deactivate`) to disable
 
 **Slash Command**
 
 - What: User-triggered workflow that expands to prompt
 - Example: `/dev:implement` → Full implementation workflow prompt
-- Location: `~/.cortex/commands/` or project `.claude/commands/`
+- Location: `~/.claude/commands/` or project `.claude/commands/`
 - Usage: Type in Claude Code chat
 
 **Persona** (Conceptual Role)

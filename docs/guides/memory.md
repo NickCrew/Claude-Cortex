@@ -110,7 +110,7 @@ Set a custom vault path:
 # Via environment variable
 export CORTEX_MEMORY_VAULT=~/my-notes
 
-# Or in ~/.cortex/memory-config.json
+# Or in ~/.claude/memory-config.json
 {
   "vault_path": "~/my-notes"
 }
@@ -124,7 +124,7 @@ Enable automatic session capture on exit:
 cortex memory auto on
 ```
 
-Configuration in `~/.cortex/memory-config.json`:
+Configuration in `~/.claude/memory-config.json`:
 
 ```json
 {

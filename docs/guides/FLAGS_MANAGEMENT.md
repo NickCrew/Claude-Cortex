@@ -22,7 +22,7 @@ The Cortex Flag Management System provides surgical control over behavioral flag
 
 3. **See Results:**
    - Real-time token counts update
-   - Changes save immediately to `~/.cortex/FLAGS.md`
+   - Changes save immediately to `~/.claude/FLAGS.md`
    - Enabled flags show `✓ ON` in green
    - Disabled flags show `✗ OFF` in dim gray
 
@@ -269,7 +269,7 @@ Use when: Complex multi-domain work requiring all capabilities
 ### Flag Files Location
 
 ```
-~/.cortex/flags/
+~/.claude/flags/
 ├── mode-activation.md
 ├── mcp-servers.md
 ├── thinking-budget.md
@@ -324,7 +324,7 @@ Use when: Complex multi-domain work requiring all capabilities
 
 ### Editing FLAGS.md Directly
 
-1. Open `~/.cortex/FLAGS.md` in your editor
+1. Open `~/.claude/FLAGS.md` in your editor
 2. Find the flag you want to enable/disable
 3. Remove or add the flag reference line:
 
@@ -395,7 +395,7 @@ Total Tokens = 3,380
 
 ### 3. Review Flag Usage
 
-- Check `~/.cortex/FLAGS.md` periodically
+- Check `~/.claude/FLAGS.md` periodically
 - Disable unused categories
 - Consider creating custom profiles for common workflows
 
@@ -421,7 +421,7 @@ Total Tokens = 3,380
 **Solutions**:
 
 1. Verify syntax: `@flags/filename.md` (active) or remove the line (inactive)
-2. Check file exists in `~/.cortex/flags/`
+2. Check file exists in `~/.claude/flags/`
 3. Start new conversation (changes apply to new sessions only)
 
 ### TUI Manager Not Updating
@@ -432,7 +432,7 @@ Total Tokens = 3,380
 
 1. Exit and re-enter Flag Manager view (Ctrl+G)
 2. Restart TUI (`cortex tui`)
-3. Verify `~/.cortex/FLAGS.md` exists and is writable
+3. Verify `~/.claude/FLAGS.md` exists and is writable
 
 ### Profile Flags Not Applying
 
@@ -515,8 +515,8 @@ Description of the flag category.
 
 If you're upgrading from an older version:
 
-1. **Backup**: Save your current `~/.cortex/FLAGS.md`
-2. **Install**: The new split flag files are in `~/.cortex/flags/`
+1. **Backup**: Save your current `~/.claude/FLAGS.md`
+2. **Install**: The new split flag files are in `~/.claude/flags/`
 3. **Update**: Replace monolithic `FLAGS.md` content with `@flags/*.md` references
 4. **Migrate**: Any custom flags can be added to appropriate category files
 5. **Verify**: `CLAUDE.md` still includes `@FLAGS.md`

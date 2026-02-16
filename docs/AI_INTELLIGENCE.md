@@ -39,7 +39,7 @@ Adds semantic similarity matching using FastEmbed to find similar past sessions:
 
 ```bash
 # Install semantic intelligence
-pip install cortex-py[ai]
+pip install claude-cortex[ai]
 ```
 
 **Benefits**:
@@ -62,7 +62,7 @@ Uses Claude API for actual reasoning about context:
 
 ```bash
 # Install LLM intelligence
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 
 # Enable LLM recommendations (requires ANTHROPIC_API_KEY)
 export ANTHROPIC_API_KEY=your_key_here
@@ -303,7 +303,7 @@ cortex ai record-success --outcome "Feature complete, tests passing"
 Install FastEmbed for much better recommendations:
 
 ```bash
-pip install cortex-py[ai]
+pip install claude-cortex[ai]
 ```
 
 ### 3. Start Conservative with LLM
@@ -337,7 +337,7 @@ cortex config set ai.auto_activate_threshold 0.9
 Install FastEmbed:
 
 ```bash
-pip install cortex-py[ai]
+pip install claude-cortex[ai]
 ```
 
 ### "LLM recommendations not available"
@@ -345,7 +345,7 @@ pip install cortex-py[ai]
 Install Anthropic SDK:
 
 ```bash
-pip install cortex-py[llm]
+pip install claude-cortex[llm]
 export ANTHROPIC_API_KEY=your_key
 ```
 

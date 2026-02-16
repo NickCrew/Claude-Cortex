@@ -29,7 +29,7 @@ By the end of this tutorial, you'll be able to:
 
 ### Workflows
 
-**Workflows** are predefined task sequences stored in `~/.cortex/workflows/`. They guide Claude Code through a series of steps.
+**Workflows** are predefined task sequences stored in `~/.claude/workflows/`. They guide Claude Code through a series of steps.
 
 ```bash
 # List available workflows
@@ -47,7 +47,7 @@ cortex workflow resume
 
 ### Scenarios
 
-**Scenarios** are more advanced orchestrations with phases, conditions, and agent coordination. They live in `~/.cortex/scenarios/`.
+**Scenarios** are more advanced orchestrations with phases, conditions, and agent coordination. They live in `~/.claude/scenarios/`.
 
 ```bash
 # List scenarios
@@ -79,7 +79,7 @@ cortex orchestrate preview my-scenario
 
 ### Workflow Structure
 
-Create `~/.cortex/workflows/feature-development.yaml`:
+Create `~/.claude/workflows/feature-development.yaml`:
 
 ```yaml
 name: feature-development
@@ -143,7 +143,7 @@ cortex workflow run feature-development
 
 Scenarios support phases with conditions, parallel execution, and agent coordination.
 
-Create `~/.cortex/scenarios/full-stack-feature.yaml`:
+Create `~/.claude/scenarios/full-stack-feature.yaml`:
 
 ```yaml
 name: full-stack-feature
@@ -328,7 +328,7 @@ cortex orchestrate validate --all
 
 ### Schema Definition
 
-Create `~/.cortex/scenarios/schema.yaml` to enforce standards:
+Create `~/.claude/scenarios/schema.yaml` to enforce standards:
 
 ```yaml
 required:
@@ -551,7 +551,7 @@ cortex orchestrate validate my-scenario
 cortex orchestrate status
 
 # Manually mark phase complete if needed
-# (by updating ~/.cortex/scenarios/.state/)
+# (by updating ~/.claude/scenarios/.state/)
 ```
 
 **Agent not activating:**

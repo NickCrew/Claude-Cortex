@@ -100,7 +100,7 @@ That's it! Watch mode will:
 ## ⚙️ Options
 
 ### Config Defaults
-Persist watch defaults in `~/.cortex/cortex-config.json`:
+Persist watch defaults in `~/.claude/cortex-config.json`:
 
 ```json
 {
@@ -116,7 +116,7 @@ Persist watch defaults in `~/.cortex/cortex-config.json`:
 CLI flags always override config.
 
 ### Daemon Mode (Optional)
-Run watch mode in the background (logs default to `~/.cortex/logs/watch.log`):
+Run watch mode in the background (logs default to `~/.claude/logs/watch.log`):
 
 ```bash
 cortex ai watch --daemon
@@ -124,7 +124,7 @@ cortex ai watch --status
 cortex ai watch --stop
 
 # Override log path
-cortex ai watch --daemon --log ~/.cortex/logs/my-watch.log
+cortex ai watch --daemon --log ~/.claude/logs/my-watch.log
 ```
 
 ### Basic Usage

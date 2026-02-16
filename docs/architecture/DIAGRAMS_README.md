@@ -63,7 +63,7 @@ This document provides visual representations of the Cortex architecture to help
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Data Layer                                │
 │                                                                  │
-│  File System (~/.cortex/)          Runtime Data                 │
+│  File System (~/.claude/)          Runtime Data                 │
 │  ┌─────────────────────┐           ┌──────────────────────┐    │
 │  │ CLAUDE.md           │           │ data/metrics/        │    │
 │  │ modes/*.md          │           │ data/sessions/       │    │

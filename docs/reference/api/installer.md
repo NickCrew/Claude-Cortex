@@ -103,7 +103,7 @@ def install_docs(
 ) -> Tuple[int, str]
 ```
 
-Install architecture docs to `~/.cortex/docs` (or custom target).
+Install architecture docs to `~/.claude/docs` (or custom target).
 
 **Parameters:**
 - `target_dir` (Path, optional): Custom installation directory
@@ -121,7 +121,7 @@ Install architecture docs to `~/.cortex/docs` (or custom target).
 
 **Example:**
 ```python
-# Install to default location (~/.cortex/docs)
+# Install to default location (~/.claude/docs)
 code, msg = install_docs()
 
 # Install to custom location

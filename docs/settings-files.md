@@ -3,7 +3,7 @@
 This catalog lists the configuration, state, and reference files that the app
 reads or writes. For detailed documentation with schemas and examples, see the
 [Configuration Reference](reference/configuration.md). Paths are shown relative to the active Cortex directory
-(default `~/.cortex/`). You can override the active directory with
+(default `~/.claude/`). You can override the active directory with
 `CORTEX_ROOT` or `CLAUDE_PLUGIN_ROOT` / `--plugin-root`, or use project-local
 `.claude/` via `--scope project` or `CORTEX_SCOPE=project`.
 

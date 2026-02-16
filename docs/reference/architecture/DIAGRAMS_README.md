@@ -29,7 +29,7 @@ Visual guides for understanding the cortex three-layer automation system.
 - Architecture reviews
 - Onboarding new developers
 
-**View**: `cat ~/.cortex/docs/architecture-diagrams.md`
+**View**: `cat ~/.claude/docs/architecture-diagrams.md`
 
 ---
 
@@ -59,7 +59,7 @@ Visual guides for understanding the cortex three-layer automation system.
 - Pattern examples
 - Workflow selection
 
-**View**: `cat ~/.cortex/docs/quick-reference.md`
+**View**: `cat ~/.claude/docs/quick-reference.md`
 
 ---
 
@@ -368,6 +368,6 @@ When system changes, update diagrams:
 ---
 
 *For more information, see:*
-- `~/.cortex/docs/architecture-diagrams.md` - Comprehensive diagrams
-- `~/.cortex/docs/quick-reference.md` - Quick lookup
-- `~/.cortex/docs/README.md` - General documentation index
+- `~/.claude/docs/architecture-diagrams.md` - Comprehensive diagrams
+- `~/.claude/docs/quick-reference.md` - Quick lookup
+- `~/.claude/docs/README.md` - General documentation index

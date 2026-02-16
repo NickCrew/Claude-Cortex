@@ -323,7 +323,7 @@ If you get import errors:
 - Verify core/skills.py exports the necessary functions
 
 ### Skills Don't Load
-- Check ~/.cortex/skills directory exists
+- Check ~/.claude/skills directory exists
 - Verify SKILL.md files have valid frontmatter
 - Check console for error messages
 - Try running: `python -c "from claude_ctx_py.core import list_skills; print(list_skills())"`
@@ -334,7 +334,7 @@ If you get import errors:
 - Verify filtered_skills list is not empty
 
 ### Metrics Don't Show
-- Check ~/.cortex/.metrics/skills/stats.json exists
+- Check ~/.claude/.metrics/skills/stats.json exists
 - Verify metrics.py can be imported
 - Try: `python -c "from claude_ctx_py.metrics import get_all_metrics; print(get_all_metrics())"`
 
