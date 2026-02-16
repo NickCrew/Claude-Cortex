@@ -434,8 +434,11 @@ uv tool install claude-cortex
 # pip
 pip install claude-cortex
 
-# Bootstrap and link rules
-cortex install bootstrap --link-rules
+# Link cortex content to ~/.claude
+cortex install link
+
+# Optional: Install shell completions and manpages
+cortex install post
 ```
 
 ### Option 3: Development Install
@@ -444,29 +447,54 @@ cortex install bootstrap --link-rules
 git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-cortex
 pip install -e ".[dev]"
-cortex install bootstrap --link-rules
-```
 
-### Rule Syncing
+# Link content (creates symlinks for agents, skills, rules, hooks)
+cortex install link
 
-Rules are symlinked to `~/.claude/rules/cortex/` so Claude can discover them automatically.
-
-```bash
-# Sync rules (if not using --link-rules during bootstrap)
-cortex install rules
-
-# Preview what would be synced
-cortex install rules --dry-run
-
-# Remove all cortex rule symlinks
-cortex install rules --clean
-```
-
-### Optional: Shell Integrations
-
-```bash
-# Install completions, manpages, and docs
+# Optional: Install shell completions and manpages
 cortex install post
+```
+
+### What Gets Installed
+
+The `cortex install link` command creates symlinks in `~/.claude/`:
+
+```bash
+~/.claude/
+├── agents/        → symlink to package agents/
+├── skills/        → symlink to package skills/
+├── rules/         → symlink to package rules/
+├── hooks/         → symlink to package hooks/
+└── commands/      → generated (skill command aliases)
+```
+
+**Preview changes before linking:**
+```bash
+cortex install link --dry-run
+```
+
+**Force replace existing directories:**
+```bash
+cortex install link --force
+```
+
+### Managing Rules
+
+Once linked, you can manage which rules are active:
+
+```bash
+# List available rules
+cortex rules list
+
+# Show active rules
+cortex rules status
+
+# Activate/deactivate specific rules
+cortex rules activate <rule-name>
+cortex rules deactivate <rule-name>
+
+# Edit a rule
+cortex rules edit <rule-name>
 ```
 
 ---
