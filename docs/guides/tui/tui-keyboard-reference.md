@@ -15,30 +15,23 @@ Quick reference for cortex TUI navigation and commands.
 | --- | --- | --- |
 | `1` | Overview | Summary dashboard of all systems |
 | `2` | Agents | List and manage agents |
-| `3` | Modes | Configure behavioral modes |
-| `4` | Rules | Manage rule modules |
-| `5` | Skills | Skill management and community |
-| `6` | Workflows | Run and resume workflows |
+| `3` | Rules | Manage rule modules |
+| `4` | Skills | Skill management and community |
+| `C` | Worktrees | Git worktree management |
+| `5` | Tasks | Task tracking |
+| `6` | Commands | Slash command catalog |
 | `7` | MCP Servers | Validate/test MCP configs |
-| `8` | Profiles | Manage built-in & saved profiles |
-| `9` | Export | Context export controls |
+| `E` | Export | Context export controls |
 | `0` | AI Assistant | Recommendations & predictions |
 
 ### Additional Views
 
 | Key | View | Description |
 | --- | --- | --- |
+| `w` | Watch Mode | Real-time context monitoring |
 | `A` | Asset Manager | Install/diff/update assets |
-| `C` | Worktrees | Git worktree management |
-| `F` | Flag Explorer | Toggle flag packs |
 | `M` | Memory Vault | Persistent notes |
-| `p` | Principles | Manage principles snippets |
-| `w` | Watch Mode | Real-time monitoring |
-| `S` | Scenarios | Scenario orchestration |
-| `o` | Orchestrate | Parallel execution view |
-| `Alt+g` | Agent Galaxy | Dependency graph |
-| `t` | Tasks | Task tracking |
-| `/` | Slash Commands | Command catalog |
+| `X` | Codex Skills | Browse Codex skill library |
 
 ## Global Navigation
 
@@ -74,26 +67,11 @@ Quick reference for cortex TUI navigation and commands.
 | `s` | Details | Show agent details |
 | `v` | Validate | Validate agent |
 
-### Modes View
-| Key | Action | Description |
-| --- | --- | --- |
-| `Space` | Toggle | Activate/deactivate mode |
-| `Ctrl+E` | Edit | Edit mode file |
-
 ### Rules View
 | Key | Action | Description |
 | --- | --- | --- |
 | `Space` | Toggle | Activate/deactivate rule |
 | `Ctrl+E` | Edit | Edit rule file |
-
-### Principles View
-| Key | Action | Description |
-| --- | --- | --- |
-| `Space` | Toggle | Activate/deactivate snippet |
-| `s` | Details | View snippet details |
-| `c` | Build | Rebuild `PRINCIPLES.md` |
-| `d` | Open | View `PRINCIPLES.md` |
-| `Ctrl+E` | Edit | Edit snippet file |
 
 ### Skills View
 | Key | Action | Description |
@@ -103,12 +81,6 @@ Quick reference for cortex TUI navigation and commands.
 | `m` | Metrics | Show skill metrics |
 | `d` | Docs | View skill docs |
 | `c` | Actions | Skill actions menu |
-
-### Workflows View
-| Key | Action | Description |
-| --- | --- | --- |
-| `R` | Run | Run selected workflow |
-| `s` | Stop | Stop active workflow |
 
 ### Worktrees View
 | Key | Action |
@@ -148,14 +120,6 @@ Quick reference for cortex TUI navigation and commands.
 | `Ctrl+T` | Test server |
 | `D` | Diagnose all |
 
-### Profiles View
-| Key | Action |
-| --- | --- |
-| `Enter` | View/Edit profile |
-| `Space` | Apply profile |
-| `n` | Save new profile |
-| `D` | Delete profile |
-
 ### Export View
 | Key | Action |
 | --- | --- |
@@ -178,14 +142,6 @@ Quick reference for cortex TUI navigation and commands.
 | `Enter` | View note |
 | `O` | Open note in editor |
 | `D` | Delete note |
-
-### Scenarios View
-| Key | Action |
-| --- | --- |
-| `P` | Preview scenario |
-| `R` | Run scenario |
-| `V` | Validate scenario |
-| `H` | Status/history |
 
 ---
 

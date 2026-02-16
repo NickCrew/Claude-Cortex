@@ -63,26 +63,6 @@ cortex init profile backend
 cortex init status
 ```
 
-If you are upgrading from legacy `CLAUDE.md` comment activation, run:
-
-```bash
-cortex setup migrate
-```
-
-If you have legacy namespaced commands under `commands/<namespace>/`, flatten them with:
-
-```bash
-cortex setup migrate-commands
-```
-
-Preview changes first:
-
-```bash
-cortex setup migrate-commands --dry-run
-```
-
-Use `--force` to overwrite existing targets (overwritten files are backed up).
-
 > **Tip:** The CLI resolves its data folder in this order: `CORTEX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `CORTEX_ROOT` (default `~/.cortex`). To point the standalone CLI at the plugin cache (or a local checkout), set:
 >
 > ```bash

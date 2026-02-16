@@ -643,9 +643,6 @@ cortex init profile backend
 
 # Check current init status
 cortex init status
-
-# Migrate CLAUDE.md comment activation → .active-* files
-cortex setup migrate
 ```
 
 ---
@@ -781,7 +778,7 @@ Modes are opinionated context modules that toggle workflow defaults and behavior
 - `Teacher` - Educational explanations and mentoring
 - `Token_Efficiency` - Concise, token-aware responses
 
-**Activation**: Use `cortex mode activate`, the TUI (press `3`), or `FLAGS.md`. Active state is tracked in `.active-modes` (use `cortex setup migrate` for legacy `CLAUDE.md` references).
+**Activation**: Use `cortex mode activate` or `FLAGS.md`. Active state is tracked in `.active-modes`.
 
 ---
 
