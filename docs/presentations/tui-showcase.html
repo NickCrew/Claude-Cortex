@@ -446,11 +446,11 @@
             </div>
             <div class="feature-card">
               <h3>Core Entities</h3>
-              <p>Agents, skills, modes, profiles, principles</p>
+              <p>Agents, skills, rules, commands</p>
             </div>
             <div class="feature-card">
-              <h3>Ops + Orchestration</h3>
-              <p>Workflows, scenarios, MCP, hooks</p>
+              <h3>Integration</h3>
+              <p>MCP servers, hooks, worktrees</p>
             </div>
             <div class="feature-card">
               <h3>Configuration</h3>
@@ -473,15 +473,15 @@
         data-background="radial-gradient(circle at top left, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
         <div class="content-wrapper screenshot-slide">
           <h2>Overview (Press 1)</h2>
-          <p>Unified status board for agents, modes, rules, skills, workflows, and task activity.</p>
+          <p>Unified status board for agents, rules, skills, MCP servers, and task activity.</p>
           <div class="two-col" style="margin-top: 1.1rem;">
             <div>
               <div class="callout" style="margin-bottom: 0.9rem;">
                 <h3>What it enables</h3>
                 <ul>
                   <li>At-a-glance counts of active and inactive entities</li>
-                  <li>Health indicators for workflows and tasks</li>
-                  <li>Quick confirmation after profile or flag changes</li>
+                  <li>Health indicators for MCP servers and tasks</li>
+                  <li>Quick confirmation after agent or rule changes</li>
                 </ul>
               </div>
               <div class="callout">
@@ -500,44 +500,6 @@
                 <img class="zoomable" src="../assets/images/screenshots/december-2025/overview.png" alt="Overview dashboard" />
                 <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">System-wide status and totals
                 </figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section
-        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Agent Galaxy (Press Alt+g)</h2>
-          <p>Visualize dependencies, coverage, and collaboration paths across agents.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>Dependency graph for active and inactive agents</li>
-                  <li>Quickly spot missing prerequisites</li>
-                  <li>See overlaps between specialist roles</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press Alt+g to open the Galaxy view</li>
-                  <li>Select an agent to inspect relationships</li>
-                  <li>Use it before activating large bundles</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/agents.html">Agents Guide</a> • <a
-                  href="../guides/tui/tui-entity-guide.html">TUI Entity Guide</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/galaxy-view.png" alt="Agent Galaxy view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Dependency graph and
-                  relationship overview</figcaption>
               </figure>
             </div>
           </div>
@@ -669,7 +631,7 @@
                 <ul>
                   <li>Discover available skill packs</li>
                   <li>Validate skills before invoking them</li>
-                  <li>Track usage metadata across workflows</li>
+                  <li>Track usage metadata and ratings</li>
                 </ul>
               </div>
               <div class="callout">
@@ -772,119 +734,6 @@
 
 
       <section
-        data-background="radial-gradient(circle at top right, rgba(67, 0, 152, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Modes (Press 3)</h2>
-          <p>Toggle behavioral overlays that reshape how agents work.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>Enable quality, efficiency, or architecture modes</li>
-                  <li>Apply multiple modes together</li>
-                  <li>Track active modes in .active-modes</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press 3 to open Modes</li>
-                  <li>Use Space to toggle a mode</li>
-                  <li>Apply profiles for batch changes</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/modes.html">Modes Guide</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/modes-view.png" alt="Modes view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Behavioral mode management
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section
-        data-background="radial-gradient(circle at top right, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Profiles (Press 8)</h2>
-          <p>Apply curated bundles of agents, modes, and rules in one action.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>One-tap workflow posture changes</li>
-                  <li>Bundle agents + modes + rules</li>
-                  <li>Save snapshots for reuse</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press 8 to open Profiles</li>
-                  <li>Use Space to apply a profile</li>
-                  <li>Save your current selection</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/FLAGS_MANAGEMENT.html">Flags & Profiles</a>
-                • <a href="../guides/tui/tui-entity-guide.html">TUI Entity Guide</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/profiles-view.png" alt="Profiles view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Profile templates and quick
-                  switching</figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section
-        data-background="radial-gradient(circle at bottom left, rgba(214, 37, 151, 0.25) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Principles (Press p)</h2>
-          <p>Activate curated principles that guide reasoning and style.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>Reusable engineering principles</li>
-                  <li>Source-linked guidance snippets</li>
-                  <li>Toggle on demand per project</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press p to open Principles</li>
-                  <li>Use Space to toggle entries</li>
-                  <li>Keep teams aligned on standards</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
-                  Guide</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/principles-view.png" alt="Principles view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Principles catalog with
-                  activation status</figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section
         data-background="radial-gradient(circle at bottom center, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
         <div class="content-wrapper screenshot-slide">
           <h2>Flags Explorer (Press F)</h2>
@@ -914,82 +763,6 @@
               <figure style="margin: 0;">
                 <img class="zoomable" src="../assets/images/screenshots/december-2025/flags-view.png" alt="Flags Explorer view" />
                 <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Flag packs and budgets
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section data-background="radial-gradient(circle at center, rgba(2, 86, 182, 0.3) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Workflows (Press 6)</h2>
-          <p>Run multi-step, repeatable workflows with status tracking.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>Orchestrate multi-step sequences</li>
-                  <li>Track progress and current steps</li>
-                  <li>Coordinate agent execution</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press 6 to open Workflows</li>
-                  <li>Use Shift+R to run</li>
-                  <li>Press s to stop active runs</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
-                  Guide</a> • <a href="../guides/development/PARALLEL_ORCHESTRATION_GUIDE.html">Parallel
-                  Orchestration</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/workflows-view.png" alt="Workflows view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Workflow templates and run
-                  status</figcaption>
-              </figure>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <section
-        data-background="radial-gradient(circle at top left, rgba(2, 176, 64, 0.2) 0%, rgba(2, 5, 16, 0.95) 60%)">
-        <div class="content-wrapper screenshot-slide">
-          <h2>Scenarios (Press S)</h2>
-          <p>Event playbooks with phases, monitoring, and rollback steps.</p>
-          <div class="two-col" style="margin-top: 1.1rem;">
-            <div>
-              <div class="callout" style="margin-bottom: 0.9rem;">
-                <h3>What it enables</h3>
-                <ul>
-                  <li>Scenario phases with profiles + agents</li>
-                  <li>Monitoring and rollback guidance</li>
-                  <li>Historical run status</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h3>How to use</h3>
-                <ul>
-                  <li>Press S to open Scenarios</li>
-                  <li>Use P to preview and Shift+R to run</li>
-                  <li>Press V to validate schemas</li>
-                </ul>
-              </div>
-              <p class="doc-links"><strong>Docs:</strong> <a href="../guides/tui/tui-entity-guide.html">TUI Entity
-                  Guide</a></p>
-            </div>
-            <div>
-              <figure style="margin: 0;">
-                <img class="zoomable" src="../assets/images/screenshots/december-2025/scenarios-view.png" alt="Scenarios view" />
-                <figcaption class="muted" style="text-align: center; margin-top: 0.5rem;">Scenario catalog and status
                 </figcaption>
               </figure>
             </div>
@@ -1160,7 +933,7 @@
                 <ul>
                   <li>Store key notes and decisions</li>
                   <li>Search across memory entries</li>
-                  <li>Enable auto-capture workflows</li>
+                  <li>Enable auto-capture for session notes</li>
                 </ul>
               </div>
               <div class="callout">
@@ -1356,7 +1129,7 @@
                 <ul>
                   <li>Run cortex tui for the dashboard</li>
                   <li>Use cortex ai recommend for guidance</li>
-                  <li>Apply profiles via cortex profile apply</li>
+                  <li>Test MCP servers via cortex mcp test</li>
                 </ul>
               </div>
               <p class="doc-links"><strong>Docs:</strong> <a href="../guides/INSTALL.html">Install Guide</a> • <a
