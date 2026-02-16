@@ -642,9 +642,10 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]↑/↓[/cyan]       → Cursor up/down
 
 [bold]View Navigation:[/bold]
-  [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents   [cyan]3[/cyan] Rules     [cyan]4[/cyan] Skills
-  [cyan]5[/cyan] Tasks       [cyan]6[/cyan] Commands [cyan]C[/cyan] Worktrees [cyan]E[/cyan] Export
-  [cyan]0[/cyan] AI Asst     [cyan]w[/cyan] Watch    [cyan]A[/cyan] Assets    [cyan]M[/cyan] Memory
+  [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents     [cyan]3[/cyan] Rules     [cyan]4[/cyan] Skills
+  [cyan]C[/cyan] Worktrees   [cyan]5[/cyan] Tasks      [cyan]6[/cyan] Commands  [cyan]7[/cyan] MCP
+  [cyan]E[/cyan] Export      [cyan]0[/cyan] AI Asst    [cyan]w[/cyan] Watch     [cyan]A[/cyan] Assets
+  [cyan]M[/cyan] Memory      [cyan]X[/cyan] Codex
 """
 
         view_shortcuts = {
@@ -686,6 +687,14 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]Enter[/cyan] → View command details
   [cyan]Ctrl+E[/cyan] → Edit command file
 """,
+            "mcp": """
+[bold]MCP Server Management:[/bold]
+  [cyan]Enter[/cyan] → View server details
+  [cyan]i[/cyan]     → Install server
+  [cyan]u[/cyan]     → Uninstall server
+  [cyan]t[/cyan]     → Test connection
+  [cyan]Ctrl+E[/cyan] → Edit configuration
+""",
             "export": """
 [bold]Export Management:[/bold]
   [cyan]Space[/cyan] → Toggle export category
@@ -726,6 +735,12 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]N[/cyan]     → New note
   [cyan]O[/cyan]     → Open note in editor ($EDITOR)
   [cyan]D[/cyan]     → Delete note
+""",
+            "codex_skills": """
+[bold]Codex Skills:[/bold]
+  [cyan]Enter[/cyan] → View skill details
+  [cyan]i[/cyan]     → Install skill to local skills/
+  [cyan]Ctrl+E[/cyan] → Edit skill file
 """,
         }
 
