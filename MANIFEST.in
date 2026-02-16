@@ -9,7 +9,16 @@ include CHANGELOG.md
 recursive-include docs *.md *.txt *.1
 recursive-include docs/reference/architecture *
 recursive-include docs/diagrams *.png *.txt
-recursive-include claude_ctx_py/assets *
+
+# Cortex content directories
+recursive-include agents *.md *.json *.yaml *.yml *.toml
+recursive-include skills *.md *.sh *.py *.json *.yaml *.yml *.toml
+recursive-include hooks *.py *.json *.md
+recursive-include rules *.md
+recursive-include schemas *.json *.yaml *.yml
+recursive-include scripts *.sh *.py *.md
+recursive-include bin *
+recursive-include codex *.md *.sh *.py *.json *.yaml *.yml
 
 global-exclude *PLAN*.md *SUMMARY*.md *IMPLEMENTATION*.md *REPORT*.md *COMPLETE*.md *ANALYSIS*.md *ACTIONS*.md Gemfile*
 

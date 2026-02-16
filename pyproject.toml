@@ -62,12 +62,24 @@ Homepage = "https://github.com/NickCrew/claude-cortex"
 cortex = "claude_ctx_py.cli:main"
 cortex-ui = "claude_ctx_py.tui.cli:main"
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["claude_ctx_py*"]
 
 [tool.setuptools.package-data]
-"claude_ctx_py" = ["assets/**"]
+"" = [
+    "agents/**/*",
+    "skills/**/*",
+    "hooks/**/*",
+    "rules/**/*",
+    "schemas/**/*",
+    "scripts/**/*",
+    "bin/**/*",
+    "codex/**/*",
+]
 
 [tool.setuptools.data-files]
 "share/man/man1" = [
@@ -85,6 +97,9 @@ include = ["claude_ctx_py*"]
     "CHANGELOG.md",
     "CREDITS.md",
     "LICENSE"
+]
+"share/claude-cortex/codex" = [
+    "codex/**/*"
 ]
 
 

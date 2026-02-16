@@ -10,15 +10,15 @@ from typing import Optional, Tuple
 from rich.console import Console
 from rich.prompt import Confirm
 
-from .core.base import _resolve_cortex_root, _resolve_plugin_assets_root
+from .core.base import _resolve_cortex_root, _resolve_cortex_root
 
 
 def _get_rules_source() -> Optional[Path]:
     """Find the rules directory in the package."""
-    # Use plugin assets root (finds the repo)
-    plugin_root = _resolve_plugin_assets_root()
-    if plugin_root and (plugin_root / "rules").is_dir():
-        rules_dir = plugin_root / "rules"
+    # Use cortex assets root (finds the repo)
+    cortex_root = _resolve_cortex_root()
+    if cortex_root and (cortex_root / "rules").is_dir():
+        rules_dir = cortex_root / "rules"
         if list(rules_dir.glob("*.md")):
             return rules_dir
     return None
@@ -80,16 +80,34 @@ def setup(console: Optional[Console] = None) -> Tuple[int, str]:
     
     console.print()
     success, errors = _symlink_rules(rules_source, target_dir, console)
-    
+
     console.print()
     if errors == 0:
         console.print(f"[green]✓ Linked {success} rules[/green]")
-        console.print()
-        console.print("[dim]Claude Code will now auto-discover these rules.[/dim]")
-        console.print("[dim]Run `claude` directly - no wrapper needed.[/dim]")
-        return 0, f"Linked {success} rules"
     else:
         console.print(f"[yellow]Linked {success} rules with {errors} errors[/yellow]")
+
+    # Offer to configure statusline
+    console.print()
+    console.print("[bold]Statusline Configuration[/bold]")
+    console.print("Cortex provides a custom statusline for Claude Code that shows")
+    console.print("git, kubernetes, AWS, Docker, and environment context.")
+    console.print()
+
+    if Confirm.ask("Configure Claude Code to use cortex statusline?", default=True, console=console):
+        from .core.hooks import configure_statusline
+
+        console.print()
+        exit_code, message = configure_statusline(command="cortex statusline --color", force=False)
+        console.print(message)
+
+    console.print()
+    console.print("[dim]Claude Code will now auto-discover these rules.[/dim]")
+    console.print("[dim]Run `claude` directly - no wrapper needed.[/dim]")
+
+    if errors == 0:
+        return 0, f"Linked {success} rules"
+    else:
         return 1, f"Linked {success} rules with {errors} errors"
 
 

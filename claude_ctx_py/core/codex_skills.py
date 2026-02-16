@@ -10,7 +10,7 @@ try:
 except ImportError:
     yaml = None  # type: ignore[assignment]
 
-from .base import _resolve_plugin_assets_root
+from .base import _resolve_cortex_root
 
 
 def _resolve_codex_skills_dir() -> Path:
@@ -22,12 +22,12 @@ def _resolve_codex_skills_dir() -> Path:
 
 def _resolve_cortex_skills_root() -> Path:
     """Resolve bundled cortex skills directory."""
-    return _resolve_plugin_assets_root() / "skills"
+    return _resolve_cortex_root() / "skills"
 
 
 def _resolve_codex_native_skills_dir() -> Path:
     """Resolve bundled codex-native skills directory (codex/skills/)."""
-    return _resolve_plugin_assets_root() / "codex" / "skills"
+    return _resolve_cortex_root() / "codex" / "skills"
 
 
 def _ensure_skill_symlink(source: Path, target: Path) -> Optional[str]:

@@ -112,6 +112,11 @@ def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     rules_deactivate.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
 
+    rules_edit = rules_sub.add_parser(
+        "edit", help="Open rule file(s) in $EDITOR"
+    )
+    rules_edit.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
+
 
 def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     hooks_parser = subparsers.add_parser("hooks", help="Hook commands")
@@ -400,6 +405,21 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         dest="community_search_tags",
         nargs="*",
         help="Filter by tags",
+    )
+
+    # audit - Quality audit for skills
+    skills_audit_parser = skills_sub.add_parser(
+        "audit", help="Audit skill quality and completeness"
+    )
+    skills_audit_parser.add_argument("skill", help="Skill name to audit")
+    skills_audit_parser.add_argument(
+        "--quick", action="store_true", help="Run quick audit (skip detailed checks)"
+    )
+    skills_audit_parser.add_argument(
+        "--full", action="store_true", help="Run full comprehensive audit"
+    )
+    skills_audit_parser.add_argument(
+        "--output", "-o", type=Path, help="Output report to file"
     )
 
 
@@ -763,6 +783,18 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without making changes",
     )
 
+    # Configure statusline
+    statusline_parser = install_sub.add_parser(
+        "statusline", help="Configure Claude Code statusline to use cortex"
+    )
+    statusline_parser.add_argument(
+        "--command",
+        default="cortex statusline --color",
+        help="Statusline command to use (default: cortex statusline --color)",
+    )
+    statusline_parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing statusline configuration"
+    )
 
 
 def _build_statusline_parser(
@@ -783,14 +815,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--scope",
-        choices=["auto", "project", "global", "plugin"],
+        choices=["auto", "project", "global"],
         help="Select which scope to use (default: auto)",
     )
     parser.add_argument(
-        "--plugin-root",
-        dest="plugin_root",
+        "--cortex-root",
+        "--plugin-root",  # Deprecated alias for backward compatibility
+        dest="cortex_root",
         type=Path,
-        help="Explicit path to the plugin root (overrides --scope)",
+        help="Explicit path to the cortex package root (for development)",
     )
     parser.add_argument(
         "--skip-wizard",
@@ -830,6 +863,21 @@ def build_parser() -> argparse.ArgumentParser:
     _build_export_parser(subparsers)
     _build_install_parser(subparsers)
     _build_memory_parser(subparsers)
+    _build_plan_parser(subparsers)
+    _build_docs_parser(subparsers)
+    _build_dev_parser(subparsers)
+    _build_file_parser(subparsers)
+    uninstall_parser = subparsers.add_parser("uninstall", help="Uninstall cortex")
+    uninstall_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without actually doing it",
+    )
+    uninstall_parser.add_argument(
+        "--keep-config",
+        action="store_true",
+        help="Keep configuration files in ~/.claude/",
+    )
     status_parser = subparsers.add_parser("status", help="Show overall status")
     status_parser.add_argument(
         "--rich",
@@ -937,6 +985,44 @@ def _handle_rules_command(args: argparse.Namespace) -> int:
         if changed:
             _print(_restart_notice())
         return 0
+    if args.rules_command == "edit":
+        import subprocess
+
+        editor = os.environ.get("EDITOR", "vim")
+        rules_dir = Path.home() / ".claude" / "rules"
+
+        # Collect rule paths
+        rule_paths = []
+        missing = []
+        for rule_name in args.rules:
+            # Try direct file first
+            rule_file = rules_dir / f"{rule_name}.md"
+            if rule_file.exists():
+                rule_paths.append(rule_file)
+            # Try cortex subdirectory
+            elif (rules_dir / "cortex" / f"{rule_name}.md").exists():
+                rule_paths.append(rules_dir / "cortex" / f"{rule_name}.md")
+            else:
+                missing.append(rule_name)
+
+        if missing:
+            _print(f"Rule(s) not found: {', '.join(missing)}")
+            if not rule_paths:
+                return 1
+
+        if rule_paths:
+            try:
+                subprocess.run([editor] + [str(p) for p in rule_paths])
+                return 0
+            except FileNotFoundError:
+                _print(f"Editor not found: {editor}")
+                _print("Set $EDITOR environment variable to your preferred editor")
+                return 1
+            except Exception as e:
+                _print(f"Failed to open editor: {e}")
+                return 1
+
+        return 1
     return 1
 
 
@@ -944,8 +1030,8 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
     if args.hooks_command == "validate":
         path = getattr(args, "path", None)
         if path is None:
-            plugin_root = getattr(args, "plugin_root", None) or core._resolve_plugin_assets_root()
-            path = plugin_root / "hooks" / "hooks.json"
+            cortex_root = getattr(args, "cortex_root", None) or core._resolve_cortex_root()
+            path = cortex_root / "hooks" / "hooks.json"
         if not path.exists():
             _print(f"Hooks config not found: {path}")
             return 1
@@ -1109,6 +1195,22 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
             exit_code, message = core.skill_community_search(query, tags=tags)
             _print(message)
             return exit_code
+    if args.skills_command == "audit":
+        from claude_ctx_py.commands.skill_audit import audit_skill
+        skill_id = cast(str, args.skill)
+        show_calls = getattr(args, "show_calls", False)
+        show_context = getattr(args, "show_context", False)
+        show_examples = getattr(args, "show_examples", False)
+        output_format = getattr(args, "output_format", "text")
+        exit_code, message = audit_skill(
+            skill_id,
+            show_calls=show_calls,
+            show_context=show_context,
+            show_examples=show_examples,
+            output_format=output_format,
+        )
+        _print(message)
+        return exit_code
     return 1
 
 
@@ -1427,6 +1529,15 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.install_command == "statusline":
+        from .core import hooks
+
+        exit_code, message = hooks.configure_statusline(
+            command=getattr(args, "command", "cortex statusline --color"),
+            force=getattr(args, "force", False),
+        )
+        _print(message)
+        return exit_code
     else:
         _print("Install subcommand required. Use 'cortex install --help'")
         return 1
@@ -1598,6 +1709,152 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     memory_sub.add_parser("stats", help="Show vault statistics")
 
 
+def _build_plan_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the plan command parser for viewing plan files."""
+    plan_parser = subparsers.add_parser(
+        "plan", help="View and manage plan files"
+    )
+    plan_sub = plan_parser.add_subparsers(dest="plan_command")
+
+    # list - List all plan files
+    plan_list = plan_sub.add_parser("list", help="List all plan files")
+    plan_list.add_argument(
+        "--limit", type=int, default=10, help="Number of recent plans to show (default: 10)"
+    )
+    plan_list.add_argument(
+        "--all", action="store_true", help="Show all plans (no limit)"
+    )
+
+    # view - View a plan file
+    plan_view = plan_sub.add_parser("view", help="View a plan file")
+    plan_view.add_argument("plan", help="Plan filename (with or without .md)")
+    plan_view.add_argument(
+        "--raw", action="store_true", help="Show raw markdown without rendering"
+    )
+
+    # edit - Edit a plan file
+    plan_edit = plan_sub.add_parser("edit", help="Edit a plan file in $EDITOR")
+    plan_edit.add_argument("plan", help="Plan filename (with or without .md)")
+
+    # path - Show the plans directory path
+    plan_sub.add_parser("path", help="Show the plans directory path")
+
+
+def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the docs command parser for browsing project documentation."""
+    docs_parser = subparsers.add_parser(
+        "docs", help="Browse documentation (includes bundled package docs)"
+    )
+    docs_sub = docs_parser.add_subparsers(dest="docs_command")
+
+    # list - List all documentation files
+    docs_list = docs_sub.add_parser("list", help="List all documentation files")
+    docs_list.add_argument(
+        "--filter", help="Filter docs by path pattern (e.g., 'reference', 'archive')"
+    )
+    docs_list.add_argument(
+        "--sort", choices=["name", "modified", "size"], default="name",
+        help="Sort order (default: name)"
+    )
+
+    # tree - Show documentation folder structure
+    docs_sub.add_parser("tree", help="Show documentation folder structure")
+
+    # view - View a documentation file
+    docs_view = docs_sub.add_parser("view", help="View a documentation file")
+    docs_view.add_argument("path", help="Path to doc file (relative to docs/)")
+    docs_view.add_argument(
+        "--raw", action="store_true", help="Show raw markdown without rendering"
+    )
+
+    # search - Search documentation
+    docs_search = docs_sub.add_parser("search", help="Search documentation")
+    docs_search.add_argument("query", help="Search query")
+    docs_search.add_argument(
+        "--limit", type=int, default=20, help="Max results to show (default: 20)"
+    )
+
+    # edit - Edit a documentation file
+    docs_edit = docs_sub.add_parser("edit", help="Edit a doc file in $EDITOR")
+    docs_edit.add_argument("path", help="Path to doc file (relative to docs/)")
+
+    # bookmark - Manage bookmarks
+    bookmark_sub = docs_sub.add_parser("bookmark", help="Manage doc bookmarks")
+    bookmark_cmds = bookmark_sub.add_subparsers(dest="bookmark_command")
+
+    bookmark_add = bookmark_cmds.add_parser("add", help="Add a bookmark")
+    bookmark_add.add_argument("path", help="Path to doc file")
+    bookmark_add.add_argument("--name", help="Bookmark name (defaults to filename)")
+
+    bookmark_cmds.add_parser("list", help="List all bookmarks")
+
+    bookmark_remove = bookmark_cmds.add_parser("remove", help="Remove a bookmark")
+    bookmark_remove.add_argument("name", help="Bookmark name to remove")
+
+    bookmark_view = bookmark_cmds.add_parser("view", help="View a bookmarked doc")
+    bookmark_view.add_argument("name", help="Bookmark name")
+
+    # path - Show the docs directory path
+    docs_sub.add_parser("path", help="Show the docs directory path")
+
+    # tui - Launch the documentation browser TUI
+    docs_sub.add_parser("tui", help="Launch interactive documentation browser")
+
+
+def _build_dev_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the dev command parser for development tools."""
+    dev_parser = subparsers.add_parser(
+        "dev", help="Development and maintenance tools"
+    )
+    dev_sub = dev_parser.add_subparsers(dest="dev_command")
+
+    # validate - Validate skills registry
+    validate_parser = dev_sub.add_parser(
+        "validate", help="Validate skills registry against schema"
+    )
+    validate_parser.add_argument(
+        "--verbose", action="store_true", help="Show detailed validation output"
+    )
+    validate_parser.add_argument(
+        "--check-paths", action="store_true", help="Verify skill paths exist"
+    )
+
+    # manpages - Generate manpages
+    manpages_parser = dev_sub.add_parser(
+        "manpages", help="Generate manpage files"
+    )
+    manpages_parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="Output directory for manpages (default: docs/reference/)",
+    )
+
+
+def _build_file_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the file command parser for file utilities."""
+    file_parser = subparsers.add_parser(
+        "file", help="Claude Files API utilities"
+    )
+    file_sub = file_parser.add_subparsers(dest="file_command")
+
+    # download - Download file by ID
+    download_parser = file_sub.add_parser(
+        "download", help="Download file by ID"
+    )
+    download_parser.add_argument("file_id", help="File ID to download")
+    download_parser.add_argument(
+        "--output", "-o", type=Path, help="Output file path"
+    )
+
+    # extract-ids - Extract file IDs from response
+    extract_parser = file_sub.add_parser(
+        "extract-ids", help="Extract file IDs from API response"
+    )
+    extract_parser.add_argument(
+        "response_file", type=Path, help="JSON response file"
+    )
+
+
 def _handle_memory_command(args: argparse.Namespace) -> int:
     """Handle memory subcommands for persistent knowledge capture."""
     from . import memory
@@ -1711,13 +1968,617 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
     return 1
 
 
+def _get_plans_dir() -> Path:
+    """Get the plans directory from settings.json or use default."""
+    from .core.hooks import load_settings
+
+    settings = load_settings()
+    plans_dir_str = settings.get("plansDirectory", "~/.claude/plans")
+    plans_dir = Path(plans_dir_str).expanduser().resolve()
+    return plans_dir
+
+
+def _handle_plan_command(args: argparse.Namespace) -> int:
+    """Handle plan subcommands for viewing plan files."""
+    import subprocess
+    from datetime import datetime
+
+    if args.plan_command == "path":
+        plans_dir = _get_plans_dir()
+        _print(str(plans_dir))
+        return 0
+
+    if args.plan_command == "list":
+        plans_dir = _get_plans_dir()
+        if not plans_dir.exists():
+            _print(f"Plans directory does not exist: {plans_dir}")
+            return 1
+
+        # Get all .md files
+        plan_files = list(plans_dir.glob("*.md"))
+        if not plan_files:
+            _print(f"No plan files found in {plans_dir}")
+            return 0
+
+        # Sort by modification time (newest first)
+        plan_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+
+        # Apply limit
+        limit = None if args.all else args.limit
+        if limit:
+            plan_files = plan_files[:limit]
+
+        # Print header
+        _print(f"[0;34mPlans in {plans_dir}:[0m")
+        _print("")
+
+        # Print each plan with metadata
+        for plan_file in plan_files:
+            stat = plan_file.stat()
+            mtime = datetime.fromtimestamp(stat.st_mtime)
+            size_kb = stat.st_size / 1024
+
+            # Read first line for title/preview
+            try:
+                with open(plan_file, "r", encoding="utf-8") as f:
+                    first_line = f.readline().strip()
+                    # Remove markdown heading markers
+                    preview = first_line.lstrip("#").strip()
+                    if not preview:
+                        preview = plan_file.stem
+            except Exception:
+                preview = plan_file.stem
+
+            _print(f"  [0;32m{plan_file.stem}[0m")
+            _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M:%S')}")
+            _print(f"    Size: {size_kb:.1f}KB")
+            if preview != plan_file.stem:
+                _print(f"    Preview: {preview[:80]}")
+            _print("")
+
+        if limit and len(plan_files) == limit:
+            _print(f"[0;33mShowing {limit} most recent plans. Use --all to see all plans.[0m")
+
+        return 0
+
+    if args.plan_command == "view":
+        plans_dir = _get_plans_dir()
+        plan_name = args.plan
+        if not plan_name.endswith(".md"):
+            plan_name += ".md"
+
+        plan_file = plans_dir / plan_name
+        if not plan_file.exists():
+            _print(f"Plan not found: {plan_file}")
+            return 1
+
+        try:
+            content = plan_file.read_text(encoding="utf-8")
+
+            # Check if raw mode is requested
+            if getattr(args, "raw", False):
+                _print(content)
+            else:
+                # Render markdown with Rich
+                from rich.console import Console
+                from rich.markdown import Markdown
+
+                console = Console()
+                md = Markdown(content)
+                console.print(md)
+            return 0
+        except Exception as e:
+            _print(f"Failed to read plan: {e}")
+            return 1
+
+    if args.plan_command == "edit":
+        import subprocess
+
+        plans_dir = _get_plans_dir()
+        plan_name = args.plan
+        if not plan_name.endswith(".md"):
+            plan_name += ".md"
+
+        plan_file = plans_dir / plan_name
+        if not plan_file.exists():
+            _print(f"Plan not found: {plan_file}")
+            return 1
+
+        editor = os.environ.get("EDITOR", "vim")
+        try:
+            subprocess.run([editor, str(plan_file)])
+            return 0
+        except FileNotFoundError:
+            _print(f"Editor not found: {editor}")
+            _print("Set $EDITOR environment variable to your preferred editor")
+            return 1
+        except Exception as e:
+            _print(f"Failed to open editor: {e}")
+            return 1
+
+    _print("Plan command required. Use 'cortex plan --help' for options.")
+    return 1
+
+
+def _get_docs_dir() -> Path:
+    """Get the docs directory from the current working directory, cortex root, or bundled package."""
+    cwd = Path.cwd()
+
+    # 1. Check if we're in a repo with a docs/ folder (development)
+    if (cwd / "docs").is_dir():
+        return cwd / "docs"
+
+    # 2. Check cortex root (repo/source installation)
+    from .core.base import _resolve_cortex_root
+    cortex_root = _resolve_cortex_root()
+    if cortex_root and (cortex_root / "docs").is_dir():
+        return cortex_root / "docs"
+
+    # 3. Check bundled package docs (pip/pipx installation)
+    import sys
+    # Try site-packages location
+    for prefix in [sys.prefix, sys.base_prefix]:
+        bundled_docs = Path(prefix) / "share" / "claude-cortex" / "docs"
+        if bundled_docs.is_dir():
+            return bundled_docs
+
+    # 4. Check user site-packages (--user installations)
+    import site
+    if hasattr(site, 'USER_BASE'):
+        user_docs = Path(site.USER_BASE) / "share" / "claude-cortex" / "docs"
+        if user_docs.is_dir():
+            return user_docs
+
+    # 5. Fallback to cwd/docs
+    return cwd / "docs"
+
+
+def _get_codex_dir() -> Path:
+    """Get the codex directory from the current working directory, cortex root, or bundled package."""
+    cwd = Path.cwd()
+
+    # 1. Check if we're in a repo with a codex/ folder (development)
+    if (cwd / "codex").is_dir():
+        return cwd / "codex"
+
+    # 2. Check cortex root (repo/source installation)
+    from .core.base import _resolve_cortex_root
+    cortex_root = _resolve_cortex_root()
+    if cortex_root and (cortex_root / "codex").is_dir():
+        return cortex_root / "codex"
+
+    # 3. Check bundled package codex (pip/pipx installation)
+    import sys
+    for prefix in [sys.prefix, sys.base_prefix]:
+        bundled_codex = Path(prefix) / "share" / "claude-cortex" / "codex"
+        if bundled_codex.is_dir():
+            return bundled_codex
+
+    # 4. Check user site-packages (--user installations)
+    import site
+    if hasattr(site, 'USER_BASE'):
+        user_codex = Path(site.USER_BASE) / "share" / "claude-cortex" / "codex"
+        if user_codex.is_dir():
+            return user_codex
+
+    # 5. Fallback to cwd/codex
+    return cwd / "codex"
+
+
+def _get_bookmarks_file() -> Path:
+    """Get the path to the bookmarks file."""
+    return Path.home() / ".claude" / "cortex" / "docs-bookmarks.json"
+
+
+def _load_bookmarks() -> Dict[str, str]:
+    """Load bookmarks from file."""
+    import json
+    bookmarks_file = _get_bookmarks_file()
+    if not bookmarks_file.exists():
+        return {}
+    try:
+        return json.loads(bookmarks_file.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_bookmarks(bookmarks: Dict[str, str]) -> None:
+    """Save bookmarks to file."""
+    import json
+    bookmarks_file = _get_bookmarks_file()
+    bookmarks_file.parent.mkdir(parents=True, exist_ok=True)
+    bookmarks_file.write_text(
+        json.dumps(bookmarks, indent=2) + "\n",
+        encoding="utf-8"
+    )
+
+
+def _handle_docs_command(args: argparse.Namespace) -> int:
+    """Handle docs subcommands for browsing project documentation."""
+    import subprocess
+    from datetime import datetime
+
+    if args.docs_command == "path":
+        docs_dir = _get_docs_dir()
+        _print(str(docs_dir))
+        return 0
+
+    if args.docs_command == "tui":
+        from .tui.docs_browser import run_docs_browser
+
+        docs_dir = _get_docs_dir()
+        if not docs_dir.exists():
+            _print(f"Docs directory does not exist: {docs_dir}")
+            return 1
+
+        bookmarks_file = _get_bookmarks_file()
+        try:
+            run_docs_browser(docs_dir, bookmarks_file)
+            return 0
+        except Exception as e:
+            _print(f"TUI error: {e}")
+            import traceback
+            traceback.print_exc()
+            return 1
+
+    if args.docs_command == "list":
+        docs_dir = _get_docs_dir()
+        if not docs_dir.exists():
+            _print(f"Docs directory does not exist: {docs_dir}")
+            return 1
+
+        # Get all .md files recursively
+        md_files = list(docs_dir.rglob("*.md"))
+        if not md_files:
+            _print(f"No markdown files found in {docs_dir}")
+            return 0
+
+        # Apply filter
+        filter_pattern = getattr(args, "filter", None)
+        if filter_pattern:
+            md_files = [f for f in md_files if filter_pattern in str(f.relative_to(docs_dir))]
+
+        # Sort
+        sort_by = getattr(args, "sort", "name")
+        if sort_by == "name":
+            md_files.sort(key=lambda p: str(p.relative_to(docs_dir)))
+        elif sort_by == "modified":
+            md_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+        elif sort_by == "size":
+            md_files.sort(key=lambda p: p.stat().st_size, reverse=True)
+
+        # Print header
+        _print(f"[0;34mDocumentation in {docs_dir}:[0m")
+        _print(f"[0;33m{len(md_files)} files found[0m")
+        _print("")
+
+        # Group by directory for better readability
+        current_dir = None
+        for md_file in md_files:
+            rel_path = md_file.relative_to(docs_dir)
+            file_dir = rel_path.parent
+
+            # Print directory header when it changes
+            if file_dir != current_dir:
+                current_dir = file_dir
+                if str(file_dir) != ".":
+                    _print(f"[0;36m{file_dir}/[0m")
+
+            stat = md_file.stat()
+            mtime = datetime.fromtimestamp(stat.st_mtime)
+            size_kb = stat.st_size / 1024
+
+            _print(f"  [0;32m{rel_path.name}[0m")
+            _print(f"    Path: {rel_path}")
+            _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M')}")
+            _print(f"    Size: {size_kb:.1f}KB")
+            _print("")
+
+        return 0
+
+    if args.docs_command == "tree":
+        docs_dir = _get_docs_dir()
+        if not docs_dir.exists():
+            _print(f"Docs directory does not exist: {docs_dir}")
+            return 1
+
+        from rich.console import Console
+        from rich.tree import Tree
+
+        console = Console()
+        tree = Tree(f"[bold blue]{docs_dir.name}/[/bold blue]", guide_style="dim")
+
+        def add_to_tree(parent_tree, parent_path):
+            items = sorted(parent_path.iterdir(), key=lambda p: (not p.is_dir(), p.name))
+            for item in items:
+                if item.is_dir() and not item.name.startswith('.'):
+                    branch = parent_tree.add(f"[blue]{item.name}/[/blue]", guide_style="dim")
+                    add_to_tree(branch, item)
+                elif item.suffix == ".md":
+                    parent_tree.add(f"[green]{item.name}[/green]")
+
+        add_to_tree(tree, docs_dir)
+        console.print(tree)
+        return 0
+
+    if args.docs_command == "view":
+        docs_dir = _get_docs_dir()
+        doc_path = Path(args.path)
+
+        # Handle relative path
+        if not doc_path.is_absolute():
+            doc_path = docs_dir / doc_path
+
+        # Add .md extension if missing
+        if not doc_path.suffix:
+            doc_path = doc_path.with_suffix(".md")
+
+        if not doc_path.exists():
+            _print(f"Documentation file not found: {doc_path}")
+            return 1
+
+        try:
+            content = doc_path.read_text(encoding="utf-8")
+
+            # Check if raw mode is requested
+            if getattr(args, "raw", False):
+                _print(content)
+            else:
+                # Render markdown with Rich
+                from rich.console import Console
+                from rich.markdown import Markdown
+
+                console = Console()
+                md = Markdown(content)
+                console.print(md)
+            return 0
+        except Exception as e:
+            _print(f"Failed to read documentation: {e}")
+            return 1
+
+    if args.docs_command == "search":
+        docs_dir = _get_docs_dir()
+        if not docs_dir.exists():
+            _print(f"Docs directory does not exist: {docs_dir}")
+            return 1
+
+        query = args.query.lower()
+        limit = getattr(args, "limit", 20)
+        results = []
+
+        # Search through all markdown files
+        for md_file in docs_dir.rglob("*.md"):
+            try:
+                content = md_file.read_text(encoding="utf-8")
+                lines = content.split("\n")
+
+                # Search for matches
+                for line_num, line in enumerate(lines, 1):
+                    if query in line.lower():
+                        results.append({
+                            "file": md_file.relative_to(docs_dir),
+                            "line": line_num,
+                            "content": line.strip(),
+                        })
+                        if len(results) >= limit:
+                            break
+            except Exception:
+                continue
+
+            if len(results) >= limit:
+                break
+
+        if not results:
+            _print(f"No results found for '{query}'")
+            return 0
+
+        _print(f"[0;34mSearch results for '{query}':[0m")
+        _print(f"[0;33mFound {len(results)} matches[0m")
+        _print("")
+
+        for result in results:
+            _print(f"[0;32m{result['file']}[0m:[0;33m{result['line']}[0m")
+            _print(f"  {result['content'][:100]}")
+            _print("")
+
+        return 0
+
+    if args.docs_command == "edit":
+        docs_dir = _get_docs_dir()
+        doc_path = Path(args.path)
+
+        if not doc_path.is_absolute():
+            doc_path = docs_dir / doc_path
+
+        if not doc_path.suffix:
+            doc_path = doc_path.with_suffix(".md")
+
+        if not doc_path.exists():
+            _print(f"Documentation file not found: {doc_path}")
+            return 1
+
+        editor = os.environ.get("EDITOR", "vim")
+        try:
+            subprocess.run([editor, str(doc_path)])
+            return 0
+        except FileNotFoundError:
+            _print(f"Editor not found: {editor}")
+            _print("Set $EDITOR environment variable to your preferred editor")
+            return 1
+        except Exception as e:
+            _print(f"Failed to open editor: {e}")
+            return 1
+
+    if args.docs_command == "bookmark":
+        bookmarks = _load_bookmarks()
+
+        if args.bookmark_command == "add":
+            docs_dir = _get_docs_dir()
+            doc_path = Path(args.path)
+
+            if not doc_path.is_absolute():
+                doc_path = docs_dir / doc_path
+
+            if not doc_path.suffix:
+                doc_path = doc_path.with_suffix(".md")
+
+            if not doc_path.exists():
+                _print(f"Documentation file not found: {doc_path}")
+                return 1
+
+            # Use provided name or default to filename
+            name = getattr(args, "name", None) or doc_path.stem
+
+            # Store relative path
+            try:
+                rel_path = str(doc_path.relative_to(docs_dir))
+            except ValueError:
+                rel_path = str(doc_path)
+
+            bookmarks[name] = rel_path
+            _save_bookmarks(bookmarks)
+
+            _print(f"[0;32m✓ Added bookmark '[0;33m{name}[0;32m' -> {rel_path}[0m")
+            return 0
+
+        if args.bookmark_command == "list":
+            if not bookmarks:
+                _print("No bookmarks saved")
+                return 0
+
+            _print("[0;34mSaved bookmarks:[0m")
+            _print("")
+            for name, path in sorted(bookmarks.items()):
+                _print(f"  [0;33m{name}[0m")
+                _print(f"    {path}")
+            return 0
+
+        if args.bookmark_command == "remove":
+            name = args.name
+            if name not in bookmarks:
+                _print(f"Bookmark not found: {name}")
+                return 1
+
+            del bookmarks[name]
+            _save_bookmarks(bookmarks)
+            _print(f"[0;32m✓ Removed bookmark '{name}'[0m")
+            return 0
+
+        if args.bookmark_command == "view":
+            name = args.name
+            if name not in bookmarks:
+                _print(f"Bookmark not found: {name}")
+                _print(f"Available bookmarks: {', '.join(bookmarks.keys())}")
+                return 1
+
+            docs_dir = _get_docs_dir()
+            doc_path = docs_dir / bookmarks[name]
+
+            if not doc_path.exists():
+                _print(f"Bookmarked file no longer exists: {doc_path}")
+                return 1
+
+            try:
+                content = doc_path.read_text(encoding="utf-8")
+                from rich.console import Console
+                from rich.markdown import Markdown
+
+                console = Console()
+                md = Markdown(content)
+                console.print(md)
+                return 0
+            except Exception as e:
+                _print(f"Failed to read documentation: {e}")
+                return 1
+
+        _print("Bookmark command required. Use 'cortex docs bookmark --help'")
+        return 1
+
+    _print("Docs command required. Use 'cortex docs --help' for options.")
+    return 1
+
+
+def _handle_dev_command(args: argparse.Namespace) -> int:
+    """Handle dev subcommands for development tools."""
+    if args.dev_command == "validate":
+        from .commands.dev_validate import main as validate_main
+        return validate_main([
+            *(["--verbose"] if getattr(args, "verbose", False) else []),
+            *(["--check-paths"] if getattr(args, "check_paths", False) else []),
+        ])
+
+    if args.dev_command == "manpages":
+        from .commands.dev_manpages import main as manpages_main
+        manpages_args = []
+        if getattr(args, "output_dir", None):
+            manpages_args.extend(["--output-dir", str(args.output_dir)])
+        return manpages_main(manpages_args)
+
+    _print("Dev command required. Use 'cortex dev --help' for options.")
+    return 1
+
+
+def _handle_file_command(args: argparse.Namespace) -> int:
+    """Handle file subcommands for Claude Files API utilities."""
+    if args.file_command == "download":
+        from .utils.files import download_file, save_file
+        from anthropic import Anthropic
+
+        client = Anthropic()
+        file_id = args.file_id
+        output_path = getattr(args, "output", None)
+
+        try:
+            content = download_file(client, file_id)
+            if output_path:
+                save_file(content, output_path)
+                _print(f"File saved to: {output_path}")
+            else:
+                _print(content)
+            return 0
+        except Exception as e:
+            _print(f"Error downloading file: {e}")
+            return 1
+
+    if args.file_command == "extract-ids":
+        from .utils.files import extract_file_ids
+        import json
+
+        response_file = args.response_file
+        try:
+            with open(response_file, "r") as f:
+                response = json.load(f)
+            file_ids = extract_file_ids(response)
+            for file_id in file_ids:
+                _print(file_id)
+            return 0
+        except Exception as e:
+            _print(f"Error extracting file IDs: {e}")
+            return 1
+
+    _print("File command required. Use 'cortex file --help' for options.")
+    return 1
+
+
+def _handle_uninstall_command(args: argparse.Namespace) -> int:
+    """Handle uninstall command."""
+    from .commands.uninstall import uninstall
+
+    exit_code, message = uninstall(
+        dry_run=getattr(args, "dry_run", False),
+        keep_config=getattr(args, "keep_config", False),
+    )
+    _print(message)
+    return exit_code
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = build_parser()
     _enable_argcomplete(parser)
     args, extra_args = parser.parse_known_args(list(argv) if argv is not None else None)
 
-    if getattr(args, "plugin_root", None):
-        os.environ["CLAUDE_PLUGIN_ROOT"] = str(args.plugin_root)
+    if getattr(args, "cortex_root", None):
+        os.environ["CORTEX_ROOT"] = str(args.cortex_root)
     if getattr(args, "scope", None):
         os.environ["CORTEX_SCOPE"] = str(args.scope)
 
@@ -1744,6 +2605,11 @@ def main(argv: Iterable[str] | None = None) -> int:
         "install": _handle_install_command,
         "statusline": _handle_statusline_command,
         "memory": _handle_memory_command,
+        "plan": _handle_plan_command,
+        "docs": _handle_docs_command,
+        "dev": _handle_dev_command,
+        "file": _handle_file_command,
+        "uninstall": _handle_uninstall_command,
         "review": _handle_review_command,
     }
 
