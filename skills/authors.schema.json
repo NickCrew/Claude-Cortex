@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cortex.dev/schemas/authors.schema.json",
+  "title": "Authors Registry",
+  "description": "Centralized author metadata for skill contributors",
+  "type": "object",
+  "required": ["schema_version", "authors"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Schema version (semver)",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "examples": ["1.0.0"]
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "Last update date (YYYY-MM-DD)",
+      "format": "date"
+    },
+    "authors": {
+      "type": "object",
+      "description": "Map of author IDs to author metadata",
+      "patternProperties": {
+        "^[a-z0-9-]+$": {
+          "$ref": "#/$defs/author"
+        }
+      },
+      "minProperties": 1
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Author statistics",
+      "properties": {
+        "total_authors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "core_team": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contributors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "community": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "author": {
+      "type": "object",
+      "required": ["name", "role", "joined"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the author",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "description": "Contact email (optional)",
+          "format": "email"
+        },
+        "github": {
+          "type": "string",
+          "description": "GitHub username",
+          "pattern": "^[a-zA-Z0-9-]+$"
+        },
+        "website": {
+          "type": "string",
+          "description": "Personal or professional website",
+          "format": "uri"
+        },
+        "role": {
+          "type": "string",
+          "description": "Author role in the project",
+          "enum": ["core-team", "contributor", "community"]
+        },
+        "joined": {
+          "type": "string",
+          "description": "Date joined (YYYY-MM-DD)",
+          "format": "date"
+        },
+        "skills": {
+          "type": "array",
+          "description": "List of skill IDs authored",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "uniqueItems": true
+        },
+        "bio": {
+          "type": "string",
+          "description": "Short biography or description"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
