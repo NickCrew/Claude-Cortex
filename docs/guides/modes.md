@@ -25,14 +25,15 @@ You can enable modes in three ways:
 
    ```bash
    cortex tui
-   # Press 3 for Modes, Space to toggle
+   # Modes are managed via CLI commands (no dedicated TUI view)
+   # Use `cortex mode status` to check active modes
    ```
 
 3. **Flags**
 
    Add mode flags to `FLAGS.md` (for example `--brainstorm` or `--token-efficient`) to auto-activate modes on load.
 
-Active state is stored in `.active-modes`, which makes mode activation consistent across CLI, TUI, and export. Use `cortex setup migrate` to move legacy `CLAUDE.md` references into `.active-modes`.
+Active state is stored in `.active-modes`, which makes mode activation consistent across CLI, TUI, and export.
 
 ## Mode Catalog
 
