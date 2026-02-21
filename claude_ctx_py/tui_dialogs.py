@@ -12,7 +12,7 @@ from textual.widgets import Button, Input, Static
 
 from .tui_icons import Icons
 from .tui_format import Format
-from .constants import PRIMARY_VIEW_BINDINGS
+from .tui.constants import PRIMARY_VIEW_BINDINGS
 
 
 def _generate_view_shortcuts_help() -> str:
