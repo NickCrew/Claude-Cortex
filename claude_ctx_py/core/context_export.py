@@ -12,6 +12,7 @@ from typing import Dict, List, Set, Tuple
 
 from .base import (
     _resolve_claude_dir,
+    _resolve_cortex_root,
     _iter_md_files,
     _color,
     GREEN,
@@ -57,16 +58,16 @@ def _get_core_framework_files(claude_dir: Path) -> Dict[str, Path]:
     return core_files
 
 
-def _get_active_rules(claude_dir: Path) -> Dict[str, Path]:
+def _get_active_rules(cortex_root: Path) -> Dict[str, Path]:
     """Get active rule files from rules/ directory.
 
     Args:
-        claude_dir: Path to cortex directory
+        cortex_root: Path to cortex root directory (CORTEX_ROOT)
 
     Returns:
         Dictionary mapping rule names to their paths
     """
-    rules_dir = claude_dir / "rules"
+    rules_dir = cortex_root / "rules"
     if not rules_dir.exists():
         return {}
 
@@ -119,16 +120,16 @@ def _get_active_modes(claude_dir: Path) -> Dict[str, Path]:
     return mode_files
 
 
-def _get_active_agents(claude_dir: Path) -> Dict[str, Path]:
+def _get_active_agents(cortex_root: Path) -> Dict[str, Path]:
     """Get active agent files from agents/ directory.
 
     Args:
-        claude_dir: Path to cortex directory
+        cortex_root: Path to cortex root directory (CORTEX_ROOT)
 
     Returns:
         Dictionary mapping agent names to their paths
     """
-    agents_dir = claude_dir / "agents"
+    agents_dir = cortex_root / "agents"
     if not agents_dir.exists():
         return {}
 
@@ -176,16 +177,16 @@ def _get_mcp_docs(claude_dir: Path) -> Dict[str, Path]:
     return mcp_files
 
 
-def _get_skills(claude_dir: Path) -> Dict[str, Path]:
+def _get_skills(cortex_root: Path) -> Dict[str, Path]:
     """Get skill files from skills/ directory.
 
     Args:
-        claude_dir: Path to cortex directory
+        cortex_root: Path to cortex root directory (CORTEX_ROOT)
 
     Returns:
         Dictionary mapping skill names to their paths
     """
-    skills_dir = claude_dir / "skills"
+    skills_dir = cortex_root / "skills"
     if not skills_dir.exists():
         return {}
 
@@ -210,13 +211,15 @@ def collect_context_components(
     if claude_dir is None:
         claude_dir = _resolve_claude_dir()
 
+    cortex_root = _resolve_cortex_root()
+
     components = {
         "core": _get_core_framework_files(claude_dir),
-        "rules": _get_active_rules(claude_dir),
+        "rules": _get_active_rules(cortex_root),
         "modes": _get_active_modes(claude_dir),
-        "agents": _get_active_agents(claude_dir),
+        "agents": _get_active_agents(cortex_root),
         "mcp_docs": _get_mcp_docs(claude_dir),
-        "skills": _get_skills(claude_dir),
+        "skills": _get_skills(cortex_root),
     }
 
     return components
