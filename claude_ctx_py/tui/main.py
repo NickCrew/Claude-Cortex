@@ -331,7 +331,6 @@ class AgentTUI(App[None]):
             Binding(key, f"view_{name}", label, show=False)
             for key, name, label in PRIMARY_VIEW_BINDINGS
         ],
-        Binding("t", "view_tasks", "Tasks", show=False),
         Binding("/", "view_commands", "Slash Cmds", show=False),
         Binding("ctrl+p", "command_palette", "Commands", show=False),
         Binding("q", "quit", "Quit", show=False),
@@ -353,7 +352,7 @@ class AgentTUI(App[None]):
         Binding("ctrl+t", "mcp_test_selected", "Test", show=False),
         Binding("ctrl+a", "mcp_add", "Add MCP", show=False),
         Binding("B", "context_browse_or_base", "Browse/Base", show=False),
-        Binding("E", "mcp_edit", "Edit MCP", show=False),
+        Binding("V", "mcp_edit", "View MCP", show=False),
         Binding("X", "mcp_remove", "Remove MCP", show=False),
         Binding("f", "export_cycle_format", "Format", show=False),
         Binding("e", "export_run", "Export", show=False),
@@ -371,7 +370,7 @@ class AgentTUI(App[None]):
         Binding("i", "asset_install", "Copy", show=False),
         Binding("u", "asset_uninstall", "Remove", show=False),
         Binding("S", "asset_change_source", "Source", show=False),
-        Binding("T", "asset_change_target", "Target", show=False),
+        Binding("P", "asset_change_target", "Path", show=False),
         Binding("I", "asset_bulk_install", "Bulk Copy", show=False),
         Binding("U", "asset_update_all", "Update All", show=False),
         Binding("enter", "asset_details", "Details", show=False),
@@ -387,9 +386,6 @@ class AgentTUI(App[None]):
         Binding("ctrl+e", "setting_edit_file", "Edit Setting", show=False),
         # Agent bindings
         Binding("enter", "agent_view", "View Agent", show=False),
-        # Setup Tools bindings
-        Binding("M", "setup_migration", "Migration", show=False),
-        Binding("c", "setup_health_check", "Health Check", show=False),
         # Hooks Manager
         Binding("h", "hooks_manager", "Manage Hooks", show=False),
         # Backup Manager
