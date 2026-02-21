@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, List, Optional, Tuple
 
+from .base import _resolve_cortex_root, _resolve_claude_dir
 from .components import (
     component_activate,
     component_deactivate,
@@ -107,13 +108,53 @@ def _get_all_available_rules(claude_dir: Path) -> List[str]:
 
 
 def rules_activate(rule: str, home: Path | None = None) -> str:
-    """Activate a rule by moving it into the active rules directory."""
+    """Activate a rule by moving it into the active rules directory.
+
+    For CORTEX_ROOT editable installs, moves from CORTEX_ROOT/inactive/rules.
+    Otherwise, moves from claude_dir/inactive/rules.
+    """
+    # First try to activate from CORTEX_ROOT/inactive (editable install)
+    cortex_root = _resolve_cortex_root()
+    inactive_file = cortex_root / "inactive" / "rules" / f"{rule}.md"
+
+    if inactive_file.exists():
+        # Activate from CORTEX_ROOT/inactive
+        active_dir = cortex_root / "rules"
+        active_dir.mkdir(parents=True, exist_ok=True)
+        rule_file = active_dir / f"{rule}.md"
+        try:
+            inactive_file.rename(rule_file)
+            return f"✓ Activated rule: {rule}"
+        except OSError as e:
+            return f"✗ Failed to activate rule: {e}"
+
+    # Fall back to activating from claude_dir (default behavior)
     exit_code, message = component_activate(COMPONENT_TYPE, rule, home)
     return message
 
 
 def rules_deactivate(rule: str, home: Path | None = None) -> str:
-    """Deactivate a rule by moving it into the inactive rules directory."""
+    """Deactivate a rule by moving it into the inactive rules directory.
+
+    For CORTEX_ROOT editable installs, moves from CORTEX_ROOT/rules.
+    Otherwise, moves from claude_dir/rules.
+    """
+    # First try to deactivate from CORTEX_ROOT (editable install)
+    cortex_root = _resolve_cortex_root()
+    rule_file = cortex_root / "rules" / f"{rule}.md"
+
+    if rule_file.exists():
+        # Deactivate from CORTEX_ROOT
+        inactive_dir = cortex_root / "inactive" / "rules"
+        inactive_dir.mkdir(parents=True, exist_ok=True)
+        inactive_file = inactive_dir / f"{rule}.md"
+        try:
+            rule_file.rename(inactive_file)
+            return f"✓ Deactivated rule: {rule}"
+        except OSError as e:
+            return f"✗ Failed to deactivate rule: {e}"
+
+    # Fall back to deactivating from claude_dir (default behavior)
     exit_code, message = component_deactivate(COMPONENT_TYPE, rule, home)
     return message
 
