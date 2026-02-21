@@ -141,7 +141,13 @@ from ..core.asset_discovery import (
     check_installation_status,
 )
 from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
-from ..core.hooks import detect_settings_files, get_settings_path, get_settings_scope
+from ..core.hooks import (
+    detect_settings_files,
+    get_settings_path,
+    get_settings_scope,
+    get_available_hooks,
+    get_installed_hooks,
+)
 from .dialogs import (
     TargetSelectorDialog,
     AssetDetailDialog,
@@ -638,6 +644,7 @@ class AgentTUI(App[None]):
                 "unlink_by_category",
                 "refresh_codex_status",
             },
+            "hooks": {"details_context"},
             "settings": {
                 "setting_install",
                 "setting_uninstall",
@@ -1954,6 +1961,20 @@ class AgentTUI(App[None]):
             self.worktree_base_source = None
             self.status_message = self.worktree_error
 
+    def load_hooks_files(self) -> None:
+        """Load available and installed hooks."""
+        try:
+            cortex_root = _resolve_cortex_root()
+            available = get_available_hooks(cortex_root)
+            installed = get_installed_hooks()
+            self.available_hooks = available
+            self.installed_hooks = installed
+            self.status_message = f"Loaded {len(available)} available hooks, {len(installed)} installed"
+        except Exception as e:
+            self.available_hooks = []
+            self.installed_hooks = []
+            self.status_message = f"Failed to load hooks: {e}"
+
     def load_mcp_servers(self) -> None:
         """Load MCP server definitions."""
         try:
@@ -2145,6 +2166,8 @@ class AgentTUI(App[None]):
             self.show_assets_view(table)
         elif self.current_view == "memory":
             self.show_memory_view(table)
+        elif self.current_view == "hooks":
+            self.show_hooks_view(table)
         elif self.current_view == "settings":
             self.show_settings_view(table)
         elif self.current_view == "watch_mode":
@@ -2959,6 +2982,35 @@ class AgentTUI(App[None]):
             head = worktree.head[:8] if worktree.head else "-"
 
             table.add_row(branch, status, path_display, head)
+
+    def show_hooks_view(self, table: AnyDataTable) -> None:
+        """Show available and installed hooks."""
+        table.add_column("Hook Name", key="name", width=30)
+        table.add_column("Event", key="event", width=20)
+        table.add_column("Status", key="status", width=12)
+        table.add_column("Description", key="description")
+
+        available = getattr(self, "available_hooks", [])
+        installed = getattr(self, "installed_hooks", [])
+        installed_names = {h.hook_name for h in installed}
+
+        if not available:
+            table.add_row("[dim]No hooks available[/dim]", "", "", "")
+            return
+
+        for hook in available:
+            is_installed = hook.name in installed_names
+            status_text = "[bold green]✓ Installed[/bold green]" if is_installed else "[dim]○ Available[/dim]"
+
+            # Format event trigger
+            event = hook.event if hasattr(hook, "event") and hook.event else "unknown"
+
+            # Description with fallback
+            description = hook.description if hasattr(hook, "description") and hook.description else ""
+            if not description and hasattr(hook, "path"):
+                description = f"[dim]{hook.path.name}[/dim]"
+
+            table.add_row(hook.name, event, status_text, description)
 
     def show_mcp_view(self, table: AnyDataTable) -> None:
         """Show MCP server overview with validation status and MCP docs."""
@@ -5412,6 +5464,13 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Tasks"
         self.notify("🗂 Tasks", severity="information", timeout=1)
 
+    def action_view_hooks(self) -> None:
+        """Switch to hooks view."""
+        self.load_hooks_files()
+        self.current_view = "hooks"
+        self.status_message = "Switched to Hooks"
+        self.notify("🪝 Hooks", severity="information", timeout=1)
+
     def action_agent_view(self) -> None:
         """View the selected agent's definition (Enter key in agents view)."""
         if self.current_view != "agents":
@@ -7730,17 +7789,8 @@ class AgentTUI(App[None]):
         self.push_screen(overlay, callback=handle_tour_result)
 
     def action_hooks_manager(self) -> None:
-        """Open the hooks manager dialog."""
-        # Find plugin directory for available hooks
-        plugin_dir = _resolve_cortex_root()
-
-        dialog = HooksManagerDialog(plugin_dir)
-        self.push_screen(dialog, callback=self._handle_hooks_manager_result)
-
-    def _handle_hooks_manager_result(self, result: Optional[str]) -> None:
-        """Handle result from hooks manager."""
-        if result:
-            self.notify(result, severity="information", timeout=2)
+        """Switch to the hooks view."""
+        self.action_view_hooks()
 
     def action_backup_manager(self) -> None:
         """Open the backup manager dialog."""

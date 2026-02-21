@@ -24,6 +24,7 @@ PRIMARY_VIEW_BINDINGS = [
     ("w", "watch_mode", "Watch Mode"),
     ("A", "assets", "Assets"),
     ("M", "memory", "Memory"),
+    ("h", "hooks", "Hooks"),
     ("X", "codex_skills", "Codex Skills"),
     ("F", "settings", "Settings"),
 ]
@@ -42,6 +43,7 @@ VIEW_TITLES: Dict[str, str] = {
     "tasks": f"{Icons.TEST} Tasks",
     "assets": "📦 Asset Browser",
     "memory": "🧠 Memory Vault",
+    "hooks": "🪝 Hooks",
     "codex_skills": "🔗 Codex Skills",
     "settings": "⚙️  Settings",
 }
