@@ -123,6 +123,14 @@ class CommandPalette(ModalScreen[Optional[str]]):
         self.selected_index = 0
         self._update_results()
 
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        """Handle Enter key pressed in input field."""
+        # Only process events from the palette input
+        if event.input.id != "palette-input":
+            return
+        # Trigger command selection
+        self.action_select()
+
     def _fuzzy_match(self, query: str, text: str) -> int:
         """Fuzzy match scoring algorithm.
 
