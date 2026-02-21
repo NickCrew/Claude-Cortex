@@ -146,7 +146,6 @@ from ..core.hooks import (
     get_settings_path,
     get_settings_scope,
     get_available_hooks,
-    get_installed_hooks,
 )
 from .dialogs import (
     TargetSelectorDialog,
@@ -1962,17 +1961,15 @@ class AgentTUI(App[None]):
             self.status_message = self.worktree_error
 
     def load_hooks_files(self) -> None:
-        """Load available and installed hooks."""
+        """Load available hooks (with installed status)."""
         try:
             cortex_root = _resolve_cortex_root()
             available = get_available_hooks(cortex_root)
-            installed = get_installed_hooks()
             self.available_hooks = available
-            self.installed_hooks = installed
-            self.status_message = f"Loaded {len(available)} available hooks, {len(installed)} installed"
+            installed_count = sum(1 for h in available if h.is_installed)
+            self.status_message = f"Loaded {len(available)} hooks ({installed_count} installed)"
         except Exception as e:
             self.available_hooks = []
-            self.installed_hooks = []
             self.status_message = f"Failed to load hooks: {e}"
 
     def load_mcp_servers(self) -> None:
@@ -2986,29 +2983,27 @@ class AgentTUI(App[None]):
     def show_hooks_view(self, table: AnyDataTable) -> None:
         """Show available and installed hooks."""
         table.add_column("Hook Name", key="name", width=30)
-        table.add_column("Event", key="event", width=20)
-        table.add_column("Status", key="status", width=12)
+        table.add_column("Event", key="event", width=18)
+        table.add_column("Status", key="status", width=14)
         table.add_column("Description", key="description")
 
         available = getattr(self, "available_hooks", [])
-        installed = getattr(self, "installed_hooks", [])
-        installed_names = {h.hook_name for h in installed}
 
         if not available:
             table.add_row("[dim]No hooks available[/dim]", "", "", "")
             return
 
         for hook in available:
-            is_installed = hook.name in installed_names
-            status_text = "[bold green]✓ Installed[/bold green]" if is_installed else "[dim]○ Available[/dim]"
+            # Use is_installed flag set by get_available_hooks()
+            status_text = "[bold green]✓ Installed[/bold green]" if hook.is_installed else "[dim]○ Available[/dim]"
 
             # Format event trigger
-            event = hook.event if hasattr(hook, "event") and hook.event else "unknown"
+            event = hook.event or "unknown"
 
-            # Description with fallback
-            description = hook.description if hasattr(hook, "description") and hook.description else ""
-            if not description and hasattr(hook, "path"):
-                description = f"[dim]{hook.path.name}[/dim]"
+            # Description fallback to source path
+            description = hook.description or ""
+            if not description and hook.source_path:
+                description = f"[dim]{hook.source_path.name}[/dim]"
 
             table.add_row(hook.name, event, status_text, description)
 
