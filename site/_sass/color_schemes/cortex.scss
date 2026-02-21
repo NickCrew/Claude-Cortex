@@ -1,0 +1,37 @@
+// Cortex "Blue Ops" color scheme for just-the-docs
+// Matches the brand palette from the existing docs site
+
+// Dark backgrounds
+$body-background-color: #020617;
+$sidebar-color: #0a1628;
+$search-background-color: #0b1f3a;
+
+// Text
+$body-text-color: #e2f2ff;
+$body-heading-color: #e2f2ff;
+$nav-child-link-color: #98b8d8;
+$search-result-preview-color: #98b8d8;
+
+// Links & accents
+$link-color: #38bdf8;
+$btn-primary-color: #38bdf8;
+$feedback-color: darken($link-color, 3%);
+
+// Borders
+$border-color: rgba(56, 189, 255, 0.22);
+
+// Code
+$code-background-color: rgba(7, 24, 54, 0.92);
+$code-linenumber-color: #98b8d8;
+
+// Search
+$search-result-highlight-color: #38bdf8;
+
+// Tables
+$table-background-color: rgba(8, 24, 50, 0.82);
+
+// Sidebar / Navigation
+$nav-width: 264px;
+
+// Custom additions on top of just-the-docs defaults
+$content-width: 1080px;

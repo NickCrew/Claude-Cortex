@@ -92,6 +92,13 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("Enter", "View", priority=20),
         ShortcutDef("^e", "Edit", priority=21),
     ],
+    "settings": [
+        ShortcutDef("i", "Install", priority=20),
+        ShortcutDef("u", "Uninstall", priority=21),
+        ShortcutDef("U", "Sync All", priority=22),
+        ShortcutDef("Enter", "View", priority=23),
+        ShortcutDef("^e", "Edit", priority=24),
+    ],
 }
 
 # Additional nav shortcuts (lower priority, shown if space)
@@ -326,6 +333,7 @@ class AdaptiveFooter(Widget):
             "watch_mode": [("Spc", "Toggle")],
             "assets": [("i", "Install"), ("u", "Uninstall"), ("U", "Update All"), ("I", "Install All")],
             "memory": [("Enter", "View"), ("O", "Open"), ("D", "Delete")],
+            "settings": [("i", "Install"), ("u", "Uninstall"), ("U", "Sync All"), ("Enter", "View"), ("^e", "Edit")],
         }
         return mapping.get(view, [])
 
@@ -356,7 +364,7 @@ class AdaptiveFooter(Widget):
         essentials = [("?", "Help"), ("q", "Quit")]
 
         # Navigation hint
-        nav = ("1-7,0,C,E,w,A,M", "Views")
+        nav = ("1-7,0,C,E,w,A,M,F", "Views")
 
         # Actions
         actions = [("Spc", "Toggle"), ("r", "Refresh")]

@@ -26,9 +26,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
 
-# Find repo root via git (works regardless of symlink depth)
-REPO_ROOT="$(cd "$SKILL_DIR" && git rev-parse --show-toplevel 2>/dev/null)" || {
-  echo "Error: Could not determine repository root from $SKILL_DIR" >&2
+# Find repo root from caller's CWD (not SKILL_DIR, which follows symlinks
+# to the skill's physical location — likely a different repo).
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+  echo "Error: Not inside a git repository. Run this from within the repo you want to audit." >&2
   exit 1
 }
 
@@ -42,7 +43,7 @@ AUDIT_WORKFLOW="$SKILL_DIR/references/audit-workflow.md"
 
 MODULE_PATH=""
 TEST_PATH=""
-OUTPUT_DIR=".agents/reviews"
+OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
 MODE="full"
 DEBUG="${CLAUDE_DEBUG:-0}"
 
@@ -177,7 +178,11 @@ fi
 
 # --- Prepare output ---
 
-mkdir -p "$OUTPUT_DIR"
+if ! mkdir -p "$OUTPUT_DIR" 2>/dev/null; then
+  echo "Error: Cannot create output directory: $OUTPUT_DIR" >&2
+  echo "Check permissions or use --output <dir> to specify an alternative." >&2
+  exit 1
+fi
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 OUTPUT_FILE="$OUTPUT_DIR/test-audit-$TIMESTAMP.md"
 

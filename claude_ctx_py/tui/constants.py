@@ -25,6 +25,7 @@ PRIMARY_VIEW_BINDINGS = [
     ("A", "assets", "Assets"),
     ("M", "memory", "Memory"),
     ("X", "codex_skills", "Codex Skills"),
+    ("F", "settings", "Settings"),
 ]
 
 VIEW_TITLES: Dict[str, str] = {
@@ -42,4 +43,5 @@ VIEW_TITLES: Dict[str, str] = {
     "assets": "📦 Asset Browser",
     "memory": "🧠 Memory Vault",
     "codex_skills": "🔗 Codex Skills",
+    "settings": "⚙️  Settings",
 }
