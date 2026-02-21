@@ -1169,7 +1169,7 @@ class AgentTUI(App[None]):
             claude_dir = _resolve_claude_dir()
 
             # Load skills from skills directory (from CORTEX_ROOT)
-            skills_dir = self._validate_path(claude_dir, cortex_root / "skills")
+            skills_dir = self._validate_path(cortex_root, cortex_root / "skills")
             if skills_dir.is_dir():
                 for skill_path in sorted(skills_dir.iterdir()):
                     if not skill_path.is_dir():
@@ -1238,7 +1238,7 @@ class AgentTUI(App[None]):
         try:
             cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
-            skills_dir = self._validate_path(claude_dir, cortex_root / "skills")
+            skills_dir = self._validate_path(cortex_root, cortex_root / "skills")
         except ValueError:
             cortex_root = _resolve_cortex_root()
             skills_dir = cortex_root / "skills"
@@ -1800,7 +1800,7 @@ class AgentTUI(App[None]):
             active_rule_slugs = self._active_rule_slugs(claude_dir)
 
             # Check active rules (from CORTEX_ROOT)
-            rules_dir = self._validate_path(claude_dir, cortex_root / "rules")
+            rules_dir = self._validate_path(cortex_root, cortex_root / "rules")
             if rules_dir.is_dir():
                 # Look for .md files directly in rules_dir
                 for path in _iter_md_files(rules_dir):
