@@ -270,20 +270,24 @@ class CompactFooter(Widget):
 class AdaptiveFooter(Widget):
     """Adaptive footer that switches between responsive and compact modes.
 
-    Automatically selects the best footer style based on terminal width.
+    Automatically selects the best footer style and height based on terminal width.
+    Expands to 2-3 rows on small screens to show all shortcuts.
     """
 
     DEFAULT_CSS = """
     AdaptiveFooter {
         dock: bottom;
-        height: 1;
+        height: auto;
+        max-height: 3;
         background: $surface-lighten-2;
         color: $text-muted;
+        padding: 0 1;
     }
     """
 
     current_view: reactive[str] = reactive("overview")
-    _compact_threshold: int = 60
+    _compact_threshold: int = 80
+    _multirow_threshold: int = 60
 
     def __init__(
         self,
@@ -338,25 +342,73 @@ class AdaptiveFooter(Widget):
         return mapping.get(view, [])
 
     def render(self) -> RenderableType:
-        """Render the adaptive footer."""
+        """Render the adaptive footer with multi-line support on small screens."""
+        from rich.table import Table
+
         width = self.size.width
 
         if width <= 0:
             return Text("")
 
-        # Ultra-compact for very narrow terminals
+        # Ultra-compact for very narrow terminals (single line, essentials only)
         if width < 40:
             return Text(" [bold reverse] ? [/] Help  [bold reverse] q [/] Quit")
 
-        if width < self._compact_threshold:
+        # Compact mode for small screens (single line, minimal)
+        if width < 50:
             return Text(
                 " [bold reverse] ? [/]Help "
                 "[bold reverse] q [/]Quit "
-                "[bold reverse] Spc [/]Toggle "
-                "[bold reverse] 1-9 [/]Nav"
+                "[bold reverse] 1-7 [/]Nav "
+                "[bold reverse] 0 [/]Dash"
             )
 
-        # Build responsive footer
+        # Multi-row mode for 50-80 width
+        if width < self._multirow_threshold:
+            return self._render_multirow(width)
+
+        # Full responsive footer for wide terminals
+        return self._render_full(width)
+
+    def _render_multirow(self, width: int) -> Text:
+        """Render footer in multiple rows for better space usage."""
+        lines: List[Text] = []
+
+        # Row 1: Navigation + Essential actions
+        row1 = Text(" ")
+        essentials = [("?", "Help"), ("q", "Quit")]
+        nav = ("1-7,0,C,E,w,A,M,F", "Views")
+
+        for key, label in essentials + [nav]:
+            row1.append_text(self._format_shortcut(key, label))
+            row1.append(" ")
+
+        lines.append(row1)
+
+        # Row 2: View-specific + common actions
+        row2 = Text(" ")
+        actions = [("Spc", "Toggle"), ("r", "Refresh")]
+        view_shortcuts = self._get_view_shortcuts(self.current_view)
+
+        for key, label in actions + view_shortcuts:
+            if len(row2.plain) + len(key) + len(label) + 6 > width:
+                break
+            row2.append_text(self._format_shortcut(key, label))
+            row2.append(" ")
+
+        lines.append(row2)
+
+        # Combine lines with newlines
+        result = Text()
+        for i, line in enumerate(lines):
+            result.append_text(line)
+            if i < len(lines) - 1:
+                result.append("\n")
+
+        return result
+
+    def _render_full(self, width: int) -> Text:
+        """Render full responsive footer for wide terminals."""
         result = Text()
         used = 0
 
@@ -403,6 +455,96 @@ class AdaptiveFooter(Widget):
 
     def watch_current_view(self, view: str) -> None:
         """React to view changes."""
+        self.refresh()
+
+    def on_resize(self, event: events.Resize) -> None:
+        """Refresh when terminal is resized."""
+        self.refresh()
+
+
+class QuickNav(Widget):
+    """Optional header bar showing quick view navigation and critical shortcuts.
+
+    Appears at the top of the TUI on smaller screens to make navigation discoverable.
+    Can be toggled via settings or automatically shown based on terminal height.
+    """
+
+    DEFAULT_CSS = """
+    QuickNav {
+        dock: top;
+        height: 1;
+        background: $primary;
+        color: $text;
+        padding: 0 1;
+        border-bottom: solid $accent;
+    }
+    """
+
+    current_view: reactive[str] = reactive("overview")
+    visible: reactive[bool] = reactive(True)
+
+    # Map view keys to display labels
+    VIEW_LABELS = {
+        "overview": "1",
+        "agents": "2",
+        "rules": "3",
+        "skills": "4",
+        "worktrees": "C",
+        "tasks": "5",
+        "commands": "6",
+        "mcp": "7",
+        "export": "E",
+        "ai_assistant": "0",
+        "watch_mode": "w",
+        "assets": "A",
+        "memory": "M",
+        "codex_skills": "X",
+        "settings": "F",
+    }
+
+    def render(self) -> RenderableType:
+        """Render quick navigation header."""
+        if not self.visible:
+            return Text("")
+
+        width = self.size.width
+        if width <= 0:
+            return Text("")
+
+        # Build quick nav bar
+        result = Text()
+        result.append("Views: ", style="dim")
+
+        # Add view shortcuts with current view highlighted
+        for view_name, key in sorted(self.VIEW_LABELS.items(), key=lambda x: x[1].lower()):
+            if view_name == self.current_view:
+                result.append(f"[{key}]", style="bold reverse")
+            else:
+                result.append(f"{key}", style="")
+            result.append(" ")
+
+        # Add separator
+        result.append(" │ ", style="dim")
+
+        # Add essential shortcuts
+        result.append("[?]", style="bold reverse")
+        result.append("Help ", style="")
+        result.append("[q]", style="bold reverse")
+        result.append("Quit", style="")
+
+        return result
+
+    def update_view(self, view: str) -> None:
+        """Update the current view context."""
+        self.current_view = view
+
+    def watch_current_view(self, view: str) -> None:
+        """React to view changes."""
+        self.refresh()
+
+    def toggle_visibility(self) -> None:
+        """Toggle header visibility."""
+        self.visible = not self.visible
         self.refresh()
 
     def on_resize(self, event: events.Resize) -> None:
