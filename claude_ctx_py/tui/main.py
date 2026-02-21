@@ -7822,15 +7822,26 @@ class AgentTUI(App[None]):
         if command_action:
             # Execute the action by name
             try:
+                # Try to find custom action first
                 action_method = getattr(self, f"action_{command_action}", None)
                 if action_method and callable(action_method):
                     action_method()
-                else:
-                    self.notify(
-                        f"Unknown command action: {command_action}",
-                        severity="warning",
-                        timeout=3
-                    )
+                    return
+
+                # Try built-in Textual actions (quit, exit, etc.)
+                # These are lowercase and don't need "action_" prefix
+                try:
+                    self.action(command_action)
+                    return
+                except Exception:
+                    pass
+
+                # Action not found
+                self.notify(
+                    f"Unknown command action: {command_action}",
+                    severity="warning",
+                    timeout=3
+                )
             except Exception as e:
                 self.notify(
                     f"Error executing command: {e}",
