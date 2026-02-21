@@ -373,6 +373,12 @@ class AgentTUI(App[None]):
         Binding("enter", "memory_view_note", "View", show=False),
         Binding("N", "memory_new_note", "New Note", show=False),
         Binding("O", "memory_open_note", "Open", show=False),
+        # Settings View bindings
+        Binding("i", "setting_install", "Install Setting", show=False),
+        Binding("u", "setting_uninstall", "Uninstall Setting", show=False),
+        Binding("U", "setting_update_all", "Sync All Settings", show=False),
+        Binding("enter", "setting_view_file", "View Setting", show=False),
+        Binding("ctrl+e", "setting_edit_file", "Edit Setting", show=False),
         # Agent bindings
         Binding("enter", "agent_view", "View Agent", show=False),
         # Setup Tools bindings
@@ -629,6 +635,13 @@ class AgentTUI(App[None]):
                 "link_by_category",
                 "unlink_by_category",
                 "refresh_codex_status",
+            },
+            "settings": {
+                "setting_install",
+                "setting_uninstall",
+                "setting_update_all",
+                "setting_view_file",
+                "setting_edit_file",
             },
         }
 
@@ -1044,12 +1057,13 @@ class AgentTUI(App[None]):
         try:
             agents = []
             seen_names = set()  # Track agent names to avoid duplicates
+            cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
             self.agent_slug_lookup = {}
             self.agent_category_lookup = {}
 
-            # Check active agents
-            agents_dir = claude_dir / "agents"
+            # Check active agents (from CORTEX_ROOT)
+            agents_dir = cortex_root / "agents"
             if agents_dir.is_dir():
                 for path in _iter_all_files(agents_dir):
                     if not path.name.endswith(".md") or _is_disabled(path):
@@ -2107,6 +2121,8 @@ class AgentTUI(App[None]):
             self.show_assets_view(table)
         elif self.current_view == "memory":
             self.show_memory_view(table)
+        elif self.current_view == "settings":
+            self.show_settings_view(table)
         elif self.current_view == "watch_mode":
             self._render_watch_mode_view()
         else:
@@ -3936,6 +3952,75 @@ class AgentTUI(App[None]):
                     f"[dim]{desc}[/dim]",
                 )
 
+    def show_settings_view(self, table: AnyDataTable) -> None:
+        """Show settings configuration files for installation/editing."""
+        table.add_column("Name", key="name", width=32)
+        table.add_column("Type", key="type", width=8)
+        table.add_column("Status", key="status", width=18)
+        table.add_column("Description", key="description", width=40)
+        table.add_column("Source Path", key="source")
+
+        settings_assets = self.available_assets.get("settings", [])
+
+        if not settings_assets:
+            table.add_row("[dim]No settings files found[/dim]", "", "", "", "")
+            table.add_row(
+                "", "[dim]Press r to refresh[/dim]", "", "", ""
+            )
+            return
+
+        # Warning row when no target dir is set
+        if not self.selected_target_dir:
+            table.add_row(
+                "[yellow]⚠ No target directory set[/yellow]",
+                "",
+                "",
+                "[dim]Press [white]T[/white] in Assets view to set target[/dim]",
+                "",
+            )
+            table.add_row("", "", "", "", "")
+
+        for asset in settings_assets:
+            # Determine file type from extension
+            ext = asset.source_path.suffix.lower()
+            if ext in (".yaml", ".yml"):
+                type_text = "[cyan]YAML[/cyan]"
+                icon = "📄"
+            elif ext == ".json":
+                type_text = "[yellow]JSON[/yellow]"
+                icon = "📋"
+            else:
+                type_text = f"[dim]{ext}[/dim]"
+                icon = "📄"
+
+            # Check installation status
+            if self.selected_target_dir:
+                status = check_installation_status(asset, self.selected_target_dir)
+                if status == InstallStatus.INSTALLED_SAME:
+                    status_text = "[green]● Installed[/green]"
+                elif status == InstallStatus.INSTALLED_DIFFERENT:
+                    status_text = "[yellow]⚠ Differs[/yellow]"
+                else:
+                    status_text = "[dim]○ Not Installed[/dim]"
+            else:
+                status_text = "[dim]? No target[/dim]"
+
+            # Name with relative posix path
+            rel_path = asset.source_path.name
+            if asset.namespace:
+                rel_path = f"{asset.namespace}/{rel_path}"
+            name_text = f"{icon} {rel_path}"
+
+            desc = Format.truncate(asset.description, 38).replace("[", "\\[")
+
+            table.add_row(
+                name_text,
+                type_text,
+                status_text,
+                f"[dim]{desc}[/dim]",
+                f"[dim]{asset.source_path}[/dim]",
+            )
+
     def show_memory_view(self, table: AnyDataTable) -> None:
         """Show memory vault notes."""
         table.add_column("Type", key="type", width=12)
@@ -4020,6 +4105,14 @@ class AgentTUI(App[None]):
             f"Loaded {claude_count} claude skills, {codex_count} codex skills"
         )
         self.notify("🔗 Codex Skills", severity="information", timeout=1)
+
+    def action_view_settings(self) -> None:
+        """Switch to settings view."""
+        self.load_assets()
+        self.current_view = "settings"
+        settings_count = len(self.available_assets.get("settings", []))
+        self.status_message = f"Loaded {settings_count} settings files"
+        self.notify("⚙️  Settings", severity="information", timeout=1)
 
     def action_view_commands(self) -> None:
         """Switch to slash commands view."""
@@ -4860,6 +4953,218 @@ class AgentTUI(App[None]):
                 delattr(self, "_update_all_assets_pending")
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Settings View Actions
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _get_selected_setting(self) -> Optional[Asset]:
+        """Get the currently selected setting asset from the table."""
+        if self.current_view != "settings":
+            return None
+
+        table = self.query_one("#main-table", DataTable)
+        settings_assets = self.available_assets.get("settings", [])
+        if not settings_assets:
+            return None
+
+        row_idx = table.cursor_row
+        # When no target dir is set, first 2 rows are warning + blank separator
+        offset = 2 if not self.selected_target_dir else 0
+        asset_idx = row_idx - offset
+        if 0 <= asset_idx < len(settings_assets):
+            return settings_assets[asset_idx]
+        return None
+
+    def action_setting_install(self) -> None:
+        """Install the selected setting file."""
+        if self.current_view != "settings":
+            return
+
+        asset = self._get_selected_setting()
+        if not asset:
+            self.notify("No setting selected", severity="warning", timeout=2)
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Set a target directory first (press T in Assets view)", severity="warning", timeout=2)
+            return
+
+        saved_cursor_row = self._table_cursor_index()
+        exit_code, message = install_asset(
+            asset, self.selected_target_dir,
+            add_claude_refs=False,
+            register_hooks=False,
+        )
+        if exit_code == 0:
+            self.notify(f"✓ Installed {asset.display_name}", severity="information", timeout=2)
+        else:
+            self.notify(f"Failed: {message}", severity="error", timeout=3)
+        self.update_view()
+        self._restore_main_table_cursor(saved_cursor_row)
+
+    def action_setting_uninstall(self) -> None:
+        """Uninstall the selected setting file with confirmation."""
+        if self.current_view != "settings":
+            return
+
+        asset = self._get_selected_setting()
+        if not asset:
+            self.notify("No setting selected", severity="warning", timeout=2)
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Set a target directory first", severity="warning", timeout=2)
+            return
+
+        self._setting_uninstall_pending = asset
+        dialog = ConfirmDialog(
+            "Uninstall Setting",
+            f"Uninstall {asset.display_name} from {self.selected_target_dir}?",
+        )
+        self.push_screen(dialog, callback=self._handle_setting_uninstall_confirm)
+
+    def _handle_setting_uninstall_confirm(self, confirmed: Optional[bool]) -> None:
+        """Handle setting uninstall confirmation callback."""
+        try:
+            if not confirmed or not hasattr(self, "_setting_uninstall_pending"):
+                return
+            if not self.selected_target_dir:
+                return
+
+            saved_cursor_row = self._table_cursor_index()
+            asset = self._setting_uninstall_pending
+            exit_code, message = uninstall_asset(
+                asset.category.value, asset.name, self.selected_target_dir
+            )
+            if exit_code == 0:
+                self.notify(f"✓ Uninstalled {asset.display_name}", severity="information", timeout=2)
+            else:
+                self.notify(f"Failed: {message}", severity="error", timeout=3)
+            self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def action_setting_update_all(self) -> None:
+        """Sync all settings that differ from source."""
+        if self.current_view != "settings":
+            return
+
+        if not self.selected_target_dir:
+            self.notify("Set a target directory first", severity="warning", timeout=2)
+            return
+
+        settings_assets = self.available_assets.get("settings", [])
+        to_update = [
+            a for a in settings_assets
+            if check_installation_status(a, self.selected_target_dir)
+            in (InstallStatus.INSTALLED_DIFFERENT, InstallStatus.INSTALLED_OLDER)
+        ]
+
+        if not to_update:
+            self.notify("All settings are up to date", severity="information", timeout=2)
+            return
+
+        self._settings_to_update = to_update
+        dialog = ConfirmDialog(
+            "Sync All Settings",
+            f"Update {len(to_update)} setting(s) to latest version?",
+        )
+        self.push_screen(dialog, callback=self._handle_setting_update_all_confirm)
+
+    def _handle_setting_update_all_confirm(self, confirmed: Optional[bool]) -> None:
+        """Handle setting sync all confirmation callback."""
+        try:
+            if not confirmed or not hasattr(self, "_settings_to_update"):
+                return
+            if not self.selected_target_dir:
+                return
+
+            saved_cursor_row = self._table_cursor_index()
+            updated = 0
+            failed = 0
+
+            for asset in self._settings_to_update:
+                exit_code, _ = install_asset(
+                    asset, self.selected_target_dir,
+                    add_claude_refs=False,
+                    register_hooks=False,
+                )
+                if exit_code == 0:
+                    updated += 1
+                else:
+                    failed += 1
+
+            if failed == 0:
+                self.notify(f"✓ Synced {updated} settings", severity="information", timeout=2)
+            else:
+                self.notify(f"Synced {updated}, failed {failed}", severity="warning", timeout=3)
+            self.update_view()
+            self._restore_main_table_cursor(saved_cursor_row)
+        except Exception as e:
+            self.notify(f"Error: {e}", severity="error", timeout=5)
+
+    def action_setting_view_file(self) -> None:
+        """View the selected setting file content."""
+        if self.current_view != "settings":
+            return
+
+        asset = self._get_selected_setting()
+        if not asset:
+            self.notify("No setting selected", severity="warning", timeout=2)
+            return
+
+        # Prefer installed file, fall back to source
+        view_path = None
+        if self.selected_target_dir:
+            installed = self.selected_target_dir / asset.category.value / asset.source_path.name
+            if installed.exists():
+                view_path = installed
+        if view_path is None:
+            view_path = asset.source_path
+
+        try:
+            content = view_path.read_text(encoding="utf-8")
+        except Exception as e:
+            self.notify(f"Cannot read file: {e}", severity="error", timeout=3)
+            return
+
+        title = f"⚙️  {asset.display_name} ({view_path.name})"
+        self.push_screen(TextViewerDialog(title, content))
+
+    def action_setting_edit_file(self) -> None:
+        """Open the selected setting file in $EDITOR."""
+        if self.current_view != "settings":
+            return
+
+        asset = self._get_selected_setting()
+        if not asset:
+            self.notify("No setting selected", severity="warning", timeout=2)
+            return
+
+        # Edit installed file if it exists, otherwise source
+        edit_path = None
+        if self.selected_target_dir:
+            installed = self.selected_target_dir / asset.category.value / asset.source_path.name
+            if installed.exists():
+                edit_path = installed
+        if edit_path is None:
+            edit_path = asset.source_path
+
+        editor = os.environ.get("EDITOR") or os.environ.get("VISUAL") or "vi"
+        editor_cmd = shlex.split(editor)
+
+        try:
+            with self.suspend():
+                subprocess.run([*editor_cmd, str(edit_path)], check=False)
+        except SuspendNotSupported:
+            self.notify("Terminal suspend not supported", severity="error", timeout=3)
+            return
+
+        # Refresh view after editing
+        self.update_view()
+        self.notify(f"Returned from editing {asset.display_name}", severity="information", timeout=2)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Memory Vault Actions
