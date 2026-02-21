@@ -305,6 +305,8 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Show Watch Mode", "Real-time context monitoring", "view_watch_mode", "ai"),
     ("Show Assets", "Asset manager", "view_assets", "utilities"),
     ("Show Memory", "Memory vault", "view_memory", "context"),
+    ("Show Hooks", "Configure hooks and handlers", "view_hooks", "config"),
+    ("Show Settings", "Application settings", "view_settings", "config"),
     ("Request Reviews", "Spawn review tasks from recommendations", "request_reviews", "ai"),
     ("Consult Gemini", "Ask Gemini for a second opinion", "consult_gemini", "ai"),
     ("Assign LLM Tasks", "Dispatch tasks to Gemini/OpenAI/Qwen", "assign_llm_tasks", "ai"),
@@ -328,7 +330,6 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Export Context", "Run export with current settings", "export_run", "utilities"),
     ("Copy to Clipboard", "Copy export to clipboard", "export_clipboard", "utilities"),
     # Configuration
-    ("Configure CLAUDE.md", "Wizard to configure CLAUDE.md", "claude_md_wizard", "config"),
     ("Configure LLM Providers", "Set API keys for Gemini/OpenAI/Qwen", "llm_provider_settings", "config"),
     ("Manage Hooks", "Install and configure hooks", "hooks_manager", "config"),
     ("Backup Manager", "Create and restore backups", "backup_manager", "utilities"),
