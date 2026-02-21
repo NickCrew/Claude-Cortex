@@ -36,8 +36,28 @@ ACTION_SHORTCUTS: List[ShortcutDef] = [
     ShortcutDef("^p", "Commands", priority=12),
 ]
 
-# Compact view navigation - shown as a group
-VIEW_NAV_SHORTCUT = ShortcutDef("1-0,A,M", "Views", priority=5)
+
+def _generate_view_nav_shortcut() -> str:
+    """Generate view navigation shortcut string from PRIMARY_VIEW_BINDINGS.
+
+    Returns:
+        Comma-separated string of view keys (e.g., "0-9,M,E,T,W,A,F")
+    """
+    keys = [key for key, _, _ in PRIMARY_VIEW_BINDINGS]
+    # Separate numeric (0-9) from non-numeric keys
+    numeric = [k for k in keys if k.isdigit()]
+    non_numeric = [k for k in keys if not k.isdigit()]
+
+    # Format as ranges for numeric (0-9) and comma-separated for rest
+    if numeric:
+        numeric_str = f"{min(numeric)}-{max(numeric)}"
+        return f"{numeric_str}," + ",".join(sorted(non_numeric))
+    else:
+        return ",".join(sorted(non_numeric))
+
+
+# Compact view navigation - shown as a group (dynamically generated)
+VIEW_NAV_SHORTCUT = ShortcutDef(_generate_view_nav_shortcut(), "Views", priority=5)
 
 # View-specific shortcuts
 VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
@@ -359,11 +379,11 @@ class AdaptiveFooter(Widget):
 
         # Compact mode for small screens (single line, minimal)
         if width < 50:
+            nav_shortcut = _generate_view_nav_shortcut()
             return Text(
                 " [bold reverse] ? [/]Help "
                 "[bold reverse] q [/]Quit "
-                "[bold reverse] 1-7 [/]Nav "
-                "[bold reverse] 0 [/]Dash"
+                f"[bold reverse] {nav_shortcut} [/]Nav"
             )
 
         # Multi-row mode for 50-80 width
@@ -380,7 +400,7 @@ class AdaptiveFooter(Widget):
         # Row 1: Navigation + Essential actions
         row1 = Text(" ")
         essentials = [("?", "Help"), ("q", "Quit")]
-        nav = ("1-7,0,C,E,w,A,M,F", "Views")
+        nav = (_generate_view_nav_shortcut(), "Views")
 
         for key, label in essentials + [nav]:
             row1.append_text(self._format_shortcut(key, label))
@@ -418,8 +438,8 @@ class AdaptiveFooter(Widget):
         # Essential shortcuts (always show)
         essentials = [("?", "Help"), ("q", "Quit")]
 
-        # Navigation hint
-        nav = ("1-7,0,C,E,w,A,M,F", "Views")
+        # Navigation hint (dynamically generated from PRIMARY_VIEW_BINDINGS)
+        nav = (_generate_view_nav_shortcut(), "Views")
 
         # Actions
         actions = [("Spc", "Toggle"), ("r", "Refresh")]
@@ -544,7 +564,8 @@ class QuickNav(Widget):
 
         # Quick nav hint
         result.append("│ ", style="dim")
-        result.append("[1-7,0,C,E,w,A,M,X,F]", style="dim")
+        nav_shortcut = _generate_view_nav_shortcut()
+        result.append(f"[{nav_shortcut}]", style="dim")
         result.append("Views ", style="dim")
 
         # Essential shortcuts
