@@ -14,7 +14,7 @@ from typing import List, Optional, Tuple
 
 from . import completions
 from . import shell_integration
-from .core.base import _resolve_cortex_root
+from .core.base import _resolve_cortex_root, _resolve_claude_dir
 
 PACKAGE_NAME = "claude-cortex"
 DOC_FILES = [
@@ -569,7 +569,7 @@ def link_content(
         return 1, f"No content directories found in {source}"
 
     # Target is ~/.claude
-    target = target_dir or _resolve_cortex_root()
+    target = target_dir or _resolve_claude_dir()
 
     if dry_run:
         lines = [
