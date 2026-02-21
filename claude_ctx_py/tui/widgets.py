@@ -463,16 +463,17 @@ class AdaptiveFooter(Widget):
 
 
 class QuickNav(Widget):
-    """Optional header bar showing quick view navigation and critical shortcuts.
+    """Header bar showing view navigation with labeled shortcuts.
 
-    Appears at the top of the TUI on smaller screens to make navigation discoverable.
-    Can be toggled via settings or automatically shown based on terminal height.
+    Shows all available views with their key bindings and labels.
+    Current view is highlighted. Includes essential shortcuts (Help, Quit).
     """
 
     DEFAULT_CSS = """
     QuickNav {
         dock: top;
-        height: 1;
+        height: auto;
+        max-height: 2;
         background: $primary;
         color: $text;
         padding: 0 1;
@@ -483,27 +484,27 @@ class QuickNav(Widget):
     current_view: reactive[str] = reactive("overview")
     visible: reactive[bool] = reactive(True)
 
-    # Map view keys to display labels
-    VIEW_LABELS = {
-        "overview": "1",
-        "agents": "2",
-        "rules": "3",
-        "skills": "4",
-        "worktrees": "C",
-        "tasks": "5",
-        "commands": "6",
-        "mcp": "7",
-        "export": "E",
-        "ai_assistant": "0",
-        "watch_mode": "w",
-        "assets": "A",
-        "memory": "M",
-        "codex_skills": "X",
-        "settings": "F",
+    # Map view names to (key, label) tuples
+    VIEW_INFO = {
+        "overview": ("1", "Overview"),
+        "agents": ("2", "Agents"),
+        "rules": ("3", "Rules"),
+        "skills": ("4", "Skills"),
+        "worktrees": ("C", "Worktrees"),
+        "tasks": ("5", "Tasks"),
+        "commands": ("6", "Commands"),
+        "mcp": ("7", "MCP"),
+        "export": ("E", "Export"),
+        "ai_assistant": ("0", "Assistant"),
+        "watch_mode": ("w", "Watch"),
+        "assets": ("A", "Assets"),
+        "memory": ("M", "Memory"),
+        "codex_skills": ("X", "Codex"),
+        "settings": ("F", "Settings"),
     }
 
     def render(self) -> RenderableType:
-        """Render quick navigation header."""
+        """Render quick navigation header with view labels."""
         if not self.visible:
             return Text("")
 
@@ -511,22 +512,60 @@ class QuickNav(Widget):
         if width <= 0:
             return Text("")
 
-        # Build quick nav bar
+        # For very narrow terminals, show compact view
+        if width < 80:
+            return self._render_compact()
+
+        # Build full nav bar
         result = Text()
         result.append("Views: ", style="dim")
 
-        # Add view shortcuts with current view highlighted
-        for view_name, key in sorted(self.VIEW_LABELS.items(), key=lambda x: x[1].lower()):
-            if view_name == self.current_view:
+        # Add view shortcuts with labels
+        for view_name in [
+            "overview", "agents", "rules", "skills", "worktrees",
+            "tasks", "commands", "mcp", "export", "ai_assistant",
+            "watch_mode", "assets", "memory", "codex_skills", "settings"
+        ]:
+            if view_name not in self.VIEW_INFO:
+                continue
+
+            key, label = self.VIEW_INFO[view_name]
+            is_current = view_name == self.current_view
+
+            # Format: [KEY]Label or [KEY] Label
+            if is_current:
                 result.append(f"[{key}]", style="bold reverse")
+                result.append(f"{label}", style="bold reverse")
             else:
-                result.append(f"{key}", style="")
-            result.append(" ")
+                result.append(f"[{key}]", style="")
+                result.append(f"{label}", style="dim")
 
-        # Add separator
-        result.append(" │ ", style="dim")
+            result.append("  ")
 
-        # Add essential shortcuts
+        # Add separator and essential shortcuts
+        result.append("│ ", style="dim")
+        result.append("[?]", style="bold reverse")
+        result.append("Help ", style="")
+        result.append("[q]", style="bold reverse")
+        result.append("Quit", style="")
+
+        return result
+
+    def _render_compact(self) -> Text:
+        """Render compact version for narrow terminals (< 80 chars)."""
+        result = Text()
+
+        # Show current view prominently with label
+        if self.current_view in self.VIEW_INFO:
+            key, label = self.VIEW_INFO[self.current_view]
+            result.append(f"Current: [{key}]{label} ", style="bold")
+
+        # Quick nav hint
+        result.append("│ ", style="dim")
+        result.append("[1-7,0,C,E,w,A,M,X,F]", style="dim")
+        result.append("Views ", style="dim")
+
+        # Essential shortcuts
         result.append("[?]", style="bold reverse")
         result.append("Help ", style="")
         result.append("[q]", style="bold reverse")

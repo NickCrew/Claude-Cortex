@@ -24,7 +24,7 @@ from textual.containers import Container, Horizontal
 from textual import events
 from textual.widgets import ContentSwitcher, DataTable, Header, Input, Static
 
-from .widgets import AdaptiveFooter
+from .widgets import AdaptiveFooter, QuickNav
 
 AnyDataTable = DataTable[Any]
 from textual.reactive import reactive
@@ -331,6 +331,7 @@ class AgentTUI(App[None]):
         Binding("ctrl+p", "command_palette", "Commands", show=False),
         Binding("q", "quit", "Quit", show=False),
         Binding("?", "help", "Help", show=False),
+        Binding("ctrl+h", "toggle_header", "Toggle Header", show=False),
         Binding("space", "toggle", "Toggle", show=False),
         Binding("r", "refresh", "Refresh", show=False),
         Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
@@ -412,6 +413,7 @@ class AgentTUI(App[None]):
     def compose(self) -> ComposeResult:
         """Create child widgets."""
         yield Header()
+        yield QuickNav(id="quick-nav")
         with Container(id="main-container"):
             with ContentSwitcher(id="view-switcher"):
                 yield DataTable(id="main-table")
@@ -654,6 +656,13 @@ class AgentTUI(App[None]):
             footer.update_view(view)
         except Exception:
             pass  # Footer not yet mounted
+
+        # Update the quick nav header with current view context
+        try:
+            quick_nav = self.query_one("#quick-nav", QuickNav)
+            quick_nav.update_view(view)
+        except Exception:
+            pass  # Quick nav not yet mounted
 
         self.refresh(layout=True)
 
@@ -7681,6 +7690,16 @@ class AgentTUI(App[None]):
                 self.action_start_tour()
 
         self.push_screen(HelpDialog(current_view=self.current_view), callback=handle_help_result)
+
+    def action_toggle_header(self) -> None:
+        """Toggle the quick navigation header visibility."""
+        try:
+            quick_nav = self.query_one("#quick-nav", QuickNav)
+            quick_nav.toggle_visibility()
+            state = "shown" if quick_nav.visible else "hidden"
+            self.notify(f"Navigation header {state}", severity="information", timeout=1)
+        except Exception as e:
+            self.notify(f"Could not toggle header: {e}", severity="error", timeout=2)
 
     def action_start_tour(self) -> None:
         """Start the interactive TUI tour."""
