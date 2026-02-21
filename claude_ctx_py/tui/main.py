@@ -892,7 +892,9 @@ class AgentTUI(App[None]):
             self._normalize_slug(entry)
             for entry in _parse_active_entries(claude_dir / ".active-rules")
         }
-        rules_dir = claude_dir / "rules"
+        # Check live files from CORTEX_ROOT (source of truth), not claude_dir
+        cortex_root = _resolve_cortex_root()
+        rules_dir = cortex_root / "rules"
         # Check files directly in rules_dir
         for path in _iter_md_files(rules_dir):
             active.add(self._relative_slug(path, rules_dir))
@@ -1831,7 +1833,17 @@ class AgentTUI(App[None]):
                         if node:
                             rules.append(node)
 
-            # Check disabled rules
+            # Check disabled rules in cortex_root/inactive/rules
+            cortex_inactive_rules = cortex_root / "inactive" / "rules"
+            if cortex_inactive_rules.is_dir():
+                for path in _iter_md_files(cortex_inactive_rules):
+                    slug = self._relative_slug(path, cortex_inactive_rules)
+                    status = "active" if slug in active_rule_slugs else "inactive"
+                    node = self._parse_rule_file(path, status)
+                    if node:
+                        rules.append(node)
+
+            # Also check disabled rules in claude_dir/inactive/rules (for backwards compatibility)
             for disabled_dir in _inactive_dir_candidates(claude_dir, "rules"):
                 valid_dir = self._validate_path(claude_dir, disabled_dir)
                 if valid_dir.is_dir():

@@ -40,10 +40,17 @@ SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
 PROMPT_TEMPLATE="$SKILL_DIR/references/review-prompt.md"
 PERSPECTIVE_CATALOG="$SKILL_DIR/references/perspective-catalog.md"
 
+# Find repo root from caller's CWD (not SKILL_DIR, which follows symlinks
+# to the skill's physical location — likely a different repo).
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+  echo "Error: Not inside a git repository. Run this from within the repo you want to review." >&2
+  exit 1
+}
+
 # --- Argument parsing ---
 
 DIFF_SOURCE="--git"
-OUTPUT_DIR=".agents/reviews"
+OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
 BASE_REF="HEAD~1"
 PATH_FILTERS=()
 
@@ -60,7 +67,7 @@ while [[ $# -gt 0 ]]; do
     ;;
   --output)
     shift
-    OUTPUT_DIR="${1:-.agents/reviews}"
+    OUTPUT_DIR="${1:-$REPO_ROOT/.agents/reviews}"
     shift
     ;;
   --)
@@ -121,7 +128,11 @@ fi
 
 # --- Prepare output ---
 
-mkdir -p "$OUTPUT_DIR"
+if ! mkdir -p "$OUTPUT_DIR" 2>/dev/null; then
+  echo "Error: Cannot create output directory: $OUTPUT_DIR" >&2
+  echo "Check permissions or use --output <dir> to specify an alternative." >&2
+  exit 1
+fi
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 OUTPUT_FILE="$OUTPUT_DIR/review-$TIMESTAMP.md"
 

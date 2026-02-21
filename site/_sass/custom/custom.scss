@@ -1,0 +1,155 @@
+// Cortex "Blue Ops" brand overrides
+
+// Radial glow background
+body {
+  background:
+    radial-gradient(600px at 15% 160px, rgba(96, 225, 255, 0.12), transparent 60%),
+    radial-gradient(480px at 80% 80px, rgba(56, 189, 255, 0.1), transparent 65%),
+    linear-gradient(165deg, #020617 0%, #0b1f3a 50%, #132f5c 100%);
+  background-attachment: fixed;
+}
+
+// Sidebar styling
+.side-bar {
+  background: #0a1628;
+  border-right: 1px solid rgba(56, 189, 255, 0.18);
+}
+
+.site-title {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+// Navigation links
+.nav-list .nav-list-item .nav-list-link.active {
+  background: rgba(56, 189, 255, 0.15);
+  border-left: 3px solid #38bdf8;
+  color: #e2f2ff;
+  font-weight: 600;
+}
+
+.nav-list .nav-list-item .nav-list-link:hover {
+  background: rgba(56, 189, 255, 0.08);
+  color: #38bdf8;
+}
+
+// Main content area
+.main-content {
+  h1 {
+    color: #38bdf8;
+    border-bottom: 2px solid rgba(56, 189, 255, 0.25);
+    padding-bottom: 0.5rem;
+  }
+
+  h2 {
+    color: #5dd5ff;
+    margin-top: 2.5rem;
+  }
+
+  h3, h4, h5, h6 {
+    color: #e2f2ff;
+  }
+}
+
+// Code blocks
+div.highlighter-rouge,
+figure.highlighter-rouge {
+  border: 1px solid rgba(56, 189, 255, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+// Inline code
+p code,
+li code,
+td code {
+  background: rgba(56, 189, 255, 0.15);
+  color: #8be9fd;
+  border: 1px solid rgba(56, 189, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.88em;
+}
+
+// Tables
+table {
+  border: 1px solid rgba(56, 189, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+thead {
+  background: rgba(56, 189, 255, 0.18);
+}
+
+thead th {
+  color: #38bdf8;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+}
+
+tbody tr:hover {
+  background: rgba(56, 189, 255, 0.06);
+}
+
+// Blockquotes
+blockquote {
+  border-left: 3px solid #38bdf8;
+  background: rgba(56, 189, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+}
+
+// Search input
+.search-input {
+  background: rgba(7, 24, 54, 0.92);
+  border-color: rgba(56, 189, 255, 0.28);
+  color: #e2f2ff;
+
+  &:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 255, 0.2);
+  }
+}
+
+// Search results
+.search-results {
+  background: rgba(7, 24, 54, 0.98);
+  border: 1px solid rgba(56, 189, 255, 0.28);
+  box-shadow: 0 16px 40px rgba(7, 20, 44, 0.6);
+}
+
+// Footer
+.site-footer {
+  border-top: 1px solid rgba(56, 189, 255, 0.18);
+  color: #98b8d8;
+}
+
+// Breadcrumbs
+.breadcrumb-nav-list .breadcrumb-nav-list-item a {
+  color: #38bdf8;
+}
+
+// Callout styling
+.callout {
+  border-radius: 10px;
+}
+
+// Horizontal rules
+hr {
+  border-color: rgba(56, 189, 255, 0.18);
+}
+
+// Aux links (GitHub button)
+.aux-nav .aux-nav-list-item a {
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+
+  &:hover {
+    background: rgba(56, 189, 255, 0.12);
+    color: #5dd5ff;
+  }
+}
