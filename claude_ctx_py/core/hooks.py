@@ -243,25 +243,51 @@ def validate_hooks_config_file(path: Path) -> Tuple[bool, List[str]]:
 
 
 def get_installed_hooks() -> List[InstalledHook]:
-    """Get list of installed hooks from settings.json."""
-    settings = load_settings()
-    hooks_config = settings.get("hooks", {})
-    installed: List[InstalledHook] = []
+    """Get list of installed hooks from all available settings.json files.
 
-    for event, matchers in hooks_config.items():
-        if not isinstance(matchers, list):
+    In project-scoped setups, checks both project and global settings to find
+    all installed hooks. This allows hooks defined in ~/.claude/settings.json
+    to be detected even when working in a project-specific .claude directory.
+    """
+    installed: List[InstalledHook] = []
+    seen: set[tuple[str, str, str]] = set()  # Track (event, command) to avoid duplicates
+
+    # Get all available settings files (project → parent → global)
+    settings_files = detect_settings_files()
+
+    for settings_path, scope in settings_files:
+        try:
+            data = json.loads(settings_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
             continue
-        for matcher_entry in matchers:
-            matcher = matcher_entry.get("matcher", "")
-            for hook in matcher_entry.get("hooks", []):
-                installed.append(
-                    InstalledHook(
-                        event=event,
-                        matcher=matcher,
-                        command=hook.get("command", ""),
-                        hook_type=hook.get("type", "command"),
-                    )
-                )
+
+        if not isinstance(data, dict):
+            continue
+
+        hooks_config = data.get("hooks", {})
+        if not isinstance(hooks_config, dict):
+            continue
+
+        for event, matchers in hooks_config.items():
+            if not isinstance(matchers, list):
+                continue
+            for matcher_entry in matchers:
+                matcher = matcher_entry.get("matcher", "")
+                for hook in matcher_entry.get("hooks", []):
+                    command = hook.get("command", "")
+                    hook_type = hook.get("type", "command")
+                    # Avoid duplicates when same hook is in multiple settings files
+                    key = (event, command, hook_type)
+                    if key not in seen:
+                        seen.add(key)
+                        installed.append(
+                            InstalledHook(
+                                event=event,
+                                matcher=matcher,
+                                command=command,
+                                hook_type=hook_type,
+                            )
+                        )
 
     return installed
 
@@ -318,12 +344,15 @@ def get_available_hooks(plugin_dir: Optional[Path] = None) -> List[HookDefinitio
                     hook_def.is_installed = True
                     hooks.append(hook_def)
 
-    # Mark installed hooks
+    # Mark installed hooks by matching hook name in command
     installed = get_installed_hooks()
-    installed_commands = {h.command for h in installed}
     for hook in hooks:
-        if any(hook.source_path and str(hook.source_path) in cmd for cmd in installed_commands):
-            hook.is_installed = True
+        # Check if this hook name appears in any installed command
+        # E.g., "skill_auto_suggester" in "python3 /path/to/skill_auto_suggester.py"
+        for installed_hook in installed:
+            if hook.name in installed_hook.command:
+                hook.is_installed = True
+                break
 
     return hooks
 
