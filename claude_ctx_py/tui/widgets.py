@@ -11,6 +11,9 @@ from textual import events
 from textual.reactive import reactive
 from textual.widget import Widget
 
+# Import view bindings from constants
+from .constants import PRIMARY_VIEW_BINDINGS
+
 
 @dataclass
 class ShortcutDef:
@@ -484,23 +487,10 @@ class QuickNav(Widget):
     current_view: reactive[str] = reactive("overview")
     visible: reactive[bool] = reactive(True)
 
-    # Map view names to (key, label) tuples
-    VIEW_INFO = {
-        "overview": ("1", "Overview"),
-        "agents": ("2", "Agents"),
-        "rules": ("3", "Rules"),
-        "skills": ("4", "Skills"),
-        "worktrees": ("C", "Worktrees"),
-        "tasks": ("5", "Tasks"),
-        "commands": ("6", "Commands"),
-        "mcp": ("7", "MCP"),
-        "export": ("E", "Export"),
-        "ai_assistant": ("0", "Assistant"),
-        "watch_mode": ("w", "Watch"),
-        "assets": ("A", "Assets"),
-        "memory": ("M", "Memory"),
-        "codex_skills": ("X", "Codex"),
-        "settings": ("F", "Settings"),
+    # Build view info from PRIMARY_VIEW_BINDINGS for consistency with other view displays
+    VIEW_INFO: Dict[str, Tuple[str, str]] = {
+        view_name: (key, label)
+        for key, view_name, label in PRIMARY_VIEW_BINDINGS
     }
 
     def render(self) -> RenderableType:
@@ -520,19 +510,11 @@ class QuickNav(Widget):
         result = Text()
         result.append("Views: ", style="dim")
 
-        # Add view shortcuts with labels
-        for view_name in [
-            "overview", "agents", "rules", "skills", "worktrees",
-            "tasks", "commands", "mcp", "export", "ai_assistant",
-            "watch_mode", "assets", "memory", "codex_skills", "settings"
-        ]:
-            if view_name not in self.VIEW_INFO:
-                continue
-
-            key, label = self.VIEW_INFO[view_name]
+        # Add view shortcuts with labels in PRIMARY_VIEW_BINDINGS order
+        for key, view_name, label in PRIMARY_VIEW_BINDINGS:
             is_current = view_name == self.current_view
 
-            # Format: [KEY]Label or [KEY] Label
+            # Format: [KEY]Label
             if is_current:
                 result.append(f"[{key}]", style="bold reverse")
                 result.append(f"{label}", style="bold reverse")
