@@ -1236,11 +1236,12 @@ class AgentTUI(App[None]):
     def load_slash_commands(self) -> None:
         """Load slash command metadata from the skills directory."""
         try:
+            cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
-            skills_dir = self._validate_path(claude_dir, claude_dir / "skills")
+            skills_dir = self._validate_path(claude_dir, cortex_root / "skills")
         except ValueError:
-            claude_dir = _resolve_claude_dir()
-            skills_dir = claude_dir / "skills"
+            cortex_root = _resolve_cortex_root()
+            skills_dir = cortex_root / "skills"
 
         if not skills_dir.exists():
             self.slash_commands = []
