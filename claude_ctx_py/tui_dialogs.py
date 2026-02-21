@@ -12,6 +12,39 @@ from textual.widgets import Button, Input, Static
 
 from .tui_icons import Icons
 from .tui_format import Format
+from .constants import PRIMARY_VIEW_BINDINGS
+
+
+def _generate_view_shortcuts_help() -> str:
+    """Generate view navigation help text from PRIMARY_VIEW_BINDINGS.
+
+    Formats view shortcuts in two rows with cyan highlighting.
+    """
+    lines: List[str] = []
+    current_line = "  "
+    line_width = 0
+    max_width = 70  # Approximate width for help dialog
+
+    for key, name, label in PRIMARY_VIEW_BINDINGS:
+        # Format: "[cyan]KEY[/cyan] Label"
+        entry = f"[cyan]{key}[/cyan] {label}"
+        entry_len = len(key) + len(label) + 1  # Rough length
+
+        # Start new line if current one would exceed width
+        if line_width + entry_len > max_width and line_width > 0:
+            lines.append(current_line)
+            current_line = "  "
+            line_width = 0
+
+        current_line += f"[cyan]{key}[/cyan] {label}    "
+        line_width += entry_len + 4
+
+    # Add last line if not empty
+    if current_line.strip():
+        lines.append(current_line)
+
+    return "\n".join(lines) + "\n"
+
 
 class TaskEditorData(TypedDict, total=False):
     name: str
@@ -619,7 +652,8 @@ class HelpDialog(ModalScreen[Optional[str]]):
 
     def _generate_help_text(self) -> str:
         """Generate formatted help text with all shortcuts."""
-        global_shortcuts = """[bold cyan]━━━ GLOBAL SHORTCUTS ━━━[/bold cyan]
+        view_shortcuts_help = _generate_view_shortcuts_help()
+        global_shortcuts = f"""[bold cyan]━━━ GLOBAL SHORTCUTS ━━━[/bold cyan]
 
 [bold]General:[/bold]
   [cyan]?[/cyan]      → Show this help
@@ -642,11 +676,7 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]↑/↓[/cyan]       → Cursor up/down
 
 [bold]View Navigation:[/bold]
-  [cyan]1[/cyan] Overview    [cyan]2[/cyan] Agents     [cyan]3[/cyan] Rules     [cyan]4[/cyan] Skills
-  [cyan]C[/cyan] Worktrees   [cyan]5[/cyan] Tasks      [cyan]6[/cyan] Commands  [cyan]7[/cyan] MCP
-  [cyan]E[/cyan] Export      [cyan]0[/cyan] AI Asst    [cyan]w[/cyan] Watch     [cyan]A[/cyan] Assets
-  [cyan]M[/cyan] Memory      [cyan]X[/cyan] Codex
-"""
+{view_shortcuts_help}"""
 
         view_shortcuts = {
             "overview": """
