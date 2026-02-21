@@ -11,21 +11,21 @@ EXPORT_CATEGORIES: List[Tuple[str, str, str]] = [
 DEFAULT_EXPORT_OPTIONS = {key: True for key, _label, _desc in EXPORT_CATEGORIES}
 
 PRIMARY_VIEW_BINDINGS = [
+    ("0", "ai_assistant", "AI Assistant"),
     ("1", "overview", "Overview"),
     ("2", "agents", "Agents"),
     ("3", "rules", "Rules"),
     ("4", "skills", "Skills"),
-    ("C", "worktrees", "Worktrees"),
-    ("5", "tasks", "Tasks"),
+    ("5", "codex_skills", "Codex Skills"),
     ("6", "commands", "Commands"),
-    ("7", "mcp", "MCP"),
+    ("7", "hooks", "Hooks"),
+    ("8", "memory", "Memory"),
+    ("9", "watch_mode", "Watch Mode"),
+    ("M", "mcp", "MCP"),
     ("E", "export", "Export"),
-    ("0", "ai_assistant", "AI Assistant"),
-    ("w", "watch_mode", "Watch Mode"),
+    ("T", "tasks", "Tasks"),
+    ("W", "worktrees", "Worktrees"),
     ("A", "assets", "Assets"),
-    ("M", "memory", "Memory"),
-    ("h", "hooks", "Hooks"),
-    ("X", "codex_skills", "Codex Skills"),
     ("F", "settings", "Settings"),
 ]
 
