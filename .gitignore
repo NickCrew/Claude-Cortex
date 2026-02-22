@@ -76,3 +76,4 @@ PRINCIPLES.md
 
 # Tour state (should be in ~/.claude/)
 /tour-state.json
+.claude/
