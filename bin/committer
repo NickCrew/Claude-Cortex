@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+# Credits: Peter Steinberger
 
 set -euo pipefail
 # Disable glob expansion to handle brackets in file paths
 set -f
 usage() {
-  printf 'Usage: %s [--force] "commit message" "file" ["file" ...]\n' "$(basename "$0")" >&2
+  printf 'Usage: %s [--force] [--patch <diff-file>|--patch -] "commit message" "file" ["file" ...]\n' "$(basename "$0")" >&2
   exit 2
 }
 
@@ -13,10 +14,36 @@ if [ "$#" -lt 2 ]; then
 fi
 
 force_delete_lock=false
-if [ "${1:-}" = "--force" ]; then
-  force_delete_lock=true
-  shift
-fi
+patch_inputs=()
+
+while [ "$#" -gt 0 ]; do
+  case "${1:-}" in
+    --force)
+      force_delete_lock=true
+      shift
+      ;;
+    --patch)
+      shift
+      if [ "$#" -eq 0 ]; then
+        printf 'Error: --patch requires a diff file path or - for stdin\n' >&2
+        exit 1
+      fi
+      patch_inputs+=("$1")
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      printf 'Error: unknown option: %s\n' "$1" >&2
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
 
 if [ "$#" -lt 2 ]; then
   usage
@@ -40,6 +67,10 @@ if [ "$#" -eq 0 ]; then
 fi
 
 files=("$@")
+use_patch_mode=false
+if [ "${#patch_inputs[@]}" -gt 0 ]; then
+  use_patch_mode=true
+fi
 
 # Disallow "." because it stages the entire repository and defeats the helper's safety guardrails.
 for file in "${files[@]}"; do
@@ -82,8 +113,77 @@ for file in "${files[@]}"; do
   fi
 done
 
+normalize_path() {
+  local value="$1"
+  # Keep relative paths stable for comparison with git diff --name-only output.
+  value="${value#./}"
+  printf '%s\n' "$value"
+}
+
+patch_file=''
+cleanup_files=()
+cleanup() {
+  for f in "${cleanup_files[@]}"; do
+    [ -n "$f" ] && [ -f "$f" ] && rm -f "$f"
+  done
+}
+trap cleanup EXIT
+
+if [ "$use_patch_mode" = true ]; then
+  patch_file=$(mktemp)
+  cleanup_files+=("$patch_file")
+
+  for patch_input in "${patch_inputs[@]}"; do
+    if [ "$patch_input" = "-" ]; then
+      cat >>"$patch_file"
+    else
+      if [ ! -f "$patch_input" ]; then
+        printf 'Error: patch file not found: %s\n' "$patch_input" >&2
+        exit 1
+      fi
+      cat "$patch_input" >>"$patch_file"
+    fi
+    printf '\n' >>"$patch_file"
+  done
+
+  if [ ! -s "$patch_file" ]; then
+    printf 'Error: patch input is empty\n' >&2
+    exit 1
+  fi
+fi
+
 git restore --staged :/
-git add -A -- "${files[@]}"
+
+if [ "$use_patch_mode" = true ]; then
+  if ! git apply --cached -- "$patch_file"; then
+    printf 'Error: failed to apply patch to index\n' >&2
+    exit 1
+  fi
+
+  mapfile -t staged_files < <(git diff --cached --name-only)
+  if [ "${#staged_files[@]}" -eq 0 ]; then
+    printf 'Warning: no staged changes detected from patch input\n' >&2
+    exit 1
+  fi
+
+  for staged in "${staged_files[@]}"; do
+    staged_norm=$(normalize_path "$staged")
+    allowed=false
+    for file in "${files[@]}"; do
+      if [ "$staged_norm" = "$(normalize_path "$file")" ]; then
+        allowed=true
+        break
+      fi
+    done
+    if [ "$allowed" = false ]; then
+      printf 'Error: patch staged unexpected file: %s\n' "$staged_norm" >&2
+      printf 'Allowed files: %s\n' "${files[*]}" >&2
+      exit 1
+    fi
+  done
+else
+  git add -A -- "${files[@]}"
+fi
 
 if git diff --staged --quiet; then
   printf 'Warning: no staged changes detected for: %s\n' "${files[*]}" >&2
