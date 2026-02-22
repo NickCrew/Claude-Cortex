@@ -141,7 +141,9 @@ def extract_subparser(parser: argparse.ArgumentParser, command: str) -> argparse
 def main() -> int:
     """Generate all manpages."""
     parser = build_parser()
-    docs_dir = Path(__file__).parent.parent / "docs" / "reference"
+    # Get the project root (parent of claude_ctx_py)
+    project_root = Path(__file__).parent.parent.parent
+    docs_dir = project_root / "docs" / "reference"
     docs_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate main manpage
