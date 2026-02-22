@@ -1829,6 +1829,17 @@ def _build_dev_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Output directory for manpages (default: docs/reference/)",
     )
 
+    # validate-manpages - Validate manpages are current
+    validate_manpages_parser = dev_sub.add_parser(
+        "validate-manpages", help="Validate manpages are current with CLI definitions"
+    )
+    validate_manpages_parser.add_argument(
+        "--verbose", action="store_true", help="Show detailed validation output"
+    )
+    validate_manpages_parser.add_argument(
+        "--docs-dir", type=Path, help="Directory containing manpage files"
+    )
+
 
 def _build_file_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     """Build the file command parser for file utilities."""
@@ -2509,10 +2520,17 @@ def _handle_dev_command(args: argparse.Namespace) -> int:
 
     if args.dev_command == "manpages":
         from .commands.dev_manpages import main as manpages_main
-        manpages_args = []
-        if getattr(args, "output_dir", None):
-            manpages_args.extend(["--output-dir", str(args.output_dir)])
-        return manpages_main(manpages_args)
+        return manpages_main()
+
+    if args.dev_command == "validate-manpages":
+        from .commands.dev_validate_manpages import validate_manpages
+        exit_code, messages = validate_manpages(
+            docs_dir=getattr(args, "docs_dir", None),
+            verbose=getattr(args, "verbose", False)
+        )
+        for message in messages:
+            _print(message)
+        return exit_code
 
     _print("Dev command required. Use 'cortex dev --help' for options.")
     return 1
