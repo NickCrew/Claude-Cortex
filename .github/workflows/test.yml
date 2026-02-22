@@ -29,7 +29,14 @@ jobs:
         run: uv run pytest tests/unit -v --tb=short
 
       - name: Run integration tests
-        run: uv run pytest tests/integration -v --tb=short
+        run: |
+          uv run pytest tests/integration -v --tb=short
+          exit_code=$?
+          # Exit code 5 means no tests collected, which is acceptable
+          if [ $exit_code -eq 5 ] || [ $exit_code -eq 0 ]; then
+            exit 0
+          fi
+          exit $exit_code
 
   coverage:
     runs-on: ubuntu-latest

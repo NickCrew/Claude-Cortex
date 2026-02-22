@@ -81,7 +81,6 @@ include = ["claude_ctx_py*"]
     "docs/reference/architecture/DIAGRAMS_README.md",
     "docs/reference/architecture/README.md",
     "docs/AI_INTELLIGENCE.md",
-    "docs/WHATS_NEW.md",
     "CHANGELOG.md",
     "CREDITS.md",
     "LICENSE"
