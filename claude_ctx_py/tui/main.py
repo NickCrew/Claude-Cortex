@@ -3516,6 +3516,41 @@ class AgentTUI(App[None]):
         thread = threading.Thread(target=runner, daemon=True)
         thread.start()
 
+    def _add_recommendation_row(
+        self,
+        table: AnyDataTable,
+        rec: AgentRecommendation,
+        label: str,
+        urgency_icon: str,
+        urgency_color: str,
+    ) -> None:
+        """Add a single recommendation row to the table."""
+        # Color by confidence
+        confidence_pct = int(rec.confidence * 100)
+        if rec.confidence >= 0.8:
+            confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
+        elif rec.confidence >= 0.6:
+            confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
+        else:
+            confidence_text = f"[dim]{confidence_pct}%[/dim]"
+
+        # Auto-activate indicator
+        auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
+
+        # Show triggers if available
+        triggers_text = (
+            f" [dim]({', '.join(rec.context_triggers)})[/dim]"
+            if rec.context_triggers
+            else ""
+        )
+
+        table.add_row(
+            f"[{urgency_color}]{urgency_icon} {label}[/{urgency_color}]",
+            f"[bold]{rec.agent_name}[/bold]{auto_text}",
+            confidence_text,
+            f"[dim italic]{rec.reason}[/dim italic]{triggers_text}",
+        )
+
     def show_ai_assistant_view(self, table: AnyDataTable) -> None:
         """Show AI assistant recommendations and predictions."""
         table.add_column("Type", key="type", width=14)
@@ -3582,23 +3617,8 @@ class AgentTUI(App[None]):
                     urgency_color = "dim"
                     urgency_icon = "⚪"
 
-                # Color by confidence
-                confidence_pct = int(rec.confidence * 100)
-                if rec.confidence >= 0.8:
-                    confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
-                elif rec.confidence >= 0.6:
-                    confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
-                else:
-                    confidence_text = f"[dim]{confidence_pct}%[/dim]"
-
-                # Auto-activate indicator
-                auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
-
-                table.add_row(
-                    f"[{urgency_color}]{urgency_icon} Review[/{urgency_color}]",
-                    f"[bold]{rec.agent_name}[/bold]{auto_text}",
-                    confidence_text,
-                    f"[dim italic]{rec.reason}[/dim italic]",
+                self._add_recommendation_row(
+                    table, rec, "Review", urgency_icon, urgency_color
                 )
 
             if other_recs:
@@ -3626,23 +3646,8 @@ class AgentTUI(App[None]):
                     urgency_color = "dim"
                     urgency_icon = "⚪"
 
-                # Color by confidence
-                confidence_pct = int(rec.confidence * 100)
-                if rec.confidence >= 0.8:
-                    confidence_text = f"[bold green]{confidence_pct}%[/bold green]"
-                elif rec.confidence >= 0.6:
-                    confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
-                else:
-                    confidence_text = f"[dim]{confidence_pct}%[/dim]"
-
-                # Auto-activate indicator
-                auto_text = " [bold cyan]AUTO[/bold cyan]" if rec.auto_activate else ""
-
-                table.add_row(
-                    f"[{urgency_color}]{urgency_icon} Agent[/{urgency_color}]",
-                    f"[bold]{rec.agent_name}[/bold]{auto_text}",
-                    confidence_text,
-                    f"[dim italic]{rec.reason}[/dim italic]",
+                self._add_recommendation_row(
+                    table, rec, "Agent", urgency_icon, urgency_color
                 )
 
         # Show deactivation recommendations
