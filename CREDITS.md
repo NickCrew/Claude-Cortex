@@ -144,6 +144,10 @@ GitHub Pages documentation site built with Jekyll and the Minima theme.
 **License:** MIT License
 Interactive presentations powered by Reveal.js framework.
 
+## Individual Contributors
+
+- **Peter Steinberger** — `bin/committer` safe-commit script, `AGENTS.md` rules
+
 ## Community & Ecosystem
 
 Special thanks to the broader Claude Code community for sharing patterns, best practices, and innovative approaches to AI-assisted development workflows.
@@ -154,4 +158,4 @@ If you believe your work has been used in a way that constitutes copyright infri
 
 ---
 
-**Last Updated:** January 2025
+**Last Updated:** February 2026
