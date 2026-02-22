@@ -85,9 +85,6 @@ include = ["claude_ctx_py*"]
     "CREDITS.md",
     "LICENSE"
 ]
-"share/claude-cortex/codex" = [
-    "codex/**/*"
-]
 
 
 [tool.mypy]
