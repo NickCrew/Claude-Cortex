@@ -99,7 +99,7 @@ class Sparkline:
             trend_icon = "→"
 
         sparkline = Sparkline.generate(data, width)
-        return f"[{color}]{trend_icon} {sparkline}[/{color}]"
+        return f"[{color}]{trend_icon} {sparkline}[/]"
 
 
 class DashboardCard:
@@ -217,13 +217,15 @@ class DashboardCard:
         lines.append(f"├{'─' * (width - 2)}┤")
 
         # Score Row
-        score_text = f"[{color} bold]{score}/100 {status}[/{color}]"
-        lines.append(f"│ Score: {score_text}{' ' * (width - len(str(score)) - len(status) - 13)}│") # Approx padding calc
+        score_text = f"[{color} bold]{score}/100 {status}[/]"
+        visible_score_len = Text.from_markup(f"Score: {score_text}").cell_len
+        score_padding = max(0, width - visible_score_len - 3)
+        lines.append(f"│ Score: {score_text}{' ' * score_padding}│")
         
         # Progress Bar
         bar_width = width - 4
         filled = int((score / 100) * bar_width)
-        bar = f"[{color}]{'█' * filled}[dim]{'░' * (bar_width - filled)}[/dim][/{color}]"
+        bar = f"[{color}]{'█' * filled}[dim]{'░' * (bar_width - filled)}[/dim][/]"
         lines.append(f"│ {bar} │")
 
         # Issues (Max 2)
@@ -254,12 +256,11 @@ class DashboardCard:
                 else:
                     rec_text = f"[green]ENABLE[/] {target}"
                 
-                padding = width - len(rec_text) + 9 # adjustment for markup hidden chars roughly
-                # Simple crude padding calculation (ideal would be to strip markup)
-                # Using a safer approach for TUI alignment usually requires Text.cell_len
-                # For this snippet, we'll just format it simply to avoid complex length math bugs
+                # Calculate visible length properly using rich
+                visible_len = Text.from_markup(rec_text).cell_len
+                padding = max(0, width - visible_len - 3)
                 
-                lines.append(f"│ {rec_text}{' ' * (width - len(target) - 10)}│")
+                lines.append(f"│ {rec_text}{' ' * padding}│")
 
 
         if not issues and not recommendations:
@@ -283,7 +284,7 @@ class DashboardCard:
         Returns:
             Formatted card string
         """
-        return f"{icon} [bold]{title}[/bold] [{color}]{value}[/{color}]"
+        return f"{icon} [bold]{title}[/bold] [{color}]{value}[/]"
 
 
 class DashboardGrid:

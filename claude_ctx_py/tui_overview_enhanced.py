@@ -116,28 +116,56 @@ class EnhancedOverview:
     @staticmethod
     def create_activity_timeline() -> str:
         """Create a visual activity timeline."""
+        # TODO: Hook into real activity log
+        from datetime import datetime
+        now = datetime.now().strftime("%H:%M")
         timeline = f"""
-[bold cyan]📈 RECENT ACTIVITY[/bold cyan]
+[bold cyan]📈 ACTIVITY LOG[/bold cyan]
 [dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
 
-  [green]●[/green] [dim]Agent activated[/dim]          [dim white]2 minutes ago[/dim white]
-  [yellow]●[/yellow] [dim]Rule toggled[/dim]            [dim white]5 minutes ago[/dim white]
-  [cyan]●[/cyan] [dim]Skill invoked[/dim]           [dim white]12 minutes ago[/dim white]
-  [blue]●[/blue] [dim]Context exported[/dim]        [dim white]1 hour ago[/dim white]
+  [green]●[/green] [dim]System initialized[/dim]        [dim white]{now}[/dim white]
+  [dim]●[/dim] [dim italic]Real-time activity log coming soon[/dim italic]
 """
         return timeline.strip()
 
     @staticmethod
     def create_system_health() -> str:
         """Create a system health indicator."""
-        health = f"""
+        try:
+            import os
+            import psutil
+            mem = psutil.virtual_memory()
+            # interval=0.1 avoids the 0.0 reading on first call in a process
+            cpu = psutil.cpu_percent(interval=0.1)
+            disk = psutil.disk_usage(os.getcwd())
+
+            mem_pct = mem.percent
+            disk_pct = disk.percent
+
+            mem_color = "green" if mem_pct < 80 else "yellow" if mem_pct < 90 else "red"
+            cpu_color = "green" if cpu < 80 else "yellow" if cpu < 90 else "red"
+            disk_color = "green" if disk_pct < 80 else "yellow" if disk_pct < 90 else "red"
+            
+            mem_status = "normal" if mem_pct < 80 else "high"
+            
+            health = f"""
 [bold green]✓ SYSTEM HEALTH[/bold green]
 [dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
 
-  [green]●[/green] All systems operational
-  [green]●[/green] Configuration loaded successfully
-  [green]●[/green] Performance optimal
-  [yellow]●[/yellow] Memory usage: 45% (normal)
+  [green]●[/green] Configuration loaded
+  [{cpu_color}]●[/] CPU Load: {cpu}%
+  [{mem_color}]●[/] Memory: {mem_pct}% ({mem_status})
+  [{disk_color}]●[/] Disk: {disk_pct}% (cwd)
+
+  [dim]Last checked: just now[/dim]
+"""
+        except Exception:
+            health = f"""
+[bold green]✓ SYSTEM HEALTH[/bold green]
+[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
+
+  [green]●[/green] Configuration loaded
+  [yellow]●[/yellow] Metrics unavailable
 
   [dim]Last checked: just now[/dim]
 """
@@ -183,8 +211,16 @@ class EnhancedOverview:
                     f"  [{color}]{name:8}[/{color}] {bar} [white]{stats.tokens_formatted:>6}[/white] [dim]({stats.files} files)[/dim]"
                 )
 
-        # Context window usage estimate (200K default for Claude)
-        context_limit = 200000
+        # Context window usage estimate (default for Claude is 200K)
+        import os
+        try:
+            context_limit = int(os.environ.get("CORTEX_CONTEXT_LIMIT", 200000))
+        except (ValueError, TypeError):
+            context_limit = 200000
+        
+        # Guard against division by zero
+        context_limit = max(1, context_limit)
+        
         usage_pct = (total_stats.tokens / context_limit) * 100
         if usage_pct < 25:
             usage_color = "green"
@@ -203,6 +239,8 @@ class EnhancedOverview:
         usage_bar = f"[{usage_color}]{'█' * usage_bar_width}[/{usage_color}][dim]{'░' * (20 - usage_bar_width)}[/dim]"
 
         category_breakdown = "\n".join(lines) if lines else "  [dim]No active context files[/dim]"
+        
+        limit_formatted = f"{context_limit // 1000}K" if context_limit >= 1000 else str(context_limit)
 
         token_display = f"""
 [bold cyan]📊 CONTEXT TOKEN USAGE[/bold cyan]
@@ -214,6 +252,6 @@ class EnhancedOverview:
 
 [dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]
   [bold]Context Window Usage[/bold] [{usage_color}]{usage_status}[/{usage_color}]
-  {usage_bar} [white]{usage_pct:.1f}%[/white] [dim]of 200K[/dim]
+  {usage_bar} [white]{usage_pct:.1f}%[/white] [dim]of {limit_formatted}[/dim]
 """
         return token_display.strip()
