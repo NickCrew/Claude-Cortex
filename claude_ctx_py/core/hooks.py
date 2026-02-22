@@ -4,12 +4,81 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import shlex
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .asset_discovery import find_claude_directories
 from .base import _resolve_claude_dir
+
+
+def _check_hook_executable(command: str) -> Optional[str]:
+    """Check if the script in a command exists."""
+    try:
+        try:
+            parts = shlex.split(command)
+        except ValueError as e:
+            return f"Malformed command: {e}"
+
+        if not parts:
+            return "Empty command"
+
+        # If it's interpreter script.py, check script.py
+        script_path_str = ""
+        interpreters = (
+            "python",
+            "python3",
+            "bash",
+            "sh",
+            "node",
+            "uv",
+            "env",
+            "ruby",
+            "perl",
+            "deno",
+            "bun",
+            "pipx",
+        )
+        if parts[0] in interpreters and len(parts) > 1:
+            # Skip flags if any (naive check)
+            idx = 1
+            while idx < len(parts) and parts[idx].startswith("-"):
+                idx += 1
+
+            # Handle /usr/bin/env python3 script.py
+            if idx < len(parts) and parts[idx - 1] == "env" and parts[idx] in interpreters:
+                idx += 1
+                while idx < len(parts) and parts[idx].startswith("-"):
+                    idx += 1
+
+            if idx < len(parts):
+                script_path_str = parts[idx]
+        else:
+            script_path_str = parts[0]
+
+        if not script_path_str:
+            return None
+
+        # Resolve path
+        try:
+            script_path = Path(os.path.expanduser(script_path_str))
+        except Exception:
+            return None
+
+        if not script_path.is_absolute():
+            # We don't know the base dir for relative paths easily here
+            return None
+
+        if not script_path.exists():
+            return f"Script not found: {script_path}"
+
+        return None
+    except Exception as e:
+        # Unexpected errors should be logged or reported if they impact usability
+        return f"Validation error: {e}"
+
 
 # Set up file logging for debugging hook installation
 _log_path = Path.home() / ".claude" / "hook_install.log"
@@ -207,13 +276,23 @@ def validate_hooks_config(config: Dict[str, Any]) -> Tuple[bool, List[str]]:
         return False, ["Hooks config must be a JSON object with a 'hooks' map."]
 
     present: Dict[str, bool] = {}
-    for matchers in hooks_config.values():
+    for event, matchers in hooks_config.items():
         if not isinstance(matchers, list):
             continue
         for matcher_entry in matchers:
+            if not isinstance(matcher_entry, dict):
+                continue
             for hook in matcher_entry.get("hooks", []):
+                if not isinstance(hook, dict):
+                    continue
                 command = hook.get("command", "")
                 args = hook.get("args", [])
+
+                # Check executable exists if absolute path is used
+                error = _check_hook_executable(command)
+                if error:
+                    errors.append(f"Hook '{event}': {error}")
+
                 for group in MUTUALLY_EXCLUSIVE_HOOK_GROUPS:
                     for name in group:
                         if _hook_name_matches(name, command, args):
