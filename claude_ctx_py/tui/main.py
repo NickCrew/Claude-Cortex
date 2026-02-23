@@ -111,6 +111,7 @@ from ..core import (
     unlink_all_codex_skills,
 )
 from ..core.rules import rules_activate, rules_deactivate
+from ..core.skills import skill_activate, skill_deactivate
 from ..core.base import (
     _iter_md_files,
     _parse_active_entries,
@@ -898,23 +899,22 @@ class AgentTUI(App[None]):
         return self._normalize_slug(relative.as_posix())
 
     def _active_rule_slugs(self, claude_dir: Path) -> Set[str]:
-        """Return active rule slugs from .active-rules and live files."""
-        active = {
-            self._normalize_slug(entry)
-            for entry in _parse_active_entries(claude_dir / ".active-rules")
-        }
-        # Check live files from CORTEX_ROOT (source of truth), not claude_dir
-        cortex_root = _resolve_cortex_root()
-        rules_dir = cortex_root / "rules"
-        # Check files directly in rules_dir
-        for path in _iter_md_files(rules_dir):
-            active.add(self._relative_slug(path, rules_dir))
-        # Also check immediate subdirectories (e.g., rules/cortex/)
-        if rules_dir.is_dir():
-            for subdir in rules_dir.iterdir():
-                if subdir.is_dir():
-                    for path in _iter_md_files(subdir):
-                        active.add(self._relative_slug(path, subdir))
+        """Return active rule slugs based on symlinks in ~/.claude/skills/.
+
+        Checks for symlinks in ~/.claude/skills/ (with .json extension).
+        Rules are "active" if a symlink exists to them.
+        """
+        active: Set[str] = set()
+
+        # Check for rule symlinks in ~/.claude/skills/
+        skills_dir = claude_dir / "skills"
+        if skills_dir.is_dir():
+            for path in skills_dir.glob("*.json"):
+                if path.is_symlink():
+                    # Extract rule slug from filename (remove .json)
+                    slug = path.stem
+                    active.add(slug)
+
         return active
 
     def _ensure_configured_mcp(self, server: MCPServerInfo, action: str) -> bool:
@@ -1066,7 +1066,12 @@ class AgentTUI(App[None]):
             self.notify(error or f"{title} failed", severity="error", timeout=3)
 
     def load_agents(self) -> None:
-        """Load agents from the system."""
+        """Load agents from the system.
+
+        Uses symlink presence in ~/.claude/agents to determine activation status.
+        Agents are loaded from CORTEX_ROOT/agents, and their status is "active"
+        if a symlink exists in ~/.claude/agents/, otherwise "inactive".
+        """
         try:
             agents = []
             seen_names = set()  # Track agent names to avoid duplicates
@@ -1075,27 +1080,22 @@ class AgentTUI(App[None]):
             self.agent_slug_lookup = {}
             self.agent_category_lookup = {}
 
-            # Check active agents (from CORTEX_ROOT)
+            # Load all available agents from CORTEX_ROOT
             agents_dir = cortex_root / "agents"
             if agents_dir.is_dir():
                 for path in _iter_all_files(agents_dir):
                     if not path.name.endswith(".md") or _is_disabled(path):
                         continue
-                    node = self._parse_agent_file(path, "active")
+
+                    # Determine status based on symlink presence in ~/.claude/agents/
+                    installed_path = claude_dir / "agents" / path.name
+                    is_active = installed_path.exists() or installed_path.is_symlink()
+                    status = "active" if is_active else "inactive"
+
+                    node = self._parse_agent_file(path, status)
                     if node and node.name not in seen_names:
                         agents.append(node)
                         seen_names.add(node.name)
-
-            # Check disabled agents
-            for disabled_dir in _inactive_dir_candidates(claude_dir, "agents"):
-                if disabled_dir and disabled_dir.is_dir():
-                    for path in _iter_all_files(disabled_dir):
-                        if not path.name.endswith(".md"):
-                            continue
-                        node = self._parse_agent_file(path, "disabled")
-                        if node and node.name not in seen_names:
-                            agents.append(node)
-                            seen_names.add(node.name)
 
             # Sort by category and name
             agents.sort(key=lambda a: (a.category, a.name.lower()))
@@ -1175,7 +1175,12 @@ class AgentTUI(App[None]):
             return None
 
     def load_skills(self) -> None:
-        """Load skills from the system."""
+        """Load skills from the system.
+
+        Uses symlink presence in ~/.claude/skills to determine activation status.
+        Skills are loaded from CORTEX_ROOT/skills, and their status includes
+        both gitignore state and symlink activation state.
+        """
         try:
             skills = []
             cortex_root = _resolve_cortex_root()
@@ -1195,6 +1200,10 @@ class AgentTUI(App[None]):
 
                     skill_data = self._parse_skill_file(skill_file, claude_dir)
                     if skill_data:
+                        # Check if skill has symlink in ~/.claude/skills/
+                        installed_path = claude_dir / "skills" / skill_path.name
+                        is_installed = installed_path.exists() or installed_path.is_symlink()
+                        skill_data["installed"] = is_installed
                         skills.append(skill_data)
 
             # Sort by category then name
@@ -1805,14 +1814,19 @@ class AgentTUI(App[None]):
         self.refresh_status_bar()
 
     def load_rules(self) -> None:
-        """Load rules from the system."""
+        """Load rules from the system.
+
+        Uses symlink presence in ~/.claude/skills/ to determine activation status.
+        Rules are loaded from CORTEX_ROOT/rules, and their status is "active"
+        if a symlink exists in ~/.claude/skills/, otherwise "inactive".
+        """
         try:
             rules: List[RuleNode] = []
             cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
             active_rule_slugs = self._active_rule_slugs(claude_dir)
 
-            # Check active rules (from CORTEX_ROOT)
+            # Load all available rules from CORTEX_ROOT/rules
             rules_dir = self._validate_path(cortex_root, cortex_root / "rules")
             if rules_dir.is_dir():
                 # Look for .md files directly in rules_dir
@@ -1821,10 +1835,7 @@ class AgentTUI(App[None]):
                         continue
                     slug = self._relative_slug(path, rules_dir)
                     status = "active" if slug in active_rule_slugs else "inactive"
-                    node = self._parse_rule_file(
-                        path,
-                        status,
-                    )
+                    node = self._parse_rule_file(path, status)
                     if node:
                         rules.append(node)
 
@@ -1836,30 +1847,6 @@ class AgentTUI(App[None]):
                         if _is_disabled(path):
                             continue
                         slug = self._relative_slug(path, subdir)
-                        status = "active" if slug in active_rule_slugs else "inactive"
-                        node = self._parse_rule_file(
-                            path,
-                            status,
-                        )
-                        if node:
-                            rules.append(node)
-
-            # Check disabled rules in cortex_root/inactive/rules
-            cortex_inactive_rules = cortex_root / "inactive" / "rules"
-            if cortex_inactive_rules.is_dir():
-                for path in _iter_md_files(cortex_inactive_rules):
-                    slug = self._relative_slug(path, cortex_inactive_rules)
-                    status = "active" if slug in active_rule_slugs else "inactive"
-                    node = self._parse_rule_file(path, status)
-                    if node:
-                        rules.append(node)
-
-            # Also check disabled rules in claude_dir/inactive/rules (for backwards compatibility)
-            for disabled_dir in _inactive_dir_candidates(claude_dir, "rules"):
-                valid_dir = self._validate_path(claude_dir, disabled_dir)
-                if valid_dir.is_dir():
-                    for path in _iter_md_files(valid_dir):
-                        slug = self._relative_slug(path, valid_dir)
                         status = "active" if slug in active_rule_slugs else "inactive"
                         node = self._parse_rule_file(path, status)
                         if node:
@@ -4760,7 +4747,12 @@ class AgentTUI(App[None]):
                     register_hooks=managed,
                 )
                 if exit_code == 0:
-                    self.notify(f"✓ Copied {asset.display_name}", severity="information", timeout=2)
+                    # Determine install type based on asset category
+                    if asset.category == AssetCategory.SETTINGS:
+                        action_verb = "Copied"
+                    else:
+                        action_verb = "Installed"
+                    self.notify(f"✓ {action_verb} {asset.display_name}", severity="information", timeout=2)
                     if self._asset_triggers_restart(asset):
                         self._show_restart_required()
                 else:
@@ -4941,10 +4933,10 @@ class AgentTUI(App[None]):
                             failed_count += 1
 
             if failed_count == 0:
-                self.notify(f"✓ Copied {copied_count} assets", severity="information", timeout=2)
+                self.notify(f"✓ Installed {copied_count} assets", severity="information", timeout=2)
             else:
                 self.notify(
-                    f"Copied {copied_count}, failed {failed_count}",
+                    f"Installed {copied_count}, failed {failed_count}",
                     severity="warning",
                     timeout=3,
                 )
@@ -7705,6 +7697,77 @@ class AgentTUI(App[None]):
                                 self.notify(
                                     f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
                                 )
+
+        elif self.current_view == "skills":
+            table = self.query_one(DataTable)
+            if table.cursor_row is not None:
+                # Save current cursor position
+                saved_cursor_row = table.cursor_row
+
+                row_key = table.get_row_at(table.cursor_row)
+                if row_key and len(row_key) > 0:
+                    # Get plain text from first column (strip Rich markup and icons)
+                    from rich.text import Text
+
+                    raw_name = str(row_key[0])
+                    # Use Rich to strip markup, then remove icon emoji
+                    plain_text = Text.from_markup(raw_name).plain
+                    # Remove the icon (first character if it's an emoji)
+                    skill_name = plain_text.strip()
+                    if skill_name and len(skill_name) > 0 and ord(skill_name[0]) > 127:
+                        skill_name = skill_name[1:].strip()
+
+                    skill = next((s for s in self.skills if s["name"] == skill_name), None)
+                    if skill:
+                        try:
+                            is_installed = skill.get("installed", False)
+                            if is_installed:
+                                exit_code, message = skill_deactivate(skill["slug"])
+                            else:
+                                exit_code, message = skill_activate(skill["slug"])
+
+                            # Remove ANSI codes
+                            import re
+
+                            clean_message = re.sub(r"\x1b\[[0-9;]*m", "", message)
+                            self.status_message = clean_message.split("\n")[0]
+
+                            if exit_code == 0:
+                                if is_installed:
+                                    self.notify(
+                                        f"✓ Deactivated {skill_name}",
+                                        severity="information",
+                                        timeout=2,
+                                    )
+                                else:
+                                    self.notify(
+                                        f"✓ Activated {skill_name}",
+                                        severity="information",
+                                        timeout=2,
+                                    )
+                                self.load_skills()
+                                self.update_view()
+
+                                # Restore cursor to same position (showing next skill)
+                                table = self.query_one(DataTable)
+                                if table.row_count > 0:
+                                    # Keep at same index, or last row if we were at the end
+                                    new_cursor_row = min(
+                                        saved_cursor_row, table.row_count - 1
+                                    )
+                                    table.move_cursor(row=new_cursor_row)
+                                self._show_restart_required()
+                            else:
+                                self.notify(
+                                    f"✗ Failed to toggle {skill_name}",
+                                    severity="error",
+                                    timeout=3,
+                                )
+                        except Exception as e:
+                            self.status_message = f"Error: {e}"
+                            self.notify(
+                                f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                            )
 
         elif self.current_view == "codex_skills":
             self.action_toggle_codex_skill()
