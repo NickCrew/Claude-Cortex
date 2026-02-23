@@ -77,11 +77,9 @@ claude_ctx_py/
 ### CLI Commands
 
 ```bash
-# Mode management
-cortex mode list
-cortex mode status
-cortex mode activate Brainstorming
-cortex mode deactivate Brainstorming
+# Status and context
+cortex status
+cat ~/.claude/.active-modes
 
 # Agent management
 cortex agent list
@@ -107,9 +105,8 @@ cortex mcp list
 cortex mcp show context7
 cortex mcp docs sequential
 
-# Workflows
-cortex workflow list
-cortex workflow run workflow-name
+# Review gate
+cortex review --dry-run
 
 # TUI
 cortex tui
@@ -150,13 +147,6 @@ AI Assistant (8):
 ### Agent Management
 
 ```python
-from claude_ctx_py.core import (
-    agent_activate,
-    agent_deactivate,
-    build_agent_graph,
-    agent_deps,
-)
-
 # Activate agent (with dependencies)
 agent_activate("code-reviewer")
 
@@ -173,12 +163,6 @@ agent_deps("code-reviewer")
 ### Intelligence System
 
 ```python
-from claude_ctx_py.intelligence import (
-    SessionContext,
-    AgentRecommendation,
-    PatternLearner,
-)
-
 # Build session context
 context = SessionContext(
     files_changed=["src/auth.py", "tests/test_auth.py"],
@@ -200,12 +184,6 @@ auto_activate = [r for r in recommendations if r.confidence >= 0.8]
 ### Skill Management
 
 ```python
-from claude_ctx_py.core import (
-    skill_rate,
-    skill_metrics,
-    skill_recommend,
-)
-
 # Rate a skill
 skill_rate("owasp-top-10", stars=5, review="Excellent security guide")
 
@@ -366,8 +344,6 @@ tail -f ~/.textual/cortex.log
 
 ```python
 # Add verbose output
-from claude_ctx_py.intelligence import PatternLearner
-
 learner = PatternLearner(verbose=True)
 recommendations = learner.recommend_agents(context)
 ```
@@ -422,7 +398,7 @@ CORTEX_NO_COLOR=1            # Disable color output
 **Issue**: TUI doesn't render correctly
 
 - **Solution**: Update terminal or use different emulator
-- **Check**: `echo $TERM` should be `xterm-256color` or similar
+- **Check**: confirm your terminal profile is configured for 256-color support
 
 **Issue**: Agent activation fails with dependency errors
 

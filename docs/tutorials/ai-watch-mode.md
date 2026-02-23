@@ -417,7 +417,6 @@ You've learned how to:
 ## Next Steps
 
 - **[Skill Authoring Cookbook](../skill-authoring-cookbook/)** - Create custom skills
-- **[Workflow Orchestration](../workflow-orchestration/)** - Multi-step automation
 - **[CI/CD Integration](../ci-cd-integration/)** - Automate context in pipelines
 
 ---

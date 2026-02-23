@@ -70,7 +70,6 @@
 
 | Document | Status |
 |----------|--------|
-| `docs/reference/api/prompts.md` | ✅ Created |
 | `docs/reference/api/installer.md` | ✅ Created |
 | `docs/reference/api/index.md` | ✅ Created |
 

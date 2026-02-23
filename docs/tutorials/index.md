@@ -58,7 +58,6 @@ Structured progressions that connect tutorials into a guided journey.
 
 - *Coming Soon:* **Custom Profiles** — Create project-specific configurations
 - **[AI Watch Mode](ai-watch-mode/)** — Real-time intelligent recommendations
-- **[Workflow Orchestration](workflow-orchestration/)** — Multi-phase scenario management
 
 ### Advanced
 

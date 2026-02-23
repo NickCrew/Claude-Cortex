@@ -6,102 +6,107 @@ nav_order: 2
 
 # Getting Started
 
-This repository packages the `cortex` context management toolkit as a Claude Code plugin. It bundles the curated agents, commands, modes, rules, and supporting Python CLI so teams can install the complete experience through the plugin system or keep using the standalone `cortex` script.
+Cortex packages curated Claude Code assets (agents, skills, rules, hooks) and a Python CLI (`cortex`) for managing them.
 
-## What’s inside
+## What’s in this repository
 
-- `commands/` – slash command definitions that surface curated behavioural prompts
-- `agents/` and `inactive/agents/` – Claude subagents with dependency metadata
-- `modes/` – opinionated context modules that toggle workflow defaults (tracked via `.active-modes`)
-- `rules/` – reusable rule sets referenced by the CLI and plugin commands (active rules live here; inactive rules live in `inactive/rules/`)
-- `flags/` – modular context packs toggled via `FLAGS.md`
-- `hooks/` – optional automation hooks
-- `profiles/`, `scenarios/`, `workflows/` – higher-level orchestration templates for complex workstreams
-- `claude_ctx_py/` and `claude-cortex` – Python CLI entrypoint mirroring the original `cortex`
-- `schema/` and `scripts/` – validation schemas and helper scripts
+- `commands/` - command markdown assets
+- `agents/` - active agent definitions
+- `skills/` - reusable skill packs
+- `rules/` - rule modules
+- `hooks/` - hook scripts and config
+- `claude_ctx_py/` - CLI implementation
+- `schemas/` - JSON/YAML schemas
+- `docs/` - guides and reference docs
 
-The plugin manifest lives in `.claude-plugin/plugin.json` so Claude Code detects commands and agents automatically when the marketplace entry points to this repository.
+## Install
 
-## Installing via Claude Code
-
-1. Add the marketplace that references this repository (see the companion [`NickCrew/claude-marketplace`](https://github.com/NickCrew/claude-marketplace) project).
-2. Install the plugin with `/plugin install cortex@<marketplace-name>`.
-3. Restart Claude Code so the new commands and agents load.
-
-After installation, the `/plugin` browser will list the bundled commands, and the `/agents` panel will show all active agents from the `agents/` directory.
-
-## Using the bundled CLI
+### 1) Install plugin assets in Claude Code
 
 ```bash
-# Install the package (pick one)
-python3 -m pip install -e ".[dev]"
-# or: uv pip install -e ".[dev]"
-# or: pipx install -e .
+claude install github:NickCrew/claude-cortex
+```
 
-# Finish setup (completions, manpages, docs)
+### 2) Install the CLI (optional, recommended)
+
+```bash
+# pipx
+pipx install claude-cortex
+
+# or pip
+pip install claude-cortex
+```
+
+## Local development setup
+
+```bash
+git clone https://github.com/NickCrew/claude-cortex.git
+cd claude-cortex
+pip install -e ".[dev]"
+
+# Link repo assets into ~/.claude
+cortex install link
+
+# Optional post-install helpers (completions + manpages)
 cortex install post
-
-# Try it out
-cortex mode list
-cortex agent graph --export dependency-map.md
-
-# Launch Claude Code with Cortex
-cortex start
 ```
 
-Running the CLI directly will operate on the directories in this repository, which mirror the layout expected inside `~/.cortex`.
-
-> **Note:** `cortex` is still available as a deprecated alias of `cortex`.
-
-### Init & Migration
-
-Use the init commands to detect project context and apply profiles:
+## Verify your setup
 
 ```bash
-cortex init detect
-cortex init profile backend
-cortex init status
+cortex --help
+cortex status
+cortex agent list
+cortex skills list
 ```
 
-> **Tip:** The CLI resolves its data folder in this order: `CORTEX_SCOPE` (project/global/plugin), `CLAUDE_PLUGIN_ROOT` (set automatically when Claude Code runs plugin commands), then `CORTEX_ROOT` (default `~/.cortex`). To point the standalone CLI at the plugin cache (or a local checkout), set:
->
-> ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
-> ```
->
-> or, if you work from another checkout:
->
-> ```bash
-> export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/cortex-plugin"
-> ```
->
-> To target a project-local scope or a specific plugin root:
->
-> ```bash
-> cortex --scope project status
-> cortex --plugin-root /path/to/cortex-plugin status
-> ```
->
-> Set that once (for example in `~/.zshrc`) and the standalone CLI will use the same cached plugin copy without reinstalling.
-
-### Shell completion
-
-`cortex` ships with built-in completion scripts for Bash, Zsh, and Fish:
+## First useful commands
 
 ```bash
-# Auto-detect your shell
+# AI recommendations
+cortex ai recommend
+
+# MCP inventory/diagnostics
+cortex mcp list
+cortex mcp diagnose
+
+# Worktree support
+cortex worktree list
+
+# Interactive UI
+cortex tui
+```
+
+## Scope and root controls
+
+The CLI has two important selectors:
+
+- `--scope {auto,project,global}` chooses which `.claude/` directory is used for user state/config.
+- `--cortex-root` (alias: `--plugin-root`) points Cortex to a specific asset root.
+
+Examples:
+
+```bash
+# Use project-local .claude if present
+cortex --scope project status
+
+# Force a specific asset root
+cortex --cortex-root /path/to/claude-cortex status
+```
+
+## Shell completions
+
+```bash
+# Auto-detect shell
 cortex install completions
 
-# Or generate/install manually
-cortex completion zsh --install
+# Explicit shell
+cortex install completions --shell zsh
 ```
 
-For system-wide installs or manual scripts, see [Shell Completions](COMPLETIONS.md).
+For options and paths, run `cortex install completions --help`.
 
 ## Development notes
 
-- Update the version in `.claude-plugin/plugin.json` whenever you publish a new release.
-- Keep semantic changes to commands or agents alongside changelog entries in `CLAUDE.md` or `RULES.md`.
-- Use `claude plugin validate .` to confirm the manifest structure prior to publishing.
-
-For marketplace configuration examples, see `../claude-private-marketplace`.
+- Run `just test`, `just lint`, and `just type-check` before shipping docs or code changes.
+- Use `cortex dev validate` to validate the skill registry and `cortex dev manpages` when CLI docs need regenerated.

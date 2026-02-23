@@ -206,12 +206,12 @@ The system follows a **layered architecture** with clear separation of concerns:
 
 ### 3.1 Separation of Concerns
 
-**UI Layer** (`cli.py`, `tui/main.py`)
+**UI Layer** (`claude_ctx_py/cli.py`, `claude_ctx_py/tui/main.py`)
 
 - ✅ **Responsible for**: User interaction, input validation, output formatting
 - ❌ **Not responsible for**: Business logic, file I/O, data persistence
 
-**Intelligence Layer** (`intelligence.py`, `skill_recommender.py`)
+**Intelligence Layer** (`claude_ctx_py/intelligence/`, `claude_ctx_py/skill_recommender.py`)
 
 - ✅ **Responsible for**: Context analysis, pattern matching, recommendations
 - ❌ **Not responsible for**: UI rendering, direct file manipulation
@@ -400,9 +400,7 @@ def main() -> int:
 The CLI uses **Rich** library for terminal formatting:
 
 ```python
-from rich.console import Console
-from rich.table import Table
-
+# Pseudocode outline for formatted terminal output
 console = Console()
 
 # Rich tables for list commands
@@ -424,12 +422,12 @@ The CLI includes built-in shell completion generation:
 
 ```bash
 # Generate completions
-cortex completion bash > ~/.bash_completion.d/cortex
-cortex completion zsh > ~/.zsh/completions/_cortex
-cortex completion fish > ~/.config/fish/completions/cortex.fish
+cortex install completions --shell bash
+cortex install completions --shell zsh
+cortex install completions --shell fish
 
 # Show installation instructions
-cortex completion bash --install
+cortex install completions --shell bash
 ```
 
 **Implementation**:
@@ -503,9 +501,9 @@ tui/
 **Key Improvements** (Recent Refactoring):
 
 - **Package Structure**: Proper Python package with `__init__.py`
-- **Centralized Main**: `main.py` consolidated from 1,000+ LOC scattered file
+- **Centralized Main**: `claude_ctx_py/tui/main.py` consolidated from large legacy files
 - **TCSS Styling**: External CSS-like styling for maintainability
-- **Type Safety**: Dedicated `types.py` for type definitions
+- **Type Safety**: Dedicated `claude_ctx_py/tui/types.py` for type definitions
 - **Modular Widgets**: Reusable components in dedicated directories
 
 #### View Lifecycle
@@ -684,7 +682,7 @@ StatusBar {
 
 ### 4.3 Intelligence System
 
-**Location**: `claude_ctx_py/intelligence.py`
+**Location**: `claude_ctx_py/intelligence/`
 
 The Intelligence System is the **brain** of cortex—it analyzes context, learns patterns, and makes recommendations.
 
@@ -1311,7 +1309,7 @@ Keys: Enter=View | e=Edit | d=Delete | n=New | /=Search | r=Refresh
 
 The core business logic is organized into specialized modules, each responsible for a specific domain.
 
-#### 4.5.1 Agents Module (`core/agents.py`)
+#### 4.5.1 Agents Module (`claude_ctx_py/core/agents.py`)
 
 Manages Claude subagents with dependency resolution.
 
@@ -1448,7 +1446,7 @@ def _topological_sort(graph: Dict[str, Set[str]]) -> List[str]:
     return result
 ```
 
-#### 4.5.2 Skills Module (`core/skills.py`)
+#### 4.5.2 Skills Module (`claude_ctx_py/core/skills.py`)
 
 Manages reusable skills with ratings and analytics.
 
@@ -1529,7 +1527,7 @@ def skill_analytics(db_path: Path) -> Dict[str, Any]:
     }
 ```
 
-#### 4.5.3 Modes Module (`core/modes.py`)
+#### 4.5.3 Component State Module (`claude_ctx_py/core/components.py`)
 
 Manages behavioral modes with intelligent activation.
 
@@ -1584,7 +1582,7 @@ def mode_smart_select(
     return None
 ```
 
-#### 4.5.4 Workflows Module (`core/workflows.py`)
+#### 4.5.4 Worktree Module (`claude_ctx_py/core/worktrees.py`)
 
 Orchestrates multi-step workflows.
 
@@ -2358,23 +2356,19 @@ def component_deactivate(
 
 ```bash
 # Activate a mode
-$ cortex mode activate Brainstorming
+$ cat ~/.claude/.active-modes
 
 # Deactivate a rule
 $ cortex rules deactivate quality-gate-rules
 
 # List active/inactive
-$ cortex mode list
+$ cortex status
 ```
 
 **Programmatic Usage**:
 
 ```python
-from claude_ctx_py.core.components import (
-    component_activate,
-    component_deactivate,
-    parse_claude_md_components
-)
+# Example calls (helpers available from the core package)
 
 # Activate a mode
 exit_code, message = component_activate("modes", "Brainstorming")
@@ -2389,11 +2383,11 @@ print(f"Inactive: {inactive}")
 
 ---
 
-### 4.9 Doctor Diagnostic System
+### 4.9 Validation & Review System
 
-**Location**: `claude_ctx_py/core/doctor.py`
+**Location**: `claude_ctx_py/cmd_review.py`, `claude_ctx_py/commands/dev_validate.py`
 
-The Doctor Diagnostic System provides **system health checks and validation** for the cortex environment.
+The validation/review system provides **quality checks and review gating** for the cortex environment.
 
 #### Architecture
 
@@ -2440,7 +2434,7 @@ def check_consistency(claude_dir: Path) -> List[Diagnosis]:
                     level="ERROR",
                     message=f"Active mode '{mode}' references missing file",
                     resource=str(mode_path),
-                    suggestion=f"Run 'cortex mode deactivate {mode}'"
+                    suggestion=f"Update .active-modes to remove {mode}"
                 ))
     
     # Active Rules
@@ -2633,9 +2627,9 @@ The data layer uses multiple storage backends optimized for different use cases.
 
 - **Location**: `~/.claude/data/`
 - **Files**:
-  - `patterns.json` - Session history for pattern learning
-  - `activity.json` - Activity metrics
-  - `recommendations.json` - Cached recommendations
+  - `skill-ratings.db` - Ratings and feedback
+  - `skill-recommendations.db` - Recommendation history and signals
+  - `ai-recommendations.json` - Optional exported recommendation snapshot
 - **Use case**: Fast serialization, structured data
 
 **3. SQLite Database** (Skill ratings)
@@ -2924,14 +2918,14 @@ SQLite: INSERT INTO skill_activations
 
 ```
 1. Install CLI
-   $ ./scripts/deprecated/install.sh
+   $ pip install -e ".[dev]"
    
 2. Verify installation
-   $ cortex --version
-   $ cortex mode list
+   $ cortex --help
+   $ cortex status
    
 3. (Optional) Set up shell completion
-   $ cortex completion bash --install
+   $ cortex install completions --shell bash
    
 4. Launch TUI to explore
    $ cortex tui
@@ -2975,14 +2969,14 @@ $ cortex memory capture "Implemented 2FA authentication"
 
 ```
 # 1. Activate security profile
-$ cortex profile load security-audit
+$ cortex agent activate security-auditor
 
 # 2. Review active agents
-$ cortex agent list --active
+$ cortex agent status
 # Activated: security-auditor, compliance-auditor, penetration-tester
 
 # 3. Run workflow
-$ cortex workflow run security-comprehensive
+$ cortex review --dry-run -c security
 
 # 4. Review findings
 [Agents provide security findings in Claude Code]
@@ -2991,7 +2985,7 @@ $ cortex workflow run security-comprehensive
 $ cortex memory fix "Found SQL injection in /api/users endpoint"
 
 # 6. Deactivate profile
-$ cortex profile unload
+$ cortex agent deactivate security-auditor
 ```
 
 ---
@@ -3222,12 +3216,10 @@ skills:
 
 **Adding a New View**:
 
-1. Create view class in `tui/screens/`:
+1. Create view class in `claude_ctx_py/tui/`:
 
 ```python
-# tui/screens/my_view.py
-from textual.screen import Screen
-from textual.widgets import DataTable
+# claude_ctx_py/tui/my_view.py (example)
 
 class MyView(Screen):
     """My custom view."""
@@ -3263,7 +3255,6 @@ class ClaudeCtxApp(App):
 
 ```python
 # custom_intelligence.py
-from claude_ctx_py.intelligence import IntelligentAgent
 
 class CustomIntelligence(IntelligentAgent):
     """Extended intelligence with custom rules."""
@@ -3296,10 +3287,10 @@ class CustomIntelligence(IntelligentAgent):
 
 ### 12.1 Installation Methods
 
-**1. Script Installation** (Recommended):
+**1. Editable Installation** (Recommended):
 
 ```bash
-$ ./scripts/deprecated/install.sh
+$ pip install -e ".[dev]"
 # Installs CLI, completions, manpage
 ```
 
@@ -3307,7 +3298,7 @@ $ ./scripts/deprecated/install.sh
 
 ```bash
 python3 -m pip install .
-cortex completion bash --install
+cortex install completions --shell bash
 sudo cp docs/reference/cortex.1 /usr/local/share/man/man1/
 ```
 
@@ -3353,8 +3344,8 @@ sudo cp docs/reference/cortex.1 /usr/local/share/man/man1/
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `CLAUDE_PLUGIN_ROOT` | Plugin sandbox (set by Claude Code) | - |
-| `CORTEX_MEMORY_VAULT` | Memory vault location | `~/basic-memory` |
-| `CORTEX_DEBUG` | Enable debug logging | `false` |
+| CORTEX_ROOT | Cortex asset root override | auto-detected |
+| CORTEX_SCOPE | Scope selector (`auto/project/global`) | `auto` |
 
 ### 12.4 Multi-User / Team Setup
 
@@ -3371,7 +3362,7 @@ team-cortex/
 
 # Each developer
 export CLAUDE_PLUGIN_ROOT=/path/to/team-cortex
-cortex mode list  # Sees team modes
+cortex status  # Sees current status
 ```
 
 **Personal Overrides**:
@@ -3421,13 +3412,13 @@ $ echo $CLAUDE_PLUGIN_ROOT
 $ python3 -m pip show textual
 
 # Run with debug mode
-$ TEXTUAL_LOG=1 cortex tui
+$ env TEXTUAL_LOG=1 cortex tui
 ```
 
 **Resolution**:
 
 - Update Textual: `pip install --upgrade textual`
-- Check terminal supports 256 colors: `echo $TERM`
+- Check terminal supports 256 colors in your emulator settings
 - Try different terminal emulator (iTerm2, Alacritty)
 
 #### Issue: Watch mode not detecting changes
@@ -3500,7 +3491,7 @@ $ top -p $(pgrep -f "cortex tui")
 
 - Move unused agents to `inactive/`
 - Reduce skill count (archive old skills)
-- Increase Python heap: `PYTHONMALLOC=malloc cortex tui`
+- Try alternate allocator env: `env PYTHONMALLOC=malloc cortex tui`
 - Use faster terminal emulator
 
 #### Issue: High CPU usage in watch mode
@@ -3513,8 +3504,8 @@ $ top -p $(pgrep -f "cortex tui")
 # Check polling interval
 $ ps aux | grep "cortex ai watch"
 
-# Monitor git operations
-$ strace -p $(pgrep -f "cortex ai watch") 2>&1 | grep git
+# Inspect related processes
+$ ps -ef | grep "cortex ai watch"
 ```
 
 **Resolution**:

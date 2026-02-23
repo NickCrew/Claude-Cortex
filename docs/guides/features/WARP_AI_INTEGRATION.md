@@ -321,13 +321,12 @@ ctx-copy
 
 - `cortex export list` - List all available components
 - `cortex agent list` - List available agents
-- `cortex mode list` - List available modes
+- `cortex status` - Show current overall status
 - `cortex tui` - Launch interactive TUI
-- `cortex completion bash` - Generate shell completions
+- `cortex install completions --shell bash` - Install shell completions
 
 ## Further Reading
 
 - [Export Context Documentation](./EXPORT_CONTEXT.md)
 - [Agent Management](../agents.md)
-- [Mode Management](../modes.md)
 - [Shell Completions](../COMPLETIONS.md)

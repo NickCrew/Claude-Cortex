@@ -98,7 +98,7 @@ jobs:
       - name: Validate scenarios
         run: |
           if [ -d "scenarios" ]; then
-            cortex orchestrate validate --all
+            cortex dev validate --check-paths
           fi
 
       - name: Check configuration syntax
@@ -115,7 +115,7 @@ jobs:
 ### What This Validates
 
 1. **Agent files** - Check for valid markdown structure
-2. **Scenarios** - Full schema validation via `orchestrate validate`
+2. **Scenarios** - Full schema validation via `dev validate`
 3. **YAML syntax** - All configuration files parse correctly
 
 ---
@@ -205,16 +205,13 @@ jobs:
           mkdir -p dist/context
 
           # Export current configuration
-          cortex export context \
-            --output dist/context/context-snapshot.md \
-            --format markdown
+          cortex export context dist/context/context-snapshot.md
 
           # Export agent graph
-          cortex agent graph \
-            --output dist/context/agent-dependencies.md
+          cortex agent graph --export dist/context/agent-dependencies.md
 
           # Export active configuration
-          cortex status --json > dist/context/status.json
+          cortex status > dist/context/status.txt
 
       - name: Upload context artifacts
         uses: actions/upload-artifact@v4
@@ -277,7 +274,7 @@ jobs:
 
           # Validate all scenarios
           if [ -d "scenarios" ]; then
-            cortex orchestrate validate --all
+            cortex dev validate --check-paths
           fi
 
       - name: Python Semantic Release
@@ -338,7 +335,7 @@ jobs:
         id: scenarios
         run: |
           if [ -d "scenarios" ]; then
-            cortex orchestrate validate --all 2>&1 | tee validation.log
+            cortex dev validate --check-paths 2>&1 | tee validation.log
             if grep -q "ERROR" validation.log; then
               echo "scenario_valid=false" >> $GITHUB_OUTPUT
               exit 1
@@ -350,7 +347,7 @@ jobs:
         id: agents
         run: |
           # Verify no circular dependencies
-          cortex agent graph --check-cycles
+          cortex agent graph --export deps.md
           echo "agents_valid=true" >> $GITHUB_OUTPUT
 
       - name: Validate YAML schemas
@@ -438,13 +435,10 @@ jobs:
 
       - name: Test with ${{ matrix.config.name }} profile
         run: |
-          # Apply profile
-          cortex profile apply ${{ matrix.config.profile }}
-
           # Verify configuration loads
           cortex status
 
-          # Run profile-specific tests
+          # Run matrix-specific tests
           pytest tests/ -k "${{ matrix.config.name }}" -v
 ```
 
@@ -478,18 +472,10 @@ jobs:
         run: |
           # Check for outdated configurations
           echo "=== Configuration Health ==="
-          cortex status --json | python -c "
-          import json, sys
-          data = json.load(sys.stdin)
-          print(f'Active agents: {len(data.get(\"agents\", []))}')
-          print(f'Active modes: {len(data.get(\"modes\", []))}')
-          print(f'Active skills: {len(data.get(\"skills\", []))}')
-          "
+          cortex status
 
           # Validate all configurations still valid
-          if [ -d "scenarios" ]; then
-            cortex orchestrate validate --all
-          fi
+          cortex dev validate --check-paths
 
       - name: Create issue on failure
         if: failure()
@@ -562,7 +548,7 @@ Create `.git/hooks/pre-push`:
 # Validate scenarios before push
 if [ -d "scenarios" ]; then
     echo "Validating scenarios..."
-    if ! cortex orchestrate validate --all; then
+    if ! cortex dev validate --check-paths; then
         echo "ERROR: Invalid scenarios detected. Push aborted."
         exit 1
     fi
@@ -598,7 +584,7 @@ permissions:
 - name: Validate with verbose
   run: |
     set -x  # Enable command tracing
-    cortex orchestrate validate --all --verbose
+    cortex dev validate --check-paths --verbose
 ```
 
 **Cache for faster builds:**
@@ -624,7 +610,6 @@ You've learned how to:
 - Use pre-commit hooks for local validation
 
 **Next Steps:**
-- [Workflow Orchestration](../workflow-orchestration/) - Complex scenario management
 - [Skill Authoring](../skill-authoring-cookbook/) - Create custom skills
 - [AI Watch Mode](../ai-watch-mode/) - Intelligent recommendations
 
@@ -636,19 +621,19 @@ You've learned how to:
 
 ```yaml
 # Basic validation
-cortex orchestrate validate --all
+cortex dev validate --check-paths
 
 # Export context
-cortex export context --output context.md
+cortex export context context.md
 
 # Check agent graph
-cortex agent graph --check-cycles
+cortex agent graph --export deps.md
 
-# Apply profile
-cortex profile apply production
+# Run review gate (dry run)
+cortex review --dry-run
 
-# Get status as JSON
-cortex status --json
+# Get current status
+cortex status
 ```
 
 ### Quality Gate Checklist

@@ -47,7 +47,8 @@ skills. You never grade your own homework.
 | **Test Auditor** | Claude | Invoked via `test-review-request` skill — finds gaps AND flags bad tests |
 | **Remediator** | Codex or Gemini | Fixes findings from Claude's reviews |
 
-**Critical rule:** Codex and Gemini NEVER self-review. Every review step means invoking a skill to send work to Claude. If you cannot invoke the review skill, STOP and escalate — do not substitute your own review.
+**Critical rule:** Codex and Gemini NEVER self-review. Every review step means invoking a skill to send work to Claude. If you cannot invoke the review skill, STOP and escalate to the user — do not substitute your own review.
+If shelling out to Claude fails (script error, CLI unavailable, permissions/network failure, timeout), escalate to the user immediately.
 
 ---
 
@@ -104,6 +105,7 @@ the entire repo diff to Claude, wasting tokens and risking timeouts.
 - **Summarizing the diff before shelling out** — Unnecessary. The script reads the diff directly.
 - **Ignoring the output file** — The review is written to a file. Read it.
 - **Using sub-agents for the review** — The script invokes a single Claude CLI process.
+- **Proceeding after a failed shell-out** — Escalate to the user instead of continuing without Claude review.
 
 ### `test-review-request` — Request Test Audit from Claude
 
@@ -153,6 +155,7 @@ Act on findings:
 - **Pre-reading source before shelling out** — Unnecessary. The script passes the module path to Claude.
 - **Ignoring the output file** — The gap report is written to a file. Read it.
 - **Using sub-agents for the audit** — The script invokes a single Claude CLI process.
+- **Proceeding after a failed shell-out** — Escalate to the user instead of continuing without Claude audit.
 
 ---
 
@@ -327,6 +330,20 @@ The audit does double duty: it finds missing coverage AND flags bad tests (mirro
 | **Auditor** | Claude | `test-review-request` — finds gaps and flags bad tests per `references/audit-workflow.md` |
 | **Test Writer** | Codex or Gemini | Writes tests per `references/testing-standards.md` standards |
 
+### Pragmatic Enforcement Policy
+
+Use a hybrid gate to avoid unnecessary friction while preserving confidence:
+
+- **Non-trivial code changes (default):** The test-writing loop is required. Do not close the loop without audit evidence from `test-review-request` and a re-audit state with no unresolved P0/P1 gaps.
+- **Trivial changes (explicit exception):** Docs-only, comments-only, formatting-only, or rename-only edits may skip the audit loop.
+- **Mandatory note for skips:** Every skip must include `audit skipped: trivial` with a one-line reason in the loop summary.
+- **Uncertainty rule:** If it is not clearly trivial, run the audit.
+
+**Practical close criteria for implementer loops:**
+1. Tests added or updated for the change (when behavior changed).
+2. Local verification commands run and reported.
+3. Audit evidence present, or explicit trivial skip note present.
+
 ### The Loop
 
 ```
@@ -408,6 +425,22 @@ If P0/P1 gaps remain after 3 cycles, escalate to human with a summary of what's 
 ## Loop 3: Issue Filing
 
 After both loops exit, file issues for everything that was deferred.
+
+### Backlog-First Policy
+
+When filing deferred findings in this repository:
+
+- If a `backlog/` folder exists at repo root **and** Backlog tooling is available (Backlog MCP tools and/or Backlog CLI), use Backlog to create tracked issues/tasks.
+- Include enough context for another agent to execute without re-auditing:
+  - source review/audit artifact
+  - affected files/modules
+  - severity and user impact
+  - suggested fix direction
+  - acceptance criteria
+- If Backlog is not available, create a markdown handoff under `.agents/fixes/`.
+  - Prefer naming by replacing `review` with `fix` from the source artifact name (`s/review/fix/`).
+  - If no review artifact name exists, use a descriptive `*-fix.md` filename.
+- Implementers may also choose to fix deferred findings immediately instead of filing, when appropriate.
 
 ### Issue Template
 

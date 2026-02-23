@@ -31,7 +31,7 @@ Use modes when you need a targeted behavior tweak (e.g., temporarily enabling `S
 |--------|-----------|-----------|
 | Format | Simple YAML with `steps`, `trigger`, and `success_criteria` (see `workflows/feature-development.yaml`) | Rich YAML with `phases`, `monitoring`, `alerts`, and `rollback` (see `scenarios/product-launch.yaml`) |
 | TUI access | View `6` (press `6` or pick “Show Workflows”) | Press `S` (or use the command palette → “Show Scenarios”) |
-| Actions | View live status/progress, detect paused/running workflows, and read steps. (Run/resume via CLI `cortex workflow run ...`.) | Preview (`P`), auto-run (`R`), schema-validate (`V`), and inspect status history (`H`) directly inside the TUI.
+| Actions | View live status/progress, detect paused/running workflows, and read steps. (Execution controls are primarily TUI-driven in current releases.) | Preview (`P`), auto-run (`R`), schema-validate (`V`), and inspect status history (`H`) directly inside the TUI.
 | Scope | Linear, execution-focused (e.g., Feature Development) | Event/incident playbooks that stitch profiles + agents per phase, include monitoring + rollback |
 
 Workflows are ideal for predictable, repeatable sequences (feature work, bug fixes). Highlight one in the Workflows view and press `Shift+R` to run it or `s` to stop it without leaving the dashboard. Scenarios add orchestration metadata for messy or long-lived events: highlight a scenario in the Scenarios view and press `Shift+R` to auto-run it (use `s` to clear the lock if you need to abort). The `product-launch` scenario, for instance, wires four named phases, assigns profiles (`quality`, `meta`), and lists success criteria and monitoring thresholds.

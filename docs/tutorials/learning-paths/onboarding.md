@@ -16,7 +16,7 @@ A focused path from installation to daily use. Each stage builds on the last and
 | [1. Install & Verify](#stage-1-install--verify) | Get cortex running | ~5 min |
 | [2. Orient Yourself](#stage-2-orient-yourself) | Launch TUI, learn navigation | ~10 min |
 | [3. Core Loop](#stage-3-core-loop) | Agents, skills, modes — the daily toolkit | ~15 min |
-| [4. Your First Workflow](#stage-4-your-first-workflow) | Run a multi-step workflow end to end | ~10 min |
+| [4. Your First Review Loop](#stage-4-your-first-review-loop) | Run a quality gate pass end to end | ~10 min |
 | [5. What's Next](#stage-5-whats-next) | Pick your path forward | — |
 
 **Prerequisites:** Python 3.9+, basic terminal familiarity, Claude Code installed.
@@ -43,7 +43,7 @@ cortex install post
 Verify your installation by running these commands and confirming they produce output:
 
 ```bash
-cortex --version      # prints version
+cortex --help         # prints command help
 cortex status         # shows agent/skill/mode counts
 cortex agent list     # lists available agents
 ```
@@ -82,7 +82,7 @@ Everything in the TUI has a CLI equivalent. If you prefer the terminal:
 ```bash
 cortex agent list          # agents view
 cortex skills list         # skills view
-cortex mode list           # modes view
+cortex status              # overall status
 ```
 
 ### Checkpoint
@@ -135,11 +135,8 @@ Skills activate automatically via triggers (file patterns, keywords) or manually
 Modes shape how Claude behaves: verbosity, safety checks, focus areas.
 
 ```bash
-# List modes
-cortex mode list
-
-# Activate a mode
-cortex mode activate architect
+# Inspect active mode state
+cat ~/.claude/.active-modes
 ```
 
 Common modes:
@@ -149,55 +146,48 @@ Common modes:
 
 ### Profiles — saved configurations
 
-Profiles bundle agents + modes + rules into reusable setups:
+Use install/scope commands to manage local setup:
 
 ```bash
-# Auto-detect your project type
-cortex init detect
+# Ensure assets are linked
+cortex install link
 
-# Or apply a profile directly
-cortex init profile backend
+# Inspect project vs global scope
+cortex --scope project status
+cortex --scope global status
 ```
 
 ### Checkpoint
 
 - [ ] You've activated and deactivated an agent
 - [ ] You've inspected a skill with `cortex skills info`
-- [ ] You've activated a mode
+- [ ] You know where active mode state is stored (`.active-modes`)
 - [ ] You understand the difference: agents = who, skills = what they know, modes = how they behave
 
 ---
 
-## Stage 4: Your First Workflow
+## Stage 4: Your First Review Loop
 
-Workflows chain multiple steps into repeatable sequences.
-
-### Run a built-in workflow
+Use the review gate to run a quick quality check pass.
 
 ```bash
-# List available workflows
-cortex workflow list
-
-# Run one (example: code quality pass)
-cortex workflow run code-quality
+# Dry-run reviewer selection
+cortex review --dry-run
 ```
 
-Workflows coordinate agents automatically. A code-quality workflow might:
-1. Run code-reviewer on your changes
-2. Pass findings to security-auditor
-3. Summarize results
+Then run targeted commands based on your context (for example `cortex agent activate code-reviewer` and `cortex skills info testing-anti-patterns`).
 
 ### Export a context bundle
 
 Context bundles package your current configuration (active agents, modes, skills) for sharing or backup:
 
 ```bash
-cortex export context --output my-setup.json
+cortex export context my-setup.md
 ```
 
 ### Checkpoint
 
-- [ ] You've listed and run a workflow
+- [ ] You've run the review gate
 - [ ] You've exported a context bundle
 - [ ] You can explain what a workflow does vs. activating agents individually
 
@@ -213,11 +203,11 @@ The full TUI tutorial covers every view, shortcut, and feature in detail.
 
 **[Getting Started with TUI](../getting-started-tui/)** — 20-30 min, 15+ checkpoints
 
-### Build custom workflows
+### Automate with CI/CD
 
-Learn to create YAML-based multi-phase workflows for your team's processes.
+Learn to run validation, exports, and quality gates in pipelines.
 
-**[Workflow Orchestration](../workflow-orchestration/)** — 20-25 min
+**[CI/CD Integration](../ci-cd-integration/)** — 20-25 min
 
 ### Create your own skills
 
@@ -264,12 +254,10 @@ cortex skills list               # browse
 cortex skills info <name>        # details
 
 # Modes
-cortex mode list                 # browse
-cortex mode activate <name>      # enable
+cat ~/.claude/.active-modes      # inspect active state
 
-# Workflows
-cortex workflow list             # browse
-cortex workflow run <name>       # execute
+# Review loop
+cortex review --dry-run          # inspect reviewers
 
 # TUI
 cortex tui                       # launch dashboard
