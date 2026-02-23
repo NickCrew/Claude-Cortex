@@ -12,16 +12,39 @@ Docs: <https://cortex.atlascrew.dev/>
 
 ## Feature Highlights
 
-### `agent-loops` Codex skill
+### Original Cortex Skills
 
-- Skill file: `codex/skills/agent-loops/SKILL.md`
-- Purpose: structured implementation loop with verification and review gates
-- Complements CLI review flow:
+Cortex includes four foundational skills that drive quality across development workflows:
+
+#### `agent-loops` — Structured Implementation & Verification
+- **Skill file**: `skills/agent-loops/SKILL.md`
+- **Purpose**: Multi-phase implementation loop with built-in verification and code review gates
+- **When to use**: Any feature implementation, bug fix, or refactoring task
+- **Workflow**: Plan → Implement → Verify → Review approval before committing
+- **CLI integration**: Complements `cortex review` command:
 
 ```bash
-cortex review --dry-run
-cortex review -c feature -c debug
+cortex review --dry-run                    # Preview review gates
+cortex review -c feature -c debug          # Full review workflow
 ```
+
+#### `test-review` — Quality Assurance & Coverage Analysis
+- **Skill file**: `skills/test-review/SKILL.md`
+- **Purpose**: Audit test quality and coverage across modules
+- **When to use**: After test suite changes, coverage gaps, or brittle tests
+- **Features**: Identifies gaps, suggests improvements, validates test patterns
+
+#### `doc-claim-validator` — Documentation Accuracy Auditing
+- **Skill file**: `skills/doc-claim-validator/SKILL.md`
+- **Purpose**: Validates that documentation claims match codebase reality
+- **When to use**: Before releases, after major refactors, periodic audits
+- **Features**: Extracts verifiable assertions (file paths, code patterns), checks against actual code
+
+#### `doc-maintenance` — Documentation Lifecycle Management
+- **Skill file**: `skills/doc-maintenance/SKILL.md`
+- **Purpose**: Systematic documentation audit and maintenance
+- **When to use**: Documentation may be stale, outdated references, inconsistent structure
+- **Features**: Identifies orphaned docs, updates cross-references, improves navigation
 
 ### Skills command suite
 
@@ -156,13 +179,44 @@ cortex <command> --help
 
 ## Common Workflows
 
+### Using Original Cortex Skills
+
+**Feature implementation with `agent-loops`:**
+```bash
+# Start implementation with built-in verification gates
+cortex review --dry-run                    # Preview what will be reviewed
+cortex review -c feature -c debug          # Run full review workflow
+```
+
+**Quality assurance with `test-review`:**
+```bash
+# Audit test quality and identify coverage gaps
+cortex skills info test-review             # View skill details
+# Then invoke: /test-review in Claude Code to audit your test suite
+```
+
+**Documentation accuracy with `doc-claim-validator`:**
+```bash
+# Validate documentation matches codebase reality
+cortex skills info doc-claim-validator     # View skill details
+# Then invoke: /doc-claim-validator in Claude Code to audit docs
+```
+
+**Documentation maintenance with `doc-maintenance`:**
+```bash
+# Perform systematic documentation audit
+cortex skills info doc-maintenance         # View skill details
+# Then invoke: /doc-maintenance in Claude Code for maintenance workflow
+```
+
 ### Agent + skill management
 
 ```bash
 cortex agent list
 cortex agent status
 cortex skills list
-cortex skills info doc-claim-validator
+cortex skills feedback agent-loops helpful --comment "High signal loop guidance"
+cortex skills rate agent-loops --stars 5 --review "Reliable workflow"
 ```
 
 ### MCP diagnostics
@@ -178,13 +232,6 @@ cortex mcp diagnose
 cortex ai recommend
 cortex ai auto-activate
 cortex ai watch
-```
-
-### Review gate
-
-```bash
-cortex review --dry-run
-cortex review -c feature -c debug
 ```
 
 ## Development
