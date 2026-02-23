@@ -182,20 +182,17 @@ cortex skills info api-design-patterns
 cortex skills validate --all
 ```
 
-### Project Initialization
+### Setup & Scope
 
 ```bash
-# Auto-detect project
-cortex init detect
+# Link bundled assets into ~/.claude
+cortex install link
 
-# Interactive wizard
-cortex init wizard
+# Install completions/manpages (optional)
+cortex install post
 
-# Show current config
-cortex init status
-
-# Load profile
-cortex profile backend
+# Use project-local scope
+cortex --scope project status
 ```
 
 ### Status
@@ -271,7 +268,7 @@ cortex status
 cortex --help
 cortex agent --help
 cortex skills --help
-cortex init --help
+cortex install --help
 ```
 
 ### Examples

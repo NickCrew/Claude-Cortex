@@ -67,7 +67,7 @@ The CLI binary is `cortex`. `cortex` remains as a deprecated alias.
 - What: Behavioral state that modifies Claude's approach
 - Example: `Token_Efficiency` optimizes for concise output
 - Location: `~/.claude/modes/` or project `.claude/modes/`
-- Activation: `cortex mode activate [name]`
+- Activation: Managed via mode files, `FLAGS.md`, and `.active-modes` state
 
 **Rule**
 

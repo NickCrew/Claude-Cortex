@@ -70,7 +70,6 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
   <a href="tutorials/getting-started-tui/">→ TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>
-  <a href="guides/modes.html">Modes</a>
   <a href="guides/asset-manager.html">Asset Manager</a>
   <a href="guides/worktrees.html">Worktree Manager</a>
   <a href="guides/FLAGS_MANAGEMENT.html">Flags Management</a>
@@ -605,13 +604,13 @@ just install
 
 ```bash
 # Verify installation
-cortex --version
+cortex --help
 
 # View documentation
 man cortex
 
-# List available modes
-cortex mode list
+# Show current status
+cortex status
 
 # Generate dependency map
 cortex agent graph --export dependency-map.md
@@ -630,48 +629,44 @@ After adding new CLI subcommands, regenerate shell completions so the new option
 
 ---
 
-## Setup, Init & Migration
+## Setup & Scope
 
 Keep your local context healthy and consistent across upgrades:
 
 ```bash
-# Detect project type and recommend a profile
-cortex init detect
+# Link bundled assets into ~/.claude
+cortex install link
 
-# Apply a profile directly
-cortex init profile backend
+# Optional: completions + manpages
+cortex install post
 
-# Check current init status
-cortex init status
+# Inspect status in project/global scope
+cortex --scope project status
+cortex --scope global status
 ```
 
 ---
 
 ## Data Directory Overrides
 
-The CLI resolves its workspace using the following precedence:
+The CLI resolves user/project workspace with:
 
-1. `CORTEX_SCOPE` (project/global/plugin)
-2. `CLAUDE_PLUGIN_ROOT` (automatically set when commands run inside Claude Code)
-3. `~/.claude`
+1. `--scope` / `CORTEX_SCOPE` (`auto`, `project`, `global`) for `.claude/` selection
+2. fallback to `~/.claude` when no project-local `.claude/` is found in `auto` mode
 
 Examples:
 
 ```bash
-# Use the plugin cache that Claude Code maintains
-export CLAUDE_PLUGIN_ROOT="$HOME/.claude/plugins/cache/cortex"
-
-# Or target a local checkout of this repository
-export CLAUDE_PLUGIN_ROOT="$HOME/Developer/personal/claude-cortex"
-
-cortex mode status
+# Set explicit scope
+export CORTEX_SCOPE=project
+cortex status
 ```
 
 Project-local and explicit directory examples:
 
 ```bash
 cortex --scope project status
-cortex --plugin-root /path/to/claude-cortex status
+cortex --cortex-root /path/to/claude-cortex status
 ```
 
 Once exported (for example in `~/.zshrc`), both the CLI and Claude Code share a single source of truth for agents, commands, and workflows.
@@ -778,7 +773,7 @@ Modes are opinionated context modules that toggle workflow defaults and behavior
 - `Teacher` - Educational explanations and mentoring
 - `Token_Efficiency` - Concise, token-aware responses
 
-**Activation**: Use `cortex mode activate` or `FLAGS.md`. Active state is tracked in `.active-modes`.
+**Activation**: Manage mode defaults via `FLAGS.md`, mode files, and `.active-modes` state.
 
 ---
 
@@ -844,12 +839,11 @@ Python CLI for managing context components outside of Claude Code.
 
 **Capabilities**:
 
-- Mode/rule/agent management (list, activate, deactivate)
+- rule/agent management (list, activate, deactivate)
 - AI recommendations, watch mode, and export
-- Init detection and profile setup
-- Worktree management (list/add/remove/prune/base dir)
-- Migration helpers (`setup migrate`)
-- Agent dependency visualization and context export
+- worktree management (list/add/remove/prune/base dir)
+- docs, plans, and memory command families
+- agent dependency visualization and context export
 
 **Reference**: [CLI Documentation](CLI.md)
 
@@ -1081,19 +1075,6 @@ Core behavioral rules with priority system:
 
 ## Configuration Files
 
-### Plugin Manifest
-
-**File**: `.claude-plugin/plugin.json`
-
-```json
-{
-  "name": "cortex",
-  "version": "0.1.0",
-  "description": "Context orchestration plugin",
-  "commands": ["./commands"]
-}
-```
-
 ### Python Package
 
 **File**: `pyproject.toml`
@@ -1199,8 +1180,8 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Commands Not Loading
 
-1. Verify plugin installation: `/plugin list`
-2. Check plugin manifest: `.claude-plugin/plugin.json`
+1. Verify plugin installation in Claude Code (`/plugin list`)
+2. Confirm assets are linked: `cortex install link --dry-run`
 3. Restart Claude Code
 4. Validate command syntax in markdown files
 
@@ -1250,7 +1231,6 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 **Core Documentation**
 
 - [Getting Started](guides/getting-started.html) - Installation and setup
-- [Installation Guide](guides/INSTALL.html) - Detailed installation instructions
 - [Architecture Guide](guides/development/architecture.html) - System design and patterns
 - [Command Reference](guides/commands.html) - Complete command catalog
 
@@ -1265,7 +1245,6 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [AI Intelligence Guide](AI_INTELLIGENCE.html) - AI intelligence & automation system overview
 - [LLM Intelligence Guide](guides/ai/LLM_INTELLIGENCE_GUIDE.html) - Claude API configuration, pricing, and advanced usage
 - [Watch Mode Guide](guides/development/WATCH_MODE_GUIDE.html) - Real-time monitoring and auto-activation
-- [Modes Guide](guides/modes.html) - Behavioral modes and activation
 - [Asset Manager Guide](guides/asset-manager.html) - Install, diff, and update assets
 - [Worktree Manager Guide](guides/worktrees.html) - Git worktree workflows
 - [Docs Viewer Guide](guides/DOCUMENTATION_VIEWER.html) - Browse docs from CLI/TUI
@@ -1315,7 +1294,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 - Asset Manager TUI for installing, diffing, and updating assets
 - Worktree Manager (CLI + TUI) with base directory control
-- Init detection and migration tooling (`init` and `setup migrate`)
+- Installation and linking workflow via `install link` / `install post`
 - New modes (Amphetamine, Idea_Lab, Teacher) + mode metadata/conflict detection
 - AI stability and context tracking fixes
 

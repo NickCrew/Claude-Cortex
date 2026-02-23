@@ -262,7 +262,7 @@ and a rich terminal user interface for Claude Code.
 
   # Run CLI
   cortex --help
-  cortex mode activate Brainstorming
+  cortex status
   cortex ai recommend
   cortex ai watch
 

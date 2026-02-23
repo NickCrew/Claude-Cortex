@@ -6,7 +6,6 @@ Complete API documentation for the cortex Python modules.
 
 | Module | Description |
 |--------|-------------|
-| [prompts](prompts.md) | Prompt library management (discover, activate, deactivate) |
 | [installer](installer.md) | Post-install helpers (completions, manpages, docs) |
 
 ## TUI Modules

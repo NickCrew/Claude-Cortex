@@ -73,7 +73,6 @@ include = ["claude_ctx_py*"]
 "share/man/man1" = [
     "docs/reference/cortex.1",
     "docs/reference/cortex-tui.1",
-    "docs/reference/cortex-workflow.1",
 ]
 "share/claude-cortex/docs" = [
     "docs/reference/architecture/architecture-diagrams.md",

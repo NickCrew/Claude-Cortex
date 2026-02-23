@@ -233,7 +233,7 @@ cortex tui
 
 ```bash
 # Start a workflow (creates state files)
-cortex workflow run bug-fix
+cortex review --dry-run -c bugfix
 
 # Run TUI
 cortex tui

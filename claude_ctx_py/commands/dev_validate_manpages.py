@@ -61,7 +61,6 @@ def validate_manpages(docs_dir: Path | None = None, verbose: bool = False) -> tu
     # Check subcommand manpages
     subcommands = [
         ("tui", "Interactive TUI for agent management"),
-        ("workflow", "Workflow management commands"),
     ]
 
     for cmd, description in subcommands:

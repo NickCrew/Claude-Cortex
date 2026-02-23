@@ -6,139 +6,53 @@ nav_order: 9
 
 # Prompt Library
 
-The Prompt Library is a feature for managing reusable prompts, guidelines, and templates that can be selectively injected into your Claude context. Unlike always-loaded context (like CLAUDE.md core files), prompt library items are activated on-demand when you need them.
+Prompt snippets are reusable markdown files you can keep under `~/.claude/prompts/` (or project-local `.claude/prompts/`) and reference from your context files when needed.
 
-## Use Cases
+## Use cases
 
-- **Guideline documents** - Code review checklists, style guides, architectural principles
-- **Long prompts** - Detailed instructions that would consume significant context if always loaded
-- **Templates** - PR descriptions, commit message formats, documentation templates
-- **Personas** - Specialized behavioral modes for different tasks
-- **Reference material** - API documentation, project-specific conventions
+- coding/review checklists
+- PR / ADR / incident templates
+- team conventions and style notes
+- domain-specific reference snippets
 
-## Directory Structure
+## Directory structure
 
-Prompts are organized in subdirectories under `~/.claude/prompts/`:
-
-```
+```text
 ~/.claude/prompts/
 ├── guidelines/
-│   ├── code-review.md
-│   ├── security-checklist.md
-│   └── api-design.md
 ├── templates/
-│   ├── pr-description.md
-│   ├── adr-template.md
-│   └── bug-report.md
-└── personas/
-    ├── senior-architect.md
-    ├── security-auditor.md
-    └── documentation-writer.md
+├── personas/
+└── references/
 ```
 
-## Prompt File Format
+## Prompt file format
 
-Each prompt is a markdown file with optional YAML front matter:
+Use markdown with optional frontmatter:
 
 ```markdown
 ---
 name: Code Review Checklist
-description: Comprehensive code review guidelines for PR reviews
+description: Security + correctness checks for PR review
 tokens: 450
 ---
 
 # Code Review Checklist
 
-## Security
-- [ ] No hardcoded credentials or secrets
-- [ ] Input validation on all user data
-- [ ] SQL injection prevention
-...
+- Validate inputs
+- Check error handling
+- Confirm test coverage
 ```
 
-### Front Matter Fields
+## Slug format
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | No | Display name (defaults to filename in title case) |
-| `description` | No | Brief description of the prompt's purpose |
-| `tokens` | No | Estimated token count for context budgeting |
+Use `category/name` based on path:
 
-## Slug Format
+- `~/.claude/prompts/guidelines/code-review.md` -> `guidelines/code-review`
+- `~/.claude/prompts/templates/pr-description.md` -> `templates/pr-description`
 
-Prompts use a `category/name` slug format based on their directory structure:
+## Activation model
 
-- `~/.claude/prompts/guidelines/code-review.md` → `guidelines/code-review`
-- `~/.claude/prompts/templates/pr-description.md` → `templates/pr-description`
-- `~/.claude/prompts/personas/senior-architect.md` → `personas/senior-architect`
-
-## CLI Commands
-
-### List all prompts
-
-```bash
-cortex prompts list
-```
-
-Shows all available prompts grouped by category with their activation status.
-
-### Show active prompts
-
-```bash
-cortex prompts status
-```
-
-Displays currently active prompts that are being injected into CLAUDE.md.
-
-### Activate prompts
-
-```bash
-# Activate a single prompt
-cortex prompts activate guidelines/code-review
-
-# Activate multiple prompts
-cortex prompts activate guidelines/code-review templates/pr-description
-```
-
-### Deactivate prompts
-
-```bash
-# Deactivate a single prompt
-cortex prompts deactivate guidelines/code-review
-
-# Deactivate multiple prompts
-cortex prompts deactivate guidelines/code-review templates/pr-description
-```
-
-## TUI Integration
-
-The Prompt Library is integrated into the cortex TUI as a dedicated view.
-
-### Accessing the Prompts View
-
-1. Launch the TUI: `cortex tui`
-2. Navigate to the "Prompts" tab using number keys or arrow navigation
-
-### TUI Controls
-
-| Key | Action |
-|-----|--------|
-| `↑/↓` or `j/k` | Navigate prompts |
-| `Space` or `Enter` | Toggle activation |
-| `e` | Edit prompt in external editor ($EDITOR) |
-| `r` | Refresh prompt list |
-
-### Columns Displayed
-
-- **Name** - Display name from front matter or filename
-- **Category** - Parent directory (guidelines, templates, etc.)
-- **Tokens** - Estimated token count
-- **Status** - Active/Inactive indicator
-- **Description** - Brief description
-
-## CLAUDE.md Integration
-
-Active prompts are automatically injected into CLAUDE.md using `@prompts/` references:
+Prompt snippets are activated by reference in your context files (for example `CLAUDE.md`):
 
 ```markdown
 # Prompt Library
@@ -146,109 +60,44 @@ Active prompts are automatically injected into CLAUDE.md using `@prompts/` refer
 @prompts/templates/pr-description.md
 ```
 
-When a prompt is activated:
-1. Its slug is added to `~/.claude/.active-prompts`
-2. CLAUDE.md is regenerated with the new `@prompts/` reference
-3. Claude Code loads the prompt content on next context refresh
+If your setup uses an `.active-prompts` file, treat it as generated state and avoid manual edits.
 
-## Wizard Integration
+## TUI workflow
 
-The CLAUDE.md Wizard includes a dedicated step for selecting prompts:
+```bash
+cortex tui
+```
 
-1. Run the wizard: `cortex init --interactive`
-2. Step 3 presents all available prompts grouped by category
-3. Use arrow keys and Space to toggle selection
-4. Continue to review and apply your selections
+Use the docs/context management views to inspect current active context and related files.
 
-## Creating New Prompts
-
-### 1. Create the directory structure
+## Create new prompts
 
 ```bash
 mkdir -p ~/.claude/prompts/guidelines
-mkdir -p ~/.claude/prompts/templates
-mkdir -p ~/.claude/prompts/personas
-```
-
-### 2. Create a prompt file
-
-```bash
-cat > ~/.claude/prompts/guidelines/my-guideline.md << 'EOF'
+cat > ~/.claude/prompts/guidelines/my-guideline.md << 'EOF_PROMPT'
 ---
-name: My Custom Guideline
-description: Project-specific coding guidelines
+name: My Guideline
+description: Project-specific coding guideline
 tokens: 200
 ---
 
-# My Custom Guideline
+# My Guideline
 
-Your guideline content here...
-EOF
+Your content here.
+EOF_PROMPT
 ```
 
-### 3. Activate the prompt
+Then add an `@prompts/...` reference in your context file.
 
-```bash
-cortex prompts activate guidelines/my-guideline
-```
+## Best practices
 
-## Best Practices
-
-### Token Budgeting
-
-- Include `tokens` in front matter to help with context budgeting
-- Keep prompts focused - split large documents into multiple files
-- Deactivate prompts when not needed to preserve context space
-
-### Organization
-
-- Use meaningful category names (guidelines, templates, personas, references)
-- Keep related prompts in the same category
-- Use descriptive filenames (kebab-case recommended)
-
-### Content Guidelines
-
-- Start with a clear heading (`# Title`)
-- Include actionable instructions or reference material
-- Use markdown formatting for readability
-- Keep content focused on a single purpose
-
-## Activation Persistence
-
-The `.active-prompts` file in `~/.claude/` persists your prompt selections across sessions:
-
-```
-guidelines/code-review
-templates/pr-description
-personas/senior-architect
-```
-
-This file is managed automatically by the CLI and TUI - avoid editing it directly.
-
-## Comparison with Other Features
-
-| Feature | Purpose | Persistence | Context Impact |
-|---------|---------|-------------|----------------|
-| **Prompts** | On-demand guidelines/templates | Session-based activation | Variable (user-controlled) |
-| **Modes** | Behavioral modifications | File-based activation | Always loaded when active |
-| **Skills** | Slash command capabilities | Always available | Loaded on invocation |
-| **Agents** | Specialized task handling | File-based activation | Always loaded when active |
+- keep prompts focused and composable
+- include token estimates in frontmatter
+- prefer many small snippets over one very large prompt
+- remove inactive references to keep context lean
 
 ## Troubleshooting
 
-### Prompt not appearing in list
-
-- Verify the file exists in `~/.claude/prompts/` subdirectory
-- Check file has `.md` extension
-- Ensure file is not named `README.md` (excluded by convention)
-
-### Prompt content not loading
-
-- Check CLAUDE.md contains the `@prompts/` reference
-- Run `cortex prompts status` to verify activation
-- Try deactivating and reactivating the prompt
-
-### Token count showing 0
-
-- Add `tokens:` field to front matter
-- Manually estimate tokens (~4 chars per token)
+- Ensure prompt files are `.md` and under a `prompts/` subdirectory.
+- Confirm the `@prompts/...` reference path is correct.
+- Reload/refresh context in your Claude Code session after edits.

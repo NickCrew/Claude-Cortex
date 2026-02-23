@@ -85,8 +85,8 @@ The Cortex is a comprehensive context management system for Claude Code, providi
 cortex <command> <subcommand> [options]
 
 Examples:
-  cortex mode activate Brainstorming
-  cortex agent list --active
+  cortex status
+  cortex agent list
   cortex ai recommend
   cortex tui
 ```
@@ -122,7 +122,7 @@ Examples:
 
 ### 2. Intelligence Layer
 
-#### AI System (`claude_ctx_py/intelligence.py`)
+#### AI System (`claude_ctx_py/intelligence/`)
 
 **Purpose**: Context-aware automation and learning
 
@@ -163,7 +163,7 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 
 #### Module Organization (`claude_ctx_py/core/`)
 
-**`base.py`** - Shared utilities
+**`claude_ctx_py/core/base.py`** - Shared utilities
 
 - File system operations
 - Markdown parsing
@@ -171,14 +171,14 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 - Color formatting
 - ANSI code handling
 
-**`agents.py`** - Agent management
+**`claude_ctx_py/core/agents.py`** - Agent management
 
 - Agent activation/deactivation
 - Dependency graph building
 - Agent validation
 - Metadata parsing
 
-**`skills.py`** - Skill management
+**`claude_ctx_py/core/skills.py`** - Skill management
 
 - Skill discovery and validation
 - Metrics tracking
@@ -186,43 +186,31 @@ File Changes → Context Detection → Pattern Matching → Recommendations
 - Community integration
 - Analytics and trending
 
-**`modes.py`** - Mode management
-
-- Mode activation/deactivation
-- CLAUDE.md integration
-- Intelligent mode selection
-
-**`rules.py`** - Rule management
+**`claude_ctx_py/core/rules.py`** - Rule management
 
 - Rule activation/deactivation
-- Rule composition
+- Rule symlink synchronization for Claude Code
 
-**`workflows.py`** - Workflow orchestration
+**`claude_ctx_py/core/components.py`** - Component state parsing
 
-- Multi-step execution
-- State management
-- Resume/stop functionality
+- Parse active components from context files
+- Handle component activation/deactivation primitives
+- Track active/inactive state transitions
 
-**`scenarios.py`** - Scenario testing
+**`claude_ctx_py/core/worktrees.py`** - Worktree management
 
-- Test scenario execution
-- Validation and preview
-- State tracking
+- Discover/list/add/remove/prune worktrees
+- Base directory management
+- Git integration helpers
 
-**`profiles.py`** - Profile management
-
-- Profile templates (minimal, frontend, backend, etc.)
-- Profile save/load
-- Context export
-
-**`mcp.py`** - MCP server integration
+**`claude_ctx_py/core/mcp.py`** - MCP server integration
 
 - Server discovery
 - Configuration validation
 - Documentation access
 - Diagnostic tools
 
-**`context_export.py`** - Context export
+**`claude_ctx_py/core/context_export.py`** - Context export
 
 - Component collection
 - Export formatting
@@ -469,7 +457,7 @@ User → TUI (Ctrl+R) → skills.py → SQLite DB → Analytics Update
 
 ### Adding TUI Views
 
-1. Add view class in `tui/main.py`
+1. Add view class in `claude_ctx_py/tui/main.py`
 2. Register in view switcher
 3. Add key binding
 4. Implement data loading and rendering

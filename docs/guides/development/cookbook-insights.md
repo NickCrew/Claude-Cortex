@@ -62,7 +62,7 @@ A "Metaprompt" is a powerful multi-shot prompt that instructs Claude to act as a
 
 ### Integration Strategy
 1.  **Enhance `prompt-engineer` Agent:** Update the `agents/prompt-engineer.md` system prompt to utilize this specific metaprompt structure when asked to "optimize a prompt".
-2.  **New Command:** `cortex prompts optimize <file>` could run the metaprompt logic against an existing user prompt to suggest improvements.
+2.  **CLI Integration Idea:** expose prompt-optimization via an existing command family (for example under `cortex docs` or `cortex dev`) instead of introducing a separate `prompts` command namespace.
 
 ## 3. Retrieval Augmented Generation (RAG)
 

@@ -877,10 +877,10 @@ cortex install aliases --show
 **Completions:**
 
 ```bash
-# Generate completions
-cortex completion bash > ~/.bash_completion.d/cortex
-cortex completion zsh > ~/.zsh/completions/_cortex
-cortex completion fish > ~/.config/fish/completions/cortex.fish
+# Install completions
+cortex install completions --shell bash
+cortex install completions --shell zsh
+cortex install completions --shell fish
 ```
 
 **Man Pages:**

@@ -187,8 +187,8 @@ All quality gates passed! Implementation ready for deployment.
 # View status
 cortex status
 
-# List active modes
-cortex mode status
+# Inspect active mode state
+cat ~/.claude/.active-modes
 
 # List active agents
 cortex agent status
