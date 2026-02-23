@@ -7,8 +7,60 @@ Docs: <https://cortex.atlascrew.dev/>
 ## Why Cortex
 
 - Curated context assets for Claude Code (`agents/`, `skills/`, `rules/`, `hooks/`)
-- A Python CLI (`cortex`) for activation, validation, TUI workflows, and diagnostics
-- Built-in support for MCP documentation, worktree management, memory capture, and review gates
+- A Python CLI (`cortex`) for activation, validation, TUI workflows, diagnostics, and exports
+- Built-in support for MCP docs, memory capture, and review gates
+
+## Feature Highlights
+
+### `agent-loops` Codex skill
+
+- Skill file: `codex/skills/agent-loops/SKILL.md`
+- Purpose: structured implementation loop with verification and review gates
+- Complements CLI review flow:
+
+```bash
+cortex review --dry-run
+cortex review -c feature -c debug
+```
+
+### Skills command suite
+
+- Discover and inspect skills:
+
+```bash
+cortex skills list
+cortex skills info agent-loops
+cortex skills recommend
+```
+
+- Collect feedback and ratings:
+
+```bash
+cortex skills feedback agent-loops helpful --comment "High signal loop guidance"
+cortex skills rate agent-loops --stars 5 --review "Reliable workflow"
+```
+
+### AI command suite
+
+- Recommendations and auto-activation:
+
+```bash
+cortex ai recommend
+cortex ai auto-activate
+```
+
+- Continuous watch mode:
+
+```bash
+cortex ai watch --interval 2.0 --threshold 0.7 --dir .
+```
+
+- Learning ingestion and export:
+
+```bash
+cortex ai ingest-review .agents/reviews/latest.md
+cortex ai export --output ai-recommendations.json
+```
 
 ## Repository Layout
 
@@ -24,30 +76,24 @@ Docs: <https://cortex.atlascrew.dev/>
 | `schemas/` | Validation schemas |
 | `tests/` | Unit and integration tests |
 
-## Installation
+## Installation (pip / pipx)
 
-### 1) Install plugin assets in Claude Code
-
-```bash
-claude install github:NickCrew/claude-cortex
-```
-
-### 2) Install CLI (optional but recommended)
+### Install released CLI
 
 ```bash
-# pipx
+# Recommended
 pipx install claude-cortex
 
-# or pip
-pip install claude-cortex
+# Alternative
+python3 -m pip install claude-cortex
 ```
 
-For local development:
+### Local development install
 
 ```bash
 git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-cortex
-pip install -e ".[dev]"
+python3 -m pip install -e ".[dev]"
 ```
 
 ## Quick Start
@@ -56,7 +102,7 @@ pip install -e ".[dev]"
 # Link bundled assets into ~/.claude
 cortex install link
 
-# Optional post-install helpers
+# Optional post-install helpers (completions + manpages)
 cortex install post
 
 # Check current state
@@ -66,29 +112,40 @@ cortex status
 cortex tui
 ```
 
-## CLI Command Map
+## CLI Arguments and Commands
 
-Top-level commands currently available:
+Current global arguments:
 
-- `agent` - list, activate/deactivate, dependency graph, validation
-- `rules` - list, activate/deactivate, edit, status
-- `hooks` - hooks configuration validation
-- `skills` - discovery, validation, analytics, recommendations, ratings
-- `mcp` - list/show/docs/test/diagnose MCP server configurations
-- `worktree` - list/add/remove/prune git worktrees
-- `statusline` - render and configure statusline output
-- `tui` - interactive Textual UI
-- `ai` - recommendations, auto-activation, watch mode, learning ingestion
-- `export` - export context for sharing/use in other tools
-- `install` - link/completions/manpage/statusline helpers
-- `memory` - capture/search session and project notes
-- `plan` - inspect/manage plan files
-- `docs` - list/search/view docs with optional docs TUI
-- `dev` - schema/manpage maintenance helpers
-- `file` - Claude Files API helpers
-- `uninstall` - remove installed cortex assets
-- `status` - summary status output
-- `review` - run reviewer gate before task completion
+- `--scope {auto,project,global}`
+- `--cortex-root PATH` (alias: `--plugin-root`)
+- `--skip-wizard` (alias: `--no-init`)
+
+Usage pattern:
+
+```bash
+cortex [--scope {auto,project,global}] [--cortex-root PATH] [--skip-wizard] <command> [<args>]
+```
+
+Documented command groups in this README:
+
+- `agent`
+- `rules`
+- `hooks`
+- `skills`
+- `mcp`
+- `statusline`
+- `tui`
+- `ai`
+- `export`
+- `install`
+- `memory`
+- `plan`
+- `docs`
+- `dev`
+- `file`
+- `uninstall`
+- `status`
+- `review`
 
 Run help anytime:
 
@@ -108,12 +165,11 @@ cortex skills list
 cortex skills info doc-claim-validator
 ```
 
-### MCP + worktrees
+### MCP diagnostics
 
 ```bash
 cortex mcp list
 cortex mcp diagnose
-cortex worktree list
 ```
 
 ### AI recommendations
@@ -172,8 +228,17 @@ bundle exec jekyll serve --livereload
 
 ## Documentation Index
 
+- [docs/index.md](docs/index.md)
 - [docs/README.md](docs/README.md)
+- [docs/guides/getting-started.md](docs/guides/getting-started.md)
+- [docs/guides/commands.md](docs/guides/commands.md)
+- [docs/guides/skills.md](docs/guides/skills.md)
+- [docs/guides/asset-manager.md](docs/guides/asset-manager.md)
+- [docs/guides/prompt-library.md](docs/guides/prompt-library.md)
+- [docs/tutorials/index.md](docs/tutorials/index.md)
 - [docs/reference/index.md](docs/reference/index.md)
+- [docs/reference/configuration.md](docs/reference/configuration.md)
+- [docs/reference/api/index.md](docs/reference/api/index.md)
 - [docs/architecture/README.md](docs/architecture/README.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [CHANGELOG.md](CHANGELOG.md)

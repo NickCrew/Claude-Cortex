@@ -1879,15 +1879,15 @@ def skill_activate(skill_name: str, home: Path | None = None) -> Tuple[int, str]
     """
     from .base import _resolve_cortex_root
 
+    cortex_root = _resolve_cortex_root()
+    claude_dir = _resolve_claude_dir(home)
+
+    # Find the source skill in CORTEX_ROOT/skills/
+    source_skill = cortex_root / "skills" / skill_name
+    if not source_skill.exists() or not source_skill.is_dir():
+        return 1, _color(f"Skill source not found: {source_skill}", RED)
+
     try:
-        cortex_root = _resolve_cortex_root()
-        claude_dir = _resolve_claude_dir(home)
-
-        # Find the source skill in CORTEX_ROOT/skills/
-        source_skill = cortex_root / "skills" / skill_name
-        if not source_skill.exists() or not source_skill.is_dir():
-            return 1, _color(f"Skill not found: {skill_name}", RED)
-
         # Create symlink in ~/.claude/skills/
         skills_dir = claude_dir / "skills"
         skills_dir.mkdir(parents=True, exist_ok=True)
@@ -1895,17 +1895,19 @@ def skill_activate(skill_name: str, home: Path | None = None) -> Tuple[int, str]
 
         # Remove existing symlink or directory if present
         if symlink_path.exists() or symlink_path.is_symlink():
-            if symlink_path.is_symlink():
-                symlink_path.unlink()
-            else:
-                shutil.rmtree(symlink_path)
+            try:
+                if symlink_path.is_symlink():
+                    symlink_path.unlink()
+                else:
+                    shutil.rmtree(symlink_path)
+            except (OSError, PermissionError) as e:
+                return 1, _color(f"Failed to remove existing skill: {e}", RED)
 
         # Create symlink to source skill
         symlink_path.symlink_to(source_skill)
-
-        return 0, _color(f"Activated skill: {skill_name}", GREEN)
-    except Exception as e:
-        return 1, _color(f"Failed to activate skill: {e}", RED)
+        return 0, _color(f"Activated skill (symlink): {skill_name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to create skill symlink: {e}", RED)
 
 
 def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, str]:
@@ -1918,16 +1920,16 @@ def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, st
     Returns:
         Tuple of (exit_code, message)
     """
+    claude_dir = _resolve_claude_dir(home)
+
+    # Remove symlink from ~/.claude/skills/
+    skills_dir = claude_dir / "skills"
+    symlink_path = skills_dir / skill_name
+
+    if not symlink_path.exists() and not symlink_path.is_symlink():
+        return 1, _color(f"Skill not activated: {skill_name}", YELLOW)
+
     try:
-        claude_dir = _resolve_claude_dir(home)
-
-        # Remove symlink from ~/.claude/skills/
-        skills_dir = claude_dir / "skills"
-        symlink_path = skills_dir / skill_name
-
-        if not symlink_path.exists() and not symlink_path.is_symlink():
-            return 1, _color(f"Skill not activated: {skill_name}", YELLOW)
-
         # Unlink symlink or remove directory if it's still a copy
         if symlink_path.is_symlink():
             symlink_path.unlink()
@@ -1937,5 +1939,5 @@ def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, st
             return 1, _color(f"Skill not found: {skill_name}", RED)
 
         return 0, _color(f"Deactivated skill: {skill_name}", YELLOW)
-    except Exception as e:
+    except (OSError, PermissionError) as e:
         return 1, _color(f"Failed to deactivate skill: {e}", RED)
