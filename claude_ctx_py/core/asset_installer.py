@@ -134,31 +134,27 @@ def install_asset(
 
 
 def _install_skill(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Copy a skill (directory copy)."""
+    """Symlink a skill directory."""
     skills_dir = target_dir / "skills"
     skills_dir.mkdir(parents=True, exist_ok=True)
 
     target_skill_dir = skills_dir / asset.name
 
-    # Use atomic copy: temp dir then move
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_path = Path(temp_dir) / asset.name
-
-        # Copy entire skill directory
-        shutil.copytree(asset.source_path, temp_path)
-
-        # Remove existing if present
-        if target_skill_dir.exists():
+    # Remove existing file or symlink if present
+    if target_skill_dir.exists() or target_skill_dir.is_symlink():
+        if target_skill_dir.is_symlink():
+            target_skill_dir.unlink()
+        else:
             shutil.rmtree(target_skill_dir)
 
-        # Move into place
-        shutil.move(str(temp_path), str(target_skill_dir))
+    # Create symlink to source skill directory
+    target_skill_dir.symlink_to(asset.source_path)
 
     # Add commented reference to SKILL.md for easy activation
     if add_claude_refs:
         _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
 
-    return 0, _color(f"Copied skill: {asset.name}", GREEN)
+    return 0, _color(f"Installed skill (symlink): {asset.name}", GREEN)
 
 
 def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True, register_hooks: bool = True) -> Tuple[int, str]:
@@ -241,41 +237,55 @@ def _install_command(asset: Asset, target_dir: Path, *, add_claude_refs: bool = 
 
 
 def _install_agent(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Copy an agent."""
-    if activate:
-        agents_dir = target_dir / "agents"
-    else:
-        agents_dir = target_dir / "inactive" / "agents"
+    """Symlink an agent file to active agents directory.
 
+    Note: The activate parameter is deprecated and ignored. Symlink presence
+    determines activation state. Symlinks are always created in agents/.
+    """
+    agents_dir = target_dir / "agents"
     agents_dir.mkdir(parents=True, exist_ok=True)
     target_path = agents_dir / asset.source_path.name
 
-    shutil.copy2(asset.source_path, target_path)
+    # Remove existing file or symlink if present
+    if target_path.exists() or target_path.is_symlink():
+        if target_path.is_symlink():
+            target_path.unlink()
+        else:
+            target_path.unlink()
+
+    # Create symlink to source agent file
+    target_path.symlink_to(asset.source_path)
 
     if add_claude_refs:
         _add_commented_reference(target_dir, target_path)
 
-    status = "active" if activate else "inactive"
-    return 0, _color(f"Copied agent ({status}): {asset.name}", GREEN)
+    return 0, _color(f"Installed agent (symlink): {asset.name}", GREEN)
 
 
 def _install_mode(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Copy a mode."""
-    if activate:
-        modes_dir = target_dir / "modes"
-    else:
-        modes_dir = target_dir / "inactive" / "modes"
+    """Symlink a mode file to modes directory.
 
+    Note: The activate parameter is deprecated and ignored. Symlink presence
+    determines activation state. Symlinks are always created in modes/.
+    """
+    modes_dir = target_dir / "modes"
     modes_dir.mkdir(parents=True, exist_ok=True)
     target_path = modes_dir / asset.source_path.name
 
-    shutil.copy2(asset.source_path, target_path)
+    # Remove existing file or symlink if present
+    if target_path.exists() or target_path.is_symlink():
+        if target_path.is_symlink():
+            target_path.unlink()
+        else:
+            target_path.unlink()
+
+    # Create symlink to source mode file
+    target_path.symlink_to(asset.source_path)
 
     if add_claude_refs:
         _add_commented_reference(target_dir, target_path)
 
-    status = "active" if activate else "inactive"
-    return 0, _color(f"Copied mode ({status}): {asset.name}", GREEN)
+    return 0, _color(f"Installed mode (symlink): {asset.name}", GREEN)
 
 
 def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
@@ -293,17 +303,26 @@ def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool =
 
 
 def _install_rule(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Copy a recommendation/config rules file under skills/."""
+    """Symlink a recommendation/config rules file under skills/."""
     skills_dir = target_dir / "skills"
     skills_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = skills_dir / asset.source_path.name
-    shutil.copy2(asset.source_path, target_path)
+
+    # Remove existing file or symlink if present
+    if target_path.exists() or target_path.is_symlink():
+        if target_path.is_symlink():
+            target_path.unlink()
+        else:
+            target_path.unlink()
+
+    # Create symlink to source rule file
+    target_path.symlink_to(asset.source_path)
 
     if add_claude_refs:
         _add_commented_reference(target_dir, target_path)
 
-    return 0, _color(f"Copied rules: {asset.name}", GREEN)
+    return 0, _color(f"Installed rules (symlink): {asset.name}", GREEN)
 
 
 def _install_flag(asset: Asset, target_dir: Path) -> Tuple[int, str]:
@@ -414,12 +433,20 @@ def uninstall_asset(
 
 
 def _uninstall_skill(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall a skill."""
+    """Uninstall a skill (remove symlink)."""
     skill_dir = target_dir / "skills" / name
-    if not skill_dir.exists():
+
+    if not skill_dir.exists() and not skill_dir.is_symlink():
         return 1, _color(f"Skill not installed: {name}", YELLOW)
 
-    shutil.rmtree(skill_dir)
+    # Unlink symlink or remove directory if still a copy
+    if skill_dir.is_symlink():
+        skill_dir.unlink()
+    elif skill_dir.is_dir():
+        shutil.rmtree(skill_dir)
+    else:
+        return 1, _color(f"Skill not installed: {name}", YELLOW)
+
     return 0, _color(f"Uninstalled skill: {name}", GREEN)
 
 
@@ -496,25 +523,27 @@ def _resolve_command_path(commands_dir: Path, name: str) -> Optional[Path]:
 
 
 def _uninstall_agent(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall an agent (from active or inactive)."""
-    for agent_dir in [target_dir / "agents", target_dir / "inactive" / "agents"]:
-        agent_path = agent_dir / f"{name}.md"
-        if agent_path.exists():
-            agent_path.unlink()
-            return 0, _color(f"Uninstalled agent: {name}", GREEN)
+    """Uninstall an agent (remove symlink or file)."""
+    agent_path = target_dir / "agents" / f"{name}.md"
 
-    return 1, _color(f"Agent not installed: {name}", YELLOW)
+    if not agent_path.exists() and not agent_path.is_symlink():
+        return 1, _color(f"Agent not installed: {name}", YELLOW)
+
+    # Unlink symlink or remove file
+    agent_path.unlink()
+    return 0, _color(f"Uninstalled agent: {name}", GREEN)
 
 
 def _uninstall_mode(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall a mode (from active or inactive)."""
-    for modes_dir in [target_dir / "modes", target_dir / "inactive" / "modes"]:
-        mode_path = modes_dir / f"{name}.md"
-        if mode_path.exists():
-            mode_path.unlink()
-            return 0, _color(f"Uninstalled mode: {name}", GREEN)
+    """Uninstall a mode (remove symlink or file)."""
+    mode_path = target_dir / "modes" / f"{name}.md"
 
-    return 1, _color(f"Mode not installed: {name}", YELLOW)
+    if not mode_path.exists() and not mode_path.is_symlink():
+        return 1, _color(f"Mode not installed: {name}", YELLOW)
+
+    # Unlink symlink or remove file
+    mode_path.unlink()
+    return 0, _color(f"Uninstalled mode: {name}", GREEN)
 
 
 def _uninstall_workflow(name: str, target_dir: Path) -> Tuple[int, str]:
@@ -528,12 +557,13 @@ def _uninstall_workflow(name: str, target_dir: Path) -> Tuple[int, str]:
 
 
 def _uninstall_rule(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall a rules file (skill/recommendation rules)."""
-    rules_dir = target_dir / "skills"
-    rule_path = rules_dir / f"{name}.json"
-    if not rule_path.exists():
+    """Uninstall a rules file (remove symlink or file)."""
+    rule_path = target_dir / "skills" / f"{name}.json"
+
+    if not rule_path.exists() and not rule_path.is_symlink():
         return 1, _color(f"Rules not installed: {name}", YELLOW)
 
+    # Unlink symlink or remove file
     rule_path.unlink()
     return 0, _color(f"Uninstalled rules: {name}", GREEN)
 
@@ -614,6 +644,8 @@ def get_asset_diff(
 ) -> Optional[str]:
     """Get unified diff between source and installed asset.
 
+    For symlinked assets, compares the target of the symlink with the source.
+
     Args:
         asset: Asset to compare
         target_dir: Target cortex directory
@@ -627,13 +659,13 @@ def get_asset_diff(
         source_path = asset.source_path / "SKILL.md"
     elif asset.category == AssetCategory.AGENTS:
         installed_path = target_dir / "agents" / asset.source_path.name
-        if not installed_path.exists():
-            installed_path = target_dir / "inactive" / "agents" / asset.source_path.name
+        if not installed_path.exists() and not installed_path.is_symlink():
+            return None
         source_path = asset.source_path
     elif asset.category == AssetCategory.MODES:
         installed_path = target_dir / "modes" / asset.source_path.name
-        if not installed_path.exists():
-            installed_path = target_dir / "inactive" / "modes" / asset.source_path.name
+        if not installed_path.exists() and not installed_path.is_symlink():
+            return None
         source_path = asset.source_path
     elif asset.category == AssetCategory.COMMANDS:
         if asset.namespace:
@@ -645,7 +677,7 @@ def get_asset_diff(
         installed_path = target_dir / asset.install_target
         source_path = asset.source_path
 
-    if not installed_path.exists():
+    if not installed_path.exists() and not installed_path.is_symlink():
         return None
 
     try:
@@ -772,6 +804,8 @@ def get_installed_path(
 ) -> Optional[Path]:
     """Get the installed path of an asset if it exists.
 
+    For symlinked assets, returns the symlink path (not the target).
+
     Args:
         asset: Asset to find
         target_dir: Target cortex directory
@@ -781,19 +815,13 @@ def get_installed_path(
     """
     if asset.category == AssetCategory.SKILLS:
         path = target_dir / "skills" / asset.name
-        return path if path.exists() else None
+        return path if (path.exists() or path.is_symlink()) else None
     elif asset.category == AssetCategory.AGENTS:
         path = target_dir / "agents" / asset.source_path.name
-        if path.exists():
-            return path
-        path = target_dir / "inactive" / "agents" / asset.source_path.name
-        return path if path.exists() else None
+        return path if (path.exists() or path.is_symlink()) else None
     elif asset.category == AssetCategory.MODES:
         path = target_dir / "modes" / asset.source_path.name
-        if path.exists():
-            return path
-        path = target_dir / "inactive" / "modes" / asset.source_path.name
-        return path if path.exists() else None
+        return path if (path.exists() or path.is_symlink()) else None
     elif asset.category == AssetCategory.COMMANDS:
         if asset.namespace:
             path = target_dir / "commands" / asset.namespace / asset.source_path.name
@@ -802,7 +830,7 @@ def get_installed_path(
         return path if path.exists() else None
     elif asset.category == AssetCategory.HOOKS:
         path = target_dir / "hooks" / asset.source_path.name
-        return path if path.exists() else None
+        return path if (path.exists() or path.is_symlink()) else None
     elif asset.category == AssetCategory.WORKFLOWS:
         path = target_dir / "workflows" / asset.source_path.name
         return path if path.exists() else None

@@ -108,55 +108,50 @@ def _get_all_available_rules(claude_dir: Path) -> List[str]:
 
 
 def rules_activate(rule: str, home: Path | None = None) -> str:
-    """Activate a rule by moving it into the active rules directory.
+    """Activate a rule by creating a symlink in the rules directory.
 
-    For CORTEX_ROOT editable installs, moves from CORTEX_ROOT/inactive/rules.
-    Otherwise, moves from claude_dir/inactive/rules.
+    Creates a symlink from CORTEX_ROOT/rules/{rule}.md to the active rules location.
     """
-    # First try to activate from CORTEX_ROOT/inactive (editable install)
     cortex_root = _resolve_cortex_root()
-    inactive_file = cortex_root / "inactive" / "rules" / f"{rule}.md"
+    source_file = cortex_root / "rules" / f"{rule}.md"
 
-    if inactive_file.exists():
-        # Activate from CORTEX_ROOT/inactive
-        active_dir = cortex_root / "rules"
-        active_dir.mkdir(parents=True, exist_ok=True)
-        rule_file = active_dir / f"{rule}.md"
-        try:
-            inactive_file.rename(rule_file)
-            return f"✓ Activated rule: {rule}"
-        except OSError as e:
-            return f"✗ Failed to activate rule: {e}"
+    if not source_file.exists():
+        return f"✗ Rule not found: {source_file}"
 
-    # Fall back to activating from claude_dir (default behavior)
-    exit_code, message = component_activate(COMPONENT_TYPE, rule, home)
-    return message
+    # Create symlink in claude_dir (active location)
+    claude_dir = _resolve_claude_dir(home)
+    active_dir = claude_dir / "skills"
+    active_dir.mkdir(parents=True, exist_ok=True)
+    symlink_path = active_dir / f"{rule}.json"
+
+    try:
+        # Remove existing symlink or file if present
+        if symlink_path.exists() or symlink_path.is_symlink():
+            symlink_path.unlink()
+
+        # Create symlink to source rule
+        symlink_path.symlink_to(source_file)
+        return f"✓ Activated rule: {rule}"
+    except OSError as e:
+        return f"✗ Failed to activate rule: {e}"
 
 
 def rules_deactivate(rule: str, home: Path | None = None) -> str:
-    """Deactivate a rule by moving it into the inactive rules directory.
+    """Deactivate a rule by removing its symlink.
 
-    For CORTEX_ROOT editable installs, moves from CORTEX_ROOT/rules.
-    Otherwise, moves from claude_dir/rules.
+    Removes the symlink from the active rules location.
     """
-    # First try to deactivate from CORTEX_ROOT (editable install)
-    cortex_root = _resolve_cortex_root()
-    rule_file = cortex_root / "rules" / f"{rule}.md"
+    claude_dir = _resolve_claude_dir(home)
+    symlink_path = claude_dir / "skills" / f"{rule}.json"
 
-    if rule_file.exists():
-        # Deactivate from CORTEX_ROOT
-        inactive_dir = cortex_root / "inactive" / "rules"
-        inactive_dir.mkdir(parents=True, exist_ok=True)
-        inactive_file = inactive_dir / f"{rule}.md"
-        try:
-            rule_file.rename(inactive_file)
-            return f"✓ Deactivated rule: {rule}"
-        except OSError as e:
-            return f"✗ Failed to deactivate rule: {e}"
+    if not symlink_path.exists() and not symlink_path.is_symlink():
+        return f"✗ Rule not active: {rule}"
 
-    # Fall back to deactivating from claude_dir (default behavior)
-    exit_code, message = component_deactivate(COMPONENT_TYPE, rule, home)
-    return message
+    try:
+        symlink_path.unlink()
+        return f"✓ Deactivated rule: {rule}"
+    except OSError as e:
+        return f"✗ Failed to deactivate rule: {e}"
 
 
 def list_rules(home: Path | None = None) -> str:

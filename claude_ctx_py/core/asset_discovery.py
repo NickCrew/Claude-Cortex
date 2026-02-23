@@ -917,13 +917,13 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
                     else:
                         installed["commands"].append(name)
 
-    # Agents (both active and inactive)
-    for agent_dir in [claude_dir / "agents", claude_dir / "inactive" / "agents"]:
-        if agent_dir.exists():
-            for f in agent_dir.glob("*.md"):
-                if f.name not in ("README.md", "dependencies.map"):
-                    if f.stem not in installed["agents"]:
-                        installed["agents"].append(f.stem)
+    # Agents (check for symlinks or files in agents/)
+    agents_dir = claude_dir / "agents"
+    if agents_dir.exists():
+        for f in agents_dir.glob("*.md"):
+            if f.name not in ("README.md", "dependencies.map"):
+                if f.stem not in installed["agents"]:
+                    installed["agents"].append(f.stem)
 
     # Skills
     skills_dir = claude_dir / "skills"
@@ -932,13 +932,13 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
             if item.is_dir() and (item / "SKILL.md").exists():
                 installed["skills"].append(item.name)
 
-    # Modes (both active and inactive)
-    for modes_dir in [claude_dir / "modes", claude_dir / "inactive" / "modes"]:
-        if modes_dir.exists():
-            for f in modes_dir.glob("*.md"):
-                if f.name != "README.md":
-                    if f.stem not in installed["modes"]:
-                        installed["modes"].append(f.stem)
+    # Modes (check for symlinks or files in modes/)
+    modes_dir = claude_dir / "modes"
+    if modes_dir.exists():
+        for f in modes_dir.glob("*.md"):
+            if f.name != "README.md":
+                if f.stem not in installed["modes"]:
+                    installed["modes"].append(f.stem)
 
     # Workflows
     workflows_dir = claude_dir / "workflows"
@@ -996,6 +996,8 @@ def check_installation_status(
 ) -> InstallStatus:
     """Check the installation status of an asset.
 
+    For symlinked assets, checks if the symlink exists and points to the correct source.
+
     Args:
         asset: Asset to check
         claude_dir: Target cortex directory
@@ -1005,57 +1007,103 @@ def check_installation_status(
     """
     target_path = claude_dir / asset.install_target
 
-    # For skills, check the directory
+    # For skills, check if symlink exists and points to correct source
     if asset.category == AssetCategory.SKILLS:
         skill_dir = claude_dir / "skills" / asset.name
-        if not skill_dir.exists():
+        if not skill_dir.exists() and not skill_dir.is_symlink():
             return InstallStatus.NOT_INSTALLED
 
-        # Check SKILL.md for changes
-        installed_skill = skill_dir / "SKILL.md"
-        source_skill = asset.source_path / "SKILL.md"
-
-        if installed_skill.exists() and source_skill.exists():
+        # If it's a symlink, verify it points to the correct source
+        if skill_dir.is_symlink():
             try:
-                installed_content = installed_skill.read_text(encoding="utf-8")
-                source_content = source_skill.read_text(encoding="utf-8")
+                resolved = skill_dir.resolve()
+                source_resolved = asset.source_path.resolve()
+                if resolved == source_resolved:
+                    return InstallStatus.INSTALLED_SAME
+                return InstallStatus.INSTALLED_DIFFERENT
+            except (OSError, RuntimeError):
+                return InstallStatus.INSTALLED_DIFFERENT
+
+        # If it's a directory (legacy copy), check SKILL.md for changes
+        if skill_dir.is_dir():
+            installed_skill = skill_dir / "SKILL.md"
+            source_skill = asset.source_path / "SKILL.md"
+
+            if installed_skill.exists() and source_skill.exists():
+                try:
+                    installed_content = installed_skill.read_text(encoding="utf-8")
+                    source_content = source_skill.read_text(encoding="utf-8")
+                    if installed_content == source_content:
+                        return InstallStatus.INSTALLED_SAME
+                    return InstallStatus.INSTALLED_DIFFERENT
+                except OSError:
+                    return InstallStatus.INSTALLED_DIFFERENT
+
+            return InstallStatus.INSTALLED_SAME
+
+        return InstallStatus.NOT_INSTALLED
+
+    # For rules (single JSON files under skills/)
+    if asset.category == AssetCategory.RULES:
+        if not target_path.exists() and not target_path.is_symlink():
+            return InstallStatus.NOT_INSTALLED
+
+        # If it's a symlink, verify it points to correct source
+        if target_path.is_symlink():
+            try:
+                resolved = target_path.resolve()
+                source_resolved = asset.source_path.resolve()
+                if resolved == source_resolved:
+                    return InstallStatus.INSTALLED_SAME
+                return InstallStatus.INSTALLED_DIFFERENT
+            except (OSError, RuntimeError):
+                return InstallStatus.INSTALLED_DIFFERENT
+
+        # If it's a regular file (legacy copy), compare contents
+        if target_path.is_file():
+            try:
+                installed_content = target_path.read_text(encoding="utf-8")
+                source_content = asset.source_path.read_text(encoding="utf-8")
                 if installed_content == source_content:
                     return InstallStatus.INSTALLED_SAME
                 return InstallStatus.INSTALLED_DIFFERENT
             except OSError:
                 return InstallStatus.INSTALLED_DIFFERENT
 
-        return InstallStatus.INSTALLED_SAME
-    # For rules (single JSON files under skills/)
-    if asset.category == AssetCategory.RULES:
-        if not target_path.exists():
-            return InstallStatus.NOT_INSTALLED
-        try:
-            installed_content = target_path.read_text(encoding="utf-8")
-            source_content = asset.source_path.read_text(encoding="utf-8")
-            if installed_content == source_content:
-                return InstallStatus.INSTALLED_SAME
-            return InstallStatus.INSTALLED_DIFFERENT
-        except OSError:
-            return InstallStatus.INSTALLED_DIFFERENT
+        return InstallStatus.NOT_INSTALLED
 
-    # For other assets, check the file
-    if not target_path.exists():
-        # Check inactive locations for agents and modes
-        if asset.category == AssetCategory.AGENTS:
-            inactive_path = claude_dir / "inactive" / "agents" / asset.source_path.name
-            if inactive_path.exists():
-                target_path = inactive_path
-            else:
-                return InstallStatus.NOT_INSTALLED
-        elif asset.category == AssetCategory.MODES:
-            inactive_path = claude_dir / "inactive" / "modes" / asset.source_path.name
-            if inactive_path.exists():
-                target_path = inactive_path
-            else:
-                return InstallStatus.NOT_INSTALLED
-        else:
+    # For agents and modes, check if symlink exists and points to correct source
+    if asset.category in (AssetCategory.AGENTS, AssetCategory.MODES):
+        if not target_path.exists() and not target_path.is_symlink():
             return InstallStatus.NOT_INSTALLED
+
+        # If it's a symlink, verify it points to correct source
+        if target_path.is_symlink():
+            try:
+                resolved = target_path.resolve()
+                source_resolved = asset.source_path.resolve()
+                if resolved == source_resolved:
+                    return InstallStatus.INSTALLED_SAME
+                return InstallStatus.INSTALLED_DIFFERENT
+            except (OSError, RuntimeError):
+                return InstallStatus.INSTALLED_DIFFERENT
+
+        # If it's a regular file (legacy copy), compare contents
+        if target_path.is_file():
+            try:
+                installed_content = target_path.read_text(encoding="utf-8")
+                source_content = asset.source_path.read_text(encoding="utf-8")
+                if installed_content == source_content:
+                    return InstallStatus.INSTALLED_SAME
+                return InstallStatus.INSTALLED_DIFFERENT
+            except OSError:
+                return InstallStatus.INSTALLED_DIFFERENT
+
+        return InstallStatus.NOT_INSTALLED
+
+    # For other assets, check the file normally
+    if not target_path.exists() and not target_path.is_symlink():
+        return InstallStatus.NOT_INSTALLED
 
     # Compare contents
     try:

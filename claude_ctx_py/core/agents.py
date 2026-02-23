@@ -646,17 +646,43 @@ def _agent_activate_recursive(
 
     agents_dir = claude_dir / "agents"
     active_path = agents_dir / filename
-    if active_path.is_file():
+
+    # Check if symlink already exists and is valid
+    if active_path.is_symlink():
+        try:
+            # Verify symlink is valid
+            active_path.resolve(strict=True)
+            messages.append(_color(f"Agent '{agent_name}' is already active", YELLOW))
+            return 0
+        except (OSError, RuntimeError):
+            # Symlink is broken, remove it and continue
+            active_path.unlink()
+
+    if active_path.is_file() and not active_path.is_symlink():
         messages.append(_color(f"Agent '{agent_name}' is already active", YELLOW))
         return 0
 
-    disabled_path = _find_disabled_agent_file(claude_dir, filename)
-    if disabled_path is None:
-        messages.append(
-            _color(f"Agent '{agent_name}' not found in disabled agents", RED)
-        )
-        messages.append("Checked: inactive/agents/, agents-disabled/, and agents/disabled/")
-        return 1
+    # Look for agent source in CORTEX_ROOT (or nearby agents/ directories)
+    # First try: ~/.claude/agents (for agents defined in that scope)
+    source_path = active_path  # Look in current location
+    if not source_path.exists() or source_path.is_symlink():
+        # Search for agent in available locations
+        cortex_root = _resolve_cortex_root()
+        possible_sources = [
+            cortex_root / "agents" / filename,
+            claude_dir.parent / "agents" / filename,
+        ]
+        source_path = None
+        for candidate in possible_sources:
+            if candidate.exists() and not candidate.is_symlink():
+                source_path = candidate
+                break
+
+        if source_path is None:
+            messages.append(
+                _color(f"Agent '{agent_name}' not found in agent sources", RED)
+            )
+            return 1
 
     if agent_name in stack:
         messages.append(
@@ -667,7 +693,7 @@ def _agent_activate_recursive(
         )
         return 1
 
-    requires_raw, recommends_raw = _parse_agent_dependencies(disabled_path)
+    requires_raw, recommends_raw = _parse_agent_dependencies(source_path)
     recommends = [_display_agent_name(item) for item in recommends_raw if item]
     recommend_set = set(recommends)
     requires = [
@@ -687,11 +713,14 @@ def _agent_activate_recursive(
     stack.pop()
 
     agents_dir.mkdir(parents=True, exist_ok=True)
-    destination = agents_dir / filename
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        destination.unlink()
-    disabled_path.replace(destination)
+    symlink_path = agents_dir / filename
+
+    # Remove any existing file/symlink
+    if symlink_path.exists() or symlink_path.is_symlink():
+        symlink_path.unlink()
+
+    # Create symlink to source agent
+    symlink_path.symlink_to(source_path)
 
     messages.append(_color(f"Activated agent: {agent_name}", GREEN))
     if recommends:
@@ -724,7 +753,8 @@ def agent_deactivate(
     agent_name = _display_agent_name(filename)
     agents_dir = claude_dir / "agents"
     active_path = agents_dir / filename
-    if not active_path.is_file():
+
+    if not active_path.exists() and not active_path.is_symlink():
         return 1, _color(f"Agent '{agent_name}' is not currently active", RED)
 
     dependents = _find_agent_dependents(claude_dir, agent_name)
@@ -736,12 +766,8 @@ def agent_deactivate(
         ]
         return 1, "\n".join(message)
 
-    destination_dir = _ensure_inactive_category_dir(claude_dir, "agents")
-
-    destination = destination_dir / filename
-    if destination.exists():
-        destination.unlink()
-    active_path.replace(destination)
+    # Remove the symlink (or file if it's still a copy)
+    active_path.unlink()
 
     messages = [_color(f"Deactivated agent: {agent_name}", YELLOW)]
     if dependents and force:
