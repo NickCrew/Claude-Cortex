@@ -135,26 +135,33 @@ def install_asset(
 
 def _install_skill(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
     """Symlink a skill directory."""
-    skills_dir = target_dir / "skills"
-    skills_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        # Validate source exists before attempting symlink
+        if not asset.source_path.exists():
+            return 1, _color(f"Skill source not found: {asset.source_path}", RED)
 
-    target_skill_dir = skills_dir / asset.name
+        skills_dir = target_dir / "skills"
+        skills_dir.mkdir(parents=True, exist_ok=True)
 
-    # Remove existing file or symlink if present
-    if target_skill_dir.exists() or target_skill_dir.is_symlink():
-        if target_skill_dir.is_symlink():
-            target_skill_dir.unlink()
-        else:
-            shutil.rmtree(target_skill_dir)
+        target_skill_dir = skills_dir / asset.name
 
-    # Create symlink to source skill directory
-    target_skill_dir.symlink_to(asset.source_path)
+        # Remove existing file or symlink if present
+        if target_skill_dir.exists() or target_skill_dir.is_symlink():
+            if target_skill_dir.is_symlink():
+                target_skill_dir.unlink()
+            else:
+                shutil.rmtree(target_skill_dir)
 
-    # Add commented reference to SKILL.md for easy activation
-    if add_claude_refs:
-        _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
+        # Create symlink to source skill directory
+        target_skill_dir.symlink_to(asset.source_path)
 
-    return 0, _color(f"Installed skill (symlink): {asset.name}", GREEN)
+        # Add commented reference to SKILL.md for easy activation
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
+
+        return 0, _color(f"Installed skill (symlink): {asset.name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to create skill symlink: {e}", RED)
 
 
 def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True, register_hooks: bool = True) -> Tuple[int, str]:
@@ -242,24 +249,31 @@ def _install_agent(asset: Asset, target_dir: Path, activate: bool, *, add_claude
     Note: The activate parameter is deprecated and ignored. Symlink presence
     determines activation state. Symlinks are always created in agents/.
     """
-    agents_dir = target_dir / "agents"
-    agents_dir.mkdir(parents=True, exist_ok=True)
-    target_path = agents_dir / asset.source_path.name
+    try:
+        # Validate source exists before attempting symlink
+        if not asset.source_path.exists():
+            return 1, _color(f"Agent source not found: {asset.source_path}", RED)
 
-    # Remove existing file or symlink if present
-    if target_path.exists() or target_path.is_symlink():
-        if target_path.is_symlink():
-            target_path.unlink()
-        else:
-            target_path.unlink()
+        agents_dir = target_dir / "agents"
+        agents_dir.mkdir(parents=True, exist_ok=True)
+        target_path = agents_dir / asset.source_path.name
 
-    # Create symlink to source agent file
-    target_path.symlink_to(asset.source_path)
+        # Remove existing file or symlink if present
+        if target_path.exists() or target_path.is_symlink():
+            if target_path.is_symlink():
+                target_path.unlink()
+            else:
+                target_path.unlink()
 
-    if add_claude_refs:
-        _add_commented_reference(target_dir, target_path)
+        # Create symlink to source agent file
+        target_path.symlink_to(asset.source_path)
 
-    return 0, _color(f"Installed agent (symlink): {asset.name}", GREEN)
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_path)
+
+        return 0, _color(f"Installed agent (symlink): {asset.name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to create agent symlink: {e}", RED)
 
 
 def _install_mode(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
@@ -268,24 +282,31 @@ def _install_mode(asset: Asset, target_dir: Path, activate: bool, *, add_claude_
     Note: The activate parameter is deprecated and ignored. Symlink presence
     determines activation state. Symlinks are always created in modes/.
     """
-    modes_dir = target_dir / "modes"
-    modes_dir.mkdir(parents=True, exist_ok=True)
-    target_path = modes_dir / asset.source_path.name
+    try:
+        # Validate source exists before attempting symlink
+        if not asset.source_path.exists():
+            return 1, _color(f"Mode source not found: {asset.source_path}", RED)
 
-    # Remove existing file or symlink if present
-    if target_path.exists() or target_path.is_symlink():
-        if target_path.is_symlink():
-            target_path.unlink()
-        else:
-            target_path.unlink()
+        modes_dir = target_dir / "modes"
+        modes_dir.mkdir(parents=True, exist_ok=True)
+        target_path = modes_dir / asset.source_path.name
 
-    # Create symlink to source mode file
-    target_path.symlink_to(asset.source_path)
+        # Remove existing file or symlink if present
+        if target_path.exists() or target_path.is_symlink():
+            if target_path.is_symlink():
+                target_path.unlink()
+            else:
+                target_path.unlink()
 
-    if add_claude_refs:
-        _add_commented_reference(target_dir, target_path)
+        # Create symlink to source mode file
+        target_path.symlink_to(asset.source_path)
 
-    return 0, _color(f"Installed mode (symlink): {asset.name}", GREEN)
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_path)
+
+        return 0, _color(f"Installed mode (symlink): {asset.name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to create mode symlink: {e}", RED)
 
 
 def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
@@ -304,25 +325,32 @@ def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool =
 
 def _install_rule(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
     """Symlink a recommendation/config rules file under skills/."""
-    skills_dir = target_dir / "skills"
-    skills_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        # Validate source exists before attempting symlink
+        if not asset.source_path.exists():
+            return 1, _color(f"Rule source not found: {asset.source_path}", RED)
 
-    target_path = skills_dir / asset.source_path.name
+        skills_dir = target_dir / "skills"
+        skills_dir.mkdir(parents=True, exist_ok=True)
 
-    # Remove existing file or symlink if present
-    if target_path.exists() or target_path.is_symlink():
-        if target_path.is_symlink():
-            target_path.unlink()
-        else:
-            target_path.unlink()
+        target_path = skills_dir / asset.source_path.name
 
-    # Create symlink to source rule file
-    target_path.symlink_to(asset.source_path)
+        # Remove existing file or symlink if present
+        if target_path.exists() or target_path.is_symlink():
+            if target_path.is_symlink():
+                target_path.unlink()
+            else:
+                target_path.unlink()
 
-    if add_claude_refs:
-        _add_commented_reference(target_dir, target_path)
+        # Create symlink to source rule file
+        target_path.symlink_to(asset.source_path)
 
-    return 0, _color(f"Installed rules (symlink): {asset.name}", GREEN)
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_path)
+
+        return 0, _color(f"Installed rules (symlink): {asset.name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to create rule symlink: {e}", RED)
 
 
 def _install_flag(asset: Asset, target_dir: Path) -> Tuple[int, str]:

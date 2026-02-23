@@ -664,15 +664,17 @@ def _agent_activate_recursive(
 
     # Look for agent source in CORTEX_ROOT (or nearby agents/ directories)
     # First try: ~/.claude/agents (for agents defined in that scope)
-    source_path = active_path  # Look in current location
-    if not source_path.exists() or source_path.is_symlink():
+    source_path = None
+    if active_path.exists() and not active_path.is_symlink():
+        source_path = active_path
+
+    if source_path is None:
         # Search for agent in available locations
         cortex_root = _resolve_cortex_root()
         possible_sources = [
             cortex_root / "agents" / filename,
             claude_dir.parent / "agents" / filename,
         ]
-        source_path = None
         for candidate in possible_sources:
             if candidate.exists() and not candidate.is_symlink():
                 source_path = candidate
@@ -715,12 +717,24 @@ def _agent_activate_recursive(
     agents_dir.mkdir(parents=True, exist_ok=True)
     symlink_path = agents_dir / filename
 
-    # Remove any existing file/symlink
-    if symlink_path.exists() or symlink_path.is_symlink():
-        symlink_path.unlink()
+    try:
+        # Remove any existing file/symlink
+        if symlink_path.exists() or symlink_path.is_symlink():
+            try:
+                symlink_path.unlink()
+            except (OSError, PermissionError) as e:
+                messages.append(
+                    _color(f"Failed to remove existing agent file: {e}", RED)
+                )
+                return 1
 
-    # Create symlink to source agent
-    symlink_path.symlink_to(source_path)
+        # Create symlink to source agent
+        symlink_path.symlink_to(source_path)
+    except (OSError, PermissionError) as e:
+        messages.append(
+            _color(f"Failed to create agent symlink: {e}", RED)
+        )
+        return 1
 
     messages.append(_color(f"Activated agent: {agent_name}", GREEN))
     if recommends:
@@ -767,7 +781,10 @@ def agent_deactivate(
         return 1, "\n".join(message)
 
     # Remove the symlink (or file if it's still a copy)
-    active_path.unlink()
+    try:
+        active_path.unlink()
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to deactivate agent: {e}", RED)
 
     messages = [_color(f"Deactivated agent: {agent_name}", YELLOW)]
     if dependents and force:

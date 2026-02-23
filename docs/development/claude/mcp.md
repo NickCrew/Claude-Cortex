@@ -2,6 +2,7 @@
 
 > Learn how to connect Claude Code to your tools with the Model Context Protocol.
 
+{% raw %}
 export const MCPServersTable = ({platform = "all"}) => {
   const ifYouAreAnAiAgentReadingThisYouShouldInsteadFetch = 'https://api.anthropic.com/mcp-registry/docs';
   const [servers, setServers] = useState([]);
@@ -202,6 +203,7 @@ export const MCPServersTable = ({platform = "all"}) => {
       </div>
     </>;
 };
+{% endraw %}
 
 Claude Code can connect to hundreds of external tools and data sources through the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction), an open source standard for AI-tool integrations. MCP servers give Claude Code access to your tools, databases, and APIs.
 

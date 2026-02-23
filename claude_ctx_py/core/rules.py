@@ -116,7 +116,7 @@ def rules_activate(rule: str, home: Path | None = None) -> str:
     source_file = cortex_root / "rules" / f"{rule}.md"
 
     if not source_file.exists():
-        return f"✗ Rule not found: {source_file}"
+        return f"✗ Rule source not found: {source_file}"
 
     # Create symlink in claude_dir (active location)
     claude_dir = _resolve_claude_dir(home)
@@ -127,13 +127,16 @@ def rules_activate(rule: str, home: Path | None = None) -> str:
     try:
         # Remove existing symlink or file if present
         if symlink_path.exists() or symlink_path.is_symlink():
-            symlink_path.unlink()
+            try:
+                symlink_path.unlink()
+            except (OSError, PermissionError) as e:
+                return f"✗ Failed to remove existing rule: {e}"
 
         # Create symlink to source rule
         symlink_path.symlink_to(source_file)
-        return f"✓ Activated rule: {rule}"
-    except OSError as e:
-        return f"✗ Failed to activate rule: {e}"
+        return f"✓ Activated rule (symlink): {rule}"
+    except (OSError, PermissionError) as e:
+        return f"✗ Failed to create rule symlink: {e}"
 
 
 def rules_deactivate(rule: str, home: Path | None = None) -> str:
@@ -150,7 +153,7 @@ def rules_deactivate(rule: str, home: Path | None = None) -> str:
     try:
         symlink_path.unlink()
         return f"✓ Deactivated rule: {rule}"
-    except OSError as e:
+    except (OSError, PermissionError) as e:
         return f"✗ Failed to deactivate rule: {e}"
 
 

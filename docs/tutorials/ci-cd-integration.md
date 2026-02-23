@@ -235,6 +235,7 @@ jobs:
 
 ### Automated Releases with Validation
 
+{% raw %}
 ```yaml
 name: Semantic Release
 
@@ -302,6 +303,7 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 ```
+{% endraw %}
 
 ---
 
@@ -588,6 +590,7 @@ permissions:
 ```
 
 **Cache for faster builds:**
+{% raw %}
 ```yaml
 - name: Cache pip packages
   uses: actions/cache@v4
@@ -595,6 +598,7 @@ permissions:
     path: ~/.cache/pip
     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
 ```
+{% endraw %}
 
 ---
 
