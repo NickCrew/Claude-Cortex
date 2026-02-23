@@ -25,13 +25,14 @@ set -euo pipefail
 # Resolve physical paths to handle symlink invocation (e.g. ~/.codex/skills/...)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
+CALLER_CWD="$(pwd -P)"
 
-# Find repo root from caller's CWD (not SKILL_DIR, which follows symlinks
-# to the skill's physical location — likely a different repo).
-REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
-  echo "Error: Not inside a git repository. Run this from within the repo you want to audit." >&2
-  exit 1
-}
+# Resolve repo root from caller's CWD (best-effort). Unlike specialist-review,
+# this script can still run without git metadata because it reads files directly.
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$REPO_ROOT" ]]; then
+  REPO_ROOT="$CALLER_CWD"
+fi
 
 PROMPT_TEMPLATE="$SKILL_DIR/references/audit-prompt.md"
 
@@ -85,6 +86,11 @@ if [[ -z "$MODULE_PATH" ]]; then
   exit 1
 fi
 
+# Resolve module path relative to repo root if needed.
+if [[ ! -e "$MODULE_PATH" && -e "$REPO_ROOT/$MODULE_PATH" ]]; then
+  MODULE_PATH="$REPO_ROOT/$MODULE_PATH"
+fi
+
 if [[ ! -e "$MODULE_PATH" ]]; then
   echo "Error: Module path not found: $MODULE_PATH" >&2
   exit 1
@@ -118,6 +124,11 @@ if [[ -z "$TEST_PATH" ]]; then
     echo "Warning: Could not auto-discover test directory." >&2
     TEST_PATH="(none)"
   fi
+fi
+
+# Resolve explicit test path relative to repo root if needed.
+if [[ "$TEST_PATH" != "(none)" && ! -e "$TEST_PATH" && -e "$REPO_ROOT/$TEST_PATH" ]]; then
+  TEST_PATH="$REPO_ROOT/$TEST_PATH"
 fi
 
 # --- Read all content for inlining ---
