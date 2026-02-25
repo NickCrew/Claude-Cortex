@@ -40,6 +40,7 @@ from .base import (
     _inactive_dir_candidates,
     _ensure_inactive_category_dir,
     _resolve_claude_dir,
+    _resolve_cortex_root,
     _tokenize_front_matter,
 )
 

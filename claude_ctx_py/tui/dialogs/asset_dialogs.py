@@ -206,6 +206,7 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
     BINDINGS = [
         Binding("escape", "close", "Close"),
         Binding("i", "install", "Install"),
+        Binding("c", "copy", "Copy"),
         Binding("u", "uninstall", "Uninstall"),
         Binding("d", "diff", "View Diff"),
     ]
@@ -313,8 +314,12 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
                     )
 
                 # Keyboard shortcuts hint
+                is_agent = self.asset.category == AssetCategory.AGENTS
                 if self.status == InstallStatus.NOT_INSTALLED:
-                    hint = "[dim][i] Copy • [esc] Close[/dim]"
+                    if is_agent:
+                        hint = "[dim][i] Symlink • [c] Copy • [esc] Close[/dim]"
+                    else:
+                        hint = "[dim][i] Install • [esc] Close[/dim]"
                 else:
                     hint = "[dim][i] Update • [u] Remove • [d] View Diff • [esc] Close[/dim]"
                 yield Static(hint, id="dialog-hint")
@@ -322,7 +327,11 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
                 with Horizontal(id="dialog-buttons"):
                     # Show appropriate buttons based on status
                     if self.status == InstallStatus.NOT_INSTALLED:
-                        yield Button("Copy [i]", variant="success", id="install")
+                        if is_agent:
+                            yield Button("Symlink [i]", variant="success", id="install")
+                            yield Button("Copy [c]", variant="primary", id="copy")
+                        else:
+                            yield Button("Install [i]", variant="success", id="install")
                     else:
                         yield Button("Update [i]", variant="primary", id="install")
                         yield Button("Remove [u]", variant="error", id="uninstall")
@@ -337,8 +346,12 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
         self.dismiss(None)
 
     def action_install(self) -> None:
-        """Request install action."""
+        """Request install (symlink) action."""
         self.dismiss("install")
+
+    def action_copy(self) -> None:
+        """Request copy action (file copy instead of symlink)."""
+        self.dismiss("copy")
 
     def action_uninstall(self) -> None:
         """Request uninstall action."""
@@ -354,6 +367,8 @@ class AssetDetailDialog(ModalScreen[Optional[str]]):
             self.dismiss(None)
         elif event.button.id == "install":
             self.dismiss("install")
+        elif event.button.id == "copy":
+            self.dismiss("copy")
         elif event.button.id == "uninstall":
             self.dismiss("uninstall")
         elif event.button.id == "diff":

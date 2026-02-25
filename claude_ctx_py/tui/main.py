@@ -1068,17 +1068,28 @@ class AgentTUI(App[None]):
     def load_agents(self) -> None:
         """Load agents from the system.
 
-        Uses symlink presence in ~/.claude/agents to determine activation status.
-        Agents are loaded from CORTEX_ROOT/agents, and their status is "active"
-        if a symlink exists in ~/.claude/agents/, otherwise "inactive".
+        Uses file/symlink presence in agents/ directories to determine activation.
+        Checks all claude directory scopes (project, parent, global) so agents
+        installed at any level are correctly detected as active.
         """
         try:
             agents = []
             seen_names = set()  # Track agent names to avoid duplicates
             cortex_root = _resolve_cortex_root()
-            claude_dir = _resolve_claude_dir()
             self.agent_slug_lookup = {}
             self.agent_category_lookup = {}
+
+            # Collect all agents/ directories across scopes for status checks
+            agent_search_dirs: list[Path] = []
+            for cd in self.claude_directories:
+                agents_subdir = cd.path / "agents"
+                if agents_subdir.is_dir():
+                    agent_search_dirs.append(agents_subdir)
+            # Fallback: if claude_directories not yet populated, use resolved dir
+            if not agent_search_dirs:
+                fallback = _resolve_claude_dir() / "agents"
+                if fallback.is_dir():
+                    agent_search_dirs.append(fallback)
 
             # Load all available agents from CORTEX_ROOT
             agents_dir = cortex_root / "agents"
@@ -1087,9 +1098,11 @@ class AgentTUI(App[None]):
                     if not path.name.endswith(".md") or _is_disabled(path):
                         continue
 
-                    # Determine status based on symlink presence in ~/.claude/agents/
-                    installed_path = claude_dir / "agents" / path.name
-                    is_active = installed_path.exists() or installed_path.is_symlink()
+                    # Check all scopes for installed agent
+                    is_active = any(
+                        (d / path.name).exists() or (d / path.name).is_symlink()
+                        for d in agent_search_dirs
+                    )
                     status = "active" if is_active else "inactive"
 
                     node = self._parse_agent_file(path, status)
@@ -4739,16 +4752,19 @@ class AgentTUI(App[None]):
             saved_cursor_row = self._table_cursor_index()
             asset = self._current_asset
 
-            if action == "install":
+            if action in ("install", "copy"):
                 managed = self._is_managed_target(self.selected_target_dir)
+                use_copy = action == "copy"
                 exit_code, message = install_asset(
                     asset, self.selected_target_dir,
                     add_claude_refs=managed,
                     register_hooks=managed,
+                    use_copy=use_copy,
                 )
                 if exit_code == 0:
-                    # Determine install type based on asset category
                     if asset.category == AssetCategory.SETTINGS:
+                        action_verb = "Copied"
+                    elif use_copy:
                         action_verb = "Copied"
                     else:
                         action_verb = "Installed"

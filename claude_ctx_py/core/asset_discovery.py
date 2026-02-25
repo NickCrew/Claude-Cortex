@@ -109,7 +109,7 @@ class Asset:
         elif self.category == AssetCategory.FLAGS:
             return f"flags/{self.source_path.name}"
         elif self.category == AssetCategory.RULES:
-            return f"skills/{self.source_path.name}"
+            return f"rules/{self.source_path.name}"
         elif self.category == AssetCategory.PROFILES:
             return f"profiles/{self.source_path.name}"
         elif self.category == AssetCategory.SCENARIOS:
@@ -614,36 +614,30 @@ def _discover_flags(plugin_root: Path) -> List[Asset]:
 
 
 def _discover_rules(plugin_root: Path) -> List[Asset]:
-    """Discover recommendation/config rule files."""
+    """Discover rule files from the rules/ directory."""
     rules: List[Asset] = []
-    candidates = [
-        plugin_root / "skills" / "skill-rules.json",
-        plugin_root / "skills" / "recommendation-rules.json",
-    ]
+    rules_dir = plugin_root / "rules"
+    if not rules_dir.exists():
+        return rules
 
-    for path in candidates:
-        if not path.exists():
+    for path in rules_dir.glob("*.md"):
+        if path.name == "README.md":
             continue
         try:
-            import json
-
-            data = json.loads(path.read_text(encoding="utf-8"))
-            version = data.get("version")
-            description = (
-                data.get("description")
-                or f"Ruleset for {path.stem.replace('-', ' ')}"
-            )
+            content = path.read_text(encoding="utf-8")
+            # Use first line as description
+            first_line = content.strip().split("\n")[0].lstrip("#").strip()
+            description = first_line or f"Rule: {path.stem.replace('-', ' ')}"
             rules.append(
                 Asset(
                     name=path.stem,
                     category=AssetCategory.RULES,
                     source_path=path,
                     description=description[:100] + "..." if len(description) > 100 else description,
-                    version=version,
-                    metadata=data,
+                    metadata={},
                 )
             )
-        except (OSError, Exception):
+        except OSError:
             continue
 
     return sorted(rules, key=lambda a: a.name)
@@ -953,12 +947,12 @@ def get_installed_assets(claude_dir: Path) -> Dict[str, List[str]]:
             if f.name != "README.md":
                 installed["flags"].append(f.stem)
 
-    # Rules (JSON in skills/)
-    rules_dir = claude_dir / "skills"
-    for rule_name in ("skill-rules.json", "recommendation-rules.json"):
-        rule_path = rules_dir / rule_name
-        if rule_path.exists():
-            installed["rules"].append(rule_path.stem)
+    # Rules (markdown in rules/)
+    rules_dir = claude_dir / "rules"
+    if rules_dir.exists():
+        for f in rules_dir.glob("*.md"):
+            if f.name != "README.md":
+                installed["rules"].append(f.stem)
 
     # Profiles
     profiles_dir = claude_dir / "profiles"
@@ -1043,7 +1037,7 @@ def check_installation_status(
 
         return InstallStatus.NOT_INSTALLED
 
-    # For rules (single JSON files under skills/)
+    # For rules (markdown files under rules/)
     if asset.category == AssetCategory.RULES:
         if not target_path.exists() and not target_path.is_symlink():
             return InstallStatus.NOT_INSTALLED
