@@ -91,15 +91,17 @@ def install_asset(
     *,
     add_claude_refs: bool = True,
     register_hooks: bool = True,
+    use_copy: bool = False,
 ) -> Tuple[int, str]:
-    """Copy an asset to a target directory.
+    """Install an asset to a target directory.
 
     Args:
-        asset: Asset to copy
+        asset: Asset to install
         target_dir: Target directory
         activate: For agents/modes, whether to install as active
         add_claude_refs: When True, append commented reference to CLAUDE.md
         register_hooks: When True, register hooks in settings.json
+        use_copy: When True, copy the file instead of symlinking (agents only)
 
     Returns:
         Tuple of (exit_code, message)
@@ -112,6 +114,8 @@ def install_asset(
         elif asset.category == AssetCategory.COMMANDS:
             return _install_command(asset, target_dir, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.AGENTS:
+            if use_copy:
+                return _copy_agent(asset, target_dir, add_claude_refs=add_claude_refs)
             return _install_agent(asset, target_dir, activate, add_claude_refs=add_claude_refs)
         elif asset.category == AssetCategory.MODES:
             return _install_mode(asset, target_dir, activate, add_claude_refs=add_claude_refs)
@@ -276,6 +280,34 @@ def _install_agent(asset: Asset, target_dir: Path, activate: bool, *, add_claude
         return 1, _color(f"Failed to create agent symlink: {e}", RED)
 
 
+def _copy_agent(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
+    """Copy an agent file to the agents directory.
+
+    Unlike _install_agent which creates a symlink, this creates an independent
+    copy that won't change when the source is modified.
+    """
+    try:
+        if not asset.source_path.exists():
+            return 1, _color(f"Agent source not found: {asset.source_path}", RED)
+
+        agents_dir = target_dir / "agents"
+        agents_dir.mkdir(parents=True, exist_ok=True)
+        target_path = agents_dir / asset.source_path.name
+
+        # Remove existing file or symlink if present
+        if target_path.exists() or target_path.is_symlink():
+            target_path.unlink()
+
+        shutil.copy2(asset.source_path, target_path)
+
+        if add_claude_refs:
+            _add_commented_reference(target_dir, target_path)
+
+        return 0, _color(f"Installed agent (copy): {asset.name}", GREEN)
+    except (OSError, PermissionError) as e:
+        return 1, _color(f"Failed to copy agent: {e}", RED)
+
+
 def _install_mode(asset: Asset, target_dir: Path, activate: bool, *, add_claude_refs: bool = True) -> Tuple[int, str]:
     """Symlink a mode file to modes directory.
 
@@ -324,16 +356,16 @@ def _install_workflow(asset: Asset, target_dir: Path, *, add_claude_refs: bool =
 
 
 def _install_rule(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Symlink a recommendation/config rules file under skills/."""
+    """Symlink a rule file to the rules/ directory."""
     try:
         # Validate source exists before attempting symlink
         if not asset.source_path.exists():
             return 1, _color(f"Rule source not found: {asset.source_path}", RED)
 
-        skills_dir = target_dir / "skills"
-        skills_dir.mkdir(parents=True, exist_ok=True)
+        rules_dir = target_dir / "rules"
+        rules_dir.mkdir(parents=True, exist_ok=True)
 
-        target_path = skills_dir / asset.source_path.name
+        target_path = rules_dir / asset.source_path.name
 
         # Remove existing file or symlink if present
         if target_path.exists() or target_path.is_symlink():
@@ -585,15 +617,15 @@ def _uninstall_workflow(name: str, target_dir: Path) -> Tuple[int, str]:
 
 
 def _uninstall_rule(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall a rules file (remove symlink or file)."""
-    rule_path = target_dir / "skills" / f"{name}.json"
+    """Uninstall a rule file (remove symlink or file)."""
+    rule_path = target_dir / "rules" / f"{name}.md"
 
     if not rule_path.exists() and not rule_path.is_symlink():
-        return 1, _color(f"Rules not installed: {name}", YELLOW)
+        return 1, _color(f"Rule not installed: {name}", YELLOW)
 
     # Unlink symlink or remove file
     rule_path.unlink()
-    return 0, _color(f"Uninstalled rules: {name}", GREEN)
+    return 0, _color(f"Uninstalled rule: {name}", GREEN)
 
 
 def _uninstall_flag(name: str, target_dir: Path) -> Tuple[int, str]:
@@ -862,6 +894,9 @@ def get_installed_path(
     elif asset.category == AssetCategory.WORKFLOWS:
         path = target_dir / "workflows" / asset.source_path.name
         return path if path.exists() else None
+    elif asset.category == AssetCategory.RULES:
+        path = target_dir / "rules" / asset.source_path.name
+        return path if (path.exists() or path.is_symlink()) else None
     elif asset.category == AssetCategory.SETTINGS:
         path = target_dir / asset.install_target
         return path if path.exists() else None
