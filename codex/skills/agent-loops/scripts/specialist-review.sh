@@ -8,9 +8,10 @@
 #   cat changes.diff | specialist-review.sh - [--output <dir>]
 #
 # Options:
-#   --git [base-ref]   Diff against base-ref (default: HEAD~1)
-#   --output <dir>     Output directory (default: .agents/reviews)
-#   -- path...         Limit git diff to these paths (passed to git diff)
+#   --git [base-ref]       Diff against base-ref (default: HEAD~1)
+#   --output <dir>         Output directory (default: .agents/reviews)
+#   --prior-review <file>  Include previous review output for continuity across cycles
+#   -- path...             Limit git diff to these paths (passed to git diff)
 #
 # Examples:
 #   # Review current changes vs last commit
@@ -52,6 +53,8 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
 DIFF_SOURCE="--git"
 OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
 BASE_REF="HEAD~1"
+CONTEXT_LINES="${REVIEW_CONTEXT:-15}"
+PRIOR_REVIEW_FILE=""
 PATH_FILTERS=()
 
 while [[ $# -gt 0 ]]; do
@@ -64,6 +67,15 @@ while [[ $# -gt 0 ]]; do
       BASE_REF="$1"
       shift
     fi
+    ;;
+  --prior-review)
+    shift
+    PRIOR_REVIEW_FILE="${1:-}"
+    if [[ -z "$PRIOR_REVIEW_FILE" || ! -f "$PRIOR_REVIEW_FILE" ]]; then
+      echo "Error: --prior-review requires a valid file path" >&2
+      exit 1
+    fi
+    shift
     ;;
   --output)
     shift
@@ -101,14 +113,14 @@ if [[ "$DIFF_SOURCE" == "--git" ]]; then
   if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
     GIT_DIFF_ARGS+=(-- "${PATH_FILTERS[@]}")
   fi
-  if ! git diff "${GIT_DIFF_ARGS[@]}" >"$DIFF_FILE" 2>/dev/null; then
+  if ! git diff -U"$CONTEXT_LINES" "${GIT_DIFF_ARGS[@]}" >"$DIFF_FILE" 2>/dev/null; then
     # Fallback: staged + unstaged only (base-ref may not exist)
     if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
-      git diff HEAD -- "${PATH_FILTERS[@]}" >"$DIFF_FILE" 2>/dev/null || \
-        git diff -- "${PATH_FILTERS[@]}" >"$DIFF_FILE"
+      git diff -U"$CONTEXT_LINES" HEAD -- "${PATH_FILTERS[@]}" >"$DIFF_FILE" 2>/dev/null || \
+        git diff -U"$CONTEXT_LINES" -- "${PATH_FILTERS[@]}" >"$DIFF_FILE"
     else
-      git diff HEAD >"$DIFF_FILE" 2>/dev/null || \
-        git diff >"$DIFF_FILE"
+      git diff -U"$CONTEXT_LINES" HEAD >"$DIFF_FILE" 2>/dev/null || \
+        git diff -U"$CONTEXT_LINES" >"$DIFF_FILE"
     fi
   fi
 elif [[ "$DIFF_SOURCE" == "-" ]]; then
@@ -150,7 +162,7 @@ if [[ "$DIFF_LINES" -gt "$MAX_LINES" ]]; then
   mv "$TRUNCATED_FILE" "$DIFF_FILE"
 fi
 
-# Inline the perspective catalog and diff into the prompt (no tool use needed)
+# Inline the perspective catalog, diff, and prior review into the prompt
 python3 -c "
 import sys
 with open(sys.argv[1], 'r') as f:
@@ -159,13 +171,23 @@ with open(sys.argv[2], 'r') as f:
     catalog = f.read()
 with open(sys.argv[3], 'r') as f:
     diff = f.read()
-result = template.replace('{{PERSPECTIVE_CATALOG}}', catalog).replace('{{DIFF_CONTENT}}', diff)
+prior = '_No prior review — this is the first review cycle._'
+if len(sys.argv) > 5 and sys.argv[5]:
+    with open(sys.argv[5], 'r') as f:
+        prior = f.read()
+result = template.replace('{{PERSPECTIVE_CATALOG}}', catalog) \
+                 .replace('{{DIFF_CONTENT}}', diff) \
+                 .replace('{{PRIOR_REVIEW}}', prior)
 with open(sys.argv[4], 'w') as f:
     f.write(result)
-" "$PROMPT_TEMPLATE" "$PERSPECTIVE_CATALOG" "$DIFF_FILE" "$PROMPT_FILE"
+" "$PROMPT_TEMPLATE" "$PERSPECTIVE_CATALOG" "$DIFF_FILE" "$PROMPT_FILE" "$PRIOR_REVIEW_FILE"
 
 # --- Invoke Claude CLI ---
 
+# Environment variables:
+#   CLAUDE_TIMEOUT    — Max seconds for Claude CLI (default: 300)
+#   CLAUDE_MAX_BUDGET — Max USD budget per invocation (default: 0.50)
+#   REVIEW_CONTEXT    — Lines of diff context, passed as -U<n> to git diff (default: 15)
 TIMEOUT="${CLAUDE_TIMEOUT:-300}"
 MAX_BUDGET="${CLAUDE_MAX_BUDGET:-0.50}"
 

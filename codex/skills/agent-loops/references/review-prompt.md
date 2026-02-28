@@ -41,6 +41,15 @@ After all perspectives are complete, write a synthesis section with:
 - **Risk Interactions**: Identify where findings from separate perspectives combine to create a larger risk than either alone. State the compounding effect.
 - **Verdict**: One of APPROVE, APPROVE WITH CHANGES, or REQUEST CHANGES
 
+## PRIOR REVIEW FINDINGS
+
+The following is the output from the previous review cycle. Use it to:
+- Verify that cited findings have been addressed in the current diff
+- Check for regressions introduced by remediation
+- Maintain continuity — do not re-report findings that were already fixed
+
+{{PRIOR_REVIEW}}
+
 ## DIFF TO REVIEW
 
 ```diff

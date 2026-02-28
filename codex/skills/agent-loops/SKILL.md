@@ -33,8 +33,20 @@ skills. You never grade your own homework.
 - `references/audit-prompt.md` — Claude test audit prompt template
 
 **Bundled scripts:**
-- `scripts/specialist-review.sh` — Shell out to Claude CLI for code review
-- `scripts/test-review-request.sh` — Shell out to Claude CLI for test audit
+- `$SKILL_DIR/scripts/specialist-review.sh` — Shell out to Claude CLI for code review
+- `$SKILL_DIR/scripts/test-review-request.sh` — Shell out to Claude CLI for test audit
+
+### Locate Scripts
+
+The bundled scripts live inside the installed skill directory, not the project tree.
+Before invoking any script, resolve `SKILL_DIR` so paths work regardless of install scope:
+
+```bash
+SKILL_DIR="$(ls -d ~/.codex/skills/agent-loops 2>/dev/null || ls -d .codex/skills/agent-loops 2>/dev/null)"
+```
+
+All script invocations below use `"$SKILL_DIR/scripts/..."`. Run the snippet above once
+at the start of your session and reuse the variable.
 
 ---
 
@@ -72,27 +84,27 @@ Non-Claude agents do not have access to these skills.
 
 ```bash
 # Review only the files you changed (RECOMMENDED)
-scripts/specialist-review.sh --git -- src/parser/ src/auth.rs
+"$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs
 
 # Review changes since a specific ref, scoped to a directory
-scripts/specialist-review.sh --git origin/main -- claude_ctx_py/
+"$SKILL_DIR/scripts/specialist-review.sh" --git origin/main -- claude_ctx_py/
 
 # Review all changes vs last commit (use sparingly in monorepos)
-scripts/specialist-review.sh --git
+"$SKILL_DIR/scripts/specialist-review.sh" --git
 
 # Pipe in a pre-filtered diff
-git diff HEAD~3..HEAD -- src/ | scripts/specialist-review.sh -
+git diff HEAD~3..HEAD -- src/ | "$SKILL_DIR/scripts/specialist-review.sh" -
 
 # Review a diff file
-scripts/specialist-review.sh /path/to/changes.diff
+"$SKILL_DIR/scripts/specialist-review.sh" /path/to/changes.diff
 
 # Custom output directory
-scripts/specialist-review.sh --git --output ./my-reviews -- src/
+"$SKILL_DIR/scripts/specialist-review.sh" --git --output ./my-reviews -- src/
 ```
 
 Read the output file path printed to stdout:
 ```bash
-REVIEW_FILE=$(scripts/specialist-review.sh --git -- src/parser/)
+REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/)
 cat "$REVIEW_FILE"
 ```
 
@@ -126,21 +138,21 @@ do not have access to these skills or the project-specific testing standards.
 
 ```bash
 # Full audit of a module (default)
-scripts/test-review-request.sh /path/to/module
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module
 
 # Full audit with specific test directory
-scripts/test-review-request.sh /path/to/module --tests /path/to/tests
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --tests /path/to/tests
 
 # Quick review of specific test files only
-scripts/test-review-request.sh --quick /path/to/test_file.py
+"$SKILL_DIR/scripts/test-review-request.sh" --quick /path/to/test_file.py
 
 # Custom output directory
-scripts/test-review-request.sh /path/to/module --output ./my-reports
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --output ./my-reports
 ```
 
 Read the output file path printed to stdout:
 ```bash
-REPORT_FILE=$(scripts/test-review-request.sh src/parser)
+REPORT_FILE=$("$SKILL_DIR/scripts/test-review-request.sh" src/parser)
 cat "$REPORT_FILE"
 ```
 
@@ -201,7 +213,7 @@ ENTRY: Task spec or ticket describing the required change.
        │
        ▼
 ┌──────────────────┐
-│ specialist-review│ ← Run: scripts/specialist-review.sh --git -- <files>
+│ specialist-review│ ← Run: "$SKILL_DIR/scripts/specialist-review.sh" --git -- <files>
 └──────┬───────────┘   Script diffs your changed files, sends to Claude
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
@@ -218,9 +230,9 @@ ENTRY: Task spec or ticket describing the required change.
                                                  │
                                                  ▼
                                           ┌──────────────────┐
-                                          │ specialist-review│ ← Run script again (same paths)
-                                          └──────┬───────────┘   Script diffs remediated files,
-                                                 │               Claude re-evaluates
+                                          │ specialist-review│ ← Run with --prior-review and only remediated files:
+                                          └──────┬───────────┘   "$SKILL_DIR/scripts/specialist-review.sh" --git \
+                                                 │                 --prior-review "$REVIEW_FILE" -- <remediated-files>
                                                  └── Loop back to findings check
 ```
 
@@ -313,6 +325,14 @@ When fixing findings from Claude's review:
 - Do not introduce new functionality while remediating.
 - If a fix requires changing the approach significantly, note this in the remediation and let Claude evaluate the full new approach on the next `specialist-review` cycle.
 - Each remediated finding should be annotated: `Fixed P0-001: [what was changed]`
+- **Scope remediation reviews to only the files you touched.** Pass `--prior-review "$REVIEW_FILE"` so Claude can verify fixes and check for regressions without re-reviewing already-approved code:
+  ```bash
+  # Initial review — full scope
+  REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs)
+
+  # Remediation review — only the files you fixed, with prior review for continuity
+  REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git --prior-review "$REVIEW_FILE" -- src/auth.rs)
+  ```
 - If you disagree with a finding, see "Disagreeing with Claude's Findings" below — do not silently skip it.
 
 ---
@@ -350,7 +370,7 @@ Use a hybrid gate to avoid unnecessary friction while preserving confidence:
 ENTRY: Code change loop has exited cleanly.
 
 ┌──────────────────────┐
-│  AUDIT               │ ← Run: scripts/test-review-request.sh <module>
+│  AUDIT               │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
 └──────┬───────────────┘   Script sends module + tests to Claude, returns gap report
        │
        ▼
@@ -371,7 +391,7 @@ ENTRY: Code change loop has exited cleanly.
        │                   3. Actually exercise the code (not no-ops)
        ▼
 ┌──────────────────────┐
-│  RE-AUDIT            │ ← Run: scripts/test-review-request.sh <module>
+│  RE-AUDIT            │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
 └──────┬───────────────┘   Same module path — script re-reads source + tests
        │                   Claude checks: gaps closed? new tests good?
        │
@@ -483,8 +503,8 @@ When filing deferred findings in this repository:
 - Writing implementation code
 - Writing test code
 - Running tests locally and verifying they pass
-- Running `scripts/specialist-review.sh --git -- <your-files>` after implementation and each code remediation
-- Running `scripts/test-review-request.sh <module>` for initial audit and each re-audit
+- Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
+- Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
 - Filing P2/P3 issues when loop exits
 - Escalating when circuit breaker triggers
@@ -535,18 +555,18 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
        ▼
 2. CODE CHANGE LOOP
    ├── You: implement
-   ├── scripts/specialist-review.sh --git -- <files> → Claude reviews diff (max 3 cycles)
-   ├── You: remediate P0/P1
+   ├── "$SKILL_DIR/scripts/specialist-review.sh" --git -- <files> → Claude reviews diff (max 3 cycles)
+   ├── You: remediate P0/P1 → re-review with --prior-review, scoped to remediated files
    ├── File issues for P2/P3
    └── Exit with clean code
        │
        ▼
 3. TEST WRITING LOOP
-   ├── scripts/test-review-request.sh <module> → Claude audits (gaps + quality)
+   ├── "$SKILL_DIR/scripts/test-review-request.sh" <module> → Claude audits (gaps + quality)
    ├── Human: scope approval (P0/P1 auto-approved)
    ├── You: write tests (testing-standards.md)
    ├── You: verify tests pass locally
-   ├── scripts/test-review-request.sh <module> → Claude re-audits (max 3 cycles)
+   ├── "$SKILL_DIR/scripts/test-review-request.sh" <module> → Claude re-audits (max 3 cycles)
    ├── You: remediate P0/P1 gaps and bad tests
    ├── File issues for P2/P3
    └── Exit with tested code
