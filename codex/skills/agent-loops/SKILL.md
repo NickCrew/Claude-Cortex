@@ -1,10 +1,13 @@
 ---
 name: agent-loops
-description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Defines the Code Change Loop, Test Writing Loop, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Includes bundled scripts for specialist-review (code review) and test-review-request (test audit) that delegate to Claude CLI. Use this skill when starting any implementation task.
+description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Includes bundled scripts for specialist-review (code review) and test-review-request (test audit) that delegate to Claude CLI. Use this skill when starting any implementation task.
 keywords:
   - agent workflow
   - code review loop
   - test writing loop
+  - lint gate
+  - linter
+  - code quality
   - implementer
   - remediation
   - circuit breaker
@@ -173,7 +176,7 @@ Act on findings:
 
 ## Overview
 
-There are two primary loops. They run sequentially — the code loop completes before the test loop begins.
+There are three primary loops. They run sequentially — code loop, then test loop, then lint gate.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -186,6 +189,11 @@ There are two primary loops. They run sequentially — the code loop completes b
 │  Audit → Write Tests → Verify → Re-audit → Remediate → ...    │
 │  Exit: all P0/P1 gaps covered, no bad tests                    │
 │  Output: tests passing + issues filed for P2+                   │
+├─────────────────────────────────────────────────────────────────┤
+│                        LINT GATE                                │
+│  Discover Linter → Auto-fix → Check → Remediate → Re-check    │
+│  Exit: zero errors, no new warnings                             │
+│  Output: lint-clean code                                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -386,7 +394,7 @@ ENTRY: Code change loop has exited cleanly.
        ▼
 ┌──────────────────────┐
 │  VERIFY              │ ← You: run the tests locally. They must:
-└──────┬───────────────┘   1. Compile / pass lint
+└──────┬───────────────┘   1. Compile / pass lint (test files — full lint in Loop 3)
        │                   2. All pass (no test is born failing)
        │                   3. Actually exercise the code (not no-ops)
        ▼
@@ -442,7 +450,107 @@ If P0/P1 gaps remain after 3 cycles, escalate to human with a summary of what's 
 
 ---
 
-## Loop 3: Issue Filing
+## Loop 3: Lint Gate
+
+After the test writing loop exits cleanly, run the project linter against ALL files touched across both loops. Lint fixes are code changes — they may produce deferred findings or break tests — so the lint gate runs before issue filing.
+
+### Linter Discovery
+
+Discover the project's linter using this cascade. Stop at the first match:
+
+1. **Project docs** — Check `CLAUDE.md`, `README.md`, and `CONTRIBUTING.md` for lint commands or conventions.
+2. **Task runner targets** — Look for standard targets: `make lint`, `npm run lint`, `cargo clippy`, `./gradlew lint`, `bundle exec rubocop`, etc.
+3. **Config file inference** — Match config files to linters:
+   - `.eslintrc*` / `eslint.config.*` → `npx eslint`
+   - `pyproject.toml [tool.ruff]` → `ruff check`
+   - `pyproject.toml [tool.black]` → `black --check`
+   - `.prettierrc*` → `npx prettier --check`
+   - `Cargo.toml` → `cargo clippy`
+   - `.rubocop.yml` → `bundle exec rubocop`
+   - `.golangci.yml` → `golangci-lint run`
+   - `biome.json` → `npx biome check`
+4. **Fallback** — If no linter is discoverable, escalate to the user. **Never guess.**
+
+### The Loop
+
+```
+ENTRY: Test writing loop has exited cleanly.
+
+┌──────────────────────┐
+│  DISCOVER LINTER     │ ← You: use the 4-step cascade above
+└──────┬───────────────┘
+       │
+       ▼
+┌──────────────────────┐
+│  AUTO-FIX            │ ← You: run linter's auto-fix command (see table below)
+└──────┬───────────────┘   Eliminates 80%+ of issues without iteration cost
+       │
+       ▼
+┌──────────────────────┐
+│  LINT CHECK          │ ← You: run lint check command
+└──────┬───────────────┘
+       │
+       ├── Clean? ──► Yes ──► Verify tests still pass
+       │                      Exit loop ✅
+       │
+       └── No ──► Errors or new warnings remain
+                  │
+                  ▼
+           ┌──────────────────┐
+           │  REMEDIATE       │ ← You: manually fix remaining lint issues
+           └──────┬───────────┘
+                  │
+                  ▼
+           ┌──────────────────┐
+           │  VERIFY TESTS    │ ← You: re-run tests to confirm lint fixes
+           └──────┬───────────┘   didn't break anything
+                  │
+                  └── Back to LINT CHECK
+```
+
+### What "Clean" Means
+
+- **Zero errors** from the project linter.
+- **No new warnings** introduced by your changes.
+- Pre-existing warnings in unmodified files are noted but not blocking.
+
+### Auto-fix Reference
+
+| Linter | Check Command | Auto-fix Command |
+|--------|--------------|-----------------|
+| ESLint | `npx eslint .` | `npx eslint . --fix` |
+| Ruff | `ruff check .` | `ruff check . --fix` |
+| Black | `black --check .` | `black .` |
+| Prettier | `npx prettier --check .` | `npx prettier --write .` |
+| Clippy | `cargo clippy` | `cargo clippy --fix --allow-dirty` |
+| RuboCop | `bundle exec rubocop` | `bundle exec rubocop -A` |
+| golangci-lint | `golangci-lint run` | `golangci-lint run --fix` |
+| Biome | `npx biome check .` | `npx biome check . --fix` |
+| rustfmt | `cargo fmt --check` | `cargo fmt` |
+| gofmt | `gofmt -l .` | `gofmt -w .` |
+
+### Auto-fix Rules
+
+1. **Always auto-fix before manual remediation.** Auto-fix eliminates the mechanical majority.
+2. **Re-run tests after auto-fix.** If auto-fix breaks tests, revert the auto-fix and remediate manually.
+3. **Revert if auto-fix breaks tests.** A passing test suite takes priority over lint cleanliness.
+
+### Circuit Breaker
+
+**Maximum iterations: 2 lint-check cycles** (initial check + 1 re-check after remediation).
+
+Lint is mechanical, not semantic. If you can't get clean in 2 cycles, the issue is either a misconfigured rule or a design problem:
+1. Stop. Do not attempt a 3rd remediation.
+2. Summarize unresolved lint errors with context on why they persist.
+3. Escalate to human reviewer with the summary.
+
+### Severity Model
+
+Lint findings use a **binary pass/fail** model — no P0/P1/P2 triage. Lint rules are team policy: the agent complies, it doesn't judge. If a rule seems wrong, escalate to the user rather than disabling or ignoring it.
+
+---
+
+## Loop 4: Issue Filing
 
 After both loops exit, file issues for everything that was deferred.
 
@@ -506,6 +614,10 @@ When filing deferred findings in this repository:
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
+- Discovering and running the project linter after both loops exit
+- Running auto-fix first, then manually fixing remaining lint issues
+- Verifying tests still pass after lint fixes
+- Escalating if lint cannot be resolved in 2 cycles
 - Filing P2/P3 issues when loop exits
 - Escalating when circuit breaker triggers
 
@@ -572,9 +684,17 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    └── Exit with tested code
        │
        ▼
-4. ISSUE FILING
+4. LINT GATE
+   ├── You: discover project linter (CLAUDE.md → task runner → config files)
+   ├── You: run auto-fix if available
+   ├── You: run lint check (max 2 cycles)
+   ├── You: remediate remaining issues, verify tests still pass
+   └── Exit with lint-clean code
+       │
+       ▼
+5. ISSUE FILING
    └── P2/P3 findings → tracked issues
        │
        ▼
-5. PR READY FOR HUMAN REVIEW
+6. PR READY FOR HUMAN REVIEW
 ```
