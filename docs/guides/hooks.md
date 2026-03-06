@@ -35,78 +35,17 @@ Make sure your plugin manifest points at the hooks file: `"hooks": "./hooks/hook
 - Rules live in `skills/skill-rules.json`. Edit keywords/commands there—no code changes required.
 - Suggested commands appear inline in Claude Code, nudging you to run `/ctx:brainstorm`, `/ctx:plan`, `/dev:test`, etc.
 
-## 2. Implementation Quality Gate
+## Available Hooks
 
-`hooks/implementation-quality-gate.sh` enforces the three-phase workflow (testing → docs → code review). Add it to `hooks/hooks.json` under `UserPromptSubmit` and activate the required agents (`test-automator`, `docs-architect`, `quality-engineer`, etc.).
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/implementation-quality-gate.sh\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Configuration
-
-```bash
-vim hooks/implementation-quality-gate.sh
-
-COVERAGE_THRESHOLD=85
-DOCS_REVIEW_THRESHOLD=7.5
-CODE_REVIEW_REQUIRED=true
-```
-
-Refer to `archive/implementation-reports/HOOK_DOCUMENTATION.md` for the full workflow.
-
----
-
-## 3. Parallel Workflow Enforcer
-
-`hooks/parallel-workflow-enforcer.sh` enforces parallel planning/implementation/testing/review and blocks "intent-only" delivery. Add it to `hooks/hooks.json` under `UserPromptSubmit`. See `hooks/PARALLEL_WORKFLOW_README.md` for full details.
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/parallel-workflow-enforcer.sh\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
----
-
-## Hook examples
-
-- `hooks/skill_auto_suggester.py` — suggests relevant `/ctx:*` commands.
-- `hooks/memory_auto_capture.py` — captures memory on session end.
-- `hooks/implementation-quality-gate.sh` — enforces the quality gate workflow.
-- `hooks/parallel-workflow-enforcer.sh` — enforces parallel execution and deliverables.
-- `hooks/safety_pre_tool_guard.py` — blocks destructive tool calls and unsafe file ops.
+- `hooks/skill_auto_suggester.py` — suggests relevant skills based on the current prompt.
 - `hooks/secret_scan.py` — scans changed files for common secrets.
 - `hooks/large_file_gate.py` — blocks oversized files in changes.
-- `hooks/context_pack_injector.py` — suggests or applies context profiles from prompts.
-- `hooks/changelog_gate.py` — requires CHANGELOG updates for release-like changes.
-- `archive/implementation-reports/HOOK_DOCUMENTATION.md` — full walkthrough and configuration notes.
+- `hooks/audit.sh` — audit logging for tool calls.
+- `hooks/execution-enforcer.sh` — enforces execution discipline.
+- `hooks/issue-generator.sh` — generates issues from tool output.
+- `hooks/post-edit-check.sh` — validates files after edits.
+- `hooks/subagent_output_validator.py` — validates subagent output quality.
+- `hooks/workspace_validator.py` — validates workspace state.
 
 ---
 

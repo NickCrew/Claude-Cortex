@@ -10,13 +10,11 @@ The Asset Manager lets you install, diff, and update plugin assets directly from
 
 ## What It Manages
 
-- Hooks
-- Commands
 - Agents
 - Skills
-- Modes
-- Workflows
-- Flags
+- Rules
+- Hooks
+- Commands
 
 ## Launch
 
@@ -52,4 +50,4 @@ The Asset Manager scans for `.claude` directories (global and project scopes). U
 
 ---
 
-**Related guides**: [Modes](modes.html) • [Worktree Manager](worktrees.html) • [TUI Keyboard Reference](tui/tui-keyboard-reference.html)
+**Related guides**: [Worktree Manager](worktrees.html) • [TUI Keyboard Reference](tui/tui-keyboard-reference.html)

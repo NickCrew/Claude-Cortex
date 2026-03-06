@@ -7,7 +7,7 @@ permalink: /
 
 # Cortex - Documentation Index
 
-> Version 2.0.0 · Last updated January 8, 2026
+> Version 3.0.1 · Last updated March 6, 2026
 
 <div class="hero">
   <div class="hero__copy">
@@ -39,7 +39,7 @@ permalink: /
 
 ## Overview
 
-Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, behavioral modes, flags, rules, profiles, workflows, and scenarios for systematic software development.
+Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, skills, rules, and hooks for systematic software development.
 
 <div class="metrics-row">
   <div class="metric-box">
@@ -471,47 +471,14 @@ claude-cortex/
 │   ├── dependencies.map         # Agent dependency graph
 │   └── triggers.yaml            # Agent activation triggers
 │
-├── inactive/
-│   └── agents/        # Disabled agents library (available for activation)
-│
-├── modes/             # Behavioral modes (9 core)
-│   ├── Amphetamine.md
-│   ├── Architect.md
-│   ├── Brainstorming.md
-│   ├── Idea_Lab.md
-│   ├── Introspection.md
-│   ├── Security_Audit.md
-│   ├── Super_Saiyan.md
-│   ├── Teacher.md
-│   ├── Token_Efficiency.md
-│   └── supersaiyan/   # Platform-specific variants
-│
-├── flags/             # Modular flag packs (22)
 ├── hooks/             # Automation hooks
-├── tasks/             # Task tracking and logs
 │
 ├── rules/             # Reusable rule sets
 │   ├── git-rules.md            # Git workflow and commit rules
 │   ├── quality-rules.md        # Code organization, failure investigation
 │   └── efficiency-rules.md     # Tool optimization, workspace hygiene
 │
-├── skills/            # Skill packs and metadata
-├── prompts/           # Prompt library (guidelines, templates, personas)
-│   ├── guidelines/    # Code review, style guides, checklists
-│   ├── templates/     # PR descriptions, ADRs, documentation
-│   └── personas/      # Specialized behavioral profiles
-├── mcp/               # MCP docs + server resources
-├── profiles/          # Profile templates for different workflows
-│   ├── enhanced/
-│   └── templates/
-│
-├── workflows/         # Multi-agent workflow definitions
-│   ├── bug-fix.yaml
-│   ├── feature-development.yaml
-│   ├── performance-optimize.yaml
-│   └── security-audit.yaml
-│
-├── scenarios/         # Scenario-based orchestration definitions
+├── skills/            # Skill packs and metadata (127+)
 │
 ├── claude_ctx_py/     # Python CLI implementation
 │   ├── cli.py         # CLI entry point
@@ -754,46 +721,7 @@ Agents are specialized personas with domain expertise and specific capabilities.
 
 ---
 
-### 3. Mode System
-
-**Location**: `modes/` (core) and `modes/supersaiyan/` (platform variants)
-**Core Modes**: 9 | **Super Saiyan variants**: 4
-
-Modes are opinionated context modules that toggle workflow defaults and behavioral patterns.
-
-**Core Modes**:
-
-- `Amphetamine` - Maximum-velocity MVP prototyping
-- `Architect` - Strategic system design & trade-offs
-- `Brainstorming` - Collaborative discovery and exploration
-- `Idea_Lab` - Timeboxed ideation with rapid options
-- `Introspection` - Meta-cognitive analysis & reflection
-- `Security_Audit` - Security-first review mindset
-- `Super_Saiyan` - Visual excellence mode (see variants)
-- `Teacher` - Educational explanations and mentoring
-- `Token_Efficiency` - Concise, token-aware responses
-
-**Activation**: Manage mode defaults via `FLAGS.md`, mode files, and `.active-modes` state.
-
----
-
-### 4. Flag System
-
-**Location**: `FLAGS.md`
-
-Behavioral flags enable specific execution modes and tool selection patterns.
-
-**Categories**:
-
-- **Mode Activation**: `--brainstorm`, `--introspect`, `--task-manage`, `--orchestrate`
-- **MCP Servers**: `--c7`, `--seq`, `--serena`, `--magic`, `--morph`, `--play`
-- **Analysis Depth**: `--think`, `--think-hard`, `--ultrathink`
-- **Execution Control**: `--delegate`, `--loop`, `--validate`, `--safe-mode`
-- **Output Optimization**: `--uc`, `--scope`, `--focus`
-
----
-
-### 5. Rule System
+### 3. Rule System
 
 **Location**: `rules/`
 
@@ -813,24 +741,7 @@ Reusable rule sets that define behavioral constraints and best practices.
 
 ---
 
-### 6. Workflow System
-
-**Location**: `workflows/`
-
-Pre-defined multi-agent sequences for common development tasks.
-
-**Available Workflows**:
-
-- `feature-development.yaml` - Complete feature implementation workflow
-- `bug-fix.yaml` - Systematic bug resolution
-- `security-audit.yaml` - Comprehensive security assessment
-- `performance-optimize.yaml` - Performance analysis and optimization
-
-**Reference**: [Workflow Documentation](workflows/README.md)
-
----
-
-### 7. Python CLI
+### 4. Python CLI
 
 **Location**: `claude_ctx_py/`
 **Entry Point**: `cortex`
@@ -1214,13 +1125,6 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 1. Create markdown file in `agents/`
 2. Define triggers in `triggers.yaml`
 3. Add dependencies to `dependencies.map`
-
-### Defining Workflows
-
-1. Create YAML file in `workflows/`
-2. Define trigger conditions and steps
-3. Specify agent sequence and success criteria
-4. Update workflows/README.md
 
 ---
 

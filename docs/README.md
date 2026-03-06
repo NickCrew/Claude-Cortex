@@ -100,14 +100,9 @@ cortex is a context orchestration framework that provides:
 - 22 flag files under `flags/`
 - Add/remove `@flags/*.md` lines to enable/disable
 
-**Modes**: Behavioral presets that shape workflow defaults
+**Hooks**: Automation scripts triggered by Claude Code events
 
-- Architect, Brainstorming, Security Audit, Super Saiyan, Token Efficiency, and more
-
-**Profiles**: Saved configurations of agents/modes/rules
-
-- 5 enhanced profiles under `profiles/enhanced`
-- Quick environment setup
+- skill_auto_suggester, secret_scan, audit, and more
 
 ---
 
@@ -236,10 +231,9 @@ cortex status
                ▼
 ┌─────────────────────────────────────┐
 │      Context Storage                │
-│  agents/    skills/    modes/       │
-│  29 total   100+ skills 9 modes     │
-│  flags/     rules/     profiles/    │
-│  22 flags   6 rules    5 profiles   │
+│  agents/    skills/    rules/       │
+│  29 total   127+ skills             │
+│  hooks/     commands/               │
 └─────────────────────────────────────┘
 
 ```

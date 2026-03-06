@@ -38,19 +38,22 @@ The Python package follows a domain-driven architecture:
 ```
 claude_ctx_py/
 ├── cli.py              # Main CLI entrypoint (argparse-based)
-├── launcher.py         # Resolves plugin roots, rules, flags for starting Claude
 ├── core/               # Domain modules re-exported via __init__.py
 │   ├── base.py         # Utilities, path resolution, YAML/front-matter parsing
 │   ├── agents.py       # Agent graph, dependencies, activation
 │   ├── skills.py       # Skill discovery, metrics, community integration
-│   ├── modes.py        # Mode activation/deactivation
 │   ├── rules.py        # Rule management
-│   ├── profiles.py     # Profile presets and initialization
-│   ├── workflows.py    # Multi-step workflow orchestration
-│   ├── scenarios.py    # Scenario execution engine
-│   ├── mcp.py          # MCP server discovery and configuration
 │   ├── hooks.py        # Hook installation and validation
-│   └── backup.py       # Configuration backup/restore
+│   ├── mcp.py          # MCP server discovery and configuration
+│   ├── mcp_installer.py # MCP server installation
+│   ├── mcp_registry.py # MCP server registry
+│   ├── worktrees.py    # Git worktree management
+│   ├── backup.py       # Configuration backup/restore
+│   ├── components.py   # Shared component utilities
+│   ├── asset_discovery.py # Asset discovery across scopes
+│   ├── asset_installer.py # Asset installation (symlinks)
+│   ├── codex_skills.py # Codex skill integration
+│   └── context_export.py # Context export functionality
 ├── tui/                # Textual-based terminal UI
 │   ├── main.py         # CortexApp (main application class)
 │   ├── types.py        # TypedDicts for TUI data structures
@@ -69,18 +72,13 @@ claude_ctx_py/
 
 ### Plugin Assets Structure
 
-The repository mirrors the expected structure in `~/.cortex`:
+The repository ships these asset directories that are symlinked into `~/.claude`:
 
 ```
 agents/         # Claude subagent definitions (YAML front matter + markdown)
 commands/       # Slash command definitions
-modes/          # Behavioral mode configurations
 rules/          # Reusable rule sets
-flags/          # Modular context packs (toggled via FLAGS.md)
-skills/         # Core and community skills
-profiles/       # Preset configurations
-scenarios/      # Multi-phase orchestration templates
-workflows/      # Higher-level workflow definitions
+skills/         # Core and community skills (127+)
 hooks/          # Automation hooks for command workflows
 ```
 
@@ -91,11 +89,11 @@ hooks/          # Automation hooks for command workflows
 2. `CLAUDE_PLUGIN_ROOT` (set by Claude Code for plugin commands)
 3. `CORTEX_ROOT` (default: `~/.cortex`)
 
-**State Management**: Active assets tracked via `.active-*` state files (e.g., `.active-modes`, `.active-rules`), not CLAUDE.md comments.
+**State Management**: Active assets tracked via `.active-*` state files (e.g., `.active-agents`, `.active-rules`), not CLAUDE.md comments.
 
 **Front Matter Parsing**: Agent/skill metadata extracted from YAML front matter in markdown files via `_tokenize_front_matter()` and `_extract_front_matter()`.
 
-**TUI Views**: The TUI uses Textual's `ContentSwitcher` with view IDs (1-9, 0) for different screens (Agents, Skills, Modes, etc.). Each view has its own data refresh and action bindings.
+**TUI Views**: The TUI uses Textual's `ContentSwitcher` with view IDs (0-9, plus named keys) for different screens (Overview, Agents, Skills, Rules, etc.). Each view has its own data refresh and action bindings.
 
 ## Type Checking
 
@@ -110,7 +108,7 @@ Mypy is configured with `--strict` in `pyproject.toml`. New modules should:
 - Python uses Black (line length 88) and type hints; mypy is configured in `pyproject.toml`.
 - YAML uses 2-space indentation and consistent key ordering.
 - Markdown uses ATX headers and fenced code blocks with language tags.
-- File/dir naming is lowercase hyphen-case (e.g., `skills/my-skill/`, `modes/super-saiyan.md`).
+- File/dir naming is lowercase hyphen-case (e.g., `skills/my-skill/`, `rules/git-rules.md`).
 
 ## Testing Guidelines
 

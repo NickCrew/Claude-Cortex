@@ -95,7 +95,7 @@ Complete API documentation for all slash commands in the Cortex Plugin.
 
 **Flow**:
 
-1. Load `modes/Super_Saiyan.md`.
+1. Apply Super Saiyan visual excellence guidelines.
 2. Summarize objectives, success signals, constraints, and existing assets.
 3. List ≥3 options with verification + risk notes.
 4. Seed Task TUI items or hand off to `/ctx:plan`.

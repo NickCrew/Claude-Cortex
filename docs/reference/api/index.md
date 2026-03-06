@@ -19,14 +19,15 @@ Complete API documentation for the cortex Python modules.
 
 | Module | Description |
 |--------|-------------|
-| core/migration | Config migration from v1 to v2 format |
-| core/scenarios | Multi-phase scenario orchestration |
-
-## Intelligence Modules
-
-| Module | Description |
-|--------|-------------|
-| intelligence/context_health | Context alignment analysis and health scoring |
+| core/agents | Agent graph, dependencies, activation |
+| core/skills | Skill discovery, metrics, community integration |
+| core/rules | Rule management |
+| core/hooks | Hook installation and validation |
+| core/mcp | MCP server discovery and configuration |
+| core/worktrees | Git worktree management |
+| core/backup | Configuration backup/restore |
+| core/asset_installer | Asset installation (symlinks) |
+| core/asset_discovery | Asset discovery across scopes |
 
 ## Common Patterns
 

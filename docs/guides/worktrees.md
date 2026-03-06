@@ -55,4 +55,4 @@ cortex tui
 
 ---
 
-**Related guides**: [Asset Manager](asset-manager.html) • [Modes](modes.html) • [TUI Keyboard Reference](tui/tui-keyboard-reference.html)
+**Related guides**: [Asset Manager](asset-manager.html) • [TUI Keyboard Reference](tui/tui-keyboard-reference.html)

@@ -513,7 +513,7 @@ repos:
         entry: python -c "
           import subprocess
           import sys
-          result = subprocess.run(['cortex', 'orchestrate', 'validate', '--all'],
+          result = subprocess.run(['cortex', 'dev', 'validate', '--check-paths'],
                                   capture_output=True, text=True)
           if result.returncode != 0:
               print(result.stderr)

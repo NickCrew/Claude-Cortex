@@ -1,6 +1,6 @@
 # Architecture Reference Documentation
 
-Visual and textual documentation of the cortex three-layer automation system.
+Visual and textual documentation of the cortex architecture.
 
 ---
 
@@ -33,37 +33,7 @@ cat docs/reference/architecture/VISUAL_SUMMARY.txt
 
 ---
 
-### 2. quick-reference.md
-**Type**: Cheat Sheet
-**Size**: 9.4K
-**Format**: Markdown Tables
-
-One-page reference for daily development use.
-
-**Contents**:
-- Common commands quick lookup
-- Behavioral modes comparison
-- Workflows comparison
-- Decision guide
-- Integration patterns
-- Keyboard shortcuts (TUI)
-- Typical workflows
-- Tips & best practices
-
-**Best for**:
-- Daily reference during development
-- Quick command lookup
-- Pattern examples
-- Onboarding cheat sheet
-
-**View**:
-```bash
-cat docs/reference/architecture/quick-reference.md
-```
-
----
-
-### 3. architecture-diagrams.md
+### 2. architecture-diagrams.md
 **Type**: Comprehensive Diagrams
 **Size**: 15K
 **Format**: Markdown + Mermaid
@@ -99,7 +69,7 @@ code docs/reference/architecture/architecture-diagrams.md
 
 ---
 
-### 4. DIAGRAMS_README.md
+### 3. DIAGRAMS_README.md
 **Type**: Documentation Guide
 **Size**: 8.1K
 **Format**: Markdown
@@ -137,10 +107,8 @@ cat docs/reference/architecture/DIAGRAMS_README.md
 # 1. View ASCII summary for quick overview
 cat docs/reference/architecture/VISUAL_SUMMARY.txt
 
-# 2. Try a simple command
-cortex
-# Press 3 → View Modes
-# Press 6 → View Workflows
+# 2. Launch the TUI
+cortex tui
 ```
 
 **Week 1**: Dive deeper
@@ -179,62 +147,24 @@ cat docs/reference/architecture/quick-reference.md
 
 ---
 
-## 📖 The Three-Layer System
+## 📖 System Architecture
 
 ```
-Layer 1: USER COMMANDS (43 commands, 16 namespaces)
-         → What to do
-         Examples: /refactor:analyze, /workflow:run
-
-Layer 2: BEHAVIORAL MODES (8 modes)
-         → How to operate
-         Examples: Brainstorm, Deep_Analysis, Quality_Focus
-
-Layer 3: WORKFLOWS (9 multi-step processes)
-         → Step-by-step execution
-         Examples: feature-development, refactoring, api-design
-
-Layer 4: EXECUTION (Agents + MCP + Tools)
-         → Coordinates specialized agents and tools
-         Examples: code-reviewer, Codanna MCP, Sequential
-```
-
----
-
-## 🔗 Integration Example
-
-```
-User: /refactor:analyze src/auth
-  ↓
-Command Layer: Parse and load configuration
-  ↓
-Mode Layer: Activate Deep_Analysis + Quality_Focus
-  ↓
-Workflow Layer: Execute refactoring workflow steps 1-3
-  ↓
-Execution Layer: code-reviewer agent + Codanna MCP
-  ↓
-Output: Refactoring plan with priorities and risk assessment
+Agents     → Specialized AI agents with focused responsibilities (29+)
+Skills     → Progressive disclosure knowledge packs (127+)
+Rules      → Behavioral constraints and best practices
+Hooks      → Automation scripts triggered by Claude Code events
+Commands   → Slash command definitions for common workflows
 ```
 
 ---
 
 ## 📊 System Statistics
 
-- **43** Slash Commands across 16 namespaces
-- **8** Behavioral Modes
-- **9** Multi-step Workflows
-- **25+** Specialized Agents
-- **3** MCP Servers (Codanna, Context7, Sequential)
-
-**Coverage Areas**:
-- Feature development & bug fixing
-- Code refactoring & quality improvement
-- API design & implementation
-- Security auditing & performance optimization
-- Technical debt management
-- Developer onboarding
-- Architecture review
+- **29+** Specialized Agents
+- **127+** Skills
+- **3** MCP Servers (Codanna, Context7, Memory)
+- Slash commands, rules, and hooks
 
 ---
 
@@ -245,7 +175,6 @@ These documentation files are automatically installed with cortex.
 **Installation** copies them to:
 ```
 ~/.claude/docs/architecture-diagrams.md
-~/.claude/docs/quick-reference.md
 ~/.claude/docs/DIAGRAMS_README.md
 ~/.claude/docs/VISUAL_SUMMARY.txt
 ```
@@ -308,16 +237,6 @@ When adding new components:
 - [ ] Add to quick-reference.md command table
 - [ ] Update namespace list if new namespace
 
-**New Modes**:
-- [ ] Update mode count in VISUAL_SUMMARY.txt
-- [ ] Add to quick-reference.md modes table
-- [ ] Update compatibility matrix in architecture-diagrams.md
-
-**New Workflows**:
-- [ ] Update workflow count in VISUAL_SUMMARY.txt
-- [ ] Add to quick-reference.md workflows table
-- [ ] Add to compatibility matrix
-
 **See DIAGRAMS_README.md** for full update checklist.
 
 ---
@@ -328,8 +247,6 @@ When adding new components:
 - `../../README.md` - Main documentation index
 - `../../../README.md` - Project README
 - `~/.claude/commands/` - Slash command definitions
-- `~/.claude/modes/` - Behavioral mode definitions
-- `~/.claude/workflows/` - Workflow definitions
 
 ---
 
@@ -361,6 +278,5 @@ To improve these diagrams:
 
 ---
 
-*Last Updated: 2025-11-11*
-*Version: 1.0*
-*Part of cortex: https://github.com/anthropics/cortex*
+*Last Updated: 2026-03-06*
+*Part of cortex: https://github.com/NickCrew/claude-cortex*
