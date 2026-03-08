@@ -200,7 +200,7 @@ from ..tui_log_viewer import LogViewerScreen
 from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
-from ..watch import WatchMode, load_watch_defaults
+from ..watch import WatchMode, load_watch_defaults, watch_daemon_status, start_watch_daemon
 from .tour import TourManager, TourOverlay, QUICK_TOUR
 import threading
 
@@ -293,6 +293,7 @@ class AgentTUI(App[None]):
         # Watch mode state
         self.watch_mode_instance: Optional[WatchMode] = None
         self.watch_mode_thread: Optional[threading.Thread] = None
+        self._auto_start_watch = True
         self.selected_index = 0
         self.state = self
         self.wizard_active = False
@@ -525,6 +526,10 @@ class AgentTUI(App[None]):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
+        # Auto-start watch daemon if not already running
+        if self._auto_start_watch:
+            self._try_auto_start_watch_daemon()
+
         # Schedule background check for pending prompts (needs worker for wait_for_dismiss)
         self.call_after_refresh(lambda: self.run_worker(self._post_startup_checks()))
 
@@ -541,6 +546,27 @@ class AgentTUI(App[None]):
         if not is_valid:
             message = "Hooks config issues: " + "; ".join(errors)
             self.notify(message, severity="warning", timeout=4)
+
+    def _try_auto_start_watch_daemon(self) -> None:
+        """Start the watch daemon in the background if it isn't already running."""
+        try:
+            status_code, _msg = watch_daemon_status()
+            if status_code == 0:
+                return  # Already running
+
+            defaults = load_watch_defaults()
+            result_code, result_msg = start_watch_daemon(
+                auto_activate=defaults.auto_activate or False,
+                threshold=defaults.threshold or 0.7,
+                interval=defaults.interval or 2.0,
+                directories=defaults.directories,
+            )
+            if result_code == 0:
+                self.notify("Watch daemon started", severity="information", timeout=3)
+            else:
+                self.notify(f"Watch daemon: {result_msg}", severity="warning", timeout=3)
+        except Exception:
+            pass  # Non-critical — don't block TUI startup
 
     def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""

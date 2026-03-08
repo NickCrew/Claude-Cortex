@@ -307,6 +307,45 @@ def print_suggestions(matches: List[Tuple[int, dict]]) -> None:
     print(f"Suggested skills: {', '.join(names)}")
 
 
+def _recommender_suggestions(changed_files: List[str]) -> List[str]:
+    """Get richer skill suggestions from SkillRecommender (Layer 2).
+
+    Attempts to import the full recommendation engine and run it against
+    the current context.  Returns an empty list on any failure so the
+    hook never breaks when the package is unavailable.
+    """
+    if os.getenv("CORTEX_SKIP_RECOMMENDER", "").strip() in ("1", "true", "yes"):
+        return []
+
+    try:
+        from claude_ctx_py.intelligence.base import ContextDetector
+        from claude_ctx_py.skill_recommender import SkillRecommender
+    except ImportError:
+        return []
+
+    try:
+        # Build context from changed files, falling back to git diff
+        files = [Path(f) for f in changed_files] if changed_files else []
+        if files:
+            context = ContextDetector.detect_from_files(files)
+        else:
+            git_files = ContextDetector.detect_from_git()
+            if not git_files:
+                return []
+            context = ContextDetector.detect_from_files(git_files)
+
+        recommender = SkillRecommender()
+        recommendations = recommender.recommend_for_context(context)
+
+        return [
+            rec.skill_name
+            for rec in recommendations
+            if rec.confidence >= 0.7
+        ]
+    except Exception:
+        return []
+
+
 def main() -> int:
     prompt = os.getenv("CLAUDE_HOOK_PROMPT", "")
     changed_files = split_changed_files(os.getenv("CLAUDE_CHANGED_FILES", ""))
@@ -315,8 +354,24 @@ def main() -> int:
     if not rules:
         return 0
 
-    matches = match_rules(prompt, changed_files, rules)
-    print_suggestions(matches)
+    max_results = 5
+    matches = match_rules(prompt, changed_files, rules, max_results=max_results)
+
+    # Merge Layer 2 (SkillRecommender) results after keyword matches
+    keyword_names = [rule.get("name", "unknown") for _, rule in matches]
+    recommender_names = _recommender_suggestions(changed_files)
+
+    # Deduplicate: keyword matches first, then recommender additions
+    seen: Set[str] = set(keyword_names)
+    merged_names = list(keyword_names)
+    for name in recommender_names:
+        if name not in seen:
+            seen.add(name)
+            merged_names.append(name)
+    merged_names = merged_names[:max_results]
+
+    if merged_names:
+        print(f"Suggested skills: {', '.join(merged_names)}")
     return 0
 
 

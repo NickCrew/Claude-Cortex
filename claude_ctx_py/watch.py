@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from collections import deque
 
-from .intelligence import IntelligentAgent, AgentRecommendation
+from .intelligence import IntelligentAgent, AgentRecommendation, ContextDetector
 from .core import _resolve_claude_dir, _resolve_cortex_root, agent_activate
 from .core.base import _resolve_cortex_root
 
@@ -622,6 +622,14 @@ class WatchMode:
         self.last_skill_suggestions: List[SkillSuggestion] = []
         self.skills_suggested = 0
 
+        # Optional SkillRecommender for richer suggestions (Layer 2)
+        self._skill_recommender: Optional[Any] = None
+        try:
+            from .skill_recommender import SkillRecommender
+            self._skill_recommender = SkillRecommender()
+        except Exception:
+            pass  # Fall back to keyword-only matching
+
         # Thread safety
         self._state_lock = threading.Lock()
         self._refresh_git_heads()
@@ -880,6 +888,26 @@ class WatchMode:
             self.skill_rules,
             directories=self.directories,
         )
+
+        # Merge richer SkillRecommender results (Layer 2) if available
+        if self._skill_recommender is not None:
+            try:
+                ctx = ContextDetector.detect_from_files(changed_files)
+                layer2_recs = self._skill_recommender.recommend_for_context(ctx)
+                existing_names = {s.name for s in skill_suggestions}
+                for rec in layer2_recs:
+                    if rec.confidence >= 0.7 and rec.skill_name not in existing_names:
+                        skill_suggestions.append(
+                            SkillSuggestion(
+                                name=rec.skill_name,
+                                path=rec.skill_name,
+                                description=rec.reason,
+                                hits=0,
+                            )
+                        )
+                        existing_names.add(rec.skill_name)
+            except Exception:
+                pass  # Non-critical — keyword suggestions still available
 
         # Check if anything changed
         recs_changed = self._recommendations_changed(recommendations)
