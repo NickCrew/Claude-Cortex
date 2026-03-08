@@ -1,6 +1,6 @@
 ---
 name: agent-loops
-description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Includes bundled scripts for specialist-review (code review) and test-review-request (test audit) that delegate to Claude CLI. Use this skill when starting any implementation task.
+description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled scripts for specialist-review (code review) and test-review-request (test audit) that delegate to Claude CLI. Use this skill when starting any implementation task.
 keywords:
   - agent workflow
   - code review loop
@@ -174,6 +174,68 @@ Act on findings:
 
 ---
 
+## Atomic Commits: The Unit of Work
+
+Every loop operates on **atomic commits**, not features. An atomic commit is the
+smallest change that is complete, correct, and reviewable in isolation.
+
+### What Makes a Commit Atomic
+
+An atomic commit:
+- **Does one thing.** One bug fix, one new behavior, one refactor — not all three.
+- **Is self-consistent.** The codebase compiles, tests pass, and lint is clean at this commit. You could revert it without breaking other commits.
+- **Is reviewable in isolation.** A reviewer can understand the intent and evaluate correctness without seeing what comes next.
+- **Groups related files.** If adding a function requires updating a test and a type — that's one commit, not three.
+
+An atomic commit is NOT:
+- An entire feature with multiple independent components.
+- A single file (if the logical change spans several files).
+- "Everything I did today."
+
+### How This Drives the Loops
+
+For a multi-component feature, decompose into a sequence of atomic commits.
+Each commit gets its own pass through the relevant loop:
+
+```
+Feature: "Add rate limiting to API"
+
+  Commit 1: rate limiter data model       → Code Change Loop → commit
+  Commit 2: rate limiter business logic    → Code Change Loop → commit
+  Commit 3: integrate into request handler → Code Change Loop → commit
+  Commit 4: tests for rate limiter         → Test Writing Loop → commit
+  Commit 5: lint fixes                     → Lint Gate → commit
+```
+
+The question at every step is: **"What is my next atomic commit?"** — not
+"How do I implement this feature?"
+
+### Commit Rules
+
+1. **Use `committer`, not `git commit`.** Unless you have explicit user approval
+   to commit another way, always use the `committer` tool. It prevents common
+   mistakes (staging `.`, empty messages, committing directories).
+   ```bash
+   committer "fix(parser): reject CONNECT requests with missing port" src/parser.rs tests/test_parser.rs
+   ```
+2. **Commit at the end of every loop.** Each loop exit (code change, test writing,
+   lint gate) produces a commit. Do not batch multiple loop exits into one commit.
+3. **Run existing tests before committing.** After implementation, after lint fixes,
+   after any code change — verify the existing test suite passes. A commit that
+   breaks existing tests is not atomic.
+4. **Commit messages follow Conventional Commits.** `<type>(scope): <summary>`.
+   The summary should describe *what changed*, not *what you were asked to do*.
+
+### When to Split
+
+If you find yourself in any of these situations, you need to split:
+- Your diff touches more than one module for unrelated reasons.
+- You're fixing a bug AND adding a feature in the same change.
+- The review would need to evaluate two independent design decisions.
+- You can describe your change only with "and" — "adds X **and** changes Y."
+
+---
+
 ## Overview
 
 There are three primary loops. They run sequentially — code loop, then test loop, then lint gate.
@@ -213,10 +275,11 @@ There are three primary loops. They run sequentially — code loop, then test lo
 ### The Loop
 
 ```
-ENTRY: Task spec or ticket describing the required change.
+ENTRY: Next atomic commit from your decomposition plan.
+       (One logical change — see "Atomic Commits" above.)
 
 ┌──────────────────┐
-│  IMPLEMENT       │ ← You (Codex/Gemini): write the code change per spec
+│  IMPLEMENT       │ ← You (Codex/Gemini): write ONE atomic commit's worth of change
 └──────┬───────────┘
        │
        ▼
@@ -227,9 +290,13 @@ ENTRY: Task spec or ticket describing the required change.
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
        │                        No ──► File P2/P3 issues   │
+       │                               Run tests ──► Pass? │
+       │                               Commit (committer)  │
        │                               Exit loop           │
        │                                                   │
-       │   No findings ──► Exit loop                       │
+       │   No findings ──► Run tests ──► Pass?             │
+       │                   Commit (committer)               │
+       │                   Exit loop                        │
        │                                                   │
        ▼                                                   ▼
                                           ┌──────────────────┐
@@ -404,6 +471,8 @@ ENTRY: Code change loop has exited cleanly.
        │                   Claude checks: gaps closed? new tests good?
        │
        ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
+       │                                   Run full test suite
+       │                                   Commit (committer)
        │                                   Exit loop ✅
        │
        └── No ──► Any P0/P1 remaining?
@@ -490,7 +559,8 @@ ENTRY: Test writing loop has exited cleanly.
 │  LINT CHECK          │ ← You: run lint check command
 └──────┬───────────────┘
        │
-       ├── Clean? ──► Yes ──► Verify tests still pass
+       ├── Clean? ──► Yes ──► Run full test suite ──► Pass?
+       │                      Commit (committer)
        │                      Exit loop ✅
        │
        └── No ──► Errors or new warnings remain
@@ -608,9 +678,12 @@ When filing deferred findings in this repository:
 
 **You (Codex / Gemini) are responsible for:**
 - Reading and understanding the task spec
-- Writing implementation code
+- Decomposing the task into atomic commits (one logical change each)
+- Writing implementation code — one atomic commit at a time
 - Writing test code
-- Running tests locally and verifying they pass
+- Running the full test suite before every commit
+- Using `committer` for all commits (not `git commit`) unless explicitly approved otherwise
+- Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
 - Fixing ONLY the findings Claude identifies (no scope creep during remediation)
@@ -665,36 +738,45 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
 1. TASK SPEC arrives
        │
        ▼
-2. CODE CHANGE LOOP
-   ├── You: implement
-   ├── "$SKILL_DIR/scripts/specialist-review.sh" --git -- <files> → Claude reviews diff (max 3 cycles)
-   ├── You: remediate P0/P1 → re-review with --prior-review, scoped to remediated files
-   ├── File issues for P2/P3
-   └── Exit with clean code
+2. DECOMPOSE into atomic commits
+   └── Each commit = one logical change, reviewable in isolation
        │
        ▼
-3. TEST WRITING LOOP
-   ├── "$SKILL_DIR/scripts/test-review-request.sh" <module> → Claude audits (gaps + quality)
-   ├── Human: scope approval (P0/P1 auto-approved)
-   ├── You: write tests (testing-standards.md)
-   ├── You: verify tests pass locally
-   ├── "$SKILL_DIR/scripts/test-review-request.sh" <module> → Claude re-audits (max 3 cycles)
-   ├── You: remediate P0/P1 gaps and bad tests
-   ├── File issues for P2/P3
-   └── Exit with tested code
+3. FOR EACH atomic commit:
+   │
+   ├── CODE CHANGE LOOP
+   │   ├── You: implement ONE commit's worth of change
+   │   ├── specialist-review → Claude reviews diff (max 3 cycles)
+   │   ├── You: remediate P0/P1 → re-review with --prior-review
+   │   ├── File issues for P2/P3
+   │   ├── Run tests → Pass?
+   │   └── committer "type(scope): summary" <files>
+   │       │
+   │   ├── TEST WRITING LOOP
+   │   │   ├── test-review-request → Claude audits (gaps + quality)
+   │   │   ├── Human: scope approval (P0/P1 auto-approved)
+   │   │   ├── You: write tests (testing-standards.md)
+   │   │   ├── You: verify tests pass locally
+   │   │   ├── test-review-request → Claude re-audits (max 3 cycles)
+   │   │   ├── You: remediate P0/P1 gaps and bad tests
+   │   │   ├── File issues for P2/P3
+   │   │   ├── Run full test suite → Pass?
+   │   │   └── committer "test(scope): summary" <files>
+   │   │       │
+   │   └── LINT GATE
+   │       ├── You: discover project linter
+   │       ├── You: run auto-fix if available
+   │       ├── You: run lint check (max 2 cycles)
+   │       ├── You: remediate remaining issues
+   │       ├── Run full test suite → Pass?
+   │       └── committer "style(scope): summary" <files>
+   │
+   └── Next atomic commit (back to step 3)
        │
        ▼
-4. LINT GATE
-   ├── You: discover project linter (CLAUDE.md → task runner → config files)
-   ├── You: run auto-fix if available
-   ├── You: run lint check (max 2 cycles)
-   ├── You: remediate remaining issues, verify tests still pass
-   └── Exit with lint-clean code
-       │
-       ▼
-5. ISSUE FILING
+4. ISSUE FILING
    └── P2/P3 findings → tracked issues
        │
        ▼
-6. PR READY FOR HUMAN REVIEW
+5. PR READY FOR HUMAN REVIEW
 ```
