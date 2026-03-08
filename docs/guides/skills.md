@@ -31,7 +31,7 @@ Tier 3: Resources (loaded on deep-dive)
 
 ## Available Skills
 
-The framework now includes 100+ skills covering a wide range of domains, including:
+The framework includes 124 skills covering a wide range of domains, including:
 - **Architecture & Design:** API design, microservices, event-driven architecture, etc.
 - **Infrastructure:** Kubernetes, Helm, Terraform, GitOps.
 - **Development:** Python, TypeScript, React, testing patterns, and more.

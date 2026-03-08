@@ -43,24 +43,19 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
 
 <div class="metrics-row">
   <div class="metric-box">
-    <div class="metric-value">29</div>
-    <div class="metric-label">Total Agents</div>
-    <div class="metric-sublabel">29 active</div>
+    <div class="metric-value">28</div>
+    <div class="metric-label">Agents</div>
+    <div class="metric-sublabel">Specialized personas</div>
   </div>
   <div class="metric-box">
-    <div class="metric-value">49</div>
-    <div class="metric-label">Slash Commands</div>
-    <div class="metric-sublabel">Analyze • Dev • Docs • Orchestrate</div>
-  </div>
-  <div class="metric-box">
-    <div class="metric-value">22</div>
-    <div class="metric-label">Flag Modules</div>
-    <div class="metric-sublabel">Toggle via FLAGS.md</div>
-  </div>
-  <div class="metric-box">
-    <div class="metric-value">100+</div>
-    <div class="metric-label">Skills Available</div>
+    <div class="metric-value">124</div>
+    <div class="metric-label">Skills</div>
     <div class="metric-sublabel">Progressive disclosure packs</div>
+  </div>
+  <div class="metric-box">
+    <div class="metric-value">116</div>
+    <div class="metric-label">Commands</div>
+    <div class="metric-sublabel">Slash command assets</div>
   </div>
 </div>
 
@@ -72,8 +67,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
   <a href="guides/commands.html">Command Reference</a>
   <a href="guides/asset-manager.html">Asset Manager</a>
   <a href="guides/worktrees.html">Worktree Manager</a>
-  <a href="guides/FLAGS_MANAGEMENT.html">Flags Management</a>
-  <a href="guides/DOCUMENTATION_VIEWER.html">Docs Viewer</a>
+  <a href="guides/hooks.html">Hooks</a>
   <a href="#presentations">▶ Presentations</a>
   <a href="#installation">Install Plugin</a>
   <a href="#ai-intelligence">AI Intelligence</a>
@@ -88,7 +82,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
 Reveal.js presentations for demos, enablement sessions, and executive briefings.
 
 <div class="doc-grid">
-  <a href="{{ '/presentations/cortex-overview.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/claude-ctx-overview.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Cortex Intro Overview</h3>
     <p>High-level story of the platform: AI intelligence, watch mode, asset manager, visual excellence, and multi-LLM consult. Great for quick introductions.</p>
     <p class="muted"><strong>Topics:</strong> AI Intelligence • Watch Mode • Asset Manager • Visual Excellence • Multi-LLM Consult • Recent Improvements</p>
@@ -99,7 +93,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     </div>
   </a>
 
-  <a href="{{ '/presentations/cortex-technical-deep-dive.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/claude-ctx-technical-deep-dive.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Technical Deep Dive</h3>
     <p>Deep focus on activation, recommendations, intelligence signals, watch mode loops, skill ratings, and plugin/CLI integration.</p>
     <p class="muted"><strong>Topics:</strong> Activation Pipeline • Intelligence Signals • Watch Mode • Skill Ratings • Install Flow • Plugin + CLI</p>
@@ -110,7 +104,7 @@ Reveal.js presentations for demos, enablement sessions, and executive briefings.
     </div>
   </a>
 
-  <a href="{{ '/presentations/cortex-executive-roadmap.html' | relative_url }}" class="doc-card" target="_blank">
+  <a href="{{ '/presentations/claude-ctx-executive-roadmap.html' | relative_url }}" class="doc-card" target="_blank">
     <h3>→ Executive Overview & Roadmap</h3>
     <p>Executive-friendly narrative with capability highlights, recent improvements, adoption plan, and phased roadmap.</p>
     <p class="muted"><strong>Topics:</strong> Business Value • Capability Highlights • Recent Improvements • Roadmap • Adoption • Risks</p>
@@ -165,7 +159,7 @@ Hands-on tutorials to master cortex from beginner to advanced.
 
 ## → AI Intelligence & Automation {#ai-intelligence}
 
-Stay in Claude Code flow with intelligent, self-managing context and flags-first customization:
+Stay in Claude Code flow with intelligent, self-managing context:
 
 <div class="feature-grid">
   <div class="feature-card">
@@ -177,8 +171,8 @@ Stay in Claude Code flow with intelligent, self-managing context and flags-first
     <p>Watch mode monitors changes and auto-activates high-confidence agents.</p>
   </div>
   <div class="feature-card">
-    <h3>🚩 Flags & Context Packs</h3>
-    <p>Enable or disable context modules by adding/removing entries in FLAGS.md.</p>
+    <h3>→ Skill Recommendations</h3>
+    <p>Two-layer pipeline: keyword matching (Layer 1) + semantic/historical strategies (Layer 2).</p>
   </div>
   <div class="feature-card">
     <h3>→ Workflow Orchestration</h3>
@@ -266,7 +260,7 @@ Install, diff, and update plugin assets directly from the TUI.
 
 **What it covers:**
 
-- Hooks, commands, agents, skills, modes, workflows, and flags
+- Hooks, commands, agents, skills, and rules
 - Install/uninstall to any detected `.claude` directory
 - Diff installed vs source, bulk install by category, update outdated assets
 
@@ -438,7 +432,7 @@ claude-cortex/
 │   ├── test/          # Test generation
 │   └── tools/         # Tool selection and optimization
 │
-├── agents/            # Active specialized agents (29 agents)
+├── agents/            # Active specialized agents (28)
 │   ├── architect-review.md
 │   ├── cloud-architect.md
 │   ├── code-reviewer.md
@@ -468,8 +462,7 @@ claude-cortex/
 │   ├── ui-ux-designer.md
 │   ├── vitest-expert.md
 │   ├── websocket-engineer.md
-│   ├── dependencies.map         # Agent dependency graph
-│   └── triggers.yaml            # Agent activation triggers
+│   └── dependencies.map         # Agent dependency graph
 │
 ├── hooks/             # Automation hooks
 │
@@ -478,7 +471,7 @@ claude-cortex/
 │   ├── quality-rules.md        # Code organization, failure investigation
 │   └── efficiency-rules.md     # Tool optimization, workspace hygiene
 │
-├── skills/            # Skill packs and metadata (127+)
+├── skills/            # Skill packs and metadata (124)
 │
 ├── claude_ctx_py/     # Python CLI implementation
 │   ├── cli.py         # CLI entry point
@@ -491,7 +484,6 @@ claude-cortex/
 │
 ├── templates/         # Framework configuration templates
 │   ├── CLAUDE.md
-│   ├── FLAGS.md
 │   ├── PRINCIPLES.md
 │   ├── principles/
 │   │   ├── 00-core-directive.md
@@ -677,17 +669,16 @@ Commands provide curated behavioral prompts for specific development tasks. Each
 
 ### 2. Agent System
 
-**Location**: `agents/` and `inactive/agents/`
-**Active Agents**: 29
+**Location**: `agents/`
+**Active Agents**: 28
 
 Agents are specialized personas with domain expertise and specific capabilities. The system includes:
 
 - **Dependency Management**: `dependencies.map` tracks agent relationships
-- **Trigger System**: `triggers.yaml` defines automatic activation patterns
+- **AI Recommendations**: Context-aware agent suggestions via `cortex ai recommend`
 
 **Active Agents**:
 
-- `architect-review` - Architecture review and validation
 - `cloud-architect` - Cloud infrastructure design
 - `code-reviewer` - Code quality analysis
 - `component-architect` - Component design and architecture
@@ -717,7 +708,7 @@ Agents are specialized personas with domain expertise and specific capabilities.
 - `vitest-expert` - Vitest testing framework expertise
 - `websocket-engineer` - WebSocket implementation
 
-**Reference**: [Agent Documentation](guides/agents.md)
+**Reference**: Agents are defined in `agents/*.md` with YAML front matter.
 
 ---
 
@@ -775,13 +766,13 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
     </div>
   </a>
 
-  <a href="guides/agents.html" class="doc-card">
-    <h3>Agent Catalog</h3>
-    <p>Agent reference with 29 active agents organized by category with model assignments, dependencies, workflows, and activation criteria.</p>
+  <a href="architecture/skill-recommendation-engine.html" class="doc-card">
+    <h3>Skill Recommendation Engine</h3>
+    <p>Two-layer recommendation architecture: keyword matching hook + multi-strategy SkillRecommender with semantic, rule-based, and historical signals.</p>
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
-      <span>23KB reference</span>
-      <span>29 agents</span>
+      <span>Architecture reference</span>
+      <span>28 agents, 124 skills</span>
     </div>
   </a>
 
@@ -791,7 +782,7 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
     <span class="doc-card__arrow">→</span>
     <div class="doc-card__meta">
       <span>16KB guide</span>
-      <span>100+ skills</span>
+      <span>124 skills</span>
     </div>
   </a>
 
@@ -944,7 +935,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 ## Framework Entry Points
 
 > **Note**: In this repo, core framework files live in `templates/`.
-> Copy `templates/CLAUDE.md`, `templates/FLAGS.md`, `templates/RULES.md`,
+> Copy `templates/CLAUDE.md`, `templates/RULES.md`,
 > `templates/settings.json`, plus `templates/principles/` and
 > `templates/.active-principles` into `~/.claude/`, then run
 > `cortex principles build` to generate `PRINCIPLES.md`.
@@ -953,7 +944,7 @@ Comprehensive technical documentation for developers, maintainers, and contribut
 
 Primary framework entry point that loads:
 
-- Core framework (FLAGS.md, PRINCIPLES.md, RULES.md)
+- Core framework (PRINCIPLES.md, RULES.md)
 - Workflow rules (automatic for all development tasks)
 - Conditional rules (loaded as needed)
 - Active behavioral modes
@@ -1067,23 +1058,9 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 ### Agent Coordination
 
 1. Let dependency system manage agent activation
-2. Use `triggers.yaml` for automatic agent selection
+2. Use `cortex ai recommend` for context-aware agent suggestions
 3. Compose multiple agents for complex tasks
 4. Review `dependencies.map` for orchestration patterns
-
-### Mode Management
-
-1. Activate modes based on task complexity
-2. Use `Architect` for multi-phase system work
-3. Enable `Token_Efficiency` for large operations
-4. Combine modes thoughtfully (conflicts are detected via mode metadata)
-
-### Flag Optimization
-
-1. Use `--safe-mode` for production operations
-2. Apply `--think-hard` for architectural decisions
-3. Enable `--delegate` for large-scale changes
-4. Use `--uc` for token efficiency under pressure
 
 ---
 
@@ -1098,10 +1075,10 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Agent Not Activating
 
-1. Check agent location (`agents/` vs `inactive/agents/`)
-2. Review `triggers.yaml` for activation conditions
-3. Verify dependencies in `dependencies.map`
-4. Manually invoke with `/agent activate <name>`
+1. Check agent location (`agents/`)
+2. Verify dependencies in `dependencies.map`
+3. Use `cortex agent activate <name>` to activate manually
+4. Check `cortex ai recommend` for context-based suggestions
 
 ### CLI Issues
 
@@ -1122,9 +1099,9 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Creating Agents
 
-1. Create markdown file in `agents/`
-2. Define triggers in `triggers.yaml`
-3. Add dependencies to `dependencies.map`
+1. Create markdown file in `agents/` with YAML front matter
+2. Add dependencies to `dependencies.map`
+3. Validate: `cortex agent validate`
 
 ---
 
@@ -1138,10 +1115,10 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Architecture Guide](guides/development/architecture.html) - System design and patterns
 - [Command Reference](guides/commands.html) - Complete command catalog
 
-**Agent System**
+**Skills & Agents**
 
-- [Agent Catalog](guides/agents.html) - Agent reference with 29 active agents
 - [Agent Skills Guide](guides/skills.html) - Progressive disclosure and token optimization
+- [Skill Recommendation Engine](architecture/skill-recommendation-engine.html) - Two-layer recommendation architecture
 - [Model Optimization](guides/development/model-optimization.html) - Haiku vs Sonnet strategy
 
 **Feature Guides**

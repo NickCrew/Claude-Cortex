@@ -9,7 +9,7 @@ Complete documentation for the AI-powered intelligence system including semantic
 | [LLM_QUICK_REFERENCE.md](LLM_QUICK_REFERENCE.md) | Copy-paste configs and commands | 2 min |
 | [LLM_INTELLIGENCE_GUIDE.md](LLM_INTELLIGENCE_GUIDE.md) | Complete guide with pricing, troubleshooting, advanced usage | 15-20 min |
 | [../AI_INTELLIGENCE.md](../AI_INTELLIGENCE.md) | System overview and basic usage | 5-10 min |
-| [../AI_IMPLEMENTATION_SUMMARY.md](../AI_IMPLEMENTATION_SUMMARY.md) | Technical implementation details | 10-15 min |
+| [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md) | Skill recommendation architecture | 10 min |
 
 ## For Different Use Cases
 
@@ -30,7 +30,7 @@ Start here:
 3. Review [API Reference](LLM_INTELLIGENCE_GUIDE.md#api-reference)
 
 ### 🔧 Developers
-1. Start with [../AI_IMPLEMENTATION_SUMMARY.md](../AI_IMPLEMENTATION_SUMMARY.md)
+1. Start with [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md)
 2. Review [API Reference](LLM_INTELLIGENCE_GUIDE.md#api-reference) for integration
 3. Check Python examples in [LLM_INTELLIGENCE_GUIDE.md](LLM_INTELLIGENCE_GUIDE.md#python-integration)
 
@@ -84,32 +84,28 @@ Jump to [Troubleshooting](LLM_INTELLIGENCE_GUIDE.md#troubleshooting) in main gui
 
 **Length**: ~11KB, accessible overview
 
-### AI_IMPLEMENTATION_SUMMARY.md
-**Best for**: Technical details, implementation specifics
+### Skill Recommendation Engine (Architecture)
+**Best for**: Understanding the two-layer skill recommendation pipeline
 
 **Covers**:
-- What was built
-- Architecture breakdown
+- Layer 1 (hook) and Layer 2 (SkillRecommender) architecture
 - Data flow diagrams
-- Installation details
-- Usage examples (code)
-- Testing information
-- Performance metrics
-- Migration notes
-- Conclusion
+- Four recommendation strategies
+- Integration points (hook, watch daemon, TUI)
+- Configuration reference
 
-**Length**: ~14KB, technical focus
+**Location**: [architecture/skill-recommendation-engine.md](../../architecture/skill-recommendation-engine.md)
 
 ## Feature Comparison
 
-| Feature | Quick Ref | Guide | Overview | Implementation |
-|---------|-----------|-------|----------|-----------------|
-| Setup instructions | ✅ Brief | ✅ Complete | ✅ Brief | ✅ Technical |
-| Configuration | ✅ Common | ✅ All 20+ | ⚠️ Basic | ✅ Code |
-| Pricing | ✅ Summary | ✅ Detailed | ✅ Basic | ✅ Metrics |
+| Feature | Quick Ref | Guide | Overview | Skill Rec Engine |
+|---------|-----------|-------|----------|------------------|
+| Setup instructions | ✅ Brief | ✅ Complete | ✅ Brief | ✅ Config ref |
+| Configuration | ✅ Common | ✅ All 20+ | ⚠️ Basic | ✅ Env vars |
+| Pricing | ✅ Summary | ✅ Detailed | ✅ Basic | N/A |
 | Troubleshooting | ✅ Common | ✅ 7 scenarios | ⚠️ 1-2 | ❌ None |
-| Advanced usage | ❌ No | ✅ Full | ❌ No | ✅ Code |
-| Architecture | ✅ Diagram | ✅ Detailed | ✅ Summary | ✅ Deep |
+| Advanced usage | ❌ No | ✅ Full | ❌ No | ✅ Strategies |
+| Architecture | ✅ Diagram | ✅ Detailed | ✅ Summary | ✅ Data flow |
 | Examples | ⚠️ CLI | ✅ CLI + Python | ⚠️ CLI | ✅ Code |
 | Privacy | ❌ No | ✅ Full section | ⚠️ Mention | ❌ No |
 
@@ -134,7 +130,7 @@ Jump to [Troubleshooting](LLM_INTELLIGENCE_GUIDE.md#troubleshooting) in main gui
 ```
 1. AI_INTELLIGENCE.md → Full overview
 2. LLM_INTELLIGENCE_GUIDE.md → Complete read
-3. AI_IMPLEMENTATION_SUMMARY.md → Technical details
+3. architecture/skill-recommendation-engine.md → Technical details
 4. API Reference section for integration
 ```
 
@@ -262,7 +258,8 @@ Semantic Matching (FastEmbed)
 ## Related Documentation
 
 - [AI Intelligence Overview](../AI_INTELLIGENCE.md) - System overview
-- [AI Implementation Details](../AI_IMPLEMENTATION_SUMMARY.md) - Technical architecture
+- [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md) - Two-layer recommendation architecture
+- [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md) - Two-layer skill recommendation architecture
 - [Watch Mode Guide](../development/WATCH_MODE_GUIDE.md) - Real-time monitoring
 - [Anthropic API Docs](https://docs.anthropic.com) - Claude API reference
 
@@ -280,7 +277,7 @@ Semantic Matching (FastEmbed)
 | Quick Reference | 194 | 1,200 | 12 | 8 |
 | LLM Guide | 650+ | 8,500+ | 20+ | 15+ |
 | AI Intelligence | 430+ | 5,200+ | 15+ | 10+ |
-| Implementation | 450+ | 5,800+ | 12+ | 8+ |
+| Skill Rec Engine | 180+ | 2,500+ | 8+ | 3+ |
 
 **Total AI Documentation**: ~1,700 lines, ~20,700 words
 

@@ -451,7 +451,7 @@ similar = matcher.find_similar(
 Guides:
 
 - guides/ai/LLM_INTELLIGENCE_GUIDE.md — Detailed LLM configuration and usage
-- AI_IMPLEMENTATION_SUMMARY.md — Technical implementation details
+- architecture/skill-recommendation-engine.md — Skill recommendation architecture
 
 External:
 

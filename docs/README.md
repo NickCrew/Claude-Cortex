@@ -2,23 +2,15 @@
 
 Comprehensive documentation for the cortex context management framework.
 
-## 📐 Architecture Documentation
+## Architecture Documentation
 
-**NEW**: Comprehensive visual documentation of the three-layer system!
-
-- **[Architecture Diagrams](reference/architecture/architecture-diagrams.md)** - 10+ Mermaid diagrams showing system architecture, flows, and integration patterns
-- **[Quick Reference](reference/architecture/quick-reference.md)** - One-page cheat sheet for daily use (commands, modes, workflows)
-- **[Visual Summary](reference/architecture/VISUAL_SUMMARY.txt)** - Beautiful ASCII art diagram for terminal viewing
-- **[Diagrams Guide](reference/architecture/DIAGRAMS_README.md)** - How to use, read, and maintain all diagrams
-
-**After installation**: These docs are available at `~/.claude/docs/`
-
-**Quick view**:
-
-```bash
-cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
-/docs:diagrams                               # View via command
-```
+- **[Architecture Overview](architecture/README.md)** - System design and module map
+- **[Master Architecture](architecture/MASTER_ARCHITECTURE.md)** - Comprehensive technical reference
+- **[Skill Recommendation Engine](architecture/skill-recommendation-engine.md)** - Two-layer recommendation pipeline
+- **[Architecture Diagrams](reference/architecture/architecture-diagrams.md)** - Mermaid diagrams showing system architecture and flows
+- **[Quick Reference](architecture/quick-reference.md)** - One-page cheat sheet for daily use
+- **[Visual Summary](architecture/VISUAL_SUMMARY.txt)** - ASCII art diagram for terminal viewing
+- **[Diagrams Guide](reference/architecture/DIAGRAMS_README.md)** - How to use and maintain diagrams
 
 ---
 
@@ -33,16 +25,9 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 - Performance characteristics and design patterns
 - Extension points and future enhancements
 
-**[Agent Catalog](./guides/agents.md)** - Complete agent reference
-
-- 29 agents organized by category
-- Model assignments (Opus/Haiku)
-- Dependencies and relationships
-- Use cases and activation patterns
-
 **[Agent Skills](./guides/skills.md)** - Progressive disclosure system
 
-- 100+ available skills
+- 124 available skills
 - Creating new skills with templates
 - Token efficiency metrics and activation guidance
 - Integration with agents
@@ -54,18 +39,11 @@ cat ~/.claude/docs/VISUAL_SUMMARY.txt       # Terminal-friendly overview
 - CLI commands for recommendations and feedback
 - Review gate integration
 
-**[Flags Management](./guides/FLAGS_MANAGEMENT.md)** - Context flag modules
-
-- 22 modular flag packs in `flags/`
-- Toggle via `FLAGS.md` or the TUI Flag Explorer
-- Supports per-project customization
-
 **[Model Optimization](./guides/development/model-optimization.md)** - Cost and performance strategy
 
 - Haiku vs Sonnet assignment criteria
 - Hybrid orchestration patterns
 - Cost optimization guidance
-- Migration plan and monitoring
 
 ---
 
@@ -78,27 +56,22 @@ cortex is a context orchestration framework that provides:
 1. **On-Demand Loading**: Agents load only when triggered
 2. **Progressive Disclosure**: Skills load knowledge in tiers
 3. **Dependency Resolution**: Automatic agent dependency management
-4. **Hybrid Execution**: Strategic Haiku/Sonnet model assignment
+4. **Skill Recommendations**: Two-layer pipeline surfaces relevant skills per prompt
 5. **Workflow Automation**: Multi-phase structured workflows
 
 ### Key Concepts
 
-**Agents**: Specialized AI agents with focused responsibilities (29 total)
+**Agents**: Specialized AI agents with focused responsibilities (28 total)
 
-- Auto-activation supported via `agents/triggers.yaml`
 - Activate/deactivate in the TUI or CLI
 - Each can declare dependencies, workflows, and metrics
+- Context-aware recommendations via `cortex ai recommend`
 
 **Skills**: Modular knowledge packages that load progressively
 
-- 100+ available skills
+- 124 available skills
 - Shared across multiple agents
 - Progressive disclosure keeps context lean
-
-**Flags**: Context modules toggled via `FLAGS.md`
-
-- 22 flag files under `flags/`
-- Add/remove `@flags/*.md` lines to enable/disable
 
 **Hooks**: Automation scripts triggered by Claude Code events
 
@@ -111,33 +84,33 @@ cortex is a context orchestration framework that provides:
 ### Code Quality Pass
 
 ```
-code-reviewer (Sonnet) → Review changes
+code-reviewer → Review changes
   ↓
-security-auditor (Sonnet) → Threat sweep
+security-auditor → Threat sweep
   ↓
-debugger (Sonnet) → Root-cause analysis
+debugger → Root-cause analysis
   ↓
-python-pro / typescript-pro (Haiku) → Implement fix
+python-pro / typescript-pro → Implement fix
 ```
 
 ### Infrastructure Setup
 
 ```
-cloud-architect (Sonnet) → Design infrastructure
+cloud-architect → Design infrastructure
   ↓
-kubernetes-architect (Haiku) → K8s architecture
+kubernetes-architect → K8s architecture
   ↓
-docs-architect (Haiku) → Document infrastructure
+docs-architect → Document infrastructure
 ```
 
-### Documentation & Enablement
+### Frontend Development
 
 ```
-mermaid-expert (Haiku) → System diagrams
+react-specialist → Component architecture
   ↓
-tutorial-engineer (Haiku) → Hands-on walkthroughs
+frontend-optimizer → Performance optimization
   ↓
-learning-guide (Haiku) → Learning paths + explanations
+ui-ux-designer → Design review
 ```
 
 ---
@@ -150,12 +123,9 @@ learning-guide (Haiku) → Learning paths + explanations
 # List agents
 cortex agent list
 
-# Show agent details
-cortex agent deps backend-architect
-
 # Activate/deactivate
-cortex agent activate backend-architect
-cortex agent deactivate backend-architect
+cortex agent activate cloud-architect
+cortex agent deactivate cloud-architect
 
 # Dependency graph
 cortex agent graph --export deps.md
@@ -193,9 +163,7 @@ cortex --scope project status
 ### Status
 
 ```bash
-# Show all status
 cortex status
-
 ```
 
 ---
@@ -203,14 +171,13 @@ cortex status
 ## Architecture Overview
 
 ```
-
 ┌─────────────────────────────────────┐
 │      Claude Code Interface          │
 └──────────────┬──────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────┐
-│         cortex CLI              │
+│         cortex CLI                  │
 │  ┌──────────┐  ┌──────────┐        │
 │  │  Agents  │  │  Skills  │        │
 │  │  list    │  │  list    │        │
@@ -223,7 +190,7 @@ cortex status
 ┌─────────────────────────────────────┐
 │   Context Resolution Engine         │
 │  • Dependency Resolution            │
-│  • Trigger Matching                 │
+│  • Skill Recommendation             │
 │  • Model Selection                  │
 │  • Skill Loading                    │
 └──────────────┬──────────────────────┘
@@ -232,19 +199,18 @@ cortex status
 ┌─────────────────────────────────────┐
 │      Context Storage                │
 │  agents/    skills/    rules/       │
-│  29 total   127+ skills             │
+│  28 agents  124 skills              │
 │  hooks/     commands/               │
 └─────────────────────────────────────┘
-
 ```
 
 ---
 
 ## Performance Notes
 
-- Model selection is configured per agent (Haiku or Sonnet) in agent frontmatter.
+- Model selection is configured per agent in agent frontmatter.
 - Skills load on demand to keep default context lightweight.
-- See `guides/development/model-optimization.md` for tuning guidance and deeper analysis.
+- See `guides/development/model-optimization.md` for tuning guidance.
 
 ---
 
@@ -253,11 +219,11 @@ cortex status
 ### Documentation
 
 - **Architecture**: System design, patterns, extension points
-- **Agents**: Complete catalog with dependencies
-- **Skills**: Progressive disclosure system
+- **Skills**: Progressive disclosure system, recommendation engine
 - **Model Optimization**: Cost and performance strategy
 
 ### CLI Help
+
 ```bash
 cortex --help
 cortex agent --help
@@ -275,38 +241,29 @@ Browse the local catalog for up-to-date examples:
 
 ---
 
-## Roadmap
-
-All planned phases for skill development and integration are now **COMPLETED**. The framework supports a wide array of skills, including those for architecture, infrastructure, development, security, and collaboration. The total number of available skills has significantly expanded, enhancing the system's overall capabilities.
-
----
-
 ## Contributing
 
 ### Adding Agents
 
 1. Research clear responsibility
 2. Define dependencies and workflows
-3. Create agent .md with frontmatter
-4. Validate: `cortex agent validate`
-5. Document in guides/agents.md
-6. Assign model (Haiku/Sonnet)
+3. Create agent `.md` with YAML frontmatter in `agents/`
+4. Add dependencies to `dependencies.map`
+5. Validate: `cortex agent validate`
 
 ### Creating Skills
 
 1. Identify 1000+ token knowledge chunk
-2. Create skills/skill-name/SKILL.md
+2. Create `skills/skill-name/SKILL.md`
 3. Write frontmatter with triggers
 4. Structure with progressive tiers
-5. Link to agent frontmatter
-6. Validate: `cortex skills validate`
-7. Document in guides/skills.md
+5. Validate: `cortex skills validate`
+6. Update `guides/skills.md` when adding skills
 
 ### Documentation Updates
 
-- Keep guides/development/architecture.md aligned with system changes
-- Update guides/agents.md when adding/modifying agents
-- Update guides/skills.md when adding skills
+- Keep `guides/development/architecture.md` aligned with system changes
+- Update `guides/skills.md` when adding skills
 - Include examples and use cases
 
 ---
@@ -315,19 +272,17 @@ All planned phases for skill development and integration are now **COMPLETED**. 
 
 ### Internal
 
-- [Main README](../../README.md) - Project overview
-- [Skills README](../../skills/README.md) - Skill integration guide
-- [CLI Source](../../claude_ctx_py/) - Python CLI implementation
+- [Main README](../README.md) - Project overview
+- [Documentation Navigator](NAVIGATOR.md) - Full docs map by topic and audience
+- [CLI Source](../claude_ctx_py/) - Python CLI implementation
 
 ### External
 
-- [Claude Code Documentation](https://docs.claude.com/en/docs/claude-code/overview)
-- [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md)
-- [~/agents Reference](https://github.com/wshobson/agents)
-- [Anthropic Model Documentation](https://docs.anthropic.com/en/docs/models-overview)
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
+- [Anthropic Model Documentation](https://docs.anthropic.com/en/docs/about-claude/models)
 
 ---
 
 ## License
 
-MIT License - see [LICENSE](../../LICENSE) file for details.
+MIT License - see [LICENSE](../LICENSE) file for details.

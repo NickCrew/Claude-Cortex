@@ -63,6 +63,20 @@ cortex skills feedback agent-loops helpful --comment "High signal loop guidance"
 cortex skills rate agent-loops --stars 5 --review "Reliable workflow"
 ```
 
+### Skill Recommendations (automatic)
+
+Skills are suggested automatically via a two-layer pipeline:
+
+- **Layer 1 (hook)**: Keyword matching against `skill-rules.json` on every prompt (~50 ms)
+- **Layer 2 (recommender)**: Semantic, rule-based, agent-based, and historical strategies via `SkillRecommender` (~100-200 ms, optional)
+
+Results from both layers are merged and deduplicated — keyword matches first,
+then richer recommendations. The hook gracefully falls back to Layer 1 if the
+full package isn't installed.
+
+The TUI auto-starts the watch daemon on launch for continuous background
+recommendations. See [Skill Recommendation Engine](docs/architecture/skill-recommendation-engine.md) for the full architecture.
+
 ### AI command suite
 
 - Recommendations and auto-activation:
@@ -72,7 +86,7 @@ cortex ai recommend
 cortex ai auto-activate
 ```
 
-- Continuous watch mode:
+- Continuous watch mode (auto-started by TUI):
 
 ```bash
 cortex ai watch --interval 2.0 --threshold 0.7 --dir .
@@ -287,6 +301,7 @@ bundle exec jekyll serve --livereload
 - [docs/reference/configuration.md](docs/reference/configuration.md)
 - [docs/reference/api/index.md](docs/reference/api/index.md)
 - [docs/architecture/README.md](docs/architecture/README.md)
+- [docs/architecture/skill-recommendation-engine.md](docs/architecture/skill-recommendation-engine.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [CHANGELOG.md](CHANGELOG.md)
 - [CREDITS.md](CREDITS.md)

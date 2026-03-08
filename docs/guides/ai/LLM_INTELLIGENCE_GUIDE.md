@@ -655,6 +655,6 @@ ai:
 ## See Also
 
 - [AI Intelligence Overview](../AI_INTELLIGENCE.md)
-- [Semantic Matching Guide](../AI_IMPLEMENTATION_SUMMARY.md)
+- [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md)
 - [Anthropic API Docs](https://docs.anthropic.com/claude/reference/getting-started-with-the-api)
 - [Claude Models](https://docs.anthropic.com/claude/reference/models-overview)

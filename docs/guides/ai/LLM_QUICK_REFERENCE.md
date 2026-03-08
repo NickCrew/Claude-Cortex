@@ -191,4 +191,4 @@ Session → Semantic Matching (free, 50ms)
 
 - Full guide: [LLM_INTELLIGENCE_GUIDE.md](LLM_INTELLIGENCE_GUIDE.md)
 - Overview: [../AI_INTELLIGENCE.md](../AI_INTELLIGENCE.md)
-- Implementation: [../AI_IMPLEMENTATION_SUMMARY.md](../AI_IMPLEMENTATION_SUMMARY.md)
+- Architecture: [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md)

@@ -13,6 +13,7 @@ Technical reference documentation for cortex configuration, APIs, and CLI.
 
 - [Configuration Reference](configuration.md) - All configuration files with schemas and examples
 - [Skill Showcase](skill-showcase.md) - Curated guide to the most sophisticated skills, categorized by capability
+- [Skill Recommendation Engine](../architecture/skill-recommendation-engine.md) - Two-layer recommendation architecture (hook + SkillRecommender)
 - [bin/ Utilities](bin-utilities.md) - Agent-facing tools for routine development (`tx`, `browser_tools`, `committer`, etc.)
 - [scripts/ Utilities](scripts-utilities.md) - Project-internal maintenance scripts (manpages, registry validation, uninstall)
 - [Manpages](README.md) - CLI manpage generation

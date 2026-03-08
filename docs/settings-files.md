@@ -35,7 +35,7 @@ reads or writes. For detailed documentation with schemas and examples, see the
 
 | Path | Purpose | Notes |
 | --- | --- | --- |
-| `agents/triggers.yaml` | Agent trigger metadata | Used by recommendations |
+| `agents/dependencies.map` | Agent dependency graph | Used by activation |
 | `skills/activation.yaml` | Skill keyword activation map | Used by auto-activation |
 | `skills/composition.yaml` | Skill composition rules | Used by skill composer |
 | `skills/versions.yaml` | Skill version registry | Used by `skills versions` |

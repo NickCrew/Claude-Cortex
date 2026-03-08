@@ -2728,7 +2728,7 @@ these for you.
 | `thinking-budget.md` | Control internal reasoning token allocation and cost trade-offs. |
 | `visual-excellence.md` | Flags for UI/UX enhancement and visual polish across all platforms. |
 
-For detailed toggling and profiles, see `guides/FLAGS_MANAGEMENT.md`.
+For configuration details, see [Configuration Reference](../reference/configuration.md).
 
 ---
 

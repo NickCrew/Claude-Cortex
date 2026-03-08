@@ -75,7 +75,7 @@ Auto-detect project type, language, and framework to activate relevant agents an
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  agents/ │  │  skills/ │  │  modes/  │  │ profiles/│   │
 │  │          │  │          │  │          │  │          │   │
-│  │ 29 active│  │100+ skill│  │ 3 modes  │  │ 3 saved  │   │
+│  │ 28 active│  │124 skills│  │ 3 modes  │  │ 3 saved  │   │
 │  │ 0 inact  │  │          │  │ 4 inact  │  │          │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
 └─────────────────────────────────────────────────────────────┘
@@ -636,7 +636,7 @@ Benefit: Discoverability, automation, scripting
 3. **Implement**: Create agent .md with complete frontmatter
 4. **Validate**: `cortex agent validate agent-name`
 5. **Test**: Activate and verify behavior
-6. **Document**: Add to guides/agents.md catalog
+6. **Document**: Update guides/skills.md if agent introduces new skills
 7. **Optimize**: Assign appropriate model (Haiku/Sonnet)
 
 ### Creating Skills
