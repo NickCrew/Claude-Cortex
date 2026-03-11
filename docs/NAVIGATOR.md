@@ -47,6 +47,9 @@ Quick-reference map to all cortex documentation.
 - [Integrations](guides/integrations.md) — External tool connections
 - [MCP Guides](guides/mcp/) — MCP server setup
 
+### Development Plans
+- [Multi-Specialist Review](development/plans/multi-specialist-review.md) — Parallel specialist code review with citation verification
+
 ### Tutorials
 - [Tutorial Index](tutorials/index.md) — All tutorials
 - [CI/CD Integration](tutorials/ci-cd-integration.md) — Pipeline setup
