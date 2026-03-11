@@ -262,23 +262,57 @@ echo "Timeout: ${TIMEOUT}s, Budget: \$${MAX_BUDGET}" >&2
 
 START_TIME=$(date +%s)
 
+# --- Pre-flight checks ---
+
+if ! command -v claude &>/dev/null; then
+  echo "Error: 'claude' CLI not found in PATH." >&2
+  echo "Install Claude Code: https://docs.anthropic.com/en/docs/claude-code" >&2
+  exit 1
+fi
+
+if [[ ! -s "$SYSTEM_PROMPT_FILE" ]]; then
+  echo "Error: Prompt file is empty after template substitution." >&2
+  echo "Check that $PROMPT_TEMPLATE exists and placeholders were resolved." >&2
+  exit 1
+fi
+
+# Unset CLAUDECODE to allow launching Claude CLI from within a Claude Code session.
+# These are intentionally independent single-turn invocations, not nested sessions.
+unset CLAUDECODE 2>/dev/null || true
+
+# --- Invoke Claude CLI ---
+#
 # Single-turn, no tools: the audit report is output to stdout and captured directly.
 # --tools "" disables all tools so claude outputs the report as text.
 # --no-session-persistence avoids writing session state to disk.
 # stdin from prompt file ensures clean EOF (no TTY hang).
+# stderr is captured to a log file for diagnostics on failure.
+
+STDERR_LOG="$OUTPUT_DIR/test-audit-$TIMESTAMP.stderr.log"
+
 if timeout "$TIMEOUT" claude --print \
   --no-session-persistence \
   --max-budget-usd "$MAX_BUDGET" \
   --tools "" \
-  <"$SYSTEM_PROMPT_FILE" >"$OUTPUT_FILE"; then
+  <"$SYSTEM_PROMPT_FILE" >"$OUTPUT_FILE" 2>"$STDERR_LOG"; then
 
   ELAPSED=$(($(date +%s) - START_TIME))
   echo "Claude finished in ${ELAPSED}s" >&2
 
   if [[ -s "$OUTPUT_FILE" ]]; then
+    # Clean up stderr log on success (unless debugging)
+    if [[ "$DEBUG" != "1" ]]; then
+      rm -f "$STDERR_LOG"
+    fi
     echo "$OUTPUT_FILE"
   else
-    echo "Error: Claude completed but report file is empty" >&2
+    echo "Error: Claude completed (exit 0) but report file is empty." >&2
+    echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
+    echo "  Budget: \$${MAX_BUDGET}" >&2
+    if [[ -s "$STDERR_LOG" ]]; then
+      echo "  Claude stderr:" >&2
+      sed 's/^/    /' "$STDERR_LOG" >&2
+    fi
     exit 1
   fi
 else
@@ -289,6 +323,12 @@ else
     echo "Error: Claude CLI timed out after ${ELAPSED}s (limit: ${TIMEOUT}s)" >&2
   else
     echo "Error: Claude CLI invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+  fi
+
+  # Show stderr from Claude CLI for diagnostics
+  if [[ -s "$STDERR_LOG" ]]; then
+    echo "  Claude stderr:" >&2
+    sed 's/^/    /' "$STDERR_LOG" >&2
   fi
 
   # Preserve partial output if any
