@@ -38,8 +38,8 @@ implement the change. You never grade your own homework.
 - `references/audit-prompt.md` — Test audit prompt template for fallback reviewers
 
 **Bundled scripts:**
-- `$SKILL_DIR/scripts/specialist-review.sh` — Provider-aware Claude/Gemini CLI path for code review
-- `$SKILL_DIR/scripts/test-review-request.sh` — Provider-aware Claude/Gemini CLI path for test audit
+- `$SKILL_DIR/scripts/specialist-review.sh` — Provider-aware Claude/Gemini/Codex CLI path for code review
+- `$SKILL_DIR/scripts/test-review-request.sh` — Provider-aware Claude/Gemini/Codex CLI path for test audit
 
 ### Locate Scripts
 
@@ -60,8 +60,8 @@ at the start of your session and reuse the variable.
 | Role | Agent | How |
 |------|-------|-----|
 | **Implementer** | Codex or Gemini | Writes code changes and test code |
-| **Code Reviewer** | Claude preferred; Gemini fallback; fresh-context Codex last resort | Claude via `specialist-review`; fallback reviewer uses bundled prompts and produces a review artifact |
-| **Test Auditor** | Claude preferred; Gemini fallback; fresh-context Codex last resort | Claude via `test-review-request`; fallback auditor uses bundled prompts and produces an audit artifact |
+| **Code Reviewer** | Claude preferred; Gemini fallback; Codex explicit; fresh-context Codex last resort | Claude via `specialist-review`; fallback reviewer uses bundled prompts and produces a review artifact |
+| **Test Auditor** | Claude preferred; Gemini fallback; Codex explicit; fresh-context Codex last resort | Claude via `test-review-request`; fallback auditor uses bundled prompts and produces an audit artifact |
 | **Remediator** | Codex or Gemini | Fixes findings from the independent review/audit artifact |
 
 **Critical rule:** Codex and Gemini NEVER self-review. Every review step must be
@@ -106,8 +106,9 @@ adopt perspectives yourself. Route the review to Claude first, then fallback if 
 
 Claude is still the preferred reviewer because it can load domain-specific skills such as
 `owasp-top-10`, `secure-coding-practices`, and `python-testing-patterns`. The bundled
-script now tries Claude first and falls back to Gemini CLI automatically. If both CLIs
-are unavailable or fail, continue with a fresh-context Codex reviewer instead of
+script now tries Claude first and falls back to Gemini CLI automatically. Codex is also
+available as an explicit provider. If the automated providers are unavailable or fail,
+continue with a fresh-context Codex reviewer instead of
 reviewing the code yourself.
 
 #### Automated Path: Provider-Aware Script
@@ -133,6 +134,9 @@ git diff HEAD~3..HEAD -- src/ | "$SKILL_DIR/scripts/specialist-review.sh" -
 
 # Force Gemini CLI for this run
 "$SKILL_DIR/scripts/specialist-review.sh" --provider gemini --git -- src/parser/
+
+# Force Codex CLI for this run
+"$SKILL_DIR/scripts/specialist-review.sh" --provider codex --git -- src/parser/
 ```
 
 Read the output file path printed to stdout:
@@ -147,7 +151,7 @@ the entire repo diff to the reviewer, wasting tokens and risking timeouts.
 Provider selection:
 
 - Default is `auto`, which tries Claude first and Gemini second.
-- Override per run with `--provider auto|claude|gemini`.
+- Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
 - The script validates the review artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
@@ -188,8 +192,9 @@ the gap report yourself. Route the audit to Claude first, then fallback if neede
 
 Claude is still the preferred auditor because it can apply the testing standards and audit
 workflow with project-aware skill support. The bundled script now tries Claude first and
-falls back to Gemini CLI automatically. If both CLIs are unavailable or fail, continue
-with a fresh-context Codex auditor instead of skipping the audit.
+falls back to Gemini CLI automatically. Codex is also available as an explicit provider.
+If the automated providers are unavailable or fail, continue with a fresh-context Codex
+auditor instead of skipping the audit.
 
 #### Automated Path: Provider-Aware Script
 
@@ -208,6 +213,9 @@ with a fresh-context Codex auditor instead of skipping the audit.
 
 # Force Gemini CLI for this run
 "$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module
+
+# Force Codex CLI for this run
+"$SKILL_DIR/scripts/test-review-request.sh" --provider codex /path/to/module
 ```
 
 Read the output file path printed to stdout:
@@ -219,7 +227,7 @@ cat "$REPORT_FILE"
 Provider selection:
 
 - Default is `auto`, which tries Claude first and Gemini second.
-- Override per run with `--provider auto|claude|gemini`.
+- Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `TEST_REVIEW_PROVIDER`.
 - The script validates the audit artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.

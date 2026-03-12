@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# specialist-review.sh — Invoke a multi-perspective specialist review via Claude/Gemini CLI
+# specialist-review.sh — Invoke a multi-perspective specialist review via Claude/Gemini/Codex CLI
 #
 # Usage:
 #   specialist-review.sh [options] [-- path...]
@@ -11,7 +11,7 @@
 #   --git [base-ref]       Diff against base-ref (default: HEAD~1)
 #   --output <dir>         Output directory (default: .agents/reviews)
 #   --prior-review <file>  Include previous review output for continuity across cycles
-#   --provider <name>      auto (default), claude, or gemini
+#   --provider <name>      auto (default), claude, gemini, or codex
 #   -- path...             Limit git diff to these paths (passed to git diff)
 #
 # Examples:
@@ -91,7 +91,7 @@ while [[ $# -gt 0 ]]; do
     shift
     REQUESTED_PROVIDER="${1:-}"
     if [[ -z "$REQUESTED_PROVIDER" ]]; then
-      echo "Error: --provider requires auto, claude, or gemini" >&2
+      echo "Error: --provider requires auto, claude, gemini, or codex" >&2
       exit 1
     fi
     shift
@@ -199,12 +199,14 @@ with open(sys.argv[4], 'w') as f:
 # --- Invoke provider CLI ---
 
 # Environment variables:
-#   AGENT_LOOPS_LLM_PROVIDER  — Default provider selection: auto|claude|gemini
+#   AGENT_LOOPS_LLM_PROVIDER  — Default provider selection: auto|claude|gemini|codex
 #   SPECIALIST_REVIEW_PROVIDER — Override provider selection for this script only
 #   CLAUDE_TIMEOUT            — Max seconds for Claude CLI (default: 300)
 #   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)
+#   CODEX_TIMEOUT             — Max seconds for Codex CLI (default: 300)
 #   CLAUDE_MAX_BUDGET         — Max USD budget per Claude invocation (default: 0.50)
 #   GEMINI_MODEL              — Optional Gemini model override
+#   CODEX_MODEL               — Optional Codex model override
 #   REVIEW_CONTEXT            — Lines of diff context, passed as -U<n> to git diff (default: 15)
 DEFAULT_TIMEOUT=300
 
@@ -246,6 +248,8 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
+  elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
+    echo "Codex model override: ${CODEX_MODEL}" >&2
   fi
 
   rm -f "$OUTPUT_FILE"
@@ -308,7 +312,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 done
 
 if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
-  echo "Error: No review providers are available in PATH. Install 'claude' or 'gemini', or use the fresh-context Codex fallback." >&2
+  echo "Error: No review providers are available in PATH. Install 'claude', 'gemini', or 'codex', or use the fresh-context Codex fallback." >&2
 else
   echo "Error: All review providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
 fi

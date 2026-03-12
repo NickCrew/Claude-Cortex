@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# test-review-request.sh — Invoke a test coverage audit via Claude/Gemini CLI
+# test-review-request.sh — Invoke a test coverage audit via Claude/Gemini/Codex CLI
 #
 # Usage:
 #   test-review-request.sh <module-path> [options]
@@ -11,14 +11,16 @@
 #   --output <dir>    Output directory (default: .agents/reviews)
 #   --quick           Quick review mode (anti-patterns only, no full audit)
 #   --debug           Save prompt and provider output to log files for debugging
-#   --provider <name> auto (default), claude, or gemini
+#   --provider <name> auto (default), claude, gemini, or codex
 #
 # Environment:
-#   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini
+#   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini|codex
 #   TEST_REVIEW_PROVIDER     Override provider selection for this script only
 #   CLAUDE_TIMEOUT           Timeout in seconds for Claude (default: 300)
 #   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
+#   CODEX_TIMEOUT            Timeout in seconds for Codex (default: 300)
 #   CLAUDE_MAX_BUDGET        Max spend in USD per Claude invocation (default: 0.50)
+#   CODEX_MODEL              Optional Codex model override
 #   CLAUDE_DEBUG=1           Same as --debug flag
 #
 # All source, test, and reference content is inlined into the prompt.
@@ -84,7 +86,7 @@ while [[ $# -gt 0 ]]; do
     shift
     REQUESTED_PROVIDER="${1:-}"
     if [[ -z "$REQUESTED_PROVIDER" ]]; then
-      echo "Error: --provider requires auto, claude, or gemini" >&2
+      echo "Error: --provider requires auto, claude, gemini, or codex" >&2
       exit 1
     fi
     shift
@@ -309,6 +311,8 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
+  elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
+    echo "Codex model override: ${CODEX_MODEL}" >&2
   fi
 
   rm -f "$OUTPUT_FILE"
@@ -372,7 +376,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 done
 
 if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
-  echo "Error: No audit providers are available in PATH. Install 'claude' or 'gemini', or use the fresh-context Codex fallback." >&2
+  echo "Error: No audit providers are available in PATH. Install 'claude', 'gemini', or 'codex', or use the fresh-context Codex fallback." >&2
 else
   echo "Error: All audit providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
 fi

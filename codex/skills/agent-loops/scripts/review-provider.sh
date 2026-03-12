@@ -11,11 +11,11 @@ review_provider_candidates() {
     auto)
       printf '%s\n' claude gemini
       ;;
-    claude | gemini)
+    claude | gemini | codex)
       printf '%s\n' "$requested"
       ;;
     *)
-      echo "Error: Unsupported provider '$requested'. Use auto, claude, or gemini." >&2
+      echo "Error: Unsupported provider '$requested'. Use auto, claude, gemini, or codex." >&2
       return 1
       ;;
   esac
@@ -34,6 +34,9 @@ review_provider_display_name() {
     gemini)
       echo "Gemini"
       ;;
+    codex)
+      echo "Codex"
+      ;;
     *)
       echo "$1"
       ;;
@@ -50,6 +53,9 @@ review_provider_timeout() {
       ;;
     gemini)
       echo "${GEMINI_TIMEOUT:-$fallback}"
+      ;;
+    codex)
+      echo "${CODEX_TIMEOUT:-$fallback}"
       ;;
     *)
       echo "$fallback"
@@ -86,6 +92,17 @@ review_provider_run() {
 
       timeout "$timeout_seconds" "${cmd[@]}" \
         <"$prompt_file" >"$output_file" 2>"$stderr_log"
+      ;;
+    codex)
+      local -a cmd
+      cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)" -s read-only -o "$output_file" -)
+
+      if [[ -n "${CODEX_MODEL:-}" ]]; then
+        cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)" -m "${CODEX_MODEL}" -s read-only -o "$output_file" -)
+      fi
+
+      timeout "$timeout_seconds" "${cmd[@]}" \
+        <"$prompt_file" >/dev/null 2>"$stderr_log"
       ;;
     *)
       echo "Error: Unsupported provider '$provider'." >&2
