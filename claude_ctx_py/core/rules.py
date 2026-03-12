@@ -1,14 +1,12 @@
-"""Rule management functions (file-based activation)."""
+"""Rule management functions (symlink-based activation)."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Iterable, List, Optional, Tuple
 
-from .base import _resolve_cortex_root, _resolve_claude_dir
+from .base import _resolve_cortex_root, _resolve_claude_dir, _refresh_claude_md
 from .components import (
-    component_activate,
-    component_deactivate,
     list_components,
     component_status,
     add_component_to_claude_md,
@@ -42,7 +40,9 @@ def _ensure_rules_gitignore(claude_home: Path) -> Optional[str]:
             if entry in content:
                 return None
             content.append(entry)
-            gitignore_path.write_text("\n".join(content).rstrip() + "\n", encoding="utf-8")
+            gitignore_path.write_text(
+                "\n".join(content).rstrip() + "\n", encoding="utf-8"
+            )
         else:
             gitignore_path.write_text(entry + "\n", encoding="utf-8")
     except OSError as exc:
@@ -107,54 +107,110 @@ def _get_all_available_rules(claude_dir: Path) -> List[str]:
     return get_all_available_components(claude_dir, COMPONENT_TYPE)
 
 
-def rules_activate(rule: str, home: Path | None = None) -> str:
-    """Activate a rule by creating a symlink in the rules directory.
+def _find_rule_source(cortex_root: Path, rule: str) -> Optional[Path]:
+    """Find a rule source file in CORTEX_ROOT/rules/.
 
-    Creates a symlink from CORTEX_ROOT/rules/{rule}.md to the active rules location.
+    Searches flat files first, then subdirectories.
+
+    Args:
+        cortex_root: The cortex root directory containing bundled assets
+        rule: Rule name (without .md extension)
+
+    Returns:
+        Path to the rule source file, or None if not found
     """
+    rules_dir = cortex_root / "rules"
+    if not rules_dir.is_dir():
+        return None
+
+    # Check flat file first
+    flat = rules_dir / f"{rule}.md"
+    if flat.is_file():
+        return flat
+
+    # Check subdirectories
+    for subdir in sorted(rules_dir.iterdir()):
+        if subdir.is_dir():
+            candidate = subdir / f"{rule}.md"
+            if candidate.is_file():
+                return candidate
+
+    return None
+
+
+def rules_activate(
+    rule: str,
+    home: Path | None = None,
+    *,
+    claude_dir: Path | None = None,
+) -> str:
+    """Activate a rule by creating a symlink from claude_dir/rules/ to its source.
+
+    Looks up the rule source in CORTEX_ROOT/rules/ and creates a symlink
+    at claude_dir/rules/{rule}.md pointing to it.
+
+    Args:
+        rule: Rule name (without .md extension)
+        home: Home directory override (used by _resolve_claude_dir fallback)
+        claude_dir: Explicit claude directory to operate on. If provided,
+            bypasses _resolve_claude_dir entirely.
+    """
+    target_dir = claude_dir if claude_dir is not None else _resolve_claude_dir(home)
     cortex_root = _resolve_cortex_root()
-    source_file = cortex_root / "rules" / f"{rule}.md"
 
-    if not source_file.exists():
-        return f"✗ Rule source not found: {source_file}"
+    rules_dir = target_dir / "rules"
+    link_path = rules_dir / f"{rule}.md"
 
-    # Create symlink in claude_dir (active location)
-    claude_dir = _resolve_claude_dir(home)
-    active_dir = claude_dir / "skills"
-    active_dir.mkdir(parents=True, exist_ok=True)
-    symlink_path = active_dir / f"{rule}.json"
+    # Already active?
+    if link_path.is_symlink() or link_path.is_file():
+        return f"Rule '{rule}' is already active"
 
+    # Find source in CORTEX_ROOT
+    source = _find_rule_source(cortex_root, rule)
+    if source is None:
+        return f"Rule '{rule}' not found in {cortex_root / 'rules'}"
+
+    # Create symlink
+    rules_dir.mkdir(parents=True, exist_ok=True)
     try:
-        # Remove existing symlink or file if present
-        if symlink_path.exists() or symlink_path.is_symlink():
-            try:
-                symlink_path.unlink()
-            except (OSError, PermissionError) as e:
-                return f"✗ Failed to remove existing rule: {e}"
+        link_path.symlink_to(source)
+    except (OSError, PermissionError) as exc:
+        return f"Failed to activate rule '{rule}': {exc}"
 
-        # Create symlink to source rule
-        symlink_path.symlink_to(source_file)
-        return f"✓ Activated rule (symlink): {rule}"
-    except (OSError, PermissionError) as e:
-        return f"✗ Failed to create rule symlink: {e}"
+    _refresh_claude_md(target_dir)
+    return f"Activated rule: {rule}"
 
 
-def rules_deactivate(rule: str, home: Path | None = None) -> str:
+def rules_deactivate(
+    rule: str,
+    home: Path | None = None,
+    *,
+    claude_dir: Path | None = None,
+) -> str:
     """Deactivate a rule by removing its symlink.
 
-    Removes the symlink from the active rules location.
-    """
-    claude_dir = _resolve_claude_dir(home)
-    symlink_path = claude_dir / "skills" / f"{rule}.json"
+    Removes the symlink at claude_dir/rules/{rule}.md.
 
-    if not symlink_path.exists() and not symlink_path.is_symlink():
-        return f"✗ Rule not active: {rule}"
+    Args:
+        rule: Rule name (without .md extension)
+        home: Home directory override (used by _resolve_claude_dir fallback)
+        claude_dir: Explicit claude directory to operate on.
+    """
+    target_dir = claude_dir if claude_dir is not None else _resolve_claude_dir(home)
+
+    rules_dir = target_dir / "rules"
+    link_path = rules_dir / f"{rule}.md"
+
+    if not link_path.exists() and not link_path.is_symlink():
+        return f"Rule '{rule}' is not currently active"
 
     try:
-        symlink_path.unlink()
-        return f"✓ Deactivated rule: {rule}"
-    except (OSError, PermissionError) as e:
-        return f"✗ Failed to deactivate rule: {e}"
+        link_path.unlink()
+    except (OSError, PermissionError) as exc:
+        return f"Failed to deactivate rule '{rule}': {exc}"
+
+    _refresh_claude_md(target_dir)
+    return f"Deactivated rule: {rule}"
 
 
 def list_rules(home: Path | None = None) -> str:
@@ -168,9 +224,7 @@ def rules_status(home: Path | None = None) -> str:
 
 
 def rule_add_to_claude_md(
-    rule: str,
-    active: bool = False,
-    home: Path | None = None
+    rule: str, active: bool = False, home: Path | None = None
 ) -> Tuple[int, str]:
     """Legacy helper; validates rule exists on disk."""
     return add_component_to_claude_md(COMPONENT_TYPE, rule, "", active, home)

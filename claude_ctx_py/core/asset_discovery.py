@@ -28,15 +28,32 @@ from typing import Dict, List, Optional, Any
 
 from .base import _extract_front_matter, _resolve_claude_dir, _resolve_cortex_root
 
-
 _SETTINGS_RELATIVE_PATHS = [
+    # Agent configuration
     Path("agents/triggers.yaml"),
+    # Skill configuration
     Path("skills/activation.yaml"),
     Path("skills/composition.yaml"),
     Path("skills/versions.yaml"),
+    Path("skills/registry.yaml"),
+    Path("skills/recommendation-rules.json"),
+    Path("skills/skill-rules.json"),
+    Path("skills/community/registry.yaml"),
+    # Skill schemas
+    Path("skills/activation.schema.json"),
+    Path("skills/composition.schema.json"),
+    Path("skills/versions.schema.json"),
     Path("skills/analytics.schema.json"),
     Path("skills/metrics.schema.json"),
-    Path("skills/community/registry.yaml"),
+    Path("skills/registry.schema.json"),
+    Path("skills/rubric.schema.yaml"),
+    Path("skills/authors.yaml"),
+    Path("skills/authors.schema.json"),
+    # Validation schemas
+    Path("schemas/agent-schema-v2.yaml"),
+    Path("schemas/triggers.schema.json"),
+    Path("schemas/recommendation-rules.schema.json"),
+    Path("schemas/skill-rules.schema.json"),
 ]
 
 
@@ -232,13 +249,15 @@ def _discover_hooks(plugin_root: Path) -> List[Asset]:
             # Extract description from file
             description = _extract_hook_description(path)
 
-            hooks.append(Asset(
-                name=path.stem,
-                category=AssetCategory.HOOKS,
-                source_path=path,
-                description=description,
-                metadata={"type": path.suffix},
-            ))
+            hooks.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.HOOKS,
+                    source_path=path,
+                    description=description,
+                    metadata={"type": path.suffix},
+                )
+            )
 
     return sorted(hooks, key=lambda a: a.name)
 
@@ -303,6 +322,7 @@ def _parse_command_front_matter(content: str) -> Dict[str, Any]:
         return {}
     try:
         import yaml
+
         return yaml.safe_load(front_matter_str) or {}
     except Exception:
         return {}
@@ -348,7 +368,9 @@ def _parse_command_file(path: Path, namespace: Optional[str]) -> Optional[Asset]
             name=name,
             category=AssetCategory.COMMANDS,
             source_path=path,
-            description=description[:100] + "..." if len(description) > 100 else description,
+            description=(
+                description[:100] + "..." if len(description) > 100 else description
+            ),
             namespace=resolved_namespace,
             metadata=front_matter,
         )
@@ -390,22 +412,31 @@ def _discover_agents(plugin_root: Path) -> List[Asset]:
                 if front_matter_str:
                     try:
                         import yaml
+
                         front_matter = yaml.safe_load(front_matter_str) or {}
                     except Exception:
                         pass
 
-                description = front_matter.get("summary", front_matter.get("description", ""))
+                description = front_matter.get(
+                    "summary", front_matter.get("description", "")
+                )
                 if not description:
                     description = f"Agent: {path.stem}"
 
-                agents.append(Asset(
-                    name=path.stem,
-                    category=AssetCategory.AGENTS,
-                    source_path=path,
-                    description=description[:100] + "..." if len(description) > 100 else description,
-                    version=front_matter.get("version"),
-                    metadata=front_matter,
-                ))
+                agents.append(
+                    Asset(
+                        name=path.stem,
+                        category=AssetCategory.AGENTS,
+                        source_path=path,
+                        description=(
+                            description[:100] + "..."
+                            if len(description) > 100
+                            else description
+                        ),
+                        version=front_matter.get("version"),
+                        metadata=front_matter,
+                    )
+                )
                 seen_names.add(path.stem)
             except OSError:
                 continue
@@ -454,6 +485,7 @@ def _discover_skills(plugin_root: Path) -> List[Asset]:
                 if front_matter_str:
                     try:
                         import yaml
+
                         front_matter = yaml.safe_load(front_matter_str) or {}
                     except Exception:
                         pass
@@ -469,14 +501,20 @@ def _discover_skills(plugin_root: Path) -> List[Asset]:
                             description = line.strip()
                             break
 
-                skills.append(Asset(
-                    name=item.name,
-                    category=AssetCategory.SKILLS,
-                    source_path=item,
-                    description=description[:100] + "..." if len(description) > 100 else description,
-                    version=front_matter.get("version"),
-                    metadata=front_matter,
-                ))
+                skills.append(
+                    Asset(
+                        name=item.name,
+                        category=AssetCategory.SKILLS,
+                        source_path=item,
+                        description=(
+                            description[:100] + "..."
+                            if len(description) > 100
+                            else description
+                        ),
+                        version=front_matter.get("version"),
+                        metadata=front_matter,
+                    )
+                )
                 seen_names.add(item.name)
             except OSError:
                 continue
@@ -517,12 +555,18 @@ def _discover_modes(plugin_root: Path) -> List[Asset]:
             if not description:
                 description = f"Mode: {path.stem}"
 
-            modes.append(Asset(
-                name=path.stem,
-                category=AssetCategory.MODES,
-                source_path=path,
-                description=description[:100] + "..." if len(description) > 100 else description,
-            ))
+            modes.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.MODES,
+                    source_path=path,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
+                )
+            )
         except OSError:
             continue
 
@@ -540,20 +584,23 @@ def _discover_workflows(plugin_root: Path) -> List[Asset]:
     for path in workflows_dir.glob("*.yaml"):
         try:
             import yaml
+
             content = path.read_text(encoding="utf-8")
             data = yaml.safe_load(content)
 
             if not isinstance(data, dict):
                 continue
 
-            workflows.append(Asset(
-                name=path.stem,
-                category=AssetCategory.WORKFLOWS,
-                source_path=path,
-                description=data.get("description", f"Workflow: {path.stem}"),
-                version=data.get("version"),
-                metadata=data,
-            ))
+            workflows.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.WORKFLOWS,
+                    source_path=path,
+                    description=data.get("description", f"Workflow: {path.stem}"),
+                    version=data.get("version"),
+                    metadata=data,
+                )
+            )
         except (OSError, Exception):
             continue
 
@@ -595,18 +642,25 @@ def _discover_flags(plugin_root: Path) -> List[Asset]:
             for line in lines:
                 if "**Estimated tokens:" in line:
                     import re
+
                     match = re.search(r"~?(\d+)", line)
                     if match:
                         tokens = int(match.group(1))
                     break
 
-            flags.append(Asset(
-                name=path.stem,
-                category=AssetCategory.FLAGS,
-                source_path=path,
-                description=description[:100] + "..." if len(description) > 100 else description,
-                metadata={"estimated_tokens": tokens} if tokens else {},
-            ))
+            flags.append(
+                Asset(
+                    name=path.stem,
+                    category=AssetCategory.FLAGS,
+                    source_path=path,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
+                    metadata={"estimated_tokens": tokens} if tokens else {},
+                )
+            )
         except OSError:
             continue
 
@@ -633,7 +687,11 @@ def _discover_rules(plugin_root: Path) -> List[Asset]:
                     name=path.stem,
                     category=AssetCategory.RULES,
                     source_path=path,
-                    description=description[:100] + "..." if len(description) > 100 else description,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
                     metadata={},
                 )
             )
@@ -686,7 +744,9 @@ def _discover_settings(plugin_root: Path) -> List[Asset]:
                 name=rel_path.as_posix(),
                 category=AssetCategory.SETTINGS,
                 source_path=path,
-                description=description[:100] + "..." if len(description) > 100 else description,
+                description=(
+                    description[:100] + "..." if len(description) > 100 else description
+                ),
                 metadata={},
             )
         )
@@ -712,7 +772,11 @@ def _discover_profiles(plugin_root: Path) -> List[Asset]:
                     name=path.stem,
                     category=AssetCategory.PROFILES,
                     source_path=path,
-                    description=description[:100] + "..." if len(description) > 100 else description,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
                     metadata={},
                 )
             )
@@ -740,7 +804,11 @@ def _discover_scenarios(plugin_root: Path) -> List[Asset]:
                     name=path.stem,
                     category=AssetCategory.SCENARIOS,
                     source_path=path,
-                    description=description[:100] + "..." if len(description) > 100 else description,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
                     metadata={},
                 )
             )
@@ -768,7 +836,11 @@ def _discover_tasks(plugin_root: Path) -> List[Asset]:
                     name=path.stem,
                     category=AssetCategory.TASKS,
                     source_path=path,
-                    description=description[:100] + "..." if len(description) > 100 else description,
+                    description=(
+                        description[:100] + "..."
+                        if len(description) > 100
+                        else description
+                    ),
                     metadata={},
                 )
             )
@@ -812,11 +884,13 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
                     scope = "parent"
 
                 installed = get_installed_assets(claude_path)
-                claude_dirs.append(ClaudeDir(
-                    path=claude_path,
-                    scope=scope,
-                    installed_assets=installed,
-                ))
+                claude_dirs.append(
+                    ClaudeDir(
+                        path=claude_path,
+                        scope=scope,
+                        installed_assets=installed,
+                    )
+                )
 
         current = current.parent
         depth += 1
@@ -825,22 +899,26 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
     global_root = _resolve_claude_dir(home, scope="global")
     if str(global_root) not in seen_paths:
         installed = get_installed_assets(global_root)
-        claude_dirs.append(ClaudeDir(
-            path=global_root,
-            scope="global",
-            installed_assets=installed,
-        ))
+        claude_dirs.append(
+            ClaudeDir(
+                path=global_root,
+                scope="global",
+                installed_assets=installed,
+            )
+        )
         seen_paths.add(str(global_root))
 
     # If a legacy ~/.claude exists, surface it as a secondary option
     legacy_root = home / ".claude"
     if legacy_root.exists() and str(legacy_root) not in seen_paths:
         installed = get_installed_assets(legacy_root)
-        claude_dirs.append(ClaudeDir(
-            path=legacy_root,
-            scope="legacy",
-            installed_assets=installed,
-        ))
+        claude_dirs.append(
+            ClaudeDir(
+                path=legacy_root,
+                scope="legacy",
+                installed_assets=installed,
+            )
+        )
         seen_paths.add(str(legacy_root))
 
     return claude_dirs
@@ -1111,9 +1189,7 @@ def check_installation_status(
         return InstallStatus.INSTALLED_DIFFERENT
 
 
-def get_all_assets_flat(
-    assets: Optional[Dict[str, List[Asset]]] = None
-) -> List[Asset]:
+def get_all_assets_flat(assets: Optional[Dict[str, List[Asset]]] = None) -> List[Asset]:
     """Get all assets as a flat list.
 
     Args:

@@ -16,7 +16,18 @@ import shlex
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePath
-from typing import Any, Callable, ClassVar, Dict, List, Optional, Sequence, Set, Tuple, TypedDict
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    TypedDict,
+)
 
 from textual.app import App, ComposeResult, SuspendNotSupported
 from textual.binding import Binding
@@ -39,13 +50,21 @@ ASSET_CATEGORY_ORDER = [
     "settings",
 ]
 
+# Categories hidden by default in the asset browser (symlink-managed, not copied)
+ASSET_HIDDEN_CATEGORIES = {"hooks", "commands", "agents", "skills", "rules"}
+
 from .types import (
-    RuleNode, AgentTask,
-    AssetInfo, MemoryNote, WatchModeState,
+    RuleNode,
+    AgentTask,
+    AssetInfo,
+    MemoryNote,
+    WatchModeState,
 )
 from .constants import (
-    EXPORT_CATEGORIES, DEFAULT_EXPORT_OPTIONS,
-    PRIMARY_VIEW_BINDINGS, VIEW_TITLES
+    EXPORT_CATEGORIES,
+    DEFAULT_EXPORT_OPTIONS,
+    PRIMARY_VIEW_BINDINGS,
+    VIEW_TITLES,
 )
 
 from ..core import (
@@ -137,8 +156,13 @@ from ..core.mcp import (
 )
 from ..core.agents import BUILT_IN_PROFILES
 from ..core.asset_discovery import (
-    Asset, ClaudeDir, AssetCategory, InstallStatus,
-    discover_assets, discover_plugin_assets, find_claude_directories,
+    Asset,
+    ClaudeDir,
+    AssetCategory,
+    InstallStatus,
+    discover_assets,
+    discover_plugin_assets,
+    find_claude_directories,
     check_installation_status,
 )
 from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
@@ -176,7 +200,12 @@ from ..tui_dashboard import MetricsCollector
 from ..tui_performance import PerformanceMonitor
 from ..tui_workflow_viz import WorkflowNode, DependencyVisualizer
 from ..tui_overview_enhanced import EnhancedOverview
-from ..token_counter import get_active_context_tokens, count_category_tokens, count_file_tokens, TokenStats
+from ..token_counter import (
+    get_active_context_tokens,
+    count_category_tokens,
+    count_file_tokens,
+    TokenStats,
+)
 from ..intelligence import (
     AgentRecommendation,
     IntelligentAgent,
@@ -200,12 +229,14 @@ from ..tui_log_viewer import LogViewerScreen
 from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
 from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
-from ..watch import WatchMode, load_watch_defaults, watch_daemon_status, start_watch_daemon
+from ..watch import (
+    WatchMode,
+    load_watch_defaults,
+    watch_daemon_status,
+    start_watch_daemon,
+)
 from .tour import TourManager, TourOverlay, QUICK_TOUR
 import threading
-
-
-
 
 
 class AgentTUI(App[None]):
@@ -288,6 +319,7 @@ class AgentTUI(App[None]):
         self.claude_directories: List[ClaudeDir] = []
         self.selected_target_dir: Optional[Path] = None
         self.asset_source_root: Path = Path.cwd()
+        self.asset_show_all: bool = False
         # Memory vault state
         self.memory_notes: List[MemoryNote] = []
         # Watch mode state
@@ -375,6 +407,7 @@ class AgentTUI(App[None]):
         Binding("P", "asset_change_target", "Path", show=False),
         Binding("I", "asset_bulk_install", "Bulk Copy", show=False),
         Binding("U", "asset_update_all", "Update All", show=False),
+        Binding("H", "asset_toggle_hidden", "Show/Hide All", show=False),
         Binding("enter", "asset_details", "Details", show=False),
         # Memory Vault bindings
         Binding("enter", "memory_view_note", "View", show=False),
@@ -564,7 +597,9 @@ class AgentTUI(App[None]):
             if result_code == 0:
                 self.notify("Watch daemon started", severity="information", timeout=3)
             else:
-                self.notify(f"Watch daemon: {result_msg}", severity="warning", timeout=3)
+                self.notify(
+                    f"Watch daemon: {result_msg}", severity="warning", timeout=3
+                )
         except Exception:
             pass  # Non-critical — don't block TUI startup
 
@@ -595,7 +630,10 @@ class AgentTUI(App[None]):
         # Get token count (cached to avoid repeated file reads)
         token_text = ""
         try:
-            if not hasattr(self, "_token_cache") or (time.time() - getattr(self, "_token_cache_time", 0)) > 30:
+            if (
+                not hasattr(self, "_token_cache")
+                or (time.time() - getattr(self, "_token_cache_time", 0)) > 30
+            ):
                 _, total_stats = get_active_context_tokens()
                 self._token_cache = total_stats.tokens_formatted
                 self._token_cache_time = time.time()
@@ -620,7 +658,13 @@ class AgentTUI(App[None]):
 
         # Dynamically update footer bindings based on context
         view_bindings = {
-            "agents": {"toggle", "details_context", "validate_context", "edit_item", "copy_definition"},
+            "agents": {
+                "toggle",
+                "details_context",
+                "validate_context",
+                "edit_item",
+                "copy_definition",
+            },
             "rules": {"toggle", "edit_item", "copy_definition"},
             "skills": {
                 "details_context",
@@ -641,7 +685,12 @@ class AgentTUI(App[None]):
                 "mcp_edit",
                 "mcp_remove",
             },
-            "export": {"toggle", "export_cycle_format", "export_run", "export_clipboard"},
+            "export": {
+                "toggle",
+                "export_cycle_format",
+                "export_run",
+                "export_clipboard",
+            },
             "worktrees": {
                 "worktree_add",
                 "worktree_open",
@@ -656,8 +705,19 @@ class AgentTUI(App[None]):
                 "request_reviews",
                 "assign_llm_tasks",
             },
-            "watch_mode": {"toggle", "watch_change_directory", "watch_toggle_auto", "watch_adjust_threshold", "watch_adjust_interval"},
-            "tasks": {"details_context", "edit_item", "task_open_source", "task_open_external"},
+            "watch_mode": {
+                "toggle",
+                "watch_change_directory",
+                "watch_toggle_auto",
+                "watch_adjust_threshold",
+                "watch_adjust_interval",
+            },
+            "tasks": {
+                "details_context",
+                "edit_item",
+                "task_open_source",
+                "task_open_external",
+            },
             "codex_skills": {
                 "toggle_codex_skill",
                 "link_all_codex_skills",
@@ -794,12 +854,16 @@ class AgentTUI(App[None]):
             return 1
         return max(1, (max_idx + 1) // 2)
 
-    def _table_page_delta(self, table: DataTable[Any], row_index: int, direction: str) -> int:
+    def _table_page_delta(
+        self, table: DataTable[Any], row_index: int, direction: str
+    ) -> int:
         """Compute a page-sized row delta for the given table."""
         if table.row_count <= 1:
             return 0
         try:
-            height = table.size.height - (table.header_height if table.show_header else 0)
+            height = table.size.height - (
+                table.header_height if table.show_header else 0
+            )
         except Exception:
             height = 0
 
@@ -924,22 +988,29 @@ class AgentTUI(App[None]):
             relative = path
         return self._normalize_slug(relative.as_posix())
 
-    def _active_rule_slugs(self, claude_dir: Path) -> Set[str]:
-        """Return active rule slugs based on symlinks in ~/.claude/skills/.
+    def _active_rule_slugs(self) -> Set[str]:
+        """Return active rule slugs across all claude directory scopes.
 
-        Checks for symlinks in ~/.claude/skills/ (with .json extension).
-        Rules are "active" if a symlink exists to them.
+        Rules are "active" if their .md file exists in any scope's rules/
+        directory. Inactive rules live in inactive/rules/.
         """
         active: Set[str] = set()
 
-        # Check for rule symlinks in ~/.claude/skills/
-        skills_dir = claude_dir / "skills"
-        if skills_dir.is_dir():
-            for path in skills_dir.glob("*.json"):
-                if path.is_symlink():
-                    # Extract rule slug from filename (remove .json)
-                    slug = path.stem
-                    active.add(slug)
+        search_dirs: list[Path] = []
+        for cd in self.claude_directories:
+            rules_subdir = cd.path / "rules"
+            if rules_subdir.is_dir():
+                search_dirs.append(rules_subdir)
+        # Fallback if claude_directories not yet populated
+        if not search_dirs:
+            fallback = _resolve_claude_dir() / "rules"
+            if fallback.is_dir():
+                search_dirs.append(fallback)
+
+        for rules_dir in search_dirs:
+            for path in rules_dir.glob("*.md"):
+                if path.is_file():
+                    active.add(path.stem)
 
         return active
 
@@ -1241,7 +1312,9 @@ class AgentTUI(App[None]):
                     if skill_data:
                         # Check if skill has symlink in ~/.claude/skills/
                         installed_path = claude_dir / "skills" / skill_path.name
-                        is_installed = installed_path.exists() or installed_path.is_symlink()
+                        is_installed = (
+                            installed_path.exists() or installed_path.is_symlink()
+                        )
                         skill_data["installed"] = is_installed
                         skills.append(skill_data)
 
@@ -1251,9 +1324,7 @@ class AgentTUI(App[None]):
             self._attach_skill_ratings(skills)
             self.skills = skills
             if self.skill_rating_error:
-                self.status_message = (
-                    f"Loaded {len(skills)} skills (ratings offline)"
-                )
+                self.status_message = f"Loaded {len(skills)} skills (ratings offline)"
             else:
                 self.status_message = f"Loaded {len(skills)} skills"
 
@@ -1556,7 +1627,7 @@ class AgentTUI(App[None]):
                 location_text = f"[dim]{location}[/dim]"
 
             # Truncate description - show more text, escape Rich markup
-            desc_text = Format.truncate(skill['description'], 150).replace("[", "\\[")
+            desc_text = Format.truncate(skill["description"], 150).replace("[", "\\[")
             description = f"[dim]{desc_text}[/dim]"
 
             rating_text = self._format_skill_rating(skill)
@@ -1644,10 +1715,7 @@ class AgentTUI(App[None]):
                         )
                         break
 
-            linked_text = (
-                "[green]✓ Yes[/green]" if is_linked
-                else "[dim]○ No[/dim]"
-            )
+            linked_text = "[green]✓ Yes[/green]" if is_linked else "[dim]○ No[/dim]"
 
             # Description truncated
             desc = skill["description"][:100].replace("[", "\\[")
@@ -1855,43 +1923,48 @@ class AgentTUI(App[None]):
     def load_rules(self) -> None:
         """Load rules from the system.
 
-        Uses symlink presence in ~/.claude/skills/ to determine activation status.
-        Rules are loaded from CORTEX_ROOT/rules, and their status is "active"
-        if a symlink exists in ~/.claude/skills/, otherwise "inactive".
+        Loads the full catalog from CORTEX_ROOT/rules/ (including subdirs),
+        then checks symlink/file existence across all claude_directories
+        scopes to determine active status.
         """
         try:
             rules: List[RuleNode] = []
+            seen_names: Set[str] = set()
             cortex_root = _resolve_cortex_root()
-            claude_dir = _resolve_claude_dir()
-            active_rule_slugs = self._active_rule_slugs(claude_dir)
+            active_rule_slugs = self._active_rule_slugs()
 
-            # Load all available rules from CORTEX_ROOT/rules
-            rules_dir = self._validate_path(cortex_root, cortex_root / "rules")
-            if rules_dir.is_dir():
-                # Look for .md files directly in rules_dir
-                for path in _iter_md_files(rules_dir):
+            def _add_rules_from_dir(directory: Path) -> None:
+                """Scan a directory for rule .md files and add them."""
+                if not directory.is_dir():
+                    return
+                for path in _iter_md_files(directory):
                     if _is_disabled(path):
                         continue
-                    slug = self._relative_slug(path, rules_dir)
-                    status = "active" if slug in active_rule_slugs else "inactive"
+                    name = path.stem
+                    if name in seen_names:
+                        continue
+                    status = "active" if name in active_rule_slugs else "inactive"
                     node = self._parse_rule_file(path, status)
                     if node:
                         rules.append(node)
+                        seen_names.add(name)
 
-                # Also look in immediate subdirectories (e.g., rules/cortex/)
-                for subdir in rules_dir.iterdir():
-                    if not subdir.is_dir():
-                        continue
-                    for path in _iter_md_files(subdir):
-                        if _is_disabled(path):
-                            continue
-                        slug = self._relative_slug(path, subdir)
-                        status = "active" if slug in active_rule_slugs else "inactive"
-                        node = self._parse_rule_file(path, status)
-                        if node:
-                            rules.append(node)
+            # 1. Scan active rule dirs across all claude scopes
+            for cd in self.claude_directories:
+                _add_rules_from_dir(cd.path / "rules")
+            # Fallback if claude_directories not yet populated
+            if not self.claude_directories:
+                fallback = _resolve_claude_dir()
+                _add_rules_from_dir(fallback / "rules")
 
-            # Sort by category and name
+            # 2. Load CORTEX_ROOT/rules as the source catalog
+            cortex_rules = cortex_root / "rules"
+            _add_rules_from_dir(cortex_rules)
+            if cortex_rules.is_dir():
+                for subdir in cortex_rules.iterdir():
+                    if subdir.is_dir():
+                        _add_rules_from_dir(subdir)
+
             rules.sort(key=lambda r: (r.category, r.name.lower()))
 
             self.rules = rules
@@ -1989,7 +2062,9 @@ class AgentTUI(App[None]):
             available = get_available_hooks(cortex_root)
             self.available_hooks = available
             installed_count = sum(1 for h in available if h.is_installed)
-            self.status_message = f"Loaded {len(available)} hooks ({installed_count} installed)"
+            self.status_message = (
+                f"Loaded {len(available)} hooks ({installed_count} installed)"
+            )
         except Exception as e:
             self.available_hooks = []
             self.status_message = f"Failed to load hooks: {e}"
@@ -2004,14 +2079,12 @@ class AgentTUI(App[None]):
                     {server.name for server in servers}, claude_dir
                 )
                 combined = servers + doc_only
-                combined.sort(key=lambda s: (getattr(s, "doc_only", False), s.name.lower()))
+                combined.sort(
+                    key=lambda s: (getattr(s, "doc_only", False), s.name.lower())
+                )
                 self.mcp_servers = combined
                 self.mcp_error = None
-                doc_note = (
-                    f" + {len(doc_only)} docs"
-                    if doc_only
-                    else ""
-                )
+                doc_note = f" + {len(doc_only)} docs" if doc_only else ""
                 self.status_message = f"Loaded {len(servers)} MCP server(s){doc_note}"
             else:
                 self.mcp_servers = []
@@ -2050,12 +2123,14 @@ class AgentTUI(App[None]):
                     except Exception:
                         description = ""
 
-                    docs.append(MCPDocInfo(
-                        name=name,
-                        status=status,
-                        description=description,
-                        path=path,
-                    ))
+                    docs.append(
+                        MCPDocInfo(
+                            name=name,
+                            status=status,
+                            description=description,
+                            path=path,
+                        )
+                    )
 
             # Sort: active first, then by name
             docs.sort(key=lambda d: (d.status != "active", d.name.lower()))
@@ -2078,7 +2153,9 @@ class AgentTUI(App[None]):
             if self.selected_target_dir is None:
                 explicit_scope = os.environ.get("CORTEX_SCOPE")
                 explicit_root = os.environ.get("CLAUDE_PLUGIN_ROOT")
-                preferred = _resolve_claude_dir() if (explicit_scope or explicit_root) else None
+                preferred = (
+                    _resolve_claude_dir() if (explicit_scope or explicit_root) else None
+                )
                 if preferred is not None:
                     for cd in self.claude_directories:
                         if cd.path.resolve() == preferred.resolve():
@@ -2117,14 +2194,16 @@ class AgentTUI(App[None]):
                 note_list = list_notes(note_type_enum, recent=50)
                 note_type = note_type_enum.value
                 for n in note_list:
-                    notes.append(MemoryNote(
-                        title=n.get("name", "Untitled"),
-                        note_type=note_type,
-                        path=str(n.get("path", "")),
-                        modified=n.get("modified", datetime.now()),
-                        tags=n.get("tags", []),
-                        snippet=n.get("snippet", "")[:100],
-                    ))
+                    notes.append(
+                        MemoryNote(
+                            title=n.get("name", "Untitled"),
+                            note_type=note_type,
+                            path=str(n.get("path", "")),
+                            modified=n.get("modified", datetime.now()),
+                            tags=n.get("tags", []),
+                            snippet=n.get("snippet", "")[:100],
+                        )
+                    )
 
             # Sort by modified date, newest first
             notes.sort(key=lambda n: n.modified, reverse=True)
@@ -2317,6 +2396,7 @@ class AgentTUI(App[None]):
         }
 
         claude_dir = _resolve_claude_dir()
+
         def _relpath(path: Path) -> str:
             try:
                 return path.relative_to(claude_dir).as_posix()
@@ -2373,7 +2453,9 @@ class AgentTUI(App[None]):
         hero = EnhancedOverview.create_hero_banner(active_agents, total_agents)
         add_multiline(hero)
         claude_home = getattr(self, "claude_home", _resolve_claude_dir())
-        table.add_row(f"[bold cyan]Claude directory[/bold cyan]: [dim]{claude_home}[/dim]")
+        table.add_row(
+            f"[bold cyan]Claude directory[/bold cyan]: [dim]{claude_home}[/dim]"
+        )
         table.add_row("")
 
         metrics_grid = EnhancedOverview.create_status_grid(
@@ -2516,7 +2598,9 @@ class AgentTUI(App[None]):
                 started: Optional[float] = None
                 if started_file.is_file():
                     try:
-                        started = float(started_file.read_text(encoding="utf-8").strip())
+                        started = float(
+                            started_file.read_text(encoding="utf-8").strip()
+                        )
                     except ValueError:
                         started = None
 
@@ -2647,7 +2731,9 @@ class AgentTUI(App[None]):
         for idx, match in enumerate(matches):
             name = match.group(1).strip()
             agent_label = match.group(2).strip()
-            next_start = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+            next_start = (
+                matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+            )
             section_body = text[match.end() : next_start]
             raw_section = section_body.strip()
             description_lines = []
@@ -2678,7 +2764,9 @@ class AgentTUI(App[None]):
                 status = "pending"
 
             progress = 60 if status == "running" else 15
-            agent_slug = re.sub(r"[^a-z0-9]+", "-", f"{agent_label}-{name}".lower()).strip("-")
+            agent_slug = re.sub(
+                r"[^a-z0-9]+", "-", f"{agent_label}-{name}".lower()
+            ).strip("-")
             agent_id = f"project::{agent_file.stem}::{agent_slug or 'agent'}"
 
             tasks.append(
@@ -2724,7 +2812,6 @@ class AgentTUI(App[None]):
 
         records.sort()
         return "|".join(records)
-
 
     def _compute_tasks_state_signature(self, tasks_dir: Path) -> str:
         """Return a signature tracking relevant workflow/task files."""
@@ -2862,21 +2949,21 @@ class AgentTUI(App[None]):
                     break
             if not updated:
                 tasks.append(
-                AgentTask(
-                    agent_id=agent_id,
-                    agent_name=name,
-                    workstream=workstream,
-                    status=status,
-                    progress=progress,
-                    category=category,
-                    started=(
-                        time.time() if status in ("running", "complete") else None
-                    ),
-                    completed=time.time() if status == "complete" else None,
-                    description=description,
-                    raw_notes=raw_notes,
+                    AgentTask(
+                        agent_id=agent_id,
+                        agent_name=name,
+                        workstream=workstream,
+                        status=status,
+                        progress=progress,
+                        category=category,
+                        started=(
+                            time.time() if status in ("running", "complete") else None
+                        ),
+                        completed=time.time() if status == "complete" else None,
+                        description=description,
+                        raw_notes=raw_notes,
+                    )
                 )
-            )
         else:
             new_id = self._generate_task_id(name)
             tasks.append(
@@ -3017,7 +3104,11 @@ class AgentTUI(App[None]):
 
         for hook in available:
             # Use is_installed flag set by get_available_hooks()
-            status_text = "[bold green]✓ Installed[/bold green]" if hook.is_installed else "[dim]○ Available[/dim]"
+            status_text = (
+                "[bold green]✓ Installed[/bold green]"
+                if hook.is_installed
+                else "[dim]○ Available[/dim]"
+            )
 
             # Format event trigger
             event = hook.event or "unknown"
@@ -3369,9 +3460,10 @@ class AgentTUI(App[None]):
             ]
             try:
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                with output_path.open("w", encoding="utf-8") as out, error_path.open(
-                    "w", encoding="utf-8"
-                ) as err:
+                with (
+                    output_path.open("w", encoding="utf-8") as out,
+                    error_path.open("w", encoding="utf-8") as err,
+                ):
                     proc = subprocess.Popen(
                         cmd,
                         cwd=str(Path.cwd()),
@@ -3491,9 +3583,10 @@ class AgentTUI(App[None]):
 
             try:
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                with output_path.open("w", encoding="utf-8") as out, error_path.open(
-                    "w", encoding="utf-8"
-                ) as err:
+                with (
+                    output_path.open("w", encoding="utf-8") as out,
+                    error_path.open("w", encoding="utf-8") as err,
+                ):
                     proc = subprocess.Popen(
                         cmd,
                         cwd=str(Path.cwd()),
@@ -3597,9 +3690,7 @@ class AgentTUI(App[None]):
         agent_recommendations = self.intelligent_agent.get_recommendations()
 
         # Show header
-        table.add_row(
-            "[bold cyan]🤖 AI Recommendations[/bold cyan]", "", "", ""
-        )
+        table.add_row("[bold cyan]🤖 AI Recommendations[/bold cyan]", "", "", "")
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
@@ -3678,7 +3769,9 @@ class AgentTUI(App[None]):
 
         # Show deactivation recommendations
         table.add_row("", "", "", "")
-        table.add_row("[bold orange1]⚠ Deactivation Suggestions[/bold orange1]", "", "", "")
+        table.add_row(
+            "[bold orange1]⚠ Deactivation Suggestions[/bold orange1]", "", "", ""
+        )
         table.add_row(
             "[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]",
             "",
@@ -3721,7 +3814,9 @@ class AgentTUI(App[None]):
                     # Color by confidence
                     confidence_pct = int(drec.confidence * 100)
                     if drec.confidence >= 0.8:
-                        confidence_text = f"[bold orange1]{confidence_pct}%[/bold orange1]"
+                        confidence_text = (
+                            f"[bold orange1]{confidence_pct}%[/bold orange1]"
+                        )
                     elif drec.confidence >= 0.6:
                         confidence_text = f"[yellow]{confidence_pct}%[/yellow]"
                     else:
@@ -3916,10 +4011,7 @@ class AgentTUI(App[None]):
                 )
 
             # Show errors if any
-            if (
-                session_context.errors_count > 0
-                or session_context.test_failures > 0
-            ):
+            if session_context.errors_count > 0 or session_context.test_failures > 0:
                 table.add_row(
                     "[red]Issues:[/red]",
                     f"[red]{session_context.errors_count} errors, {session_context.test_failures} test failures[/red]",
@@ -3977,9 +4069,7 @@ class AgentTUI(App[None]):
 
         if not self.available_assets:
             table.add_row("[dim]No assets found[/dim]", "", "", "")
-            table.add_row(
-                "", "[dim]Press r to refresh[/dim]", "", ""
-            )
+            table.add_row("", "[dim]Press r to refresh[/dim]", "", "")
             return
 
         # Show source directory info
@@ -3992,7 +4082,9 @@ class AgentTUI(App[None]):
         )
 
         # Show target directory info
-        target_text = str(self.selected_target_dir) if self.selected_target_dir else "Not set"
+        target_text = (
+            str(self.selected_target_dir) if self.selected_target_dir else "Not set"
+        )
         table.add_row(
             "[bold cyan]Target[/bold cyan]",
             f"[dim]{target_text}[/dim]",
@@ -4013,8 +4105,31 @@ class AgentTUI(App[None]):
             "settings": ("⚙️", "bright_cyan"),
         }
 
+        # Show visibility toggle hint
+        visible_categories = (
+            ASSET_CATEGORY_ORDER
+            if self.asset_show_all
+            else [c for c in ASSET_CATEGORY_ORDER if c not in ASSET_HIDDEN_CATEGORIES]
+        )
+        hidden_count = len(ASSET_CATEGORY_ORDER) - len(visible_categories)
+        if hidden_count > 0:
+            table.add_row(
+                "[dim]Filter[/dim]",
+                f"[dim]{hidden_count} categories hidden[/dim]",
+                "",
+                "[dim]Press [white]H[/white] to show all[/dim]",
+            )
+        else:
+            table.add_row(
+                "[dim]Filter[/dim]",
+                "[dim]Showing all categories[/dim]",
+                "",
+                "[dim]Press [white]H[/white] to hide symlinked[/dim]",
+            )
+        table.add_row("", "", "", "")
+
         # Render assets by category
-        for category_name in ASSET_CATEGORY_ORDER:
+        for category_name in visible_categories:
             assets = self.available_assets.get(category_name, [])
             if not assets:
                 continue
@@ -4062,9 +4177,7 @@ class AgentTUI(App[None]):
 
         if not settings_assets:
             table.add_row("[dim]No settings files found[/dim]", "", "", "", "")
-            table.add_row(
-                "", "[dim]Press r to refresh[/dim]", "", "", ""
-            )
+            table.add_row("", "[dim]Press r to refresh[/dim]", "", "", "")
             return
 
         # Warning row when no target dir is set
@@ -4128,9 +4241,7 @@ class AgentTUI(App[None]):
 
         if not self.memory_notes:
             table.add_row("[dim]No notes found[/dim]", "", "", "")
-            table.add_row(
-                "", "[dim]Use /memory:remember to create notes[/dim]", "", ""
-            )
+            table.add_row("", "[dim]Use /memory:remember to create notes[/dim]", "", "")
             return
 
         # Type icons and colors
@@ -4439,7 +4550,9 @@ class AgentTUI(App[None]):
             last_notif_str = None
             if last_notif:
                 last_notif_str = f"{last_notif.get('icon', '')} {last_notif.get('title', '')} - {last_notif.get('message', '')}"
-            directories = state.get("directories") or [state.get("directory", Path.cwd())]
+            directories = state.get("directories") or [
+                state.get("directory", Path.cwd())
+            ]
             return WatchModeState(
                 running=state.get("running", False),
                 directories=directories,
@@ -4456,7 +4569,9 @@ class AgentTUI(App[None]):
         return WatchModeState(
             running=False,
             directories=defaults.directories or [Path.cwd()],
-            auto_activate=defaults.auto_activate if defaults.auto_activate is not None else True,
+            auto_activate=(
+                defaults.auto_activate if defaults.auto_activate is not None else True
+            ),
             threshold=defaults.threshold if defaults.threshold is not None else 0.7,
             interval=defaults.interval if defaults.interval is not None else 2.0,
             checks_performed=0,
@@ -4489,20 +4604,21 @@ class AgentTUI(App[None]):
         for warning in defaults.warnings:
             self.notify(f"Watch config: {warning}", severity="warning", timeout=3)
         directories = defaults.directories or self._get_watch_directories()
-        auto_activate = defaults.auto_activate if defaults.auto_activate is not None else True
+        auto_activate = (
+            defaults.auto_activate if defaults.auto_activate is not None else True
+        )
         threshold = defaults.threshold if defaults.threshold is not None else 0.7
         interval = defaults.interval if defaults.interval is not None else 2.0
         self.watch_mode_instance = WatchMode(
             auto_activate=auto_activate,
             notification_threshold=threshold,
             check_interval=interval,
-            notification_callback=self._handle_watch_notification
+            notification_callback=self._handle_watch_notification,
         )
         self.watch_mode_instance.set_directories(directories)
         # Run in background thread
         self.watch_mode_thread = threading.Thread(
-            target=self.watch_mode_instance.run,
-            daemon=True
+            target=self.watch_mode_instance.run, daemon=True
         )
         self.watch_mode_thread.start()
         self.notify("✅ Watch mode started", severity="information", timeout=2)
@@ -4528,7 +4644,7 @@ class AgentTUI(App[None]):
         dialog = PromptDialog(
             "Change Watch Directory",
             "Enter directory path(s) to watch (comma-separated)",
-            default=current_dirs
+            default=current_dirs,
         )
         result = await self.push_screen(dialog, wait_for_dismiss=True)
         if not result:
@@ -4549,7 +4665,9 @@ class AgentTUI(App[None]):
                     label = f"{len(new_dirs)} directories"
                 self.notify(f"📁 Watching {label}", severity="information", timeout=2)
             except Exception as e:
-                self.notify(f"Failed to change directory: {e}", severity="error", timeout=3)
+                self.notify(
+                    f"Failed to change directory: {e}", severity="error", timeout=3
+                )
         self.update_view()
 
     def action_watch_toggle_auto(self) -> None:
@@ -4557,7 +4675,9 @@ class AgentTUI(App[None]):
         if not self.watch_mode_instance:
             self.notify("Watch mode not initialized", severity="warning", timeout=2)
             return
-        self.watch_mode_instance.auto_activate = not self.watch_mode_instance.auto_activate
+        self.watch_mode_instance.auto_activate = (
+            not self.watch_mode_instance.auto_activate
+        )
         status = "enabled" if self.watch_mode_instance.auto_activate else "disabled"
         self.notify(f"Auto-activation {status}", severity="information", timeout=2)
         self.update_view()
@@ -4568,9 +4688,7 @@ class AgentTUI(App[None]):
         if self.watch_mode_instance:
             current = str(self.watch_mode_instance.notification_threshold)
         dialog = PromptDialog(
-            "Adjust Threshold",
-            "Enter confidence threshold (0.0-1.0)",
-            default=current
+            "Adjust Threshold", "Enter confidence threshold (0.0-1.0)", default=current
         )
         result = await self.push_screen(dialog, wait_for_dismiss=True)
         if not result:
@@ -4581,10 +4699,16 @@ class AgentTUI(App[None]):
                 raise ValueError()
             if self.watch_mode_instance:
                 self.watch_mode_instance.notification_threshold = threshold
-            self.notify(f"🎯 Threshold set to {threshold:.0%}", severity="information", timeout=2)
+            self.notify(
+                f"🎯 Threshold set to {threshold:.0%}",
+                severity="information",
+                timeout=2,
+            )
             self.update_view()
         except ValueError:
-            self.notify("Invalid threshold (must be 0.0-1.0)", severity="error", timeout=2)
+            self.notify(
+                "Invalid threshold (must be 0.0-1.0)", severity="error", timeout=2
+            )
 
     async def action_watch_adjust_interval(self) -> None:
         """Adjust check interval."""
@@ -4592,9 +4716,7 @@ class AgentTUI(App[None]):
         if self.watch_mode_instance:
             current = str(self.watch_mode_instance.check_interval)
         dialog = PromptDialog(
-            "Adjust Interval",
-            "Enter check interval in seconds",
-            default=current
+            "Adjust Interval", "Enter check interval in seconds", default=current
         )
         result = await self.push_screen(dialog, wait_for_dismiss=True)
         if not result:
@@ -4605,7 +4727,9 @@ class AgentTUI(App[None]):
                 raise ValueError("Interval must be at least 0.5s")
             if self.watch_mode_instance:
                 self.watch_mode_instance.check_interval = interval
-            self.notify(f"⏱ Interval set to {interval}s", severity="information", timeout=2)
+            self.notify(
+                f"⏱ Interval set to {interval}s", severity="information", timeout=2
+            )
             self.update_view()
         except ValueError as e:
             self.notify(f"Invalid interval: {e}", severity="error", timeout=2)
@@ -4663,6 +4787,21 @@ class AgentTUI(App[None]):
     # Asset Manager Actions
     # ─────────────────────────────────────────────────────────────────────
 
+    def action_asset_toggle_hidden(self) -> None:
+        """Toggle visibility of symlinked asset categories."""
+        if self.current_view != "assets":
+            return
+        self.asset_show_all = not self.asset_show_all
+        label = "all" if self.asset_show_all else "copyable"
+        self.notify(f"Showing {label} categories", severity="information", timeout=2)
+        self.update_view()
+
+    def _visible_asset_categories(self) -> List[str]:
+        """Return the list of currently visible asset categories."""
+        if self.asset_show_all:
+            return list(ASSET_CATEGORY_ORDER)
+        return [c for c in ASSET_CATEGORY_ORDER if c not in ASSET_HIDDEN_CATEGORIES]
+
     def _get_selected_asset(self) -> Optional[Asset]:
         """Get the currently selected asset from the table."""
         if self.current_view != "assets":
@@ -4670,17 +4809,17 @@ class AgentTUI(App[None]):
 
         table = self.query_one("#main-table", DataTable)
 
-        # Skip header rows (source, target, and blank row)
+        # Skip header rows (source, target, blank, filter, blank)
         row_idx = table.cursor_row
-        if row_idx < 3:  # Header rows
+        if row_idx < 5:  # Header rows
             return None
 
-        # Flatten assets list
+        # Flatten visible assets list
         all_assets: List[Asset] = []
-        for category in ASSET_CATEGORY_ORDER:
+        for category in self._visible_asset_categories():
             all_assets.extend(self.available_assets.get(category, []))
 
-        asset_idx = row_idx - 3  # Adjust for header rows
+        asset_idx = row_idx - 5  # Adjust for header rows
         if 0 <= asset_idx < len(all_assets):
             return all_assets[asset_idx]
         return None
@@ -4701,7 +4840,9 @@ class AgentTUI(App[None]):
                 self.load_assets()
                 total = sum(len(a) for a in self.available_assets.values())
                 self.status_message = f"Source: {result} ({total} assets)"
-                self.notify(f"Source set to {result}", severity="information", timeout=2)
+                self.notify(
+                    f"Source set to {result}", severity="information", timeout=2
+                )
                 self.update_view()
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
@@ -4724,7 +4865,9 @@ class AgentTUI(App[None]):
             if result:
                 self.selected_target_dir = result
                 self.status_message = f"Target: {result}"
-                self.notify(f"Target set to {result}", severity="information", timeout=2)
+                self.notify(
+                    f"Target set to {result}", severity="information", timeout=2
+                )
                 self.update_view()
         except Exception as e:
             self.notify(f"Error: {e}", severity="error", timeout=5)
@@ -4749,7 +4892,11 @@ class AgentTUI(App[None]):
             return
 
         if not self.selected_target_dir:
-            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
+            self.notify(
+                "Select a target directory first (press T)",
+                severity="warning",
+                timeout=2,
+            )
             return
 
         # Check status
@@ -4782,7 +4929,8 @@ class AgentTUI(App[None]):
                 managed = self._is_managed_target(self.selected_target_dir)
                 use_copy = action == "copy"
                 exit_code, message = install_asset(
-                    asset, self.selected_target_dir,
+                    asset,
+                    self.selected_target_dir,
                     add_claude_refs=managed,
                     register_hooks=managed,
                     use_copy=use_copy,
@@ -4794,7 +4942,11 @@ class AgentTUI(App[None]):
                         action_verb = "Copied"
                     else:
                         action_verb = "Installed"
-                    self.notify(f"✓ {action_verb} {asset.display_name}", severity="information", timeout=2)
+                    self.notify(
+                        f"✓ {action_verb} {asset.display_name}",
+                        severity="information",
+                        timeout=2,
+                    )
                     if self._asset_triggers_restart(asset):
                         self._show_restart_required()
                 else:
@@ -4811,7 +4963,9 @@ class AgentTUI(App[None]):
     def _uninstall_asset_sync(self, asset: Asset) -> None:
         """Uninstall an asset with confirmation (sync version)."""
         if not self.selected_target_dir:
-            self.notify("Select a target directory first", severity="warning", timeout=2)
+            self.notify(
+                "Select a target directory first", severity="warning", timeout=2
+            )
             return
 
         # Store asset for callback
@@ -4838,7 +4992,11 @@ class AgentTUI(App[None]):
                 asset.category.value, asset.name, self.selected_target_dir
             )
             if exit_code == 0:
-                self.notify(f"✓ Uninstalled {asset.display_name}", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Uninstalled {asset.display_name}",
+                    severity="information",
+                    timeout=2,
+                )
                 if self._asset_triggers_restart(asset):
                     self._show_restart_required()
             else:
@@ -4851,12 +5009,18 @@ class AgentTUI(App[None]):
     def _show_asset_diff_sync(self, asset: Asset) -> None:
         """Show diff between source and installed asset (sync version)."""
         if not self.selected_target_dir:
-            self.notify("Select a target directory first", severity="warning", timeout=2)
+            self.notify(
+                "Select a target directory first", severity="warning", timeout=2
+            )
             return
 
         diff_text = get_asset_diff(asset, self.selected_target_dir)
         if not diff_text:
-            self.notify("No differences found (or not installed)", severity="information", timeout=2)
+            self.notify(
+                "No differences found (or not installed)",
+                severity="information",
+                timeout=2,
+            )
             return
 
         # Store asset for callback
@@ -4877,12 +5041,15 @@ class AgentTUI(App[None]):
             asset = self._diff_asset_pending
             managed = self._is_managed_target(self.selected_target_dir)
             exit_code, message = install_asset(
-                asset, self.selected_target_dir,
+                asset,
+                self.selected_target_dir,
                 add_claude_refs=managed,
                 register_hooks=managed,
             )
             if exit_code == 0:
-                self.notify(f"✓ Updated {asset.display_name}", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Updated {asset.display_name}", severity="information", timeout=2
+                )
                 if self._asset_triggers_restart(asset):
                     self._show_restart_required()
             else:
@@ -4922,22 +5089,35 @@ class AgentTUI(App[None]):
             return
 
         if not self.selected_target_dir:
-            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
+            self.notify(
+                "Select a target directory first (press T)",
+                severity="warning",
+                timeout=2,
+            )
             return
 
-        # Gather category counts (only not-installed assets)
+        # Gather category counts (only visible, not-installed assets)
+        visible_categories = (
+            ASSET_CATEGORY_ORDER
+            if self.asset_show_all
+            else [c for c in ASSET_CATEGORY_ORDER if c not in ASSET_HIDDEN_CATEGORIES]
+        )
         categories: List[Tuple[str, int]] = []
-        for cat_name in ASSET_CATEGORY_ORDER:
+        for cat_name in visible_categories:
             assets = self.available_assets.get(cat_name, [])
             not_installed = [
-                a for a in assets
-                if check_installation_status(a, self.selected_target_dir) == InstallStatus.NOT_INSTALLED
+                a
+                for a in assets
+                if check_installation_status(a, self.selected_target_dir)
+                == InstallStatus.NOT_INSTALLED
             ]
             if not_installed:
                 categories.append((cat_name, len(not_installed)))
 
         if not categories:
-            self.notify("All assets are already installed", severity="information", timeout=2)
+            self.notify(
+                "All assets are already installed", severity="information", timeout=2
+            )
             return
 
         dialog = BulkInstallDialog(categories)
@@ -4961,9 +5141,13 @@ class AgentTUI(App[None]):
             for cat_name in selected:
                 assets = self.available_assets.get(cat_name, [])
                 for asset in assets:
-                    if check_installation_status(asset, self.selected_target_dir) == InstallStatus.NOT_INSTALLED:
+                    if (
+                        check_installation_status(asset, self.selected_target_dir)
+                        == InstallStatus.NOT_INSTALLED
+                    ):
                         exit_code, _ = install_asset(
-                            asset, self.selected_target_dir,
+                            asset,
+                            self.selected_target_dir,
                             add_claude_refs=managed,
                             register_hooks=managed,
                         )
@@ -4975,7 +5159,11 @@ class AgentTUI(App[None]):
                             failed_count += 1
 
             if failed_count == 0:
-                self.notify(f"✓ Installed {copied_count} assets", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Installed {copied_count} assets",
+                    severity="information",
+                    timeout=2,
+                )
             else:
                 self.notify(
                     f"Installed {copied_count}, failed {failed_count}",
@@ -4995,20 +5183,34 @@ class AgentTUI(App[None]):
             return
 
         if not self.selected_target_dir:
-            self.notify("Select a target directory first (press T)", severity="warning", timeout=2)
+            self.notify(
+                "Select a target directory first (press T)",
+                severity="warning",
+                timeout=2,
+            )
             return
 
-        # Find all assets that need updating (differ from source)
+        # Find all visible assets that need updating (differ from source)
+        visible_categories = (
+            ASSET_CATEGORY_ORDER
+            if self.asset_show_all
+            else [c for c in ASSET_CATEGORY_ORDER if c not in ASSET_HIDDEN_CATEGORIES]
+        )
         assets_to_update: List[Asset] = []
-        for cat_name in ASSET_CATEGORY_ORDER:
+        for cat_name in visible_categories:
             assets = self.available_assets.get(cat_name, [])
             for asset in assets:
                 status = check_installation_status(asset, self.selected_target_dir)
-                if status in (InstallStatus.INSTALLED_DIFFERENT, InstallStatus.INSTALLED_OLDER):
+                if status in (
+                    InstallStatus.INSTALLED_DIFFERENT,
+                    InstallStatus.INSTALLED_OLDER,
+                ):
                     assets_to_update.append(asset)
 
         if not assets_to_update:
-            self.notify("All installed assets are up to date", severity="information", timeout=2)
+            self.notify(
+                "All installed assets are up to date", severity="information", timeout=2
+            )
             return
 
         # Show confirmation dialog
@@ -5044,7 +5246,11 @@ class AgentTUI(App[None]):
                     failed_count += 1
 
             if failed_count == 0:
-                self.notify(f"✓ Updated {updated_count} assets", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Updated {updated_count} assets",
+                    severity="information",
+                    timeout=2,
+                )
             else:
                 self.notify(
                     f"Updated {updated_count}, failed {failed_count}",
@@ -5093,17 +5299,24 @@ class AgentTUI(App[None]):
             return
 
         if not self.selected_target_dir:
-            self.notify("Set a target directory first (press T in Assets view)", severity="warning", timeout=2)
+            self.notify(
+                "Set a target directory first (press T in Assets view)",
+                severity="warning",
+                timeout=2,
+            )
             return
 
         saved_cursor_row = self._table_cursor_index()
         exit_code, message = install_asset(
-            asset, self.selected_target_dir,
+            asset,
+            self.selected_target_dir,
             add_claude_refs=False,
             register_hooks=False,
         )
         if exit_code == 0:
-            self.notify(f"✓ Installed {asset.display_name}", severity="information", timeout=2)
+            self.notify(
+                f"✓ Installed {asset.display_name}", severity="information", timeout=2
+            )
         else:
             self.notify(f"Failed: {message}", severity="error", timeout=3)
         self.update_view()
@@ -5144,7 +5357,11 @@ class AgentTUI(App[None]):
                 asset.category.value, asset.name, self.selected_target_dir
             )
             if exit_code == 0:
-                self.notify(f"✓ Uninstalled {asset.display_name}", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Uninstalled {asset.display_name}",
+                    severity="information",
+                    timeout=2,
+                )
             else:
                 self.notify(f"Failed: {message}", severity="error", timeout=3)
             self.update_view()
@@ -5163,13 +5380,16 @@ class AgentTUI(App[None]):
 
         settings_assets = self.available_assets.get("settings", [])
         to_update = [
-            a for a in settings_assets
+            a
+            for a in settings_assets
             if check_installation_status(a, self.selected_target_dir)
             in (InstallStatus.INSTALLED_DIFFERENT, InstallStatus.INSTALLED_OLDER)
         ]
 
         if not to_update:
-            self.notify("All settings are up to date", severity="information", timeout=2)
+            self.notify(
+                "All settings are up to date", severity="information", timeout=2
+            )
             return
 
         self._settings_to_update = to_update
@@ -5193,7 +5413,8 @@ class AgentTUI(App[None]):
 
             for asset in self._settings_to_update:
                 exit_code, _ = install_asset(
-                    asset, self.selected_target_dir,
+                    asset,
+                    self.selected_target_dir,
                     add_claude_refs=False,
                     register_hooks=False,
                 )
@@ -5203,9 +5424,13 @@ class AgentTUI(App[None]):
                     failed += 1
 
             if failed == 0:
-                self.notify(f"✓ Synced {updated} settings", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Synced {updated} settings", severity="information", timeout=2
+                )
             else:
-                self.notify(f"Synced {updated}, failed {failed}", severity="warning", timeout=3)
+                self.notify(
+                    f"Synced {updated}, failed {failed}", severity="warning", timeout=3
+                )
             self.update_view()
             self._restore_main_table_cursor(saved_cursor_row)
         except Exception as e:
@@ -5224,7 +5449,9 @@ class AgentTUI(App[None]):
         # Prefer installed file, fall back to source
         view_path = None
         if self.selected_target_dir:
-            installed = self.selected_target_dir / asset.category.value / asset.source_path.name
+            installed = (
+                self.selected_target_dir / asset.category.value / asset.source_path.name
+            )
             if installed.exists():
                 view_path = installed
         if view_path is None:
@@ -5252,7 +5479,9 @@ class AgentTUI(App[None]):
         # Edit installed file if it exists, otherwise source
         edit_path = None
         if self.selected_target_dir:
-            installed = self.selected_target_dir / asset.category.value / asset.source_path.name
+            installed = (
+                self.selected_target_dir / asset.category.value / asset.source_path.name
+            )
             if installed.exists():
                 edit_path = installed
         if edit_path is None:
@@ -5270,7 +5499,11 @@ class AgentTUI(App[None]):
 
         # Refresh view after editing
         self.update_view()
-        self.notify(f"Returned from editing {asset.display_name}", severity="information", timeout=2)
+        self.notify(
+            f"Returned from editing {asset.display_name}",
+            severity="information",
+            timeout=2,
+        )
 
     # ─────────────────────────────────────────────────────────────────────────
     # Memory Vault Actions
@@ -5298,7 +5531,9 @@ class AgentTUI(App[None]):
         dialog = MemoryNoteCreateDialog("New Memory Note")
         self.push_screen(dialog, callback=self._handle_memory_note_create)
 
-    def _handle_memory_note_create(self, result: Optional[MemoryNoteCreateData]) -> None:
+    def _handle_memory_note_create(
+        self, result: Optional[MemoryNoteCreateData]
+    ) -> None:
         if not result:
             return
 
@@ -5356,11 +5591,15 @@ class AgentTUI(App[None]):
 
         clean = self._clean_ansi(message)
         if exit_code == 0:
-            self.notify(clean or "Created memory note", severity="information", timeout=2)
+            self.notify(
+                clean or "Created memory note", severity="information", timeout=2
+            )
             self.load_memory_notes()
             self.update_view()
         else:
-            self.notify(clean or "Failed to create memory note", severity="error", timeout=3)
+            self.notify(
+                clean or "Failed to create memory note", severity="error", timeout=3
+            )
 
     def _get_selected_memory_note(self) -> Optional[MemoryNote]:
         """Get the currently selected memory note from the table."""
@@ -5388,6 +5627,7 @@ class AgentTUI(App[None]):
         # Read the note content
         try:
             from ..memory import read_note, NoteType
+
             note_type = NoteType(note.note_type)
             content = read_note(note_type, note.title)
             if content:
@@ -5415,7 +5655,10 @@ class AgentTUI(App[None]):
             try:
                 import subprocess
                 import os
-                editor = os.environ.get("EDITOR", "open" if os.name == "darwin" else "xdg-open")
+
+                editor = os.environ.get(
+                    "EDITOR", "open" if os.name == "darwin" else "xdg-open"
+                )
                 subprocess.Popen([editor, note.path])
                 self.notify(f"Opened {note.title}", severity="information", timeout=2)
             except Exception as e:
@@ -5442,7 +5685,9 @@ class AgentTUI(App[None]):
             import subprocess
             import os
 
-            editor = os.environ.get("EDITOR", "open" if os.name == "darwin" else "xdg-open")
+            editor = os.environ.get(
+                "EDITOR", "open" if os.name == "darwin" else "xdg-open"
+            )
             subprocess.Popen([editor, note.path])
             self.notify(f"Opened {note.title}", severity="information", timeout=2)
         except Exception as e:
@@ -5479,7 +5724,9 @@ class AgentTUI(App[None]):
 
             if path.exists():
                 path.unlink()
-                self.notify(f"✓ Deleted {note.title}", severity="information", timeout=2)
+                self.notify(
+                    f"✓ Deleted {note.title}", severity="information", timeout=2
+                )
                 self.load_memory_notes()
                 self.update_view()
             else:
@@ -5713,9 +5960,7 @@ class AgentTUI(App[None]):
                 manager.mark_rated(skill_slug)
             return True
 
-        self.notify(
-            f"Unable to rate {label}", severity="error", timeout=3
-        )
+        self.notify(f"Unable to rate {label}", severity="error", timeout=3)
         return False
 
     async def action_skill_rate_selected(self) -> None:
@@ -5899,7 +6144,9 @@ class AgentTUI(App[None]):
         if self.current_view == "mcp":
             await self.action_mcp_docs()
         else:
-            self.notify("Docs only available in MCP view", severity="warning", timeout=2)
+            self.notify(
+                "Docs only available in MCP view", severity="warning", timeout=2
+            )
 
     async def action_details_context(self) -> None:
         """Context-aware details shortcut."""
@@ -5918,7 +6165,9 @@ class AgentTUI(App[None]):
         elif self.current_view == "worktrees":
             worktree = self._selected_worktree()
             if not worktree:
-                self.notify("Select a worktree to view details", severity="warning", timeout=2)
+                self.notify(
+                    "Select a worktree to view details", severity="warning", timeout=2
+                )
                 return
             lines = [
                 f"Path: {worktree.path}",
@@ -6009,7 +6258,9 @@ class AgentTUI(App[None]):
             "",
         ]
         meta_lines.append(body)
-        await self._show_text_dialog(f"{command.command} Definition", "\n".join(meta_lines))
+        await self._show_text_dialog(
+            f"{command.command} Definition", "\n".join(meta_lines)
+        )
         self.status_message = f"Viewing slash command {command.command}"
         self.refresh_status_bar()
 
@@ -6255,7 +6506,9 @@ class AgentTUI(App[None]):
     async def action_task_open_source(self) -> None:
         """Stream the underlying log file for the selected task."""
         if self.current_view != "tasks":
-            self.notify("Switch to Tasks view to open logs", severity="warning", timeout=2)
+            self.notify(
+                "Switch to Tasks view to open logs", severity="warning", timeout=2
+            )
             return
         index = self._selected_task_index()
         if index is None:
@@ -6282,9 +6535,7 @@ class AgentTUI(App[None]):
             return
 
         command = ["tail", "-n", "200", "-f", str(path)]
-        self.run_worker(
-            self._open_task_log(command, task.agent_name), exclusive=True
-        )
+        self.run_worker(self._open_task_log(command, task.agent_name), exclusive=True)
 
     async def _open_task_log(self, command: List[str], label: str) -> None:
         await self.push_screen(
@@ -6297,7 +6548,9 @@ class AgentTUI(App[None]):
     async def action_task_open_external(self) -> None:
         """Open the task log in the system viewer/editor."""
         if self.current_view != "tasks":
-            self.notify("Switch to Tasks view to open logs", severity="warning", timeout=2)
+            self.notify(
+                "Switch to Tasks view to open logs", severity="warning", timeout=2
+            )
             return
         index = self._selected_task_index()
         if index is None:
@@ -6326,7 +6579,9 @@ class AgentTUI(App[None]):
         opened = self._open_path_external(path)
         if opened:
             self.status_message = f"Opened {path.name}"
-            self.notify("Opened log in system viewer", severity="information", timeout=2)
+            self.notify(
+                "Opened log in system viewer", severity="information", timeout=2
+            )
         else:
             self.notify("Failed to open log", severity="error", timeout=2)
 
@@ -6414,7 +6669,9 @@ class AgentTUI(App[None]):
             self.notify("Select a worktree first", severity="warning", timeout=2)
             return
         if worktree.is_main:
-            self.notify("Cannot remove the main worktree", severity="warning", timeout=2)
+            self.notify(
+                "Cannot remove the main worktree", severity="warning", timeout=2
+            )
             return
 
         confirm = await self.push_screen(
@@ -6427,7 +6684,9 @@ class AgentTUI(App[None]):
         exit_code, message = worktree_remove(str(worktree.path))
         clean = self._clean_ansi(message)
         if exit_code != 0:
-            self.notify(clean or "Failed to remove worktree", severity="error", timeout=3)
+            self.notify(
+                clean or "Failed to remove worktree", severity="error", timeout=3
+            )
             return
 
         self.notify(clean or "Worktree removed", severity="information", timeout=2)
@@ -6449,7 +6708,9 @@ class AgentTUI(App[None]):
         exit_code, message = worktree_prune()
         clean = self._clean_ansi(message)
         if exit_code != 0:
-            self.notify(clean or "Failed to prune worktrees", severity="error", timeout=3)
+            self.notify(
+                clean or "Failed to prune worktrees", severity="error", timeout=3
+            )
             return
 
         if clean:
@@ -6480,10 +6741,14 @@ class AgentTUI(App[None]):
 
         clean = self._clean_ansi(message)
         if exit_code != 0:
-            self.notify(clean or "Failed to update base directory", severity="error", timeout=3)
+            self.notify(
+                clean or "Failed to update base directory", severity="error", timeout=3
+            )
             return
 
-        self.notify(clean or "Base directory updated", severity="information", timeout=2)
+        self.notify(
+            clean or "Base directory updated", severity="information", timeout=2
+        )
         self.load_worktrees()
         self.update_view()
 
@@ -6625,9 +6890,7 @@ class AgentTUI(App[None]):
                     wait_for_dismiss=True,
                 )
             else:
-                self.notify(
-                    "Documentation file missing", severity="warning", timeout=2
-                )
+                self.notify("Documentation file missing", severity="warning", timeout=2)
             return
         exit_code, output = mcp_docs(server.name)
         if exit_code != 0:
@@ -6883,9 +7146,9 @@ class AgentTUI(App[None]):
     async def action_design_ui(self) -> None:
         """Trigger the Design UI flow."""
         prompt = await self._prompt_text(
-            "Design UI", 
+            "Design UI",
             "Describe the UI component you want to build:",
-            placeholder="e.g. A Solarpunk renewable energy dashboard"
+            placeholder="e.g. A Solarpunk renewable energy dashboard",
         )
         if not prompt:
             return
@@ -6900,30 +7163,42 @@ class AgentTUI(App[None]):
     async def action_rag_ingest(self) -> None:
         """Trigger the RAG Ingestion flow."""
         path_str = await self._prompt_text(
-            "RAG Ingest", 
-            "Enter file or directory path to ingest:",
-            default="."
+            "RAG Ingest", "Enter file or directory path to ingest:", default="."
         )
         if not path_str:
             return
 
-        self.notify(f"📂 Ingesting {path_str} with contextual awareness...", severity="information")
-        
+        self.notify(
+            f"📂 Ingesting {path_str} with contextual awareness...",
+            severity="information",
+        )
+
         # We'll run this in a thread to avoid blocking the TUI
         def do_ingest() -> None:
             try:
                 from ..core import rag
+
                 ingester = rag.ContextualIngester()
                 path = Path(path_str)
                 if path.is_file():
                     ingester.ingest_file(path)
                 elif path.is_dir():
                     for file_path in path.rglob("*"):
-                        if file_path.is_file() and file_path.suffix in [".md", ".txt", ".py", ".js", ".ts"]:
+                        if file_path.is_file() and file_path.suffix in [
+                            ".md",
+                            ".txt",
+                            ".py",
+                            ".js",
+                            ".ts",
+                        ]:
                             ingester.ingest_file(file_path)
-                self.call_from_thread(self.notify, "✓ Ingestion complete", severity="information")
+                self.call_from_thread(
+                    self.notify, "✓ Ingestion complete", severity="information"
+                )
             except Exception as e:
-                self.call_from_thread(self.notify, f"✗ Ingestion failed: {e}", severity="error")
+                self.call_from_thread(
+                    self.notify, f"✗ Ingestion failed: {e}", severity="error"
+                )
 
         threading.Thread(target=do_ingest, daemon=True).start()
 
@@ -6941,7 +7216,9 @@ class AgentTUI(App[None]):
 
         review_recs, _ = self._split_review_recommendations(recommendations)
         if not review_recs:
-            self.notify("No review recommendations found", severity="warning", timeout=2)
+            self.notify(
+                "No review recommendations found", severity="warning", timeout=2
+            )
             return
 
         review_recs = review_recs[:10]
@@ -6982,9 +7259,7 @@ class AgentTUI(App[None]):
             confidence_pct = int(rec.confidence * 100)
             description = f"{rec.reason} (confidence {confidence_pct}%)"
             slug = re.sub(r"[^a-z0-9]+", "-", agent_slug.lower()).strip("-") or "review"
-            output_path = (
-                output_dir / f"{slug}.txt" if output_dir is not None else None
-            )
+            output_path = output_dir / f"{slug}.txt" if output_dir is not None else None
             status = "running" if cli_available else "pending"
             started = time.time() if cli_available else None
             task_id = self._generate_task_id(f"review-{agent_slug}")
@@ -7010,7 +7285,9 @@ class AgentTUI(App[None]):
             created += 1
 
         if created == 0:
-            self.notify("Review tasks already requested", severity="information", timeout=2)
+            self.notify(
+                "Review tasks already requested", severity="information", timeout=2
+            )
             return
 
         self._save_tasks(tasks)
@@ -7184,7 +7461,9 @@ class AgentTUI(App[None]):
             output_path = (
                 output_dir / f"{provider_key}.txt" if output_dir is not None else None
             )
-            status = "running" if script_available and output_path is not None else "pending"
+            status = (
+                "running" if script_available and output_path is not None else "pending"
+            )
             started = time.time() if status == "running" else None
             task_id = self._generate_task_id(f"llm-{provider_key}")
 
@@ -7218,7 +7497,9 @@ class AgentTUI(App[None]):
             created += 1
 
         if created == 0:
-            self.notify("LLM tasks already requested", severity="information", timeout=2)
+            self.notify(
+                "LLM tasks already requested", severity="information", timeout=2
+            )
             return
 
         self._save_tasks(tasks)
@@ -7239,7 +7520,14 @@ class AgentTUI(App[None]):
             )
             return
 
-        for task_id, provider_key, purpose, prompt, output_path, context_file in spawn_specs:
+        for (
+            task_id,
+            provider_key,
+            purpose,
+            prompt,
+            output_path,
+            context_file,
+        ) in spawn_specs:
             self._spawn_llm_consult_task(
                 task_id=task_id,
                 provider_key=provider_key,
@@ -7370,7 +7658,11 @@ class AgentTUI(App[None]):
             try:
                 context_file.write_text(diff_text, encoding="utf-8")
             except Exception as exc:
-                self.notify(f"Failed to write diff context: {exc}", severity="warning", timeout=3)
+                self.notify(
+                    f"Failed to write diff context: {exc}",
+                    severity="warning",
+                    timeout=3,
+                )
                 context_file = None
 
         cmd = [
@@ -7628,10 +7920,17 @@ class AgentTUI(App[None]):
                     rule = next((r for r in self.rules if r.name == rule_name), None)
                     if rule:
                         try:
+                            # Use global ~/.claude as the symlink target
+                            target_claude_dir = Path.home() / ".claude"
+
                             if rule.status == "active":
-                                message = rules_deactivate(rule.path.stem)
+                                message = rules_deactivate(
+                                    rule.path.stem, claude_dir=target_claude_dir
+                                )
                             else:
-                                message = rules_activate(rule.path.stem)
+                                message = rules_activate(
+                                    rule.path.stem, claude_dir=target_claude_dir
+                                )
 
                             # Remove ANSI codes
                             import re
@@ -7662,8 +7961,10 @@ class AgentTUI(App[None]):
                                     saved_cursor_row, table.row_count - 1
                                 )
                                 table.move_cursor(row=new_cursor_row)
-                            if clean_message.strip().lower().startswith(
-                                ("activated", "deactivated")
+                            if (
+                                clean_message.strip()
+                                .lower()
+                                .startswith(("activated", "deactivated"))
                             ):
                                 self._show_restart_required()
                         except Exception as e:
@@ -7693,10 +7994,13 @@ class AgentTUI(App[None]):
                     type_text = Text.from_markup(type_col).plain.strip()
 
                     if type_text == "doc":
-                        doc = next((d for d in self.mcp_docs if d.name == item_name), None)
+                        doc = next(
+                            (d for d in self.mcp_docs if d.name == item_name), None
+                        )
                         if doc:
                             try:
                                 import re
+
                                 if doc.status == "active":
                                     exit_code, message = mcp_deactivate(doc.name)
                                 else:
@@ -7737,7 +8041,9 @@ class AgentTUI(App[None]):
                             except Exception as e:
                                 self.status_message = f"Error: {e}"
                                 self.notify(
-                                    f"✗ Error: {str(e)[:50]}", severity="error", timeout=3
+                                    f"✗ Error: {str(e)[:50]}",
+                                    severity="error",
+                                    timeout=3,
                                 )
 
         elif self.current_view == "skills":
@@ -7759,7 +8065,9 @@ class AgentTUI(App[None]):
                     if skill_name and len(skill_name) > 0 and ord(skill_name[0]) > 127:
                         skill_name = skill_name[1:].strip()
 
-                    skill = next((s for s in self.skills if s["name"] == skill_name), None)
+                    skill = next(
+                        (s for s in self.skills if s["name"] == skill_name), None
+                    )
                     if skill:
                         try:
                             is_installed = skill.get("installed", False)
@@ -7849,7 +8157,9 @@ class AgentTUI(App[None]):
             if result == "start_tour":
                 self.action_start_tour()
 
-        self.push_screen(HelpDialog(current_view=self.current_view), callback=handle_help_result)
+        self.push_screen(
+            HelpDialog(current_view=self.current_view), callback=handle_help_result
+        )
 
     def action_toggle_header(self) -> None:
         """Toggle the quick navigation header visibility."""
@@ -7911,7 +8221,9 @@ class AgentTUI(App[None]):
     def _handle_llm_provider_settings_result(self, saved: Optional[bool]) -> None:
         """Handle result from provider settings dialog."""
         if saved:
-            self.notify("LLM provider settings saved", severity="information", timeout=2)
+            self.notify(
+                "LLM provider settings saved", severity="information", timeout=2
+            )
 
     def action_command_palette(self) -> None:
         """Show the command palette."""
@@ -7950,13 +8262,11 @@ class AgentTUI(App[None]):
                 self.notify(
                     f"Unknown command action: {command_action}",
                     severity="warning",
-                    timeout=3
+                    timeout=3,
                 )
             except Exception as e:
                 self.notify(
-                    f"Error executing command: {e}",
-                    severity="error",
-                    timeout=5
+                    f"Error executing command: {e}", severity="error", timeout=5
                 )
 
     def action_toggle_codex_skill(self) -> None:
@@ -8028,7 +8338,9 @@ class AgentTUI(App[None]):
         success_count, messages = link_all_codex_skills(registry)
 
         self.status_message = f"Linked {success_count} skills"
-        self.notify(f"✓ Linked {success_count} skills", severity="information", timeout=2)
+        self.notify(
+            f"✓ Linked {success_count} skills", severity="information", timeout=2
+        )
         self.load_codex_skills_status()
         self.update_view()
 
@@ -8040,7 +8352,9 @@ class AgentTUI(App[None]):
         success_count, messages = unlink_all_codex_skills()
 
         self.status_message = f"Unlinked {success_count} skills"
-        self.notify(f"○ Unlinked {success_count} skills", severity="information", timeout=2)
+        self.notify(
+            f"○ Unlinked {success_count} skills", severity="information", timeout=2
+        )
         self.load_codex_skills_status()
         self.update_view()
 
@@ -8089,7 +8403,9 @@ class AgentTUI(App[None]):
                 total_linked += count
 
             self.status_message = f"Linked {total_linked} skills"
-            self.notify(f"✓ Linked {total_linked} skills", severity="information", timeout=2)
+            self.notify(
+                f"✓ Linked {total_linked} skills", severity="information", timeout=2
+            )
             self.load_codex_skills_status()
             self.update_view()
 
@@ -8140,7 +8456,9 @@ class AgentTUI(App[None]):
                 total_unlinked += count
 
             self.status_message = f"Unlinked {total_unlinked} skills"
-            self.notify(f"○ Unlinked {total_unlinked} skills", severity="information", timeout=2)
+            self.notify(
+                f"○ Unlinked {total_unlinked} skills", severity="information", timeout=2
+            )
             self.load_codex_skills_status()
             self.update_view()
 
@@ -8176,7 +8494,9 @@ def main(
             print(f"Theme file not found: {resolved_theme}")
             return 1
 
-    app = AgentTUI(theme_path=resolved_theme, start_tour=start_tour, start_view=start_view)
+    app = AgentTUI(
+        theme_path=resolved_theme, start_tour=start_tour, start_view=start_view
+    )
     app.run()
     return 0
 

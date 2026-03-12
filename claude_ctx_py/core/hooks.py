@@ -199,7 +199,7 @@ def configure_statusline(
     Returns:
         (exit_code, message) tuple
     """
-    settings = _load_settings()
+    settings = load_settings()
 
     # Check if statusline already configured
     if "statusLine" in settings and not force:

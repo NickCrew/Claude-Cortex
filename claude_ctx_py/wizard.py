@@ -21,11 +21,21 @@ def should_run_wizard() -> bool:
     if not sys.stdin.isatty():
         return False
     
-    # Check if rules are already linked (either as symlink or cortex subdir)
-    claude_rules = Path.home() / ".claude" / "rules"
+    # Check if content is already linked (dir symlink, per-file symlinks, or cortex subdir)
+    claude_home = Path.home() / ".claude"
+    claude_rules = claude_home / "rules"
     if claude_rules.is_symlink():
         return False
     if (claude_rules / "cortex").exists():
+        return False
+    # Per-file symlink model: rules dir exists with symlinks inside
+    if claude_rules.is_dir() and any(p.is_symlink() for p in claude_rules.iterdir()):
+        return False
+    # Also check agents — if agents are linked, setup has been done
+    claude_agents = claude_home / "agents"
+    if claude_agents.is_symlink():
+        return False
+    if claude_agents.is_dir() and any(p.is_symlink() for p in claude_agents.iterdir()):
         return False
     return True
 

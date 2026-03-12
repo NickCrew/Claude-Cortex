@@ -19,7 +19,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-
 BLUE = "\033[0;34m"
 GREEN = "\033[0;32m"
 YELLOW = "\033[0;33m"
@@ -167,7 +166,6 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
         "rules",
         "modes",
         "mcp/docs",
-        "inactive/rules",
         "agents",
         "skills",
         "commands",
@@ -183,7 +181,7 @@ def _ensure_claude_structure(claude_dir: Path) -> List[str]:
             created.append(str(dir_path))
 
     # Activation tracking files
-    active_files = [".active-modes", ".active-mcp", ".active-rules", ".active-principles"]
+    active_files = [".active-modes", ".active-mcp", ".active-principles"]
     for active_file in active_files:
         file_path = claude_dir / active_file
         if not file_path.exists():
@@ -213,9 +211,7 @@ def _init_slug_for_path(path: Path) -> str:
 
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[A-Za-z]")
 _CLAUDE_MD_PATTERNS: Dict[str, Tuple[re.Pattern[str], ...]] = {
-    "rules": (
-        re.compile(r"^@rules/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
-    ),
+    "rules": (re.compile(r"^@rules/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),),
     "modes": (
         re.compile(r"^@modes/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
         re.compile(r"^@inactive/modes/([A-Za-z0-9_\-/]+)\.md\b", re.IGNORECASE),
@@ -933,7 +929,10 @@ def _append_session_log(project_dir: Path, lines: Sequence[str]) -> None:
 
 def _list_available_agents(claude_dir: Path) -> List[str]:
     agents: Set[str] = set()
-    for directory in [claude_dir / "agents", *_inactive_dir_candidates(claude_dir, "agents")]:
+    for directory in [
+        claude_dir / "agents",
+        *_inactive_dir_candidates(claude_dir, "agents"),
+    ]:
         if directory.is_dir():
             for path in directory.glob("*.md"):
                 agents.add(path.stem)
@@ -942,7 +941,10 @@ def _list_available_agents(claude_dir: Path) -> List[str]:
 
 def _list_available_modes(claude_dir: Path) -> List[str]:
     modes: Set[str] = set()
-    for directory in [claude_dir / "modes", *_inactive_dir_candidates(claude_dir, "modes")]:
+    for directory in [
+        claude_dir / "modes",
+        *_inactive_dir_candidates(claude_dir, "modes"),
+    ]:
         if directory.is_dir():
             for path in directory.glob("*.md"):
                 if path.stem == "Task_Management":
@@ -1010,18 +1012,26 @@ def _get_recent_activity(claude_dir: Path, max_items: int = 3) -> List[str]:
     # Try to get recent git commits if in a git repo
     try:
         result = subprocess.run(
-            ["git", "log", "--oneline", "--max-count=5", "--",
-             "agents/", "rules/", "skills/"],
+            [
+                "git",
+                "log",
+                "--oneline",
+                "--max-count=5",
+                "--",
+                "agents/",
+                "rules/",
+                "skills/",
+            ],
             cwd=claude_dir,
             capture_output=True,
             text=True,
             timeout=2,
         )
         if result.returncode == 0 and result.stdout:
-            for line in result.stdout.strip().split('\n')[:max_items]:
+            for line in result.stdout.strip().split("\n")[:max_items]:
                 if line:
                     # Extract just the commit message
-                    parts = line.split(' ', 1)
+                    parts = line.split(" ", 1)
                     if len(parts) > 1:
                         activities.append(parts[1])
     except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -1102,17 +1112,24 @@ def _get_context_tokens(claude_dir: Path) -> Optional[Dict[str, Any]]:
     """
     try:
         from .. import token_counter
-        category_stats, total_stats = token_counter.get_active_context_tokens(claude_dir)
+
+        category_stats, total_stats = token_counter.get_active_context_tokens(
+            claude_dir
+        )
 
         # Calculate usage percentage (200K context window)
         context_limit = 200000
-        usage_pct = (total_stats.tokens / context_limit) * 100 if context_limit > 0 else 0
+        usage_pct = (
+            (total_stats.tokens / context_limit) * 100 if context_limit > 0 else 0
+        )
 
         return {
             "total_tokens": total_stats.tokens,
             "total_files": total_stats.files,
             "usage_pct": usage_pct,
-            "categories": {k: v.tokens for k, v in category_stats.items() if v.tokens > 0},
+            "categories": {
+                k: v.tokens for k, v in category_stats.items() if v.tokens > 0
+            },
         }
     except Exception:
         return None
@@ -1140,7 +1157,9 @@ def show_status(home: Path | None = None, use_rich: bool = False) -> str:
     inactive_agent_count = 0
     for directory in _inactive_dir_candidates(claude_dir, "agents"):
         if directory.is_dir():
-            inactive_agent_count += sum(1 for p in directory.glob("*.md") if p.is_file())
+            inactive_agent_count += sum(
+                1 for p in directory.glob("*.md") if p.is_file()
+            )
 
     total_agents = len(active_agents) + inactive_agent_count
     agent_pct = (len(active_agents) / total_agents * 100) if total_agents > 0 else 0
@@ -1150,28 +1169,46 @@ def show_status(home: Path | None = None, use_rich: bool = False) -> str:
     if rules_dir.is_dir():
         active_rules = [p.stem for p in rules_dir.glob("*.md") if p.is_file()]
 
-    inactive_rule_count = 0
-    for directory in _inactive_dir_candidates(claude_dir, "rules"):
-        if directory.is_dir():
-            inactive_rule_count += sum(1 for p in directory.glob("*.md") if p.is_file())
-
-    total_rules = len(active_rules) + inactive_rule_count
+    # Count total rules from CORTEX_ROOT catalog
+    cortex_root = _resolve_cortex_root()
+    cortex_rules_dir = cortex_root / "rules"
+    catalog_rules: set[str] = set()
+    if cortex_rules_dir.is_dir():
+        for md in cortex_rules_dir.rglob("*.md"):
+            catalog_rules.add(md.stem)
+    # Include any active rules not in the catalog (user-created)
+    all_rule_names = catalog_rules | set(active_rules)
+    total_rules = len(all_rule_names)
     rule_pct = (len(active_rules) / total_rules * 100) if total_rules > 0 else 0
 
     skills_dir = claude_dir / "skills"
     skill_count = 0
     if skills_dir.is_dir():
-        skill_count = sum(1 for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
+        skill_count = sum(
+            1 for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists()
+        )
 
     if use_rich:
         return _show_status_rich(
-            claude_dir, len(active_agents), total_agents, agent_pct,
-            len(active_rules), total_rules, rule_pct, skill_count
+            claude_dir,
+            len(active_agents),
+            total_agents,
+            agent_pct,
+            len(active_rules),
+            total_rules,
+            rule_pct,
+            skill_count,
         )
     else:
         return _show_status_ansi(
-            claude_dir, len(active_agents), total_agents, agent_pct,
-            len(active_rules), total_rules, rule_pct, skill_count
+            claude_dir,
+            len(active_agents),
+            total_agents,
+            agent_pct,
+            len(active_rules),
+            total_rules,
+            rule_pct,
+            skill_count,
         )
 
 
@@ -1213,7 +1250,9 @@ def _show_status_ansi(
     # Agents section
     agent_bar = _build_progress_bar(agent_pct)
     lines.append(f"\n{_color('⚡ AGENTS', CYAN)}")
-    lines.append(f"  {active_agents}/{total_agents} active {agent_bar} {agent_pct:.0f}%")
+    lines.append(
+        f"  {active_agents}/{total_agents} active {agent_bar} {agent_pct:.0f}%"
+    )
 
     # Rules section
     rule_bar = _build_progress_bar(rule_pct)
@@ -1244,10 +1283,13 @@ def _show_status_ansi(
     token_info = _get_context_tokens(claude_dir)
     if token_info:
         usage_color = (
-            GREEN if token_info["usage_pct"] < 25
-            else YELLOW if token_info["usage_pct"] < 50
-            else CYAN if token_info["usage_pct"] < 75
-            else RED
+            GREEN
+            if token_info["usage_pct"] < 25
+            else (
+                YELLOW
+                if token_info["usage_pct"] < 50
+                else CYAN if token_info["usage_pct"] < 75 else RED
+            )
         )
         token_bar = _build_progress_bar(token_info["usage_pct"])
         lines.append(f"\n{_color('📊 CONTEXT TOKENS', CYAN)}")
@@ -1310,15 +1352,21 @@ def _show_status_rich(
     lines.append("[dim]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/dim]")
 
     # Status indicator
-    lines.append(f"[blue]Status:[/blue] [bold {agent_color}]{status}[/bold {agent_color}]")
+    lines.append(
+        f"[blue]Status:[/blue] [bold {agent_color}]{status}[/bold {agent_color}]"
+    )
 
     # Agents section
     lines.append(f"\n[bold cyan]⚡ AGENTS[/bold cyan]")
-    lines.append(f"  [bold white]{active_agents}[/bold white][dim]/[/dim][white]{total_agents}[/white] active {agent_bar} [white]{agent_pct:.0f}%[/white]")
+    lines.append(
+        f"  [bold white]{active_agents}[/bold white][dim]/[/dim][white]{total_agents}[/white] active {agent_bar} [white]{agent_pct:.0f}%[/white]"
+    )
 
     # Rules section
     lines.append(f"\n[bold blue]📜 RULES[/bold blue]")
-    lines.append(f"  [bold white]{active_rules}[/bold white][dim]/[/dim][white]{total_rules}[/white] active {rule_bar} [white]{rule_pct:.0f}%[/white]")
+    lines.append(
+        f"  [bold white]{active_rules}[/bold white][dim]/[/dim][white]{total_rules}[/white] active {rule_bar} [white]{rule_pct:.0f}%[/white]"
+    )
 
     # Skills section
     lines.append(f"\n[bold green]💎 SKILLS[/bold green]")
@@ -1345,17 +1393,20 @@ def _show_status_rich(
     if token_info:
         usage_pct = token_info["usage_pct"]
         usage_color = (
-            "green" if usage_pct < 25
-            else "yellow" if usage_pct < 50
-            else "cyan" if usage_pct < 75
-            else "red"
+            "green"
+            if usage_pct < 25
+            else "yellow" if usage_pct < 50 else "cyan" if usage_pct < 75 else "red"
         )
         token_filled = int((usage_pct / 100) * 20)
         token_bar = f"[{usage_color}]{'█' * token_filled}[/{usage_color}][dim]{'░' * (20 - token_filled)}[/dim]"
 
         lines.append(f"\n[bold cyan]📊 CONTEXT TOKENS[/bold cyan]")
-        lines.append(f"  [white]{token_info['total_tokens']:,}[/white] tokens / 200K {token_bar}")
-        lines.append(f"  [{usage_color}]{usage_pct:.0f}% usage[/{usage_color}] ([white]{token_info['total_files']}[/white] files)")
+        lines.append(
+            f"  [white]{token_info['total_tokens']:,}[/white] tokens / 200K {token_bar}"
+        )
+        lines.append(
+            f"  [{usage_color}]{usage_pct:.0f}% usage[/{usage_color}] ([white]{token_info['total_files']}[/white] files)"
+        )
 
     # Directory info
     lines.append(f"\n[dim]Directory:[/dim] {claude_dir}")

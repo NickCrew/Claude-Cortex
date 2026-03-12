@@ -14,7 +14,8 @@ from typing import List, Optional, Tuple
 
 from . import completions
 from . import shell_integration
-from .core.base import _resolve_cortex_root, _resolve_claude_dir
+from .core.base import _resolve_cortex_root
+from .core.asset_discovery import _SETTINGS_RELATIVE_PATHS
 
 PACKAGE_NAME = "claude-cortex"
 DOC_FILES = [
@@ -94,7 +95,9 @@ def _find_docs_source() -> Optional[Path]:
     candidates.append(data_docs)
 
     for candidate in candidates:
-        if candidate.is_dir() and any((candidate / name).exists() for name in DOC_FILES):
+        if candidate.is_dir() and any(
+            (candidate / name).exists() for name in DOC_FILES
+        ):
             return candidate
     return None
 
@@ -187,8 +190,7 @@ def install_completions(
     target = target_path or _default_completion_path(shell, system)
     if target.exists() and not force:
         return 1, (
-            f"Completion file already exists at {target}. "
-            "Use --force to overwrite."
+            f"Completion file already exists at {target}. " "Use --force to overwrite."
         )
 
     script = completions.get_completion_script(shell)
@@ -231,9 +233,7 @@ def install_manpages(
     if dry_run:
         files = "\n".join(f"  - {page.name}" for page in manpages)
         return 0, (
-            f"Would install manpages to: {target}\n"
-            f"From: {source_dir}\n"
-            f"{files}"
+            f"Would install manpages to: {target}\n" f"From: {source_dir}\n" f"{files}"
         )
 
     try:
@@ -372,7 +372,9 @@ def bootstrap(
         rules_root = claude_home
         active_rules = [p.stem for p in (claude_home / "rules").glob("*.md")]
         if dry_run:
-            link_results.append(f"Would symlink {len(active_rules)} rules to {DEFAULT_RULES_SUBDIR}")
+            link_results.append(
+                f"Would symlink {len(active_rules)} rules to {DEFAULT_RULES_SUBDIR}"
+            )
         else:
             _, link_messages = sync_rule_symlinks(
                 rules_root=rules_root,
@@ -391,12 +393,14 @@ def bootstrap(
     ]
     if link_results:
         summary.extend(["", "Rule symlinks:", *link_results])
-    summary.extend([
-        "",
-        "Next steps:",
-        "  1. Run 'claude' directly - rules are auto-discovered",
-        "  2. Run 'cortex agent list' to see available agents",
-    ])
+    summary.extend(
+        [
+            "",
+            "Next steps:",
+            "  1. Run 'claude' directly - rules are auto-discovered",
+            "  2. Run 'cortex agent list' to see available agents",
+        ]
+    )
     return 0, "\n".join(summary)
 
 
@@ -434,7 +438,7 @@ def install_post(
 
 
 # Directories to symlink into ~/.claude
-LINK_DIRS = ["agents", "skills", "rules", "inactive"]
+LINK_DIRS = ["agents", "skills", "rules"]
 
 
 def _link_commands_from_skills(
@@ -541,13 +545,199 @@ def _link_commands_from_skills(
     results.append(f"  ✓ commands/ ({created} symlinks from skills)")
     return results
 
+
+def _migrate_dir_symlink(dst: Path, src: Path, category: str) -> List[str]:
+    """Migrate a directory-level symlink to per-file symlinks.
+
+    If ``dst`` is a symlink pointing to ``src`` (or any directory), replace it
+    with a real directory containing per-file symlinks for each asset inside.
+
+    Returns a list of human-readable result messages (empty when no migration).
+    """
+    if not dst.is_symlink():
+        return []
+
+    results: List[str] = []
+
+    # Collect assets from the resolved source before removing the link
+    resolved = dst.resolve()
+    assets: List[Path] = []
+    if category == "skills":
+        # Skills: each subdirectory containing SKILL.md
+        if resolved.is_dir():
+            assets = [p.parent for p in resolved.rglob("SKILL.md")]
+    else:
+        # agents / rules: each *.md file (flat + subdirs for rules)
+        if resolved.is_dir():
+            assets = list(resolved.rglob("*.md"))
+
+    # Remove the directory symlink and create a real directory
+    try:
+        dst.unlink()
+        dst.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return [f"  ✗ {category}/ migration failed: {exc}"]
+
+    # Create per-file/dir symlinks
+    for asset in assets:
+        try:
+            relative = asset.relative_to(resolved)
+        except ValueError:
+            continue
+
+        link_path = dst / relative
+        if category == "skills":
+            # Symlink each skill subdirectory
+            link_path.parent.mkdir(parents=True, exist_ok=True)
+            if not link_path.exists() and not link_path.is_symlink():
+                link_path.symlink_to(asset)
+        else:
+            # Symlink each .md file, preserving subdirectory structure
+            link_path.parent.mkdir(parents=True, exist_ok=True)
+            if not link_path.exists() and not link_path.is_symlink():
+                link_path.symlink_to(asset)
+
+    results.append(
+        f"  ✓ {category}/ migrated from dir symlink → {len(assets)} per-file symlinks"
+    )
+    return results
+
+
+def _link_files_into_dir(
+    src: Path, dst: Path, category: str, force: bool = False
+) -> List[str]:
+    """Create per-file symlinks from ``src/`` into ``dst/``.
+
+    - ``agents`` and ``rules``: iterate ``*.md`` files (and subdirs for rules)
+    - ``skills``: iterate subdirectories containing ``SKILL.md``
+    """
+    results: List[str] = []
+    created = 0
+    skipped = 0
+
+    if category == "skills":
+        for skill_dir in sorted(src.iterdir()):
+            if not skill_dir.is_dir():
+                continue
+            if not (skill_dir / "SKILL.md").exists():
+                continue
+            link_path = dst / skill_dir.name
+            if link_path.is_symlink():
+                if link_path.resolve() == skill_dir.resolve():
+                    skipped += 1
+                    continue
+                if force:
+                    link_path.unlink()
+                else:
+                    skipped += 1
+                    continue
+            elif link_path.exists():
+                if not force:
+                    skipped += 1
+                    continue
+                shutil.rmtree(link_path)
+            try:
+                link_path.symlink_to(skill_dir)
+                created += 1
+            except OSError:
+                pass
+    else:
+        # agents / rules: *.md files, recursing into subdirectories for rules
+        for md_file in sorted(src.rglob("*.md")):
+            try:
+                relative = md_file.relative_to(src)
+            except ValueError:
+                continue
+            link_path = dst / relative
+            if link_path.is_symlink():
+                if link_path.resolve() == md_file.resolve():
+                    skipped += 1
+                    continue
+                if force:
+                    link_path.unlink()
+                else:
+                    skipped += 1
+                    continue
+            elif link_path.exists():
+                if not force:
+                    skipped += 1
+                    continue
+                link_path.unlink()
+            link_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                link_path.symlink_to(md_file)
+                created += 1
+            except OSError:
+                pass
+
+    status = f"{created} linked"
+    if skipped:
+        status += f", {skipped} unchanged"
+    results.append(f"  ✓ {category}/ ({status})")
+    return results
+
+
+def _copy_settings_files(
+    source: Path,
+    target: Path,
+    force: bool = False,
+    dry_run: bool = False,
+) -> List[str]:
+    """Copy bundled settings/config files from cortex_root to target.
+
+    Copies (not symlinks) so that the originals in cortex_root are preserved
+    for restoration via --force.
+
+    Args:
+        source: Cortex root containing bundled assets
+        target: Target directory (e.g. ~/.claude)
+        force: Overwrite existing files
+        dry_run: Show what would be done
+    """
+    results: List[str] = []
+    found = [rp for rp in _SETTINGS_RELATIVE_PATHS if (source / rp).exists()]
+
+    if not found:
+        return []
+
+    if dry_run:
+        return [f"  settings ({len(found)} config files)"]
+
+    copied = 0
+    skipped = 0
+    for rel_path in found:
+        src_file = source / rel_path
+        dst_file = target / rel_path
+        if dst_file.exists() and not force:
+            skipped += 1
+            continue
+        try:
+            dst_file.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_file, dst_file)
+            copied += 1
+        except OSError:
+            pass
+
+    status = f"{copied} copied"
+    if skipped:
+        status += f", {skipped} unchanged"
+    results.append(f"  ✓ settings ({status})")
+    return results
+
+
 def link_content(
     source_dir: Optional[Path] = None,
     target_dir: Optional[Path] = None,
     force: bool = False,
     dry_run: bool = False,
 ) -> Tuple[int, str]:
-    """Symlink bundled content (agents, skills, rules, hooks) into ~/.claude.
+    """Symlink bundled content (agents, skills, rules) into ~/.claude.
+
+    Creates per-file symlinks for each asset rather than directory-level
+    symlinks, allowing individual assets to be toggled on/off.  Also copies
+    bundled settings/config files (YAML schemas, activation maps, etc.) so
+    that runtime code can read them from claude_dir.  Originals are preserved
+    in cortex_root for restoration via --force.
 
     Args:
         source_dir: Source directory with content (default: auto-detect plugin root)
@@ -568,20 +758,25 @@ def link_content(
     if not found_dirs:
         return 1, f"No content directories found in {source}"
 
-    # Target is ~/.claude
-    target = target_dir or _resolve_claude_dir()
+    # Target is always ~/.claude (global scope) for install link
+    target = target_dir or (Path.home() / ".claude")
 
     if dry_run:
         lines = [
             f"Would link content from: {source}",
             f"To: {target}",
             "",
-            "Directories to link:",
+            "Directories to link (per-file symlinks):",
         ]
         for dir_name in found_dirs:
             src = source / dir_name
             count = len(list(src.glob("*")))
             lines.append(f"  {dir_name}/ ({count} items)")
+        settings_dry = _copy_settings_files(source, target, force=force, dry_run=True)
+        if settings_dry:
+            lines.append("")
+            lines.append("Config files to copy:")
+            lines.extend(settings_dry)
         return 0, "\n".join(lines)
 
     # Create target if needed
@@ -595,37 +790,34 @@ def link_content(
         src = source / dir_name
         dst = target / dir_name
 
-        # Handle existing
-        if dst.exists() or dst.is_symlink():
-            if not force:
-                if dst.is_symlink() and dst.resolve() == src.resolve():
-                    results.append(f"  ✓ {dir_name}/ (already linked)")
-                else:
-                    results.append(f"  - {dir_name}/ (exists, use --force to replace)")
-                continue
-            # Remove existing
+        # Migrate directory-level symlinks to per-file symlinks
+        migration_msgs = _migrate_dir_symlink(dst, src, dir_name)
+        if migration_msgs:
+            results.extend(migration_msgs)
+
+        # Ensure dst is a real directory
+        if not dst.exists():
             try:
-                if dst.is_symlink():
-                    dst.unlink()
-                elif dst.is_dir():
-                    shutil.rmtree(dst)
-                else:
-                    dst.unlink()
+                dst.mkdir(parents=True, exist_ok=True)
             except OSError as exc:
-                results.append(f"  ✗ {dir_name}/ (failed to remove: {exc})")
+                results.append(f"  ✗ {dir_name}/ (failed to create: {exc})")
                 continue
 
-        # Create symlink
-        try:
-            dst.symlink_to(src)
-            results.append(f"  ✓ {dir_name}/ -> {src}")
-        except OSError as exc:
-            results.append(f"  ✗ {dir_name}/ (failed: {exc})")
+        # Create per-file symlinks
+        link_results = _link_files_into_dir(src, dst, dir_name, force=force)
+        results.extend(link_results)
+
+    # Copy bundled settings/config files
+    settings_results = _copy_settings_files(source, target, force=force)
+    if settings_results:
+        results.extend(settings_results)
 
     # Generate commands/ from skills/
     skills_dir = target / "skills"
     commands_dir = target / "commands"
-    cmd_results = _link_commands_from_skills(skills_dir, commands_dir, force=force, dry_run=dry_run)
+    cmd_results = _link_commands_from_skills(
+        skills_dir, commands_dir, force=force, dry_run=dry_run
+    )
     results.extend(cmd_results)
 
     summary = [
