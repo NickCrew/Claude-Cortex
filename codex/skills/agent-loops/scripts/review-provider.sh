@@ -4,12 +4,50 @@
 #
 # Source this file from specialist-review.sh and test-review-request.sh.
 
+review_provider_detect_self() {
+  local self_provider="${AGENT_LOOPS_SELF_PROVIDER:-}"
+
+  case "$self_provider" in
+    claude | gemini | codex)
+      echo "$self_provider"
+      return 0
+      ;;
+    "")
+      ;;
+    *)
+      echo "Warning: Unsupported AGENT_LOOPS_SELF_PROVIDER '$self_provider'; ignoring it." >&2
+      ;;
+  esac
+
+  if [[ -n "${CODEX_THREAD_ID:-}" || -n "${CODEX_MANAGED_BY_NPM:-}" ]]; then
+    echo "codex"
+    return 0
+  fi
+
+  if [[ -n "${CLAUDECODE:-}" ]]; then
+    echo "claude"
+    return 0
+  fi
+
+  echo ""
+}
+
 review_provider_candidates() {
   local requested="${1:-auto}"
+  local self_provider="${2:-}"
+  local -a default_order=(claude gemini codex)
+  local provider
 
   case "$requested" in
     auto)
-      printf '%s\n' claude gemini
+      for provider in "${default_order[@]}"; do
+        if [[ "$provider" != "$self_provider" ]]; then
+          printf '%s\n' "$provider"
+        fi
+      done
+      if [[ -n "$self_provider" ]]; then
+        printf '%s\n' "$self_provider"
+      fi
       ;;
     claude | gemini | codex)
       printf '%s\n' "$requested"

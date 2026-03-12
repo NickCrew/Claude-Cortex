@@ -1,6 +1,6 @@
 ---
 name: agent-loops
-description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled Claude-first review scripts plus Gemini and fresh-context Codex fallback review paths for code review and test audit. Use this skill when starting any implementation task.
+description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled provider-aware review scripts that keep same-model shell-outs as the last resort, plus a fresh-context Codex fallback for code review and test audit. Use this skill when starting any implementation task.
 keywords:
   - agent workflow
   - code review loop
@@ -26,9 +26,9 @@ code changes and writing tests. Each loop has explicit entry criteria, exit crit
 and escalation rules. If you are an agent, follow these loops exactly.
 
 **You do not review your own work.** All reviews are performed by an independent
-reviewer. Prefer Claude via the bundled scripts. If Claude is unavailable, use
-Gemini; if Gemini is unavailable, use a fresh-context Codex reviewer that did not
-implement the change. You never grade your own homework.
+reviewer. Prefer Claude via the bundled scripts. If Claude is unavailable, use a
+different model before asking your own model family to review. Same-model shell-outs
+are the last resort. You never grade your own homework.
 
 **Bundled references:**
 - `references/testing-standards.md` — Test quality standards (how to write tests)
@@ -60,13 +60,14 @@ at the start of your session and reuse the variable.
 | Role | Agent | How |
 |------|-------|-----|
 | **Implementer** | Codex or Gemini | Writes code changes and test code |
-| **Code Reviewer** | Claude preferred; Gemini fallback; Codex explicit; fresh-context Codex last resort | Claude via `specialist-review`; fallback reviewer uses bundled prompts and produces a review artifact |
-| **Test Auditor** | Claude preferred; Gemini fallback; Codex explicit; fresh-context Codex last resort | Claude via `test-review-request`; fallback auditor uses bundled prompts and produces an audit artifact |
+| **Code Reviewer** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `specialist-review` keeps same-model shell-outs last; fallback reviewer uses bundled prompts and produces a review artifact |
+| **Test Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `test-review-request` keeps same-model shell-outs last; fallback auditor uses bundled prompts and produces an audit artifact |
 | **Remediator** | Codex or Gemini | Fixes findings from the independent review/audit artifact |
 
-**Critical rule:** Codex and Gemini NEVER self-review. Every review step must be
-performed by an independent reviewer using this selection order:
-1. Bundled script with automatic Claude-then-Gemini provider selection
+**Critical rule:** Codex and Gemini NEVER self-review unless every independent
+provider path has already failed. Every review step must be performed by an
+independent reviewer using this selection order:
+1. Bundled script with automatic Claude-first, self-last provider selection
 2. A fresh-context Codex reviewer that did not implement the change
 
 If neither path is available, stop and escalate to the user.
@@ -75,8 +76,9 @@ If neither path is available, stop and escalate to the user.
 
 When a review or audit is required, use this exact fallback chain:
 
-1. **Bundled script first.** Let the bundled script try Claude, then Gemini CLI,
-   validate the artifact contract, and use the generated artifact.
+1. **Bundled script first.** Let the bundled script try Claude, then another model
+   family, and keep the current model family last. The script validates the artifact
+   contract before accepting the generated artifact.
 2. **Fresh-context Codex next.** Spawn a reviewer agent with fresh context. That
    agent must:
    - not have authored or edited the implementation under review
@@ -87,7 +89,7 @@ When a review or audit is required, use this exact fallback chain:
 
 Treat fallback artifacts exactly like script-generated `REVIEW_FILE` or
 `REPORT_FILE` outputs in the loops below. Call out fallback usage in the handoff so
-humans know whether the review came from Claude, Gemini, or fresh-context Codex.
+humans know whether the review came from Claude, Gemini, Codex, or fresh-context Codex.
 
 ---
 
@@ -106,10 +108,10 @@ adopt perspectives yourself. Route the review to Claude first, then fallback if 
 
 Claude is still the preferred reviewer because it can load domain-specific skills such as
 `owasp-top-10`, `secure-coding-practices`, and `python-testing-patterns`. The bundled
-script now tries Claude first and falls back to Gemini CLI automatically. Codex is also
-available as an explicit provider. If the automated providers are unavailable or fail,
-continue with a fresh-context Codex reviewer instead of
-reviewing the code yourself.
+script now tries Claude first, then a different model family, and keeps same-model
+shell-outs for last resort. Codex and Gemini are both available as explicit providers.
+If the automated providers are unavailable or fail, continue with a fresh-context Codex
+reviewer instead of reviewing the code yourself.
 
 #### Automated Path: Provider-Aware Script
 
@@ -150,15 +152,18 @@ the entire repo diff to the reviewer, wasting tokens and risking timeouts.
 
 Provider selection:
 
-- Default is `auto`, which tries Claude first and Gemini second.
+- Default is `auto`, which tries Claude first, keeps the current agent's own model
+  family last, and uses the remaining provider in between.
 - Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
+- Set `AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex` when the current agent is not
+  auto-detected. Codex sessions auto-detect themselves already.
 - The script validates the review artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 
 #### Manual Fallback: Fresh-Context Codex
 
-If the bundled script cannot get a usable artifact from either Claude or Gemini:
+If the bundled script cannot get a usable artifact from any scripted provider:
 
 1. Generate the same scoped diff you would have sent to the script.
 2. Provide the reviewer:
@@ -177,7 +182,7 @@ If the bundled script cannot get a usable artifact from either Claude or Gemini:
 - **Summarizing the diff before invoking the script** — Unnecessary. The script reads the diff directly.
 - **Ignoring the output artifact** — The review is written to a file. Read it.
 - **Using a same-context Codex agent as reviewer** — If Codex is the fallback reviewer, it must have fresh context and no implementation authorship.
-- **Stopping at the first Claude failure** — Let the script try Gemini before switching to fresh-context Codex.
+- **Stopping at the first Claude failure** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
 
 ### `test-review-request` — Request Test Audit
 
@@ -191,10 +196,11 @@ NOT map behaviors yourself. Do NOT classify test coverage yourself. Do NOT produ
 the gap report yourself. Route the audit to Claude first, then fallback if needed.
 
 Claude is still the preferred auditor because it can apply the testing standards and audit
-workflow with project-aware skill support. The bundled script now tries Claude first and
-falls back to Gemini CLI automatically. Codex is also available as an explicit provider.
-If the automated providers are unavailable or fail, continue with a fresh-context Codex
-auditor instead of skipping the audit.
+workflow with project-aware skill support. The bundled script now tries Claude first,
+then a different model family, and keeps same-model shell-outs for last resort. Codex
+and Gemini are both available as explicit providers. If the automated providers are
+unavailable or fail, continue with a fresh-context Codex auditor instead of skipping
+the audit.
 
 #### Automated Path: Provider-Aware Script
 
@@ -226,15 +232,18 @@ cat "$REPORT_FILE"
 
 Provider selection:
 
-- Default is `auto`, which tries Claude first and Gemini second.
+- Default is `auto`, which tries Claude first, keeps the current agent's own model
+  family last, and uses the remaining provider in between.
 - Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `TEST_REVIEW_PROVIDER`.
+- Set `AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex` when the current agent is not
+  auto-detected. Codex sessions auto-detect themselves already.
 - The script validates the audit artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 
 #### Manual Fallback: Fresh-Context Codex
 
-If the bundled script cannot get a usable artifact from either Claude or Gemini:
+If the bundled script cannot get a usable artifact from any scripted provider:
 
 1. Gather the same source, tests, and bundled references the script would have used.
 2. Provide the auditor:
@@ -258,7 +267,7 @@ Act on findings:
 - **Pre-reading source before invoking the script** — Unnecessary. The script passes the module path to the provider flow.
 - **Ignoring the output artifact** — The gap report is written to a file. Read it.
 - **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
-- **Proceeding without any audit artifact** — Let the script try Gemini before switching to fresh-context Codex.
+- **Proceeding without any audit artifact** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
 
 ---
 
@@ -511,7 +520,7 @@ The audit does double duty: it finds missing coverage AND flags bad tests (mirro
 
 | Role | Agent | Skill |
 |------|-------|-------|
-| **Auditor** | Claude preferred; Gemini fallback; fresh-context Codex last resort | `test-review-request` first; fallback auditor uses bundled references and writes an artifact |
+| **Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `test-review-request` keeps same-model shell-outs last; fallback auditor uses bundled references and writes an artifact |
 | **Test Writer** | Codex or Gemini | Writes tests per `references/testing-standards.md` standards |
 
 ### Pragmatic Enforcement Policy
@@ -779,7 +788,7 @@ When filing deferred findings in this repository:
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
 - Preserving fallback review/audit artifacts in `.agents/reviews/` when Claude is unavailable
-- Falling back to Gemini, then a fresh-context Codex reviewer/auditor, when Claude is unavailable
+- Falling back to another model family before the same-model last resort when Claude is unavailable
 - Fixing ONLY the findings the independent review/audit artifact identifies (no scope creep during remediation)
 - Discovering and running the project linter after both loops exit
 - Running auto-fix first, then manually fixing remaining lint issues
@@ -840,14 +849,14 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │
    ├── CODE CHANGE LOOP
    │   ├── You: implement ONE commit's worth of change
-   │   ├── specialist-review → Claude reviews diff, else Gemini, else fresh-context Codex (max 3 cycles)
+   │   ├── specialist-review → Claude reviews diff, else non-self provider, else same-model last resort, else fresh-context Codex (max 3 cycles)
    │   ├── You: remediate P0/P1 → re-review with prior artifact
    │   ├── File issues for P2/P3
    │   ├── Run tests → Pass?
    │   └── committer "type(scope): summary" <files>
    │       │
    │   ├── TEST WRITING LOOP
-   │   │   ├── test-review-request → Claude audits, else Gemini, else fresh-context Codex
+   │   │   ├── test-review-request → Claude audits, else non-self provider, else same-model last resort, else fresh-context Codex
    │   │   ├── Human: scope approval (P0/P1 auto-approved)
    │   │   ├── You: write tests (testing-standards.md)
    │   │   ├── You: verify tests pass locally

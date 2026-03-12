@@ -199,7 +199,9 @@ with open(sys.argv[4], 'w') as f:
 # --- Invoke provider CLI ---
 
 # Environment variables:
-#   AGENT_LOOPS_LLM_PROVIDER  — Default provider selection: auto|claude|gemini|codex
+#   AGENT_LOOPS_LLM_PROVIDER   — Default provider selection: auto|claude|gemini|codex
+#   AGENT_LOOPS_SELF_PROVIDER  — Current agent provider for self-last auto ordering
+#                                 (auto-detects Codex; set explicitly for Gemini/Claude)
 #   SPECIALIST_REVIEW_PROVIDER — Override provider selection for this script only
 #   CLAUDE_TIMEOUT            — Max seconds for Claude CLI (default: 300)
 #   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)
@@ -223,7 +225,17 @@ if [[ ! -s "$PROMPT_FILE" ]]; then
   exit 1
 fi
 
-mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER") || exit 1
+SELF_PROVIDER="$(review_provider_detect_self)"
+mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER") || exit 1
+
+if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+  if [[ -n "$SELF_PROVIDER" ]]; then
+    echo "Self provider: $SELF_PROVIDER (kept last in auto order)" >&2
+  else
+    echo "Self provider: unknown (set AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex to keep same-model reviews last)" >&2
+  fi
+  echo "Auto provider order: ${PROVIDERS[*]}" >&2
+fi
 
 AVAILABLE_PROVIDER_FOUND=0
 

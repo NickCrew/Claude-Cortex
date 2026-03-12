@@ -15,6 +15,8 @@
 #
 # Environment:
 #   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini|codex
+#   AGENT_LOOPS_SELF_PROVIDER Current agent provider for self-last auto ordering
+#                             (auto-detects Codex; set explicitly for Gemini/Claude)
 #   TEST_REVIEW_PROVIDER     Override provider selection for this script only
 #   CLAUDE_TIMEOUT           Timeout in seconds for Claude (default: 300)
 #   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
@@ -286,7 +288,17 @@ if [[ ! -s "$SYSTEM_PROMPT_FILE" ]]; then
   exit 1
 fi
 
-mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER") || exit 1
+SELF_PROVIDER="$(review_provider_detect_self)"
+mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER") || exit 1
+
+if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+  if [[ -n "$SELF_PROVIDER" ]]; then
+    echo "Self provider: $SELF_PROVIDER (kept last in auto order)" >&2
+  else
+    echo "Self provider: unknown (set AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex to keep same-model reviews last)" >&2
+  fi
+  echo "Auto provider order: ${PROVIDERS[*]}" >&2
+fi
 
 AVAILABLE_PROVIDER_FOUND=0
 
