@@ -1,6 +1,6 @@
 ---
 name: agent-loops
-description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled scripts for specialist-review (code review) and test-review-request (test audit) that delegate to Claude CLI. Use this skill when starting any implementation task.
+description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled Claude-first review scripts plus Gemini and fresh-context Codex fallback review paths for code review and test audit. Use this skill when starting any implementation task.
 keywords:
   - agent workflow
   - code review loop
@@ -25,19 +25,21 @@ This skill defines the operational loops that implementer agents follow when mak
 code changes and writing tests. Each loop has explicit entry criteria, exit criteria,
 and escalation rules. If you are an agent, follow these loops exactly.
 
-**You do not review your own work.** All reviews are performed by Claude via dedicated
-skills. You never grade your own homework.
+**You do not review your own work.** All reviews are performed by an independent
+reviewer. Prefer Claude via the bundled scripts. If Claude is unavailable, use
+Gemini; if Gemini is unavailable, use a fresh-context Codex reviewer that did not
+implement the change. You never grade your own homework.
 
 **Bundled references:**
 - `references/testing-standards.md` — Test quality standards (how to write tests)
 - `references/audit-workflow.md` — Test gap discovery (how to find what's missing)
-- `references/perspective-catalog.md` — Review perspective selection (used by specialist-review)
-- `references/review-prompt.md` — Claude review prompt template
-- `references/audit-prompt.md` — Claude test audit prompt template
+- `references/perspective-catalog.md` — Review perspective selection (used by primary and fallback code review)
+- `references/review-prompt.md` — Code review prompt template for fallback reviewers
+- `references/audit-prompt.md` — Test audit prompt template for fallback reviewers
 
 **Bundled scripts:**
-- `$SKILL_DIR/scripts/specialist-review.sh` — Shell out to Claude CLI for code review
-- `$SKILL_DIR/scripts/test-review-request.sh` — Shell out to Claude CLI for test audit
+- `$SKILL_DIR/scripts/specialist-review.sh` — Primary Claude CLI path for code review
+- `$SKILL_DIR/scripts/test-review-request.sh` — Primary Claude CLI path for test audit
 
 ### Locate Scripts
 
@@ -58,32 +60,59 @@ at the start of your session and reuse the variable.
 | Role | Agent | How |
 |------|-------|-----|
 | **Implementer** | Codex or Gemini | Writes code changes and test code |
-| **Code Reviewer** | Claude | Invoked via `specialist-review` skill |
-| **Test Auditor** | Claude | Invoked via `test-review-request` skill — finds gaps AND flags bad tests |
-| **Remediator** | Codex or Gemini | Fixes findings from Claude's reviews |
+| **Code Reviewer** | Claude preferred; Gemini fallback; fresh-context Codex last resort | Claude via `specialist-review`; fallback reviewer uses bundled prompts and produces a review artifact |
+| **Test Auditor** | Claude preferred; Gemini fallback; fresh-context Codex last resort | Claude via `test-review-request`; fallback auditor uses bundled prompts and produces an audit artifact |
+| **Remediator** | Codex or Gemini | Fixes findings from the independent review/audit artifact |
 
-**Critical rule:** Codex and Gemini NEVER self-review. Every review step means invoking a skill to send work to Claude. If you cannot invoke the review skill, STOP and escalate to the user — do not substitute your own review.
-If shelling out to Claude fails (script error, CLI unavailable, permissions/network failure, timeout), escalate to the user immediately.
+**Critical rule:** Codex and Gemini NEVER self-review. Every review step must be
+performed by an independent reviewer using this selection order:
+1. Claude via the bundled script
+2. Gemini using the bundled review/audit references
+3. A fresh-context Codex reviewer that did not implement the change
+
+If none of the three review paths is available, stop and escalate to the user.
+
+## Reviewer Selection Order
+
+When a review or audit is required, use this exact fallback chain:
+
+1. **Claude first.** Run the bundled script and use the generated artifact.
+2. **Gemini second.** Reuse the bundled prompt/reference files, scope the input to
+   touched files or the audited module, and save Gemini's output to a markdown
+   artifact under `.agents/reviews/`.
+3. **Fresh-context Codex third.** Spawn a reviewer agent with fresh context. That
+   agent must:
+   - not have authored or edited the implementation under review
+   - receive only the task spec, relevant diff/module/tests, and the bundled references
+   - act only as reviewer/auditor, not as implementer
+   - write its result to a markdown artifact under `.agents/reviews/`
+4. **Escalate** if no independent reviewer is available.
+
+Treat fallback artifacts exactly like script-generated `REVIEW_FILE` or
+`REPORT_FILE` outputs in the loops below. Call out fallback usage in the handoff so
+humans know whether the review came from Claude, Gemini, or fresh-context Codex.
 
 ---
 
 ## Skill Invocation Reference
 
-### `specialist-review` — Request Code Review from Claude
+### `specialist-review` — Request Code Review
 
 **When:** After completing implementation, after each remediation cycle.
 **What you get back:** Findings with severity levels (P0-P3) and a verdict (BLOCKED / PASS WITH ISSUES / CLEAN).
 
 #### IMPORTANT: Do Not Review the Code Yourself
 
-Your ONLY job is to run the script and read the output file. Do NOT analyze the diff.
-Do NOT write review comments. Do NOT adopt perspectives. Shell out and read the result.
+Your ONLY job is to invoke an independent reviewer and read the output artifact. Do
+NOT analyze the diff as the reviewer. Do NOT write review comments yourself. Do NOT
+adopt perspectives yourself. Route the review to Claude first, then fallback if needed.
 
-The review requires Claude's skills ecosystem (JIT loading of domain-specific skills
-like `owasp-top-10`, `secure-coding-practices`, `python-testing-patterns`, etc.).
-Non-Claude agents do not have access to these skills.
+Claude is the preferred reviewer because it can load domain-specific skills such as
+`owasp-top-10`, `secure-coding-practices`, and `python-testing-patterns`. If Claude
+is unavailable, continue with Gemini or a fresh-context Codex reviewer instead of
+reviewing the code yourself.
 
-#### How to Invoke
+#### Primary Path: Claude Script
 
 ```bash
 # Review only the files you changed (RECOMMENDED)
@@ -114,30 +143,48 @@ cat "$REVIEW_FILE"
 **Always scope to the files you touched.** In a monorepo, an unscoped `--git` sends
 the entire repo diff to Claude, wasting tokens and risking timeouts.
 
+#### Fallback Path: Gemini or Fresh-Context Codex
+
+If the Claude script fails because the CLI is unavailable, times out, or cannot run:
+
+1. Generate the same scoped diff you would have sent to Claude.
+2. Provide the reviewer:
+   - `references/review-prompt.md`
+   - `references/perspective-catalog.md`
+   - the scoped diff
+   - the prior review artifact, if this is a remediation cycle
+3. Require the reviewer to emit markdown that follows the `Review Output Format`
+   documented later in this skill.
+4. Save that output under `.agents/reviews/review-<timestamp>-fallback.md` and treat
+   the saved path as `REVIEW_FILE`.
+
+Use Gemini before a fresh-context Codex reviewer. Use a fresh-context Codex reviewer
+only when Gemini is also unavailable.
+
 #### Anti-Patterns
 
-- **Performing the review yourself** — You do not have the skills ecosystem. Shell out.
-- **Summarizing the diff before shelling out** — Unnecessary. The script reads the diff directly.
-- **Ignoring the output file** — The review is written to a file. Read it.
-- **Using sub-agents for the review** — The script invokes a single Claude CLI process.
-- **Proceeding after a failed shell-out** — Escalate to the user instead of continuing without Claude review.
+- **Performing the review yourself** — Use an independent reviewer, never the implementer.
+- **Summarizing the diff before invoking Claude** — Unnecessary. The script reads the diff directly.
+- **Ignoring the output artifact** — The review is written to a file. Read it.
+- **Using a same-context Codex agent as reviewer** — If Codex is the fallback reviewer, it must have fresh context and no implementation authorship.
+- **Stopping at the first Claude failure** — Try Gemini, then fresh-context Codex, before escalating.
 
-### `test-review-request` — Request Test Audit from Claude
+### `test-review-request` — Request Test Audit
 
 **When:** Initial audit (before writing tests) and re-audit (after writing/fixing tests).
 **What you get back:** A gap report covering both missing coverage AND test quality issues (mirror tests, flaky assertions, etc.), with P0/P1/P2 severity.
 
 #### IMPORTANT: Do Not Audit the Tests Yourself
 
-Your ONLY job is to run the script and read the output file. Do NOT read source code
-to map behaviors. Do NOT classify test coverage. Do NOT produce a gap report.
-Shell out and read the result.
+Your ONLY job is to invoke an independent auditor and read the output artifact. Do
+NOT map behaviors yourself. Do NOT classify test coverage yourself. Do NOT produce
+the gap report yourself. Route the audit to Claude first, then fallback if needed.
 
-The audit requires Claude's skills ecosystem — specifically the `test-review` skill
-which pipelines testing standards into a structured audit workflow. Non-Claude agents
-do not have access to these skills or the project-specific testing standards.
+Claude is the preferred auditor because it can apply the testing standards and audit
+workflow with project-aware skill support. If Claude is unavailable, continue with
+Gemini or a fresh-context Codex auditor instead of skipping the audit.
 
-#### How to Invoke
+#### Primary Path: Claude Script
 
 ```bash
 # Full audit of a module (default)
@@ -159,6 +206,24 @@ REPORT_FILE=$("$SKILL_DIR/scripts/test-review-request.sh" src/parser)
 cat "$REPORT_FILE"
 ```
 
+#### Fallback Path: Gemini or Fresh-Context Codex
+
+If the Claude audit script fails because the CLI is unavailable, times out, or cannot run:
+
+1. Gather the same source, tests, and bundled references the script would have used.
+2. Provide the auditor:
+   - `references/audit-prompt.md`
+   - `references/testing-standards.md`
+   - `references/audit-workflow.md`
+   - the scoped module and test content
+3. Require the auditor to emit markdown that follows the same gap-report contract
+   used by this skill's audit loop.
+4. Save that output under `.agents/reviews/test-audit-<timestamp>-fallback.md` and
+   treat the saved path as `REPORT_FILE`.
+
+Use Gemini before a fresh-context Codex auditor. Use a fresh-context Codex auditor
+only when Gemini is also unavailable.
+
 Act on findings:
 - **P0 (Security/Correctness Critical)**: Fix before merge.
 - **P1 (Reliability/Edge Cases)**: Fix in current sprint.
@@ -166,11 +231,11 @@ Act on findings:
 
 #### Anti-Patterns
 
-- **Performing the audit yourself** — You do not have the testing standards or audit workflow.
-- **Pre-reading source before shelling out** — Unnecessary. The script passes the module path to Claude.
-- **Ignoring the output file** — The gap report is written to a file. Read it.
-- **Using sub-agents for the audit** — The script invokes a single Claude CLI process.
-- **Proceeding after a failed shell-out** — Escalate to the user instead of continuing without Claude audit.
+- **Performing the audit yourself** — Use an independent auditor, never the implementer.
+- **Pre-reading source before invoking Claude** — Unnecessary. The script passes the module path to Claude.
+- **Ignoring the output artifact** — The gap report is written to a file. Read it.
+- **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
+- **Proceeding without any audit artifact** — Try Gemini, then fresh-context Codex, before escalating.
 
 ---
 
@@ -285,7 +350,7 @@ ENTRY: Next atomic commit from your decomposition plan.
        ▼
 ┌──────────────────┐
 │ specialist-review│ ← Run: "$SKILL_DIR/scripts/specialist-review.sh" --git -- <files>
-└──────┬───────────┘   Script diffs your changed files, sends to Claude
+└──────┬───────────┘   Claude script first; fallback reviewer uses the same scoped diff
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
@@ -301,7 +366,7 @@ ENTRY: Next atomic commit from your decomposition plan.
        ▼                                                   ▼
                                           ┌──────────────────┐
                                           │  REMEDIATE       │ ← You: fix ONLY P0/P1
-                                          └──────┬───────────┘   findings cited by Claude
+                                          └──────┬───────────┘   findings cited by the review artifact
                                                  │
                                                  ▼
                                           ┌──────────────────┐
@@ -318,13 +383,14 @@ ENTRY: Next atomic commit from your decomposition plan.
 If P0/P1 findings remain after 3 cycles:
 1. Stop. Do not attempt a 4th remediation.
 2. Produce a summary of unresolved findings with context on why they persist.
-3. Escalate to human reviewer with the summary and Claude's last review output.
+3. Escalate to human reviewer with the summary and the latest review artifact.
 
 This prevents infinite loops when you keep introducing new issues while fixing old ones, or when a finding requires a design-level change you can't make in remediation scope.
 
-### Code Review Checklist (Claude's Criteria)
+### Code Review Checklist (Reviewer Criteria)
 
-Claude evaluates against these criteria via `specialist-review`. You need to understand these so you can anticipate and prevent issues before review, and correctly interpret findings during remediation.
+Any reviewer evaluates against these criteria. Use them to anticipate and prevent
+issues before review, and to interpret findings during remediation.
 
 **Correctness:**
 - [ ] Does the code do what the spec says? Not more, not less.
@@ -356,9 +422,9 @@ Claude evaluates against these criteria via `specialist-review`. You need to und
 - [ ] Are lock scopes minimized?
 - [ ] Could this deadlock? (nested locks, await while holding lock)
 
-### Review Output Format (What Claude Returns)
+### Review Output Format (What the Reviewer Returns)
 
-Claude's `specialist-review` response will follow this format. Parse it to determine your next action.
+All review paths must produce this format. Parse it to determine your next action.
 
 ```markdown
 ## Code Review: [change description]
@@ -395,12 +461,12 @@ Claude's `specialist-review` response will follow this format. Parse it to deter
 
 ### Remediation Rules
 
-When fixing findings from Claude's review:
+When fixing findings from the review artifact:
 - Fix ONLY the cited findings. Do not refactor adjacent code.
 - Do not introduce new functionality while remediating.
-- If a fix requires changing the approach significantly, note this in the remediation and let Claude evaluate the full new approach on the next `specialist-review` cycle.
+- If a fix requires changing the approach significantly, note this in the remediation and let the next reviewer evaluate the full new approach on the next review cycle.
 - Each remediated finding should be annotated: `Fixed P0-001: [what was changed]`
-- **Scope remediation reviews to only the files you touched.** Pass `--prior-review "$REVIEW_FILE"` so Claude can verify fixes and check for regressions without re-reviewing already-approved code:
+- **Scope remediation reviews to only the files you touched.** Pass `--prior-review "$REVIEW_FILE"` when using Claude, or provide the prior artifact when using a fallback reviewer, so the next review can verify fixes and check for regressions without re-reviewing already-approved code:
   ```bash
   # Initial review — full scope
   REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs)
@@ -408,7 +474,7 @@ When fixing findings from Claude's review:
   # Remediation review — only the files you fixed, with prior review for continuity
   REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git --prior-review "$REVIEW_FILE" -- src/auth.rs)
   ```
-- If you disagree with a finding, see "Disagreeing with Claude's Findings" below — do not silently skip it.
+- If you disagree with a finding, see "Disagreeing with Review Findings" below — do not silently skip it.
 
 ---
 
@@ -422,14 +488,14 @@ The audit does double duty: it finds missing coverage AND flags bad tests (mirro
 
 | Role | Agent | Skill |
 |------|-------|-------|
-| **Auditor** | Claude | `test-review-request` — finds gaps and flags bad tests per `references/audit-workflow.md` |
+| **Auditor** | Claude preferred; Gemini fallback; fresh-context Codex last resort | `test-review-request` first; fallback auditor uses bundled references and writes an artifact |
 | **Test Writer** | Codex or Gemini | Writes tests per `references/testing-standards.md` standards |
 
 ### Pragmatic Enforcement Policy
 
 Use a hybrid gate to avoid unnecessary friction while preserving confidence:
 
-- **Non-trivial code changes (default):** The test-writing loop is required. Do not close the loop without audit evidence from `test-review-request` and a re-audit state with no unresolved P0/P1 gaps.
+- **Non-trivial code changes (default):** The test-writing loop is required. Do not close the loop without audit evidence from `test-review-request` or a fallback audit artifact, and a re-audit state with no unresolved P0/P1 gaps.
 - **Trivial changes (explicit exception):** Docs-only, comments-only, formatting-only, or rename-only edits may skip the audit loop.
 - **Mandatory note for skips:** Every skip must include `audit skipped: trivial` with a one-line reason in the loop summary.
 - **Uncertainty rule:** If it is not clearly trivial, run the audit.
@@ -446,7 +512,7 @@ ENTRY: Code change loop has exited cleanly.
 
 ┌──────────────────────┐
 │  AUDIT               │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
-└──────┬───────────────┘   Script sends module + tests to Claude, returns gap report
+└──────┬───────────────┘   Claude script first; fallback auditor uses the same scoped materials
        │
        ▼
 ┌──────────────────────┐
@@ -468,7 +534,7 @@ ENTRY: Code change loop has exited cleanly.
 ┌──────────────────────┐
 │  RE-AUDIT            │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
 └──────┬───────────────┘   Same module path — script re-reads source + tests
-       │                   Claude checks: gaps closed? new tests good?
+       │                   Reviewer checks: gaps closed? new tests good?
        │
        ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
        │                                   Run full test suite
@@ -516,6 +582,9 @@ A bad test shows up as an unclosed gap. A mirror test for behavior X means X is 
 **Maximum iterations: 3 audit cycles** (initial audit + 2 re-audits).
 
 If P0/P1 gaps remain after 3 cycles, escalate to human with a summary of what's proving difficult to test and why. This usually indicates the code needs refactoring to be testable — that's a design problem, not a test problem.
+
+If Claude was unavailable for one or more audit cycles, include that fact in the
+summary so humans know the audit path used.
 
 ---
 
@@ -686,7 +755,9 @@ When filing deferred findings in this repository:
 - Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
-- Fixing ONLY the findings Claude identifies (no scope creep during remediation)
+- Preserving fallback review/audit artifacts in `.agents/reviews/` when Claude is unavailable
+- Falling back to Gemini, then a fresh-context Codex reviewer/auditor, when Claude is unavailable
+- Fixing ONLY the findings the independent review/audit artifact identifies (no scope creep during remediation)
 - Discovering and running the project linter after both loops exit
 - Running auto-fix first, then manually fixing remaining lint issues
 - Verifying tests still pass after lint fixes
@@ -695,17 +766,17 @@ When filing deferred findings in this repository:
 - Escalating when circuit breaker triggers
 
 **You are NOT responsible for:**
-- Reviewing your own code (Claude does this)
-- Judging your own test coverage or quality (Claude does this via audit)
-- Deciding whether a finding is valid (if you disagree, note it in the remediation and let Claude re-evaluate — do not silently skip findings)
+- Reviewing your own code (an independent reviewer does this)
+- Judging your own test coverage or quality (an independent auditor does this)
+- Deciding whether a finding is valid (if you disagree, note it in the remediation and let the next review re-evaluate — do not silently skip findings)
 
-### Disagreeing with Claude's Findings
+### Disagreeing with Review Findings
 
-If Claude flags something you believe is incorrect:
+If the reviewer flags something you believe is incorrect:
 1. Do NOT silently ignore the finding.
 2. In your remediation response, explicitly state: `Disputed P1-003: [your reasoning]`
-3. Run the script again with the dispute noted in your commit/changes.
-4. Claude will either accept your reasoning or reaffirm the finding with additional context.
+3. Run the next review pass with the dispute noted in your commit/changes or fallback review materials.
+4. The next review pass will either accept your reasoning or reaffirm the finding with additional context.
 5. If still disputed after 2 cycles, escalate to human — do not loop forever on a disagreement.
 
 ### What "Escalate to Human" Means
@@ -746,18 +817,18 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │
    ├── CODE CHANGE LOOP
    │   ├── You: implement ONE commit's worth of change
-   │   ├── specialist-review → Claude reviews diff (max 3 cycles)
-   │   ├── You: remediate P0/P1 → re-review with --prior-review
+   │   ├── specialist-review → Claude reviews diff, else Gemini, else fresh-context Codex (max 3 cycles)
+   │   ├── You: remediate P0/P1 → re-review with prior artifact
    │   ├── File issues for P2/P3
    │   ├── Run tests → Pass?
    │   └── committer "type(scope): summary" <files>
    │       │
    │   ├── TEST WRITING LOOP
-   │   │   ├── test-review-request → Claude audits (gaps + quality)
+   │   │   ├── test-review-request → Claude audits, else Gemini, else fresh-context Codex
    │   │   ├── Human: scope approval (P0/P1 auto-approved)
    │   │   ├── You: write tests (testing-standards.md)
    │   │   ├── You: verify tests pass locally
-   │   │   ├── test-review-request → Claude re-audits (max 3 cycles)
+   │   │   ├── test-review-request → re-audit using the same reviewer chain (max 3 cycles)
    │   │   ├── You: remediate P0/P1 gaps and bad tests
    │   │   ├── File issues for P2/P3
    │   │   ├── Run full test suite → Pass?
