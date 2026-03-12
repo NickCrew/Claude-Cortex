@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# test-review-request.sh — Invoke a test coverage audit via Claude CLI
+# test-review-request.sh — Invoke a test coverage audit via Claude/Gemini CLI
 #
 # Usage:
 #   test-review-request.sh <module-path> [options]
@@ -10,21 +10,27 @@
 #   --tests <path>    Specify test directory (default: auto-discover)
 #   --output <dir>    Output directory (default: .agents/reviews)
 #   --quick           Quick review mode (anti-patterns only, no full audit)
-#   --debug           Save prompt and Claude output to log files for debugging
+#   --debug           Save prompt and provider output to log files for debugging
+#   --provider <name> auto (default), claude, or gemini
 #
 # Environment:
-#   CLAUDE_TIMEOUT     Timeout in seconds (default: 300)
-#   CLAUDE_MAX_BUDGET  Max spend in USD (default: 0.50)
-#   CLAUDE_DEBUG=1     Same as --debug flag
+#   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini
+#   TEST_REVIEW_PROVIDER     Override provider selection for this script only
+#   CLAUDE_TIMEOUT           Timeout in seconds for Claude (default: 300)
+#   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
+#   CLAUDE_MAX_BUDGET        Max spend in USD per Claude invocation (default: 0.50)
+#   CLAUDE_DEBUG=1           Same as --debug flag
 #
 # All source, test, and reference content is inlined into the prompt.
-# Single-turn, no tools: Claude outputs the report to stdout.
+# Single-turn, no tools: the selected provider outputs the report to stdout.
 
 set -euo pipefail
 
 # Resolve physical paths to handle symlink invocation (e.g. ~/.codex/skills/...)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
+source "$SCRIPT_DIR/review-provider.sh"
+
 CALLER_CWD="$(pwd -P)"
 
 # Resolve repo root from caller's CWD (best-effort). Unlike specialist-review,
@@ -47,6 +53,7 @@ TEST_PATH=""
 OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
 MODE="full"
 DEBUG="${CLAUDE_DEBUG:-0}"
+REQUESTED_PROVIDER="${TEST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -70,6 +77,15 @@ while [[ $# -gt 0 ]]; do
     ;;
   --debug)
     DEBUG=1
+    shift
+    ;;
+  --provider)
+    shift
+    REQUESTED_PROVIDER="${1:-}"
+    if [[ -z "$REQUESTED_PROVIDER" ]]; then
+      echo "Error: --provider requires auto, claude, or gemini" >&2
+      exit 1
+    fi
     shift
     ;;
   *)
@@ -249,26 +265,17 @@ if [[ -n "$PROMPT_LOG" ]]; then
   echo "Debug: prompt saved to $PROMPT_LOG" >&2
 fi
 
-# --- Invoke Claude CLI ---
+# --- Invoke provider CLI ---
 
-TIMEOUT="${CLAUDE_TIMEOUT:-300}"
-MAX_BUDGET="${CLAUDE_MAX_BUDGET:-0.50}"
+DEFAULT_TIMEOUT=300
 
 echo "Starting test coverage audit ($MODE mode)..." >&2
 echo "Module: $MODULE_PATH" >&2
 echo "Tests: $TEST_PATH" >&2
 echo "Output: $OUTPUT_FILE" >&2
-echo "Timeout: ${TIMEOUT}s, Budget: \$${MAX_BUDGET}" >&2
-
-START_TIME=$(date +%s)
+echo "Requested provider: $REQUESTED_PROVIDER" >&2
 
 # --- Pre-flight checks ---
-
-if ! command -v claude &>/dev/null; then
-  echo "Error: 'claude' CLI not found in PATH." >&2
-  echo "Install Claude Code: https://docs.anthropic.com/en/docs/claude-code" >&2
-  exit 1
-fi
 
 if [[ ! -s "$SYSTEM_PROMPT_FILE" ]]; then
   echo "Error: Prompt file is empty after template substitution." >&2
@@ -276,64 +283,83 @@ if [[ ! -s "$SYSTEM_PROMPT_FILE" ]]; then
   exit 1
 fi
 
-# Unset CLAUDECODE to allow launching Claude CLI from within a Claude Code session.
-# These are intentionally independent single-turn invocations, not nested sessions.
-unset CLAUDECODE 2>/dev/null || true
+mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER") || exit 1
 
-# --- Invoke Claude CLI ---
-#
-# Single-turn, no tools: the audit report is output to stdout and captured directly.
-# --tools "" disables all tools so claude outputs the report as text.
-# --no-session-persistence avoids writing session state to disk.
-# stdin from prompt file ensures clean EOF (no TTY hang).
-# stderr is captured to a log file for diagnostics on failure.
+AVAILABLE_PROVIDER_FOUND=0
 
-STDERR_LOG="$OUTPUT_DIR/test-audit-$TIMESTAMP.stderr.log"
-
-if timeout "$TIMEOUT" claude --print \
-  --no-session-persistence \
-  --max-budget-usd "$MAX_BUDGET" \
-  --tools "" \
-  <"$SYSTEM_PROMPT_FILE" >"$OUTPUT_FILE" 2>"$STDERR_LOG"; then
-
-  ELAPSED=$(($(date +%s) - START_TIME))
-  echo "Claude finished in ${ELAPSED}s" >&2
-
-  if [[ -s "$OUTPUT_FILE" ]]; then
-    # Clean up stderr log on success (unless debugging)
-    if [[ "$DEBUG" != "1" ]]; then
-      rm -f "$STDERR_LOG"
+for PROVIDER in "${PROVIDERS[@]}"; do
+  if ! review_provider_is_available "$PROVIDER"; then
+    if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+      echo "Provider '$PROVIDER' is not available in PATH; trying next fallback." >&2
+      continue
     fi
-    echo "$OUTPUT_FILE"
-  else
-    echo "Error: Claude completed (exit 0) but report file is empty." >&2
-    echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
-    echo "  Budget: \$${MAX_BUDGET}" >&2
-    if [[ -s "$STDERR_LOG" ]]; then
-      echo "  Claude stderr:" >&2
-      sed 's/^/    /' "$STDERR_LOG" >&2
-    fi
+
+    echo "Error: Requested provider '$PROVIDER' is not available in PATH." >&2
+    echo "Install '$PROVIDER' or use --provider auto." >&2
     exit 1
   fi
-else
-  EXIT_CODE=$?
-  ELAPSED=$(($(date +%s) - START_TIME))
 
-  if [[ "$EXIT_CODE" -eq 124 ]]; then
-    echo "Error: Claude CLI timed out after ${ELAPSED}s (limit: ${TIMEOUT}s)" >&2
-  else
-    echo "Error: Claude CLI invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+  AVAILABLE_PROVIDER_FOUND=1
+  STDERR_LOG="$OUTPUT_DIR/test-audit-$TIMESTAMP.$PROVIDER.stderr.log"
+  TIMEOUT_SECONDS="$(review_provider_timeout "$PROVIDER" "$DEFAULT_TIMEOUT")"
+
+  echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
+  if [[ "$PROVIDER" == "claude" ]]; then
+    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
+  elif [[ -n "${GEMINI_MODEL:-}" ]]; then
+    echo "Gemini model override: ${GEMINI_MODEL}" >&2
   fi
 
-  # Show stderr from Claude CLI for diagnostics
+  rm -f "$OUTPUT_FILE"
+  START_TIME=$(date +%s)
+
+  if review_provider_run "$PROVIDER" "$SYSTEM_PROMPT_FILE" "$OUTPUT_FILE" "$STDERR_LOG" "$TIMEOUT_SECONDS"; then
+    ELAPSED=$(($(date +%s) - START_TIME))
+    echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
+
+    if [[ -s "$OUTPUT_FILE" ]]; then
+      if [[ "$DEBUG" != "1" ]]; then
+        rm -f "$STDERR_LOG"
+      fi
+      echo "$OUTPUT_FILE"
+      exit 0
+    fi
+
+    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but report file is empty." >&2
+    echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
+  else
+    EXIT_CODE=$?
+    ELAPSED=$(($(date +%s) - START_TIME))
+
+    if [[ "$EXIT_CODE" -eq 124 ]]; then
+      echo "Error: $(review_provider_display_name "$PROVIDER") timed out after ${ELAPSED}s (limit: ${TIMEOUT_SECONDS}s)" >&2
+    else
+      echo "Error: $(review_provider_display_name "$PROVIDER") invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+    fi
+  fi
+
   if [[ -s "$STDERR_LOG" ]]; then
-    echo "  Claude stderr:" >&2
+    echo "  $(review_provider_display_name "$PROVIDER") stderr:" >&2
     sed 's/^/    /' "$STDERR_LOG" >&2
   fi
 
-  # Preserve partial output if any
   if [[ -s "$OUTPUT_FILE" ]]; then
-    echo "Partial output saved to: $OUTPUT_FILE" >&2
+    PARTIAL_OUTPUT="$OUTPUT_DIR/test-audit-$TIMESTAMP.$PROVIDER.partial.md"
+    mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
+    echo "Partial output saved to: $PARTIAL_OUTPUT" >&2
   fi
+
+  if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+    echo "Trying next provider fallback..." >&2
+    continue
+  fi
+
   exit 1
+done
+
+if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
+  echo "Error: No audit providers are available in PATH. Install 'claude' or 'gemini', or use the fresh-context Codex fallback." >&2
+else
+  echo "Error: All audit providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
 fi
+exit 1

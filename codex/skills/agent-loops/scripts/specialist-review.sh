@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# specialist-review.sh — Invoke a multi-perspective specialist review via Claude CLI
+# specialist-review.sh — Invoke a multi-perspective specialist review via Claude/Gemini CLI
 #
 # Usage:
 #   specialist-review.sh [options] [-- path...]
@@ -11,6 +11,7 @@
 #   --git [base-ref]       Diff against base-ref (default: HEAD~1)
 #   --output <dir>         Output directory (default: .agents/reviews)
 #   --prior-review <file>  Include previous review output for continuity across cycles
+#   --provider <name>      auto (default), claude, or gemini
 #   -- path...             Limit git diff to these paths (passed to git diff)
 #
 # Examples:
@@ -38,6 +39,8 @@ set -euo pipefail
 # Resolve physical paths to handle symlink invocation (e.g. ~/.codex/skills/...)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
+source "$SCRIPT_DIR/review-provider.sh"
+
 PROMPT_TEMPLATE="$SKILL_DIR/references/review-prompt.md"
 PERSPECTIVE_CATALOG="$SKILL_DIR/references/perspective-catalog.md"
 
@@ -56,6 +59,7 @@ BASE_REF="HEAD~1"
 CONTEXT_LINES="${REVIEW_CONTEXT:-15}"
 PRIOR_REVIEW_FILE=""
 PATH_FILTERS=()
+REQUESTED_PROVIDER="${SPECIALIST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -80,6 +84,15 @@ while [[ $# -gt 0 ]]; do
   --output)
     shift
     OUTPUT_DIR="${1:-$REPO_ROOT/.agents/reviews}"
+    shift
+    ;;
+  --provider)
+    shift
+    REQUESTED_PROVIDER="${1:-}"
+    if [[ -z "$REQUESTED_PROVIDER" ]]; then
+      echo "Error: --provider requires auto, claude, or gemini" >&2
+      exit 1
+    fi
     shift
     ;;
   --)
@@ -182,27 +195,24 @@ with open(sys.argv[4], 'w') as f:
     f.write(result)
 " "$PROMPT_TEMPLATE" "$PERSPECTIVE_CATALOG" "$DIFF_FILE" "$PROMPT_FILE" "$PRIOR_REVIEW_FILE"
 
-# --- Invoke Claude CLI ---
+# --- Invoke provider CLI ---
 
 # Environment variables:
-#   CLAUDE_TIMEOUT    — Max seconds for Claude CLI (default: 300)
-#   CLAUDE_MAX_BUDGET — Max USD budget per invocation (default: 0.50)
-#   REVIEW_CONTEXT    — Lines of diff context, passed as -U<n> to git diff (default: 15)
-TIMEOUT="${CLAUDE_TIMEOUT:-300}"
-MAX_BUDGET="${CLAUDE_MAX_BUDGET:-0.50}"
+#   AGENT_LOOPS_LLM_PROVIDER  — Default provider selection: auto|claude|gemini
+#   SPECIALIST_REVIEW_PROVIDER — Override provider selection for this script only
+#   CLAUDE_TIMEOUT            — Max seconds for Claude CLI (default: 300)
+#   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)
+#   CLAUDE_MAX_BUDGET         — Max USD budget per Claude invocation (default: 0.50)
+#   GEMINI_MODEL              — Optional Gemini model override
+#   REVIEW_CONTEXT            — Lines of diff context, passed as -U<n> to git diff (default: 15)
+DEFAULT_TIMEOUT=300
 
 PROMPT_SIZE=$(wc -c <"$PROMPT_FILE" | tr -d ' ')
 echo "Starting specialist review ($DIFF_LINES lines, prompt ${PROMPT_SIZE} bytes)..." >&2
 echo "Output: $OUTPUT_FILE" >&2
-echo "Timeout: ${TIMEOUT}s, Budget: \$${MAX_BUDGET}" >&2
+echo "Requested provider: $REQUESTED_PROVIDER" >&2
 
 # --- Pre-flight checks ---
-
-if ! command -v claude &>/dev/null; then
-  echo "Error: 'claude' CLI not found in PATH." >&2
-  echo "Install Claude Code: https://docs.anthropic.com/en/docs/claude-code" >&2
-  exit 1
-fi
 
 if [[ ! -s "$PROMPT_FILE" ]]; then
   echo "Error: Prompt file is empty after template substitution." >&2
@@ -210,66 +220,82 @@ if [[ ! -s "$PROMPT_FILE" ]]; then
   exit 1
 fi
 
-# Unset CLAUDECODE to allow launching Claude CLI from within a Claude Code session.
-# These are intentionally independent single-turn invocations, not nested sessions.
-unset CLAUDECODE 2>/dev/null || true
+mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER") || exit 1
 
-# --- Invoke Claude CLI ---
-#
-# Single-turn, no tools: the review is output to stdout and captured directly.
-# --tools "" disables all tools so claude outputs the review as text.
-# --no-session-persistence avoids writing session state to disk.
-# stdin from prompt file ensures clean EOF (no TTY hang).
-# stderr is captured to a log file for diagnostics on failure.
+AVAILABLE_PROVIDER_FOUND=0
 
-STDERR_LOG="$OUTPUT_DIR/review-$TIMESTAMP.stderr.log"
-
-START_TIME=$(date +%s)
-
-if timeout "$TIMEOUT" claude --print \
-  --no-session-persistence \
-  --max-budget-usd "$MAX_BUDGET" \
-  --tools "" \
-  <"$PROMPT_FILE" >"$OUTPUT_FILE" 2>"$STDERR_LOG"; then
-
-  ELAPSED=$(($(date +%s) - START_TIME))
-  echo "Claude finished in ${ELAPSED}s" >&2
-
-  if [[ -s "$OUTPUT_FILE" ]]; then
-    # Clean up stderr log on success
-    rm -f "$STDERR_LOG"
-    # Feed review outcomes into skill recommender (best-effort)
-    python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
-    echo "$OUTPUT_FILE"
-  else
-    echo "Error: Claude completed (exit 0) but review file is empty." >&2
-    echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
-    echo "  Budget: \$${MAX_BUDGET}" >&2
-    if [[ -s "$STDERR_LOG" ]]; then
-      echo "  Claude stderr:" >&2
-      sed 's/^/    /' "$STDERR_LOG" >&2
+for PROVIDER in "${PROVIDERS[@]}"; do
+  if ! review_provider_is_available "$PROVIDER"; then
+    if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+      echo "Provider '$PROVIDER' is not available in PATH; trying next fallback." >&2
+      continue
     fi
+
+    echo "Error: Requested provider '$PROVIDER' is not available in PATH." >&2
+    echo "Install '$PROVIDER' or use --provider auto." >&2
     exit 1
   fi
-else
-  EXIT_CODE=$?
-  ELAPSED=$(($(date +%s) - START_TIME))
 
-  if [[ "$EXIT_CODE" -eq 124 ]]; then
-    echo "Error: Claude CLI timed out after ${ELAPSED}s (limit: ${TIMEOUT}s)" >&2
-  else
-    echo "Error: Claude CLI invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+  AVAILABLE_PROVIDER_FOUND=1
+  STDERR_LOG="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.stderr.log"
+  TIMEOUT_SECONDS="$(review_provider_timeout "$PROVIDER" "$DEFAULT_TIMEOUT")"
+
+  echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
+  if [[ "$PROVIDER" == "claude" ]]; then
+    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
+  elif [[ -n "${GEMINI_MODEL:-}" ]]; then
+    echo "Gemini model override: ${GEMINI_MODEL}" >&2
   fi
 
-  # Show stderr from Claude CLI for diagnostics
+  rm -f "$OUTPUT_FILE"
+  START_TIME=$(date +%s)
+
+  if review_provider_run "$PROVIDER" "$PROMPT_FILE" "$OUTPUT_FILE" "$STDERR_LOG" "$TIMEOUT_SECONDS"; then
+    ELAPSED=$(($(date +%s) - START_TIME))
+    echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
+
+    if [[ -s "$OUTPUT_FILE" ]]; then
+      rm -f "$STDERR_LOG"
+      python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
+      echo "$OUTPUT_FILE"
+      exit 0
+    fi
+
+    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but review file is empty." >&2
+    echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
+  else
+    EXIT_CODE=$?
+    ELAPSED=$(($(date +%s) - START_TIME))
+
+    if [[ "$EXIT_CODE" -eq 124 ]]; then
+      echo "Error: $(review_provider_display_name "$PROVIDER") timed out after ${ELAPSED}s (limit: ${TIMEOUT_SECONDS}s)" >&2
+    else
+      echo "Error: $(review_provider_display_name "$PROVIDER") invocation failed (exit $EXIT_CODE) after ${ELAPSED}s" >&2
+    fi
+  fi
+
   if [[ -s "$STDERR_LOG" ]]; then
-    echo "  Claude stderr:" >&2
+    echo "  $(review_provider_display_name "$PROVIDER") stderr:" >&2
     sed 's/^/    /' "$STDERR_LOG" >&2
   fi
 
-  # Preserve partial output if any
   if [[ -s "$OUTPUT_FILE" ]]; then
-    echo "Partial output saved to: $OUTPUT_FILE" >&2
+    PARTIAL_OUTPUT="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.partial.md"
+    mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
+    echo "Partial output saved to: $PARTIAL_OUTPUT" >&2
   fi
+
+  if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+    echo "Trying next provider fallback..." >&2
+    continue
+  fi
+
   exit 1
+done
+
+if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
+  echo "Error: No review providers are available in PATH. Install 'claude' or 'gemini', or use the fresh-context Codex fallback." >&2
+else
+  echo "Error: All review providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
 fi
+exit 1

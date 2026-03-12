@@ -38,8 +38,8 @@ implement the change. You never grade your own homework.
 - `references/audit-prompt.md` — Test audit prompt template for fallback reviewers
 
 **Bundled scripts:**
-- `$SKILL_DIR/scripts/specialist-review.sh` — Primary Claude CLI path for code review
-- `$SKILL_DIR/scripts/test-review-request.sh` — Primary Claude CLI path for test audit
+- `$SKILL_DIR/scripts/specialist-review.sh` — Provider-aware Claude/Gemini CLI path for code review
+- `$SKILL_DIR/scripts/test-review-request.sh` — Provider-aware Claude/Gemini CLI path for test audit
 
 ### Locate Scripts
 
@@ -66,27 +66,24 @@ at the start of your session and reuse the variable.
 
 **Critical rule:** Codex and Gemini NEVER self-review. Every review step must be
 performed by an independent reviewer using this selection order:
-1. Claude via the bundled script
-2. Gemini using the bundled review/audit references
-3. A fresh-context Codex reviewer that did not implement the change
+1. Bundled script with automatic Claude-then-Gemini provider selection
+2. A fresh-context Codex reviewer that did not implement the change
 
-If none of the three review paths is available, stop and escalate to the user.
+If neither path is available, stop and escalate to the user.
 
 ## Reviewer Selection Order
 
 When a review or audit is required, use this exact fallback chain:
 
-1. **Claude first.** Run the bundled script and use the generated artifact.
-2. **Gemini second.** Reuse the bundled prompt/reference files, scope the input to
-   touched files or the audited module, and save Gemini's output to a markdown
-   artifact under `.agents/reviews/`.
-3. **Fresh-context Codex third.** Spawn a reviewer agent with fresh context. That
+1. **Bundled script first.** Let the bundled script try Claude, then Gemini CLI,
+   and use the generated artifact.
+2. **Fresh-context Codex next.** Spawn a reviewer agent with fresh context. That
    agent must:
    - not have authored or edited the implementation under review
    - receive only the task spec, relevant diff/module/tests, and the bundled references
    - act only as reviewer/auditor, not as implementer
    - write its result to a markdown artifact under `.agents/reviews/`
-4. **Escalate** if no independent reviewer is available.
+3. **Escalate** if no independent reviewer is available.
 
 Treat fallback artifacts exactly like script-generated `REVIEW_FILE` or
 `REPORT_FILE` outputs in the loops below. Call out fallback usage in the handoff so
@@ -107,12 +104,13 @@ Your ONLY job is to invoke an independent reviewer and read the output artifact.
 NOT analyze the diff as the reviewer. Do NOT write review comments yourself. Do NOT
 adopt perspectives yourself. Route the review to Claude first, then fallback if needed.
 
-Claude is the preferred reviewer because it can load domain-specific skills such as
-`owasp-top-10`, `secure-coding-practices`, and `python-testing-patterns`. If Claude
-is unavailable, continue with Gemini or a fresh-context Codex reviewer instead of
+Claude is still the preferred reviewer because it can load domain-specific skills such as
+`owasp-top-10`, `secure-coding-practices`, and `python-testing-patterns`. The bundled
+script now tries Claude first and falls back to Gemini CLI automatically. If both CLIs
+are unavailable or fail, continue with a fresh-context Codex reviewer instead of
 reviewing the code yourself.
 
-#### Primary Path: Claude Script
+#### Automated Path: Provider-Aware Script
 
 ```bash
 # Review only the files you changed (RECOMMENDED)
@@ -132,6 +130,9 @@ git diff HEAD~3..HEAD -- src/ | "$SKILL_DIR/scripts/specialist-review.sh" -
 
 # Custom output directory
 "$SKILL_DIR/scripts/specialist-review.sh" --git --output ./my-reviews -- src/
+
+# Force Gemini CLI for this run
+"$SKILL_DIR/scripts/specialist-review.sh" --provider gemini --git -- src/parser/
 ```
 
 Read the output file path printed to stdout:
@@ -141,13 +142,20 @@ cat "$REVIEW_FILE"
 ```
 
 **Always scope to the files you touched.** In a monorepo, an unscoped `--git` sends
-the entire repo diff to Claude, wasting tokens and risking timeouts.
+the entire repo diff to the reviewer, wasting tokens and risking timeouts.
 
-#### Fallback Path: Gemini or Fresh-Context Codex
+Provider selection:
 
-If the Claude script fails because the CLI is unavailable, times out, or cannot run:
+- Default is `auto`, which tries Claude first and Gemini second.
+- Override per run with `--provider auto|claude|gemini`.
+- Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
+- If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 
-1. Generate the same scoped diff you would have sent to Claude.
+#### Manual Fallback: Fresh-Context Codex
+
+If the bundled script cannot get a usable artifact from either Claude or Gemini:
+
+1. Generate the same scoped diff you would have sent to the script.
 2. Provide the reviewer:
    - `references/review-prompt.md`
    - `references/perspective-catalog.md`
@@ -158,16 +166,13 @@ If the Claude script fails because the CLI is unavailable, times out, or cannot 
 4. Save that output under `.agents/reviews/review-<timestamp>-fallback.md` and treat
    the saved path as `REVIEW_FILE`.
 
-Use Gemini before a fresh-context Codex reviewer. Use a fresh-context Codex reviewer
-only when Gemini is also unavailable.
-
 #### Anti-Patterns
 
 - **Performing the review yourself** — Use an independent reviewer, never the implementer.
-- **Summarizing the diff before invoking Claude** — Unnecessary. The script reads the diff directly.
+- **Summarizing the diff before invoking the script** — Unnecessary. The script reads the diff directly.
 - **Ignoring the output artifact** — The review is written to a file. Read it.
 - **Using a same-context Codex agent as reviewer** — If Codex is the fallback reviewer, it must have fresh context and no implementation authorship.
-- **Stopping at the first Claude failure** — Try Gemini, then fresh-context Codex, before escalating.
+- **Stopping at the first Claude failure** — Let the script try Gemini before switching to fresh-context Codex.
 
 ### `test-review-request` — Request Test Audit
 
@@ -180,11 +185,12 @@ Your ONLY job is to invoke an independent auditor and read the output artifact. 
 NOT map behaviors yourself. Do NOT classify test coverage yourself. Do NOT produce
 the gap report yourself. Route the audit to Claude first, then fallback if needed.
 
-Claude is the preferred auditor because it can apply the testing standards and audit
-workflow with project-aware skill support. If Claude is unavailable, continue with
-Gemini or a fresh-context Codex auditor instead of skipping the audit.
+Claude is still the preferred auditor because it can apply the testing standards and audit
+workflow with project-aware skill support. The bundled script now tries Claude first and
+falls back to Gemini CLI automatically. If both CLIs are unavailable or fail, continue
+with a fresh-context Codex auditor instead of skipping the audit.
 
-#### Primary Path: Claude Script
+#### Automated Path: Provider-Aware Script
 
 ```bash
 # Full audit of a module (default)
@@ -198,6 +204,9 @@ Gemini or a fresh-context Codex auditor instead of skipping the audit.
 
 # Custom output directory
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --output ./my-reports
+
+# Force Gemini CLI for this run
+"$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module
 ```
 
 Read the output file path printed to stdout:
@@ -206,9 +215,16 @@ REPORT_FILE=$("$SKILL_DIR/scripts/test-review-request.sh" src/parser)
 cat "$REPORT_FILE"
 ```
 
-#### Fallback Path: Gemini or Fresh-Context Codex
+Provider selection:
 
-If the Claude audit script fails because the CLI is unavailable, times out, or cannot run:
+- Default is `auto`, which tries Claude first and Gemini second.
+- Override per run with `--provider auto|claude|gemini`.
+- Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `TEST_REVIEW_PROVIDER`.
+- If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
+
+#### Manual Fallback: Fresh-Context Codex
+
+If the bundled script cannot get a usable artifact from either Claude or Gemini:
 
 1. Gather the same source, tests, and bundled references the script would have used.
 2. Provide the auditor:
@@ -221,9 +237,6 @@ If the Claude audit script fails because the CLI is unavailable, times out, or c
 4. Save that output under `.agents/reviews/test-audit-<timestamp>-fallback.md` and
    treat the saved path as `REPORT_FILE`.
 
-Use Gemini before a fresh-context Codex auditor. Use a fresh-context Codex auditor
-only when Gemini is also unavailable.
-
 Act on findings:
 - **P0 (Security/Correctness Critical)**: Fix before merge.
 - **P1 (Reliability/Edge Cases)**: Fix in current sprint.
@@ -232,10 +245,10 @@ Act on findings:
 #### Anti-Patterns
 
 - **Performing the audit yourself** — Use an independent auditor, never the implementer.
-- **Pre-reading source before invoking Claude** — Unnecessary. The script passes the module path to Claude.
+- **Pre-reading source before invoking the script** — Unnecessary. The script passes the module path to the provider flow.
 - **Ignoring the output artifact** — The gap report is written to a file. Read it.
 - **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
-- **Proceeding without any audit artifact** — Try Gemini, then fresh-context Codex, before escalating.
+- **Proceeding without any audit artifact** — Let the script try Gemini before switching to fresh-context Codex.
 
 ---
 
