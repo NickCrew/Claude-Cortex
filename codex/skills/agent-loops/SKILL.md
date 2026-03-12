@@ -76,7 +76,7 @@ If neither path is available, stop and escalate to the user.
 When a review or audit is required, use this exact fallback chain:
 
 1. **Bundled script first.** Let the bundled script try Claude, then Gemini CLI,
-   and use the generated artifact.
+   validate the artifact contract, and use the generated artifact.
 2. **Fresh-context Codex next.** Spawn a reviewer agent with fresh context. That
    agent must:
    - not have authored or edited the implementation under review
@@ -149,6 +149,7 @@ Provider selection:
 - Default is `auto`, which tries Claude first and Gemini second.
 - Override per run with `--provider auto|claude|gemini`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
+- The script validates the review artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 
 #### Manual Fallback: Fresh-Context Codex
@@ -220,6 +221,7 @@ Provider selection:
 - Default is `auto`, which tries Claude first and Gemini second.
 - Override per run with `--provider auto|claude|gemini`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `TEST_REVIEW_PROVIDER`.
+- The script validates the audit artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 
 #### Manual Fallback: Fresh-Context Codex

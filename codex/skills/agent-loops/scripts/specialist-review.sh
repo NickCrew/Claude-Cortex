@@ -43,6 +43,7 @@ source "$SCRIPT_DIR/review-provider.sh"
 
 PROMPT_TEMPLATE="$SKILL_DIR/references/review-prompt.md"
 PERSPECTIVE_CATALOG="$SKILL_DIR/references/perspective-catalog.md"
+VALIDATOR="$SCRIPT_DIR/validate-review-contract.py"
 
 # Find repo root from caller's CWD (not SKILL_DIR, which follows symlinks
 # to the skill's physical location — likely a different repo).
@@ -255,10 +256,23 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
     if [[ -s "$OUTPUT_FILE" ]]; then
-      rm -f "$STDERR_LOG"
-      python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
-      echo "$OUTPUT_FILE"
-      exit 0
+      if python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >/dev/null 2>&1; then
+        rm -f "$STDERR_LOG"
+        python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
+        echo "$OUTPUT_FILE"
+        exit 0
+      fi
+
+      echo "Error: $(review_provider_display_name "$PROVIDER") output did not match the code review contract." >&2
+      python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >&2 || true
+      PARTIAL_OUTPUT="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.invalid.md"
+      mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
+      echo "Invalid output saved to: $PARTIAL_OUTPUT" >&2
+      if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+        echo "Trying next provider fallback..." >&2
+        continue
+      fi
+      exit 1
     fi
 
     echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but review file is empty." >&2

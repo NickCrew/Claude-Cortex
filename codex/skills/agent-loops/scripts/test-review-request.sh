@@ -32,6 +32,7 @@ SKILL_DIR="$(cd "$(dirname "$SCRIPT_DIR")" && pwd -P)"
 source "$SCRIPT_DIR/review-provider.sh"
 
 CALLER_CWD="$(pwd -P)"
+VALIDATOR="$SCRIPT_DIR/validate-review-contract.py"
 
 # Resolve repo root from caller's CWD (best-effort). Unlike specialist-review,
 # this script can still run without git metadata because it reads files directly.
@@ -318,11 +319,24 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
     if [[ -s "$OUTPUT_FILE" ]]; then
-      if [[ "$DEBUG" != "1" ]]; then
-        rm -f "$STDERR_LOG"
+      if python3 "$VALIDATOR" test-audit "$OUTPUT_FILE" >/dev/null 2>&1; then
+        if [[ "$DEBUG" != "1" ]]; then
+          rm -f "$STDERR_LOG"
+        fi
+        echo "$OUTPUT_FILE"
+        exit 0
       fi
-      echo "$OUTPUT_FILE"
-      exit 0
+
+      echo "Error: $(review_provider_display_name "$PROVIDER") output did not match the test audit contract." >&2
+      python3 "$VALIDATOR" test-audit "$OUTPUT_FILE" >&2 || true
+      PARTIAL_OUTPUT="$OUTPUT_DIR/test-audit-$TIMESTAMP.$PROVIDER.invalid.md"
+      mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
+      echo "Invalid output saved to: $PARTIAL_OUTPUT" >&2
+      if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
+        echo "Trying next provider fallback..." >&2
+        continue
+      fi
+      exit 1
     fi
 
     echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but report file is empty." >&2

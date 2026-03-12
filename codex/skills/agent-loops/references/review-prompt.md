@@ -1,9 +1,14 @@
 You are performing a multi-perspective specialist code review. Output the COMPLETE review as a single markdown document to stdout.
 
+Your output MUST follow the exact markdown contract in "REQUIRED OUTPUT FORMAT". Do not invent alternative headings, severity labels, or verdict labels.
+
 ## CONSTRAINTS
 
 1. **No tools.** Do not use Read, Write, Bash, or any other tools. Output the review directly.
 2. **Fresh perspective.** When switching perspectives, mentally reset. Each perspective is independent.
+3. **Use only these severity labels:** `P0`, `P1`, `P2`, `P3`.
+4. **Use only these verdict labels:** `BLOCKED`, `PASS WITH ISSUES`, `CLEAN`.
+5. **Do not output phase headings.** Perform the perspective thinking internally, then emit only the required final review.
 
 ## PERSPECTIVE CATALOG
 
@@ -11,35 +16,74 @@ You are performing a multi-perspective specialist code review. Output the COMPLE
 
 ## PROCEDURE
 
-### Phase 1: Triage (determine perspectives)
+1. Determine which 3-5 perspectives are most relevant using the catalog below.
+2. Review the diff through those perspectives internally.
+3. Synthesize all findings into the exact output format below.
 
-Analyze the diff below to determine which 3-5 perspectives are most relevant. Consider:
+When triaging perspectives, consider:
 - File types and extensions in the diff
 - Content signals (auth code, DB queries, UI components, etc.)
 - Always include Correctness and Maintainability
 
-Output a numbered list of selected perspectives with a one-line justification for each.
+## SEVERITY MAPPING
 
-### Phase 2: Sequential specialist review
+Map findings into agent-loops severity labels:
+- `P0` — Security flaw, data loss, crash, silent incorrect behavior, or merge-blocking correctness issue
+- `P1` — Error handling gap, reliability issue, missing validation, meaningful edge case, or other must-fix issue
+- `P2` — Code quality, maintainability, documentation, minor edge case, or non-blocking improvement
+- `P3` — Style preference, optional polish, or future optimization
 
-For EACH selected perspective, in order:
+## REQUIRED OUTPUT FORMAT
 
-1. **Announce the perspective**: write a heading like `## [Perspective Name] Review`
-2. **Review the diff** through this lens using the focus areas and trigger signals from the catalog above. For each finding:
-   - State the file and line range
-   - Classify severity: CRITICAL | IMPORTANT | MINOR | NIT
-   - Describe the issue
-   - Suggest a fix or improvement
-3. If no issues found for this perspective, state "No issues found" and move on.
+Output EXACTLY this structure:
 
-### Phase 3: Synthesis
+```markdown
+## Code Review: [brief change description]
 
-After all perspectives are complete, write a synthesis section with:
-- **Summary**: 2-3 sentence overall assessment
-- **Findings by Severity**: Critical, Important, Minor, Nits (bulleted lists or "None")
-- **Cross-Cutting Concerns**: Draw explicit connections between findings from different perspectives. Name the perspectives being linked and explain causal or reinforcing relationships.
-- **Risk Interactions**: Identify where findings from separate perspectives combine to create a larger risk than either alone. State the compounding effect.
-- **Verdict**: One of APPROVE, APPROVE WITH CHANGES, or REQUEST CHANGES
+**Files reviewed:** [comma-separated list]
+**Iteration:** [N of 3, or "1 of 3" if unknown]
+
+### Findings
+
+#### P0-001: [title]
+**File:** `path/to/file.ext:line` or `path/to/file.ext:start-end`
+**Perspective:** [perspective name]
+**Issue:** [what is wrong]
+**Impact:** [what happens if not fixed]
+**Suggested fix:** [specific fix guidance]
+
+#### P1-001: [title]
+**File:** `path/to/file.ext:line` or `path/to/file.ext:start-end`
+**Perspective:** [perspective name]
+**Issue:** [what is wrong]
+**Impact:** [what happens if not fixed]
+**Suggested fix:** [specific fix guidance]
+
+#### P2-001: [title]
+**File:** `path/to/file.ext:line` or `path/to/file.ext:start-end`
+**Perspective:** [perspective name]
+**Issue:** [what is wrong]
+**Recommendation:** [what to improve]
+
+### Summary
+- P0: [count] findings (MUST fix)
+- P1: [count] findings (MUST fix)
+- P2: [count] findings (file issues)
+- P3: [count] findings (file issues)
+- **Verdict:** BLOCKED / PASS WITH ISSUES / CLEAN
+```
+
+Additional rules:
+- If there are no findings, still include `### Findings`, then write `_No findings._`
+- Number findings separately within each severity (`P1-001`, `P1-002`, etc.)
+- Use `Suggested fix` only for `P0` and `P1`
+- Use `Recommendation` only for `P2` and `P3`
+- Do not include any sections other than `## Code Review`, `### Findings`, and `### Summary`
+- Do not include triage notes, reasoning traces, phase descriptions, cross-cutting sections, or extra commentary
+- Set verdict to:
+  - `BLOCKED` if any `P0` or `P1` findings exist
+  - `PASS WITH ISSUES` if only `P2`/`P3` findings exist
+  - `CLEAN` if there are no findings
 
 ## PRIOR REVIEW FINDINGS
 
