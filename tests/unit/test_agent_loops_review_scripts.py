@@ -284,3 +284,95 @@ EOF
     assert "--ephemeral" in codex_args
     assert "--skip-git-repo-check" in codex_args
     assert "-o" in codex_args
+
+
+@pytest.mark.unit
+def test_test_review_request_supports_explicit_codex_provider(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+
+    module_dir = project / "module"
+    tests_dir = project / "tests"
+    module_dir.mkdir()
+    tests_dir.mkdir()
+    (module_dir / "feature.py").write_text(
+        "def greet(name: str) -> str:\n    return f'Hello, {name}'\n",
+        encoding="utf-8",
+    )
+    (tests_dir / "test_feature.py").write_text(
+        "from module.feature import greet\n\n\ndef test_greet():\n    assert greet('A') == 'Hello, A'\n",
+        encoding="utf-8",
+    )
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    codex_log = tmp_path / "audit-codex.log"
+
+    _write_executable(
+        fake_bin / "codex",
+        f"""#!/usr/bin/env bash
+echo "$@" > "{codex_log}"
+out_file=""
+prev=""
+for arg in "$@"; do
+  if [[ "$prev" == "-o" ]]; then
+    out_file="$arg"
+  fi
+  prev="$arg"
+done
+cat >/dev/null
+cat <<'EOF' > "$out_file"
+## Test Gap Report: feature
+
+**Module:** `module/feature.py`
+**Tests:** `tests/test_feature.py`
+**Mode:** full
+
+### Behavior Inventory
+
+| Behavior | Coverage | Evidence |
+|----------|----------|----------|
+| greet(name) returns greeting | Covered | Verified by test_greet |
+
+### Prioritized Gaps
+_No prioritized gaps._
+
+### Summary
+- Covered: 1
+- Shallow: 0
+- Missing: 0
+- P0: 0
+- P1: 0
+- P2: 0
+EOF
+""",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+
+    result = _run(
+        [
+            str(TEST_REVIEW),
+            "--provider",
+            "codex",
+            str(module_dir),
+            "--tests",
+            str(tests_dir),
+            "--output",
+            str(project / ".agents/reviews"),
+        ],
+        project,
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    report_path = Path(result.stdout.strip())
+    assert report_path.exists()
+    assert "Test Gap Report: feature" in report_path.read_text(encoding="utf-8")
+
+    codex_args = codex_log.read_text(encoding="utf-8")
+    assert "exec" in codex_args
+    assert "--ephemeral" in codex_args
+    assert "--skip-git-repo-check" in codex_args
+    assert "-o" in codex_args
