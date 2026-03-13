@@ -62,7 +62,7 @@ Productive perspectives only > All perspectives equal
 ```
                           ┌──────────────────────────┐
                           │   specialist-review.sh    │
-                          │   Claude reviews changes  │
+                          │ provider-aware review CLI │
                           └───────────┬──────────────┘
                                       │ review markdown
                                       v
@@ -465,7 +465,7 @@ triggering additional rule-based recommendations.
    -> Captures diff (git diff or file or stdin)
    -> Truncates to 2000 lines if needed
    -> Inlines perspective catalog + diff into prompt template
-   -> Invokes Claude (--print, --tools "", no session persistence)
+   -> Invokes the provider chain (Claude first, self-last when detectable)
    -> Captures output to .agents/reviews/review-TIMESTAMP.md
 
 2. On success:
@@ -481,6 +481,8 @@ triggering additional rule-based recommendations.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
+| `AGENT_LOOPS_LLM_PROVIDER` | `auto` | Force a specific review provider or keep provider auto-selection |
+| `AGENT_LOOPS_SELF_PROVIDER` | auto-detect | Keep same-model shell-outs last when the current agent is known |
 | `CLAUDE_TIMEOUT` | 300s | Max review duration |
 | `CLAUDE_MAX_BUDGET` | $0.50 | Max spend per review |
 

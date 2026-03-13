@@ -17,10 +17,10 @@ Docs: <https://cortex.atlascrew.dev/>
 Cortex includes four foundational skills that drive quality across development workflows:
 
 #### `agent-loops` — Structured Implementation & Verification
-- **Skill file**: `skills/agent-loops/SKILL.md`
-- **Purpose**: Multi-phase implementation loop with built-in verification and code review gates
+- **Skill file**: `codex/skills/agent-loops/SKILL.md`
+- **Purpose**: Multi-phase implementation loop with built-in verification, audit, and independent review gates
 - **When to use**: Any feature implementation, bug fix, or refactoring task
-- **Workflow**: Plan → Implement → Verify → Review approval before committing
+- **Workflow**: Plan → Implement → Verify → Independent review/audit with same-model shell-outs kept for last resort
 - **CLI integration**: Complements `cortex review` command:
 
 ```bash
@@ -198,6 +198,7 @@ cortex <command> --help
 **Feature implementation with `agent-loops`:**
 ```bash
 # Start implementation with built-in verification gates
+# Reviews prefer Claude, keep same-model shell-outs last, and preserve artifacts
 cortex review --dry-run                    # Preview what will be reviewed
 cortex review -c feature -c debug          # Run full review workflow
 ```

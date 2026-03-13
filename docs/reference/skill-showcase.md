@@ -239,15 +239,15 @@ advisory responses for reconciliation against local repo state.
 
 Defines four sequential loops — Code Change, Test Writing, Lint Gate, Issue
 Filing — with severity levels, escalation rules, and maximum iteration counts.
-Reviews are always performed by Claude via dedicated scripts; agents never
-self-review.
+Reviews use provider-aware scripts that prefer Claude, fall back to a different
+model family next, and keep same-model shell-outs as the last resort.
 
 | What makes it sophisticated |
 |---|
 | "You never grade your own homework" — strict separation between implementer and reviewer roles |
 | Circuit breakers prevent infinite loops: 3 cycles for code/test, 2 for lint (mechanical, not semantic) |
 | Lint Gate uses a 4-step linter discovery cascade with fail-safe to user — never guesses |
-| Bundled shell scripts for specialist-review and test-review-request delegate to Claude CLI |
+| Bundled shell scripts for specialist-review and test-review-request enforce provider-aware, self-last review ordering |
 | Scoped remediation reviews with `--prior-review` for continuity across cycles |
 
 **Trigger:** Starting any implementation task in a multi-agent workflow.

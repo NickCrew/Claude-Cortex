@@ -2,11 +2,11 @@
 
 **Status:** Planned
 **Created:** 2026-03-11
-**Context:** Evolved from agent-loops single-turn review architecture
+**Context:** Evolved from agent-loops single-turn, provider-aware review architecture
 
 ## Problem
 
-The current `specialist-review.sh` (agent-loops) simulates multiple review perspectives in a single Claude session. This works well for atomic commits but breaks down on larger reviews (multiple commits, PR-level, milestone-level):
+The current `specialist-review.sh` (agent-loops) simulates multiple review perspectives in a single provider session selected by the provider-aware fallback chain. This works well for atomic commits but breaks down on larger reviews (multiple commits, PR-level, milestone-level):
 
 - **Anchoring bias** — Later perspectives are influenced by earlier ones since they share one context
 - **Hallucination risk scales with context size** — A 2000-line multi-commit diff exceeds what a single pass can reliably hold
@@ -21,12 +21,12 @@ Agent-loops works well at the single-commit level (~$0.50/review). Small diffs a
 
 ### Bash-level parallelism, not Claude teams or subagents
 
-The external caller (codex/gemini) shells out to bash to call `claude --print`. This means:
+The external caller (codex/gemini) shells out to bash to call the selected reviewer CLI. This means:
 
-- Can't use Claude's Agent tool or teams from the caller side
+- Can't use the review provider's in-process agent/team features from the caller side
 - Orchestration must happen at the bash script level
-- Multiple parallel `claude --print` calls with `&` and `wait`
-- Synthesis as a separate Claude call
+- Multiple parallel provider CLI calls with `&` and `wait`
+- Synthesis as a separate provider call
 
 This keeps the **external interface identical** to agent-loops: caller passes a diff, gets back a file path.
 
