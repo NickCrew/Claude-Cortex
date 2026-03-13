@@ -33,7 +33,7 @@ permalink: /
     </div>
   </div>
   <div class="hero__visual">
-    <img src="{{ '/assets/images/hero.png' | relative_url }}" alt="Cortex blueprint" />
+    <img src="{{ '/assets/images/cortex-social.png' | relative_url }}" alt="Cortex blueprint" />
   </div>
 </div>
 

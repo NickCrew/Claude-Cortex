@@ -13,7 +13,7 @@ header_pages:
   - guides/ai/README.md
   - architecture/MASTER_ARCHITECTURE.md
   - AI_INTELLIGENCE.md
-logo: /assets/images/hero.png
+logo: /assets/images/cortex-social.png
 github:
   repository_url: https://github.com/NickCrew/claude-cortex
 repository: NickCrew/claude-cortex
