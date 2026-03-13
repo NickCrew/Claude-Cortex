@@ -1,8 +1,23 @@
-# Cortex
+<p align="center">
+  <img src="docs/assets/images/cortex-banner.png" alt="Cortex — AI Development Framework" width="100%" />
+</p>
 
-Context orchestration toolkit for Claude Code, with curated agents/skills/rules/hooks and a Python CLI for management.
+<p align="center">
+  <a href="https://github.com/NickCrew/claude-cortex/actions/workflows/test.yml"><img src="https://github.com/NickCrew/claude-cortex/actions/workflows/test.yml/badge.svg" alt="Tests" /></a>
+  <a href="https://github.com/NickCrew/claude-cortex/actions/workflows/type-check.yml"><img src="https://github.com/NickCrew/claude-cortex/actions/workflows/type-check.yml/badge.svg" alt="Type Check" /></a>
+  <a href="https://pypi.org/project/claude-cortex/"><img src="https://img.shields.io/pypi/v/claude-cortex" alt="PyPI" /></a>
+  <a href="https://github.com/NickCrew/claude-cortex/blob/main/LICENSE"><img src="https://img.shields.io/github/license/NickCrew/claude-cortex" alt="License" /></a>
+</p>
 
-Docs: <https://cortex.atlascrew.dev/>
+<p align="center">
+  Context orchestration for Claude Code, Codex, and Gemini — curated agents, skills, rules, hooks, and a Python CLI for management.
+</p>
+
+<p align="center">
+  <a href="https://cortex.atlascrew.dev/">Documentation</a> &middot;
+  <a href="#installation-pip--pipx">Install</a> &middot;
+  <a href="#quick-start">Quick Start</a>
+</p>
 
 ## Why Cortex
 
