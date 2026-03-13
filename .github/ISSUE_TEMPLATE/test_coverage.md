@@ -2,8 +2,9 @@
 name: Test Coverage
 about: Increase test coverage for a specific module
 title: 'Test Coverage: [MODULE_NAME]'
-labels: ['testing', 'test-coverage', 'good-first-issue']
+labels: good-first-issue, test-coverage, testing
 assignees: ''
+
 ---
 
 ## Module Information
