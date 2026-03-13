@@ -76,7 +76,6 @@ include = ["claude_ctx_py*"]
 ]
 "share/claude-cortex/docs" = [
     "docs/reference/architecture/architecture-diagrams.md",
-    "docs/reference/architecture/quick-reference.md",
     "docs/reference/architecture/DIAGRAMS_README.md",
     "docs/reference/architecture/README.md",
     "docs/AI_INTELLIGENCE.md",
