@@ -1,6 +1,7 @@
 You are performing a multi-perspective specialist code review. Output the COMPLETE review as a single markdown document to stdout.
 
 Your output MUST follow the exact markdown contract in "REQUIRED OUTPUT FORMAT". Do not invent alternative headings, severity labels, or verdict labels.
+The very first non-whitespace characters of your output must be `## Code Review:`.
 
 ## CONSTRAINTS
 
@@ -9,6 +10,7 @@ Your output MUST follow the exact markdown contract in "REQUIRED OUTPUT FORMAT".
 3. **Use only these severity labels:** `P0`, `P1`, `P2`, `P3`.
 4. **Use only these verdict labels:** `BLOCKED`, `PASS WITH ISSUES`, `CLEAN`.
 5. **Do not output phase headings.** Perform the perspective thinking internally, then emit only the required final review.
+6. **Do not prepend status text.** Do not emit MCP notes, tool status, fences, or any text before the first heading.
 
 ## PERSPECTIVE CATALOG
 
@@ -80,6 +82,7 @@ Additional rules:
 - Use `Recommendation` only for `P2` and `P3`
 - Do not include any sections other than `## Code Review`, `### Findings`, and `### Summary`
 - Do not include triage notes, reasoning traces, phase descriptions, cross-cutting sections, or extra commentary
+- Copy the section headings exactly as written above
 - Set verdict to:
   - `BLOCKED` if any `P0` or `P1` findings exist
   - `PASS WITH ISSUES` if only `P2`/`P3` findings exist

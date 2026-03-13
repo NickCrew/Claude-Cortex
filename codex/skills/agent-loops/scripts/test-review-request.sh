@@ -45,6 +45,15 @@ if [[ -z "$REPO_ROOT" ]]; then
   REPO_ROOT="$CALLER_CWD"
 fi
 
+create_temp_markdown() {
+  local prefix="$1"
+  local base_path=""
+  base_path="$(mktemp "${prefix}.XXXXXX")"
+  local markdown_path="${base_path}.md"
+  mv "$base_path" "$markdown_path"
+  printf '%s\n' "$markdown_path"
+}
+
 PROMPT_TEMPLATE="$SKILL_DIR/references/audit-prompt.md"
 
 # Reference files baked into the prompt (bundled in agent-loops/references/)
@@ -341,6 +350,31 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         fi
         echo "$OUTPUT_FILE"
         exit 0
+      fi
+
+      NORMALIZED_OUTPUT="$(create_temp_markdown "${OUTPUT_DIR}/test-audit-${TIMESTAMP}.${PROVIDER}.normalized")"
+      NORMALIZATION_FAILED=0
+      if ! python3 "$VALIDATOR" normalize-test-audit "$OUTPUT_FILE" >"$NORMALIZED_OUTPUT" 2>>"$STDERR_LOG"; then
+        NORMALIZATION_FAILED=1
+      elif python3 "$VALIDATOR" test-audit "$NORMALIZED_OUTPUT" >/dev/null 2>&1; then
+        if ! cmp -s "$OUTPUT_FILE" "$NORMALIZED_OUTPUT"; then
+          RAW_OUTPUT="$OUTPUT_DIR/test-audit-$TIMESTAMP.$PROVIDER.raw.md"
+          mv "$OUTPUT_FILE" "$RAW_OUTPUT"
+          mv "$NORMALIZED_OUTPUT" "$OUTPUT_FILE"
+          echo "Normalized $(review_provider_display_name "$PROVIDER") output to the audit contract." >&2
+          echo "Raw provider output saved to: $RAW_OUTPUT" >&2
+        else
+          rm -f "$NORMALIZED_OUTPUT"
+        fi
+        if [[ "$DEBUG" != "1" ]]; then
+          rm -f "$STDERR_LOG"
+        fi
+        echo "$OUTPUT_FILE"
+        exit 0
+      fi
+      rm -f "$NORMALIZED_OUTPUT"
+      if [[ "$NORMALIZATION_FAILED" -eq 1 ]]; then
+        echo "Warning: $(review_provider_display_name "$PROVIDER") output could not be normalized; preserving raw artifact as invalid." >&2
       fi
 
       echo "Error: $(review_provider_display_name "$PROVIDER") output did not match the test audit contract." >&2

@@ -3,6 +3,7 @@ You are performing a test coverage audit. All source code, test code, and refere
 Your output MUST follow the exact markdown contract in "REQUIRED OUTPUT FORMAT". Do not invent alternative section names.
 
 Output the COMPLETE report as a single markdown document to stdout.
+The very first non-whitespace characters of your output must be `## Test Gap Report:`.
 
 ## CONSTRAINTS
 
@@ -12,6 +13,7 @@ Output the COMPLETE report as a single markdown document to stdout.
 4. **Use only these coverage labels:** `Covered`, `Shallow`, `Missing`.
 5. **Use only these severities for gaps:** `P0`, `P1`, `P2`.
 6. **Do not output analysis notes outside the required format.**
+7. **Do not prepend status text.** Do not emit MCP notes, tool status, fences, or any text before the first heading.
 
 ## TESTING STANDARDS
 
@@ -100,5 +102,6 @@ Additional rules:
 - A shallow test must still appear in `### Prioritized Gaps`
 - Do not include any sections other than `## Test Gap Report`, `### Behavior Inventory`, `### Prioritized Gaps`, and `### Summary`
 - Do not include overall prose introductions before the required sections
+- Copy the section headings exactly as written above
 
 **Mode:** {{MODE}}

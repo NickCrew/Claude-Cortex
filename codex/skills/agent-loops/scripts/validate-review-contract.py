@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate agent-loops review and audit artifact contracts."""
+"""Normalize and validate agent-loops review and audit artifact contracts."""
 
 from __future__ import annotations
 
@@ -9,9 +9,51 @@ import sys
 from pathlib import Path
 
 
+CONTRACT_HEADINGS = {
+    "code-review": "## Code Review:",
+    "test-audit": "## Test Gap Report:",
+}
+
+SECTION_ALIASES = {
+    "code-review": (
+        ("### Issues", "### Findings"),
+    ),
+    "test-audit": (
+        ("### Findings", "### Prioritized Gaps"),
+    ),
+}
+
+
 def _require(pattern: str, text: str, message: str) -> None:
     if not re.search(pattern, text, flags=re.MULTILINE):
         raise SystemExit(message)
+
+
+def normalize_contract_text(mode: str, text: str) -> str:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n").lstrip("\ufeff")
+    heading = CONTRACT_HEADINGS[mode]
+    heading_match = re.search(re.escape(heading), normalized)
+    if heading_match:
+        normalized = normalized[heading_match.start() :]
+
+    normalized = normalized.lstrip()
+
+    for alias, canonical in SECTION_ALIASES[mode]:
+        if re.search(rf"^{re.escape(canonical)}$", normalized, flags=re.MULTILINE):
+            continue
+        normalized = re.sub(
+            rf"^{re.escape(alias)}$",
+            canonical,
+            normalized,
+            count=1,
+            flags=re.MULTILINE,
+        )
+
+    normalized = "\n".join(line.rstrip() for line in normalized.split("\n")).strip()
+    if normalized:
+        normalized = f"{normalized}\n"
+
+    return normalized
 
 
 def validate_code_review(text: str) -> None:
@@ -48,13 +90,39 @@ def validate_test_audit(text: str) -> None:
     _require(r"^- P2: \d+$", text, "Missing P2 summary line")
 
 
+def read_artifact_text(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        raise SystemExit(
+            f"Artifact could not be decoded as UTF-8: {path} ({exc})"
+        ) from exc
+    except OSError as exc:
+        raise SystemExit(f"Artifact could not be read: {path} ({exc})") from exc
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate review or audit contract")
-    parser.add_argument("mode", choices=("code-review", "test-audit"))
+    parser = argparse.ArgumentParser(description="Normalize or validate review or audit contract")
+    parser.add_argument(
+        "mode",
+        choices=(
+            "code-review",
+            "test-audit",
+            "normalize-code-review",
+            "normalize-test-audit",
+        ),
+    )
     parser.add_argument("artifact")
     args = parser.parse_args()
 
-    text = Path(args.artifact).read_text(encoding="utf-8")
+    text = read_artifact_text(Path(args.artifact))
+    if args.mode == "normalize-code-review":
+        sys.stdout.write(normalize_contract_text("code-review", text))
+        return 0
+    if args.mode == "normalize-test-audit":
+        sys.stdout.write(normalize_contract_text("test-audit", text))
+        return 0
+
     if args.mode == "code-review":
         validate_code_review(text)
     else:

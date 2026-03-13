@@ -52,6 +52,15 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
   exit 1
 }
 
+create_temp_markdown() {
+  local prefix="$1"
+  local base_path=""
+  base_path="$(mktemp "${prefix}.XXXXXX")"
+  local markdown_path="${base_path}.md"
+  mv "$base_path" "$markdown_path"
+  printf '%s\n' "$markdown_path"
+}
+
 # --- Argument parsing ---
 
 DIFF_SOURCE="--git"
@@ -277,6 +286,30 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
         echo "$OUTPUT_FILE"
         exit 0
+      fi
+
+      NORMALIZED_OUTPUT="$(create_temp_markdown "${OUTPUT_DIR}/review-${TIMESTAMP}.${PROVIDER}.normalized")"
+      NORMALIZATION_FAILED=0
+      if ! python3 "$VALIDATOR" normalize-code-review "$OUTPUT_FILE" >"$NORMALIZED_OUTPUT" 2>>"$STDERR_LOG"; then
+        NORMALIZATION_FAILED=1
+      elif python3 "$VALIDATOR" code-review "$NORMALIZED_OUTPUT" >/dev/null 2>&1; then
+        if ! cmp -s "$OUTPUT_FILE" "$NORMALIZED_OUTPUT"; then
+          RAW_OUTPUT="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.raw.md"
+          mv "$OUTPUT_FILE" "$RAW_OUTPUT"
+          mv "$NORMALIZED_OUTPUT" "$OUTPUT_FILE"
+          echo "Normalized $(review_provider_display_name "$PROVIDER") output to the review contract." >&2
+          echo "Raw provider output saved to: $RAW_OUTPUT" >&2
+        else
+          rm -f "$NORMALIZED_OUTPUT"
+        fi
+        rm -f "$STDERR_LOG"
+        python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
+        echo "$OUTPUT_FILE"
+        exit 0
+      fi
+      rm -f "$NORMALIZED_OUTPUT"
+      if [[ "$NORMALIZATION_FAILED" -eq 1 ]]; then
+        echo "Warning: $(review_provider_display_name "$PROVIDER") output could not be normalized; preserving raw artifact as invalid." >&2
       fi
 
       echo "Error: $(review_provider_display_name "$PROVIDER") output did not match the code review contract." >&2
