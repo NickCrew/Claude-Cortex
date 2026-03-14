@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/images/cortex-banner.png" alt="Cortex — AI Development Framework" width="100%" />
+  <img src="docs/assets/images/cortex-banner.png" alt="Cortex — Multi-Model Development Orchestration" width="100%" />
 </p>
 
 <p align="center">
@@ -10,318 +10,137 @@
 </p>
 
 <p align="center">
-  Context orchestration for Claude Code, Codex, and Gemini — curated agents, skills, rules, hooks, and a Python CLI for management.
+  Multi-model development orchestration for Claude Code, Codex, and Gemini.
 </p>
 
 <p align="center">
   <a href="https://cortex.atlascrew.dev/">Documentation</a> &middot;
-  <a href="#installation-pip--pipx">Install</a> &middot;
+  <a href="#install">Install</a> &middot;
   <a href="#quick-start">Quick Start</a>
 </p>
 
-## Why Cortex
+---
 
-- Curated context assets for Claude Code (`agents/`, `skills/`, `rules/`, `hooks/`)
-- A Python CLI (`cortex`) for activation, validation, TUI workflows, diagnostics, and exports
-- Built-in support for MCP docs, memory capture, and review gates
+Cortex is a development orchestration framework that coordinates AI agents across model providers. It enforces quality gates — independent code review, test coverage audits, and lint checks — so that no agent grades its own homework. The result is a structured, auditable development workflow where Claude, Codex, and Gemini collaborate with built-in verification at every step.
 
-## Feature Highlights
+## How It Works
 
-### Original Cortex Skills
+### Multi-model review with no self-review
 
-Cortex includes four foundational skills that drive quality across development workflows:
+Cortex's core principle: **the agent that writes the code never reviews it.** When Codex implements a feature, the review is routed to Claude first, then to a different model family, with same-model review as a last resort. Every review produces a structured artifact with severity levels and a pass/fail verdict.
 
-#### `agent-loops` — Structured Implementation & Verification
-- **Skill file**: `skills/agent-loops/SKILL.md`
-- **Purpose**: Multi-phase implementation loop with built-in verification, audit, and independent review gates
-- **When to use**: Any feature implementation, bug fix, or refactoring task
-- **Workflow**: Plan → Implement → Verify → Independent review/audit with same-model shell-outs kept for last resort
-- **CLI integration**: Complements `cortex review` command:
-
-```bash
-cortex review --dry-run                    # Preview review gates
-cortex review -c feature -c debug          # Full review workflow
+```
+Codex implements → Claude reviews → Codex remediates → Claude re-reviews
+                   ↓ (unavailable)
+                   Gemini reviews (fallback)
+                   ↓ (unavailable)
+                   Fresh-context Codex reviews (last resort)
 ```
 
-#### `test-review` — Quality Assurance & Coverage Analysis
-- **Skill file**: `skills/test-review/SKILL.md`
-- **Purpose**: Audit test quality and coverage across modules
-- **When to use**: After test suite changes, coverage gaps, or brittle tests
-- **Features**: Identifies gaps, suggests improvements, validates test patterns
+### Agent-loops: progressive quality gates
 
-#### `doc-claim-validator` — Documentation Accuracy Auditing
-- **Skill file**: `skills/doc-claim-validator/SKILL.md`
-- **Purpose**: Validates that documentation claims match codebase reality
-- **When to use**: Before releases, after major refactors, periodic audits
-- **Features**: Extracts verifiable assertions (file paths, code patterns), checks against actual code
+Every code change flows through three sequential loops, each with circuit breakers and escalation rules:
 
-#### `doc-maintenance` — Documentation Lifecycle Management
-- **Skill file**: `skills/doc-maintenance/SKILL.md`
-- **Purpose**: Systematic documentation audit and maintenance
-- **When to use**: Documentation may be stale, outdated references, inconsistent structure
-- **Features**: Identifies orphaned docs, updates cross-references, improves navigation
-
-### Skills command suite
-
-- Discover and inspect skills:
-
-```bash
-cortex skills list
-cortex skills info agent-loops
-cortex skills recommend
+```
+Code Change Loop    →  Implement → Independent review → Remediate P0/P1 → Re-review (max 3 cycles)
+Test Writing Loop   →  Audit gaps → Write tests → Verify → Re-audit (max 3 cycles)
+Lint Gate           →  Discover linter → Auto-fix → Check → Remediate (max 2 cycles)
 ```
 
-- Collect feedback and ratings:
+P0/P1 findings must be resolved before the loop exits. P2/P3 findings are filed as issues automatically. If circuit breakers trigger, the agent stops and escalates to a human — no infinite remediation loops.
 
-```bash
-cortex skills feedback agent-loops helpful --comment "High signal loop guidance"
-cortex skills rate agent-loops --stars 5 --review "Reliable workflow"
-```
+### Skill recommendations
 
-### Skill Recommendations (automatic)
+Skills are suggested automatically as you work via a two-layer pipeline: fast keyword matching on every prompt (~50ms), with optional semantic matching for deeper recommendations. The TUI runs a background watch daemon for continuous suggestions.
 
-Skills are suggested automatically via a two-layer pipeline:
-
-- **Layer 1 (hook)**: Keyword matching against `skill-rules.json` on every prompt (~50 ms)
-- **Layer 2 (recommender)**: Semantic, rule-based, agent-based, and historical strategies via `SkillRecommender` (~100-200 ms, optional)
-
-Results from both layers are merged and deduplicated — keyword matches first,
-then richer recommendations. The hook gracefully falls back to Layer 1 if the
-full package isn't installed.
-
-The TUI auto-starts the watch daemon on launch for continuous background
-recommendations. See [Skill Recommendation Engine](docs/architecture/skill-recommendation-engine.md) for the full architecture.
-
-### AI command suite
-
-- Recommendations and auto-activation:
-
-```bash
-cortex ai recommend
-cortex ai auto-activate
-```
-
-- Continuous watch mode (auto-started by TUI):
-
-```bash
-cortex ai watch --interval 2.0 --threshold 0.7 --dir .
-```
-
-- Learning ingestion and export:
-
-```bash
-cortex ai ingest-review .agents/reviews/latest.md
-cortex ai export --output ai-recommendations.json
-```
-
-## Repository Layout
+## What's Inside
 
 | Path | Purpose |
 |---|---|
-| `agents/` | Agent definitions used by Claude Code |
-| `skills/` | Reusable skill modules with metadata and guidance |
-| `rules/` | Rule modules for behavior and quality guardrails |
-| `hooks/` | Hook definitions and validation assets |
-| `commands/` | Slash-command style command assets |
-| `claude_ctx_py/` | Python CLI implementation |
-| `docs/` | Documentation source for guides/reference |
-| `schemas/` | Validation schemas |
-| `tests/` | Unit and integration tests |
+| `agents/` | Agent definitions (specialized reviewers, implementers) |
+| `skills/` | Reusable skill modules — workflow guidance, review prompts, quality standards |
+| `rules/` | Behavioral guardrails and coding conventions |
+| `hooks/` | Automation hooks (skill suggestions, validation gates) |
+| `claude_ctx_py/` | Python CLI and TUI implementation |
 
-## Installation (pip / pipx)
+### Key skills
 
-### Install released CLI
+- **`agent-loops`** — The core workflow: structured implementation with independent review, test audit, and lint gates. Includes provider-aware review scripts with fallback chains.
+- **`test-review`** — Test quality and coverage auditing across modules.
+- **`doc-claim-validator`** — Validates documentation claims against actual code.
+- **`doc-maintenance`** — Systematic documentation audit and lifecycle management.
+
+## Install
 
 ```bash
 # Recommended
 pipx install claude-cortex
 
 # Alternative
-python3 -m pip install claude-cortex
+pip install claude-cortex
 ```
 
-### Local development install
+For development:
 
 ```bash
 git clone https://github.com/NickCrew/claude-cortex.git
 cd claude-cortex
-python3 -m pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
 ## Quick Start
 
 ```bash
-# Link bundled assets into ~/.claude
-cortex install link
-
-# Optional post-install helpers (completions + manpages)
-cortex install post
-
-# Check current state
-cortex status
-
-# Launch TUI
-cortex tui
+cortex install link          # Symlink bundled assets into ~/.claude
+cortex install post          # Shell completions + man pages (optional)
+cortex status                # Check what's active
+cortex tui                   # Launch the terminal UI
 ```
 
-## CLI Arguments and Commands
-
-Current global arguments:
-
-- `--scope {auto,project,global}`
-- `--cortex-root PATH` (alias: `--plugin-root`)
-- `--skip-wizard` (alias: `--no-init`)
-
-Usage pattern:
+## CLI Overview
 
 ```bash
-cortex [--scope {auto,project,global}] [--cortex-root PATH] [--skip-wizard] <command> [<args>]
+cortex <command> [options]
 ```
 
-Documented command groups in this README:
+| Command | What it does |
+|---|---|
+| `status` | Show active agents, rules, hooks, skills |
+| `agent list\|status` | Manage agent definitions |
+| `skills list\|info\|recommend` | Discover and inspect skills |
+| `rules list\|activate` | Manage behavioral rules |
+| `hooks list\|install` | Install and validate hooks |
+| `mcp list\|diagnose` | MCP server discovery and diagnostics |
+| `ai recommend\|watch` | AI-powered skill recommendations |
+| `review` | Run review workflows |
+| `tui` | Launch terminal UI |
+| `docs` | Browse bundled documentation |
+| `install\|uninstall` | Manage Cortex installation |
 
-- `agent`
-- `rules`
-- `hooks`
-- `skills`
-- `mcp`
-- `statusline`
-- `tui`
-- `ai`
-- `export`
-- `install`
-- `memory`
-- `plan`
-- `docs`
-- `dev`
-- `file`
-- `uninstall`
-- `status`
-- `review`
-
-Run help anytime:
-
-```bash
-cortex --help
-cortex <command> --help
-```
-
-## Common Workflows
-
-### Using Original Cortex Skills
-
-**Feature implementation with `agent-loops`:**
-```bash
-# Start implementation with built-in verification gates
-# Reviews prefer Claude, keep same-model shell-outs last, and preserve artifacts
-cortex review --dry-run                    # Preview what will be reviewed
-cortex review -c feature -c debug          # Run full review workflow
-```
-
-**Quality assurance with `test-review`:**
-```bash
-# Audit test quality and identify coverage gaps
-cortex skills info test-review             # View skill details
-# Then invoke: /test-review in Claude Code to audit your test suite
-```
-
-**Documentation accuracy with `doc-claim-validator`:**
-```bash
-# Validate documentation matches codebase reality
-cortex skills info doc-claim-validator     # View skill details
-# Then invoke: /doc-claim-validator in Claude Code to audit docs
-```
-
-**Documentation maintenance with `doc-maintenance`:**
-```bash
-# Perform systematic documentation audit
-cortex skills info doc-maintenance         # View skill details
-# Then invoke: /doc-maintenance in Claude Code for maintenance workflow
-```
-
-### Agent + skill management
-
-```bash
-cortex agent list
-cortex agent status
-cortex skills list
-cortex skills feedback agent-loops helpful --comment "High signal loop guidance"
-cortex skills rate agent-loops --stars 5 --review "Reliable workflow"
-```
-
-### MCP diagnostics
-
-```bash
-cortex mcp list
-cortex mcp diagnose
-```
-
-### AI recommendations
-
-```bash
-cortex ai recommend
-cortex ai auto-activate
-cortex ai watch
-```
+Run `cortex --help` or `cortex <command> --help` for details.
 
 ## Development
 
-### Preferred local commands
-
 ```bash
-command -v committer
-command -v tx
+just test                    # Run test suite
+just lint                    # Check formatting (Black)
+just type-check              # Strict mypy
+just docs                    # Serve docs locally
 ```
 
-- Use `committer` for atomic commits
-- Use `tx` for local workflow/service orchestration
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Build, test, quality
+## Documentation
 
-```bash
-just install
-just test
-just lint
-just type-check
-```
+Full documentation at **[cortex.atlascrew.dev](https://cortex.atlascrew.dev/)**.
 
-Additional useful targets:
-
-```bash
-just test-unit
-just test-integration
-just test-cov
-just docs
-just docs-build
-just build
-```
-
-### Docs preview
-
-```bash
-cd docs
-bundle exec jekyll serve --livereload
-```
-
-## Documentation Index
-
-- [docs/index.md](docs/index.md)
-- [docs/README.md](docs/README.md)
-- [docs/guides/getting-started.md](docs/guides/getting-started.md)
-- [docs/guides/commands.md](docs/guides/commands.md)
-- [docs/guides/skills.md](docs/guides/skills.md)
-- [docs/guides/asset-manager.md](docs/guides/asset-manager.md)
-- [docs/guides/prompt-library.md](docs/guides/prompt-library.md)
-- [docs/tutorials/index.md](docs/tutorials/index.md)
-- [docs/reference/index.md](docs/reference/index.md)
-- [docs/reference/configuration.md](docs/reference/configuration.md)
-- [docs/reference/api/index.md](docs/reference/api/index.md)
-- [docs/architecture/README.md](docs/architecture/README.md)
-- [docs/architecture/skill-recommendation-engine.md](docs/architecture/skill-recommendation-engine.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [CHANGELOG.md](CHANGELOG.md)
-- [CREDITS.md](CREDITS.md)
+- [Getting Started](docs/guides/getting-started.md)
+- [Commands Reference](docs/guides/commands.md)
+- [Skills Guide](docs/guides/skills.md)
+- [Architecture](docs/architecture/README.md)
+- [Skill Recommendation Engine](docs/architecture/skill-recommendation-engine.md)
+- [CHANGELOG](CHANGELOG.md)
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [LICENSE](LICENSE).

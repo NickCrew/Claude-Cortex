@@ -74,14 +74,90 @@ include = ["claude_ctx_py*"]
     "docs/reference/cortex.1",
     "docs/reference/cortex-tui.1",
 ]
+# Root-level docs
 "share/claude-cortex/docs" = [
+    "docs/index.md",
+    "docs/README.md",
+    "docs/NAVIGATOR.md",
+    "docs/AI_INTELLIGENCE.md",
+    "docs/settings-files.md",
+    "CHANGELOG.md",
+    "CREDITS.md",
+    "LICENSE",
+]
+# User guides
+"share/claude-cortex/docs/guides" = [
+    "docs/guides/getting-started.md",
+    "docs/guides/commands.md",
+    "docs/guides/skills.md",
+    "docs/guides/hooks.md",
+    "docs/guides/memory.md",
+    "docs/guides/worktrees.md",
+    "docs/guides/asset-manager.md",
+    "docs/guides/dependencies.md",
+    "docs/guides/integrations.md",
+    "docs/guides/prompt-library.md",
+    "docs/guides/COMPLETIONS.md",
+    "docs/guides/DOCUMENTATION_VIEWER.md",
+    "docs/guides/tui.md",
+    "docs/guides/tui-quick-start.md",
+    "docs/guides/tui-integration.md",
+    "docs/guides/skills-tui-integration.md",
+]
+"share/claude-cortex/docs/guides/tui" = [
+    "docs/guides/tui/copy-definition-feature.md",
+    "docs/guides/tui/tui-keyboard-reference.md",
+    "docs/guides/tui/tui-mcp-view.md",
+    "docs/guides/tui/tui-navigation-summary.md",
+]
+"share/claude-cortex/docs/guides/ai" = [
+    "docs/guides/ai/README.md",
+    "docs/guides/ai/LLM_INTELLIGENCE_GUIDE.md",
+    "docs/guides/ai/LLM_QUICK_REFERENCE.md",
+]
+"share/claude-cortex/docs/guides/mcp" = [
+    "docs/guides/mcp/MCP_MANAGEMENT.md",
+    "docs/guides/mcp/MCP_MODULE_README.md",
+    "docs/guides/mcp/MCP_MODULE_USAGE.md",
+]
+# Tutorials
+"share/claude-cortex/docs/tutorials" = [
+    "docs/tutorials/index.md",
+    "docs/tutorials/getting-started-tui.md",
+    "docs/tutorials/ai-watch-mode.md",
+    "docs/tutorials/ci-cd-integration.md",
+    "docs/tutorials/skill-authoring-cookbook.md",
+]
+"share/claude-cortex/docs/tutorials/learning-paths" = [
+    "docs/tutorials/learning-paths/index.md",
+    "docs/tutorials/learning-paths/onboarding.md",
+]
+# Reference
+"share/claude-cortex/docs/reference" = [
+    "docs/reference/index.md",
+    "docs/reference/README.md",
+    "docs/reference/configuration.md",
+    "docs/reference/bin-utilities.md",
+    "docs/reference/scripts-utilities.md",
+    "docs/reference/skill-showcase.md",
+]
+"share/claude-cortex/docs/reference/api" = [
+    "docs/reference/api/index.md",
+    "docs/reference/api/installer.md",
+]
+"share/claude-cortex/docs/reference/architecture" = [
     "docs/reference/architecture/architecture-diagrams.md",
     "docs/reference/architecture/DIAGRAMS_README.md",
     "docs/reference/architecture/README.md",
-    "docs/AI_INTELLIGENCE.md",
-    "CHANGELOG.md",
-    "CREDITS.md",
-    "LICENSE"
+    "docs/reference/architecture/terminology.md",
+]
+# Architecture
+"share/claude-cortex/docs/architecture" = [
+    "docs/architecture/README.md",
+    "docs/architecture/MASTER_ARCHITECTURE.md",
+    "docs/architecture/DIAGRAMS_README.md",
+    "docs/architecture/quick-reference.md",
+    "docs/architecture/skill-recommendation-engine.md",
 ]
 
 
