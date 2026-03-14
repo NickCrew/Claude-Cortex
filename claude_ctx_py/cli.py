@@ -635,6 +635,25 @@ def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         action="store_true",
         help="Use Claude-specific format instead of agent-generic",
     )
+    export_agents = export_sub.add_parser(
+        "agents", help="Export selected agent definitions"
+    )
+    export_agents.add_argument(
+        "agents",
+        nargs="+",
+        help="Agent name(s) to export (without .md)",
+    )
+    export_agents.add_argument(
+        "--output",
+        default="-",
+        help="Output file path or '-' for stdout (default: stdout)",
+    )
+    export_agents.add_argument(
+        "--no-agent-generic",
+        dest="no_agent_generic",
+        action="store_true",
+        help="Use Claude-specific format instead of agent-generic",
+    )
 
 
 def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -1454,6 +1473,23 @@ def _handle_export_command(args: argparse.Namespace) -> int:
         if message:  # Only print if there's a message (empty for stdout)
             _print(message)
         return exit_code
+    if args.export_command == "agents":
+        from pathlib import Path
+
+        output_path: Path | str
+        if args.output == "-":
+            output_path = "-"
+        else:
+            output_path = Path(args.output)
+
+        exit_code, message = core.export_agents(
+            agent_names=list(args.agents),
+            output_path=output_path,
+            agent_generic=not args.no_agent_generic,
+        )
+        if message:
+            _print(message)
+        return exit_code
     return 1
 
 
@@ -1744,6 +1780,10 @@ def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     """Build the docs command parser for browsing project documentation."""
     docs_parser = subparsers.add_parser(
         "docs", help="Browse documentation (includes bundled package docs)"
+    )
+    docs_parser.add_argument(
+        "--path", type=Path, default=None,
+        help="Browse docs from an arbitrary directory instead of Cortex docs"
     )
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
 
@@ -2112,36 +2152,30 @@ def _handle_plan_command(args: argparse.Namespace) -> int:
 
 
 def _get_docs_dir() -> Path:
-    """Get the docs directory from the current working directory, cortex root, or bundled package."""
-    cwd = Path.cwd()
+    """Get the docs directory from cortex root or bundled package installation."""
 
-    # 1. Check if we're in a repo with a docs/ folder (development)
-    if (cwd / "docs").is_dir():
-        return cwd / "docs"
-
-    # 2. Check cortex root (repo/source installation)
+    # 1. Check cortex root (repo/source installation)
     from .core.base import _resolve_cortex_root
     cortex_root = _resolve_cortex_root()
     if cortex_root and (cortex_root / "docs").is_dir():
         return cortex_root / "docs"
 
-    # 3. Check bundled package docs (pip/pipx installation)
+    # 2. Check bundled package docs (pip/pipx installation)
     import sys
-    # Try site-packages location
     for prefix in [sys.prefix, sys.base_prefix]:
         bundled_docs = Path(prefix) / "share" / "claude-cortex" / "docs"
         if bundled_docs.is_dir():
             return bundled_docs
 
-    # 4. Check user site-packages (--user installations)
+    # 3. Check user site-packages (--user installations)
     import site
     if hasattr(site, 'USER_BASE'):
         user_docs = Path(site.USER_BASE) / "share" / "claude-cortex" / "docs"
         if user_docs.is_dir():
             return user_docs
 
-    # 5. Fallback to cwd/docs
-    return cwd / "docs"
+    # 4. No docs found — return a path that will produce a clear error
+    return Path.cwd() / "docs"
 
 
 def _get_codex_dir() -> Path:
@@ -2209,15 +2243,20 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
     import subprocess
     from datetime import datetime
 
+    # --path override: browse an arbitrary docs directory
+    _override = getattr(args, "path", None)
+    def _docs_dir() -> Path:
+        return _override if _override else _get_docs_dir()
+
     if args.docs_command == "path":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         _print(str(docs_dir))
         return 0
 
     if args.docs_command == "tui":
         from .tui.docs_browser import run_docs_browser
 
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         if not docs_dir.exists():
             _print(f"Docs directory does not exist: {docs_dir}")
             return 1
@@ -2233,7 +2272,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             return 1
 
     if args.docs_command == "list":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         if not docs_dir.exists():
             _print(f"Docs directory does not exist: {docs_dir}")
             return 1
@@ -2288,7 +2327,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
         return 0
 
     if args.docs_command == "tree":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         if not docs_dir.exists():
             _print(f"Docs directory does not exist: {docs_dir}")
             return 1
@@ -2313,7 +2352,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
         return 0
 
     if args.docs_command == "view":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         doc_path = Path(args.path)
 
         # Handle relative path
@@ -2348,7 +2387,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             return 1
 
     if args.docs_command == "search":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         if not docs_dir.exists():
             _print(f"Docs directory does not exist: {docs_dir}")
             return 1
@@ -2395,7 +2434,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
         return 0
 
     if args.docs_command == "edit":
-        docs_dir = _get_docs_dir()
+        docs_dir = _docs_dir()
         doc_path = Path(args.path)
 
         if not doc_path.is_absolute():
@@ -2424,7 +2463,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
         bookmarks = _load_bookmarks()
 
         if args.bookmark_command == "add":
-            docs_dir = _get_docs_dir()
+            docs_dir = _docs_dir()
             doc_path = Path(args.path)
 
             if not doc_path.is_absolute():
@@ -2482,7 +2521,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
                 _print(f"Available bookmarks: {', '.join(bookmarks.keys())}")
                 return 1
 
-            docs_dir = _get_docs_dir()
+            docs_dir = _docs_dir()
             doc_path = docs_dir / bookmarks[name]
 
             if not doc_path.exists():
