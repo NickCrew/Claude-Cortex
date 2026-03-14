@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, Iterable, List, Set, Tuple
 
 from .base import (
     _resolve_claude_dir,
@@ -197,6 +197,52 @@ def _get_skills(cortex_root: Path) -> Dict[str, Path]:
     return skill_files
 
 
+def _agent_export_key(path: Path, claude_dir: Path) -> str:
+    try:
+        return str(path.relative_to(claude_dir))
+    except ValueError:
+        return path.name
+
+
+def _is_safe_agent_filename(filename: str) -> bool:
+    candidate = Path(filename)
+    return candidate.name == filename and len(candidate.parts) == 1
+
+
+def _resolve_agent_export_files(
+    agent_names: Iterable[str], claude_dir: Path
+) -> Tuple[List[Tuple[str, Path]], List[str]]:
+    from .agents import _find_agent_file_any_state, _normalize_agent_filename
+
+    resolved: List[Tuple[str, Path]] = []
+    missing: List[str] = []
+    seen_keys: Set[str] = set()
+
+    for agent_name in agent_names:
+        try:
+            filename = _normalize_agent_filename(agent_name)
+        except ValueError:
+            missing.append(agent_name)
+            continue
+        if not _is_safe_agent_filename(filename):
+            missing.append(agent_name)
+            continue
+
+        path = _find_agent_file_any_state(claude_dir, filename)
+        if path is None:
+            missing.append(agent_name)
+            continue
+
+        export_key = _agent_export_key(path, claude_dir)
+        if export_key in seen_keys:
+            continue
+
+        seen_keys.add(export_key)
+        resolved.append((export_key, path))
+
+    return resolved, missing
+
+
 def collect_context_components(
     claude_dir: Path | None = None,
 ) -> Dict[str, Dict[str, Path]]:
@@ -369,6 +415,72 @@ def export_context(
 
     except Exception as e:
         return 1, f"{_color('✗', RED)} Failed to export context: {e}"
+
+
+def export_agents(
+    agent_names: List[str],
+    output_path: Path | str = "-",
+    claude_dir: Path | None = None,
+    agent_generic: bool = True,
+) -> Tuple[int, str]:
+    """Export specific agent definitions to a markdown file or stdout."""
+    if claude_dir is None:
+        claude_dir = _resolve_claude_dir()
+
+    resolved, missing = _resolve_agent_export_files(agent_names, claude_dir)
+    if missing:
+        missing_display = ", ".join(missing)
+        return 1, _color(f"Agents not found: {missing_display}", RED)
+
+    lines: List[str] = []
+    if agent_generic:
+        lines.append("# AI Agent Definition Export")
+        lines.append("")
+        lines.append("This file contains selected agent definitions for reuse.")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+    else:
+        lines.append("# Cortex Agent Export")
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+
+    for export_key, file_path in resolved:
+        lines.append(f"## {export_key}")
+        lines.append("")
+        lines.append("```markdown")
+        lines.append(_read_file_content(file_path))
+        lines.append("```")
+        lines.append("")
+
+    output_content = "\n".join(lines)
+
+    try:
+        if str(output_path) == "-":
+            sys.stdout.write(output_content)
+            if not output_content.endswith("\n"):
+                sys.stdout.write("\n")
+            message = (
+                f"{_color('✓', GREEN)} Agent definitions exported to stdout\n"
+                f"  Exported: {len(resolved)} files"
+            )
+            sys.stderr.write(message + "\n")
+            return 0, ""
+
+        if isinstance(output_path, str):
+            output_path = Path(output_path)
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(output_content, encoding="utf-8")
+        message = (
+            f"{_color('✓', GREEN)} Agent definitions exported successfully\n"
+            f"  Output: {output_path}\n"
+            f"  Exported: {len(resolved)} files"
+        )
+        return 0, message
+    except Exception as e:
+        return 1, f"{_color('✗', RED)} Failed to export agent definitions: {e}"
 
 
 def list_context_components(claude_dir: Path | None = None) -> str:

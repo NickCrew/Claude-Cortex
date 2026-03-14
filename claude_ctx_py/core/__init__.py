@@ -190,6 +190,7 @@ from .worktrees import (
 # Export all functions from context_export
 from .context_export import (
     collect_context_components,
+    export_agents,
     export_context,
     list_context_components,
 )
@@ -405,6 +406,7 @@ __all__ = [
     "worktree_prune",
     # Context export functions
     "collect_context_components",
+    "export_agents",
     "export_context",
     "list_context_components",
     # MCP functions

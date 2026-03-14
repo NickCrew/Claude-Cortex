@@ -64,7 +64,7 @@ _cortex_completion() {
             fi
             ;;
         export)
-            local export_cmds="list context"
+            local export_cmds="list context agents"
             if [[ ${COMP_CWORD} -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "${export_cmds}" -- ${cur}))
             fi
@@ -117,7 +117,7 @@ _cortex() {
     local -a mcp_commands=('list' 'list-docs' 'status' 'activate' 'deactivate' 'show' 'docs' 'test' 'diagnose' 'snippet')
     local -a worktree_commands=('list' 'add' 'remove' 'prune' 'dir')
     local -a ai_commands=('recommend' 'auto-activate' 'export' 'record' 'watch')
-    local -a export_commands=('list' 'context')
+    local -a export_commands=('list' 'context' 'agents')
     local -a memory_commands=('remember' 'project' 'capture' 'fix' 'auto' 'list' 'search' 'stats')
     local -a install_commands=('link' 'aliases' 'completions' 'manpage' 'post')
 
@@ -189,7 +189,7 @@ complete -c cortex -f -n "__fish_seen_subcommand_from worktree" -a "list add rem
 complete -c cortex -f -n "__fish_seen_subcommand_from ai" -a "recommend auto-activate export record watch"
 
 # Export subcommands
-complete -c cortex -f -n "__fish_seen_subcommand_from export" -a "list context"
+complete -c cortex -f -n "__fish_seen_subcommand_from export" -a "list context agents"
 
 # Memory subcommands
 complete -c cortex -f -n "__fish_seen_subcommand_from memory" -a "remember project capture fix auto list search stats"
