@@ -4,12 +4,15 @@
 #
 # Usage:
 #   test-review-request.sh <module-path> [options]
+#   test-review-request.sh <module-path> --git [base-ref] [-- path...]
 #   test-review-request.sh --quick <test-file-path> [options]
 #
 # Options:
 #   --tests <path>    Specify test directory (default: auto-discover)
 #   --output <dir>    Output directory (default: .agents/reviews)
 #   --quick           Quick review mode (anti-patterns only, no full audit)
+#   --git [base-ref]  Only include source files changed since base-ref (default: HEAD~1)
+#   -- path...        Limit git diff to these paths (passed to git diff)
 #   --debug           Save prompt and provider output to log files for debugging
 #   --provider <name> auto (default), claude, gemini, or codex
 #
@@ -66,6 +69,9 @@ MODULE_PATH=""
 TEST_PATH=""
 OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
 MODE="full"
+GIT_MODE=""
+BASE_REF="HEAD~1"
+PATH_FILTERS=()
 DEBUG="${CLAUDE_DEBUG:-0}"
 REQUESTED_PROVIDER="${TEST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
 
@@ -89,6 +95,20 @@ while [[ $# -gt 0 ]]; do
     OUTPUT_DIR="${1:-$OUTPUT_DIR}"
     shift
     ;;
+  --git)
+    GIT_MODE=1
+    shift
+    # Next arg is base-ref if it doesn't start with -- or -
+    if [[ $# -gt 0 && ! "$1" =~ ^- ]]; then
+      BASE_REF="$1"
+      shift
+    fi
+    ;;
+  --)
+    shift
+    PATH_FILTERS=("$@")
+    break
+    ;;
   --debug)
     DEBUG=1
     shift
@@ -111,7 +131,7 @@ done
 
 if [[ -z "$MODULE_PATH" ]]; then
   echo "Error: Module path is required." >&2
-  echo "Usage: test-review-request.sh <module-path> [--tests <path>] [--output <dir>]" >&2
+  echo "Usage: test-review-request.sh <module-path> [--git [base-ref]] [--tests <path>] [--output <dir>] [-- path...]" >&2
   echo "       test-review-request.sh --quick <test-file> [--output <dir>]" >&2
   exit 1
 fi
@@ -193,7 +213,43 @@ read_file_or_dir() {
 }
 
 echo "Reading source files..." >&2
-SOURCE_CONTENT=$(read_file_or_dir "$MODULE_PATH" "Source")
+if [[ -n "$GIT_MODE" ]]; then
+  # Build git diff --name-only args
+  GIT_DIFF_ARGS=("$BASE_REF" "--" "$MODULE_PATH")
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    GIT_DIFF_ARGS=("$BASE_REF" "--" "$MODULE_PATH" "${PATH_FILTERS[@]}")
+  fi
+
+  mapfile -t CHANGED_FILES < <(git diff --name-only "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)
+
+  if [[ ${#CHANGED_FILES[@]} -eq 0 ]]; then
+    echo "No changed files found in $MODULE_PATH (base: $BASE_REF). Nothing to audit." >&2
+    exit 0
+  fi
+
+  echo "  Changed files: ${#CHANGED_FILES[@]}" >&2
+  SOURCE_CONTENT=""
+  for changed_file in "${CHANGED_FILES[@]}"; do
+    # Resolve relative paths from repo root
+    if [[ ! -e "$changed_file" && -e "$REPO_ROOT/$changed_file" ]]; then
+      changed_file="$REPO_ROOT/$changed_file"
+    fi
+    if [[ -f "$changed_file" ]]; then
+      file_content=$(read_file_or_dir "$changed_file" "Source")
+      if [[ -n "$SOURCE_CONTENT" ]]; then
+        SOURCE_CONTENT="$SOURCE_CONTENT"$'\n\n'
+      fi
+      SOURCE_CONTENT="$SOURCE_CONTENT$file_content"
+    fi
+  done
+
+  if [[ -z "$SOURCE_CONTENT" ]]; then
+    echo "Warning: Changed files exist but none are readable source files. Nothing to audit." >&2
+    exit 0
+  fi
+else
+  SOURCE_CONTENT=$(read_file_or_dir "$MODULE_PATH" "Source")
+fi
 
 echo "Reading test files..." >&2
 if [[ "$TEST_PATH" == "(none)" ]]; then

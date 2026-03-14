@@ -95,6 +95,26 @@ humans know whether the review came from Claude, Gemini, Codex, or fresh-context
 
 ## Skill Invocation Reference
 
+### Pre-Review: Impact Analysis with Codanna (Optional)
+
+Before requesting code review, you can use codanna to understand the blast radius
+of your changes. This provides grounded structural data that helps scope the review
+and catch issues the diff alone won't reveal.
+
+```bash
+# What calls the functions you changed?
+codanna mcp find_callers process_request --watch
+
+# What's the full impact if this symbol changes?
+codanna mcp analyze_impact DatabaseConnection --watch --json
+
+# Feed impact data into review context
+IMPACT=$(codanna mcp analyze_impact "$CHANGED_SYMBOL" --watch --json 2>/dev/null)
+```
+
+This is optional — agent-loops works without codanna. But when available, impact data
+makes reviews more precise and catches downstream breakage the diff doesn't show.
+
 ### `specialist-review` — Request Code Review
 
 **When:** After completing implementation, after each remediation cycle.
@@ -205,8 +225,17 @@ the audit.
 #### Automated Path: Provider-Aware Script
 
 ```bash
-# Full audit of a module (default)
+# Full audit of a module (default — reads ALL source files)
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module
+
+# Audit only changed files in a module (RECOMMENDED for large modules)
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git
+
+# Audit changed files since a specific ref
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git origin/main
+
+# Audit changed files with additional path filters
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git -- src/parser/ src/auth.py
 
 # Full audit with specific test directory
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --tests /path/to/tests
