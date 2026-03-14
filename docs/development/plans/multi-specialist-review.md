@@ -95,6 +95,10 @@ Each specialist gets a focused prompt with:
 - List of changed files
 - Permission to Read/Grep/Glob actual source files
 - Strict grounding requirement: every finding must cite file, line range, and quoted code
+- If codanna is available (`command -v codanna`), specialists also get impact analysis:
+  - `codanna mcp find_callers <symbol> --watch` for upstream dependencies
+  - `codanna mcp analyze_impact <symbol> --watch` for blast radius
+  - This replaces heuristic grep-based dependency tracing with structural data
 
 ### Core specialists (always run)
 
@@ -166,6 +170,46 @@ Justified when reviewing: PR merges, multi-commit ranges, security-sensitive pat
 - **Budget scaling:** Should budget per specialist scale with diff size?
 - **Incremental mode:** Can specialists share a file-read cache to avoid redundant reads?
 - **Team upgrade path:** If/when Claude teams stabilize, the specialists could be upgraded to team members for cross-challenge capability. The bash orchestrator would be replaced by a team lead prompt, but the specialist prompts and verification hook would carry over.
+
+## Codanna Integration (Optional Enhancement)
+
+When codanna is installed, it can enhance the multi-specialist review at three stages:
+
+### Pre-review phase
+
+Before spawning specialists, run `codanna mcp analyze_impact` via CLI against the
+changed symbols to gather structural context. Inject the impact data into each
+specialist's prompt so they start with grounded dependency knowledge instead of
+inferring it from the diff.
+
+```bash
+# Gather impact data for each changed symbol before specialist calls
+for symbol in $CHANGED_SYMBOLS; do
+  codanna mcp analyze_impact "$symbol" --watch --json >> impact-context.json
+done
+```
+
+### During review
+
+If the codanna MCP server is running (`codanna serve --watch`), specialists can
+query codanna directly via MCP tools — `find_callers`, `analyze_impact`,
+`find_symbol` — to verify dependency assumptions in real time rather than relying
+solely on Read/Grep/Glob.
+
+### Triage
+
+`codanna mcp analyze_impact` can inform which specialists to activate. For example,
+if impact analysis shows database-layer callers are affected, activate the
+performance specialist. If the impact graph touches auth modules, activate the
+security specialist. This addresses the open question about triage mechanism by
+providing structural signals rather than relying solely on file extensions and
+keyword grep.
+
+### Availability
+
+Codanna is optional. The multi-specialist review works without it. When available,
+it replaces heuristic grep-based dependency tracing with structural call graph data,
+reducing false positives and improving specialist focus.
 
 ## Relationship to Agent-Loops
 
