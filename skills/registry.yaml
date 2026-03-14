@@ -8,7 +8,7 @@
 # Legacy files (activation.yaml, versions.yaml, composition.yaml) remain for backward compatibility.
 
 schema_version: "1.0.0"
-last_updated: "2026-02-11"
+last_updated: "2026-03-13"
 
 # Category Definitions
 categories:
@@ -1433,6 +1433,50 @@ skills:
     status: active
     license: MIT
 
+  agent-loops:
+    title: Agent Workflow Loops
+    description: Complete operational workflow for implementer agents making code changes through atomic commits, independent review, test writing, and lint gates
+    path: agent-loops/SKILL.md
+    authors:
+      - nferguson
+    created: "2026-03-12"
+    updated: "2026-03-13"
+    categories:
+      - workflow
+      - testing
+    tags:
+      - implementation
+      - workflow
+      - review
+      - testing
+      - lint
+      - commits
+    version:
+      current: "1.0.0"
+      history:
+        - version: "1.0.0"
+          date: "2026-03-12"
+          notes: Universalized from Codex-only placement into the shared skills catalog
+          changes:
+            - Shared provider-aware review and audit loops
+            - Atomic commit workflow with committer enforcement
+            - Test writing, lint gate, and remediation circuit breakers
+    activation:
+      keywords:
+        - agent loops
+        - agent workflow
+        - atomic commit
+        - atomic commits
+        - independent review
+        - specialist review
+        - test writing loop
+        - lint gate
+        - implementation loop
+        - remediation cycle
+    dependencies: []
+    status: active
+    license: MIT
+
   test-driven-development:
     title: Test-Driven Development
     description: TDD methodology with red-green-refactor cycle and testing best practices
@@ -1879,8 +1923,8 @@ skills:
 
 # Registry Statistics (auto-calculated)
 statistics:
-  total_skills: 44
-  active_skills: 44
+  total_skills: 45
+  active_skills: 45
   deprecated_skills: 0
   archived_skills: 0
   total_authors: 2
@@ -1890,7 +1934,7 @@ statistics:
     infrastructure: 5
     security: 7
     devops: 7
-    testing: 3
-    workflow: 17
+    testing: 4
+    workflow: 18
     meta: 11
     experimental: 0

@@ -421,6 +421,19 @@ skills:
       - "agent capabilities"
       - "framework usage"
 
+  agent-loops:
+    keywords:
+      - "agent loops"
+      - "agent workflow"
+      - "atomic commit"
+      - "atomic commits"
+      - "independent review"
+      - "specialist review"
+      - "test writing loop"
+      - "lint gate"
+      - "implementation loop"
+      - "remediation cycle"
+
   verification-before-completion:
     keywords:
       - "verify"

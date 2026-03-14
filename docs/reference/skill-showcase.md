@@ -233,7 +233,7 @@ advisory responses for reconciliation against local repo state.
 
 ---
 
-### `agent-loops` (codex skill)
+### `agent-loops`
 
 **Complete operational workflow for implementer agents with circuit breakers.**
 

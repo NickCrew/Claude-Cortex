@@ -57,6 +57,12 @@
       "keywords": ["run tests", "run pytest", "npm test", "test coverage", "test suite"]
     },
     {
+      "name": "agent-loops",
+      "path": "agent-loops",
+      "description": "Drive implementation through atomic commits, independent review, test loops, and lint gates.",
+      "keywords": ["agent loops", "agent workflow", "atomic commit", "atomic commits", "independent review", "specialist review", "test writing loop", "lint gate", "remediation cycle"]
+    },
+    {
       "name": "code-quality-workflow",
       "path": "code-quality-workflow",
       "description": "Trigger docs/code review agents before merge",

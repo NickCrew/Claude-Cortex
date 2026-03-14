@@ -37,7 +37,7 @@ class ParsedReview:
 
 
 # Maps perspective names (lowercase) to skill lists.
-# Derived from codex/skills/agent-loops/references/perspective-catalog.md
+# Derived from skills/agent-loops/references/perspective-catalog.md
 PERSPECTIVE_SKILL_MAP: Dict[str, List[str]] = {
     "correctness": [],
     "security": [

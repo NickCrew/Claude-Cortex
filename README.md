@@ -32,7 +32,7 @@
 Cortex includes four foundational skills that drive quality across development workflows:
 
 #### `agent-loops` — Structured Implementation & Verification
-- **Skill file**: `codex/skills/agent-loops/SKILL.md`
+- **Skill file**: `skills/agent-loops/SKILL.md`
 - **Purpose**: Multi-phase implementation loop with built-in verification, audit, and independent review gates
 - **When to use**: Any feature implementation, bug fix, or refactoring task
 - **Workflow**: Plan → Implement → Verify → Independent review/audit with same-model shell-outs kept for last resort

@@ -108,7 +108,7 @@ Productive perspectives only > All perspectives equal
 | `claude_ctx_py/cmd_ai.py` | CLI handlers for `cortex ai` commands |
 | `claude_ctx_py/cmd_review.py` | Review gate command |
 | `claude_ctx_py/core/skills.py` | CLI handlers for `cortex skills` commands |
-| `codex/skills/agent-loops/scripts/specialist-review.sh` | Review pipeline script |
+| `skills/agent-loops/scripts/specialist-review.sh` | Review pipeline script |
 
 ---
 
@@ -304,7 +304,7 @@ The review parser:
 
 ### Perspective-to-Skill Map
 
-Derived from `codex/skills/agent-loops/references/perspective-catalog.md`:
+Derived from `skills/agent-loops/references/perspective-catalog.md`:
 
 | Perspective | Mapped Skills |
 |-------------|---------------|
@@ -559,7 +559,7 @@ PERSPECTIVE_SKILL_MAP["data engineering"] = [
 ]
 ```
 
-Then add the perspective to `codex/skills/agent-loops/references/perspective-catalog.md`
+Then add the perspective to `skills/agent-loops/references/perspective-catalog.md`
 so the specialist review can select it.
 
 ### Adding a New Recommendation Rule

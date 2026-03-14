@@ -5,6 +5,29 @@
     {
       "trigger": {
         "file_patterns": [
+          "**/*.py",
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.go",
+          "**/*.rs",
+          "**/*.java",
+          "**/*.kt",
+          "**/*.swift"
+        ]
+      },
+      "recommend": [
+        {
+          "skill": "agent-loops",
+          "confidence": 0.74,
+          "reason": "Implementation-oriented source changes detected; use atomic review/test/lint loops"
+        }
+      ]
+    },
+    {
+      "trigger": {
+        "file_patterns": [
           "**/auth/**",
           "**/security/**",
           "**/*secret*.py",
