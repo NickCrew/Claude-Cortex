@@ -20,6 +20,7 @@ from .hooks import parse_hook_file
 
 # Set up file logging for debugging
 _log_path = Path.home() / ".cortex" / "logs" / "asset_copy.log"
+_log_path.parent.mkdir(parents=True, exist_ok=True)
 _logger = logging.getLogger("asset_installer")
 _logger.setLevel(logging.DEBUG)
 if not _logger.handlers:
