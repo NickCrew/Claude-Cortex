@@ -24,6 +24,42 @@ except ImportError:  # pragma: no cover - optional dependency
 
 
 # =========================================================================
+# File-based cache
+# =========================================================================
+CACHE_DIR = Path("/tmp/cortex-statusline-cache")
+
+
+def _cache_key(namespace: str, cwd: str) -> Path:
+    """Return a stable cache file path for *namespace* + *cwd*."""
+    import hashlib
+
+    h = hashlib.md5(cwd.encode()).hexdigest()[:12]
+    return CACHE_DIR / f"{namespace}-{h}"
+
+
+def _cache_read(key: Path, ttl: int) -> str | None:
+    """Return cached value if it exists and is fresher than *ttl* seconds."""
+    try:
+        if not key.exists():
+            return None
+        age = datetime.now(timezone.utc).timestamp() - key.stat().st_mtime
+        if age > ttl:
+            return None
+        return key.read_text()
+    except OSError:
+        return None
+
+
+def _cache_write(key: Path, value: str) -> None:
+    """Write *value* to the cache file."""
+    try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        key.write_text(value)
+    except OSError:
+        pass
+
+
+# =========================================================================
 # Colors
 # =========================================================================
 class C:
@@ -76,6 +112,7 @@ DEFAULT_CONFIG: ConfigDict = {
     "git_show_tag": False,
     "git_show_assume_unchanged": False,
     "git_show_submodules": False,
+    "cache_ttl": 5,  # seconds; 0 to disable caching
     "separator": " | ",
     "icons": {
         "dir": "",
@@ -243,10 +280,31 @@ def get_git_info(
     icons: Mapping[str, str],
     config: ConfigDict | None = None,
 ) -> str:
-    """Get git branch and status."""
+    """Get git branch and status, with optional file-based caching."""
     if config is None:
         config = {}
 
+    ttl = int(config.get("cache_ttl", 5))
+    if ttl > 0:
+        cache_key = _cache_key("git", cwd)
+        cached = _cache_read(cache_key, ttl)
+        if cached is not None:
+            return cached
+
+    result = _get_git_info_uncached(cwd, icons, config)
+
+    if ttl > 0:
+        _cache_write(cache_key, result)
+
+    return result
+
+
+def _get_git_info_uncached(
+    cwd: str,
+    icons: Mapping[str, str],
+    config: ConfigDict,
+) -> str:
+    """Fetch git branch and status (no caching)."""
     git_dir = run_cmd(["git", "-C", cwd, "rev-parse", "--git-dir"])
     if not git_dir:
         return ""
@@ -416,10 +474,21 @@ def get_node_version(icons: Mapping[str, str]) -> str:
     return ""
 
 
-def get_claude_version() -> str:
-    """Get Claude CLI version."""
+def get_claude_version(ttl: int = 60) -> str:
+    """Get Claude CLI version (cached — version rarely changes mid-session)."""
+    if ttl > 0:
+        cache_key = _cache_key("claude-version", "global")
+        cached = _cache_read(cache_key, ttl)
+        if cached is not None:
+            return cached
+
     output = run_cmd(["claude", "--version"])
-    return f"v{output.split()[0]}" if output else ""
+    result = f"v{output.split()[0]}" if output else ""
+
+    if ttl > 0:
+        _cache_write(cache_key, result)
+
+    return result
 
 
 # =========================================================================
