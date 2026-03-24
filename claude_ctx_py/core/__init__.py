@@ -160,8 +160,25 @@ from .rules import (
     list_rules,
 )
 
-# Export all functions from codex_skills
+# Export all functions from codex_skills (provider-based + backward-compat)
 from .codex_skills import (
+    # Types and constants
+    SkillProvider,
+    SKILL_PROVIDERS,
+    PROVIDER_LABELS,
+    PROVIDER_ICONS,
+    # Provider-parameterized functions
+    _resolve_provider_skills_dir,
+    _resolve_provider_native_skills_dir,
+    scan_provider_native_skills,
+    scan_provider_skill_status,
+    link_provider_skill,
+    unlink_provider_skill,
+    link_provider_skills_by_category,
+    unlink_provider_skills_by_category,
+    link_all_provider_skills,
+    unlink_all_provider_skills,
+    # Backward-compatible codex wrappers
     scan_codex_skill_status,
     scan_codex_native_skills,
     _resolve_codex_native_skills_dir,
@@ -383,7 +400,23 @@ __all__ = [
     "rules_activate",
     "rules_deactivate",
     "list_rules",
-    # Codex skills functions
+    # Provider skills types and constants
+    "SkillProvider",
+    "SKILL_PROVIDERS",
+    "PROVIDER_LABELS",
+    "PROVIDER_ICONS",
+    # Provider-parameterized skill functions
+    "_resolve_provider_skills_dir",
+    "_resolve_provider_native_skills_dir",
+    "scan_provider_native_skills",
+    "scan_provider_skill_status",
+    "link_provider_skill",
+    "unlink_provider_skill",
+    "link_provider_skills_by_category",
+    "unlink_provider_skills_by_category",
+    "link_all_provider_skills",
+    "unlink_all_provider_skills",
+    # Codex skills functions (backward-compat)
     "scan_codex_skill_status",
     "scan_codex_native_skills",
     "_resolve_codex_native_skills_dir",

@@ -16,7 +16,7 @@ PRIMARY_VIEW_BINDINGS = [
     ("2", "agents", "Agents"),
     ("3", "rules", "Rules"),
     ("4", "skills", "Skills"),
-    ("5", "codex_skills", "Codex Skills"),
+    ("5", "codex_skills", "LLM Skills"),
     ("6", "commands", "Commands"),
     ("7", "hooks", "Hooks"),
     ("8", "memory", "Memory"),
@@ -44,6 +44,6 @@ VIEW_TITLES: Dict[str, str] = {
     "assets": "📦 Asset Browser",
     "memory": "🧠 Memory Vault",
     "hooks": "🪝 Hooks",
-    "codex_skills": "🔗 Codex Skills",
+    "codex_skills": "🔗 LLM Skills",
     "settings": "⚙️  Settings",
 }

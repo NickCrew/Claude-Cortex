@@ -19,6 +19,7 @@ recursive-include schemas *.json *.yaml *.yml
 recursive-include scripts *.sh *.py *.md
 recursive-include bin *
 recursive-include codex *.md *.sh *.py *.json *.yaml *.yml
+recursive-include gemini *.md *.sh *.py *.json *.yaml *.yml
 
 global-exclude *PLAN*.md *SUMMARY*.md *IMPLEMENTATION*.md *REPORT*.md *COMPLETE*.md *ANALYSIS*.md *ACTIONS*.md Gemfile*
 
