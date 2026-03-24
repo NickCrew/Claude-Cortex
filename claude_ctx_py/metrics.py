@@ -17,7 +17,7 @@ from .error_utils import safe_load_json, safe_save_json, ensure_directory
 
 
 def get_metrics_path() -> Path:
-    """Get metrics storage path (~/.cortex/.metrics/skills/).
+    """Get metrics storage path (~/.claude/.metrics/skills/).
 
     Raises:
         MetricsFileError: If metrics directory cannot be created

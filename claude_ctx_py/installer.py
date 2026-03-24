@@ -258,7 +258,7 @@ def install_manpages(
 def install_docs(
     target_dir: Optional[Path] = None, dry_run: bool = False
 ) -> Tuple[int, str]:
-    """Install architecture docs to ~/.cortex/docs (or target)."""
+    """Install architecture docs to ~/.claude/docs (or target)."""
     source_dir = _find_docs_source()
     if source_dir is None:
         return 1, "Architecture docs source not found."
@@ -295,7 +295,7 @@ def install_docs(
     return 0, "\n".join(message)
 
 
-# Directories to copy from bundled assets to ~/.cortex
+# Directories to copy from bundled assets to ~/.claude
 BOOTSTRAP_DIRS = ["rules"]
 
 

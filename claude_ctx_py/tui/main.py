@@ -128,6 +128,21 @@ from ..core import (
     unlink_codex_skills_by_category,
     link_all_codex_skills,
     unlink_all_codex_skills,
+    # Provider-based skill functions
+    SkillProvider,
+    SKILL_PROVIDERS,
+    PROVIDER_LABELS,
+    PROVIDER_ICONS,
+    _resolve_provider_skills_dir,
+    _resolve_provider_native_skills_dir,
+    scan_provider_native_skills,
+    scan_provider_skill_status,
+    link_provider_skill,
+    unlink_provider_skill,
+    link_provider_skills_by_category,
+    unlink_provider_skills_by_category,
+    link_all_provider_skills,
+    unlink_all_provider_skills,
 )
 from ..core.rules import rules_activate, rules_deactivate
 from ..core.skills import skill_activate, skill_deactivate
@@ -309,6 +324,10 @@ class AgentTUI(App[None]):
         self.skills: List[Dict[str, Any]] = []
         self.codex_skills_status: Dict[str, bool] = {}
         self.codex_native_skills: List[Dict[str, Any]] = []
+        # Provider-based LLM skills state
+        self.active_provider: SkillProvider = "codex"
+        self.provider_skills_status: Dict[str, bool] = {}
+        self.provider_native_skills: List[Dict[str, Any]] = []
         self.slash_commands: List[SlashCommandInfo] = []
         self.skill_rating_collector: Optional[SkillRatingCollector] = None
         self.skill_rating_error: Optional[str] = None
@@ -725,6 +744,7 @@ class AgentTUI(App[None]):
                 "link_by_category",
                 "unlink_by_category",
                 "refresh_codex_status",
+                "switch_provider",
             },
             "hooks": {"details_context"},
             "settings": {
@@ -941,20 +961,23 @@ class AgentTUI(App[None]):
 
     def _selected_skill(self) -> Optional[Dict[str, Any]]:
         index = self._table_cursor_index()
-        # In codex_skills view, index into combined list (codex-native first)
+        # In codex_skills view, index into combined list (provider-native first)
+        # Offset by 1 to account for the provider switcher header row
         if self.current_view == "codex_skills":
+            if index is not None:
+                index -= 1  # Skip switcher row
             combined: List[Dict[str, Any]] = []
-            for s in getattr(self, "codex_native_skills", []):
+            for s in self.provider_native_skills:
                 entry = dict(s)
-                entry["source"] = "codex"
+                entry["source"] = self.active_provider
                 combined.append(entry)
             for s in self.skills:
                 entry = dict(s)
                 entry.setdefault("source", "claude")
                 combined.append(entry)
-            if index is None or not combined:
+            if index is None or index < 0 or not combined:
                 return None
-            if index < 0 or index >= len(combined):
+            if index >= len(combined):
                 return None
             return combined[index]
         skills = self.skills
@@ -1365,6 +1388,43 @@ class AgentTUI(App[None]):
             self.codex_native_skills = []
             self.log(f"Error loading codex-native skills: {e}")
 
+    def load_provider_skills_status(self) -> None:
+        """Load active provider's skills linked status from filesystem."""
+        try:
+            self.provider_skills_status = scan_provider_skill_status(
+                self.active_provider
+            )
+        except Exception as e:
+            self.provider_skills_status = {}
+            self.log(f"Error loading {self.active_provider} skills status: {e}")
+
+    def load_provider_native_skills(self) -> None:
+        """Load active provider's native skills from <provider>/skills/ directory."""
+        try:
+            native_dir = _resolve_provider_native_skills_dir(self.active_provider)
+            claude_dir = _resolve_claude_dir()
+            results: List[Dict[str, Any]] = []
+
+            if native_dir.exists():
+                for skill_dir in sorted(native_dir.iterdir()):
+                    if not skill_dir.is_dir():
+                        continue
+                    skill_file = skill_dir / "SKILL.md"
+                    if not skill_file.is_file():
+                        continue
+
+                    skill_data = self._parse_skill_file(skill_file, claude_dir)
+                    if skill_data:
+                        skill_data["source"] = self.active_provider
+                        results.append(skill_data)
+
+            self.provider_native_skills = results
+        except Exception as e:
+            self.provider_native_skills = []
+            self.log(
+                f"Error loading {self.active_provider}-native skills: {e}"
+            )
+
     def load_slash_commands(self) -> None:
         """Load slash command metadata from the skills directory."""
         try:
@@ -1641,17 +1701,35 @@ class AgentTUI(App[None]):
             )
 
     def show_codex_skills_view(self, table: DataTable[Any]) -> None:
-        """Show Codex skills with symlink status."""
+        """Show LLM provider skills with symlink status and provider switcher."""
+        provider = self.active_provider
+        provider_label = PROVIDER_LABELS.get(provider, provider)
+        provider_icon = PROVIDER_ICONS.get(provider, "📦")
+
+        # Provider switcher header row
+        tabs = []
+        for p in SKILL_PROVIDERS:
+            label = PROVIDER_LABELS.get(p, p)
+            icon = PROVIDER_ICONS.get(p, "📦")
+            if p == provider:
+                tabs.append(f"[bold reverse] {icon} {label} [/bold reverse]")
+            else:
+                tabs.append(f"[dim] {icon} {label} [/dim]")
+        switcher = "  ".join(tabs) + "  [dim italic]Tab to switch[/dim italic]"
+
         table.add_column("Source", key="source", width=10)
         table.add_column("Name", key="name", width=30)
         table.add_column("Category", key="category", width=18)
         table.add_column("Linked", key="linked", width=10)
         table.add_column("Description", key="description")
 
-        has_claude = hasattr(self, "skills") and self.skills
-        has_codex = hasattr(self, "codex_native_skills") and self.codex_native_skills
+        # Add switcher as first row
+        table.add_row(switcher, "", "", "", "")
 
-        if not has_claude and not has_codex:
+        has_claude = hasattr(self, "skills") and self.skills
+        has_native = self.provider_native_skills
+
+        if not has_claude and not has_native:
             table.add_row("[dim]No skills found[/dim]", "", "", "", "")
             return
 
@@ -1663,13 +1741,13 @@ class AgentTUI(App[None]):
         except Exception:
             categories = {}
 
-        # Build combined skill list: codex-native first, then claude
+        # Build combined skill list: provider-native first, then claude
         combined: List[Dict[str, Any]] = []
 
-        # Codex-native skills (from codex/skills/)
-        for skill in getattr(self, "codex_native_skills", []):
+        # Provider-native skills (from <provider>/skills/)
+        for skill in self.provider_native_skills:
             entry = dict(skill)
-            entry["source"] = "codex"
+            entry["source"] = provider
             combined.append(entry)
 
         # Claude skills (from skills/ registry)
@@ -1683,9 +1761,9 @@ class AgentTUI(App[None]):
             source = skill.get("source", "claude")
 
             # Source label
-            if source == "codex":
-                source_text = "[magenta]codex[/magenta]"
-                icon = "🤖"
+            if source != "claude":
+                source_text = f"[magenta]{source}[/magenta]"
+                icon = PROVIDER_ICONS.get(source, "📦")  # type: ignore[arg-type]
             else:
                 source_text = "[cyan]claude[/cyan]"
                 # Get category icon from registry
@@ -1699,19 +1777,18 @@ class AgentTUI(App[None]):
             # Category with color
             category_text = f"[cyan]{skill['category']}[/cyan]"
 
-            # Linked status — check codex_skills_status for both types
-            is_linked = self.codex_skills_status.get(skill_name, False)
-            # For codex-native, also check via scan_codex_native_skills data
-            if source == "codex":
-                for ns in getattr(self, "codex_native_skills", []):
+            # Linked status — check provider_skills_status for both types
+            is_linked = self.provider_skills_status.get(skill_name, False)
+            # For provider-native, also verify actual filesystem state
+            if source != "claude":
+                for ns in self.provider_native_skills:
                     if ns.get("slug") == skill_name:
-                        # Re-check from the native scan which has is_linked
-                        native_dir = _resolve_codex_native_skills_dir()
-                        codex_target = Path.home() / ".codex" / "skills" / skill_name
+                        native_dir = _resolve_provider_native_skills_dir(provider)
+                        target = Path.home() / f".{provider}" / "skills" / skill_name
                         native_source = native_dir / skill_name
                         is_linked = (
-                            codex_target.is_symlink()
-                            and codex_target.resolve() == native_source.resolve()
+                            target.is_symlink()
+                            and target.resolve() == native_source.resolve()
                         )
                         break
 
@@ -2507,7 +2584,7 @@ class AgentTUI(App[None]):
 
         Preference order:
         1) Explicit override via CLAUDE_TASKS_HOME (if set)
-        2) Primary resolved Claude directory (plugin or ~/.cortex)
+        2) Primary resolved Claude directory (plugin or ~/.claude)
         3) Project-local .claude next to the current working directory
 
         The newest directory that already exists and contains any task files
@@ -4304,16 +4381,22 @@ class AgentTUI(App[None]):
         self.notify("💎 Skills", severity="information", timeout=1)
 
     def action_view_codex_skills(self) -> None:
-        """Switch to Codex skills linking view."""
-        self.load_codex_skills_status()
-        self.load_codex_native_skills()
+        """Switch to LLM skills linking view."""
+        self.load_provider_skills_status()
+        self.load_provider_native_skills()
         self.current_view = "codex_skills"
+        provider_label = PROVIDER_LABELS.get(self.active_provider, self.active_provider)
         claude_count = len(self.skills)
-        codex_count = len(self.codex_native_skills)
+        native_count = len(self.provider_native_skills)
         self.status_message = (
-            f"Loaded {claude_count} claude skills, {codex_count} codex skills"
+            f"[{provider_label}] Loaded {claude_count} claude skills, "
+            f"{native_count} {self.active_provider} skills"
         )
-        self.notify("🔗 Codex Skills", severity="information", timeout=1)
+        self.notify(
+            f"🔗 LLM Skills ({provider_label})",
+            severity="information",
+            timeout=1,
+        )
 
     def action_view_settings(self) -> None:
         """Switch to settings view."""
@@ -4499,7 +4582,12 @@ class AgentTUI(App[None]):
 
         # Handle codex_skills view specific keybindings
         if self.current_view == "codex_skills":
-            if event.key == "l":
+            if event.key == "tab":
+                self.action_switch_provider()
+                event.prevent_default()
+                event.stop()
+                return
+            elif event.key == "l":
                 self.action_toggle_codex_skill()
                 event.prevent_default()
                 event.stop()
@@ -8140,8 +8228,8 @@ class AgentTUI(App[None]):
             self.load_mcp_servers()
             self.load_mcp_docs()
         elif self.current_view == "codex_skills":
-            self.load_codex_skills_status()
-            self.load_codex_native_skills()
+            self.load_provider_skills_status()
+            self.load_provider_native_skills()
 
         self.update_view()
         self.status_message = f"Refreshed {self.current_view}"
@@ -8270,7 +8358,7 @@ class AgentTUI(App[None]):
                 )
 
     def action_toggle_codex_skill(self) -> None:
-        """Toggle link/unlink for selected skill."""
+        """Toggle link/unlink for selected skill in active provider."""
         if self.current_view != "codex_skills":
             return
 
@@ -8287,31 +8375,34 @@ class AgentTUI(App[None]):
             self.status_message = "No skill selected"
             return
 
+        provider = self.active_provider
         skill_name = skill["slug"]
         source = skill.get("source", "claude")
 
         # Determine source dir and linked status
-        if source == "codex":
-            source_dir = _resolve_codex_native_skills_dir()
-            codex_target = Path.home() / ".codex" / "skills" / skill_name
+        if source != "claude":
+            source_dir = _resolve_provider_native_skills_dir(provider)
+            target = Path.home() / f".{provider}" / "skills" / skill_name
             is_linked = (
-                codex_target.is_symlink()
-                and codex_target.resolve() == (source_dir / skill_name).resolve()
+                target.is_symlink()
+                and target.resolve() == (source_dir / skill_name).resolve()
             )
         else:
             source_dir = None  # uses default cortex skills root
-            is_linked = self.codex_skills_status.get(skill_name, False)
+            is_linked = self.provider_skills_status.get(skill_name, False)
 
         if is_linked:
-            exit_code, msg = unlink_codex_skill(skill_name)
+            exit_code, msg = unlink_provider_skill(skill_name, provider)
         else:
-            exit_code, msg = link_codex_skill(skill_name, source_dir=source_dir)
+            exit_code, msg = link_provider_skill(
+                skill_name, provider, source_dir=source_dir
+            )
 
         self.status_message = msg
         if exit_code == 0:
             self.notify(msg, severity="information", timeout=2)
-            self.load_codex_skills_status()
-            self.load_codex_native_skills()
+            self.load_provider_skills_status()
+            self.load_provider_native_skills()
             self.update_view()
 
             # Move cursor to next item after update
@@ -8324,10 +8415,11 @@ class AgentTUI(App[None]):
             self.notify(msg, severity="error", timeout=3)
 
     def action_link_all_codex_skills(self) -> None:
-        """Link all Codex skills."""
+        """Link all skills for active provider."""
         if self.current_view != "codex_skills":
             return
 
+        provider = self.active_provider
         try:
             registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
@@ -8335,34 +8427,42 @@ class AgentTUI(App[None]):
             self.notify(f"Failed to load registry: {e}", severity="error", timeout=3)
             return
 
-        success_count, messages = link_all_codex_skills(registry)
+        success_count, messages = link_all_provider_skills(registry, provider)
 
-        self.status_message = f"Linked {success_count} skills"
+        label = PROVIDER_LABELS.get(provider, provider)
+        self.status_message = f"Linked {success_count} skills to {label}"
         self.notify(
-            f"✓ Linked {success_count} skills", severity="information", timeout=2
+            f"✓ Linked {success_count} skills to {label}",
+            severity="information",
+            timeout=2,
         )
-        self.load_codex_skills_status()
+        self.load_provider_skills_status()
         self.update_view()
 
     def action_unlink_all_codex_skills(self) -> None:
-        """Unlink all Codex skills."""
+        """Unlink all skills for active provider."""
         if self.current_view != "codex_skills":
             return
 
-        success_count, messages = unlink_all_codex_skills()
+        provider = self.active_provider
+        success_count, messages = unlink_all_provider_skills(provider)
 
-        self.status_message = f"Unlinked {success_count} skills"
+        label = PROVIDER_LABELS.get(provider, provider)
+        self.status_message = f"Unlinked {success_count} skills from {label}"
         self.notify(
-            f"○ Unlinked {success_count} skills", severity="information", timeout=2
+            f"○ Unlinked {success_count} skills from {label}",
+            severity="information",
+            timeout=2,
         )
-        self.load_codex_skills_status()
+        self.load_provider_skills_status()
         self.update_view()
 
     async def action_link_by_category(self) -> None:
-        """Show dialog to link skills by category."""
+        """Show dialog to link skills by category for active provider."""
         if self.current_view != "codex_skills":
             return
 
+        provider = self.active_provider
         try:
             registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
@@ -8374,7 +8474,7 @@ class AgentTUI(App[None]):
         skills_data = registry.get("skills", {})
 
         # Count skills per category
-        category_counts = {}
+        category_counts: Dict[str, int] = {}
         for skill_name, skill_info in skills_data.items():
             cats = skill_info.get("categories", [])
             for cat in cats:
@@ -8399,21 +8499,27 @@ class AgentTUI(App[None]):
         if result and "link" in result:
             total_linked = 0
             for category in result["link"]:
-                count, messages = link_codex_skills_by_category(category, registry)
+                count, messages = link_provider_skills_by_category(
+                    category, registry, provider
+                )
                 total_linked += count
 
-            self.status_message = f"Linked {total_linked} skills"
+            label = PROVIDER_LABELS.get(provider, provider)
+            self.status_message = f"Linked {total_linked} skills to {label}"
             self.notify(
-                f"✓ Linked {total_linked} skills", severity="information", timeout=2
+                f"✓ Linked {total_linked} skills to {label}",
+                severity="information",
+                timeout=2,
             )
-            self.load_codex_skills_status()
+            self.load_provider_skills_status()
             self.update_view()
 
     async def action_unlink_by_category(self) -> None:
-        """Show dialog to unlink skills by category."""
+        """Show dialog to unlink skills by category for active provider."""
         if self.current_view != "codex_skills":
             return
 
+        provider = self.active_provider
         try:
             registry_path = _resolve_cortex_root() / "skills" / "registry.yaml"
             registry = yaml.safe_load(registry_path.read_text())
@@ -8425,9 +8531,9 @@ class AgentTUI(App[None]):
         skills_data = registry.get("skills", {})
 
         # Count LINKED skills per category
-        category_counts = {}
+        category_counts: Dict[str, int] = {}
         for skill_name, skill_info in skills_data.items():
-            if not self.codex_skills_status.get(skill_name, False):
+            if not self.provider_skills_status.get(skill_name, False):
                 continue  # Skip not linked
             cats = skill_info.get("categories", [])
             for cat in cats:
@@ -8452,24 +8558,50 @@ class AgentTUI(App[None]):
         if result and "unlink" in result:
             total_unlinked = 0
             for category in result["unlink"]:
-                count, messages = unlink_codex_skills_by_category(category, registry)
+                count, messages = unlink_provider_skills_by_category(
+                    category, registry, provider
+                )
                 total_unlinked += count
 
-            self.status_message = f"Unlinked {total_unlinked} skills"
+            label = PROVIDER_LABELS.get(provider, provider)
+            self.status_message = f"Unlinked {total_unlinked} skills from {label}"
             self.notify(
-                f"○ Unlinked {total_unlinked} skills", severity="information", timeout=2
+                f"○ Unlinked {total_unlinked} skills from {label}",
+                severity="information",
+                timeout=2,
             )
-            self.load_codex_skills_status()
+            self.load_provider_skills_status()
             self.update_view()
 
     def action_refresh_codex_status(self) -> None:
-        """Refresh Codex skills link status from filesystem."""
+        """Refresh provider skills link status from filesystem."""
         if self.current_view != "codex_skills":
             return
 
-        self.load_codex_skills_status()
+        self.load_provider_skills_status()
         self.update_view()
         self.notify("Refreshed link status", severity="information", timeout=1)
+
+    def action_switch_provider(self) -> None:
+        """Cycle to the next LLM skill provider (tab key)."""
+        if self.current_view != "codex_skills":
+            return
+
+        # Cycle through providers
+        idx = SKILL_PROVIDERS.index(self.active_provider)
+        self.active_provider = SKILL_PROVIDERS[(idx + 1) % len(SKILL_PROVIDERS)]
+
+        provider_label = PROVIDER_LABELS.get(
+            self.active_provider, self.active_provider
+        )
+        self.load_provider_skills_status()
+        self.load_provider_native_skills()
+        self.update_view()
+        self.notify(
+            f"Switched to {provider_label}",
+            severity="information",
+            timeout=1,
+        )
 
 
 def main(

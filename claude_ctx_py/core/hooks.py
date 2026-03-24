@@ -700,7 +700,7 @@ def create_hook_template(name: str, event: str, target_dir: Optional[Path] = Non
     Args:
         name: Hook name (without .py extension)
         event: Hook event type
-        target_dir: Target directory. Defaults to ~/.cortex/hooks/
+        target_dir: Target directory. Defaults to ~/.claude/hooks/
 
     Returns:
         Tuple of (success, message, path)

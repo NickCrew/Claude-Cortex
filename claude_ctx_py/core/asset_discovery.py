@@ -149,7 +149,7 @@ class ClaudeDir:
     def display_name(self) -> str:
         """Get display name for the directory."""
         if self.scope == "global":
-            return "~/.cortex (global)"
+            return "~/.claude (global)"
         elif self.scope == "legacy":
             return "~/.claude (legacy)"
         elif self.scope == "project":
@@ -895,7 +895,7 @@ def find_claude_directories(start_path: Optional[Path] = None) -> List[ClaudeDir
         current = current.parent
         depth += 1
 
-    # Always include ~/.cortex (or CORTEX_ROOT) as global target
+    # Always include ~/.claude (or CORTEX_ROOT) as global target
     global_root = _resolve_claude_dir(home, scope="global")
     if str(global_root) not in seen_paths:
         installed = get_installed_assets(global_root)

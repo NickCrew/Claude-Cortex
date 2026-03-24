@@ -1,4 +1,4 @@
-"""Backup and restore functionality for ~/.cortex directory."""
+"""Backup and restore functionality for ~/.claude directory."""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ def create_backup(
     name: Optional[str] = None,
     include_backups: bool = False,
 ) -> Tuple[bool, str, Optional[BackupInfo]]:
-    """Create a backup of ~/.cortex.
+    """Create a backup of ~/.claude.
 
     Args:
         name: Optional custom name for the backup
