@@ -13,7 +13,7 @@ Complete reference material for Cortex components.
 
 ---
 
-- [Commands]({% link reference/commands.md %}) -- all 49 slash commands
+- [Commands]({% link reference/commands.md %}) -- slash command aliases derived from installed skills
 - [Agents]({% link reference/agents.md %}) -- 29 active agents
-- [Flags]({% link reference/flags.md %}) -- 22 flag categories
 - [Configuration]({% link reference/configuration.md %}) -- config file fields and environment variables
+- [Skill Showcase]({% link reference/skills.md %}) -- curated guide to the most sophisticated skills

@@ -1,34 +1,34 @@
-// Cortex "Blue Ops" color scheme for just-the-docs
-// Matches the brand palette from the existing docs site
+// Cortex "Purple Ops" color scheme for just-the-docs
+// Matches the brand palette from the hero/social images
 
 // Dark backgrounds
 $body-background-color: #020617;
-$sidebar-color: #0a1628;
-$search-background-color: #0b1f3a;
+$sidebar-color: #0a1228;
+$search-background-color: #0b1430;
 
 // Text
-$body-text-color: #e2f2ff;
-$body-heading-color: #e2f2ff;
-$nav-child-link-color: #98b8d8;
-$search-result-preview-color: #98b8d8;
+$body-text-color: #e8e2ff;
+$body-heading-color: #e8e2ff;
+$nav-child-link-color: #b0a8d0;
+$search-result-preview-color: #b0a8d0;
 
 // Links & accents
-$link-color: #38bdf8;
-$btn-primary-color: #38bdf8;
+$link-color: #a78bfa;
+$btn-primary-color: #a78bfa;
 $feedback-color: darken($link-color, 3%);
 
 // Borders
-$border-color: rgba(56, 189, 255, 0.22);
+$border-color: rgba(167, 139, 250, 0.22);
 
 // Code
-$code-background-color: rgba(7, 24, 54, 0.92);
-$code-linenumber-color: #98b8d8;
+$code-background-color: rgba(12, 10, 38, 0.92);
+$code-linenumber-color: #b0a8d0;
 
 // Search
-$search-result-highlight-color: #38bdf8;
+$search-result-highlight-color: #a78bfa;
 
 // Tables
-$table-background-color: rgba(8, 24, 50, 0.82);
+$table-background-color: rgba(14, 10, 40, 0.82);
 
 // Sidebar / Navigation
 $nav-width: 264px;

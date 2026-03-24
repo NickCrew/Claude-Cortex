@@ -7,35 +7,9 @@ nav_order: 1
 
 # Installation
 
-## Option 1: Claude Plugin (Recommended)
+## Option 1: Python Package (Recommended)
 
-Install directly through Claude Code's plugin system:
-
-```bash
-claude install github:NickCrew/claude-cortex
-```
-
-This installs agents, skills, rules, and hooks. Rules are automatically symlinked to `~/.claude/rules/cortex/`.
-
-After installation, just run Claude:
-
-```bash
-claude
-```
-
-## Option 2: With Python CLI
-
-For the terminal UI and management features, add the Python package:
-
-```bash
-# Install plugin first
-claude install github:NickCrew/claude-cortex
-
-# Then install Python CLI
-pip install claude-cortex
-```
-
-Or install the CLI standalone:
+Install the Python package using your preferred tool:
 
 ```bash
 # pipx (recommended for CLI tools)
@@ -58,7 +32,7 @@ cortex install link
 cortex install post
 ```
 
-## Option 3: Development Install
+## Option 2: Development Install
 
 ```bash
 git clone https://github.com/NickCrew/claude-cortex.git
@@ -82,7 +56,7 @@ The `cortex install link` command creates symlinks in `~/.claude/`:
 ├── skills/    → symlink to package skills/
 ├── rules/     → symlink to package rules/
 ├── hooks/     → symlink to package hooks/
-└── commands/  → generated (skill command aliases)
+└── commands/  → generated aliases derived from installed skills
 ```
 
 {: .note }

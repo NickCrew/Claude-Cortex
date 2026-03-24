@@ -5,22 +5,29 @@ parent: Tutorials
 nav_order: 1
 ---
 
-# Discover and Rate Skills with the Recommendation Engine
+# Discover and Use Skill Recommendations
 
-Cortex includes an AI-powered skill recommendation system that suggests relevant skills based on your project context, learns from your feedback, and improves over time. This tutorial walks through the full workflow: getting recommendations, rating skills, and understanding how the feedback loop works.
+Cortex can suggest relevant skills from three entry points:
+
+- the Claude Code prompt hook
+- `cortex skills recommend`
+- watch-mode skill suggestions
+
+This tutorial walks through the current workflow without mixing skill
+recommendations up with the separate **agent intelligence** system.
 
 ## What You'll Learn
 
-- Get context-aware skill recommendations from the CLI and TUI
-- Understand how the four recommendation strategies work together
-- Rate skills and write reviews
-- View quality metrics and top-rated skills
-- See how your ratings improve future recommendations
+- get skill recommendations from the CLI
+- understand the difference between hook, watch, and CLI recommendations
+- record recommendation feedback
+- rate skills in the CLI and TUI
+- understand how Cortex learns from successful usage
 
 ## Prerequisites
 
-- Cortex installed with the Python CLI (`pip install claude-cortex`)
-- A project directory with some source files (any language)
+- Cortex installed with the Python CLI
+- a git-backed project with some changed files
 
 ## Time Estimate
 
@@ -28,307 +35,276 @@ Cortex includes an AI-powered skill recommendation system that suggests relevant
 
 ---
 
-## 1. Get Your First Recommendations
+## 1. Get Your First Skill Recommendations
 
-The recommendation engine analyzes your current project context -- file types, directory structure, git history, and active agents -- to suggest skills you're likely to need.
-
-### Via CLI
-
-Run this from any project directory:
+Start with the structured recommender:
 
 ```bash
 cortex skills recommend
 ```
 
-Expected output:
+This uses git-backed session context and the richer recommendation pipeline to
+produce a short list of relevant skills.
 
-```
-=== AI-Recommended Skills ===
-
-Based on project type: python-fastapi
-Active context: Building REST API with authentication
-
-1. api-design-patterns (Confidence: 95%)
-   Why: FastAPI project with REST API requirements
-
-2. secure-coding-practices (Confidence: 90%)
-   Why: Authentication requires security best practices
-
-3. python-testing-patterns (Confidence: 85%)
-   Why: Python project with test infrastructure detected
-```
-
-Each recommendation includes:
-
-| Field | Meaning |
-|:------|:--------|
-| **Skill name** | The skill's identifier (use this in slash commands) |
-| **Confidence** | How certain the engine is that this skill is relevant |
-| **Why** | The signal that triggered this recommendation |
-
-Confidence levels: **High** (80%+) means strong contextual match, **Medium** (60-80%) means likely useful, **Low** (<60%) means tangentially related.
-
-### Via TUI
+You can also write or print the current skill context:
 
 ```bash
-cortex tui
+# Writes .claude/skill-context.md
+cortex skills context
+
+# Prints to stdout only
+cortex skills context --no-write
 ```
 
-Press `0` to open the AI Assistant view. Recommendations appear with confidence scores. Press `A` to auto-activate recommended agents associated with those skills.
+### What these recommendations are based on
+
+In normal CLI usage, Cortex mainly uses:
+
+- file-pattern rules
+- learned history from past successful sessions
+- optional semantic similarity
+
+Agent-to-skill mappings also exist, but they are strongest when active agents
+are explicitly present in the recommendation context.
 
 ### Checkpoint
 
 At this point you should have:
 
-- [ ] Run `cortex skills recommend` and seen at least one recommendation
-- [ ] Noted the confidence score and reasoning for each suggestion
-
-**No recommendations showing?** The engine needs file context. Make sure you're running the command from inside a project with source files, not an empty directory.
-
----
-
-## 2. How Recommendations Work
-
-The engine combines four strategies, each contributing signals. When multiple strategies recommend the same skill, confidence gets a boost.
-
-### Strategy 1: Rule-Based Matching
-
-Matches file patterns in your project to skills. For example:
-
-| File Pattern | Recommended Skill | Confidence |
-|:-------------|:------------------|:-----------|
-| `**/auth/**/*.py` | `owasp-top-10` | 90% |
-| `**/*.test.ts` | `test-driven-development` | 85% |
-| `Dockerfile` | `kubernetes-deployment-patterns` | 75% |
-
-### Strategy 2: Agent-Based Mapping
-
-When agents are active, their expert skills are recommended:
-
-| Active Agent | Recommended Skills |
-|:-------------|:-------------------|
-| `security-auditor` | `owasp-top-10` (95%), `threat-modeling` (90%) |
-| `react-specialist` | `react-performance-optimization` (90%) |
-| `database-optimizer` | `database-design-patterns` (85%) |
-
-### Strategy 3: Pattern Learning
-
-Learns from your past sessions. When you rate a skill as helpful after a successful task, the engine records the context. Future sessions with similar context get that skill recommended.
-
-Skills need a success rate above 70% in recorded patterns to be recommended through this strategy.
-
-### Strategy 4: Semantic Similarity (Optional)
-
-If `fastembed` is installed (`pip install claude-cortex[ai]`), the engine uses embeddings to find skills that were useful in similar past sessions, even when file patterns don't match exactly.
-
-### Auto-Suggester Hook
-
-Separately from the AI engine, the auto-suggester hook runs after each prompt in Claude Code and matches keywords from your prompt, changed files, and git branch name against `skills/skill-rules.json`:
-
-```
-Suggested skills: security-testing-patterns, owasp-top-10
-```
-
-This is the fastest path -- it uses keyword matching rather than the full AI engine.
+- [ ] Run `cortex skills recommend`
+- [ ] Seen at least one recommended skill
+- [ ] Run `cortex skills context` or `cortex skills context --no-write`
 
 ---
 
-## 3. Rate a Skill
+## 2. Compare The Three Skill Surfaces
 
-Ratings are what make the recommendation engine smarter. After using a skill, rate it to provide feedback.
+### CLI: structured recommendations
+
+```bash
+cortex skills recommend
+```
+
+This is the richest terminal-facing path and is the best place to start when
+you want a focused shortlist.
+
+### Hook: prompt-time suggestions
+
+Inside Claude Code, the prompt hook can emit suggestions like:
+
+```text
+Suggested skills: agent-loops, documentation-production
+```
+
+This path is fast and deterministic. It uses:
+
+- prompt text
+- changed files
+- file types and directories
+- git branch name
+- recent commit subjects
+
+### Watch mode: live suggestions while you work
+
+```bash
+cortex ai watch --no-auto-activate
+```
+
+Watch mode can show both:
+
+- **agent recommendations** for activation decisions
+- **skill suggestions** for prompt-level guidance
+
+That distinction matters:
+
+- agents answer "who should help with this?"
+- skills answer "what knowledge pack should I load?"
+
+### Important TUI note
+
+The TUI AI Assistant (`0`) is focused on **agent** recommendations, not the
+main place to inspect skill recommendations. For skill workflows in the TUI,
+use the Skills view.
+
+---
+
+## 3. Understand How Skill Recommendations Work
+
+The richer skill recommender combines four strategies:
+
+1. **Semantic similarity**
+2. **Rule-based file-pattern matching**
+3. **Agent-based mapping**
+4. **Pattern-based history from successful contexts**
+
+In practice:
+
+- file-pattern rules are the most reliable first-run signal
+- learned history becomes more useful over time
+- semantic similarity helps most when the optional embeddings dependency and
+  historical data are present
+- agent-based mapping depends on active agents being present in the context
+
+The prompt hook is separate from this layered recommender. It uses
+`skills/skill-rules.json` for low-latency keyword matching and can still work
+even when the richer Layer 2 path is unavailable.
+
+---
+
+## 4. Give Recommendation Feedback
+
+If Cortex suggested a skill and it was useful, record that directly:
+
+```bash
+cortex skills feedback documentation-production helpful
+```
+
+If it was not useful:
+
+```bash
+cortex skills feedback documentation-production not-helpful
+```
+
+You can also attach a short explanation:
+
+```bash
+cortex skills feedback documentation-production helpful \
+  --comment "Matched a docs-heavy refactor well"
+```
+
+This teaches the recommender whether a suggestion was actually helpful.
+
+---
+
+## 5. Rate A Skill
+
+Ratings are broader quality signals than recommendation feedback.
 
 ### Via CLI
 
 ```bash
-cortex skills rate owasp-top-10 --stars 5 --review "Caught a missing CSRF check"
+cortex skills rate documentation-production \
+  --stars 5 \
+  --helpful \
+  --succeeded \
+  --review "Helpful for restructuring docs"
 ```
 
-All options:
+Useful variants:
 
 ```bash
-cortex skills rate <skill-name> \
-  --stars 4 \                    # Required: 1-5
-  --helpful \                    # Optional: was it helpful? (default: yes)
-  --task-succeeded \             # Optional: did the task succeed? (default: yes)
-  --review "Free-form text"      # Optional: text review
+cortex skills rate documentation-production --stars 4 --not-helpful
+cortex skills rate documentation-production --stars 2 --failed
 ```
 
 ### Via TUI
 
 1. Launch the TUI: `cortex tui`
-2. Press `5` to open the Skills view
-3. Select a skill with arrow keys
+2. Press `4` to open the Skills view
+3. Select a skill with the arrow keys
 4. Press `Ctrl+R` to open the rating dialog
-5. Enter your star rating (1-5)
-6. Answer "Was it helpful?" (y/n)
-7. Answer "Did the task succeed?" (y/n)
-8. Optionally write a review (or press Enter to skip)
 
-The TUI also auto-prompts for ratings: after startup, if you recently used a skill that hasn't been rated, a prompt appears asking for feedback. Dismiss it to snooze for 24 hours, or rate it to clear the prompt.
+The Skills view is the right TUI surface for browsing and rating the catalog.
 
 ### Checkpoint
 
 At this point you should have:
 
-- [ ] Rated at least one skill (CLI or TUI)
-- [ ] Seen the success confirmation
-
-**Error: "Skill not found"?** Check the exact skill name with `cortex skills list`. Names are hyphenated lowercase (e.g., `owasp-top-10`, not `OWASP Top 10`).
+- [ ] Left recommendation feedback with `skills feedback`
+- [ ] Rated at least one skill with `skills rate` or `Ctrl+R` in the TUI
 
 ---
 
-## 4. View Ratings and Metrics
+## 6. Inspect Ratings And Quality Signals
 
-### Single Skill
-
-```bash
-cortex skills ratings owasp-top-10
-```
-
-Output:
-
-```
-=== owasp-top-10 ===
-
-Rating: 4.8/5.0 (12 ratings)
-Helpful: 92%
-Task Success: 83%
-
-Distribution:
-  5 ████████████████ 9
-  4 ██████           3
-  3                  0
-  2                  0
-  1                  0
-
-Recent Reviews:
-  [2026-02-14] "Caught a missing CSRF check" (5 stars)
-  [2026-02-10] "Essential for security audits" (5 stars)
-```
-
-### Top-Rated Skills
+View ratings for one skill:
 
 ```bash
-cortex skills top-rated --limit 5
+cortex skills ratings documentation-production
 ```
 
-Skills need at least 3 ratings to appear in the top-rated list. This prevents a single 5-star rating from dominating.
-
-### Export for Analysis
+See top-rated skills:
 
 ```bash
-# JSON format
-cortex skills export-ratings --format json > ratings.json
-
-# CSV format
-cortex skills export-ratings --format csv > ratings.csv
-
-# Filter to one skill
-cortex skills export-ratings --skill owasp-top-10 --format json
+cortex skills top-rated --limit 10
 ```
 
-### In the TUI
+Export ratings:
 
-In the Skills view (`5`), the ratings column shows inline:
-
-```
-Skill                    Rating
-─────────────────────    ─────────────────
-owasp-top-10             4.8/5.0 (12 ratings)
-test-driven-development  4.5/5.0 (8 ratings)
-system-design            -- (no ratings)
+```bash
+cortex skills export-ratings --format json
+cortex skills export-ratings --format csv
 ```
 
-### Checkpoint
-
-At this point you should have:
-
-- [ ] Viewed ratings for a specific skill
-- [ ] Seen the distribution histogram and review list
-- [ ] Run `cortex skills top-rated`
+These commands are useful for comparing long-term skill quality, while
+`skills feedback` is focused on recommendation usefulness.
 
 ---
 
-## 5. The Feedback Loop
+## 7. How Cortex Learns
 
-Your ratings directly influence future recommendations. Here's the cycle:
+Skill learning currently comes from three places:
 
-```
-You use a skill
-       │
-       ▼
-You rate it (stars, helpful, task-succeeded)
-       │
-       ├──→ record_rating() updates quality metrics
-       │         │
-       │         ▼
-       │    Aggregated scores updated:
-       │    avg rating, helpful %, success correlation
-       │
-       ├──→ learn_from_feedback() records context pattern
-       │         │
-       │         ▼
-       │    Context hash + skill stored with success flag
-       │    (skills with >70% success rate get recommended)
-       │
-       └──→ Semantic matcher updated (if fastembed installed)
-                 │
-                 ▼
-            Session embedding stored for similarity matching
-                 │
-                 ▼
-      Future similar sessions → this skill recommended
+### 1. Recommendation feedback
+
+```bash
+cortex skills feedback <skill> helpful
 ```
 
-### What Each Rating Field Affects
+This updates recommendation history and helpfulness signals.
 
-| Field | Effect on Recommendations |
-|:------|:--------------------------|
-| **Stars** | Drives the average rating and top-rated rankings |
-| **Helpful** | Directly fed to `learn_from_feedback()` -- high helpful % increases future confidence |
-| **Task Succeeded** | Updates `success_correlation` metric -- skills with high success rates get recommended more |
-| **Review** | Informational only -- helps other users decide, doesn't affect the algorithm |
+### 2. Review ingestion
 
-### Practical Example
+```bash
+cortex ai ingest-review path/to/review.md
+```
 
-You're working on a Python API project. The engine recommends `api-design-patterns` at 80% confidence. You use it, rate it 5 stars with `--helpful` and `--task-succeeded`. Next week, you start a similar API project. The engine now recommends `api-design-patterns` at 90%+ confidence because:
+Structured specialist reviews can be mapped back into skill learning so Cortex
+gets better at suggesting the right skills earlier.
 
-1. Pattern learning recorded the success in this context type
-2. Semantic similarity matches the new project to the old session
-3. The high rating confirms the skill's quality
+### 3. Successful sessions
 
-Over time, the system converges on recommending the right skills for your workflow.
+```bash
+cortex ai record-success --outcome "feature complete"
+```
+
+This primarily teaches the **agent** recommender, but Cortex also makes a
+best-effort bridge into skill learning.
 
 ---
 
-## 6. Database Locations
+## 8. Where The Data Lives
 
-Ratings and recommendation data are stored in SQLite databases:
+Recommendation data:
 
-| Database | Location | Contents |
-|:---------|:---------|:---------|
-| Ratings | `~/.cortex/data/skill-ratings.db` | Stars, reviews, quality metrics, usage tracking |
-| Recommendations | `~/.cortex/data/skill-recommendations.db` | Recommendation history, context patterns, feedback |
-| Semantic cache | `~/.cortex/data/skill_semantic_cache/` | Embeddings (only if `fastembed` installed) |
+- `~/.claude/data/skill-recommendations.db`
+- `~/.claude/skills/recommendation-rules.json`
+- `~/.claude/skills/skill-rules.json`
 
-These are local to your machine. No data is sent externally.
+Ratings data:
+
+- `~/.claude/data/skill-ratings.db`
+
+Optional semantic cache:
+
+- `~/.claude/data/skill_semantic_cache/`
+
+These are local files on your machine.
 
 ---
 
 ## Summary
 
-You've learned how to:
+You now know how to:
 
-- Get AI-powered skill recommendations with `cortex skills recommend` and the TUI AI Assistant
-- Rate skills from the CLI (`cortex skills rate`) and TUI (`Ctrl+R`)
-- View quality metrics, distributions, and reviews with `cortex skills ratings`
-- Discover top-rated skills with `cortex skills top-rated`
-- Understand how the four recommendation strategies combine
-- See how ratings feed back into the engine to improve future suggestions
+- get skill recommendations from `cortex skills recommend`
+- compare CLI, hook, and watch-mode suggestion paths
+- record recommendation usefulness with `skills feedback`
+- rate skills in the CLI and TUI
+- understand how review ingestion and session success improve future skill suggestions
 
 ## Next Steps
 
-- [Skills Guide]({% link guides/skills.md %}) -- full skill catalog by category
-- [AI Intelligence Guide]({% link guides/ai-intelligence.md %}) -- how context detection and agent recommendations work
-- [Configuration]({% link getting-started/configuration.md %}) -- customize profiles and flag sets
-- Install semantic matching for richer recommendations: `pip install claude-cortex[ai]`
+- Read the [Skills](../guides/skills.md) guide
+- Read [AI Intelligence](../guides/ai-intelligence.md) for the separate agent system
+- Read [Configuration Reference](../reference/configuration.md)

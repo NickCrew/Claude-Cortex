@@ -12,8 +12,12 @@ Get productive with Cortex in 5 minutes.
 ## 1. Install
 
 ```bash
-claude install github:NickCrew/claude-cortex
+pipx install claude-cortex
+cortex install link
 ```
+
+`cortex install link` links agents, skills, rules, hooks, and generated command
+aliases into `~/.claude/`.
 
 ## 2. Start Claude Code
 
@@ -25,25 +29,18 @@ Cortex agents, skills, and rules are now loaded automatically.
 
 ## 3. Use Slash Commands
 
-Cortex provides 49 slash commands organized by category. Try these:
+Slash commands are derived from installed skills. A few common examples:
 
 ```
-/dev:implement     # Implement a feature with quality gates
-/dev:code-review   # Review code for quality and security
-/analyze:code      # Analyze code structure and patterns
-/test:generate     # Generate tests for a module
+/ctx:agent-loops                 # Implementation workflow with review gates
+/ctx:systematic-debugging        # Structured debugging workflow
+/ctx:doc-maintenance             # Documentation audit and refresh workflow
+/collaboration:brainstorming     # Collaborative ideation workflow
 ```
 
-## 4. Add the CLI (Optional)
+If you want to understand a slash command, inspect the skill that backs it.
 
-The Python CLI unlocks the terminal UI, AI recommendations, and management tools:
-
-```bash
-pip install claude-cortex
-cortex install link
-```
-
-### Try the TUI
+## 4. Try the TUI
 
 ```bash
 cortex tui
@@ -53,43 +50,38 @@ Key views in the TUI:
 
 | Key | View |
 |:----|:-----|
-| `1` | Agents |
-| `2` | Modes |
-| `5` | Skills |
-| `7` | MCP Servers |
 | `0` | AI Assistant |
+| `1` | Overview |
+| `2` | Agents |
+| `4` | Skills |
+| `M` | MCP Servers |
 | `A` | Asset Manager |
-| `C` | Worktrees |
+| `W` | Worktrees |
 
-### Get AI Recommendations
+## 5. Try Recommendations
 
 ```bash
-# Analyze your project and get agent recommendations
+# Agent recommendations
 cortex ai recommend
 
 # Auto-activate high-confidence agents
 cortex ai auto-activate
 
-# Start real-time monitoring
-cortex ai watch
+# Skill recommendations
+cortex skills recommend
 ```
 
-## 5. Customize with Profiles
-
-Apply a profile that matches your workflow:
+## 6. Inspect The CLI Surface
 
 ```bash
-# Detect your project type
-cortex init detect
-
-# Apply a profile
-cortex init profile frontend   # or: backend, devops, quality, minimal
+cortex --help
+cortex skills --help
+cortex ai --help
 ```
-
-Profiles configure which agents, modes, and flags are active for your context.
 
 ## Next Steps
 
-- [Configuration]({% link getting-started/configuration.md %}) -- customize flags, modes, and rules
-- [CLI Guide]({% link guides/cli.md %}) -- learn all CLI commands
+- [Configuration]({% link getting-started/configuration.md %}) -- understand roots, scope, and watch defaults
+- [CLI Guide]({% link guides/cli.md %}) -- learn the verified command groups
 - [TUI Guide]({% link guides/tui.md %}) -- master the terminal UI
+- [Commands]({% link reference/commands.md %}) -- see how slash commands are generated from skills

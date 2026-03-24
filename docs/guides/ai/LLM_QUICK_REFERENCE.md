@@ -1,5 +1,11 @@
 # LLM Intelligence Quick Reference
 
+> Deprecated reference. This file describes an experimental LLM-assisted
+> recommendation path and is not the canonical source for the current CLI
+> workflow. Start with [AI Intelligence Features](../../AI_INTELLIGENCE.md) and
+> [Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md),
+> then verify any commands in this file against the current code before using them.
+
 ## Setup (2 minutes)
 
 ```bash

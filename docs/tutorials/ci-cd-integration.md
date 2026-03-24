@@ -43,8 +43,6 @@ By the end of this tutorial, you'll be able to:
 - name: Install cortex
   run: |
     pip install claude-cortex
-    # Or for development version:
-    # pip install git+https://github.com/yourrepo/cortex-plugin.git
 ```
 
 ---

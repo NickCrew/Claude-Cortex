@@ -1,462 +1,248 @@
 # AI Intelligence Features
 
-cortex includes an intelligent agent recommendation system that learns from your usage patterns and makes smart suggestions about which agents to activate.
+Cortex ships two related, but separate, recommendation systems:
 
-## Overview
+1. **Agent intelligence** powers `cortex ai ...`
+   - Recommends which agents to activate
+   - Can auto-activate high-confidence agent recommendations
+   - Learns from successful sessions in `~/.claude/intelligence/`
+2. **Skill recommendations** power `cortex skills recommend`, the Claude Code hook,
+   and the watch daemon's skill suggestions
+   - Suggests reusable skills to load for the current task
+   - Uses keyword rules plus an optional multi-strategy recommender
+   - Stores feedback/history in `~/.claude/data/skill-recommendations.db`
 
-The intelligence system uses a **hybrid approach** combining three techniques:
+This page focuses on the **agent** side. For the skill pipeline, see
+[Skill Recommendation Engine](architecture/skill-recommendation-engine.md).
 
-1. **Semantic Matching** (optional) - Uses embeddings to find semantically similar past sessions
-2. **Pattern Learning** - Learns from frequency of agent usage in similar contexts
-3. **Rule-Based Heuristics** - Applies domain knowledge for reliable recommendations
+## What Agent Intelligence Does
 
-## Intelligence Levels
+The agent system answers: "Given the files I'm changing right now, which agents
+should I activate?"
 
-### Level 1: Rule-Based (Always Available)
+It works from the current git-backed session context:
 
-The base level provides intelligent recommendations based on detected context signals:
+- changed files and file extensions
+- directory names and file-path signals such as `auth`, `routes`, `schema`, and `tests`
+- session issue counts such as test failures
+- previously recorded successful sessions
 
-- **Security Auditor**: Auto-activates when auth code is detected
-- **Test Automator**: Auto-activates when test failures occur
-- **Quality Engineer**: Auto-activates for any non-empty changeset
-- **Code Reviewer**: Auto-activates for any non-empty changeset
-- **Performance Engineer**: Auto-activates for database/API or perf-sensitive changes
-- **API Documenter**: Recommends for API changes
+The output is a ranked list of `AgentRecommendation` objects with:
 
-**Multi-review bundles** (can trigger 5+ reviewers at once):
+- agent name
+- confidence score
+- reason
+- urgency
+- whether the recommendation qualifies for auto-activation
 
-- **TypeScript** → `typescript-pro`
-- **React / JSX / TSX** → `react-specialist`
-- **User-facing UI** → `ui-ux-designer`
-- **Database / SQL** → `database-optimizer`, `sql-pro`
-- **Cross-cutting architecture** → `architect-review`
+## Commands
 
-**Installation**: Built-in, no additional dependencies
-
-### Level 2: Semantic Matching (Recommended)
-
-Adds semantic similarity matching using FastEmbed to find similar past sessions:
-
-```bash
-# Install semantic intelligence
-pip install claude-cortex[ai]
-```
-
-**Benefits**:
-
-- Understands that `auth.py` ≈ `login.ts` ≈ `oauth_handler.go`
-- Learns from actual usage patterns
-- Fast (~50ms per query)
-- Works offline
-- No API costs
-
-**How it works**:
-
-1. Records embeddings of successful sessions
-2. When new context appears, finds semantically similar past sessions
-3. Recommends agents that worked in those similar contexts
-
-### Level 3: LLM-Powered (Premium, Opt-In)
-
-Uses Claude API for actual reasoning about context:
+### Inspect recommendations
 
 ```bash
-# Install LLM intelligence
-pip install claude-cortex[llm]
-
-# Enable LLM recommendations (requires ANTHROPIC_API_KEY)
-export ANTHROPIC_API_KEY=your_key_here
-cortex config set ai.use_llm true
-```
-
-**Benefits**:
-
-- Actually reasons about context (not just pattern matching)
-- Understands nuance ("this is a refactoring task, not new feature")
-- Can explain recommendations
-- Considers agent combinations
-
-**Costs**:
-
-- ~$0.003-0.01 per recommendation
-- Only called when semantic confidence is low (<0.5)
-- Can be disabled for watch mode
-
-## Usage
-
-### Basic Usage (Automatic)
-
-Intelligence features work automatically in the background:
-
-```bash
-# Start working - intelligence observes
-git status
-# Intelligence detects: "auth changes, 8 files, high complexity"
-
-# Get recommendations
 cortex ai recommend
-# ✓ security-auditor (95% confidence) - Auth code detected
-# ✓ quality-engineer (85% confidence) - Changes detected
-# ✓ code-reviewer (75% confidence) - Changes detected
-# ✓ typescript-pro (85% confidence) - TypeScript changes detected
-# ✓ react-specialist (80% confidence) - React/UI changes detected
 ```
 
-### Recording Success
+This analyzes the current git diff, prints recommended agents, shows a workflow
+prediction when enough history exists, and summarizes the detected context.
 
-The system learns from successful sessions:
+### Auto-activate high-confidence agents
 
 ```bash
-# Work on a feature
-cortex agent activate api-documenter code-reviewer
-
-# ... make changes ...
-
-# Record success (helps intelligence learn)
-cortex ai record-success --outcome "API docs updated successfully"
+cortex ai auto-activate
 ```
+
+This activates agents whose recommendations have `auto_activate=True`. In the
+current rule set, most auto-activations come from strong rule-based signals such
+as auth, test failures, language-specific changes, or large cross-cutting edits.
+
+### Run watch mode
+
+```bash
+# Foreground
+cortex ai watch
+
+# Background daemon
+cortex ai watch --daemon
+
+# Inspect / stop the daemon
+cortex ai watch --status
+cortex ai watch --stop
+```
+
+Watch mode monitors git changes in real time and prints:
+
+- detected context
+- high-confidence agent recommendations
+- suggested skills from the keyword hook plus optional Layer 2 skill recommender
+
+Useful flags:
+
+```bash
+cortex ai watch --no-auto-activate
+cortex ai watch --threshold 0.8
+cortex ai watch --interval 5
+cortex ai watch --dir ~/project-a --dir ~/project-b
+```
+
+### Teach the system from a successful session
+
+```bash
+cortex ai record-success --outcome "feature complete"
+```
+
+This records the current session into `~/.claude/intelligence/session_history.json`
+using the active agents and the current git-backed context. It primarily improves
+future **agent** recommendations. Cortex also makes a best-effort attempt to feed
+that success into the skill-learning pipeline.
+
+### Ingest a specialist review into skill learning
+
+```bash
+cortex ai ingest-review path/to/review.md
+```
+
+This parses a structured review artifact, maps productive review perspectives to
+skills, and records those skills as successful for similar future contexts.
+
+## How Agent Recommendations Are Produced
+
+Agent recommendations come from `PatternLearner.predict_agents()` in
+`claude_ctx_py/intelligence/base.py`. It merges three strategies:
+
+1. **Semantic similarity** (optional)
+   - Enabled when the optional embedding dependency is available
+   - Finds similar past sessions and reuses the agents that worked there
+2. **Pattern matching from history**
+   - Looks for exact context buckets such as `backend_api_tests`
+   - Recommends agents that appeared frequently in those successful sessions
+3. **Rule-based heuristics**
+   - Always available
+   - Adds concrete recommendations such as:
+     - `security-auditor` for auth-heavy changes
+     - `test-automator` for test failures
+     - `code-reviewer` for any non-empty changeset
+     - `python-pro`, `typescript-pro`, `react-specialist`, `database-optimizer`, and others based on file types and path signals
+
+The system de-duplicates recommendations by agent name, keeping the highest
+confidence result for each agent.
+
+### Common rule-based triggers
+
+The exact logic lives in `PatternLearner._rule_based_recommendations()`, but the
+current out-of-the-box triggers are:
+
+| Signal | Agent | Default confidence |
+|---|---|---|
+| Auth-related files | `security-auditor` | `0.9` |
+| Test failures | `test-automator` | `0.95` |
+| Any non-empty changeset | `code-reviewer` | `0.75` |
+| Python files | `python-pro` | `0.85` |
+| Rust files | `rust-pro` | `0.85` |
+| TypeScript files | `typescript-pro` | `0.85` |
+| React/UI signals | `react-specialist` | `0.8` |
+| User-facing UI work | `ui-ux-designer` | `0.8` |
+| Cross-cutting structural changes | `architect-review` | `0.75` |
+| Database-heavy changes | `database-optimizer` | `0.8` |
+| SQL-heavy changes | `sql-pro` | `0.8` |
+| Performance-sensitive paths | `performance-monitor` | `0.7` or `0.85` depending on signal strength |
+| Larger API-related changes | `docs-architect` | `0.75` |
+
+## Workflow Prediction
+
+`cortex ai recommend` also attempts workflow prediction through
+`PatternLearner.predict_workflow()`.
+
+When Cortex has at least three successful sessions for the same context bucket,
+it can predict:
+
+- a likely agent sequence
+- expected duration
+- approximate success probability
+
+If there is not enough history, the CLI reports that explicitly instead of
+guessing.
+
+## Watch Mode Details
+
+Watch mode lives in `claude_ctx_py/watch.py` and layers multiple signals:
+
+1. Detect changed files from unstaged and staged git changes
+2. Build a `SessionContext`
+3. Ask `IntelligentAgent` for agent recommendations
+4. Run keyword-based skill matching from `skills/skill-rules.json`
+5. Optionally enrich those skill suggestions with `SkillRecommender`
+
+The result is one live stream that shows both:
+
+- **agent recommendations** for activation decisions
+- **skill suggestions** for prompt-level guidance
 
 ### Configuration
 
-```bash
-# Enable/disable semantic matching
-cortex config set ai.semantic_enabled true
+The watch CLI reads overrides from `$CORTEX_ROOT/cortex-config.json`
+(default `~/.cortex/cortex-config.json`):
 
-# Enable/disable LLM recommendations
-cortex config set ai.use_llm false
-
-# Set LLM confidence threshold (only call LLM if semantic < threshold)
-cortex config set ai.llm_threshold 0.5
-
-# Select model (affects quality/cost)
-cortex config set ai.llm_model claude-sonnet-4-20250514
-
-# Control determinism
-cortex config set ai.llm_temperature 0.3
-
-# Limit response size
-cortex config set ai.llm_max_tokens 1024
-
-# Disable LLM in watch mode
-cortex config set ai.use_llm_in_watch_mode false
-
-# Auto-activate high-confidence recommendations
-cortex config set ai.auto_activate true
-
-# Set auto-activation threshold
-cortex config set ai.auto_activate_threshold 0.8
+```json
+{
+  "watch": {
+    "directories": ["~/projects/my-app"],
+    "auto_activate": true,
+    "threshold": 0.7,
+    "interval": 2.0
+  }
+}
 ```
 
-See also: guides/ai/LLM_INTELLIGENCE_GUIDE.md#configuration
+Notes:
 
-## How It Works
+- when you run `cortex ai watch` directly, the built-in defaults are:
+  - auto-activation: `true`
+  - threshold: `0.7`
+  - interval: `2.0`
+- the JSON example above is illustrative configuration, not a claim that every
+  key is required
+- the TUI's background auto-start path uses the same config, but falls back to
+  notification-only behavior when no `watch.auto_activate` value is configured
 
-### Hybrid Recommendation Flow
+## TUI Integration
 
-```
-Current Context
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│ 1. Semantic Matching (if available)    │
-│    - Find similar past sessions         │
-│    - Weight agents by similarity        │
-└─────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│ 2. Pattern Matching                     │
-│    - Look for exact context matches     │
-│    - Recommend by frequency             │
-└─────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│ 3. Rule-Based Heuristics                │
-│    - Apply domain knowledge             │
-│    - High-confidence fallback           │
-└─────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│ 4. Deduplicate & Sort                   │
-│    - Keep highest confidence            │
-│    - Sort by confidence                 │
-└─────────────────────────────────────────┘
-     │
-     ▼
-┌─────────────────────────────────────────┐
-│ 5. LLM Analysis (if needed)             │
-│    - Only if confidence < threshold     │
-│    - Only if user opted in              │
-└─────────────────────────────────────────┘
-     │
-     ▼
-Agent Recommendations
-```
+In the TUI:
 
-### Context Detection
+- press `0` for the AI Assistant view
+- press `A` to auto-activate recommended agents
+- press `r` to refresh recommendations
 
-The system automatically detects context from:
+The AI Assistant view shows:
 
-- **Files changed**: Type, location, names
-- **Signals**: Auth, API, database, tests, frontend, backend
-- **Activity**: Errors, test failures, build failures
-- **History**: Past sessions with similar characteristics
+- recommended agents with confidence and reasoning
+- workflow prediction when available
+- a compact summary of the detected session context
 
-### Learning Process
+The TUI also attempts to auto-start the watch daemon in the background so live
+recommendations are available without a separate terminal session.
 
-1. **Record**: When you complete a session, record:
-   - Context (files, signals, activity)
-   - Agents activated
-   - Duration and outcome
+## Data and Storage
 
-2. **Embed** (if semantic enabled): Create semantic embedding of:
-   - File paths (carry strong signals)
-   - Domain keywords (auth, api, database, etc.)
-   - Agents used (strong similarity signal)
+### Agent intelligence
 
-3. **Match**: When new context appears:
-   - Find semantically similar past sessions (fast)
-   - Find exact pattern matches (reliable)
-   - Apply rule-based heuristics (fallback)
+- `~/.claude/intelligence/session_history.json`
+  - successful-session history for pattern learning and workflow prediction
+- `~/.claude/intelligence/semantic_cache/`
+  - optional embedding cache for semantic similarity
 
-4. **Recommend**: Combine all signals:
-   - Semantic similarity score
-   - Pattern frequency
-   - Rule-based confidence
-   - Deduplicate, keeping highest confidence
+### Skill recommendation data used alongside watch mode
 
-## Performance
+- `~/.claude/data/skill-recommendations.db`
+  - recommendation history, feedback, and learned context patterns
+- `~/.claude/skills/recommendation-rules.json`
+  - active rule-based skill recommendation rules
+- `~/.claude/skills/skill-rules.json`
+  - keyword rules used by the prompt hook and watch mode
 
-### Semantic Matching Performance
+## Related Docs
 
-- **Model**: BAAI/bge-small-en-v1.5 (33MB)
-- **Embedding time**: ~50ms per session
-- **Query time**: ~50ms for 1000 cached sessions
-- **Memory**: ~1KB per cached session
-- **Accuracy**: 0.82 on MTEB benchmark
-
-### LLM Performance
-
-- **Model**: Claude Sonnet 4
-- **Latency**: 1-3 seconds per call
-- **Cost**: ~$0.003-0.01 per recommendation
-- **Usage**: Only when semantic confidence < 0.5
-
-## Examples
-
-### Example 1: Auth Feature Development
-
-```bash
-# Edit auth files
-$ vim src/auth/oauth.py src/auth/jwt.py
-
-# Get recommendations
-$ cortex ai recommend
-
-Recommendations:
-┌───────────────────┬────────────┬─────────────────────────────────────┐
-│ Agent             │ Confidence │ Reason                              │
-├───────────────────┼────────────┼─────────────────────────────────────┤
-│ security-auditor  │ 95%        │ Auth code detected (auto-activated) │
-│ code-reviewer     │ 85%        │ Used in similar sessions (semantic) │
-│ test-automator    │ 75%        │ Used in 3/4 auth sessions (pattern) │
-└───────────────────┴────────────┴─────────────────────────────────────┘
-
-Auto-activated: security-auditor
-```
-
-### Example 2: API Development
-
-```bash
-# Edit API files
-$ vim api/routes.ts api/handlers.ts
-
-# System learns from history
-# Previously: API changes → api-documenter + code-reviewer
-
-$ cortex ai recommend
-
-Recommendations:
-┌──────────────────┬────────────┬──────────────────────────────────┐
-│ Agent            │ Confidence │ Reason                           │
-├──────────────────┼────────────┼──────────────────────────────────┤
-│ api-documenter   │ 90%        │ Used in 9/10 API sessions        │
-│ code-reviewer    │ 85%        │ Used in 8/10 API sessions        │
-│ test-automator   │ 70%        │ Used in semantically similar     │
-└──────────────────┴────────────┴──────────────────────────────────┘
-```
-
-## Best Practices
-
-### 1. Record Successes
-
-Help the system learn by recording successful sessions:
-
-```bash
-cortex ai record-success --outcome "Feature complete, tests passing"
-```
-
-### 2. Use Semantic Matching
-
-Install FastEmbed for much better recommendations:
-
-```bash
-pip install claude-cortex[ai]
-```
-
-### 3. Start Conservative with LLM
-
-Only enable LLM recommendations if semantic matching isn't enough:
-
-```bash
-# High threshold = rare LLM calls
-cortex config set ai.llm_threshold 0.3
-
-# Low threshold = frequent LLM calls (costs more)
-cortex config set ai.llm_threshold 0.7
-```
-
-### 4. Review Auto-Activations
-
-Check what gets auto-activated:
-
-```bash
-# See what would be auto-activated
-cortex ai recommend
-
-# Adjust threshold if too aggressive (future config)
-cortex config set ai.auto_activate_threshold 0.9
-```
-
-## Troubleshooting
-
-### "Semantic matching not available"
-
-Install FastEmbed:
-
-```bash
-pip install claude-cortex[ai]
-```
-
-### "LLM recommendations not available"
-
-Install Anthropic SDK:
-
-```bash
-pip install claude-cortex[llm]
-export ANTHROPIC_API_KEY=your_key
-```
-
-More help: guides/ai/LLM_INTELLIGENCE_GUIDE.md#troubleshooting
-
-### "No recommendations"
-
-The system needs history to learn from:
-
-1. Work on a few sessions
-2. Record successes with `cortex session complete`
-3. Give it time to build up patterns
-
-### "Wrong agents recommended"
-
-1. Review recorded sessions: `cortex session list`
-2. Clear bad sessions: `cortex session clear --before "2024-01-01"`
-3. Record correct patterns going forward
-
-## Architecture
-
-### Components
-
-```
-intelligence/
-├── base.py          # Core pattern learning, rule-based heuristics
-├── semantic.py      # Semantic matching with FastEmbed (optional)
-│                    # LLM intelligence with Claude API (optional)
-└── __init__.py      # Graceful degradation, availability flags
-```
-
-### Data Storage
-
-```
-~/.local/share/cortex/
-├── session_history.json     # Pattern learning data
-└── semantic_cache/
-    └── session_embeddings.jsonl  # Semantic embeddings
-```
-
-## API Reference
-
-### PatternLearner
-
-```python
-from claude_ctx_py.intelligence import PatternLearner, SessionContext
-
-# Initialize
-learner = PatternLearner(
-    history_file=Path("session_history.json"),
-    enable_semantic=True  # Use semantic matching
-)
-
-# Record success
-learner.record_success(
-    context=session_context,
-    agents_used=["code-reviewer", "test-automator"],
-    duration=1800,  # 30 minutes
-    outcome="success"
-)
-
-# Get recommendations
-recommendations = learner.predict_agents(session_context)
-for rec in recommendations:
-    print(f"{rec.agent_name}: {rec.confidence:.0%} - {rec.reason}")
-```
-
-### SemanticMatcher
-
-```python
-from claude_ctx_py.intelligence import SemanticMatcher
-
-# Initialize
-matcher = SemanticMatcher(cache_dir=Path("semantic_cache"))
-
-# Add session
-matcher.add_session({
-    "files": ["auth.py", "login.py"],
-    "context": {"has_auth": True},
-    "agents": ["security-auditor"]
-})
-
-# Find similar
-similar = matcher.find_similar(
-    current_context={"files": ["oauth.py"], "context": {"has_auth": True}},
-    top_k=5,
-    min_similarity=0.6
-)
-```
-
-## Future Enhancements
-
-- [ ] Multi-model ensemble (combine multiple embedding models)
-- [ ] Temporal patterns (time-of-day, day-of-week agent usage)
-- [ ] User-specific learning (different patterns per developer)
-- [ ] Active learning (ask for feedback on recommendations)
-- [ ] Negative examples (learn from bad recommendations)
-- [ ] Agent combination suggestions (which agents work well together)
-- [ ] Workflow prediction (predict entire agent sequences)
-
-## Additional Resources
-
-Guides:
-
-- guides/ai/LLM_INTELLIGENCE_GUIDE.md — Detailed LLM configuration and usage
-- architecture/skill-recommendation-engine.md — Skill recommendation architecture
-
-External:
-
-- FastEmbed: <https://github.com/qdrant/fastembed>
-- BGE Embeddings: <https://huggingface.co/BAAI/bge-small-en-v1.5>
-- Claude API: <https://docs.anthropic.com/claude/reference/getting-started-with-the-api>
-- Claude Models: <https://docs.anthropic.com/claude/reference/models-overview>
-- Pricing: <https://www.anthropic.com/pricing/claude>
+- [Skill Recommendation Engine](architecture/skill-recommendation-engine.md)
+- [Skill Recommendation & Review Learning](guides/development/skill-recommendation-system.md)
+- [AI Intelligence System: Technical Architecture](guides/development/AI_INTELLIGENCE_ARCHITECTURE.md)
+- [AI Watch Mode Tutorial](tutorials/ai-watch-mode.md)

@@ -1,0 +1,91 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1220"/>
+      <stop offset="0.55" stop-color="#101428"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="368" y1="80" x2="735" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8C69E8" stop-opacity="0.14"/>
+      <stop offset="0.5" stop-color="#6C4BC8" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#8C69E8" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="320" fill="url(#bg)"/>
+  <rect width="1280" height="320" fill="url(#glow)"/>
+
+  <g opacity="0.18" stroke="#45506C" stroke-width="1">
+    <path d="M0 0.5H1280"/>
+    <path d="M0 64.5H1280"/>
+    <path d="M0 128.5H1280"/>
+    <path d="M0 192.5H1280"/>
+    <path d="M0 256.5H1280"/>
+    <path d="M64 0V320"/>
+    <path d="M128 0V320"/>
+    <path d="M192 0V320"/>
+    <path d="M256 0V320"/>
+    <path d="M320 0V320"/>
+    <path d="M384 0V320"/>
+    <path d="M448 0V320"/>
+    <path d="M512 0V320"/>
+    <path d="M576 0V320"/>
+    <path d="M640 0V320"/>
+    <path d="M704 0V320"/>
+    <path d="M768 0V320"/>
+    <path d="M832 0V320"/>
+    <path d="M896 0V320"/>
+    <path d="M960 0V320"/>
+    <path d="M1024 0V320"/>
+    <path d="M1088 0V320"/>
+    <path d="M1152 0V320"/>
+    <path d="M1216 0V320"/>
+  </g>
+
+  <g stroke="#6F56B3" stroke-width="2" opacity="0.75">
+    <path d="M16 16V40H18V18H40V16H16Z"/>
+    <path d="M1240 16V18H1262V40H1264V16H1240Z"/>
+    <path d="M16 280V304H40V302H18V280H16Z"/>
+    <path d="M1262 280V302H1240V304H1264V280H1262Z"/>
+  </g>
+
+  <g transform="translate(372 110)">
+    <g opacity="0.55" stroke="#5F4AA2" stroke-width="2">
+      <path d="M0 0V18"/>
+      <path d="M0 0H18"/>
+      <path d="M100 0H82"/>
+      <path d="M100 0V18"/>
+      <path d="M0 100V82"/>
+      <path d="M0 100H18"/>
+      <path d="M100 100H82"/>
+      <path d="M100 100V82"/>
+    </g>
+
+    <g stroke="#8C69E8" stroke-width="2.25" stroke-linecap="round">
+      <line x1="26" y1="27" x2="49" y2="50"/>
+      <line x1="49" y1="50" x2="74" y2="27"/>
+      <line x1="49" y1="50" x2="75" y2="74"/>
+      <line x1="49" y1="50" x2="27" y2="74"/>
+    </g>
+
+    <g fill="#0C1220" stroke="#8C69E8" stroke-width="2.25">
+      <circle cx="26" cy="27" r="4.5"/>
+      <circle cx="74" cy="27" r="4.5"/>
+      <circle cx="75" cy="74" r="4.5"/>
+      <circle cx="27" cy="74" r="4.5"/>
+      <circle cx="49" cy="50" r="7"/>
+    </g>
+  </g>
+
+  <g transform="translate(514 96)">
+    <text x="0" y="62" fill="#F2F5FB" font-size="64" font-family="Inter, Arial, sans-serif" font-weight="700" letter-spacing="-1.6">
+      Cortex
+    </text>
+    <text x="0" y="98" fill="#7D5FD0" font-size="14" font-family="Menlo, Monaco, Consolas, monospace" letter-spacing="5.6">
+      AI DEVELOPMENT FRAMEWORK
+    </text>
+    <text x="0" y="124" fill="#6E7A99" font-size="12" font-family="Menlo, Monaco, Consolas, monospace" letter-spacing="0.55">
+      Context orchestration for Claude Code, Codex, and Gemini
+    </text>
+  </g>
+</svg>

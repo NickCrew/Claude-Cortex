@@ -7,88 +7,173 @@ nav_order: 4
 
 # Skills
 
-Skills are reusable knowledge modules that provide specialized capabilities on demand. Cortex ships with 100+ skills covering security, testing, architecture, DevOps, and more.
+Skills are reusable knowledge packs that Cortex can suggest, inspect, and rate.
+They are different from agents:
 
-## How Skills Work
+- **agents** are working personas you activate
+- **skills** are focused instructions and references you load when needed
 
-Skills use progressive disclosure -- they're loaded only when needed, keeping your context lean. Each skill has:
+## How Skills Are Suggested
 
-- **Trigger conditions** for automatic suggestion
-- **Dependencies** on other skills or agents
-- **References** to detailed instruction files
+Cortex surfaces skills in two different ways.
 
-## Discovering Skills
+### 1. Prompt-time suggestions
 
-In Claude Code, skills are surfaced automatically by the skill auto-suggester hook based on your current task. You can also browse them:
+The Claude Code hook in `hooks/skill_auto_suggester.py` looks at:
+
+- your prompt text
+- changed files
+- file types and directories
+- git branch name
+- recent commit subjects
+
+It prints a compact suggestion list such as:
+
+```text
+Suggested skills: agent-loops, documentation-production
+```
+
+This is the low-latency, deterministic path.
+
+### 2. Structured skill recommendations
+
+The richer recommender behind `cortex skills recommend` and watch mode uses:
+
+- file-pattern rules
+- learned history from successful past sessions
+- optional semantic similarity
+- agent-to-skill mappings when active agents are present in context
+
+In normal CLI usage, file-pattern and historical signals currently do most of
+the work.
+
+## Core Commands
+
+### Discover skills
 
 ```bash
-# Get AI-recommended skills for your project
-cortex skills recommend
-
-# List all available skills
 cortex skills list
-
-# View top-rated skills
-cortex skills top-rated
+cortex skills info documentation-production
+cortex skills validate --all
 ```
 
-## Using Skills in Claude Code
-
-Skills appear as slash commands. When a skill is relevant to your current work, the auto-suggester hook recommends it:
-
-```
-Suggested skills: security-testing-patterns, owasp-top-10
-```
-
-## Rating Skills
-
-Rate skills to improve future recommendations:
+### Ask for recommendations
 
 ```bash
-# Rate via CLI
-cortex skills rate owasp-top-10 --stars 5 --review "Essential for security"
-
-# Rate in TUI
-cortex tui
-# Press 5 for Skills view, select a skill, press Ctrl+R
+cortex skills recommend
+cortex skills context
 ```
 
-## Viewing Ratings
+`cortex skills context` writes a short `.claude/skill-context.md` file for the
+current session with the top recommendations.
+
+### Give recommendation feedback
 
 ```bash
-# View ratings for a specific skill
-cortex skills ratings owasp-top-10
+cortex skills feedback documentation-production helpful
+cortex skills feedback documentation-production not-helpful
+```
 
-# See top-rated skills
+This teaches the recommendation system whether a suggested skill was actually
+useful.
+
+### Rate a skill
+
+```bash
+cortex skills rate documentation-production --stars 5 --review "Helpful for restructuring docs"
+```
+
+Ratings are broader quality signals than recommendation feedback.
+
+### Inspect ratings
+
+```bash
+cortex skills ratings documentation-production
 cortex skills top-rated --limit 10
-
-# Export ratings for analysis
-cortex skills export-ratings --format csv > ratings.csv
+cortex skills export-ratings --format json
 ```
 
-## Skill Categories
+## TUI Workflow
 
-Skills are organized by domain:
-
-| Category | Examples |
-|:---------|:---------|
-| Security | `owasp-top-10`, `security-testing-patterns`, `threat-modeling` |
-| Testing | `test-driven-development`, `vitest-expert`, `python-testing-patterns` |
-| Architecture | `system-design`, `microservices-patterns`, `event-driven-architecture` |
-| Frontend | `react-performance-optimization`, `tailwind-expert`, `accessibility-audit` |
-| DevOps | `kubernetes-deployment-patterns`, `terraform-best-practices`, `github-actions-workflows` |
-| Database | `database-design-patterns`, `postgres-expert`, `sql-pro` |
-| Documentation | `documentation-production`, `reference-documentation`, `tutorial-design` |
-| Workflow | `workflow-feature`, `workflow-bug-fix`, `workflow-performance` |
-
-## Auto-Suggester Hook
-
-The skill auto-suggester runs after each prompt and recommends relevant skills:
+Launch the TUI:
 
 ```bash
-# Install the hook
-cp hooks/skill_auto_suggester.py ~/.claude/hooks/
-chmod +x ~/.claude/hooks/skill_auto_suggester.py
+cortex tui
 ```
 
-Configure keyword-to-skill mappings in `skills/skill-rules.json`.
+Useful keys:
+
+- `4` opens the Skills view
+- `0` opens the AI Assistant
+- `Ctrl+R` rates the selected skill from the Skills view
+
+The AI Assistant focuses on **agent** recommendations. The Skills view is where
+you browse and rate the skill catalog.
+
+## Where Skill Data Lives
+
+Recommendation data:
+
+- `~/.claude/data/skill-recommendations.db`
+- `~/.claude/skills/recommendation-rules.json`
+- `~/.claude/skills/skill-rules.json`
+
+Ratings data:
+
+- `~/.claude/data/skill-ratings.db`
+
+The repository ships the default rules in:
+
+- `skills/recommendation-rules.json`
+- `skills/skill-rules.json`
+
+## When To Use Which Path
+
+### Use `cortex skills recommend` when:
+
+- you want a quick shortlist for the current repo changes
+- you are working from the terminal
+- you want a session context file via `cortex skills context`
+
+### Use the prompt hook when:
+
+- you want instant suggestions inside Claude Code
+- prompt wording is part of the signal
+- you want the lowest-latency path
+
+### Use ratings when:
+
+- you want to record long-term skill quality
+- you want to compare top-rated skills
+- you want richer reviews than helpful / not-helpful feedback
+
+## Skill Authoring Basics
+
+Each skill lives in its own directory under `skills/` and starts with
+`SKILL.md`.
+
+Minimum frontmatter:
+
+```yaml
+---
+name: documentation-production
+description: Use when generating, updating, or organizing documentation.
+---
+```
+
+Validation:
+
+```bash
+cortex skills validate documentation-production
+```
+
+## Important Distinction
+
+The recommendation system has two halves:
+
+- `cortex ai ...` is for **agent** intelligence
+- `cortex skills ...` plus the hook/watch pipeline are for **skill**
+  recommendations
+
+If you are looking for agent auto-activation and watch-mode behavior, see
+[AI Intelligence](ai-intelligence.md).

@@ -14,7 +14,7 @@ permalink: /
     <h2>Cortex keeps your agents, commands &amp; workflows in perfect sync.</h2>
     <p>
       Activate a fully curated context stack for Claude Code: purpose-built slash commands,
-      dependency-aware agents, behavioural modes, and a Python CLI that all speak the same
+      dependency-aware agents, reusable skills, and a Python CLI that all speak the same
       language. Configure once, deploy everywhere.
     </p>
 
@@ -22,14 +22,14 @@ permalink: /
       <a href="https://github.com/NickCrew/claude-cortex" target="_blank" rel="noopener">
         View on GitHub →
       </a>
-      <a class="secondary" href="#installation">Install the plugin</a>
+      <a class="secondary" href="#installation">Install the package</a>
     </div>
 
     <div class="hero__pills">
       <span>Claude Code Native</span>
       <span>Python CLI</span>
       <span>MCP Ready</span>
-      <span>Blue Ops Theme</span>
+      <span>Purple Ops Theme</span>
     </div>
   </div>
   <div class="hero__visual">
@@ -39,7 +39,7 @@ permalink: /
 
 ## Overview
 
-Cortex is a comprehensive context management toolkit packaged as a Claude Code plugin. It provides curated agents, slash commands, skills, rules, and hooks for systematic software development.
+Cortex is a comprehensive context management toolkit for Claude Code. Install the Python package to get curated agents, slash commands, skills, rules, and hooks for systematic software development.
 
 <div class="metrics-row">
   <div class="metric-box">
@@ -69,7 +69,7 @@ Cortex is a comprehensive context management toolkit packaged as a Claude Code p
   <a href="guides/worktrees.html">Worktree Manager</a>
   <a href="guides/hooks.html">Hooks</a>
   <a href="#presentations">▶ Presentations</a>
-  <a href="#installation">Install Plugin</a>
+  <a href="#installation">Install</a>
   <a href="#ai-intelligence">AI Intelligence</a>
   <a href="#collaboration">Collaboration Flow</a>
   <a href="#project-structure">Project Structure</a>
@@ -501,8 +501,8 @@ claude-cortex/
 
 <div class="feature-grid">
   <div class="feature-card">
-    <h3>Turnkey Plugin Stack</h3>
-    <p>Ships with pre-wired agents, rules, modes, and workflows so Claude Code starts with a curated context from the first prompt.</p>
+    <h3>Turnkey Context Stack</h3>
+    <p>Ships with pre-wired agents, rules, and skills so Claude Code starts with a curated context from the first prompt.</p>
   </div>
   <div class="feature-card">
     <h3>Python CLI Included</h3>
@@ -513,7 +513,7 @@ claude-cortex/
     <p>Designed to plug in Model Context Protocol servers and command hooks for custom toolchains or compliance gates.</p>
   </div>
   <div class="feature-card">
-    <h3>Blue Ops UX</h3>
+    <h3>Purple Ops UX</h3>
     <p>Gradients, iconography, and documentation tuned to keep designers, developers, and operators aligned.</p>
   </div>
 </div>
@@ -522,41 +522,19 @@ claude-cortex/
 
 ## Installation
 
-### Via Claude Code Plugin System
-
-1. Add the marketplace that references this repository:
-
-   ```bash
-   # See companion project: NickCrew/claude-marketplace
-   ```
-
-2. Install the plugin:
-
-   ```bash
-   /plugin install cortex@<marketplace-name>
-   ```
-
-3. Restart Claude Code to load commands and agents
-
-### Via Python CLI
-
-**Recommended (pip/uv/pipx + post-install):**
+### Via Python Package (Recommended)
 
 ```bash
 # Install the package (pick one)
-python3 -m pip install -e ".[dev]"
-# or: uv pip install -e ".[dev]"
-# or: pipx install -e .
+pipx install claude-cortex
+# or: uv tool install claude-cortex
+# or: pip install claude-cortex
 
-# Finish setup (completions, manpages, docs)
+# Link assets into ~/.claude
+cortex install link
+
+# Install completions and manpages
 cortex install post
-```
-
-**Legacy installer (deprecated):**
-
-```bash
-./scripts/deprecated/install.sh
-just install
 ```
 
 **Manual Usage:**
@@ -947,7 +925,6 @@ Primary framework entry point that loads:
 - Core framework (PRINCIPLES.md, RULES.md)
 - Workflow rules (automatic for all development tasks)
 - Conditional rules (loaded as needed)
-- Active behavioral modes
 - MCP documentation
 
 ### PRINCIPLES.md
@@ -1068,7 +1045,7 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 
 ### Commands Not Loading
 
-1. Verify plugin installation in Claude Code (`/plugin list`)
+1. Verify assets are linked: `cortex install link --dry-run`
 2. Confirm assets are linked: `cortex install link --dry-run`
 3. Restart Claude Code
 4. Validate command syntax in markdown files
@@ -1184,8 +1161,6 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - Initial plugin release
 - 34 slash commands across 10 categories
 - 11 active agents, 65 total available
-- 4 behavioral modes
-- 4 pre-defined workflows
 - Python CLI for context management
 - Complete documentation system
 

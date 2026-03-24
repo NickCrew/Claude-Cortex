@@ -54,14 +54,6 @@ Hooks can target specific tools using matchers:
 
 ## Installation
 
-### Via Plugin (Automatic)
-
-```bash
-claude install github:NickCrew/claude-cortex
-```
-
-Hooks are registered automatically through the plugin manifest.
-
 ### Via CLI
 
 ```bash

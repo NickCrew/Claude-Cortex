@@ -8,7 +8,7 @@ permalink: /tutorials/
 
 # Tutorials
 
-Hands-on walkthroughs for common Cortex workflows.
+Hands-on walkthroughs for common Cortex tasks.
 {: .fs-6 .fw-300 }
 
 ---
@@ -25,7 +25,7 @@ Learn how the AI-powered recommendation engine discovers, suggests, and learns f
 
 ## Getting Started with the TUI
 
-Master the terminal UI in 20-30 minutes. Covers navigation, agent management, workflows, and when to use CLI vs TUI.
+Master the terminal UI in 20-30 minutes. Covers navigation, agent management, and when to use CLI vs TUI.
 
 ```bash
 cortex tui
@@ -33,10 +33,10 @@ cortex tui
 
 **What you'll learn:**
 
-1. Navigate between views (Agents, Modes, Skills, AI Assistant)
+1. Navigate between views (Agents, Skills, AI Assistant)
 2. Activate and configure agents
 3. Use the Command Palette (`Ctrl+P`)
-4. Manage flags with the Flag Manager (`Ctrl+G`)
+4. Browse generated slash commands in the Commands view
 5. Rate skills and track quality metrics
 6. Export context snapshots
 
@@ -44,14 +44,14 @@ cortex tui
 
 ## Feature Development Workflow
 
-Build a feature from design to deployment using Cortex commands:
+Build a feature from ideation to implementation using skill-backed commands:
 
-1. **Plan** -- `/ctx:brainstorm` to capture goals and options
-2. **Design** -- `/design:workflow` to define implementation steps
-3. **Implement** -- `/dev:implement` with quality gates
-4. **Test** -- `/test:generate` for coverage
-5. **Review** -- `/dev:code-review` for quality validation
-6. **Ship** -- `/dev:git` for semantic commits, `/deploy:prepare-release`
+1. **Plan** -- `/collaboration:brainstorming` to capture goals and options
+2. **Write the plan** -- `/collaboration:writing-plans` to define workstreams and steps
+3. **Execute** -- `/collaboration:executing-plans` to drive the implementation
+4. **Implement safely** -- `/ctx:agent-loops` with quality gates
+5. **Test** -- `/ctx:test-generation` for coverage
+6. **Review and wrap up** -- `/ctx:requesting-code-review`, then `/ctx:git-ops`
 
 ---
 
@@ -59,11 +59,11 @@ Build a feature from design to deployment using Cortex commands:
 
 Systematic bug resolution:
 
-1. **Diagnose** -- `/analyze:troubleshoot` for root cause analysis
-2. **Fix** -- `/dev:implement` to apply the fix
-3. **Verify** -- `/test:generate` for regression tests
-4. **Review** -- `/dev:code-review` for validation
-5. **Commit** -- `/dev:git` with `fix(scope): description`
+1. **Diagnose** -- `/ctx:systematic-debugging` for root cause analysis
+2. **Fix** -- `/ctx:agent-loops` to apply the change with review gates
+3. **Verify** -- `/ctx:test-generation` for regression tests
+4. **Review** -- `/ctx:requesting-code-review` for validation
+5. **Commit** -- `/ctx:git-ops` with a focused fix commit
 
 ---
 
@@ -85,7 +85,9 @@ cortex ai watch --status
 cortex ai watch --stop
 ```
 
-Watch mode detects file changes, analyzes context, and auto-activates relevant agents when confidence is above 80%.
+Watch mode detects file changes, analyzes context, and can auto-activate
+relevant agents when they cross your configured threshold. The default threshold
+is `0.7` unless you override it in `cortex-config.json` or at runtime.
 
 ---
 

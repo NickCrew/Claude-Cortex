@@ -20,11 +20,11 @@ help:
     @echo "  just type-check           # Run focused mypy type checking"
     @echo "  just type-check-all       # Run mypy over entire module tree"
     @echo "  just clean                # Remove build artifacts and caches"
-    @echo "  just docs                 # Build documentation site"
-    @echo "  just docs-serve           # Serve docs (custom domain config)"
-    @echo "  just docs-serve-gh        # Serve docs with GitHub Pages config"
-    @echo "  just docs-build           # Build docs site to docs/_site"
-    @echo "  just docs-build-gh        # Build docs with GitHub Pages config"
+    @echo "  just docs                 # Serve public site docs locally"
+    @echo "  just docs-serve           # Serve public site docs"
+    @echo "  just docs-serve-gh        # Serve public site docs with Pages-equivalent config"
+    @echo "  just docs-build           # Build public site docs to site/_site"
+    @echo "  just docs-build-gh        # Build public site docs with Pages-equivalent config"
     @echo "  just docs-sync            # Sync docs into bundled directory"
     @echo "  just build                # Build sdist/wheel with python -m build"
     @echo "  just publish              # Build and publish to PyPI via twine"
@@ -153,23 +153,23 @@ publish:
 
 # Serve docs with livereload
 docs:
-    @cd docs && bundle exec jekyll serve --livereload
+    @cd site && bundle exec jekyll serve --livereload
 
 # Serve docs (custom domain config)
 docs-serve:
-    @cd docs && bundle exec jekyll serve --livereload --config _config.yml
+    @cd site && bundle exec jekyll serve --livereload --config _config.yml
 
 # Serve docs (GitHub Pages config)
 docs-serve-gh:
-    @cd docs && bundle exec jekyll serve --livereload --config _config.yml,_config_ghpages.yml
+    @cd site && bundle exec jekyll serve --livereload --config _config.yml
 
 # Build docs site
 docs-build:
-    @cd docs && bundle exec jekyll build --config _config.yml -d _site
+    @cd site && bundle exec jekyll build --config _config.yml -d _site
 
 # Build docs (GitHub Pages)
 docs-build-gh:
-    @cd docs && bundle exec jekyll build --config _config.yml,_config_ghpages.yml -d _site
+    @cd site && bundle exec jekyll build --config _config.yml -d _site
 
 # Sync docs to bundle directory
 docs-sync:

@@ -1,5 +1,12 @@
 # LLM Intelligence Guide
 
+> Deprecated deep-dive. This document captures historical design material for an
+> LLM-assisted recommendation path and should not be treated as the current CLI
+> contract. Use [AI Intelligence Features](../../AI_INTELLIGENCE.md) and
+> [AI Intelligence System: Technical Architecture](../development/AI_INTELLIGENCE_ARCHITECTURE.md)
+> as the verified starting points, then reconcile any details here with the
+> current code before acting on them.
+
 ## Overview
 
 The LLM Intelligence feature uses Claude API to provide advanced reasoning about your development context and agent recommendations. Unlike pattern matching or semantic embeddings, LLM analysis actually understands the nuance of what you're working on.

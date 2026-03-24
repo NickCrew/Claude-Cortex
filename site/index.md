@@ -8,17 +8,22 @@ permalink: /
 # Cortex Documentation
 {: .fs-9 }
 
-Context orchestration toolkit for Claude Code. Agents, skills, rules, and hooks with an optional Python CLI.
+Context orchestration toolkit for Claude Code. Agents, skills, rules, hooks,
+and skill-derived slash commands with a Python CLI and terminal UI.
 {: .fs-6 .fw-300 }
 
 [Get Started]({% link getting-started/index.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View on GitHub](https://github.com/NickCrew/claude-cortex){: .btn .fs-5 .mb-4 .mb-md-0 }
 
+<div class="home-hero-image">
+  <img src="{{ '/assets/images/cortex-home-hero.svg' | relative_url }}" alt="Cortex hero artwork showing the Cortex wordmark and the tagline Context orchestration for Claude Code, Codex, and Gemini." />
+</div>
+
 ---
 
 ## What is Cortex?
 
-Cortex bundles a curated stack of **agents**, **skills**, **rules**, **hooks**, and **behavioral modes** for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Install it as a plugin or pair it with the Python CLI for advanced management through a terminal UI.
+Cortex bundles a curated stack of **agents**, **skills**, **rules**, and **hooks** for [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Install the Python package for full management through the CLI and terminal UI.
 
 ### At a Glance
 
@@ -26,13 +31,12 @@ Cortex bundles a curated stack of **agents**, **skills**, **rules**, **hooks**, 
 |:----------|:------|:--------|
 | Agents | 29 | Specialized subagents (code review, security, architecture, etc.) |
 | Skills | 100+ | Reusable skill modules with activation triggers |
-| Commands | 49 | Slash commands across 13 categories |
-| Modes | 9 | Behavioral presets (Architect, Brainstorming, Security Audit, etc.) |
-| Flags | 22 | Token-efficient context modules |
+| Commands | Skill-derived | Slash command aliases generated from installed skills |
+| Hooks | Included | Automation on Claude Code lifecycle events |
 
 ### Key Features
 
-- **Plugin Install** -- `claude install github:NickCrew/claude-cortex` and go
+- **Python Package** -- `pip install claude-cortex` and go
 - **AI Intelligence** -- context-aware agent recommendations with auto-activation
 - **Watch Mode** -- real-time file monitoring with instant recommendations
 - **Terminal UI** -- full management interface (`cortex tui`)
@@ -45,11 +49,12 @@ Cortex bundles a curated stack of **agents**, **skills**, **rules**, **hooks**, 
 ## Quick Install
 
 ```bash
-# Plugin install (recommended)
-claude install github:NickCrew/claude-cortex
+# Install the Python package
+pipx install claude-cortex
 
-# With Python CLI for TUI and management features
-pip install claude-cortex
+# Link assets into ~/.claude and install shell completions
+cortex install link
+cortex install post
 ```
 
 See [Installation]({% link getting-started/installation.md %}) for detailed options.

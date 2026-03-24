@@ -7,21 +7,20 @@ nav_order: 9
 
 # Planning & Collaboration
 
-Cortex provides a structured workflow for moving from ideation to execution using three collaboration commands and session management.
+Cortex provides a structured workflow for moving from ideation to execution
+using collaboration skills, task tracking, and optional plan files.
 
 ## The Workflow
 
 ```
-/session:load → /ctx:brainstorm → /ctx:plan → /ctx:execute-plan → /session:save
+/collaboration:brainstorming → /collaboration:writing-plans → /collaboration:executing-plans
 ```
 
-1. **Load context** and get oriented
-2. **Brainstorm** goals, constraints, and options
-3. **Plan** workstreams with tasks and validation criteria
-4. **Execute** with task tracking and quality gates
-5. **Save** session context and learnings
+1. **Brainstorm** goals, constraints, and options
+2. **Write the plan** with workstreams and validation criteria
+3. **Execute** with task tracking and quality gates
 
-## /ctx:brainstorm
+## /collaboration:brainstorming
 
 Structured ideation before writing code. Captures goals, success signals, and solution options.
 
@@ -46,7 +45,7 @@ Structured ideation before writing code. Captures goals, success signals, and so
 
 The command generates at least three distinct approaches with trade-off analysis, then selects a candidate direction.
 
-## /ctx:plan
+## /collaboration:writing-plans
 
 Transforms brainstorm output into a concrete execution plan with workstreams and tasks.
 
@@ -72,20 +71,21 @@ One paragraph with constraints and scope.
 
 Each task includes:
 - Definition of Done
-- Suggested agent or mode
+- Suggested agent
 - Validation criteria
 
-Plans are stored in the conversation and optionally saved to `docs/plans/<date>-<slug>.md`.
+Plans can stay in the conversation, or you can save plan documents and inspect
+them later with the `cortex plan` command group.
 
-## /ctx:execute-plan
+## /collaboration:executing-plans
 
 Drives plan execution through task tracking and verification.
 
-**Prerequisites:** A plan from `/ctx:plan` in the conversation.
+**Prerequisites:** A plan from `/collaboration:writing-plans` in the conversation.
 
 **Workflow:**
 1. Create tasks in the Task view (press `T` in TUI, then `A` to add)
-2. Activate relevant modes and agents
+2. Activate relevant agents
 3. Work through tasks -- pick a task, do the work, update its status
 4. Verify each task against its Definition of Done
 5. Capture learnings when complete
@@ -95,79 +95,39 @@ Drives plan execution through task tracking and verification.
 - Status updates include completed tasks, blockers, and verification evidence
 - Quality gate hooks run automatically during development
 
-## Session Management
+## Plan Files
 
-### /session:load
-
-Loads project context at the start of a session:
+Use the CLI to inspect saved plans:
 
 ```bash
-/session:load                              # Load current directory
-/session:load /path/to/project --analyze   # Load and analyze
-/session:load --type checkpoint --checkpoint session_123
+cortex plan list
+cortex plan view <plan-name>
+cortex plan edit <plan-name>
+cortex plan path
 ```
-
-**Types:** `project`, `config`, `deps`, `checkpoint`
-
-Loads project context, retrieves cross-session memories, and sets up the working environment. Reminds you to brainstorm if starting fresh work.
-
-### /session:save
-
-Persists session state for future sessions:
-
-```bash
-/session:save                            # Basic save with auto-checkpoint
-/session:save --type all --checkpoint    # Full preservation
-/session:save --summarize                # With session summary
-/session:save --type learnings           # Discoveries only
-```
-
-**Types:** `session`, `learnings`, `context`, `all`
-
-Auto-creates checkpoints for sessions longer than 30 minutes.
-
-### /session:reflect
-
-Validates progress and quality mid-session:
-
-```bash
-/session:reflect --type task --analyze      # Check task adherence
-/session:reflect --type session --validate  # Assess session progress
-/session:reflect --type completion          # Validate completion criteria
-```
-
-**Types:** `task`, `session`, `completion`
 
 ## Putting It Together
 
 A typical feature development session:
 
 ```
-# 1. Start fresh
-/session:load
-
-# 2. Ideate
-/ctx:brainstorm
+# 1. Ideate
+/collaboration:brainstorming
 > "Build a user settings page with profile editing and notification preferences"
 
-# 3. Plan
-/ctx:plan
+# 2. Plan
+/collaboration:writing-plans
 > Creates 3 workstreams: API, Frontend, Tests
 
-# 4. Execute
-/ctx:execute-plan
+# 3. Execute
+/collaboration:executing-plans
 > Tracks tasks, runs quality gates
 
-# 5. Build
-/dev:implement          # Write code
-/dev:code-review        # Review quality
-/test:generate          # Generate tests
-
-# 6. Mid-session check
-/session:reflect --type task
-
-# 7. Wrap up
-/session:save --summarize
+# 4. Build
+/ctx:agent-loops
+/ctx:test-generation
+/ctx:requesting-code-review
+/ctx:git-ops
 ```
 
 ## TUI Task View
@@ -180,7 +140,8 @@ Press `T` in the TUI to manage tasks created by the planning workflow:
 | `A` | Add new task |
 | `E` | Edit task |
 
-Tasks are organized by category and workstream, matching the plan structure from `/ctx:plan`.
+Tasks are organized by category and workstream, matching the structure from
+`/collaboration:writing-plans`.
 
 ## Skill Auto-Suggester
 

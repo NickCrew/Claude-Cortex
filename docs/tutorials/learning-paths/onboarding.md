@@ -28,14 +28,12 @@ A focused path from installation to daily use. Each stage builds on the last and
 ### Steps
 
 ```bash
-# Clone and install
-git clone https://github.com/NickCrew/claude-cortex.git
-cd claude-cortex
-python3 -m pip install -e .
+# Install the package
+pip install claude-cortex
 
-# Finish setup (completions, man pages)
+# Link assets into ~/.claude and install completions
+cortex install link
 cortex install post
-
 ```
 
 ### Checkpoint
@@ -95,7 +93,7 @@ cortex status              # overall status
 
 ## Stage 3: Core Loop
 
-This is the daily toolkit: **agents**, **skills**, and **modes**.
+This is the daily toolkit: **agents** and **skills**.
 
 ### Agents — specialized AI personas
 
@@ -130,20 +128,6 @@ cortex skills info python-testing-patterns
 
 Skills activate automatically via triggers (file patterns, keywords) or manually with `/ctx:<skill-name>` in Claude Code.
 
-### Modes — behavioral presets
-
-Modes shape how Claude behaves: verbosity, safety checks, focus areas.
-
-```bash
-# Inspect active mode state
-cat ~/.claude/.active-modes
-```
-
-Common modes:
-- **architect** — system design focus, longer reasoning
-- **security-audit** — security-first analysis
-- **token-efficiency** — compressed output, minimal overhead
-
 ### Profiles — saved configurations
 
 Use install/scope commands to manage local setup:
@@ -161,8 +145,7 @@ cortex --scope global status
 
 - [ ] You've activated and deactivated an agent
 - [ ] You've inspected a skill with `cortex skills info`
-- [ ] You know where active mode state is stored (`.active-modes`)
-- [ ] You understand the difference: agents = who, skills = what they know, modes = how they behave
+- [ ] You understand the difference: agents = who, skills = what they know
 
 ---
 
@@ -252,9 +235,6 @@ cortex agent deactivate <name>   # disable
 # Skills
 cortex skills list               # browse
 cortex skills info <name>        # details
-
-# Modes
-cat ~/.claude/.active-modes      # inspect active state
 
 # Review loop
 cortex review --dry-run          # inspect reviewers

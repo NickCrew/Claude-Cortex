@@ -7,94 +7,165 @@ nav_order: 3
 
 # AI Intelligence
 
-Cortex includes an AI intelligence engine that analyzes your project context and recommends the right agents and skills.
+Cortex ships two related recommendation systems:
 
-## How It Works
+1. **Agent intelligence** powers `cortex ai ...`
+2. **Skill recommendations** power `cortex skills recommend`, the Claude Code
+   hook, and watch-mode skill suggestions
 
-1. **Context Detection** -- analyzes changed files, detects tech stack, auth patterns, test files, frontend/backend code
-2. **Pattern Learning** -- learns from successful sessions and recommends optimal agent combinations
-3. **Workflow Prediction** -- predicts agent sequences based on similar past work
-4. **Auto-Activation** -- high-confidence agents activate automatically (threshold: 80%)
+This page focuses on the **agent** side: which agents Cortex thinks you should
+activate for the work in front of you.
 
-## Getting Recommendations
+## What Agent Intelligence Does
+
+Agent intelligence answers:
+
+> Given the files I am changing right now, which agents should I activate?
+
+It works from the current git-backed session context, including:
+
+- changed files and file extensions
+- path signals such as `auth`, `schema`, `routes`, and `tests`
+- test-failure and issue signals
+- previously successful sessions
+
+Recommendations include:
+
+- agent name
+- confidence score
+- reason
+- urgency
+- whether the recommendation qualifies for auto-activation
+
+## Core Commands
+
+### Inspect recommendations
 
 ```bash
 cortex ai recommend
 ```
 
-Example output:
+This analyzes the current git diff, prints recommended agents, and shows a
+workflow prediction when enough history exists.
 
-```
-=== AI Recommendations ===
-
-Based on project type: python-fastapi
-Active context: Building REST API with authentication
-
-1. security-auditor (Confidence: 95%)
-   Why: Auth code detected
-
-2. api-design-patterns (Confidence: 90%)
-   Why: FastAPI project with REST API requirements
-
-3. code-reviewer (Confidence: 85%)
-   Why: Changes detected - code review recommended
-```
-
-## Auto-Activation
+### Auto-activate high-confidence agents
 
 ```bash
 cortex ai auto-activate
 ```
 
-Agents with confidence scores above 80% are activated automatically.
+This activates agents whose recommendation is marked for auto-activation.
 
-## Watch Mode
-
-Watch mode monitors your project for changes in real-time:
+### Run watch mode
 
 ```bash
-# Foreground (Ctrl+C to stop)
+# Foreground
 cortex ai watch
 
 # Background daemon
 cortex ai watch --daemon
-cortex ai watch --status   # Check daemon status
-cortex ai watch --stop     # Stop daemon
+
+# Inspect / stop the daemon
+cortex ai watch --status
+cortex ai watch --stop
 ```
 
-Example watch mode output:
+Useful watch flags:
 
-```
-[10:33:12] Context detected: Backend, Auth
-  3 files changed
-
-  Recommendations:
-     security-auditor [AUTO] 95% - Auth code detected
-     code-reviewer [AUTO]    75% - Changes detected
-
-[10:33:12] Auto-activating 2 agents...
-     security-auditor
-     code-reviewer
+```bash
+cortex ai watch --no-auto-activate
+cortex ai watch --threshold 0.8
+cortex ai watch --interval 5
+cortex ai watch --dir ~/project-a --dir ~/project-b
 ```
 
-## Recording Sessions
+## How Recommendations Are Produced
 
-After a successful session, record it so the intelligence engine can learn:
+The current agent recommender combines three strategies:
+
+1. **Semantic similarity** when the optional embedding dependency is available
+2. **Pattern matching from successful history**
+3. **Rule-based heuristics**
+
+Common rule-based triggers include:
+
+| Signal | Agent |
+|:---|:---|
+| Auth-related files | `security-auditor` |
+| Test failures | `test-automator` |
+| Any non-empty changeset | `code-reviewer` |
+| Python files | `python-pro` |
+| TypeScript files | `typescript-pro` |
+| React/UI signals | `react-specialist` |
+| Database-heavy changes | `database-optimizer` |
+
+## Watch Mode
+
+Watch mode is where many users first see the system working live. It monitors
+git-backed changes and prints:
+
+- detected context
+- high-confidence **agent recommendations**
+- suggested **skills** from the skill matcher and optional richer recommender
+
+By default, direct `cortex ai watch` runs use:
+
+- auto-activation: `true`
+- threshold: `0.7`
+- interval: `2.0`
+
+You can override those defaults in `~/.cortex/cortex-config.json`:
+
+```json
+{
+  "watch": {
+    "directories": ["~/projects/my-app"],
+    "auto_activate": true,
+    "threshold": 0.7,
+    "interval": 2.0
+  }
+}
+```
+
+## TUI Integration
+
+Launch the TUI:
+
+```bash
+cortex tui
+```
+
+Then:
+
+- press `0` for the AI Assistant view
+- press `A` to auto-activate recommended agents
+- press `r` to refresh recommendations
+
+The AI Assistant is focused on **agent** recommendations. The Skills view is
+where you browse and rate skills separately.
+
+## Teaching The System
+
+Record a successful session:
 
 ```bash
 cortex ai record-success --outcome "feature complete"
 ```
 
-## TUI Integration
+This primarily improves future **agent** recommendations.
 
-Press `0` in the TUI to open the AI Assistant view:
-
-- View recommendations with confidence scores
-- Press `A` to auto-activate recommended agents
-- See workflow predictions and context analysis
-
-## Exporting
+If you use structured specialist reviews, you can also feed them into skill
+learning:
 
 ```bash
-cortex ai export --output recommendations.json
+cortex ai ingest-review path/to/review.md
 ```
+
+## Important Distinction
+
+Do not use these terms interchangeably:
+
+- **agent recommendations** decide which agents to activate
+- **skill recommendations** suggest which reusable knowledge packs to load
+
+For the skill side, see the [Skills](skills.md) guide.

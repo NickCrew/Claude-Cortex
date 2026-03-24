@@ -21,20 +21,21 @@ Cortex packages curated Claude Code assets (agents, skills, rules, hooks) and a 
 
 ## Install
 
-### 1) Install plugin assets in Claude Code
+### 1) Install the Python package
 
 ```bash
-claude install github:NickCrew/claude-cortex
-```
-
-### 2) Install the CLI (optional, recommended)
-
-```bash
-# pipx
+# pipx (recommended)
 pipx install claude-cortex
 
 # or pip
 pip install claude-cortex
+```
+
+### 2) Link assets and install completions
+
+```bash
+cortex install link
+cortex install post
 ```
 
 ## Local development setup

@@ -44,8 +44,7 @@ Choose your installation method:
 **Installation:**
 
 ```bash
-cd /path/to/claude-cortex
-pip install -e ".[dev]"
+pip install claude-cortex
 cortex install link
 cortex install post
 ```
@@ -88,8 +87,9 @@ cortex tui
 ├─────────────────────────────────────────────────────────────┤
 │ [View: Agents] Welcome to cortex TUI │ 25MB 0%        │
 ├─────────────────────────────────────────────────────────────┤
-│ 1 Overview  2 Agents  3 Rules  4 Skills  5 Tasks  6 Commands │
-│ 7 MCP  C Worktrees  E Export  0 AI  ? Help  Q Quit         │
+│ 0 AI  1 Overview  2 Agents  3 Rules  4 Skills  5 LLM Skills  │
+│ 6 Commands  7 Hooks  8 Memory  9 Watch  M MCP  E Export     │
+│ T Tasks  W Worktrees  A Assets  ? Help  Q Quit              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -263,7 +263,7 @@ Skills are reusable knowledge modules (like "owasp-top-10" or "git-workflow") th
 ### Step 1: Browse Skills
 
 ```bash
-# Press 5 to open Skills view
+# Press 4 to open Skills view
 ```
 
 **What You'll See:**
@@ -393,7 +393,7 @@ MCP (Model Context Protocol) servers provide additional tools and context to Cla
 ### Step 1: View MCP Servers
 
 ```bash
-# Press 7 to open MCP view
+# Press M to open MCP view
 ```
 
 **What You'll See:**
@@ -711,7 +711,7 @@ Watch mode monitors file changes and recommends agents in real-time!
 **MCP (Model Context Protocol)** servers provide external tool integrations.
 
 ```bash
-# Press 7 to open MCP view
+# Press M to open MCP view
 ```
 
 **Available Actions:**
@@ -803,16 +803,18 @@ pip install psutil
 ┌────────────────────────────────────────┐
 │ VIEWS          │ ACTIONS               │
 ├────────────────┼───────────────────────┤
-│ 1 Overview     │ Space  Toggle         │
-│ 2 Agents       │ Enter  Details        │
-│ 3 Rules        │ /      Filter         │
-│ 4 Skills       │ Esc    Clear/Cancel   │
-│ 5 Tasks        │ r      Refresh        │
+│ 0 AI Assistant │ Space  Toggle         │
+│ 1 Overview     │ Enter  Details        │
+│ 2 Agents       │ /      Filter         │
+│ 3 Rules        │ Esc    Clear/Cancel   │
+│ 4 Skills       │ r      Refresh        │
 │ 6 Commands     │ ?      Help           │
-│ 7 MCP          │ q      Quit           │
-│ C Worktrees    │ Ctrl+P Palette        │
-│ 9 Export       │ ↑↓ jk  Navigate       │
-│ 0 AI           │                       │
+│ 7 Hooks        │ q      Quit           │
+│ 8 Memory       │ Ctrl+P Palette        │
+│ M MCP          │ ↑↓ jk  Navigate       │
+│ W Worktrees    │                       │
+│ A Assets       │                       │
+│ E Export       │                       │
 └────────────────┴───────────────────────┘
 ```
 
@@ -824,7 +826,7 @@ pip install psutil
 
 **Beginner Level:** ✅ You are here!
 
-- Explore each view (1-7, C, E, 0, w, A, M, X)
+- Explore each view (0-9, M, E, T, W, A, F)
 - Practice activating agents
 - Test MCP server connections
 
@@ -902,7 +904,6 @@ man cortex-workflow  # Workflow orchestration
    cortex tui
    ```
 
-   - Press `8` → Apply project profile
    - Press `0` → Check AI recommendations
 
 2. **During Development:**
@@ -921,15 +922,14 @@ man cortex-workflow  # Workflow orchestration
    cortex tui
    ```
 
-   - Press `6` → Run "pre-commit" workflow
-   - Press `9` → Export context for review
+   - Press `E` → Export context for review
 
 4. **Context for Claude:**
 
    ```bash
    # Quick clipboard export (TUI)
    cortex tui
-   # Press 9, then x (clipboard)
+   # Press E, then x (clipboard)
    
    # Or CLI for automation
    cortex export context - | pbcopy  # macOS
@@ -943,7 +943,7 @@ man cortex-workflow  # Workflow orchestration
 You've completed the getting started tutorial! You now know how to:
 
 - ✅ Navigate the TUI efficiently
-- ✅ Manage agents, modes, and skills
+- ✅ Manage agents and skills
 - ✅ Run workflows and monitor progress
 - ✅ Use the command palette
 - ✅ Export context bundles
@@ -958,10 +958,10 @@ You've completed the getting started tutorial! You now know how to:
 |------|-----|-----|
 | Launch interface | `cortex tui` | N/A |
 | Activate agent | Press `2`, `Space` | `cortex agent activate <name>` |
-| Test MCP server | Press `7`, `t` | `cortex mcp test <name>` |
+| Test MCP server | Press `M`, `t` | `cortex mcp test <name>` |
 | Export context | Press `E`, `e` | `cortex export context <path>` |
 | AI recommendations | Press `0` | `cortex ai recommend` |
-| Watch mode | Press `w` | `cortex ai watch` |
+| Watch mode | Press `9` | `cortex ai watch` |
 | Batch operations | N/A (CLI better) | `cortex agent activate a b c` |
 
 ### When to Use TUI vs CLI
@@ -1010,9 +1010,9 @@ You've completed the getting started tutorial! You now know how to:
 # Launch
 cortex tui
 
-# Views: 1=Overview, 2=Agents, 3=Rules, 4=Skills, 5=Tasks
-#        6=Commands, 7=MCP, C=Worktrees, E=Export, 0=AI
-#        w=Watch, A=Assets, M=Memory, X=Codex
+# Views: 0=AI, 1=Overview, 2=Agents, 3=Rules, 4=Skills, 5=LLM Skills
+#        6=Commands, 7=Hooks, 8=Memory, 9=Watch, M=MCP, E=Export
+#        T=Tasks, W=Worktrees, A=Assets, F=Settings
 
 # Actions: Space=Toggle, Enter=Details, /=Filter, r=Refresh
 #          Ctrl+P=Palette, ?=Help, q=Quit
@@ -1055,6 +1055,6 @@ cortex mcp diagnose              # Check all servers
 
 ---
 
-*Last Updated: 2025-11-15*  
-*Tutorial Version: 1.0*  
-*Target: cortex v1.0+*
+*Last Updated: 2026-03-21*
+*Tutorial Version: 2.0*
+*Target: cortex v2.0+*
