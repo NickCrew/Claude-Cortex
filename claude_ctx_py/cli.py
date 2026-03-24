@@ -573,7 +573,7 @@ def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     ai_watch.add_argument(
         "--log",
         dest="watch_log",
-        help="Log file for daemon mode (default: ~/.cortex/logs/watch.log)",
+        help="Log file for daemon mode (default: ~/.claude/logs/watch.log)",
     )
     ai_watch.add_argument(
         "--threshold",
@@ -849,7 +849,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-init",
         dest="skip_wizard",
         action="store_true",
-        help="Skip the first-run wizard even if ~/.cortex doesn't exist",
+        help="Skip the first-run wizard even if content is not linked to ~/.claude",
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -859,6 +859,10 @@ def build_parser() -> argparse.ArgumentParser:
     _build_skills_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_worktree_parser(subparsers)
+    from .cmd_git import build_git_parser
+    build_git_parser(subparsers)
+    from .cmd_tmux import build_tmux_parser
+    build_tmux_parser(subparsers)
     _build_statusline_parser(subparsers)
     tui_parser = subparsers.add_parser(
         "tui", help="Launch interactive TUI for agent management"
@@ -1587,6 +1591,16 @@ def _handle_review_command(args: argparse.Namespace) -> int:
     )
 
 
+def _handle_git_command(args: argparse.Namespace) -> int:
+    from .cmd_git import handle_git_command
+    return handle_git_command(args)
+
+
+def _handle_tmux_command(args: argparse.Namespace) -> int:
+    from .cmd_tmux import handle_tmux_command
+    return handle_tmux_command(args)
+
+
 def _handle_statusline_command(args: argparse.Namespace) -> int:
     from . import statusline
 
@@ -2210,6 +2224,38 @@ def _get_codex_dir() -> Path:
     return cwd / "codex"
 
 
+def _get_provider_dir(provider: str) -> Path:
+    """Get a provider directory (codex, gemini, etc.) using the same resolution as _get_codex_dir."""
+    cwd = Path.cwd()
+
+    # 1. Check if we're in a repo with a <provider>/ folder (development)
+    if (cwd / provider).is_dir():
+        return cwd / provider
+
+    # 2. Check cortex root (repo/source installation)
+    from .core.base import _resolve_cortex_root
+    cortex_root = _resolve_cortex_root()
+    if cortex_root and (cortex_root / provider).is_dir():
+        return cortex_root / provider
+
+    # 3. Check bundled package (pip/pipx installation)
+    import sys
+    for prefix in [sys.prefix, sys.base_prefix]:
+        bundled = Path(prefix) / "share" / "claude-cortex" / provider
+        if bundled.is_dir():
+            return bundled
+
+    # 4. Check user site-packages (--user installations)
+    import site
+    if hasattr(site, 'USER_BASE'):
+        user_dir = Path(site.USER_BASE) / "share" / "claude-cortex" / provider
+        if user_dir.is_dir():
+            return user_dir
+
+    # 5. Fallback
+    return cwd / provider
+
+
 def _get_bookmarks_file() -> Path:
     """Get the path to the bookmarks file."""
     return Path.home() / ".claude" / "cortex" / "docs-bookmarks.json"
@@ -2668,6 +2714,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         "file": _handle_file_command,
         "uninstall": _handle_uninstall_command,
         "review": _handle_review_command,
+        "git": _handle_git_command,
+        "tmux": _handle_tmux_command,
     }
 
     if args.command == "status":
