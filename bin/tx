@@ -4,7 +4,11 @@ set -euo pipefail
 # tx - tmux helper for agents
 # Simple commands for interacting with tmux windows during development
 
-SESSION="${TMUX_SESSION:-labs}"
+if [[ -n "${TMUX_SESSION:-}" ]]; then
+  SESSION="$TMUX_SESSION"
+else
+  SESSION="$(basename "$PWD" | tr '[:upper:] ' '[:lower:]-')"
+fi
 DEFAULT_LINES=50
 
 usage() {
