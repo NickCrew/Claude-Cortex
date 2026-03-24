@@ -1,0 +1,59 @@
+.TH CORTEX-AI 1 "2026-03-23" "cortex-ai 2.0.0" "User Commands"
+.SH NAME
+cortex-ai \- Command-line tool
+.SH SYNOPSIS
+.B cortex-ai
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-ai
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-ai
+.SH COMMANDS
+Available commands:
+.TP
+.B recommend
+Show intelligent agent recommendations
+.TP
+.B auto-activate
+Auto-activate high-confidence recommendations
+.TP
+.B export
+Export recommendations to JSON
+.TP
+.B record-success
+Record current session as successful for learning
+.TP
+.B ingest-review
+Ingest specialist review into skill learning
+.TP
+.B watch
+Watch mode - real-time monitoring and recommendations
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-ai-tui (1),
+.BR cortex-ai-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

@@ -70,9 +70,31 @@ where = ["."]
 include = ["claude_ctx_py*"]
 
 [tool.setuptools.data-files]
+# Regenerate with: cortex dev manpages
+# Validate with:   cortex dev validate-manpages
 "share/man/man1" = [
     "docs/reference/cortex.1",
+    "docs/reference/cortex-agent.1",
+    "docs/reference/cortex-ai.1",
+    "docs/reference/cortex-dev.1",
+    "docs/reference/cortex-docs.1",
+    "docs/reference/cortex-export.1",
+    "docs/reference/cortex-file.1",
+    "docs/reference/cortex-git.1",
+    "docs/reference/cortex-hooks.1",
+    "docs/reference/cortex-install.1",
+    "docs/reference/cortex-mcp.1",
+    "docs/reference/cortex-memory.1",
+    "docs/reference/cortex-plan.1",
+    "docs/reference/cortex-review.1",
+    "docs/reference/cortex-rules.1",
+    "docs/reference/cortex-skills.1",
+    "docs/reference/cortex-status.1",
+    "docs/reference/cortex-statusline.1",
+    "docs/reference/cortex-tmux.1",
     "docs/reference/cortex-tui.1",
+    "docs/reference/cortex-uninstall.1",
+    "docs/reference/cortex-worktree.1",
 ]
 # Root-level docs
 "share/claude-cortex/docs" = [

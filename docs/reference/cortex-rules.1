@@ -1,0 +1,56 @@
+.TH CORTEX-RULES 1 "2026-03-23" "cortex-rules 2.0.0" "User Commands"
+.SH NAME
+cortex-rules \- Command-line tool
+.SH SYNOPSIS
+.B cortex-rules
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-rules
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-rules
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List available rules
+.TP
+.B status
+Show active rule modules
+.TP
+.B activate
+Activate one or more rule modules
+.TP
+.B deactivate
+Deactivate one or more rule modules
+.TP
+.B edit
+Open rule file(s) in $EDITOR
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-rules-tui (1),
+.BR cortex-rules-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

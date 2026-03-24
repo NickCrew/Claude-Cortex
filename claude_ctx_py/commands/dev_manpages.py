@@ -7,6 +7,7 @@ import argparse
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import List, Optional, Tuple
 
 # Add parent directory to path to import cli module
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -16,18 +17,18 @@ from claude_ctx_py.cli import build_parser
 
 def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 1) -> str:
     """Generate a manpage from an argparse parser.
-    
+
     Args:
         parser: The argparse parser to generate from
         name: The command name
         section: Man section number (default: 1)
-        
+
     Returns:
         The generated manpage content
     """
     today = datetime.now().strftime("%Y-%m-%d")
     version = "2.0.0"  # TODO: Extract from pyproject.toml
-    
+
     lines = [
         f'.TH {name.upper()} {section} "{today}" "{name} {version}" "User Commands"',
         ".SH NAME",
@@ -35,7 +36,7 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         ".SH SYNOPSIS",
         f".B {name}",
     ]
-    
+
     # Add usage pattern
     if parser._subparsers:
         lines.extend([
@@ -56,16 +57,16 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         ])
     else:
         lines.append("[IOPTIONS...R]")
-    
+
     # Description
     lines.extend([
         ".SH DESCRIPTION",
         f".B {name}",
     ])
-    
+
     if parser.description:
         lines.append(f"is {parser.description}")
-    
+
     # Commands
     if parser._subparsers:
         lines.extend([
@@ -73,7 +74,7 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
             "Available commands:",
             ".TP",
         ])
-        
+
         for action in parser._subparsers._actions:
             if isinstance(action, argparse._SubParsersAction):
                 for choice, subparser in action.choices.items():
@@ -83,13 +84,13 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
                         if choice_action.dest == choice or getattr(choice_action, 'metavar', None) == choice:
                             help_text = choice_action.help or ""
                             break
-                    
+
                     lines.extend([
                         f".B {choice}",
                         help_text or "No description available",
                         ".TP",
                     ])
-    
+
     # Options
     lines.extend([
         ".SH OPTIONS",
@@ -97,7 +98,7 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         ".B \\-h, \\-\\-help",
         "Show help message and exit",
     ])
-    
+
     # Environment
     lines.extend([
         ".SH ENVIRONMENT",
@@ -105,7 +106,7 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         ".B CLAUDE_PLUGIN_ROOT",
         "Override for context directory (set automatically by Claude Code when running plugin commands)",
     ])
-    
+
     # Files
     lines.extend([
         ".SH FILES",
@@ -113,29 +114,49 @@ def generate_manpage(parser: argparse.ArgumentParser, name: str, section: int = 
         ".B ~/.claude/",
         "Default context directory containing agents, modes, rules, and other configuration",
     ])
-    
+
     # See also
     lines.extend([
         ".SH SEE ALSO",
         f".BR {name}-tui (1),",
         f".BR {name}-workflow (1)",
     ])
-    
+
     # Authors
     lines.extend([
         ".SH AUTHORS",
         "Nicholas Ferguson <ncf423@gmail.com>",
     ])
-    
+
     return "\n".join(lines)
 
 
-def extract_subparser(parser: argparse.ArgumentParser, command: str) -> argparse.ArgumentParser | None:
+def extract_subparser(parser: argparse.ArgumentParser, command: str) -> Optional[argparse.ArgumentParser]:
     """Extract a subparser for a specific command."""
     for action in parser._subparsers._actions:
         if isinstance(action, argparse._SubParsersAction):
             return action.choices.get(command)
     return None
+
+
+def discover_subcommands(parser: argparse.ArgumentParser) -> List[Tuple[str, str]]:
+    """Auto-discover all subcommands from the parser.
+
+    Returns a list of ``(name, help_text)`` tuples for every registered
+    subcommand, sorted alphabetically.
+    """
+    subcommands: List[Tuple[str, str]] = []
+    for action in parser._subparsers._actions:
+        if not isinstance(action, argparse._SubParsersAction):
+            continue
+        # Build a lookup of help text per choice
+        help_lookup = {}
+        for choice_action in action._choices_actions:
+            help_lookup[choice_action.dest] = choice_action.help or ""
+        for name in action.choices:
+            help_text = help_lookup.get(name, "")
+            subcommands.append((name, help_text))
+    return sorted(subcommands)
 
 
 def main() -> int:
@@ -145,19 +166,17 @@ def main() -> int:
     project_root = Path(__file__).parent.parent.parent
     docs_dir = project_root / "docs" / "reference"
     docs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate main manpage
     print("📄 Generating cortex.1...")
     main_manpage = generate_manpage(parser, "cortex")
     main_path = docs_dir / "cortex.1"
     main_path.write_text(main_manpage)
     print(f"   ✓ {main_path}")
-    
-    # Generate subcommand manpages
-    subcommands = [
-        ("tui", "Interactive TUI for agent management"),
-    ]
-    
+
+    # Generate subcommand manpages (auto-discovered from parser)
+    subcommands = discover_subcommands(parser)
+
     for cmd, description in subcommands:
         print(f"📄 Generating cortex-{cmd}.1...")
         subparser = extract_subparser(parser, cmd)
@@ -170,12 +189,12 @@ def main() -> int:
                 description=description
             )
             manpage = generate_manpage(minimal_parser, f"cortex-{cmd}")
-        
+
         path = docs_dir / f"cortex-{cmd}.1"
         path.write_text(manpage)
         print(f"   ✓ {path}")
-    
-    print("\n✓ All manpages generated successfully")
+
+    print(f"\n✓ Generated {1 + len(subcommands)} manpages successfully")
     return 0
 
 

@@ -1,0 +1,59 @@
+.TH CORTEX-GIT 1 "2026-03-23" "cortex-git 2.0.0" "User Commands"
+.SH NAME
+cortex-git \- Command-line tool
+.SH SYNOPSIS
+.B cortex-git
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-git
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-git
+.SH COMMANDS
+Available commands:
+.TP
+.B commit
+Stage files and commit atomically
+.TP
+.B patch
+Apply diff hunks to the index and commit
+.TP
+.B push
+Push with safety checks
+.TP
+.B stash
+Safe stash operations
+.TP
+.B branch
+Safe branch operations
+.TP
+.B worktree
+Git worktree management
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-git-tui (1),
+.BR cortex-git-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

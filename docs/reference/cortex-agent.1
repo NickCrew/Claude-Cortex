@@ -1,0 +1,62 @@
+.TH CORTEX-AGENT 1 "2026-03-23" "cortex-agent 2.0.0" "User Commands"
+.SH NAME
+cortex-agent \- Command-line tool
+.SH SYNOPSIS
+.B cortex-agent
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-agent
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-agent
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List available agents
+.TP
+.B status
+Show active agents
+.TP
+.B activate
+Activate one or more agents
+.TP
+.B deactivate
+Deactivate one or more agents
+.TP
+.B deps
+Show dependency information for an agent
+.TP
+.B graph
+Display dependency graph for agents
+.TP
+.B validate
+Validate agent metadata against schema
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-agent-tui (1),
+.BR cortex-agent-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

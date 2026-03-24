@@ -1,0 +1,71 @@
+.TH CORTEX-MCP 1 "2026-03-23" "cortex-mcp 2.0.0" "User Commands"
+.SH NAME
+cortex-mcp \- Command-line tool
+.SH SYNOPSIS
+.B cortex-mcp
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-mcp
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-mcp
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List all MCP servers with status
+.TP
+.B list-docs
+List MCP docs with activation status
+.TP
+.B status
+Show active MCP docs
+.TP
+.B activate
+Activate MCP doc(s) in CLAUDE.md
+.TP
+.B deactivate
+Deactivate MCP doc(s) from CLAUDE.md
+.TP
+.B show
+Show detailed server info
+.TP
+.B docs
+Display server documentation
+.TP
+.B test
+Test server configuration
+.TP
+.B diagnose
+Diagnose all server issues
+.TP
+.B snippet
+Generate config snippet
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-mcp-tui (1),
+.BR cortex-mcp-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

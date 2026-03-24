@@ -1,0 +1,107 @@
+.TH CORTEX-SKILLS 1 "2026-03-23" "cortex-skills 2.0.0" "User Commands"
+.SH NAME
+cortex-skills \- Command-line tool
+.SH SYNOPSIS
+.B cortex-skills
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-skills
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-skills
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List available skills
+.TP
+.B info
+Show skill details
+.TP
+.B validate
+Validate skill metadata
+.TP
+.B analyze
+Analyze text and suggest matching skills
+.TP
+.B suggest
+Suggest skills based on project context
+.TP
+.B metrics
+Show skill usage metrics
+.TP
+.B deps
+Show which agents use a skill
+.TP
+.B agents
+Show which agents use a skill (alias for deps)
+.TP
+.B compose
+Show dependency tree for a skill
+.TP
+.B versions
+Show version information for a skill
+.TP
+.B analytics
+Show skill effectiveness analytics
+.TP
+.B report
+Generate comprehensive analytics report
+.TP
+.B trending
+Show trending skills over time
+.TP
+.B recommend
+Get AI-powered skill recommendations
+.TP
+.B feedback
+Provide feedback on skill recommendations
+.TP
+.B context
+Generate skill context for current session
+.TP
+.B rate
+Rate a skill with stars and optional review
+.TP
+.B ratings
+Show ratings and reviews for a skill
+.TP
+.B top-rated
+Show top-rated skills
+.TP
+.B export-ratings
+Export skill ratings data
+.TP
+.B community
+Community skill commands
+.TP
+.B audit
+Audit skill quality and completeness
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-skills-tui (1),
+.BR cortex-skills-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

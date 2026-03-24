@@ -1,0 +1,50 @@
+.TH CORTEX-EXPORT 1 "2026-03-23" "cortex-export 2.0.0" "User Commands"
+.SH NAME
+cortex-export \- Command-line tool
+.SH SYNOPSIS
+.B cortex-export
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-export
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-export
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List available context components
+.TP
+.B context
+Export context to markdown file
+.TP
+.B agents
+Export selected agent definitions
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-export-tui (1),
+.BR cortex-export-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

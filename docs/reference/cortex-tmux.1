@@ -1,0 +1,83 @@
+.TH CORTEX-TMUX 1 "2026-03-23" "cortex-tmux 2.0.0" "User Commands"
+.SH NAME
+cortex-tmux \- Command-line tool
+.SH SYNOPSIS
+.B cortex-tmux
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-tmux
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-tmux
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List windows in session
+.TP
+.B new
+Create a new window
+.TP
+.B kill
+Kill a window
+.TP
+.B send
+Send command to window (presses Enter)
+.TP
+.B type
+Type text without pressing Enter
+.TP
+.B keys
+Send key sequence (e.g. C-c, Enter, Up)
+.TP
+.B interrupt
+Send Ctrl-C to window
+.TP
+.B read
+Capture last N lines (default: 50)
+.TP
+.B tail
+List windows in session
+.TP
+.B dump
+Dump entire scrollback buffer
+.TP
+.B status
+Check window exists and show last lines
+.TP
+.B running
+Exit 0 if command running, 1 if at prompt
+.TP
+.B wait
+Wait for command to complete (default: 60s)
+.TP
+.B watch
+Wait for pattern to appear (or prompt if no pattern)
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-tmux-tui (1),
+.BR cortex-tmux-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

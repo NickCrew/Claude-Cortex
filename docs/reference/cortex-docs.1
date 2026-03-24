@@ -1,0 +1,65 @@
+.TH CORTEX-DOCS 1 "2026-03-23" "cortex-docs 2.0.0" "User Commands"
+.SH NAME
+cortex-docs \- Command-line tool
+.SH SYNOPSIS
+.B cortex-docs
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-docs
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-docs
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List all documentation files
+.TP
+.B tree
+Show documentation folder structure
+.TP
+.B view
+View a documentation file
+.TP
+.B search
+Search documentation
+.TP
+.B edit
+Edit a doc file in $EDITOR
+.TP
+.B bookmark
+Manage doc bookmarks
+.TP
+.B path
+Show the docs directory path
+.TP
+.B tui
+Launch interactive documentation browser
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-docs-tui (1),
+.BR cortex-docs-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

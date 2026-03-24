@@ -1,0 +1,53 @@
+.TH CORTEX-PLAN 1 "2026-03-23" "cortex-plan 2.0.0" "User Commands"
+.SH NAME
+cortex-plan \- Command-line tool
+.SH SYNOPSIS
+.B cortex-plan
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-plan
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-plan
+.SH COMMANDS
+Available commands:
+.TP
+.B list
+List all plan files
+.TP
+.B view
+View a plan file
+.TP
+.B edit
+Edit a plan file in $EDITOR
+.TP
+.B path
+Show the plans directory path
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-plan-tui (1),
+.BR cortex-plan-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>

@@ -1,0 +1,50 @@
+.TH CORTEX-DEV 1 "2026-03-23" "cortex-dev 2.0.0" "User Commands"
+.SH NAME
+cortex-dev \- Command-line tool
+.SH SYNOPSIS
+.B cortex-dev
+[
+B-h
+    R | 
+        B--help
+               R]
+.br
+.B cortex-dev
+
+ICOMMAND
+        R [
+           ISUBCOMMAND
+                      R] [
+                          IARGS
+                               R...]
+.SH DESCRIPTION
+.B cortex-dev
+.SH COMMANDS
+Available commands:
+.TP
+.B validate
+Validate skills registry against schema
+.TP
+.B manpages
+Generate manpage files
+.TP
+.B validate-manpages
+Validate manpages are current with CLI definitions
+.TP
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_PLUGIN_ROOT
+Override for context directory (set automatically by Claude Code when running plugin commands)
+.SH FILES
+.TP
+.B ~/.claude/
+Default context directory containing agents, modes, rules, and other configuration
+.SH SEE ALSO
+.BR cortex-dev-tui (1),
+.BR cortex-dev-workflow (1)
+.SH AUTHORS
+Nicholas Ferguson <ncf423@gmail.com>
