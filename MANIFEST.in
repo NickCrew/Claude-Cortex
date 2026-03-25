@@ -6,9 +6,15 @@ include LICENSE
 include CREDITS.md
 include CHANGELOG.md
 
-recursive-include docs *.md *.txt *.1
-recursive-include docs/reference/architecture *
-recursive-include docs/diagrams *.png *.txt
+# Manpages (generated, kept in docs/reference/)
+recursive-include docs/reference *.1
+
+# User-facing documentation (from site/)
+recursive-include site/getting-started *.md
+recursive-include site/guides *.md
+recursive-include site/tutorials *.md
+recursive-include site/reference *.md
+include site/index.md
 
 # Cortex content directories
 recursive-include agents *.md *.json *.yaml *.yml *.toml
@@ -23,16 +29,23 @@ recursive-include gemini *.md *.sh *.py *.json *.yaml *.yml
 
 global-exclude *PLAN*.md *SUMMARY*.md *IMPLEMENTATION*.md *REPORT*.md *COMPLETE*.md *ANALYSIS*.md *ACTIONS*.md Gemfile*
 
-prune docs/diagrams/mmd
-prune docs/diagrams/svg
+# Exclude non-bundled docs content
+prune docs/vendor
+prune docs/_site
 prune docs/archive
-prune docs/plans
-prune docs/designs
-prune docs/prototypes
-prune docs/reports
-prune docs/workstreams
+prune docs/development
+prune docs/features
+prune docs/guides
+prune docs/tutorials
+prune docs/architecture
+prune docs/presentations
+prune docs/reviews
+prune docs/diagrams
 prune docs/assets
-prune docs/reference/moved-readmes
+# Exclude Jekyll build artifacts from site/
+prune site/_site
+prune site/_sass
+prune site/assets
 
 # Scripts
 recursive-include scripts *.sh

@@ -2169,10 +2169,15 @@ def _get_docs_dir() -> Path:
     """Get the docs directory from cortex root or bundled package installation."""
 
     # 1. Check cortex root (repo/source installation)
+    # Prefer site/ (curated user-facing docs) over docs/ (legacy/development)
     from .core.base import _resolve_cortex_root
     cortex_root = _resolve_cortex_root()
-    if cortex_root and (cortex_root / "docs").is_dir():
-        return cortex_root / "docs"
+    if cortex_root:
+        site_dir = cortex_root / "site"
+        if site_dir.is_dir():
+            return site_dir
+        if (cortex_root / "docs").is_dir():
+            return cortex_root / "docs"
 
     # 2. Check bundled package docs (pip/pipx installation)
     import sys

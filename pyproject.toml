@@ -98,88 +98,57 @@ include = ["claude_ctx_py*"]
 ]
 # Root-level docs
 "share/claude-cortex/docs" = [
-    "docs/index.md",
-    "docs/README.md",
-    "docs/NAVIGATOR.md",
-    "docs/AI_INTELLIGENCE.md",
-    "docs/settings-files.md",
+    "site/index.md",
     "CHANGELOG.md",
     "CREDITS.md",
     "LICENSE",
 ]
-# User guides
+# Getting started
+"share/claude-cortex/docs/getting-started" = [
+    "site/getting-started/index.md",
+    "site/getting-started/installation.md",
+    "site/getting-started/configuration.md",
+    "site/getting-started/quick-start.md",
+]
+# Guides
 "share/claude-cortex/docs/guides" = [
-    "docs/guides/getting-started.md",
-    "docs/guides/commands.md",
-    "docs/guides/skills.md",
-    "docs/guides/hooks.md",
-    "docs/guides/memory.md",
-    "docs/guides/worktrees.md",
-    "docs/guides/asset-manager.md",
-    "docs/guides/dependencies.md",
-    "docs/guides/integrations.md",
-    "docs/guides/prompt-library.md",
-    "docs/guides/COMPLETIONS.md",
-    "docs/guides/DOCUMENTATION_VIEWER.md",
-    "docs/guides/tui.md",
-    "docs/guides/tui-quick-start.md",
-    "docs/guides/tui-integration.md",
-    "docs/guides/skills-tui-integration.md",
-]
-"share/claude-cortex/docs/guides/tui" = [
-    "docs/guides/tui/copy-definition-feature.md",
-    "docs/guides/tui/tui-keyboard-reference.md",
-    "docs/guides/tui/tui-mcp-view.md",
-    "docs/guides/tui/tui-navigation-summary.md",
-]
-"share/claude-cortex/docs/guides/ai" = [
-    "docs/guides/ai/README.md",
-    "docs/guides/ai/LLM_INTELLIGENCE_GUIDE.md",
-    "docs/guides/ai/LLM_QUICK_REFERENCE.md",
-]
-"share/claude-cortex/docs/guides/mcp" = [
-    "docs/guides/mcp/MCP_MANAGEMENT.md",
-    "docs/guides/mcp/MCP_MODULE_README.md",
-    "docs/guides/mcp/MCP_MODULE_USAGE.md",
+    "site/guides/index.md",
+    "site/guides/agent-activation.md",
+    "site/guides/agent-loops.md",
+    "site/guides/ai-intelligence.md",
+    "site/guides/cli.md",
+    "site/guides/doc-health-audit.md",
+    "site/guides/docs-commands.md",
+    "site/guides/export.md",
+    "site/guides/git-workflow.md",
+    "site/guides/hooks.md",
+    "site/guides/llm-consult.md",
+    "site/guides/memory.md",
+    "site/guides/planning.md",
+    "site/guides/review.md",
+    "site/guides/rules.md",
+    "site/guides/skills.md",
+    "site/guides/tmux-workflow.md",
+    "site/guides/tui.md",
 ]
 # Tutorials
 "share/claude-cortex/docs/tutorials" = [
-    "docs/tutorials/index.md",
-    "docs/tutorials/getting-started-tui.md",
-    "docs/tutorials/ai-watch-mode.md",
-    "docs/tutorials/ci-cd-integration.md",
-    "docs/tutorials/skill-authoring-cookbook.md",
-]
-"share/claude-cortex/docs/tutorials/learning-paths" = [
-    "docs/tutorials/learning-paths/index.md",
-    "docs/tutorials/learning-paths/onboarding.md",
+    "site/tutorials/index.md",
+    "site/tutorials/bug-fix-workflow.md",
+    "site/tutorials/export-context.md",
+    "site/tutorials/feature-workflow.md",
+    "site/tutorials/skill-recommendations.md",
+    "site/tutorials/tui-first-20-minutes.md",
+    "site/tutorials/watch-mode.md",
 ]
 # Reference
 "share/claude-cortex/docs/reference" = [
-    "docs/reference/index.md",
-    "docs/reference/README.md",
-    "docs/reference/configuration.md",
-    "docs/reference/bin-utilities.md",
-    "docs/reference/scripts-utilities.md",
-    "docs/reference/skill-showcase.md",
-]
-"share/claude-cortex/docs/reference/api" = [
-    "docs/reference/api/index.md",
-    "docs/reference/api/installer.md",
-]
-"share/claude-cortex/docs/reference/architecture" = [
-    "docs/reference/architecture/architecture-diagrams.md",
-    "docs/reference/architecture/DIAGRAMS_README.md",
-    "docs/reference/architecture/README.md",
-    "docs/reference/architecture/terminology.md",
-]
-# Architecture
-"share/claude-cortex/docs/architecture" = [
-    "docs/architecture/README.md",
-    "docs/architecture/MASTER_ARCHITECTURE.md",
-    "docs/architecture/DIAGRAMS_README.md",
-    "docs/architecture/quick-reference.md",
-    "docs/architecture/skill-recommendation-engine.md",
+    "site/reference/index.md",
+    "site/reference/agents.md",
+    "site/reference/commands.md",
+    "site/reference/configuration.md",
+    "site/reference/flags.md",
+    "site/reference/skills.md",
 ]
 
 
