@@ -222,6 +222,14 @@ if [[ -n "$GIT_MODE" ]]; then
 
   mapfile -t CHANGED_FILES < <(git diff --name-only "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)
 
+  # Include untracked (new) files so they aren't invisible to the audit.
+  UNTRACKED_ARGS=(--others --exclude-standard -- "$MODULE_PATH")
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    UNTRACKED_ARGS=(--others --exclude-standard -- "$MODULE_PATH" "${PATH_FILTERS[@]}")
+  fi
+  mapfile -t UNTRACKED_FILES < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
+  CHANGED_FILES+=("${UNTRACKED_FILES[@]}")
+
   if [[ ${#CHANGED_FILES[@]} -eq 0 ]]; then
     echo "No changed files found in $MODULE_PATH (base: $BASE_REF). Nothing to audit." >&2
     exit 0

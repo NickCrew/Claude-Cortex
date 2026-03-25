@@ -1,6 +1,6 @@
 ---
 name: agent-loops
-description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `committer` for all commits. Includes bundled provider-aware review scripts that keep same-model shell-outs as the last resort, plus a fresh-context Codex fallback for code review and test audit. Use this skill when starting any implementation task.
+description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `cortex git commit` for all commits. Includes bundled provider-aware review scripts that keep same-model shell-outs as the last resort, plus a fresh-context Codex fallback for code review and test audit. Use this skill when starting any implementation task.
 keywords:
   - agent workflow
   - code review loop
@@ -338,18 +338,26 @@ The question at every step is: **"What is my next atomic commit?"** — not
 
 ### Commit Rules
 
-1. **Use `committer`, not `git commit`.** Unless you have explicit user approval
-   to commit another way, always use the `committer` tool. It prevents common
-   mistakes (staging `.`, empty messages, committing directories).
+1. **Use `cortex git commit`, not `git commit`.** Unless you have explicit user
+   approval to commit another way, always use `cortex git commit`. It stages files
+   and commits atomically, preventing common mistakes (staging `.`, empty messages,
+   committing directories). Use `cortex git patch` when you need to stage individual
+   diff hunks instead of whole files.
    ```bash
-   committer "fix(parser): reject CONNECT requests with missing port" src/parser.rs tests/test_parser.rs
+   cortex git commit "fix(parser): reject CONNECT requests with missing port" src/parser.rs tests/test_parser.rs
+   # For partial staging (previously: committer --patch):
+   cortex git patch --diff changes.diff "fix(parser): reject CONNECT requests" src/parser.rs
    ```
-2. **Commit at the end of every loop.** Each loop exit (code change, test writing,
+2. **Dirty files are OK — use `cortex git patch`.** If a file you need to commit
+   already has uncommitted changes from other work, use `cortex git patch` to commit
+   only your hunks. You do **not** need to escalate unless your changes overlap with
+   the already-modified lines. If they overlap, stop and coordinate with the user.
+3. **Commit at the end of every loop.** Each loop exit (code change, test writing,
    lint gate) produces a commit. Do not batch multiple loop exits into one commit.
-3. **Run existing tests before committing.** After implementation, after lint fixes,
+4. **Run existing tests before committing.** After implementation, after lint fixes,
    after any code change — verify the existing test suite passes. A commit that
    breaks existing tests is not atomic.
-4. **Commit messages follow Conventional Commits.** `<type>(scope): <summary>`.
+5. **Commit messages follow Conventional Commits.** `<type>(scope): <summary>`.
    The summary should describe *what changed*, not *what you were asked to do*.
 
 ### When to Split
@@ -417,11 +425,11 @@ ENTRY: Next atomic commit from your decomposition plan.
        │                                                   │
        │                        No ──► File P2/P3 issues   │
        │                               Run tests ──► Pass? │
-       │                               Commit (committer)  │
+       │                               Commit (cortex git commit)  │
        │                               Exit loop           │
        │                                                   │
        │   No findings ──► Run tests ──► Pass?             │
-       │                   Commit (committer)               │
+       │                   Commit (cortex git commit)               │
        │                   Exit loop                        │
        │                                                   │
        ▼                                                   ▼
@@ -599,7 +607,7 @@ ENTRY: Code change loop has exited cleanly.
        │
        ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
        │                                   Run full test suite
-       │                                   Commit (committer)
+       │                                   Commit (cortex git commit)
        │                                   Exit loop ✅
        │
        └── No ──► Any P0/P1 remaining?
@@ -690,7 +698,7 @@ ENTRY: Test writing loop has exited cleanly.
 └──────┬───────────────┘
        │
        ├── Clean? ──► Yes ──► Run full test suite ──► Pass?
-       │                      Commit (committer)
+       │                      Commit (cortex git commit)
        │                      Exit loop ✅
        │
        └── No ──► Errors or new warnings remain
@@ -812,7 +820,7 @@ When filing deferred findings in this repository:
 - Writing implementation code — one atomic commit at a time
 - Writing test code
 - Running the full test suite before every commit
-- Using `committer` for all commits (not `git commit`) unless explicitly approved otherwise
+- Using `cortex git commit` for all commits (not `git commit`) unless explicitly approved otherwise
 - Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
@@ -882,7 +890,7 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │   ├── You: remediate P0/P1 → re-review with prior artifact
    │   ├── File issues for P2/P3
    │   ├── Run tests → Pass?
-   │   └── committer "type(scope): summary" <files>
+   │   └── cortex git commit "type(scope): summary" <files>
    │       │
    │   ├── TEST WRITING LOOP
    │   │   ├── test-review-request → Claude audits, else non-self provider, else same-model last resort, else fresh-context Codex
@@ -893,7 +901,7 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │   │   ├── You: remediate P0/P1 gaps and bad tests
    │   │   ├── File issues for P2/P3
    │   │   ├── Run full test suite → Pass?
-   │   │   └── committer "test(scope): summary" <files>
+   │   │   └── cortex git commit "test(scope): summary" <files>
    │   │       │
    │   └── LINT GATE
    │       ├── You: discover project linter
@@ -901,7 +909,7 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │       ├── You: run lint check (max 2 cycles)
    │       ├── You: remediate remaining issues
    │       ├── Run full test suite → Pass?
-   │       └── committer "style(scope): summary" <files>
+   │       └── cortex git commit "style(scope): summary" <files>
    │
    └── Next atomic commit (back to step 3)
        │

@@ -146,6 +146,21 @@ if [[ "$DIFF_SOURCE" == "--git" ]]; then
         git diff -U"$CONTEXT_LINES" >"$DIFF_FILE"
     fi
   fi
+
+  # Append untracked files as synthetic diffs so new files get reviewed too.
+  # git diff only covers tracked files; brand-new files are invisible until staged.
+  UNTRACKED_ARGS=(--others --exclude-standard)
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    UNTRACKED_ARGS+=(-- "${PATH_FILTERS[@]}")
+  fi
+  while IFS= read -r ufile; do
+    [[ -z "$ufile" ]] && continue
+    printf '\ndiff --git a/%s b/%s\nnew file mode 100644\n--- /dev/null\n+++ b/%s\n' "$ufile" "$ufile" "$ufile" >>"$DIFF_FILE"
+    # Generate +line hunks from file content
+    line_count=$(wc -l <"$ufile" | tr -d ' ')
+    printf '@@ -0,0 +1,%s @@\n' "$line_count" >>"$DIFF_FILE"
+    sed 's/^/+/' "$ufile" >>"$DIFF_FILE"
+  done < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
 elif [[ "$DIFF_SOURCE" == "-" ]]; then
   cat >"$DIFF_FILE"
 else
