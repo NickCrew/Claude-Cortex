@@ -1650,13 +1650,14 @@ class AgentTUI(App[None]):
     def show_skills_view(self, table: DataTable[Any]) -> None:
         """Show skills table with enhanced colors (READ-ONLY)."""
         table.add_column("Name", key="name", width=25)
+        table.add_column("Active", key="active", width=10)
         table.add_column("Rating", key="rating", width=18)
         table.add_column("Category", key="category", width=15)
         table.add_column("Location", key="location", width=10)
         table.add_column("Description", key="description")
 
         if not hasattr(self, "skills") or not self.skills:
-            table.add_row("[dim]No skills found[/dim]", "", "", "", "")
+            table.add_row("[dim]No skills found[/dim]", "", "", "", "", "")
             return
 
         category_colors = {
@@ -1690,10 +1691,17 @@ class AgentTUI(App[None]):
             desc_text = Format.truncate(skill["description"], 150).replace("[", "\\[")
             description = f"[dim]{desc_text}[/dim]"
 
+            # Active/installed status (symlinked into ~/.claude/skills/)
+            is_installed = skill.get("installed", False)
+            active_text = (
+                "[green]✓ Yes[/green]" if is_installed else "[dim]○ No[/dim]"
+            )
+
             rating_text = self._format_skill_rating(skill)
 
             table.add_row(
                 name,
+                active_text,
                 rating_text,
                 category_text,
                 location_text,
