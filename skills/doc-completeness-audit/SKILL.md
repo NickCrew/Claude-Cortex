@@ -59,14 +59,29 @@ all of them:
 
 ### Source 1: Public Code Surface
 
-Scan the codebase for documentable surface area:
+Run the bundled inventory script to extract documentable surface area deterministically:
 
-| Signal | What to extract |
-|--------|----------------|
-| CLI entry points (argparse, click, clap, cobra) | Every command, subcommand, flag, and argument |
-| Public API endpoints (routes, handlers) | Every endpoint with method, path, and purpose |
-| Public functions/classes exported from packages | Every symbol in `__init__.py`, `index.ts`, `lib.rs` pub items |
-| Configuration files and schemas | Every config key, env var, and default value |
+```bash
+python3 skills/doc-completeness-audit/scripts/inventory.py --root . --json > inventory.json
+
+# Or human-readable:
+python3 skills/doc-completeness-audit/scripts/inventory.py --root .
+
+# Run specific detectors only:
+python3 skills/doc-completeness-audit/scripts/inventory.py --root . --detectors env_vars,cli_commands
+```
+
+The script scans source files across Python, JavaScript/TypeScript, Rust, Go, Ruby, Java,
+and shell, extracting six categories:
+
+| Detector | What it extracts |
+|----------|-----------------|
+| `env_vars` | Environment variable references (`os.environ`, `process.env`, `env::var`, etc.) |
+| `cli_commands` | CLI commands and flags (argparse, click, clap, cobra, commander) |
+| `config_keys` | Configuration key access in config-related files |
+| `http_endpoints` | HTTP route definitions (Flask, FastAPI, Express, Actix, Axum, net/http) |
+| `public_exports` | Public module exports (`__init__.py`, `export`, `pub fn`, Go capitalized funcs) |
+| `error_types` | Custom error/exception class definitions |
 | Event types, webhooks, callbacks | Every event name and payload shape |
 
 Dispatch an Explore agent to scan for these signals. Provide it with the project's
@@ -270,6 +285,9 @@ Route gap remediation to the appropriate producer:
 ---
 
 ## Bundled Resources
+
+### Scripts
+- `scripts/inventory.py` — Extract documentable surface area from any codebase (env vars, CLI commands, config keys, HTTP endpoints, public exports, error types)
 
 ### References
 - `references/coverage-model.md` — Defines coverage expectations per doc type and audience
