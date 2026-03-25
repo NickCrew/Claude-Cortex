@@ -1,310 +1,227 @@
 ---
 layout: default
-title: Skill Recommendations
+title: Skills to Context Handoff
 parent: Tutorials
 nav_order: 1
 ---
 
-# Discover and Use Skill Recommendations
+# Skills to Context Handoff
 
-Cortex can suggest relevant skills from three entry points:
+This tutorial walks through one of the most useful Cortex workflows:
 
-- the Claude Code prompt hook
-- `cortex skills recommend`
-- watch-mode skill suggestions
+1. ask Cortex which skills fit the current task
+2. turn those recommendations into a compact skill context
+3. export a broader context bundle for another session, sub-agent, or external
+   LLM
 
-This tutorial walks through the current workflow without mixing skill
-recommendations up with the separate **agent intelligence** system.
+The goal is not just to get suggestions. The goal is to produce a clean
+handoff package that another worker can act on quickly.
 
 ## What You'll Learn
 
-- get skill recommendations from the CLI
-- understand the difference between hook, watch, and CLI recommendations
-- record recommendation feedback
-- rate skills in the CLI and TUI
-- understand how Cortex learns from successful usage
+- how `cortex skills recommend` and `cortex skills context` fit together
+- how `cortex export context` complements the skill context file
+- how to build a compact handoff bundle for another agent or model
+- how to record whether the recommendation actually helped afterward
 
 ## Prerequisites
 
-- Cortex installed with the Python CLI
-- a git-backed project with some changed files
+- Cortex installed and available on your shell path
+- a project with real task context or changed files
+- a downstream target in mind:
+  another session, a sub-agent, or an external LLM
 
 ## Time Estimate
 
-~15 minutes
+~10-15 minutes
 
 ---
 
-## 1. Get Your First Skill Recommendations
+## Scenario
 
-Start with the structured recommender:
+Assume you are about to hand a task to another worker. You want Cortex to help
+you answer two different questions:
+
+- which skills matter for this task?
+- what supporting context should the downstream worker receive?
+
+Those are related, but they are not the same thing.
+
+## Step 1: Ask for Skill Recommendations
+
+Start with the shortest recommendation path:
 
 ```bash
 cortex skills recommend
 ```
 
-This uses git-backed session context and the richer recommendation pipeline to
-produce a short list of relevant skills.
+This is the "what should I load right now?" command. It gives you a shortlist
+based on the current repo and task context.
 
-You can also write or print the current skill context:
+### What to look for
 
-```bash
-# Writes .claude/skill-context.md
-cortex skills context
-
-# Prints to stdout only
-cortex skills context --no-write
-```
-
-### What these recommendations are based on
-
-In normal CLI usage, Cortex mainly uses:
-
-- file-pattern rules
-- learned history from past successful sessions
-- optional semantic similarity
-
-Agent-to-skill mappings also exist, but they are strongest when active agents
-are explicitly present in the recommendation context.
+You should see a small set of relevant skills, not a giant catalog dump.
+Examples might include docs, debugging, review, or workflow-oriented skills
+depending on the repository state.
 
 ### Checkpoint
 
-At this point you should have:
+- [ ] Ran `cortex skills recommend`
+- [ ] Saw a shortlist of recommended skills
+- [ ] Identified which one or two skills actually match the task
 
-- [ ] Run `cortex skills recommend`
-- [ ] Seen at least one recommended skill
-- [ ] Run `cortex skills context` or `cortex skills context --no-write`
+## Step 2: Generate Skill Context
 
----
-
-## 2. Compare The Three Skill Surfaces
-
-### CLI: structured recommendations
+Now turn the recommendation into a reusable skill context bundle:
 
 ```bash
+# Write .claude/skill-context.md
+cortex skills context
+```
+
+If you want to inspect it without writing a file:
+
+```bash
+cortex skills context --no-write
+```
+
+This step is different from `skills recommend`:
+
+- `skills recommend` gives you a shortlist
+- `skills context` turns that shortlist into a lightweight task-ready artifact
+
+The output is useful when another worker needs the recommended skill set in a
+single readable block instead of a transient terminal recommendation.
+
+### Checkpoint
+
+- [ ] Ran `cortex skills context` or `cortex skills context --no-write`
+- [ ] Confirmed the skill context matches the recommendation shortlist
+- [ ] Verified the output is compact enough to hand off
+
+## Step 3: Export Broader Task Context
+
+The skill context alone is often not enough. The next worker may also need core
+project context, rules, or selected skill content in one export bundle.
+
+Write the bundle to stdout:
+
+```bash
+cortex export context -
+```
+
+Write it to a file:
+
+```bash
+cortex export context task-context.md
+```
+
+For a tighter handoff, include only the categories you want:
+
+```bash
+cortex export context task-context.md --include core --include skills
+```
+
+Or exclude categories that would add noise:
+
+```bash
+cortex export context task-context.md --exclude mcp_docs --exclude agents
+```
+
+You can also remove a specific file from the export:
+
+```bash
+cortex export context task-context.md --exclude-file rules/quality-rules.md
+```
+
+## Step 4: Build a Clean Handoff Package
+
+One reliable pattern is:
+
+```bash
+# 1. Ask Cortex which skills fit the task
 cortex skills recommend
+
+# 2. Build a compact skill summary
+cortex skills context --no-write > /tmp/skill-context.md
+
+# 3. Export the broader task bundle
+cortex export context /tmp/task-context.md --include core --include skills
 ```
 
-This is the richest terminal-facing path and is the best place to start when
-you want a focused shortlist.
+At this point you have:
 
-### Hook: prompt-time suggestions
+- `/tmp/skill-context.md` for the recommendation-focused summary
+- `/tmp/task-context.md` for the broader session handoff
 
-Inside Claude Code, the prompt hook can emit suggestions like:
+That split is useful:
 
-```text
-Suggested skills: agent-loops, documentation-production
-```
+- the skill context explains what Cortex thinks is relevant
+- the export bundle provides the downstream working context
 
-This path is fast and deterministic. It uses:
+## Step 5: Use the Handoff
 
-- prompt text
-- changed files
-- file types and directories
-- git branch name
-- recent commit subjects
+### For another agent or session
 
-### Watch mode: live suggestions while you work
+Use the exported files as part of the task handoff so the next worker starts
+with the right context instead of recomputing it from scratch.
 
-```bash
-cortex ai watch --no-auto-activate
-```
+### For an external LLM
 
-Watch mode can show both:
+Use the same bundle, but keep the export selective. Prefer:
 
-- **agent recommendations** for activation decisions
-- **skill suggestions** for prompt-level guidance
+- only the categories needed for the task
+- focused prompts
+- no unnecessary or sensitive context
 
-That distinction matters:
+Treat the external response as advisory input, not as automatic truth.
 
-- agents answer "who should help with this?"
-- skills answer "what knowledge pack should I load?"
+## Step 6: Record Whether the Recommendation Helped
 
-### Important TUI note
-
-The TUI AI Assistant (`0`) is focused on **agent** recommendations, not the
-main place to inspect skill recommendations. For skill workflows in the TUI,
-use the Skills view.
-
----
-
-## 3. Understand How Skill Recommendations Work
-
-The richer skill recommender combines four strategies:
-
-1. **Semantic similarity**
-2. **Rule-based file-pattern matching**
-3. **Agent-based mapping**
-4. **Pattern-based history from successful contexts**
-
-In practice:
-
-- file-pattern rules are the most reliable first-run signal
-- learned history becomes more useful over time
-- semantic similarity helps most when the optional embeddings dependency and
-  historical data are present
-- agent-based mapping depends on active agents being present in the context
-
-The prompt hook is separate from this layered recommender. It uses
-`skills/skill-rules.json` for low-latency keyword matching and can still work
-even when the richer Layer 2 path is unavailable.
-
----
-
-## 4. Give Recommendation Feedback
-
-If Cortex suggested a skill and it was useful, record that directly:
+After the task, tell Cortex whether the recommendation was actually useful:
 
 ```bash
 cortex skills feedback documentation-production helpful
 ```
 
-If it was not useful:
+Or:
 
 ```bash
 cortex skills feedback documentation-production not-helpful
 ```
 
-You can also attach a short explanation:
+You can attach a short explanation:
 
 ```bash
 cortex skills feedback documentation-production helpful \
-  --comment "Matched a docs-heavy refactor well"
+  --comment "Useful for restructuring the public docs flow"
 ```
 
-This teaches the recommender whether a suggestion was actually helpful.
+This closes the loop between "Cortex suggested a skill" and "that suggestion
+was or was not actually helpful in practice."
 
----
+## Common Mistakes
 
-## 5. Rate A Skill
-
-Ratings are broader quality signals than recommendation feedback.
-
-### Via CLI
-
-```bash
-cortex skills rate documentation-production \
-  --stars 5 \
-  --helpful \
-  --succeeded \
-  --review "Helpful for restructuring docs"
-```
-
-Useful variants:
-
-```bash
-cortex skills rate documentation-production --stars 4 --not-helpful
-cortex skills rate documentation-production --stars 2 --failed
-```
-
-### Via TUI
-
-1. Launch the TUI: `cortex tui`
-2. Press `4` to open the Skills view
-3. Select a skill with the arrow keys
-4. Press `Ctrl+R` to open the rating dialog
-
-The Skills view is the right TUI surface for browsing and rating the catalog.
-
-### Checkpoint
-
-At this point you should have:
-
-- [ ] Left recommendation feedback with `skills feedback`
-- [ ] Rated at least one skill with `skills rate` or `Ctrl+R` in the TUI
-
----
-
-## 6. Inspect Ratings And Quality Signals
-
-View ratings for one skill:
-
-```bash
-cortex skills ratings documentation-production
-```
-
-See top-rated skills:
-
-```bash
-cortex skills top-rated --limit 10
-```
-
-Export ratings:
-
-```bash
-cortex skills export-ratings --format json
-cortex skills export-ratings --format csv
-```
-
-These commands are useful for comparing long-term skill quality, while
-`skills feedback` is focused on recommendation usefulness.
-
----
-
-## 7. How Cortex Learns
-
-Skill learning currently comes from three places:
-
-### 1. Recommendation feedback
-
-```bash
-cortex skills feedback <skill> helpful
-```
-
-This updates recommendation history and helpfulness signals.
-
-### 2. Review ingestion
-
-```bash
-cortex ai ingest-review path/to/review.md
-```
-
-Structured specialist reviews can be mapped back into skill learning so Cortex
-gets better at suggesting the right skills earlier.
-
-### 3. Successful sessions
-
-```bash
-cortex ai record-success --outcome "feature complete"
-```
-
-This primarily teaches the **agent** recommender, but Cortex also makes a
-best-effort bridge into skill learning.
-
----
-
-## 8. Where The Data Lives
-
-Recommendation data:
-
-- `~/.claude/data/skill-recommendations.db`
-- `~/.claude/skills/recommendation-rules.json`
-- `~/.claude/skills/skill-rules.json`
-
-Ratings data:
-
-- `~/.claude/data/skill-ratings.db`
-
-Optional semantic cache:
-
-- `~/.claude/data/skill_semantic_cache/`
-
-These are local files on your machine.
-
----
+- treating `skills recommend` and `skills context` as the same thing
+- exporting everything when only `core` and `skills` are needed
+- handing off recommendations without any broader context bundle
+- using export as a dumping ground instead of a curated handoff
 
 ## Summary
 
-You now know how to:
+You now have a repeatable workflow:
 
-- get skill recommendations from `cortex skills recommend`
-- compare CLI, hook, and watch-mode suggestion paths
-- record recommendation usefulness with `skills feedback`
-- rate skills in the CLI and TUI
-- understand how review ingestion and session success improve future skill suggestions
+1. `cortex skills recommend`
+2. `cortex skills context`
+3. `cortex export context`
+4. hand off the result
+5. record recommendation feedback
 
-## Next Steps
+That pattern is one of the cleanest ways to move from Cortex recommendation to
+real downstream execution.
 
-- Read the [Skills](../guides/skills.md) guide
-- Read [AI Intelligence](../guides/ai-intelligence.md) for the separate agent system
-- Read [Configuration Reference](../reference/configuration.md)
+## Related
+
+- [Skills]({% link guides/skills.md %}) -- deeper guide to recommendation, context, ratings, and audit flows
+- [Export Context]({% link guides/export.md %}) -- reference guide to selective export patterns
+- [Multi-LLM Consult]({% link guides/llm-consult.md %}) -- use exported context with another model

@@ -2,7 +2,7 @@
 layout: default
 title: Planning & Collaboration
 parent: Guides
-nav_order: 9
+nav_order: 8
 ---
 
 # Planning & Collaboration

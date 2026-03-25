@@ -2,7 +2,7 @@
 layout: default
 title: Rules
 parent: Guides
-nav_order: 7
+nav_order: 6
 ---
 
 # Rules

@@ -7,45 +7,50 @@ nav_order: 4
 
 # Configuration Reference
 
-This guide covers the current configuration files and resolution rules used by
-the Cortex CLI.
+Complete reference for configuration files, environment variables, and resolution
+rules used by the Cortex CLI.
 
 ## Resolution Model
 
 Cortex resolves two different roots:
 
-1. **Asset root** (`CORTEX_ROOT`, or `--cortex-root`)  
+1. **Asset root** (`CORTEX_ROOT`, or `--cortex-root`)
    Used for bundled assets and watch defaults.
-2. **Claude directory** (from `--scope` / `CORTEX_SCOPE`)  
+2. **Claude directory** (from `--scope` / `CORTEX_SCOPE`)
    Used for user or project state under `.claude/`.
 
 `--scope` supports:
 
-- `project`: nearest `.claude/` in the current directory tree, or creates one in cwd
-- `global`: `~/.claude/`
-- `auto`: nearest `.claude/`, else `~/.claude/`
+| Value | Alias | Behavior |
+|:------|:------|:---------|
+| `project` | `local` | Nearest `.claude/` in the current directory tree, or creates one in cwd |
+| `global` | `home` | `~/.claude/` |
+| `auto` | *(default)* | Nearest `.claude/`, else `~/.claude/` |
 
 ## Quick Reference
 
 | File | Location | Purpose |
-|:---|:---|:---|
+|:-----|:---------|:--------|
 | `cortex-config.json` | `<CORTEX_ROOT>/cortex-config.json` | Watch-mode defaults consumed by `cortex ai watch` |
-| `recommendation-rules.json` | `<resolved .claude>/skills/recommendation-rules.json` | File-pattern-based skill recommendations |
-| `skill-rules.json` | `<CORTEX_ROOT>/skills/skill-rules.json` with watch fallback to `~/.claude/skills/skill-rules.json` | Keyword-based skill suggestions |
-| `settings.json` | `<resolved .claude>/settings.json` | Claude settings used by hooks and related integration |
-| `.onboarding-state.json` | `<resolved .claude>/.onboarding-state.json` | Optional onboarding-state schema target |
-| `memory-config.json` | `<resolved .claude>/memory-config.json` | Optional memory-config schema target |
+| `intelligence-config.json` | `<claude-dir>/intelligence-config.json` | LLM intelligence, model selection, budget, and caching |
+| `recommendation-rules.json` | `<claude-dir>/skills/recommendation-rules.json` | File-pattern-based skill recommendations |
+| `skill-rules.json` | `<CORTEX_ROOT>/skills/skill-rules.json` with fallback to `~/.claude/skills/skill-rules.json` | Keyword-based skill suggestions |
+| `settings.json` | `<claude-dir>/settings.json` | Claude settings used by hooks and related integration |
+
+Where `<claude-dir>` is the resolved `.claude/` directory (see Resolution Model above).
 
 ## cortex-config.json
 
-`cortex-config.json` is currently used by watch mode for defaults.
+Watch-mode defaults.
 
-### Supported watch keys
+### Supported keys
 
-- `watch.directories` or `watch.dirs`
-- `watch.auto_activate`
-- `watch.threshold`
-- `watch.interval`
+| Key | Type | Default | Description |
+|:----|:-----|:--------|:------------|
+| `watch.directories` | array | `[]` | Directories to monitor (alias: `watch.dirs`) |
+| `watch.auto_activate` | bool | `true` | Auto-activate high-confidence agent recommendations |
+| `watch.threshold` | float | `0.7` | Minimum confidence score for recommendations |
+| `watch.interval` | float | `2.0` | Polling interval in seconds |
 
 ### Example
 
@@ -67,18 +72,61 @@ Cortex resolves two different roots:
 cortex ai watch
 
 # Override defaults at runtime
-cortex ai watch --dir . --threshold 0.8 --interval 1.5
+cortex ai watch --no-auto-activate --threshold 0.8 --interval 1.5
+```
+
+## intelligence-config.json
+
+Configuration for the optional LLM-powered intelligence layer. Stored in the
+resolved Claude directory.
+
+### Supported keys
+
+| Key | Type | Default | Description |
+|:----|:-----|:--------|:------------|
+| `llm_enabled` | bool | `false` | Enable LLM-powered recommendations (requires `anthropic` package) |
+| `semantic_fallback_threshold` | float | `0.5` | Minimum confidence for semantic matching fallback (0.0--1.0) |
+| `model_selection.auto_select` | bool | `true` | Auto-select model based on task complexity |
+| `model_selection.default_model` | string | `"claude-sonnet-4-20250514"` | Model when not auto-selecting |
+| `model_selection.haiku_threshold` | float | `0.4` | Complexity below this uses Haiku (cheaper) |
+| `model_selection.opus_threshold` | float | `0.75` | Complexity above this uses Opus (more capable) |
+| `model_selection.force_model` | string | `null` | Override: always use this model |
+| `budget.enabled` | bool | `false` | Enable daily spending tracking |
+| `budget.daily_limit` | float | `1.0` | Daily spending limit in USD (0 = unlimited) |
+| `budget.warning_threshold` | float | `0.8` | Warn at this percentage of daily limit |
+| `budget.confirmation_threshold` | float | `0.01` | Require confirmation for requests over this cost (USD) |
+| `caching.enabled` | bool | `true` | Enable prompt caching (~90% cost reduction) |
+| `caching.ttl` | int | `300` | Cache time-to-live in seconds |
+
+### Example
+
+```json
+{
+  "llm_enabled": true,
+  "model_selection": {
+    "auto_select": true,
+    "haiku_threshold": 0.4,
+    "opus_threshold": 0.75
+  },
+  "budget": {
+    "enabled": true,
+    "daily_limit": 2.0,
+    "warning_threshold": 0.8
+  },
+  "caching": {
+    "enabled": true,
+    "ttl": 300
+  }
+}
 ```
 
 ## recommendation-rules.json
 
-This file powers the richer Layer 2 skill recommender.
+Powers the Layer 2 skill recommender with file-pattern-based rules.
 
-Schema:
+Schema: `schemas/recommendation-rules.schema.json`
 
-- `schemas/recommendation-rules.schema.json`
-
-### Minimal example
+### Example
 
 ```json
 {
@@ -102,14 +150,12 @@ Schema:
 
 ## skill-rules.json
 
-This file powers the low-latency keyword matcher used by the prompt hook and
-watch-mode keyword suggestions.
+Powers the low-latency keyword matcher used by the prompt hook and
+watch-mode skill suggestions.
 
-Schema:
+Schema: `schemas/skill-rules.schema.json`
 
-- `schemas/skill-rules.schema.json`
-
-### Minimal example
+### Example
 
 ```json
 {
@@ -127,13 +173,41 @@ Schema:
 
 ## Environment Variables
 
+### Cortex Core
+
 | Variable | Default | Description |
-|:---|:---|:---|
-| `CORTEX_ROOT` | `~/.cortex` | Cortex home directory |
-| `CORTEX_SCOPE` | unset | Scope selector: `project`, `global`, or `auto` |
-| `CLAUDE_PLUGIN_ROOT` | unset | Explicit plugin assets path |
-| `CORTEX_PLUGIN_ROOT` | unset | Alias for `CLAUDE_PLUGIN_ROOT` |
-| `CORTEX_HOOK_LOG_PATH` | `~/.cortex/logs/hooks.log` | Hook log file location |
+|:---------|:--------|:------------|
+| `CORTEX_ROOT` | `~/.cortex` | Cortex home directory (asset root) |
+| `CORTEX_SCOPE` | `auto` | Scope selector: `project`/`local`, `global`/`home`, or `auto` |
+| `CLAUDE_PLUGIN_ROOT` | *(unset)* | Explicit plugin assets path (set by Claude Code for plugin commands) |
+
+### User-Facing Overrides
+
+| Variable | Default | Description |
+|:---------|:--------|:------------|
+| `CORTEX_SKIP_WIZARD` | *(unset)* | Set to suppress the first-run setup wizard |
+| `CORTEX_CONTEXT_LIMIT` | `200000` | Override context token limit |
+| `CORTEX_TUI_THEME` | *(unset)* | Path to a custom TUI theme file (also: `CLAUDE_TUI_THEME`) |
+| `CORTEX_MEMORY_VAULT` | *(unset)* | Override memory vault directory |
+| `CLAUDE_TASKS_HOME` | *(unset)* | Override tasks directory |
+
+### Watch Mode (Internal)
+
+| Variable | Default | Description |
+|:---------|:--------|:------------|
+| `CORTEX_WATCH_DAEMON` | *(unset)* | Internal: marks a daemon process |
+| `CORTEX_WATCH_PID_PATH` | *(unset)* | Override PID file path |
+| `CORTEX_WATCH_LOG_PATH` | *(unset)* | Override watch log file path |
+
+### Hook Environment
+
+These variables are set automatically when hooks execute:
+
+| Variable | Description |
+|:---------|:------------|
+| `CLAUDE_HOOK_PROMPT` | The user's prompt text |
+| `CLAUDE_SESSION_CONTEXT` | Current session context |
+| `CLAUDE_CHANGED_FILES` | Colon-separated list of changed files |
 
 ## Practical Commands
 
@@ -143,24 +217,14 @@ cortex --scope project status
 cortex --scope global status
 
 # Point the CLI at a specific Cortex asset root
-cortex --cortex-root /path/to/claude-cortex status
+cortex --cortex-root /path/to/cortex status
 
 # Inspect watch-mode options
 cortex ai watch --help
 ```
 
-## Notes
+## Related
 
-- `cortex-config.json` should be treated primarily as a watch-defaults file in
-  the current implementation.
-- `recommendation-rules.json` and `skill-rules.json` are separate on purpose:
-  the first is for structured recommendations, the second is for keyword
-  matching.
-- When documenting skill recommendations, keep root and scope behavior separate
-  from recommendation behavior so the pages do not drift into old plugin-model
-  explanations.
-
-## See Also
-
-- [Skills](../guides/skills.md)
-- [AI Intelligence](../guides/ai-intelligence.md)
+- [AI Intelligence]({% link guides/ai-intelligence.md %}) --- agent recommendations and watch mode
+- [Skills]({% link guides/skills.md %}) --- skill recommendation system
+- [Terminal UI]({% link guides/tui.md %}) --- TUI configuration and views

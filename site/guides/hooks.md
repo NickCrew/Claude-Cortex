@@ -2,7 +2,7 @@
 layout: default
 title: Hooks
 parent: Guides
-nav_order: 6
+nav_order: 5
 ---
 
 # Hooks

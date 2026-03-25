@@ -13,12 +13,26 @@ Hands-on walkthroughs for common Cortex tasks.
 
 ---
 
-## Skill Recommendations
+## Skills to Context Handoff
 
-Learn how the AI-powered recommendation engine discovers, suggests, and learns from your skill usage. Covers CLI and TUI workflows, the rating system, and how feedback improves future suggestions.
+Learn the most practical `cortex skills` workflow: get recommendations, turn
+them into a compact skill context, export a broader task bundle, and hand the
+result to another session, sub-agent, or external LLM.
 
 [Start Tutorial]({% link tutorials/skill-recommendations.md %}){: .btn .btn-primary .mr-2 }
 ~15 minutes
+{: .fs-3 .text-grey-dk-000 }
+
+---
+
+## Export Context for Handoffs
+
+Learn how to package the right context for a sub-agent, another session, or an
+external LLM without over-exporting. Covers selective include and exclude
+patterns, agent-only export, and safe defaults for curated handoffs.
+
+[Start Tutorial]({% link tutorials/export-context.md %}){: .btn .btn-primary .mr-2 }
+~10 minutes
 {: .fs-3 .text-grey-dk-000 }
 
 ---
@@ -27,76 +41,54 @@ Learn how the AI-powered recommendation engine discovers, suggests, and learns f
 
 Master the terminal UI in 20-30 minutes. Covers navigation, agent management, and when to use CLI vs TUI.
 
-```bash
-cortex tui
-```
-
-**What you'll learn:**
-
-1. Navigate between views (Agents, Skills, AI Assistant)
-2. Activate and configure agents
-3. Use the Command Palette (`Ctrl+P`)
-4. Browse generated slash commands in the Commands view
-5. Rate skills and track quality metrics
-6. Export context snapshots
+[Start Tutorial]({% link tutorials/tui-first-20-minutes.md %}){: .btn .btn-primary .mr-2 }
+~20 minutes
+{: .fs-3 .text-grey-dk-000 }
 
 ---
 
 ## Feature Development Workflow
 
-Build a feature from ideation to implementation using skill-backed commands:
-
-1. **Plan** -- `/collaboration:brainstorming` to capture goals and options
-2. **Write the plan** -- `/collaboration:writing-plans` to define workstreams and steps
-3. **Execute** -- `/collaboration:executing-plans` to drive the implementation
-4. **Implement safely** -- `/ctx:agent-loops` with quality gates
-5. **Test** -- `/ctx:test-generation` for coverage
-6. **Review and wrap up** -- `/ctx:requesting-code-review`, then `/ctx:git-ops`
+[Start Tutorial]({% link tutorials/feature-workflow.md %}){: .btn .btn-primary .mr-2 }
+~20-30 minutes
+{: .fs-3 .text-grey-dk-000 }
 
 ---
 
 ## Bug Fix Workflow
 
-Systematic bug resolution:
-
-1. **Diagnose** -- `/ctx:systematic-debugging` for root cause analysis
-2. **Fix** -- `/ctx:agent-loops` to apply the change with review gates
-3. **Verify** -- `/ctx:test-generation` for regression tests
-4. **Review** -- `/ctx:requesting-code-review` for validation
-5. **Commit** -- `/ctx:git-ops` with a focused fix commit
+[Start Tutorial]({% link tutorials/bug-fix-workflow.md %}){: .btn .btn-primary .mr-2 }
+~20-30 minutes
+{: .fs-3 .text-grey-dk-000 }
 
 ---
 
 ## Setting Up Watch Mode
 
-Configure real-time project monitoring:
-
-```bash
-# Start watching (foreground)
-cortex ai watch
-
-# Or run as a background daemon
-cortex ai watch --daemon
-
-# Check status
-cortex ai watch --status
-
-# Stop the daemon
-cortex ai watch --stop
-```
-
-Watch mode detects file changes, analyzes context, and can auto-activate
-relevant agents when they cross your configured threshold. The default threshold
-is `0.7` unless you override it in `cortex-config.json` or at runtime.
+[Start Tutorial]({% link tutorials/watch-mode.md %}){: .btn .btn-primary .mr-2 }
+~15-20 minutes
+{: .fs-3 .text-grey-dk-000 }
 
 ---
 
 ## Multi-LLM Consultation
 
-Get second opinions from other LLMs:
+Learn how to package a focused context bundle, ask another model a narrow
+question, and bring the answer back into your main Cortex workflow without
+treating it as authoritative.
 
-1. Open the TUI: `cortex tui`
-2. Press `Ctrl+P` for Command Palette
-3. Type "Configure LLM Providers"
-4. Set up API keys for Gemini, OpenAI, or Qwen
-5. Use the `multi-llm-consult` skill for independent reviews
+[Start Tutorial]({% link tutorials/multi-llm-consultation.md %}){: .btn .btn-primary .mr-2 }
+~15-20 minutes
+{: .fs-3 .text-grey-dk-000 }
+
+---
+
+## Review Prep with Cortex Review
+
+Use `cortex review` as a standalone prep step before review work. This tutorial
+shows how to preview review-oriented skills, add context signals, and load the
+right skill context without confusing review prep with a full review engine.
+
+[Start Tutorial]({% link tutorials/review-prep.md %}){: .btn .btn-primary .mr-2 }
+~10-15 minutes
+{: .fs-3 .text-grey-dk-000 }

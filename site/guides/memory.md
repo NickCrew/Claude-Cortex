@@ -2,7 +2,7 @@
 layout: default
 title: Memory Vault
 parent: Guides
-nav_order: 8
+nav_order: 7
 ---
 
 # Memory Vault

@@ -13,6 +13,28 @@ They are different from agents:
 - **agents** are working personas you activate
 - **skills** are focused instructions and references you load when needed
 
+For most users, `cortex skills` is one of the most important public workflows in
+the product: it helps you discover which skills to use, generate a lightweight
+skill context file, and teach the system which recommendations actually helped.
+
+## The Main User Flows
+
+There are four common workflows behind `cortex skills`:
+
+1. **discover** what exists
+2. **recommend** what to load for the current task
+3. **capture context** for the current session
+4. **teach the system** with feedback and ratings
+
+If you only remember one pattern, it is this:
+
+```bash
+cortex skills recommend
+cortex skills context
+# use the recommended skills
+cortex skills feedback <skill> helpful
+```
+
 ## How Skills Are Suggested
 
 Cortex surfaces skills in two different ways.
@@ -47,6 +69,62 @@ The richer recommender behind `cortex skills recommend` and watch mode uses:
 In normal CLI usage, file-pattern and historical signals currently do most of
 the work.
 
+## Core Workflow
+
+### 1. Discover the catalog
+
+```bash
+cortex skills list
+cortex skills info documentation-production
+cortex skills compose documentation-production
+```
+
+Use this path when you already know roughly what you want and need to inspect
+the underlying skill, its metadata, or its dependency tree.
+
+### 2. Ask for recommendations
+
+```bash
+cortex skills recommend
+```
+
+This is the "what should I load right now?" command. It uses the richer skill
+recommender rather than only prompt keywords.
+
+### 3. Generate a session context file
+
+```bash
+cortex skills context
+cortex skills context --no-write
+```
+
+`cortex skills context` is especially useful when you want to hand the current
+task to another session, sub-agent, or external LLM with a compact recommended
+skill bundle. By default it writes `.claude/skill-context.md`; `--no-write`
+prints the result to stdout instead.
+
+### 4. Record whether the recommendation helped
+
+```bash
+cortex skills feedback documentation-production helpful
+cortex skills feedback documentation-production not-helpful
+cortex skills feedback documentation-production helpful \
+  --comment "Useful for restructuring a stale docs tree"
+```
+
+This is recommendation-level feedback: did the suggested skill help for this
+task?
+
+### 5. Rate the skill itself
+
+```bash
+cortex skills rate documentation-production --stars 5 --review "Helpful for restructuring docs"
+cortex skills rate documentation-production --stars 2 --failed --review "Too broad for a small edit"
+```
+
+This is broader than recommendation feedback. Ratings capture overall skill
+quality, not just whether one recommendation was timely.
+
 ## Core Commands
 
 ### Discover skills
@@ -55,6 +133,7 @@ the work.
 cortex skills list
 cortex skills info documentation-production
 cortex skills validate --all
+cortex skills analyze "Need help debugging a flaky API test"
 ```
 
 ### Ask for recommendations
@@ -91,6 +170,15 @@ Ratings are broader quality signals than recommendation feedback.
 cortex skills ratings documentation-production
 cortex skills top-rated --limit 10
 cortex skills export-ratings --format json
+cortex skills export-ratings --format csv
+```
+
+### Audit or community workflows
+
+```bash
+cortex skills audit documentation-production --quick
+cortex skills community list
+cortex skills community search documentation
 ```
 
 ## TUI Workflow
@@ -109,6 +197,16 @@ Useful keys:
 
 The AI Assistant focuses on **agent** recommendations. The Skills view is where
 you browse and rate the skill catalog.
+
+## Feedback vs Ratings
+
+This distinction is important:
+
+- `skills feedback` answers: "Was this recommendation useful for this task?"
+- `skills rate` answers: "How good is this skill overall?"
+
+Use feedback when you are teaching the recommender. Use ratings when you are
+building long-term quality signal around the skill library.
 
 ## Where Skill Data Lives
 
@@ -134,6 +232,7 @@ The repository ships the default rules in:
 - you want a quick shortlist for the current repo changes
 - you are working from the terminal
 - you want a session context file via `cortex skills context`
+- you want a recommendation flow separate from agent activation
 
 ### Use the prompt hook when:
 
@@ -146,6 +245,12 @@ The repository ships the default rules in:
 - you want to record long-term skill quality
 - you want to compare top-rated skills
 - you want richer reviews than helpful / not-helpful feedback
+
+### Use `skills context` when:
+
+- you want a compact handoff file for another session
+- you want to provide skill context to a sub-agent
+- you want to consult another LLM with the currently relevant skills
 
 ## Skill Authoring Basics
 
@@ -177,3 +282,9 @@ The recommendation system has two halves:
 
 If you are looking for agent auto-activation and watch-mode behavior, see
 [AI Intelligence](ai-intelligence.md).
+
+## Related
+
+- [Export Context]({% link guides/export.md %}) -- package skill context for other sessions or models
+- [Multi-LLM Consult]({% link guides/llm-consult.md %}) -- combine skills with external model consultation
+- [Agent Activation]({% link guides/agent-activation.md %}) -- separate agent workflow
