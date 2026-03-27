@@ -16,25 +16,12 @@ from textual.widgets import (
     Header,
     Input,
     Label,
+    RichLog,
     Static,
 )
 from textual.widgets._directory_tree import DirEntry
-from rich.markdown import Markdown
+from rich.markdown import Markdown as RichMarkdown
 from rich.text import Text
-
-
-class MarkdownViewer(Static):
-    """Widget to display rendered markdown."""
-
-    def __init__(self, content: str = "", **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.content = content
-
-    def update_content(self, content: str) -> None:
-        """Update the markdown content."""
-        self.content = content
-        md = Markdown(content)
-        self.update(md)
 
 
 class DocsTree(DirectoryTree):
@@ -161,8 +148,6 @@ class DocsBrowserApp(App[None]):
 
     #viewer-container {
         height: 90%;
-        padding: 1;
-        overflow-y: auto;
     }
 
     #search-container {
@@ -180,14 +165,13 @@ class DocsBrowserApp(App[None]):
         scrollbar-gutter: stable;
     }
 
-    MarkdownViewer {
-        height: 100%;
+    RichLog {
+        height: 1fr;
         scrollbar-gutter: stable;
     }
 
     SearchResults {
-        height: 100%;
-        scrollbar-gutter: stable;
+        height: auto;
     }
 
     Input {
@@ -207,6 +191,9 @@ class DocsBrowserApp(App[None]):
         Binding("q", "quit", "Quit"),
         Binding("b", "toggle_bookmark", "Bookmark"),
         Binding("s", "focus_search", "Search"),
+        Binding("v", "focus_viewer", "View"),
+        Binding("t", "focus_tree", "Tree"),
+        Binding("tab", "cycle_focus", "Next Pane", show=False),
         Binding("escape", "clear_search", "Clear Search"),
         Binding("r", "reload", "Reload"),
     ]
@@ -221,7 +208,7 @@ class DocsBrowserApp(App[None]):
         self.docs_dir = docs_dir
         self.bookmarks_file = bookmarks_file
         self.current_file: Optional[Path] = None
-        self.viewer: Optional[MarkdownViewer] = None
+        self.viewer: Optional[RichLog] = None
         self.docs_tree: Optional[DocsTree] = None
         self.bookmarks: Optional[BookmarksList] = None
         self.search_input: Optional[Input] = None
@@ -246,7 +233,12 @@ class DocsBrowserApp(App[None]):
             # Main content area
             with Vertical(id="main"):
                 with Container(id="viewer-container"):
-                    self.viewer = MarkdownViewer()
+                    self.viewer = RichLog(
+                        highlight=True,
+                        markup=False,
+                        wrap=True,
+                        id="doc-viewer",
+                    )
                     yield self.viewer
 
                 with Container(id="search-container"):
@@ -255,7 +247,7 @@ class DocsBrowserApp(App[None]):
 
         # Status bar
         with Container(id="status-bar"):
-            self.status_label = Label("Press 's' to search, 'b' to bookmark, 'q' to quit")
+            self.status_label = Label("t=tree  v=view  s=search  Tab=cycle  b=bookmark  q=quit")
             yield self.status_label
 
         yield Footer()
@@ -278,13 +270,26 @@ class DocsBrowserApp(App[None]):
             content = file_path.read_text(encoding="utf-8")
             self.current_file = file_path
             if self.viewer:
-                self.viewer.update_content(content)
+                self.viewer.clear()
+                self.viewer.write(RichMarkdown(content))
 
             # Update status with filename
             rel_path = file_path.relative_to(self.docs_dir)
             self.update_status(f"Viewing: {rel_path}")
         except Exception as e:
             self.update_status(f"Error loading file: {e}")
+
+    def on_key(self, event) -> None:
+        """Handle key events — intercept escape when search input is focused."""
+        if event.key == "escape" and self.search_input and self.search_input.has_focus:
+            self.search_input.value = ""
+            if self.docs_tree:
+                self.docs_tree.focus()
+            if self.current_file:
+                self.load_file(self.current_file)
+            self.update_status("Search cleared")
+            event.prevent_default()
+            event.stop()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search input submission."""
@@ -295,15 +300,16 @@ class DocsBrowserApp(App[None]):
         self.update_status(f"Searching for '{query}'...")
         results = self.search_docs(query)
 
-        if self.search_results:
-            self.search_results.update_results(results)
-        else:
-            # Create search results view in the viewer area
-            search_widget = SearchResults()
-            search_widget.update_results(results)
-            if self.viewer:
-                # Replace viewer with search results temporarily
-                self.viewer.update(search_widget)
+        # Render search results in the viewer
+        if self.viewer:
+            self.viewer.clear()
+            if results:
+                self.viewer.write(Text(f"Search results for '{query}' ({len(results)} matches)\n", style="bold"))
+                for r in results:
+                    self.viewer.write(Text(f"\n--- {r['file']} ---", style="cyan"))
+                    self.viewer.write(Text(r.get("context", "").strip()))
+            else:
+                self.viewer.write(Text(f"No results for '{query}'", style="dim"))
 
         self.update_status(f"Found {len(results)} matches for '{query}'")
 
@@ -349,6 +355,28 @@ class DocsBrowserApp(App[None]):
         """Focus the search input."""
         if self.search_input:
             self.search_input.focus()
+
+    def action_focus_viewer(self) -> None:
+        """Focus the markdown viewer for keyboard scrolling."""
+        if self.viewer:
+            self.viewer.focus()
+
+    def action_focus_tree(self) -> None:
+        """Focus the docs tree."""
+        if self.docs_tree:
+            self.docs_tree.focus()
+
+    def action_cycle_focus(self) -> None:
+        """Cycle focus between tree, viewer, and search."""
+        if self.docs_tree and self.docs_tree.has_focus:
+            if self.viewer:
+                self.viewer.focus()
+        elif self.viewer and self.viewer.has_focus:
+            if self.search_input:
+                self.search_input.focus()
+        else:
+            if self.docs_tree:
+                self.docs_tree.focus()
 
     def action_clear_search(self) -> None:
         """Clear search and restore viewer."""
