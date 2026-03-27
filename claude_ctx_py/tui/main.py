@@ -415,6 +415,7 @@ class AgentTUI(App[None]):
         Binding("ctrl+o", "worktree_open", "Open Worktree", show=False),
         Binding("ctrl+w", "worktree_remove", "Remove Worktree", show=False),
         Binding("ctrl+k", "worktree_prune", "Prune Worktrees", show=False),
+        Binding("n", "rule_new", "New Rule", show=False),
         Binding("y", "copy_definition", "Copy Definition", show=False),
         Binding("D", "context_delete", "Delete/Diagnose", show=False),
         Binding("L", "task_open_source", "Open Log", show=False),
@@ -684,7 +685,7 @@ class AgentTUI(App[None]):
                 "edit_item",
                 "copy_definition",
             },
-            "rules": {"toggle", "edit_item", "copy_definition"},
+            "rules": {"toggle", "details_context", "edit_item", "copy_definition", "rule_new"},
             "skills": {
                 "details_context",
                 "validate_context",
@@ -6250,6 +6251,9 @@ class AgentTUI(App[None]):
             # Running in a worker ensures push_screen wait semantics work reliably
             self.run_worker(self._show_selected_agent_definition(), exclusive=True)
             return
+        elif self.current_view == "rules":
+            self.run_worker(self._show_selected_rule_definition(), exclusive=True)
+            return
         elif self.current_view == "mcp":
             await self.action_mcp_details()
         elif self.current_view == "tasks":
@@ -6315,6 +6319,94 @@ class AgentTUI(App[None]):
         await self._show_text_dialog(f"{agent.name} Definition", definition)
         self.status_message = f"Viewing definition for {agent.name}"
         self.refresh_status_bar()
+
+    async def _show_selected_rule_definition(self) -> None:
+        """Open the full rule definition for the selected rule."""
+        index = self._table_cursor_index()
+        if index is None or index < 0 or index >= len(self.rules):
+            self.notify(
+                "Select a rule to view its definition",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        rule = self.rules[index]
+        try:
+            definition = rule.path.read_text(encoding="utf-8")
+        except Exception as exc:
+            self.notify(
+                f"Failed to load {rule.name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        await self._show_text_dialog(f"{rule.name}", definition)
+        self.status_message = f"Viewing rule: {rule.name}"
+        self.refresh_status_bar()
+
+    async def action_rule_new(self) -> None:
+        """Create a new rule file and open it in the editor."""
+        if self.current_view != "rules":
+            return
+
+        def _handle_name(name: str | None) -> None:
+            if not name or not name.strip():
+                return
+            name = name.strip().lower().replace(" ", "-")
+            if not name.endswith(".md"):
+                name += ".md"
+
+            rules_dir = _resolve_cortex_root() / "rules"
+            rules_dir.mkdir(parents=True, exist_ok=True)
+            rule_path = rules_dir / name
+
+            if rule_path.exists():
+                self.notify(
+                    f"Rule already exists: {name}",
+                    severity="warning",
+                    timeout=3,
+                )
+                return
+
+            # Create the rule with a template
+            template = f"""# {name.replace('.md', '').replace('-', ' ').title()}
+
+<!-- Write your rule content here -->
+<!-- Rules are markdown files that provide behavioral constraints and best practices -->
+
+"""
+            try:
+                rule_path.write_text(template, encoding="utf-8")
+                self.notify(
+                    f"Created {name} — opening in editor",
+                    severity="information",
+                    timeout=2,
+                )
+                # Open in editor
+                import os
+                import subprocess
+
+                editor = os.environ.get("EDITOR", os.environ.get("VISUAL", "vi"))
+                subprocess.Popen([editor, str(rule_path)])
+
+                # Reload rules view
+                self.load_rules()
+                self.update_view()
+            except Exception as exc:
+                self.notify(
+                    f"Failed to create rule: {exc}",
+                    severity="error",
+                    timeout=3,
+                )
+
+        dialog = PromptDialog(
+            title="New Rule",
+            prompt="Rule filename (e.g. my-rule or my-rule.md):",
+            placeholder="my-rule.md",
+        )
+        self.push_screen(dialog, callback=_handle_name)
 
     async def _show_selected_command_definition(self) -> None:
         """Open the selected slash command for review."""
