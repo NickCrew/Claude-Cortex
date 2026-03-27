@@ -661,7 +661,7 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]q[/cyan]      → Quit application
   [cyan]Ctrl+P[/cyan] → Command palette
   [cyan]Space[/cyan]  → Toggle selected item
-  [cyan]W[/cyan]      → Configure CLAUDE.md wizard
+  [cyan]W[/cyan]      → Worktrees view
   [cyan]h[/cyan]      → Manage hooks
   [cyan]b[/cyan]      → Backup manager
 
@@ -692,8 +692,11 @@ class HelpDialog(ModalScreen[Optional[str]]):
 """,
             "rules": """
 [bold]Rule Management:[/bold]
+  [cyan]s[/cyan]      → View rule definition
+  [cyan]n[/cyan]      → Create new rule
   [cyan]Space[/cyan]  → Toggle rule active/inactive
   [cyan]Ctrl+E[/cyan] → Edit rule file
+  [cyan]y[/cyan]      → Copy rule definition
 """,
             "skills": """
 [bold]Skill Management:[/bold]
