@@ -553,13 +553,25 @@ DETECTORS = {
 
 def run_inventory(
     root: Path,
+    src_dirs: Optional[List[Path]] = None,
     detectors: Optional[List[str]] = None,
 ) -> Inventory:
-    """Run the inventory extraction pipeline."""
+    """Run the inventory extraction pipeline.
+
+    Args:
+        root: Project root directory (used for relative path display).
+        src_dirs: Specific source directories to scan. If None, scans root.
+        detectors: Specific detectors to run. If None, runs all.
+    """
     inv = Inventory(root=str(root))
 
-    # Discover source files
-    files = discover_files(root)
+    # Discover source files from specified dirs or root
+    files: List[Path] = []
+    scan_roots = src_dirs if src_dirs else [root]
+    for scan_root in scan_roots:
+        if scan_root.is_dir():
+            files.extend(discover_files(scan_root))
+    files = sorted(set(files))
     inv.files_scanned = len(files)
 
     # Run selected detectors
@@ -572,6 +584,75 @@ def run_inventory(
     return inv
 
 
+# ---------------------------------------------------------------------------
+# Coverage checking
+# ---------------------------------------------------------------------------
+
+
+def discover_doc_files(docs_dir: Path) -> List[Path]:
+    """Find markdown files in a docs directory."""
+    files: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(docs_dir):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        for fname in filenames:
+            if fname.endswith((".md", ".mdx", ".rst", ".adoc")):
+                files.append(Path(dirpath) / fname)
+    return sorted(files)
+
+
+def check_coverage(inv: Inventory, docs_dir: Path) -> Dict[str, List[InventoryItem]]:
+    """Check which inventory items appear in documentation.
+
+    Reads all markdown files in docs_dir and searches for each inventory
+    item's topic string. Returns a dict with 'documented' and 'missing' lists.
+    """
+    # Build a single searchable blob from all doc content
+    doc_files = discover_doc_files(docs_dir)
+    doc_content = ""
+    for fpath in doc_files:
+        try:
+            doc_content += fpath.read_text(encoding="utf-8", errors="replace") + "\n"
+        except OSError:
+            continue
+
+    doc_content_lower = doc_content.lower()
+
+    documented: List[InventoryItem] = []
+    missing: List[InventoryItem] = []
+
+    for item in inv.items:
+        topic = item.topic
+        # Search strategies by category
+        found = False
+
+        if item.category == "env_var":
+            # Env vars: exact match (case-sensitive, they're uppercase)
+            found = topic in doc_content
+        elif item.category in ("cli_command", "cli_flag", "cli_argument"):
+            # CLI: search for the command/flag name
+            found = topic in doc_content or topic.lstrip("-") in doc_content_lower
+        elif item.category == "config_key":
+            # Config keys: exact or dotted notation
+            found = topic in doc_content_lower
+        elif item.category == "http_endpoint":
+            # Endpoints: search for the path portion
+            parts = topic.split(" ", 1)
+            path = parts[1] if len(parts) > 1 else parts[0]
+            found = path in doc_content
+        elif item.category in ("public_export", "error_type"):
+            # Symbols: search for the name
+            found = topic in doc_content
+        else:
+            found = topic.lower() in doc_content_lower
+
+        if found:
+            documented.append(item)
+        else:
+            missing.append(item)
+
+    return {"documented": documented, "missing": missing}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Extract documentable surface area from a codebase.",
@@ -580,6 +661,17 @@ def main() -> None:
         "--root",
         default=".",
         help="Project root directory (default: current directory)",
+    )
+    parser.add_argument(
+        "--src",
+        action="append",
+        default=None,
+        help="Source directory to scan (can be repeated; default: scan --root)",
+    )
+    parser.add_argument(
+        "--docs",
+        default=None,
+        help="Documentation directory to check coverage against",
     )
     parser.add_argument(
         "--json",
@@ -598,21 +690,43 @@ def main() -> None:
         print(f"Error: {root} is not a directory", file=sys.stderr)
         sys.exit(1)
 
+    src_dirs = [Path(s).resolve() for s in args.src] if args.src else None
     detector_list = args.detectors.split(",") if args.detectors else None
-    inv = run_inventory(root, detector_list)
+    inv = run_inventory(root, src_dirs, detector_list)
+
+    # If --docs provided, check coverage
+    coverage = None
+    if args.docs:
+        docs_dir = Path(args.docs).resolve()
+        if not docs_dir.is_dir():
+            print(f"Error: {docs_dir} is not a directory", file=sys.stderr)
+            sys.exit(1)
+        coverage = check_coverage(inv, docs_dir)
 
     if args.json:
-        output = {
+        output: Dict[str, object] = {
             "root": inv.root,
             "files_scanned": inv.files_scanned,
             "detectors_run": inv.detectors_run,
             "summary": inv.summary(),
             "items": [asdict(item) for item in inv.items],
         }
+        if coverage is not None:
+            output["coverage"] = {
+                "docs_dir": args.docs,
+                "documented": len(coverage["documented"]),
+                "missing": len(coverage["missing"]),
+                "coverage_pct": round(
+                    len(coverage["documented"]) / max(len(inv.items), 1) * 100, 1
+                ),
+                "missing_items": [asdict(item) for item in coverage["missing"]],
+            }
         json.dump(output, sys.stdout, indent=2)
         print()
     else:
         print(f"Inventory: {root}")
+        if src_dirs:
+            print(f"Source dirs: {', '.join(str(s) for s in src_dirs)}")
         print(f"Files scanned: {inv.files_scanned}")
         print(f"Detectors: {', '.join(inv.detectors_run)}")
         print(f"Items found: {len(inv.items)}")
@@ -623,21 +737,50 @@ def main() -> None:
             print(f"  {category}: {count}")
         print()
 
-        # Group by category
-        by_category: Dict[str, List[InventoryItem]] = {}
-        for item in inv.items:
-            by_category.setdefault(item.category, []).append(item)
+        if coverage is not None:
+            total = len(inv.items)
+            doc_count = len(coverage["documented"])
+            miss_count = len(coverage["missing"])
+            pct = round(doc_count / max(total, 1) * 100, 1)
+            print(f"Coverage against {args.docs}:")
+            print(f"  Documented: {doc_count}/{total} ({pct}%)")
+            print(f"  Missing: {miss_count}/{total}")
+            print()
 
-        for category in sorted(by_category.keys()):
-            items = by_category[category]
-            print(f"## {category} ({len(items)})")
-            print()
-            for item in sorted(items, key=lambda i: i.topic):
-                loc = f"{item.source_file}:{item.source_line}"
-                detail = f" ({item.detail})" if item.detail else ""
-                print(f"  {item.topic}{detail}")
-                print(f"    {loc}")
-            print()
+            if coverage["missing"]:
+                # Group missing by category
+                by_cat: Dict[str, List[InventoryItem]] = {}
+                for item in coverage["missing"]:
+                    by_cat.setdefault(item.category, []).append(item)
+
+                print("## Missing from docs")
+                print()
+                for category in sorted(by_cat.keys()):
+                    items = by_cat[category]
+                    print(f"### {category} ({len(items)})")
+                    print()
+                    for item in sorted(items, key=lambda i: i.topic):
+                        loc = f"{item.source_file}:{item.source_line}"
+                        detail = f" ({item.detail})" if item.detail else ""
+                        print(f"  {item.topic}{detail}")
+                        print(f"    {loc}")
+                    print()
+        else:
+            # No coverage check — just show full inventory
+            by_category: Dict[str, List[InventoryItem]] = {}
+            for item in inv.items:
+                by_category.setdefault(item.category, []).append(item)
+
+            for category in sorted(by_category.keys()):
+                items = by_category[category]
+                print(f"## {category} ({len(items)})")
+                print()
+                for item in sorted(items, key=lambda i: i.topic):
+                    loc = f"{item.source_file}:{item.source_line}"
+                    detail = f" ({item.detail})" if item.detail else ""
+                    print(f"  {item.topic}{detail}")
+                    print(f"    {loc}")
+                print()
 
 
 if __name__ == "__main__":
