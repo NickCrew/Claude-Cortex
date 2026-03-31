@@ -1,12 +1,7 @@
 ---
 name: constructive-dissent
-description: Structured disagreement protocols to strengthen proposals through systematic challenge and alternative generation.
-keywords:
-  - critique
-  - challenge
-  - alternatives
-  - devil's advocate
-  - assumption testing
+description: "Structured disagreement protocols that expose weaknesses, test assumptions, and generate alternatives. Use when stress-testing proposals, playing devil's advocate, challenging architectural decisions, or auditing assumptions before finalizing plans."
+tags: [decision-making, critical-thinking, collaboration, analysis]
 triggers:
   - challenge this
   - devil's advocate
@@ -16,123 +11,71 @@ triggers:
   - question assumptions
 ---
 
-# Constructive Dissent Skill
+# Constructive Dissent
 
 Systematically challenge proposals through structured dissent protocols that expose weaknesses, test assumptions, and generate superior alternatives.
 
 ## When to Use This Skill
 
-- Before finalizing major decisions
-- Testing proposals for weaknesses
-- Generating alternative approaches
-- Assumption auditing
-- Stress-testing architectural decisions
-- Evaluating competing solutions
+- Before finalizing major decisions or architectural choices
+- Testing proposals for hidden weaknesses and blind spots
+- Generating alternative approaches not yet considered
+- Auditing assumptions (explicit, implicit, and structural)
+- Evaluating competing solutions with stakeholder perspectives
+- Avoid using for routine code reviews — use `requesting-code-review` instead
 
-## Dissent Intensity Framework
+## Workflow
 
-### Gentle Level (Refinement-focused)
+### Step 1: Select Dissent Intensity
 
-**Purpose**: Improve without fundamental challenge to core approach
+Choose the appropriate challenge level based on decision stakes:
 
-**Challenge Characteristics**:
-- Assumption questioning with evidence requests
-- Edge case identification with boundary testing
-- Implementation detail refinement
-- Risk mitigation suggestions
-- Alternative approach comparison
+| Level | Purpose | When to Use |
+|-------|---------|-------------|
+| **Gentle** | Refine without challenging core approach | Low-stakes improvements, early drafts |
+| **Systematic** | Challenge methods while respecting intent | Medium-stakes decisions, methodology review |
+| **Rigorous** | Attack fundamental premises | High-stakes architecture, major pivots |
+| **Paradigmatic** | Question worldview, propose radical alternatives | Strategic direction, innovation pursuit |
 
-**Example Phrases**:
-- "This approach has merit, but what if we considered..."
-- "I'm curious about how this would handle..."
-- "What assumptions are we making about..."
-- "Have we considered the implications of..."
+### Step 2: Run Assumption Audit
 
-### Systematic Level (Methodology-challenging)
+For the proposal under review, systematically identify:
 
-**Purpose**: Challenge underlying methods while respecting intent
+1. **Explicit assumptions** — What's stated as given?
+2. **Implicit assumptions** — What's unstated but operating?
+3. **Structural assumptions** — What framework biases exist?
+4. **Temporal assumptions** — What time constraints are artificial?
 
-**Challenge Characteristics**:
-- Methodology critique with alternatives
-- Evidence evaluation with validation requirements
-- Stakeholder perspective integration
-- Long-term consequence analysis
-- Resource allocation questioning
+```markdown
+| Assumption | Type | Validity | Risk if Wrong |
+|------------|------|----------|---------------|
+| Users prefer speed over accuracy | Implicit | Medium | Product misalignment |
+| API rate limits won't change | Temporal | Low | System failure at scale |
+```
 
-**Example Phrases**:
-- "While the goal is sound, I question whether this methodology..."
-- "The evidence presented doesn't address..."
-- "From the perspective of [stakeholder], this might..."
-- "Long-term, this could lead to..."
+### Step 3: Generate Edge Cases
 
-### Rigorous Level (Premise-challenging)
+Stress-test the proposal across dimensions:
 
-**Purpose**: Attack fundamental premises, demand comprehensive justification
+- **Scale extremes**: What happens at 10x and 0.1x volume?
+- **Performance limits**: Where does the approach break?
+- **User behavior extremes**: Best-case and worst-case usage patterns
+- **Resource constraints**: What if budget, time, or team shrinks by half?
 
-**Challenge Characteristics**:
-- Fundamental premise questioning
-- Paradigm alternative generation
-- Success criteria challenge
-- Stakeholder priority reordering
-- Innovation opportunity identification
+### Step 4: Apply Challenge Methodologies
 
-**Example Phrases**:
-- "I fundamentally question whether we're solving the right problem..."
-- "This entire framework assumes X, but what if..."
-- "Are we defining success correctly, or should we..."
-- "This prioritizes X, but shouldn't we prioritize Y because..."
+**Alternative Generation Framework:**
+1. **Goal abstraction** — Extract core objectives from the specific implementation
+2. **Constraint relaxation** — Temporarily remove limitations to see what's possible
+3. **Method inversion** — Consider the opposite approach
+4. **Cross-domain inspiration** — Apply solutions from other fields
 
-### Paradigmatic Level (Worldview-challenging)
+**Stakeholder Advocacy** — Argue from each perspective:
+- End user, maintainer, security, accessibility, future stakeholder
 
-**Purpose**: Question fundamental worldview, propose radical alternatives
+### Step 5: Synthesize and Recommend
 
-**Challenge Characteristics**:
-- Worldview assumption identification
-- Revolutionary approach generation
-- Value system questioning
-- Future-state visioning
-- Breakthrough innovation pursuit
-
-**Example Phrases**:
-- "This assumes a world where X, but we're moving toward..."
-- "What if everything we think we know about this is wrong?"
-- "Instead of optimizing within constraints, what if we eliminated them?"
-- "Are we thinking big enough?"
-
-## Challenge Methodologies
-
-### Assumption Audit
-
-1. **Explicit assumptions**: What's stated as given?
-2. **Implicit assumptions**: What's unstated but operating?
-3. **Structural assumptions**: What framework biases exist?
-4. **Temporal assumptions**: What time constraints are artificial?
-
-### Edge Case Generation
-
-- **Scale extremes**: Minimum and maximum scenarios
-- **Performance limits**: Where does it break?
-- **User behavior extremes**: Best and worst case usage
-- **Environmental variations**: Different contexts
-- **Resource constraints**: Limited budget/time/people
-
-### Alternative Generation Framework
-
-1. **Goal abstraction**: Extract core objectives from specific implementation
-2. **Constraint relaxation**: Temporarily remove limitations
-3. **Method inversion**: Consider opposite approaches
-4. **Cross-domain inspiration**: Apply solutions from other fields
-5. **Future projection**: Design for different conditions
-
-### Stakeholder Advocacy
-
-- **End user**: How does this affect people using it?
-- **Maintainer**: What's the ongoing cost?
-- **Security**: What risks does this introduce?
-- **Accessibility**: Who might be excluded?
-- **Future stakeholder**: Who isn't here yet?
-
-## Output Template
+Produce a structured analysis:
 
 ```markdown
 ## Constructive Dissent Analysis: [Proposal Title]
@@ -142,46 +85,29 @@ Systematically challenge proposals through structured dissent protocols that exp
 ### Executive Summary
 [2-3 sentence summary of key challenges and recommendations]
 
-### Assumption Audit
-| Assumption | Type | Validity | Risk if Wrong |
-|------------|------|----------|---------------|
-| [Assumption 1] | Explicit/Implicit | High/Medium/Low | [Impact] |
-
 ### Challenges Raised
-
 #### Challenge 1: [Title]
-**Type**: [Methodology/Premise/Evidence/Stakeholder]
+**Type**: Methodology / Premise / Evidence / Stakeholder
 **Core Argument**: [What's being challenged and why]
-**Evidence**: [Data or reasoning supporting challenge]
+**Evidence**: [Data or reasoning supporting the challenge]
 **Alternative Approach**: [What to do instead]
 
 ### Generated Alternatives
-
 #### Alternative 1: [Title]
 **Approach**: [High-level description]
 **Advantages**: [Why this might be better]
 **Trade-offs**: [What you give up]
-**Implementation Path**: [How to execute]
 
-### Synthesis Recommendations
-
-#### Strengthen Current Proposal
-1. [Specific improvement]
-2. [Specific improvement]
-
-#### Consider Alternative If
-- [Condition that favors switching]
-- [Condition that favors switching]
-
-### Unresolved Questions
-- [Question requiring more information]
-- [Question requiring more information]
+### Synthesis
+- Strengthen current proposal: [specific improvements]
+- Consider alternative if: [conditions that favor switching]
+- Unresolved questions: [items needing more information]
 ```
 
-## Success Indicators
+## Best Practices
 
-- Identified assumptions that were previously invisible
-- Generated viable alternatives not previously considered
-- Strengthened original proposal through challenge
-- Clear decision criteria for choosing approaches
-- Stakeholder perspectives adequately represented
+- **Match intensity to stakes** — Paradigmatic dissent on a CSS tweak wastes everyone's time
+- **Preserve constructive framing** — Challenge ideas, not people
+- **Always propose alternatives** — Critique without alternatives is just criticism
+- **Document assumptions explicitly** — Hidden assumptions are the highest-risk items
+- **Use stakeholder advocacy** — Argue each perspective genuinely, not as a strawman

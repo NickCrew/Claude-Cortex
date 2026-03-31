@@ -1,363 +1,143 @@
 ---
-name: your-skill-name
-description: >-
-  Brief description of what this skill does (1-2 sentences).
-  Use when [specific trigger condition]. Keep under 200 words total.
-author: Your Name <your.email@example.com>
+name: template-skill-enhanced
+description: "Enhanced skill template with progressive disclosure, bundled resources, and quality rubrics. Use when creating new skills that need structured tiers, reference files, validation rubrics, or advanced bundling patterns beyond the basic template."
 version: 1.0.0
 license: MIT
-tags: [category1, category2, category3]
-created: 2024-01-01
-updated: 2024-01-01
-triggers:
-  - primary trigger phrase
-  - secondary trigger phrase
-  - tertiary trigger phrase
-dependencies:
-  skills: []
-  tools: []
-token_estimate: ~2500
+tags: [skill-creation, template, progressive-disclosure, bundling]
 ---
 
-# Skill Title
+# Enhanced Skill Template
 
-Brief overview paragraph (2-3 sentences) explaining what this skill provides, its purpose, and scope. Include the key value proposition and what makes this skill unique.
+A production-ready skill template demonstrating progressive disclosure, bundled resource patterns, and quality validation. Use this template when creating skills that require tiered content loading, reference file organization, or structured quality scoring.
 
 ## When to Use This Skill
 
-Specific scenarios that should activate this skill:
+- Creating a new skill that needs **progressive disclosure** (tiered content loading)
+- Building skills with **bundled resources** (references, examples, validation rubrics)
+- Designing skills that exceed basic template complexity
+- Setting up skills with **quality targets** and scoring rubrics
+- Avoid using for simple, single-purpose skills — use `template-skill` instead
 
-- **Primary Use Case**: Description of the main scenario
-- **Secondary Use Case**: Description of another common scenario
-- **Edge Case**: Less common but supported scenario
-- Avoid using when [anti-pattern or wrong use case]
+## Workflow
 
-### Activation Triggers
+### Step 1: Set Up Frontmatter
 
-Keywords and phrases that indicate this skill should activate:
+Define metadata with kebab-case name, quoted description including a "Use when" clause, version, and tags:
 
-- "keyword phrase one"
-- "keyword phrase two"
-- "related technical term"
+```yaml
+---
+name: my-new-skill
+description: "Clear description of what this skill does. Use when [specific trigger condition]."
+version: 1.0.0
+tags: [domain, category]
+---
+```
 
+### Step 2: Write Core Principles (Tier 1 — Always Loaded)
+
+The first section loads immediately on activation. Keep it under ~1000 tokens:
+
+```markdown
 ## Core Principles
 
-Essential knowledge required for effective skill execution. This section loads immediately when the skill activates.
-
 ### Principle 1: Foundation Concept
+Explanation with a concise code example:
 
-Explanation of the first essential concept:
-
-```language
-// Simple, clear example demonstrating the concept
-// Include comments explaining key decisions
-example_code_here()
-```
+\`\`\`python
+# Demonstrate the concept clearly
+def foundation_example(input_data):
+    validated = validate(input_data)
+    return transform(validated)
+\`\`\`
 
 **Key Points:**
 - Critical aspect that must be understood
 - Common misconception to avoid
-- Relationship to other principles
-
-### Principle 2: Core Pattern
-
-Second essential concept building on the foundation:
-
-```language
-// Example showing pattern application
-// Demonstrate best practices
-apply_pattern()
 ```
 
-**When to Apply:**
-- Condition indicating this pattern is appropriate
-- Another condition for application
-- Context where this pattern excels
+### Step 3: Add Implementation Patterns (Tier 2 — Loaded When Needed)
 
-### Principle 3: Quality Standard
+Detailed patterns for common scenarios (~1500 tokens):
 
-Quality requirements for implementations using this skill:
+```markdown
+### Pattern: Descriptive Name
 
-- **Requirement 1**: Description and rationale
-- **Requirement 2**: Description and rationale
-- **Verification**: How to confirm this standard is met
+**Problem**: What specific problem this solves
+**Solution**: High-level approach
 
-## Implementation Patterns
-
-Detailed patterns for common scenarios. Load this section when deeper guidance is needed.
-
-### Pattern 1: [Pattern Name]
-
-**Problem**: Describe the specific problem this pattern solves
-
-**Solution**: Explain the approach at a high level
-
-**Implementation**:
-
-```language
-// Complete, working example
-// Well-commented to explain approach
-// Include error handling
-
-function patternImplementation(input) {
-    // Step 1: Validate input
-    validate(input);
-
-    // Step 2: Apply transformation
-    const result = transform(input);
-
-    // Step 3: Return with proper formatting
-    return format(result);
-}
-```
+\`\`\`python
+def pattern_implementation(input_data):
+    validate(input_data)
+    result = transform(input_data)
+    return format_output(result)
+\`\`\`
 
 **Trade-offs**:
 | Aspect | Benefit | Cost |
 |--------|---------|------|
 | Performance | Fast execution | Higher memory |
 | Maintainability | Clear structure | More boilerplate |
-| Flexibility | Easy to extend | Initial complexity |
-
-**When to Use**: Specific criteria for applying this pattern
-
-**When to Avoid**: Situations where this pattern is inappropriate
-
-### Pattern 2: [Alternative Pattern Name]
-
-**Problem**: Different problem domain or same problem with different constraints
-
-**Solution**: Alternative approach with different trade-offs
-
-**Implementation**:
-
-```language
-// Alternative implementation
-// Highlight differences from Pattern 1
-alternative_approach()
 ```
 
-**Comparison with Pattern 1**:
-- Choose Pattern 1 when: [condition]
-- Choose Pattern 2 when: [condition]
+### Step 4: Add Advanced Usage (Tier 3 — Complex Scenarios)
 
-## Advanced Usage
-
-Deeper patterns for complex scenarios. Load only when needed for sophisticated implementations.
-
-### Advanced Pattern: [Complex Scenario]
-
-Context explaining when this advanced usage is necessary:
-
-```language
-// More sophisticated example
-// Show integration with multiple concepts
-// Demonstrate production-ready code
-
-class AdvancedImplementation {
-    constructor(config) {
-        this.config = this.validateConfig(config);
-    }
-
-    execute() {
-        // Complex implementation
-        // Include error handling
-        // Show performance considerations
-    }
-}
-```
-
-**Considerations**:
-- **Performance**: Impact on system resources
-- **Scalability**: Behavior under load
-- **Security**: Potential vulnerabilities to address
-- **Maintenance**: Long-term code health
-
-### Edge Cases and Error Handling
-
-Common edge cases and how to handle them:
+Reserve for sophisticated implementations (~2000+ tokens). Include edge cases:
 
 | Scenario | Expected Behavior | Handling Strategy |
 |----------|-------------------|-------------------|
-| Empty input | Graceful failure | Return default or throw descriptive error |
-| Invalid format | Validation error | Provide clear error message with fix guidance |
-| Resource exhaustion | Graceful degradation | Implement backoff and retry logic |
+| Empty input | Graceful failure | Return default or descriptive error |
+| Invalid format | Validation error | Clear error message with fix guidance |
+| Resource exhaustion | Graceful degradation | Backoff and retry logic |
+
+### Step 5: Organize Bundled Resources
+
+Create sibling directories for heavy content:
+
+```
+skills/my-new-skill/
+├── SKILL.md                          # Core skill (under token budget)
+├── references/
+│   ├── README.md                     # Guide to reference docs
+│   └── detailed-patterns.md          # Extended pattern documentation
+├── examples/
+│   └── basic.md                      # Annotated usage example
+└── validation/
+    └── rubric.yaml                   # Quality scoring rubric
+```
+
+### Step 6: Define Quality Targets
+
+Set measurable quality criteria:
+
+```yaml
+quality_targets:
+  clarity: ">= 4/5"
+  completeness: ">= 4/5"
+  accuracy: ">= 5/5"
+  usefulness: ">= 4/5"
+```
+
+### Step 7: Validate the Skill
+
+```bash
+cortex skills validate my-new-skill
+cortex skills info my-new-skill --show-tokens
+```
+
+Ensure total token count stays within 500–8,000 tokens per CONTRIBUTING guidelines.
 
 ## Best Practices
 
-Quick reference for implementing this skill effectively.
-
-### Do's
-
-- **Do this first**: Explanation of why this is important
-- **Always validate**: Specific validation requirements
-- **Prefer approach X**: Rationale for preferred approach
-- **Document decisions**: What to capture and why
-- **Test thoroughly**: Minimum testing requirements
-
-### Don'ts
-
-- **Don't skip validation**: Consequences of skipping
-- **Avoid anti-pattern X**: Why this pattern causes problems
-- **Never hardcode Y**: Alternative approach
-- **Don't ignore errors**: Proper error handling approach
-- **Avoid premature optimization**: When optimization is appropriate
-
-### Performance Guidelines
-
-- Optimization technique with expected improvement
-- Caching strategy and when to apply
-- Resource management best practices
-- Profiling approach to identify bottlenecks
-
-### Security Considerations
-
-- Input validation requirements
-- Output encoding needs
-- Authentication/authorization checks
-- Secrets management approach
+- **Progressive disclosure**: Keep Tier 1 concise — load detail on demand
+- **Bundled resources**: Move lengthy examples and deep-dives to `references/` or `examples/`
+- **Quality rubrics**: Define scoring criteria in `validation/rubric.yaml` so skill outputs can be evaluated consistently
+- **Token budget**: Core SKILL.md should stay under token limits; offload heavy content to sibling files
+- **Real examples**: Replace all placeholder content with domain-specific, working code
+- **Kebab-case naming**: Directories and skill names use lowercase hyphen-case
 
 ## Anti-Patterns
 
-Common mistakes to avoid when using this skill.
-
-### Anti-Pattern 1: [Descriptive Name]
-
-**What it looks like**:
-
-```language
-// Incorrect approach (anti-pattern)
-bad_implementation_example()
-```
-
-**Why it's problematic**:
-- Consequence 1
-- Consequence 2
-- Long-term impact
-
-**Correct approach**:
-
-```language
-// Correct implementation
-correct_implementation_example()
-```
-
-### Anti-Pattern 2: [Another Common Mistake]
-
-**What it looks like**: Brief description
-
-**Why it's problematic**: Explanation of consequences
-
-**How to fix**: Guidance on correct approach
-
-## Testing Strategies
-
-### Unit Testing
-
-```language
-describe('Feature under test', () => {
-    it('handles expected case correctly', () => {
-        // Arrange
-        const input = prepareInput();
-
-        // Act
-        const result = executeFunction(input);
-
-        // Assert
-        expect(result).toEqual(expectedOutput);
-    });
-
-    it('handles edge case gracefully', () => {
-        // Edge case testing
-    });
-});
-```
-
-### Integration Testing
-
-```language
-// Integration test example
-// Show testing across boundaries
-integration_test_example()
-```
-
-## Troubleshooting
-
-### Issue 1: [Common Problem]
-
-**Symptoms**: Observable behavior indicating this issue
-
-**Likely Causes**:
-1. Most common cause
-2. Second most common
-3. Less common possibility
-
-**Resolution Steps**:
-1. Check this first
-2. Verify this condition
-3. Apply this fix
-
-**Prevention**: How to avoid this issue in the future
-
-### Issue 2: [Another Problem]
-
-**Symptoms**: What the user observes
-
-**Quick Fix**: Immediate solution if available
-
-**Root Cause**: Underlying issue explanation
-
-## External Resources
-
-### Official Documentation
-- [Documentation Name](https://example.com/docs) - Primary reference
-- [API Reference](https://example.com/api) - Technical details
-
-### Community Resources
-- [Tutorial/Article](https://example.com/tutorial) - Hands-on guide
-- [Video Course](https://example.com/video) - Visual learning
-
-### Related Skills
-- **skill-name-1**: How this skill complements the current one
-- **skill-name-2**: When to use together
-
-### Tools and Libraries
-- **Tool 1**: Purpose and when to use
-- **Library 1**: Integration approach
-
-## Changelog
-
-### 1.0.0 (YYYY-MM-DD)
-- Initial release
-- Core patterns implemented
-- Examples validated
-
-## Bundled Resources
-
-This skill includes the following resources:
-
-### References (Load as needed)
-- `references/README.md` - Guide to using reference documentation
-- `references/detailed-patterns.md` - Extended pattern documentation
-
-### Examples
-- `examples/basic.md` - Simple usage example with annotations
-
-### Validation
-- `validation/rubric.yaml` - Quality scoring rubric for skill outputs
-
-## Skill Metadata
-
-**Token Efficiency**: This skill is designed for progressive disclosure:
-- Tier 1 (Core Principles): ~1000 tokens - Always loaded
-- Tier 2 (Implementation Patterns): ~1500 tokens - Loaded when needed
-- Tier 3 (Advanced + Resources): ~2000+ tokens - Loaded for complex scenarios
-
-**Quality Targets**:
-- Clarity score: >= 4/5
-- Completeness score: >= 4/5
-- Accuracy score: >= 5/5
-- Usefulness score: >= 4/5
-
----
-
-*This skill follows the cortex cookbook pattern for enhanced skill bundling.*
+- **Placeholder content in production**: Shipping `[Pattern Name]` or `example_code_here()` — always fill in real content
+- **Monolithic skills**: Putting everything in SKILL.md instead of using bundled resources
+- **Missing "Use when" clause**: Description must include activation context
+- **Ignoring token budgets**: Skills over 8,000 tokens slow activation and may be truncated
