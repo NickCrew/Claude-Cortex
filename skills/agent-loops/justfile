@@ -1,0 +1,374 @@
+# ─── Agent Loops — Test & Debug Recipes ─────────────────────────────
+# Usage: cd skills/agent-loops && just <recipe>
+#    or: just -f skills/agent-loops/justfile <recipe>
+# ────────────────────────────────────────────────────────────────────
+
+set dotenv-load := false
+
+# Paths (relative to this justfile)
+_skill_dir   := justfile_directory()
+_scripts     := _skill_dir / "scripts"
+_refs        := _skill_dir / "references"
+_validator   := _scripts / "validate-review-contract.py"
+_review_sh   := _scripts / "specialist-review.sh"
+_audit_sh    := _scripts / "test-review-request.sh"
+_provider_sh := _scripts / "review-provider.sh"
+
+# Defaults (override on CLI: just provider=gemini review-git)
+provider     := "auto"
+base_ref     := "HEAD~1"
+output_dir   := env_var_or_default("AGENT_LOOPS_OUTPUT", ".agents/reviews")
+timeout      := "120"
+budget       := "0.25"
+
+# ─── Help ───────────────────────────────────────────────────────────
+
+# Show available recipes
+help:
+    @echo "Agent Loops — Test & Debug Justfile"
+    @echo ""
+    @echo "Provider controls:"
+    @echo "  just providers              # Check which CLI providers are installed"
+    @echo "  just provider-env           # Show provider env vars in effect"
+    @echo "  just provider-order         # Show auto-ordering with self-detection"
+    @echo ""
+    @echo "Code review:"
+    @echo "  just review-git             # Review current changes vs HEAD~1"
+    @echo '  just review-git base_ref=main  # Review changes vs main'
+    @echo "  just review-file <diff>     # Review a diff file"
+    @echo "  just review-stdin           # Pipe a diff via stdin"
+    @echo ""
+    @echo "Test audit:"
+    @echo "  just audit <module>         # Full audit of a module"
+    @echo "  just audit-quick <test>     # Quick anti-pattern check"
+    @echo "  just audit-git <module>     # Audit only changed files in module"
+    @echo ""
+    @echo "Contract validation:"
+    @echo "  just validate-review <file> # Validate a review artifact"
+    @echo "  just validate-audit <file>  # Validate an audit artifact"
+    @echo "  just normalize-review <file>  # Normalize + print review"
+    @echo "  just normalize-audit <file>   # Normalize + print audit"
+    @echo "  just fixture-review         # Generate a valid review fixture"
+    @echo "  just fixture-audit          # Generate a valid audit fixture"
+    @echo "  just test-validator         # Roundtrip: fixture → validate"
+    @echo ""
+    @echo "Debugging:"
+    @echo "  just dry-review             # Build review prompt without invoking provider"
+    @echo "  just dry-audit <module>     # Build audit prompt without invoking provider"
+    @echo "  just review-debug           # Run review with stderr logging"
+    @echo "  just audit-debug <module>   # Run audit with stderr logging"
+    @echo ""
+    @echo "Overrides (append to any recipe):"
+    @echo "  provider=claude|gemini|codex|auto  (default: auto)"
+    @echo "  base_ref=<ref>                     (default: HEAD~1)"
+    @echo "  timeout=<seconds>                  (default: 120)"
+    @echo "  budget=<usd>                       (default: 0.25)"
+
+# ─── Provider Checks ───────────────────────────────────────────────
+
+# Check which review providers are available in PATH
+providers:
+    @echo "Provider availability:"
+    @command -v claude >/dev/null 2>&1 && echo "  claude: $(which claude)" || echo "  claude: not found"
+    @command -v gemini >/dev/null 2>&1 && echo "  gemini: $(which gemini)" || echo "  gemini: not found"
+    @command -v codex  >/dev/null 2>&1 && echo "  codex:  $(which codex)"  || echo "  codex:  not found"
+
+# Show provider-related environment variables
+provider-env:
+    @echo "Provider environment:"
+    @echo "  AGENT_LOOPS_LLM_PROVIDER  = ${AGENT_LOOPS_LLM_PROVIDER:-<unset>}"
+    @echo "  AGENT_LOOPS_SELF_PROVIDER = ${AGENT_LOOPS_SELF_PROVIDER:-<unset>}"
+    @echo "  SPECIALIST_REVIEW_PROVIDER= ${SPECIALIST_REVIEW_PROVIDER:-<unset>}"
+    @echo "  TEST_REVIEW_PROVIDER      = ${TEST_REVIEW_PROVIDER:-<unset>}"
+    @echo "  CLAUDECODE                = ${CLAUDECODE:-<unset>}"
+    @echo "  CODEX_THREAD_ID           = ${CODEX_THREAD_ID:-<unset>}"
+    @echo "  CLAUDE_TIMEOUT            = ${CLAUDE_TIMEOUT:-<unset>}"
+    @echo "  GEMINI_TIMEOUT            = ${GEMINI_TIMEOUT:-<unset>}"
+    @echo "  CODEX_TIMEOUT             = ${CODEX_TIMEOUT:-<unset>}"
+    @echo "  CLAUDE_MAX_BUDGET         = ${CLAUDE_MAX_BUDGET:-<unset>}"
+    @echo "  GEMINI_MODEL              = ${GEMINI_MODEL:-<unset>}"
+    @echo "  CODEX_MODEL               = ${CODEX_MODEL:-<unset>}"
+
+# Show auto provider ordering with self-detection
+provider-order:
+    @bash -c 'source "{{ _provider_sh }}" && \
+      self=$(review_provider_detect_self) && \
+      echo "Detected self: ${self:-<none>}" && \
+      echo "Auto order:" && \
+      review_provider_candidates auto "$self" | nl -ba'
+
+# ─── Code Review ────────────────────────────────────────────────────
+
+# Review current git changes (vs base_ref, default HEAD~1)
+review-git *paths:
+    SPECIALIST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _review_sh }}" --git {{ base_ref }} \
+        --output "{{ output_dir }}" \
+        {{ if paths != "" { "-- " + paths } else { "" } }}
+
+# Review a diff file
+review-file diff_path:
+    SPECIALIST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _review_sh }}" "{{ diff_path }}" \
+        --output "{{ output_dir }}"
+
+# Review a diff piped via stdin (e.g. git diff | just review-stdin)
+review-stdin:
+    SPECIALIST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _review_sh }}" - \
+        --output "{{ output_dir }}"
+
+# ─── Test Audit ─────────────────────────────────────────────────────
+
+# Full test coverage audit of a module
+audit module *args:
+    TEST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _audit_sh }}" "{{ module }}" \
+        --output "{{ output_dir }}" {{ args }}
+
+# Quick anti-pattern check on a test file
+audit-quick test_file *args:
+    TEST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _audit_sh }}" --quick "{{ test_file }}" \
+        --output "{{ output_dir }}" {{ args }}
+
+# Audit only git-changed files within a module
+audit-git module *paths:
+    TEST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _audit_sh }}" "{{ module }}" \
+        --git {{ base_ref }} \
+        --output "{{ output_dir }}" \
+        {{ if paths != "" { "-- " + paths } else { "" } }}
+
+# ─── Contract Validation ───────────────────────────────────────────
+
+# Validate a review artifact against the code-review contract
+validate-review artifact:
+    python3 "{{ _validator }}" code-review "{{ artifact }}"
+    @echo "✓ Valid code review contract"
+
+# Validate an audit artifact against the test-audit contract
+validate-audit artifact:
+    python3 "{{ _validator }}" test-audit "{{ artifact }}"
+    @echo "✓ Valid test audit contract"
+
+# Normalize a review artifact and print to stdout
+normalize-review artifact:
+    python3 "{{ _validator }}" normalize-code-review "{{ artifact }}"
+
+# Normalize an audit artifact and print to stdout
+normalize-audit artifact:
+    python3 "{{ _validator }}" normalize-test-audit "{{ artifact }}"
+
+# Generate a minimal valid code-review fixture
+fixture-review:
+    #!/usr/bin/env bash
+    cat <<'EOF'
+    ## Code Review: fixture
+    **Files reviewed:** `example.py`
+    **Iteration:** 1
+    ### Findings
+    > No findings.
+    ### Summary
+    - P0: 0 findings (MUST fix)
+    - P1: 0 findings (MUST fix)
+    - P2: 0 findings (file issues)
+    - P3: 0 findings (file issues)
+    - **Verdict:** CLEAN
+    EOF
+
+# Generate a minimal valid test-audit fixture
+fixture-audit:
+    #!/usr/bin/env bash
+    cat <<'EOF'
+    ## Test Gap Report: fixture
+    **Module:** `example.py`
+    **Tests:** `tests/test_example.py`
+    **Mode:** full
+    ### Behavior Inventory
+    | Behavior | Coverage | Evidence |
+    |----------|----------|----------|
+    | basic function | Covered | test_basic |
+    ### Prioritized Gaps
+    > No gaps found.
+    ### Summary
+    - Covered: 1
+    - Shallow: 0
+    - Missing: 0
+    - P0: 0
+    - P1: 0
+    - P2: 0
+    EOF
+
+# Roundtrip test: generate fixtures, validate them
+test-validator:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    tmp_review=$(mktemp /tmp/agent-loops-review.XXXXXX.md)
+    tmp_audit=$(mktemp /tmp/agent-loops-audit.XXXXXX.md)
+    trap 'rm -f "$tmp_review" "$tmp_audit"' EXIT
+    # Write fixtures (strip leading whitespace from heredoc)
+    cat <<'EOF' | sed 's/^    //' > "$tmp_review"
+    ## Code Review: fixture
+    **Files reviewed:** `example.py`
+    **Iteration:** 1
+    ### Findings
+    > No findings.
+    ### Summary
+    - P0: 0 findings (MUST fix)
+    - P1: 0 findings (MUST fix)
+    - P2: 0 findings (file issues)
+    - P3: 0 findings (file issues)
+    - **Verdict:** CLEAN
+    EOF
+    cat <<'EOF' | sed 's/^    //' > "$tmp_audit"
+    ## Test Gap Report: fixture
+    **Module:** `example.py`
+    **Tests:** `tests/test_example.py`
+    **Mode:** full
+    ### Behavior Inventory
+    | Behavior | Coverage | Evidence |
+    |----------|----------|----------|
+    | basic function | Covered | test_basic |
+    ### Prioritized Gaps
+    > No gaps found.
+    ### Summary
+    - Covered: 1
+    - Shallow: 0
+    - Missing: 0
+    - P0: 0
+    - P1: 0
+    - P2: 0
+    EOF
+    echo "Validating review fixture..."
+    python3 "{{ _validator }}" code-review "$tmp_review"
+    echo "✓ Review fixture is valid"
+    echo ""
+    echo "Validating audit fixture..."
+    python3 "{{ _validator }}" test-audit "$tmp_audit"
+    echo "✓ Audit fixture is valid"
+    echo ""
+    echo "Testing normalization roundtrip (review)..."
+    python3 "{{ _validator }}" normalize-code-review "$tmp_review" > "${tmp_review}.norm"
+    python3 "{{ _validator }}" code-review "${tmp_review}.norm"
+    echo "✓ Normalized review is valid"
+    echo ""
+    echo "Testing normalization roundtrip (audit)..."
+    python3 "{{ _validator }}" normalize-test-audit "$tmp_audit" > "${tmp_audit}.norm"
+    python3 "{{ _validator }}" test-audit "${tmp_audit}.norm"
+    echo "✓ Normalized audit is valid"
+    echo ""
+    echo "All validator tests passed."
+    rm -f "${tmp_review}.norm" "${tmp_audit}.norm"
+
+# ─── Debugging ──────────────────────────────────────────────────────
+
+# Build review prompt without invoking a provider (dry run)
+dry-review *paths:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    diff_file=$(mktemp /tmp/agent-loops-dry-diff.XXXXXX)
+    prompt_file=$(mktemp /tmp/agent-loops-dry-prompt.XXXXXX)
+    trap 'rm -f "$diff_file" "$prompt_file"' EXIT
+    git diff -U15 {{ base_ref }} {{ if paths != "" { "-- " + paths } else { "" } }} > "$diff_file"
+    if [[ ! -s "$diff_file" ]]; then
+      echo "No diff found against {{ base_ref }}" >&2
+      exit 1
+    fi
+    diff_lines=$(wc -l < "$diff_file" | tr -d ' ')
+    # Build template markers via shell vars to avoid just's brace interpolation
+    LB="{{"
+    RB="}}"
+    python3 -c "
+    import sys
+    lb, rb = sys.argv[5], sys.argv[6]
+    with open(sys.argv[1]) as f: template = f.read()
+    with open(sys.argv[2]) as f: catalog = f.read()
+    with open(sys.argv[3]) as f: diff = f.read()
+    result = template.replace(f'{lb}PERSPECTIVE_CATALOG{rb}', catalog) \
+                     .replace(f'{lb}DIFF_CONTENT{rb}', diff) \
+                     .replace(f'{lb}PRIOR_REVIEW{rb}', '_No prior review._')
+    with open(sys.argv[4], 'w') as f: f.write(result)
+    " "{{ _refs }}/review-prompt.md" "{{ _refs }}/perspective-catalog.md" "$diff_file" "$prompt_file" "$LB" "$RB"
+    prompt_bytes=$(wc -c < "$prompt_file" | tr -d ' ')
+    echo "Diff: $diff_lines lines"
+    echo "Prompt: $prompt_bytes bytes"
+    echo "Prompt file: $prompt_file"
+    echo ""
+    echo "--- Prompt preview (first 40 lines) ---"
+    head -40 "$prompt_file"
+    echo ""
+    echo "--- ... ---"
+    echo ""
+    echo "To send this to a provider manually:"
+    echo "  claude --print < $prompt_file"
+    echo "  gemini < $prompt_file"
+    # Keep the temp file alive for manual use
+    trap '' EXIT
+    echo ""
+    echo "(Temp files preserved — clean up manually)"
+
+# Build audit prompt without invoking a provider (dry run)
+dry-audit module:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export CLAUDE_DEBUG=1
+    echo "Building audit prompt for: {{ module }}"
+    echo "The --debug flag will save the assembled prompt to the output dir."
+    echo ""
+    echo "To capture the prompt without invoking a provider, set a very short timeout"
+    echo "with no available providers:"
+    echo ""
+    echo '  AGENT_LOOPS_SELF_PROVIDER=claude CLAUDE_TIMEOUT=1 \'
+    echo '    just -f {{ justfile() }} audit-debug {{ module }}'
+    echo ""
+    echo "The prompt will be saved as: {{ output_dir }}/test-audit-*.prompt.md"
+
+# Run code review with full debug stderr logging
+review-debug *paths:
+    SPECIALIST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _review_sh }}" --git {{ base_ref }} \
+        --output "{{ output_dir }}" \
+        {{ if paths != "" { "-- " + paths } else { "" } }} \
+      2>&1 | tee "{{ output_dir }}/review-debug-$(date +%Y%m%d-%H%M%S).log"
+
+# Run test audit with full debug logging
+audit-debug module *args:
+    CLAUDE_DEBUG=1 \
+    TEST_REVIEW_PROVIDER="{{ provider }}" \
+    CLAUDE_MAX_BUDGET="{{ budget }}" \
+    CLAUDE_TIMEOUT="{{ timeout }}" \
+    GEMINI_TIMEOUT="{{ timeout }}" \
+    CODEX_TIMEOUT="{{ timeout }}" \
+      bash "{{ _audit_sh }}" "{{ module }}" \
+        --debug \
+        --output "{{ output_dir }}" {{ args }} \
+      2>&1 | tee "{{ output_dir }}/audit-debug-$(date +%Y%m%d-%H%M%S).log"
