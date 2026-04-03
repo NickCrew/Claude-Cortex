@@ -97,6 +97,24 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "--timeout", type=int, default=120, help="Timeout in seconds (default: 120)"
     )
 
+    # --- justfile ---
+    jf_parser = tmux_sub.add_parser(
+        "justfile",
+        help="Generate Justfile service targets for this project",
+    )
+    jf_parser.add_argument(
+        "--dir",
+        "-d",
+        default=None,
+        help="Project directory (default: current directory)",
+    )
+    jf_parser.add_argument(
+        "--prefix",
+        "-p",
+        default="svc",
+        help="Target name prefix (default: svc)",
+    )
+
 
 def _print(text: str) -> None:
     sys.stdout.write(text + "\n")
@@ -176,6 +194,14 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
             args.window,
             pattern=getattr(args, "pattern", None),
             timeout=getattr(args, "timeout", 120),
+        )
+        _print(msg)
+        return code
+
+    if cmd == "justfile":
+        code, msg = tmux.tmux_justfile(
+            directory=getattr(args, "dir", None),
+            prefix=getattr(args, "prefix", "svc"),
         )
         _print(msg)
         return code
