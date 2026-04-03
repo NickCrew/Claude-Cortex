@@ -101,6 +101,38 @@ review_provider_timeout() {
   esac
 }
 
+review_provider_claude_auth() {
+  # Check if Claude CLI can authenticate in this process context.
+  # Returns 0 if auth is available, 1 if not.
+  # On failure, prints diagnostic guidance to stderr.
+
+  # Fast path: API key is always portable across process contexts.
+  if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+    return 0
+  fi
+
+  # Probe keychain-based OAuth — this fails from sandboxed apps (e.g. Codex)
+  # whose subprocesses can't read the "Claude Code-credentials" keychain item.
+  local status_json
+  status_json="$(claude auth status 2>/dev/null)" || true
+
+  if printf '%s' "$status_json" | grep -q '"loggedIn": *true'; then
+    return 0
+  fi
+
+  echo "Error: Claude CLI is not authenticated in this process context." >&2
+  echo "" >&2
+  echo "  Claude stores OAuth tokens in the macOS keychain. Subprocesses spawned" >&2
+  echo "  by sandboxed apps (Codex, etc.) often cannot read that keychain item." >&2
+  echo "" >&2
+  echo "  Fix (pick one):" >&2
+  echo "    1. Export an API key:  export ANTHROPIC_API_KEY=sk-ant-..." >&2
+  echo "    2. Set up a token:    claude setup-token  (run in a terminal)" >&2
+  echo "    3. Use a different provider:  --provider gemini  or  --provider codex" >&2
+  echo "" >&2
+  return 1
+}
+
 review_provider_run() {
   local provider="$1"
   local prompt_file="$2"
@@ -114,10 +146,23 @@ review_provider_run() {
 
       unset CLAUDECODE 2>/dev/null || true
 
-      timeout "$timeout_seconds" claude --print \
-        --no-session-persistence \
-        --max-budget-usd "$max_budget" \
-        --tools "" \
+      if ! review_provider_claude_auth; then
+        return 1
+      fi
+
+      local -a claude_cmd=(claude --print
+        --no-session-persistence
+        --max-budget-usd "$max_budget"
+        --tools ""
+      )
+
+      # When using an API key in a non-terminal context, --bare avoids
+      # keychain reads that would fail in sandboxed subprocesses.
+      if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        claude_cmd+=(--bare)
+      fi
+
+      timeout "$timeout_seconds" "${claude_cmd[@]}" \
         <"$prompt_file" >"$output_file" 2>"$stderr_log"
       ;;
     gemini)
