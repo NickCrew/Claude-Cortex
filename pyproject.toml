@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "claude-cortex"
-version = "1.6.0"
+version = "4.0.0"
 description = "Context orchestration CLI with curated agents, rules, skills, and management tools for Claude Code"
 authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
 license = "MIT"
