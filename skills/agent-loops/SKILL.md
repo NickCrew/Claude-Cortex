@@ -324,8 +324,13 @@ independently verified.
 
 > **STOP.** If you are Codex, Gemini, or any non-Claude-Code agent: you **cannot** use
 > this mode. The TeamCreate, Agent, and SendMessage tools do not exist in your runtime.
-> Use `specialist-review.sh` (single-turn) instead. Do not attempt to simulate team
-> review by running multiple serial self-reviews — that defeats the independence guarantee.
+> Do not attempt to simulate team review by running multiple serial self-reviews — that
+> defeats the independence guarantee.
+>
+> **When a team review is warranted** (PR-level, multi-commit, security-sensitive) but
+> you lack the team API: **escalate to the user.** Tell them the change scope warrants a
+> multi-specialist review and ask them to run it from a Claude Code session. Continue
+> with `specialist-review.sh` (single-turn) in the meantime — do not block on this.
 
 This mode requires running **inside a Claude Code session** with the team API available
 (TeamCreate, Agent, TaskCreate, SendMessage). It cannot be invoked from external shells.
