@@ -1,13 +1,51 @@
 ---
 name: vibe-security
-description: This skill helps Claude write secure web applications. Use when working on any web application to ensure security best practices are followed.
+description: "Comprehensive secure coding guide covering OWASP web vulnerabilities with prevention patterns and checklists. Use when writing or reviewing web application code to prevent XSS, CSRF, SSRF, SQL injection, access control flaws, and other common security vulnerabilities."
+tags: [security, web-development, owasp, secure-coding, vulnerability-prevention]
 ---
 
 # Secure Coding Guide for Web Applications
 
-## Overview
+Comprehensive secure coding practices for web applications. Approach code from a **bug hunter's perspective** and make applications **as secure as possible** without breaking functionality.
 
-This guide provides comprehensive secure coding practices for web applications. As an AI assistant, your role is to approach code from a **bug hunter's perspective** and make applications **as secure as possible** without breaking functionality.
+## When to Use This Skill
+
+- Writing new web application endpoints or API routes
+- Reviewing PRs that handle user input, authentication, or file uploads
+- Implementing authentication, authorization, or session management
+- Working with file uploads, redirects, or URL-based features
+- Adding security headers or CSP policies
+- Avoid using for infrastructure/network security — use `defense-in-depth` instead
+
+## Workflow
+
+### Step 1: Identify Attack Surface
+
+Determine which security domains apply to the code under review:
+
+| Domain | Trigger |
+|--------|---------|
+| Access Control | Any authenticated endpoint, multi-tenant data |
+| XSS | User input rendered in HTML, JavaScript, or CSS |
+| CSRF | State-changing endpoints (POST, PUT, DELETE) |
+| SSRF | Server makes requests to user-provided URLs |
+| SQL Injection | Dynamic database queries |
+| File Upload | Any file upload functionality |
+| Path Traversal | User input in file paths |
+
+### Step 2: Apply Domain-Specific Checks
+
+Use the relevant sections below as checklists for each identified domain.
+
+### Step 3: Verify Security Headers
+
+Ensure all responses include the required headers (see Security Headers Checklist).
+
+### Step 4: Review and Test
+
+- Verify fixes don't break functionality
+- Test with bypass techniques listed in each section
+- Run automated security scanning if available
 
 **Key Principles:**
 - Defense in depth: Never rely on a single security control
