@@ -320,7 +320,12 @@ independently verified.
 | Security-sensitive paths (auth, crypto, payments) | `multi-specialist-review` (teams) |
 | Single-turn review had quality issues | `multi-specialist-review` (teams) |
 
-#### Prerequisites
+#### Prerequisites — Claude Code Only
+
+> **STOP.** If you are Codex, Gemini, or any non-Claude-Code agent: you **cannot** use
+> this mode. The TeamCreate, Agent, and SendMessage tools do not exist in your runtime.
+> Use `specialist-review.sh` (single-turn) instead. Do not attempt to simulate team
+> review by running multiple serial self-reviews — that defeats the independence guarantee.
 
 This mode requires running **inside a Claude Code session** with the team API available
 (TeamCreate, Agent, TaskCreate, SendMessage). It cannot be invoked from external shells.
