@@ -63,6 +63,7 @@ at the start of your session and reuse the variable.
 | **Code Reviewer** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `specialist-review` keeps same-model shell-outs last; fallback reviewer uses bundled prompts and produces a review artifact |
 | **Test Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `test-review-request` keeps same-model shell-outs last; fallback auditor uses bundled prompts and produces an audit artifact |
 | **Remediator** | Codex or Gemini | Fixes findings from the independent review/audit artifact |
+| **Team Reviewer** | Claude Code team (3-5 specialists) | `multi-specialist-review` for PR-level / multi-commit reviews (~$2-3) |
 
 **Critical rule:** Codex and Gemini NEVER self-review unless every independent
 provider path has already failed. Every review step must be performed by an
@@ -297,6 +298,155 @@ Act on findings:
 - **Ignoring the output artifact** — The gap report is written to a file. Read it.
 - **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
 - **Proceeding without any audit artifact** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
+
+---
+
+### `multi-specialist-review` — Team-Based Code Review
+
+**When:** PR-level reviews, multi-commit ranges, security-sensitive changes, or when
+single-turn `specialist-review` quality is insufficient.
+**What you get back:** The same review artifact format (P0-P3 findings + verdict), but
+produced by 3-5 parallel specialist agents that read actual source files and are
+independently verified.
+**Cost:** ~$2-3 per review (vs ~$0.50 for single-turn `specialist-review`).
+
+#### When to Use Teams vs Single-Turn
+
+| Scenario | Use |
+|----------|-----|
+| Atomic commit, small diff (<200 lines) | `specialist-review` (single-turn) |
+| PR with 5+ changed files | `multi-specialist-review` (teams) |
+| Multi-commit range (main..feature-branch) | `multi-specialist-review` (teams) |
+| Security-sensitive paths (auth, crypto, payments) | `multi-specialist-review` (teams) |
+| Single-turn review had quality issues | `multi-specialist-review` (teams) |
+
+#### Prerequisites
+
+This mode requires running **inside a Claude Code session** with the team API available
+(TeamCreate, Agent, TaskCreate, SendMessage). It cannot be invoked from external shells.
+For external callers, use `specialist-review.sh` instead.
+
+#### Orchestration Procedure
+
+Follow these steps exactly. You are the team lead — do not delegate orchestration.
+
+**Phase 0 — Triage (deterministic, no API cost)**
+
+Generate the diff you want reviewed, then select perspectives:
+
+```bash
+# Generate the diff
+git diff main..HEAD -- src/ > /tmp/review-diff.patch
+
+# Select perspectives
+python3 "$SKILL_DIR/scripts/triage_perspectives.py" /tmp/review-diff.patch
+```
+
+This outputs JSON with `perspectives`, `display_names`, `focus_areas`, `changed_files`.
+Save the output — you'll use it to parameterize each specialist.
+
+**Phase 1 — Create team and spawn specialists**
+
+1. Create the team:
+   ```
+   TeamCreate(team_name="review-YYYYMMDD-HHMMSS")
+   ```
+
+2. Create one task per perspective:
+   ```
+   TaskCreate(subject="Review: Correctness", description="Review changed files through Correctness lens")
+   ```
+
+3. Spawn all specialists **in a single message** for parallel execution. For each
+   perspective from the triage output, use the specialist prompt template:
+
+   ```
+   Agent(
+     name="specialist-{perspective}",
+     subagent_type="code-reviewer",
+     model="sonnet",
+     team_name="review-YYYYMMDD-HHMMSS",
+     prompt=<specialist-prompt-template.md with {{PERSPECTIVE}}, {{FOCUS_AREAS}},
+             {{CHANGED_FILES}}, {{DIFF_CONTENT}} filled in>
+   )
+   ```
+
+   The template is at `$SKILL_DIR/references/specialist-prompt-template.md`.
+   Each specialist:
+   - Reads actual source files via Read/Grep/Glob (not just inlined diffs)
+   - Outputs structured JSON with grounded, verifiable findings
+   - Writes output to `.agents/reviews/specialist-{perspective}-{timestamp}.json`
+
+4. Assign each task to its corresponding specialist via TaskUpdate.
+
+5. Wait for all specialists to report completion (automatic via team notifications).
+
+**Phase 2 — Citation verification (deterministic, no API cost)**
+
+Run the citation verifier on all specialist output files:
+
+```bash
+python3 "$SKILL_DIR/scripts/verify_citations.py" \
+  .agents/reviews/specialist-*.json > .agents/reviews/verified-findings.json
+```
+
+This mechanically validates every finding:
+- File exists on disk
+- Line range is within file length
+- Quoted code actually appears near the cited lines (±5 line window, whitespace-normalized)
+
+Findings that fail verification are stripped with documented reasons.
+
+**Phase 3 — Synthesis (team lead, no extra agent)**
+
+Read the verified findings JSON and `$SKILL_DIR/references/synthesis-prompt.md`.
+Follow the synthesis instructions to:
+
+1. Deduplicate findings that flag the same file+line range from multiple perspectives
+2. Merge duplicates using the highest severity
+3. Annotate multi-perspective findings as "(multi-perspective)" in the title
+4. Renumber all findings sequentially (P0-001, P0-002, P1-001, etc.)
+5. Produce the final markdown matching the review output contract
+
+Write the final review to `.agents/reviews/review-{timestamp}.md`.
+
+**Phase 4 — Validate and clean up**
+
+```bash
+# Validate the final output
+python3 "$SKILL_DIR/scripts/validate-review-contract.py" code-review \
+  .agents/reviews/review-{timestamp}.md
+```
+
+Then shut down all teammates and delete the team:
+```
+SendMessage(to="*", message={type: "shutdown_request"})
+# Wait for shutdown confirmations, then:
+TeamDelete()
+```
+
+Treat the output file path as `REVIEW_FILE` in the remediation loop, exactly like
+a `specialist-review.sh` artifact.
+
+#### Specialist Prompt Template
+
+Located at `$SKILL_DIR/references/specialist-prompt-template.md`. A single parameterized
+template used for all perspectives. Fill these placeholders before passing to each specialist:
+
+| Placeholder | Source |
+|-------------|--------|
+| `{{PERSPECTIVE}}` | Display name from triage output (e.g., "Security") |
+| `{{FOCUS_AREAS}}` | Focus description from triage output |
+| `{{CHANGED_FILES}}` | Bullet list of changed file paths |
+| `{{DIFF_CONTENT}}` | The unified diff |
+
+#### Anti-Patterns
+
+- **Spawning specialists sequentially** — Launch all in a single message block for parallel execution.
+- **Skipping citation verification** — Always run `verify_citations.py`. Specialists hallucinate file references.
+- **Adding synthesis as another agent** — The team lead does synthesis in-context. No extra spawn needed.
+- **Using this for small diffs** — Single-turn `specialist-review` is 4-6x cheaper and sufficient for atomic commits.
+- **Reviewing your own code** — The team lead must not be the implementer.
 
 ---
 

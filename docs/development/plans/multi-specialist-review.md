@@ -1,8 +1,10 @@
 # Multi-Specialist Parallel Review
 
-**Status:** Planned
+**Status:** Implemented
 **Created:** 2026-03-11
+**Implemented:** 2026-04-05
 **Context:** Evolved from agent-loops single-turn, provider-aware review architecture
+**Approach:** Teams-based (Claude Code TeamCreate/Agent API), skipping the bash-orchestrated intermediate step
 
 ## Problem
 
