@@ -62,6 +62,11 @@ def test_specialist_review_falls_back_to_gemini_when_claude_fails(tmp_path: Path
     _write_executable(
         fake_bin / "claude",
         f"""#!/usr/bin/env bash
+# Handle auth status probe (added by keychain auth fix)
+if [[ "$1" == "auth" && "$2" == "status" ]]; then
+  echo '{{"loggedIn": true}}'
+  exit 0
+fi
 echo "$@" > "{claude_log}"
 echo "claude failed intentionally" >&2
 exit 1
