@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -46,5 +47,3 @@ jobs:
       - name: Publish package to PyPI
         if: ${{ steps.release.outputs.released == 'true' }}
         uses: pypa/gh-action-pypi-publish@v1.13.0
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}

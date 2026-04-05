@@ -6,9 +6,22 @@ build-backend = "setuptools.build_meta"
 name = "claude-cortex"
 version = "4.0.0"
 description = "Context orchestration CLI with curated agents, rules, skills, and management tools for Claude Code"
-authors = [{name = "Nicholas Ferguson", email = "ncf423@gmail.com"}]
+authors = [{name = "Nicholas Ferguson", email = "nick@atlascrew.dev"}]
 license = "MIT"
 readme = "README.md"
+keywords = [
+  "AI", "claude code", "codex", 
+  "claude", "AI augmented development", 
+  "AI agents", "development tools", "AI tools"
+  
+],
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Software Development"
+],
 requires-python = ">=3.9"
 dependencies = [
     "argcomplete>=3.2",
@@ -19,6 +32,12 @@ dependencies = [
     "jsonplate>=0.0.1",
     "jsonschema>=4.25.1",
 ]
+[project.urls]
+Issues = "https://github.com/NickCrew/claude-cortex/issues"
+Repository = "https://github.com/NickCrew/claude-cortex"
+Documentation = "https://cortex.atlascrew.dev"
+Changelog = "https://github.com/NickCrew/claude-cortex/blob/main/CHANGELOG.md"
+Homepage = "https://atlascrew.dev"
 
 [project.optional-dependencies]
 # AI Intelligence features
@@ -60,7 +79,6 @@ Homepage = "https://github.com/NickCrew/claude-cortex"
 
 [project.scripts]
 cortex = "claude_ctx_py.cli:main"
-cortex-ui = "claude_ctx_py.tui.main:main"
 
 [tool.setuptools]
 include-package-data = true
