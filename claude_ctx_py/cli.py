@@ -596,6 +596,123 @@ def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
+def _build_suggest_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    suggest_parser = subparsers.add_parser(
+        "suggest",
+        help="Unified skill and agent suggestions for the current context",
+    )
+
+    # Filter mode
+    suggest_parser.add_argument(
+        "--skills",
+        action="store_true",
+        help="Show skill recommendations only",
+    )
+    suggest_parser.add_argument(
+        "--agents",
+        action="store_true",
+        help="Show agent recommendations only",
+    )
+    suggest_parser.add_argument(
+        "--activate",
+        action="store_true",
+        help="Auto-activate high-confidence matches",
+    )
+    suggest_parser.add_argument(
+        "--text",
+        dest="suggest_text",
+        metavar="TEXT",
+        help="Analyze text for skill matches",
+    )
+    suggest_parser.add_argument(
+        "--project-dir",
+        dest="suggest_project_dir",
+        default=".",
+        help="Project directory to analyze (default: current directory)",
+    )
+
+    # Watch mode
+    suggest_parser.add_argument(
+        "--watch",
+        action="store_true",
+        help="Real-time monitoring mode",
+    )
+    suggest_parser.add_argument(
+        "--no-auto-activate",
+        dest="no_auto_activate",
+        action="store_true",
+        default=None,
+        help="Disable auto-activation in watch mode",
+    )
+    suggest_parser.add_argument(
+        "--daemon",
+        action="store_true",
+        help="Run watch mode in background as daemon",
+    )
+    suggest_parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Show watch daemon status",
+    )
+    suggest_parser.add_argument(
+        "--stop",
+        action="store_true",
+        help="Stop the watch daemon",
+    )
+    suggest_parser.add_argument(
+        "--log",
+        dest="watch_log",
+        help="Log file for daemon mode",
+    )
+    suggest_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="Confidence threshold (0.0-1.0)",
+    )
+    suggest_parser.add_argument(
+        "--interval",
+        type=float,
+        default=None,
+        help="Check interval in seconds for watch mode",
+    )
+    suggest_parser.add_argument(
+        "--dir",
+        dest="watch_dirs",
+        action="append",
+        default=[],
+        help="Directory to watch (repeatable or comma-separated)",
+    )
+
+    # Export
+    suggest_parser.add_argument(
+        "--export",
+        dest="export_file",
+        metavar="FILE",
+        nargs="?",
+        const="suggestions.json",
+        help="Export suggestions to JSON file (default: suggestions.json)",
+    )
+
+    # Review gate
+    suggest_parser.add_argument(
+        "--review",
+        action="store_true",
+        help="Pre-completion review gate (suggest skills based on git context)",
+    )
+    suggest_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would happen without activating",
+    )
+    suggest_parser.add_argument(
+        "--context", "-c",
+        action="append",
+        dest="review_contexts",
+        help="Additional context signals for review mode",
+    )
+
+
 def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     export_parser = subparsers.add_parser("export", help="Export context commands")
     export_sub = export_parser.add_subparsers(dest="export_command")
@@ -883,6 +1000,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Start on a specific view (e.g., 'flags', 'agents', 'rules')",
     )
     _build_ai_parser(subparsers)
+    _build_suggest_parser(subparsers)
     _build_export_parser(subparsers)
     _build_install_parser(subparsers)
     _build_memory_parser(subparsers)
@@ -1085,11 +1203,13 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
     if args.skills_command == "analyze":
+        print("Note: 'cortex skills analyze' is deprecated. Use 'cortex suggest --text' instead.", file=sys.stderr)
         text = getattr(args, "text", "")
         exit_code, message = core.skill_analyze(text)
         _print(message)
         return exit_code
     if args.skills_command == "suggest":
+        print("Note: 'cortex skills suggest' is deprecated. Use 'cortex suggest' instead.", file=sys.stderr)
         project_dir = getattr(args, "suggest_project_dir", ".")
         exit_code, message = core.skill_suggest(project_dir)
         _print(message)
@@ -1140,6 +1260,7 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
     if args.skills_command == "recommend":
+        print("Note: 'cortex skills recommend' is deprecated. Use 'cortex suggest --skills' instead.", file=sys.stderr)
         exit_code, message = core.skill_recommend()
         _print(message)
         return exit_code
@@ -1357,16 +1478,20 @@ def _handle_ai_command(args: argparse.Namespace) -> int:
     from . import cmd_ai
 
     if args.ai_command == "recommend":
+        print("Note: 'cortex ai recommend' is deprecated. Use 'cortex suggest' instead.", file=sys.stderr)
         return cmd_ai.ai_recommend()
     elif args.ai_command == "auto-activate":
+        print("Note: 'cortex ai auto-activate' is deprecated. Use 'cortex suggest --activate' instead.", file=sys.stderr)
         return cmd_ai.ai_auto_activate()
     elif args.ai_command == "export":
+        print("Note: 'cortex ai export' is deprecated. Use 'cortex suggest --export' instead.", file=sys.stderr)
         return cmd_ai.ai_export_json(args.output)
     elif args.ai_command == "record-success":
         return cmd_ai.ai_record_success(args.outcome)
     elif args.ai_command == "ingest-review":
         return cmd_ai.ai_ingest_review(args.file)
     elif args.ai_command == "watch":
+        print("Note: 'cortex ai watch' is deprecated. Use 'cortex suggest --watch' instead.", file=sys.stderr)
         from . import watch
 
         if args.status and args.stop:
@@ -1446,6 +1571,49 @@ def _handle_ai_command(args: argparse.Namespace) -> int:
     else:
         _print("AI command required. Use 'cortex ai --help' for options.")
         return 1
+
+
+def _handle_suggest_command(args: argparse.Namespace) -> int:
+    from . import cmd_suggest
+
+    # --text mode: text analysis
+    if getattr(args, "suggest_text", None):
+        return cmd_suggest.suggest_text(args.suggest_text)
+
+    # --watch mode (or --status/--stop): real-time monitoring
+    if getattr(args, "watch", False) or getattr(args, "status", False) or getattr(args, "stop", False):
+        return cmd_suggest.suggest_watch(
+            no_auto_activate=getattr(args, "no_auto_activate", False) or False,
+            daemon=getattr(args, "daemon", False),
+            status=getattr(args, "status", False),
+            stop=getattr(args, "stop", False),
+            watch_log=getattr(args, "watch_log", None),
+            threshold=getattr(args, "threshold", None),
+            interval=getattr(args, "interval", None),
+            watch_dirs=getattr(args, "watch_dirs", None),
+        )
+
+    # --export mode: JSON export
+    if getattr(args, "export_file", None):
+        return cmd_suggest.suggest_export(args.export_file)
+
+    # --review mode: pre-completion gate
+    if getattr(args, "review", False):
+        return cmd_suggest.suggest_review(
+            dry_run=getattr(args, "dry_run", False),
+            extra_context=getattr(args, "review_contexts", None),
+        )
+
+    # --activate mode: auto-activate high-confidence
+    if getattr(args, "activate", False):
+        return cmd_suggest.suggest_activate()
+
+    # Default mode: context-aware combined suggestions
+    return cmd_suggest.suggest_default(
+        skills_only=getattr(args, "skills", False),
+        agents_only=getattr(args, "agents", False),
+        project_dir=getattr(args, "suggest_project_dir", "."),
+    )
 
 
 def _handle_export_command(args: argparse.Namespace) -> int:
@@ -1584,6 +1752,7 @@ def _handle_install_command(args: argparse.Namespace) -> int:
 
 
 def _handle_review_command(args: argparse.Namespace) -> int:
+    print("Note: 'cortex review' is deprecated. Use 'cortex suggest --review' instead.", file=sys.stderr)
     from . import cmd_review
     return cmd_review.main(
         dry_run=getattr(args, "dry_run", False),
@@ -2719,6 +2888,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "file": _handle_file_command,
         "uninstall": _handle_uninstall_command,
         "review": _handle_review_command,
+        "suggest": _handle_suggest_command,
         "git": _handle_git_command,
         "tmux": _handle_tmux_command,
     }
