@@ -308,7 +308,7 @@ single-turn `specialist-review` quality is insufficient.
 **What you get back:** The same review artifact format (P0-P3 findings + verdict), but
 produced by 3-5 parallel specialist agents that read actual source files and are
 independently verified.
-**Cost:** ~$2-3 per review (vs ~$0.50 for single-turn `specialist-review`).
+**Cost:** ~$2-3 per review (vs ~$2.00 default budget for single-turn `specialist-review`).
 
 #### When to Use Teams vs Single-Turn
 

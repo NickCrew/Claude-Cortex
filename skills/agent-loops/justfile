@@ -19,7 +19,7 @@ provider     := "auto"
 base_ref     := "HEAD~1"
 output_dir   := env_var_or_default("AGENT_LOOPS_OUTPUT", ".agents/reviews")
 timeout      := "120"
-budget       := "0.25"
+budget       := "2.00"
 
 # ─── Help ───────────────────────────────────────────────────────────
 

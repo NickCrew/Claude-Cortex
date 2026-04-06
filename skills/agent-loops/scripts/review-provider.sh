@@ -111,6 +111,11 @@ review_provider_claude_auth() {
     return 0
   fi
 
+  # Fast path: setup-token OAuth is file-based, works from sandboxed apps.
+  if [[ -n "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+    return 0
+  fi
+
   # Probe keychain-based OAuth — this fails from sandboxed apps (e.g. Codex)
   # whose subprocesses can't read the "Claude Code-credentials" keychain item.
   local status_json
@@ -126,8 +131,9 @@ review_provider_claude_auth() {
   echo "  by sandboxed apps (Codex, etc.) often cannot read that keychain item." >&2
   echo "" >&2
   echo "  Fix (pick one):" >&2
-  echo "    1. Export an API key:  export ANTHROPIC_API_KEY=sk-ant-..." >&2
-  echo "    2. Set up a token:    claude setup-token  (run in a terminal)" >&2
+  echo "    1. Run 'claude setup-token' in a terminal, then add to your shell profile:" >&2
+  echo "       export CLAUDE_CODE_OAUTH_TOKEN=<token>" >&2
+  echo "    2. Export an API key:  export ANTHROPIC_API_KEY=sk-ant-..." >&2
   echo "    3. Use a different provider:  --provider gemini  or  --provider codex" >&2
   echo "" >&2
   return 1
@@ -142,7 +148,7 @@ review_provider_run() {
 
   case "$provider" in
     claude)
-      local max_budget="${CLAUDE_MAX_BUDGET:-0.50}"
+      local max_budget="${CLAUDE_MAX_BUDGET:-2.00}"
 
       unset CLAUDECODE 2>/dev/null || true
 
@@ -154,24 +160,47 @@ review_provider_run() {
         --no-session-persistence
         --max-budget-usd "$max_budget"
         --tools ""
+        --strict-mcp-config
       )
 
-      # When using an API key in a non-terminal context, --bare avoids
-      # keychain reads that would fail in sandboxed subprocesses.
+      # --bare skips hooks, plugins, LSP, CLAUDE.md, and keychain reads
+      # that commonly fail in sandboxed subprocesses.
+      # IMPORTANT: --bare only supports ANTHROPIC_API_KEY, not OAuth tokens.
+      # Do NOT use --bare with CLAUDE_CODE_OAUTH_TOKEN — it will be ignored.
       if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
         claude_cmd+=(--bare)
       fi
 
+      echo "Claude command: ${claude_cmd[*]}" >&2
+      echo "Prompt size: $(wc -c <"$prompt_file" | tr -d ' ') bytes" >&2
+
       timeout "$timeout_seconds" "${claude_cmd[@]}" \
         <"$prompt_file" >"$output_file" 2>"$stderr_log"
+      local claude_exit=$?
+
+      # Detect auth failures that slip past the pre-flight check.
+      # Claude sometimes exits 0 but writes "Not logged in" to output
+      # instead of a review — catch it early so the fallback chain
+      # picks up immediately without leaving a partial artifact.
+      if [[ -s "$output_file" ]] && head -5 "$output_file" | grep -qi "not logged in\|please run /login\|sign in required"; then
+        echo "Error: Claude output indicates auth failure (not logged in)." >&2
+        rm -f "$output_file"
+        return 1
+      fi
+
+      return "$claude_exit"
       ;;
     gemini)
       local -a cmd
-      cmd=(gemini --prompt "" --output-format text --approval-mode plan)
+      cmd=(gemini --prompt "" --output-format text --approval-mode plan
+        --allowed-mcp-server-names _none_
+      )
 
       if [[ -n "${GEMINI_MODEL:-}" ]]; then
         cmd+=(--model "${GEMINI_MODEL}")
       fi
+
+      echo "Gemini command: ${cmd[*]}" >&2
 
       timeout "$timeout_seconds" "${cmd[@]}" \
         <"$prompt_file" >"$output_file" 2>"$stderr_log"

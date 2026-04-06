@@ -24,7 +24,7 @@
 #   CLAUDE_TIMEOUT           Timeout in seconds for Claude (default: 300)
 #   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
 #   CODEX_TIMEOUT            Timeout in seconds for Codex (default: 300)
-#   CLAUDE_MAX_BUDGET        Max spend in USD per Claude invocation (default: 0.50)
+#   CLAUDE_MAX_BUDGET        Max spend in USD per Claude invocation (default: 2.00)
 #   CODEX_MODEL              Optional Codex model override
 #   CLAUDE_DEBUG=1           Same as --debug flag
 #
@@ -305,34 +305,62 @@ fi
 # that break sed (backticks, slashes, regex metacharacters, etc.)
 
 SYSTEM_PROMPT_FILE=$(mktemp /tmp/test-review-request-system.XXXXXX)
-trap 'rm -f "$SYSTEM_PROMPT_FILE"' EXIT
 
-export _STANDARDS_CONTENT="$STANDARDS_CONTENT"
-export _WORKFLOW_CONTENT="$WORKFLOW_CONTENT"
-export _SOURCE_CONTENT="$SOURCE_CONTENT"
-export _TEST_CONTENT="$TEST_CONTENT"
+# Write content to temp files instead of environment variables to avoid
+# ARG_MAX limits.  Large modules (>256 KB of source + tests) would silently
+# truncate or fail when passed via export.
+_TMP_STANDARDS=$(mktemp /tmp/test-review-standards.XXXXXX)
+_TMP_WORKFLOW=$(mktemp /tmp/test-review-workflow.XXXXXX)
+_TMP_SOURCE=$(mktemp /tmp/test-review-source.XXXXXX)
+_TMP_TESTS=$(mktemp /tmp/test-review-tests.XXXXXX)
+trap 'rm -f "$SYSTEM_PROMPT_FILE" "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS"' EXIT
 
-python3 - "$PROMPT_TEMPLATE" "$SYSTEM_PROMPT_FILE" "$MODULE_PATH" "$TEST_PATH" "$MODE" <<'PYEOF'
-import sys, os
+printf '%s' "$STANDARDS_CONTENT" >"$_TMP_STANDARDS"
+printf '%s' "$WORKFLOW_CONTENT" >"$_TMP_WORKFLOW"
+printf '%s' "$SOURCE_CONTENT" >"$_TMP_SOURCE"
+printf '%s' "$TEST_CONTENT" >"$_TMP_TESTS"
 
-template_path, output_path, module_path, test_path, mode = sys.argv[1:6]
+# Truncate source and test content to stay within Claude's practical input
+# limits.  ~300 KB of combined content is roughly 75K tokens — a safe ceiling
+# for a single-turn --print invocation.
+MAX_CONTENT_BYTES=300000
+_TOTAL_BYTES=$(( $(wc -c <"$_TMP_SOURCE") + $(wc -c <"$_TMP_TESTS") ))
+if [[ "$_TOTAL_BYTES" -gt "$MAX_CONTENT_BYTES" ]]; then
+  echo "Warning: Source + test content is $((_TOTAL_BYTES / 1024)) KB; truncating to $((MAX_CONTENT_BYTES / 1024)) KB." >&2
+  # Allocate 2/3 to source, 1/3 to tests
+  _MAX_SOURCE=$(( MAX_CONTENT_BYTES * 2 / 3 ))
+  _MAX_TESTS=$(( MAX_CONTENT_BYTES / 3 ))
+  truncate -s "$_MAX_SOURCE" "$_TMP_SOURCE" 2>/dev/null || head -c "$_MAX_SOURCE" "$_TMP_SOURCE" > "$_TMP_SOURCE.trunc" && mv "$_TMP_SOURCE.trunc" "$_TMP_SOURCE"
+  truncate -s "$_MAX_TESTS" "$_TMP_TESTS" 2>/dev/null || head -c "$_MAX_TESTS" "$_TMP_TESTS" > "$_TMP_TESTS.trunc" && mv "$_TMP_TESTS.trunc" "$_TMP_TESTS"
+  printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_SOURCE"
+  printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_TESTS"
+fi
+
+python3 - "$PROMPT_TEMPLATE" "$SYSTEM_PROMPT_FILE" "$MODULE_PATH" "$TEST_PATH" "$MODE" \
+         "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS" <<'PYEOF'
+import sys
+
+(template_path, output_path, module_path, test_path, mode,
+ standards_file, workflow_file, source_file, tests_file) = sys.argv[1:10]
 
 with open(template_path) as f:
     template = f.read()
 
+def read_tmp(path):
+    with open(path) as f:
+        return f.read()
+
 template = template.replace('{{MODULE_PATH}}', module_path)
 template = template.replace('{{TEST_PATH}}', test_path)
 template = template.replace('{{MODE}}', mode)
-template = template.replace('{{TESTING_STANDARDS}}', os.environ.get('_STANDARDS_CONTENT', ''))
-template = template.replace('{{AUDIT_WORKFLOW}}', os.environ.get('_WORKFLOW_CONTENT', ''))
-template = template.replace('{{SOURCE_CONTENT}}', os.environ.get('_SOURCE_CONTENT', ''))
-template = template.replace('{{TEST_CONTENT}}', os.environ.get('_TEST_CONTENT', ''))
+template = template.replace('{{TESTING_STANDARDS}}', read_tmp(standards_file))
+template = template.replace('{{AUDIT_WORKFLOW}}', read_tmp(workflow_file))
+template = template.replace('{{SOURCE_CONTENT}}', read_tmp(source_file))
+template = template.replace('{{TEST_CONTENT}}', read_tmp(tests_file))
 
 with open(output_path, 'w') as f:
     f.write(template)
 PYEOF
-
-unset _STANDARDS_CONTENT _WORKFLOW_CONTENT _SOURCE_CONTENT _TEST_CONTENT
 
 PROMPT_SIZE=$(wc -c <"$SYSTEM_PROMPT_FILE" | tr -d ' ')
 echo "Prompt size: ${PROMPT_SIZE} bytes" >&2
@@ -393,7 +421,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
   echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
   if [[ "$PROVIDER" == "claude" ]]; then
-    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
+    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-2.00}" >&2
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
   elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
@@ -455,6 +483,11 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
     echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but report file is empty." >&2
     echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
+    echo "  Module: $MODULE_PATH" >&2
+    echo "  Prompt head:" >&2
+    head -3 "$SYSTEM_PROMPT_FILE" | sed 's/^/    /' >&2
+    echo "  Prompt tail:" >&2
+    tail -3 "$SYSTEM_PROMPT_FILE" | sed 's/^/    /' >&2
   else
     EXIT_CODE=$?
     ELAPSED=$(($(date +%s) - START_TIME))

@@ -230,7 +230,7 @@ with open(sys.argv[4], 'w') as f:
 #   CLAUDE_TIMEOUT            — Max seconds for Claude CLI (default: 300)
 #   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)
 #   CODEX_TIMEOUT             — Max seconds for Codex CLI (default: 300)
-#   CLAUDE_MAX_BUDGET         — Max USD budget per Claude invocation (default: 0.50)
+#   CLAUDE_MAX_BUDGET         — Max USD budget per Claude invocation (default: 2.00)
 #   GEMINI_MODEL              — Optional Gemini model override
 #   CODEX_MODEL               — Optional Codex model override
 #   REVIEW_CONTEXT            — Lines of diff context, passed as -U<n> to git diff (default: 15)
@@ -281,7 +281,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
   echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
   if [[ "$PROVIDER" == "claude" ]]; then
-    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-0.50}" >&2
+    echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-2.00}" >&2
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
   elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
@@ -341,6 +341,11 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
     echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but review file is empty." >&2
     echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
+    echo "  Diff lines: ${DIFF_LINES}" >&2
+    echo "  Prompt head:" >&2
+    head -3 "$PROMPT_FILE" | sed 's/^/    /' >&2
+    echo "  Prompt tail:" >&2
+    tail -3 "$PROMPT_FILE" | sed 's/^/    /' >&2
   else
     EXIT_CODE=$?
     ELAPSED=$(($(date +%s) - START_TIME))
