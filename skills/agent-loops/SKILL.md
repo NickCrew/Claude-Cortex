@@ -612,6 +612,23 @@ ENTRY: Next atomic commit from your decomposition plan.
                                                  └── Loop back to findings check
 ```
 
+### Deferred Findings Are Mandatory Backlog Items
+
+No loop closes with an unfixed finding unless there is a fixing commit, a backlog
+item ID, or explicit user waiver. Specifically:
+
+- **P0 / P1**: Do not close the loop. Fix it or escalate to the user for approval.
+- **P2 / P3**: Create a backlog item **before** committing and exiting the loop.
+  Include in the backlog item:
+  - Review/audit artifact path
+  - Finding ID and title (e.g., `P2-003: Missing input validation`)
+  - Affected file(s)
+  - Why it was deferred
+- In the final handoff message, list every deferred finding with its backlog item ID.
+
+Do not silently carry deferred findings forward. Do not defer filing to "later" —
+the backlog item must exist before the loop exit commit.
+
 ### Circuit Breaker
 
 **Maximum iterations: 3 `specialist-review` cycles.**
@@ -925,9 +942,12 @@ Lint findings use a **binary pass/fail** model — no P0/P1/P2 triage. Lint rule
 
 ---
 
-## Loop 4: Issue Filing
+## Loop 4: Issue Filing Verification
 
-After both loops exit, file issues for everything that was deferred.
+Deferred findings should already have backlog items from their respective loops
+(see "Deferred Findings Are Mandatory Backlog Items" above). This step verifies
+completeness: check that every deferred P2/P3 from all review and audit artifacts
+has a corresponding backlog item. File any that were missed.
 
 ### Backlog-First Policy
 
