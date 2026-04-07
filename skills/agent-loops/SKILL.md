@@ -121,6 +121,12 @@ makes reviews more precise and catches downstream breakage the diff doesn't show
 **When:** After completing implementation, after each remediation cycle.
 **What you get back:** Findings with severity levels (P0-P3) and a verdict (BLOCKED / PASS WITH ISSUES / CLEAN).
 
+#### IMPORTANT: Source Files Only
+
+Scope `specialist-review` to **source files only**. Do NOT include test files
+(`*.test.*`, `*.spec.*`, `__tests__/`) in the path filter — tests are reviewed
+separately in **Loop 2** via `test-review-request`.
+
 #### IMPORTANT: Do Not Review the Code Yourself
 
 Your ONLY job is to invoke an independent reviewer and read the output artifact. Do
