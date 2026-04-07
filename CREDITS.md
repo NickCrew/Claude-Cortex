@@ -123,6 +123,7 @@ These skills are used under Anthropic's Terms of Service and are subject to rest
 - `copywriter` — Landing pages, product descriptions, ads, conversion-focused copy (from writing/)
 - `email-drafter` — Professional emails, cold outreach, follow-ups, client communication (from writing/)
 - `proofreader` — Grammar, spelling, punctuation, style consistency, tone checking (from writing/)
+- `storyteller` — Brand origin stories, narrative-driven content, story structure (from writing/)
 
 These skills are used under MIT License and were adapted to fit the cortex framework.
 
