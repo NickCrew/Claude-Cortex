@@ -137,7 +137,8 @@ reviewer instead of reviewing the code yourself.
 #### Automated Path: Provider-Aware Script
 
 ```bash
-# Review only the files you changed (RECOMMENDED)
+# Review only the SOURCE files you changed (RECOMMENDED)
+# Do NOT include test files here — tests are reviewed in Loop 2 via test-review-request
 "$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs
 
 # Review changes since a specific ref, scoped to a directory
@@ -578,8 +579,8 @@ ENTRY: Next atomic commit from your decomposition plan.
        │
        ▼
 ┌──────────────────┐
-│ specialist-review│ ← Run: "$SKILL_DIR/scripts/specialist-review.sh" --git -- <files>
-└──────┬───────────┘   Claude script first; fallback reviewer uses the same scoped diff
+│ specialist-review│ ← Run: "$SKILL_DIR/scripts/specialist-review.sh" --git -- <source-files>
+└──────┬───────────┘   Scope to SOURCE files only — test files are reviewed in Loop 2
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
