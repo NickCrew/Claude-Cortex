@@ -108,6 +108,12 @@ These skills are used under Anthropic's Terms of Service and are subject to rest
 - `fact-checker` — Structured claim verification (from research/)
 - `web-researcher` — Web search and source evaluation (from research/)
 - `decision-maker` — Decision frameworks and scoring (from productivity/)
+- `terms-of-service` — ToS, Privacy Policy, and EULA drafting (from legal/)
+- `market-researcher` — Market sizing, surveys, and customer segmentation (from business/)
+- `competitor-analyst` — Competitive analysis with SWOT, Porter's, and battle cards (from business/)
+- `business-analyst` — BRDs, process mapping, gap analysis, and stakeholder management (from business/)
+- `product-manager` — PRDs, user stories, RICE prioritization, and acceptance criteria (from business/)
+- `ux-researcher` — User research methodology, interview guides, usability testing, and personas (from business/)
 
 These skills are used under MIT License and were adapted to fit the cortex framework.
 
