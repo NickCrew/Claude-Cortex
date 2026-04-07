@@ -94,6 +94,23 @@ Skills licensed from Anthropic include:
 
 These skills are used under Anthropic's Terms of Service and are subject to restrictions on extraction, reproduction, and derivative works. See individual `LICENSE.txt` files in each skill directory for specific terms.
 
+### Claude Skills Community Library
+**Repository:** [anthropics/claude-skills](https://github.com/anthropics/claude-skills)
+**Author:** Adam Parszewski
+**License:** MIT License
+**Attribution:** Skills adapted from the open-source claude-skills library.
+
+**Skills Adapted:**
+- `eval-designer` — LLM evaluation framework design (from ai-ml/)
+- `model-comparator` — Multi-model comparison and selection (from ai-ml/)
+- `dataset-curator` — Dataset lifecycle management (from ai-ml/)
+- `regex-master` — Regex building, debugging, and validation (from coding/)
+- `fact-checker` — Structured claim verification (from research/)
+- `web-researcher` — Web search and source evaluation (from research/)
+- `decision-maker` — Decision frameworks and scoring (from productivity/)
+
+These skills are used under MIT License and were adapted to fit the cortex framework.
+
 ## Inspirations & Architectural Patterns
 
 The following projects inspired architectural decisions, design patterns, and workflow concepts in cortex (no direct code copying):
@@ -158,4 +175,4 @@ If you believe your work has been used in a way that constitutes copyright infri
 
 ---
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
