@@ -212,6 +212,13 @@ review_provider_run() {
         cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)" -m "${CODEX_MODEL}" -s read-only -o "$output_file" -)
       fi
 
+      # Clear parent session env vars so the nested codex exec doesn't
+      # try to join or conflict with the calling Codex session.
+      unset CODEX_THREAD_ID 2>/dev/null || true
+      unset CODEX_MANAGED_BY_NPM 2>/dev/null || true
+
+      echo "Codex command: ${cmd[*]}" >&2
+
       timeout "$timeout_seconds" "${cmd[@]}" \
         <"$prompt_file" >/dev/null 2>"$stderr_log"
       ;;
