@@ -159,7 +159,6 @@ review_provider_run() {
       local -a claude_cmd=(claude --print
         --no-session-persistence
         --max-budget-usd "$max_budget"
-        --tools ""
         --strict-mcp-config
       )
 
