@@ -122,6 +122,26 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# --- Reject test files in path filters ---
+# specialist-review is for source files only. Test files belong in Loop 2
+# via test-review-request.sh.
+if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+  TEST_FILES=()
+  for pf in "${PATH_FILTERS[@]}"; do
+    if [[ "$pf" =~ \.(test|spec)\. ]] || [[ "$pf" =~ /__tests__/ ]]; then
+      TEST_FILES+=("$pf")
+    fi
+  done
+  if [[ ${#TEST_FILES[@]} -gt 0 ]]; then
+    echo "Error: Test files detected in path filter — specialist-review is for source files only." >&2
+    echo "  Move these to Loop 2 (test-review-request.sh):" >&2
+    for tf in "${TEST_FILES[@]}"; do
+      echo "    $tf" >&2
+    done
+    exit 1
+  fi
+fi
+
 # --- Resolve diff content ---
 
 DIFF_FILE=$(mktemp /tmp/specialist-review-diff.XXXXXX)
