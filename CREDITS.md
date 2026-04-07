@@ -114,6 +114,12 @@ These skills are used under Anthropic's Terms of Service and are subject to rest
 - `business-analyst` — BRDs, process mapping, gap analysis, and stakeholder management (from business/)
 - `product-manager` — PRDs, user stories, RICE prioritization, and acceptance criteria (from business/)
 - `ux-researcher` — User research methodology, interview guides, usability testing, and personas (from business/)
+- `dashboard-designer` — KPI selection, layout patterns, BI tool selection (from data/)
+- `chart-builder` — Chart type selection, matplotlib/Chart.js code, visualization accessibility (from data/)
+- `color-palette` — Color systems, WCAG contrast validation, design tokens, dark mode (from design/)
+- `design-critiquer` — Structured design critique with severity-prioritized feedback (from design/)
+- `frontend-design` — Dev-ready CSS specs, component states, responsive layouts, design tokens (from design/)
+- `ux-writer` — Microcopy, error messages, empty states, button labels, onboarding flows (from design/)
 
 These skills are used under MIT License and were adapted to fit the cortex framework.
 
