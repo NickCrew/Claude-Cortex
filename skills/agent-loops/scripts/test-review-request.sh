@@ -155,11 +155,16 @@ if [[ -z "$TEST_PATH" ]]; then
   for candidate in \
     "${MODULE_PATH}/tests" \
     "${MODULE_PATH}/test" \
+    "${MODULE_PATH}/__tests__" \
     "${MODULE_PARENT}/tests/${MODULE_BASE}" \
     "${MODULE_PARENT}/test/${MODULE_BASE}" \
+    "${MODULE_PARENT}/__tests__/${MODULE_BASE}" \
     "tests/${MODULE_BASE}" \
+    "src/test" \
+    "src/__tests__" \
     "tests" \
-    "test"; do
+    "test" \
+    "__tests__"; do
     if [[ -d "$candidate" ]]; then
       TEST_PATH="$candidate"
       break
@@ -330,8 +335,8 @@ if [[ "$_TOTAL_BYTES" -gt "$MAX_CONTENT_BYTES" ]]; then
   # Allocate 2/3 to source, 1/3 to tests
   _MAX_SOURCE=$(( MAX_CONTENT_BYTES * 2 / 3 ))
   _MAX_TESTS=$(( MAX_CONTENT_BYTES / 3 ))
-  truncate -s "$_MAX_SOURCE" "$_TMP_SOURCE" 2>/dev/null || head -c "$_MAX_SOURCE" "$_TMP_SOURCE" > "$_TMP_SOURCE.trunc" && mv "$_TMP_SOURCE.trunc" "$_TMP_SOURCE"
-  truncate -s "$_MAX_TESTS" "$_TMP_TESTS" 2>/dev/null || head -c "$_MAX_TESTS" "$_TMP_TESTS" > "$_TMP_TESTS.trunc" && mv "$_TMP_TESTS.trunc" "$_TMP_TESTS"
+  truncate -s "$_MAX_SOURCE" "$_TMP_SOURCE" 2>/dev/null || { head -c "$_MAX_SOURCE" "$_TMP_SOURCE" > "$_TMP_SOURCE.trunc" && mv "$_TMP_SOURCE.trunc" "$_TMP_SOURCE"; }
+  truncate -s "$_MAX_TESTS" "$_TMP_TESTS" 2>/dev/null || { head -c "$_MAX_TESTS" "$_TMP_TESTS" > "$_TMP_TESTS.trunc" && mv "$_TMP_TESTS.trunc" "$_TMP_TESTS"; }
   printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_SOURCE"
   printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_TESTS"
 fi
