@@ -142,6 +142,14 @@ reviewer instead of reviewing the code yourself.
 
 #### Automated Path: Provider-Aware Script
 
+> **BLOCKING CALL — DO NOT PROCEED UNTIL COMPLETE.**
+> This script invokes an external LLM and takes **3-5 minutes for larger diffs**.
+> You MUST wait for it to return before continuing. Do NOT run it in the background.
+> Do NOT start remediation, tests, or commits while the review is in progress.
+> When calling from a Bash tool, set `timeout: 600000` (10 min) — the default
+> 120-second timeout will kill the subprocess before the reviewer finishes.
+> The review is only done when you have a `REVIEW_FILE` path in hand.
+
 ```bash
 # Review only the SOURCE files you changed (RECOMMENDED)
 # Do NOT include test files here — tests are reviewed in Loop 2 via test-review-request
@@ -211,6 +219,8 @@ If the bundled script cannot get a usable artifact from any scripted provider:
 - **Ignoring the output artifact** — The review is written to a file. Read it.
 - **Using a same-context Codex agent as reviewer** — If Codex is the fallback reviewer, it must have fresh context and no implementation authorship.
 - **Stopping at the first Claude failure** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
+- **Running the review in the background and moving on** — The review is a blocking gate. You must have `REVIEW_FILE` before proceeding to findings triage, remediation, tests, or commit. Do not run it with `run_in_background` or start other work while it runs.
+- **Using the default Bash tool timeout** — Reviews take 3-5 minutes for non-trivial diffs. Set `timeout: 600000` on the Bash call or the subprocess will be killed before the reviewer finishes.
 
 ### `test-review-request` — Request Test Audit
 
@@ -231,6 +241,14 @@ unavailable or fail, continue with a fresh-context Codex auditor instead of skip
 the audit.
 
 #### Automated Path: Provider-Aware Script
+
+> **BLOCKING CALL — DO NOT PROCEED UNTIL COMPLETE.**
+> This script invokes an external LLM and takes **3-5 minutes for larger modules**.
+> You MUST wait for it to return before continuing. Do NOT run it in the background.
+> Do NOT start writing tests or commits while the audit is in progress.
+> When calling from a Bash tool, set `timeout: 600000` (10 min) — the default
+> 120-second timeout will kill the subprocess before the auditor finishes.
+> The audit is only done when you have a `REPORT_FILE` path in hand.
 
 ```bash
 # Full audit of a module (default — reads ALL source files)
@@ -305,6 +323,8 @@ Act on findings:
 - **Ignoring the output artifact** — The gap report is written to a file. Read it.
 - **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
 - **Proceeding without any audit artifact** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
+- **Running the audit in the background and moving on** — The audit is a blocking gate. You must have `REPORT_FILE` before proceeding to gap analysis, test writing, or commit. Do not run it with `run_in_background` or start other work while it runs.
+- **Using the default Bash tool timeout** — Audits take 3-5 minutes for non-trivial modules. Set `timeout: 600000` on the Bash call or the subprocess will be killed before the auditor finishes.
 
 ---
 
@@ -585,8 +605,9 @@ ENTRY: Next atomic commit from your decomposition plan.
        │
        ▼
 ┌──────────────────┐
-│ specialist-review│ ← Run: "$SKILL_DIR/scripts/specialist-review.sh" --git -- <source-files>
-└──────┬───────────┘   Scope to SOURCE files only — test files are reviewed in Loop 2
+│ specialist-review│ ← BLOCKING: run the script, wait for REVIEW_FILE, read it.
+└──────┬───────────┘   Do NOT proceed until you have the artifact in hand.
+       │                Scope to SOURCE files only — tests are reviewed in Loop 2.
        │
        ├── Findings? ──► Yes ──► Any P0 or P1? ──► Yes ──┐
        │                                                   │
@@ -764,9 +785,9 @@ Use a hybrid gate to avoid unnecessary friction while preserving confidence:
 ENTRY: Code change loop has exited cleanly.
 
 ┌──────────────────────┐
-│  AUDIT               │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
-└──────┬───────────────┘   Claude script first; fallback auditor uses the same scoped materials
-       │
+│  AUDIT               │ ← BLOCKING: run the script, wait for REPORT_FILE, read it.
+└──────┬───────────────┘   Do NOT proceed until you have the artifact in hand.
+       │                   Claude script first; fallback auditor uses the same scoped materials.
        ▼
 ┌──────────────────────┐
 │  SCOPE APPROVAL      │ ← Human reviews gap report
@@ -785,8 +806,9 @@ ENTRY: Code change loop has exited cleanly.
        │                   3. Actually exercise the code (not no-ops)
        ▼
 ┌──────────────────────┐
-│  RE-AUDIT            │ ← Run: "$SKILL_DIR/scripts/test-review-request.sh" <module>
-└──────┬───────────────┘   Same module path — script re-reads source + tests
+│  RE-AUDIT            │ ← BLOCKING: run the script, wait for REPORT_FILE, read it.
+└──────┬───────────────┘   Do NOT proceed until you have the artifact in hand.
+       │                   Same module path — script re-reads source + tests.
        │                   Reviewer checks: gaps closed? new tests good?
        │
        ├── All P0/P1 resolved? ──► Yes ──► File P2/P3 issues
