@@ -24,6 +24,11 @@ review_provider_detect_self() {
     return 0
   fi
 
+  if [[ -n "${GEMINI_CLI_NO_RELAUNCH:-}" || -n "${GEMINI_CLI_ACTIVITY_LOG_TARGET:-}" ]]; then
+    echo "gemini"
+    return 0
+  fi
+
   if [[ -n "${CLAUDECODE:-}" ]]; then
     echo "claude"
     return 0

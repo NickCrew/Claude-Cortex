@@ -193,7 +193,8 @@ Provider selection:
 - Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
 - Set `AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex` when the current agent is not
-  auto-detected. Codex sessions auto-detect themselves already.
+  auto-detected. Codex, Gemini, and Claude sessions auto-detect themselves when
+  their standard session markers are present.
 - The script validates the review artifact shape before accepting it; invalid provider output is rejected and the next fallback is tried.
 - If both CLIs are unavailable or fail, use the fresh-context Codex fallback below.
 

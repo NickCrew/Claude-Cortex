@@ -245,7 +245,7 @@ with open(sys.argv[4], 'w') as f:
 # Environment variables:
 #   AGENT_LOOPS_LLM_PROVIDER   — Default provider selection: auto|claude|gemini|codex
 #   AGENT_LOOPS_SELF_PROVIDER  — Current agent provider for self-last auto ordering
-#                                 (auto-detects Codex; set explicitly for Gemini/Claude)
+#                                 (auto-detects Codex/Gemini/Claude when session markers exist)
 #   SPECIALIST_REVIEW_PROVIDER — Override provider selection for this script only
 #   CLAUDE_TIMEOUT            — Max seconds for Claude CLI (default: 300)
 #   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)

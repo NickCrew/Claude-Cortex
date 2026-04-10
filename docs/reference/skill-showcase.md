@@ -266,7 +266,8 @@ implementer and enforces a strict ordering:
    authorship of the code, used when all Tier 1 providers are unavailable
 
 Auto-detection reads environment variables (`CLAUDECODE`, `CODEX_THREAD_ID`,
-`CODEX_MANAGED_BY_NPM`) to identify the implementer. Manual override is
+`CODEX_MANAGED_BY_NPM`, `GEMINI_CLI_NO_RELAUNCH`,
+`GEMINI_CLI_ACTIVITY_LOG_TARGET`) to identify the implementer. Manual override is
 available via `AGENT_LOOPS_SELF_PROVIDER`.
 
 #### Provider Priority System

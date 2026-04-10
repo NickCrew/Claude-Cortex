@@ -19,7 +19,7 @@
 # Environment:
 #   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini|codex
 #   AGENT_LOOPS_SELF_PROVIDER Current agent provider for self-last auto ordering
-#                             (auto-detects Codex; set explicitly for Gemini/Claude)
+#                             (auto-detects Codex/Gemini/Claude when session markers exist)
 #   TEST_REVIEW_PROVIDER     Override provider selection for this script only
 #   CLAUDE_TIMEOUT           Timeout in seconds for Claude (default: 300)
 #   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
