@@ -82,3 +82,4 @@ PRINCIPLES.md
 logs/
 watch.pid
 skills/*.json
+**/reviews/
