@@ -54,17 +54,38 @@ Hooks can target specific tools using matchers:
 
 ## Installation
 
+Hooks are registered in `~/.claude/settings.json`. You have three ways to get
+them there, from easiest to most manual.
+
+### From the TUI (recommended)
+
+```bash
+cortex tui
+```
+
+Press `7` to open the **Hooks** view. You'll see a list of available hooks
+on one side and installed hooks on the other. Select the hook you want,
+confirm, and the TUI writes the settings.json entry for you. Uninstalling
+from the same view removes it cleanly.
+
+This is the recommended path: it validates the event name, resolves the
+script path, and makes sure the JSON structure is correct.
+
 ### Via CLI
 
 ```bash
 cortex install link
 ```
 
-This symlinks `hooks/` to `~/.claude/hooks/`.
+This symlinks `hooks/` to `~/.claude/hooks/` so that hook scripts are
+available under `~/.claude/hooks/`. It does **not** register the hooks in
+settings.json -- you still need to install individual hooks through the TUI
+or by hand.
 
-### Manual Installation
+### By hand
 
-Copy hook files and register them in `~/.claude/settings.json`:
+If you want to edit `~/.claude/settings.json` directly, add entries under
+the `hooks` key keyed by event name:
 
 ```json
 {
@@ -93,53 +114,37 @@ Copy hook files and register them in `~/.claude/settings.json`:
 }
 ```
 
-## Hook Configuration
+The TUI Hooks view produces the same shape, so you can use hand edits as a
+fallback or to diff against what the TUI wrote.
 
-Hooks are configured in `hooks/hooks.json`, which the plugin manifest references:
+## Where Hooks Are Registered
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/workspace_validator.py\""
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/secret_scan.py\""
-          },
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/large_file_gate.py\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
+Hook registration lives in `~/.claude/settings.json` (or one of the
+project-scoped settings files listed at the bottom of this page). Cortex
+used to be distributed as a Claude Code plugin with a `hooks/hooks.json`
+manifest in the repo; that manifest has been removed. The files under
+`hooks/` in the repo are plain hook scripts that settings.json points at
+via `${CORTEX_ROOT}`, not a manifest.
+
+If you're looking for the canonical list of what's installed on your
+machine, check:
+
+1. The **Hooks** view in `cortex tui` (press `7`) -- this is the friendliest
+   view.
+2. `~/.claude/settings.json` directly -- this is the underlying truth.
 
 ## Environment Variables
 
-Hooks receive context through environment variables set by Claude Code:
+Hooks receive context through environment variables. Claude Code sets the
+prompt- and project-level variables; Cortex sets `CORTEX_ROOT` when the
+hook is launched through the Cortex install path.
 
-| Variable | Description |
-|:---------|:------------|
-| `CLAUDE_HOOK_PROMPT` | The user's prompt text |
-| `CLAUDE_CHANGED_FILES` | Colon-separated list of changed files |
-| `CLAUDE_PLUGIN_ROOT` | Absolute path to the plugin directory |
-| `CLAUDE_PROJECT_DIR` | Project root directory |
+| Variable | Set by | Description |
+|:---------|:-------|:------------|
+| `CLAUDE_HOOK_PROMPT` | Claude Code | The user's prompt text |
+| `CLAUDE_CHANGED_FILES` | Claude Code | Colon-separated list of changed files |
+| `CLAUDE_PROJECT_DIR` | Claude Code | Project root directory |
+| `CORTEX_ROOT` | Cortex | Absolute path to the Cortex install root (where `hooks/`, `skills/`, etc. live). Use this to locate bundled scripts from inside a hook. |
 
 ## Logging
 
@@ -162,7 +167,14 @@ Log entries include timestamps and hook names:
 
 ## Skill Auto-Suggester
 
-The most visible hook. It analyzes your prompt and project context to suggest skills after each message.
+The most visible hook. It analyzes your prompt and project context to
+suggest skills after each message.
+
+**Install it:** open `cortex tui`, press `7`, select
+**skill_auto_suggester** from the available hooks, and install it. See
+[Working with Skills]({% link guides/working-with-skills.md %}) for the
+end-to-end story of how the suggestions are generated and how to teach
+the system which ones are helpful.
 
 **What it checks:**
 - Prompt text keywords
@@ -177,7 +189,9 @@ The most visible hook. It analyzes your prompt and project context to suggest sk
 Suggested skills: security-testing-patterns, owasp-top-10
 ```
 
-**Configuration:** Keyword-to-skill mappings are defined in `skills/skill-rules.json`. Edit this file to customize which skills are suggested for which keywords.
+**Configuration:** Keyword-to-skill mappings are defined in
+`skills/skill-rules.json`. Edit this file to customize which skills are
+suggested for which keywords.
 
 ## Settings File Locations
 

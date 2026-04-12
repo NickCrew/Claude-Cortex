@@ -2,7 +2,7 @@
 layout: default
 title: Skills
 parent: Guides
-nav_order: 4
+nav_order: 4.1
 ---
 
 # Skills

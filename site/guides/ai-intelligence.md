@@ -144,6 +144,14 @@ The agent recommender combines three strategies:
 2. **Pattern matching** --- learns from recorded successful sessions
 3. **Rule-based heuristics** --- maps file signals to agents
 
+> **If suggestions go quiet**, the semantic layer is the usual culprit. When
+> `fastembed` isn't installed in the active Python env, the semantic strategy
+> silently returns nothing. The other two strategies still work, but
+> recommendations will feel thinner. Install with `pip install fastembed` and
+> rerun. The same failure mode affects the skill auto-suggester hook -- see
+> [Working with Skills]({% link guides/working-with-skills.md %}#troubleshooting)
+> for the full troubleshooting flow.
+
 ### Rule-Based Triggers
 
 | Signal | Agent |
