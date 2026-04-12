@@ -313,6 +313,11 @@ class SemanticMatcher:
         """
         parts = []
 
+        # User prompt / task description — strongest natural-language signal
+        prompt = session.get("prompt")
+        if isinstance(prompt, str) and prompt.strip():
+            parts.append(prompt.strip()[:1000])
+
         # File paths carry strong semantic signals
         files = session.get("files", [])
         if isinstance(files, list):

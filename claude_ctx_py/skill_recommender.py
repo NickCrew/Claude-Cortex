@@ -369,7 +369,9 @@ class SkillRecommender:
 
     def recommend_for_context(
         self,
-        context: SessionContext
+        context: SessionContext,
+        *,
+        prompt: str | None = None,
     ) -> List[SkillRecommendation]:
         """
         Generate skill recommendations based on current context.
@@ -389,7 +391,7 @@ class SkillRecommender:
         recommendations: Dict[str, SkillRecommendation] = {}
 
         # Strategy 0: Semantic similarity recommendations (highest quality)
-        semantic_recs = self._semantic_skill_recommendations(context)
+        semantic_recs = self._semantic_skill_recommendations(context, prompt=prompt)
         for rec in semantic_recs:
             recommendations[rec.skill_name] = rec
 
@@ -497,6 +499,8 @@ class SkillRecommender:
     def _semantic_skill_recommendations(
         self,
         context: SessionContext,
+        *,
+        prompt: str | None = None,
     ) -> List[SkillRecommendation]:
         """Generate recommendations using semantic similarity matching.
 
@@ -506,7 +510,7 @@ class SkillRecommender:
         if not self.semantic_matcher:
             return []
 
-        context_dict = self._skill_session_to_text(context)
+        context_dict = self._skill_session_to_text(context, prompt=prompt)
         similar = self.semantic_matcher.find_similar(
             context_dict, top_k=10, min_similarity=0.6
         )
@@ -545,6 +549,8 @@ class SkillRecommender:
         self,
         context: SessionContext,
         skills_used: List[str] | None = None,
+        *,
+        prompt: str | None = None,
     ) -> Dict[str, Any]:
         """Convert SessionContext into the dict format SemanticMatcher expects."""
         result: Dict[str, Any] = {
@@ -552,6 +558,8 @@ class SkillRecommender:
             "context": context.to_dict(),
             "agents": context.active_agents,
         }
+        if prompt and prompt.strip():
+            result["prompt"] = prompt.strip()
         if skills_used:
             result["skills"] = skills_used
         return result
@@ -678,8 +686,14 @@ class SkillRecommender:
         context_hash: str,
         comment: Optional[str] = None,
         context: Optional[SessionContext] = None,
+        *,
+        prompt: str | None = None,
     ) -> None:
-        """Update recommendation model based on user feedback."""
+        """Update recommendation model based on user feedback.
+
+        `prompt` keeps stored embeddings symmetric with query embeddings
+        made via recommend_for_context(prompt=...).
+        """
         timestamp = datetime.now().isoformat()
 
         with sqlite3.connect(self.db_path) as conn:
@@ -715,7 +729,9 @@ class SkillRecommender:
         if was_helpful and context is not None:
             self._upsert_context_pattern(context, [skill])
             if self.semantic_matcher:
-                session_dict = self._skill_session_to_text(context, skills_used=[skill])
+                session_dict = self._skill_session_to_text(
+                    context, skills_used=[skill], prompt=prompt
+                )
                 try:
                     self.semantic_matcher.add_session(session_dict)
                 except Exception:
@@ -725,6 +741,8 @@ class SkillRecommender:
         self,
         context: SessionContext,
         skills_used: List[str],
+        *,
+        prompt: str | None = None,
     ) -> None:
         """Record a successful session for skill learning.
 
@@ -734,6 +752,8 @@ class SkillRecommender:
         Args:
             context: Session context when success was recorded
             skills_used: Skills that contributed to the successful session
+            prompt: Natural-language task description for embedding symmetry
+                with queries made via recommend_for_context(prompt=...).
         """
         if not skills_used:
             return
@@ -741,7 +761,9 @@ class SkillRecommender:
         self._upsert_context_pattern(context, skills_used)
 
         if self.semantic_matcher:
-            session_dict = self._skill_session_to_text(context, skills_used=skills_used)
+            session_dict = self._skill_session_to_text(
+                context, skills_used=skills_used, prompt=prompt
+            )
             try:
                 self.semantic_matcher.add_session(session_dict)
             except Exception:

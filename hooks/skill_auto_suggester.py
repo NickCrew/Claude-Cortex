@@ -3,13 +3,20 @@
 Suggest relevant /ctx:* skills based on the user's prompt and changed files.
 
 Hook event: UserPromptSubmit
-Register in hooks/hooks.json with:
-  "command": "python3",
-  "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/skill_auto_suggester.py"]
+
+Register in ~/.claude/settings.json (or install via `cortex tui` → Hooks view).
+A typical entry looks like:
+  {
+    "type": "command",
+    "command": "python3 ${CORTEX_ROOT}/hooks/skill_auto_suggester.py"
+  }
+
 Environment:
   CLAUDE_HOOK_PROMPT     The user prompt text (provided by Claude Code)
   CLAUDE_CHANGED_FILES   Optional colon-separated list of changed files
   CLAUDE_SKILL_RULES     Optional override path to skill-rules.json
+  CORTEX_ROOT            Absolute path to the Cortex install root (set by
+                         Cortex; used to locate bundled rules and scripts)
 
 The hook reads skill keywords from skills/skill-rules.json (or the override) and
 prints the top matching skills. No suggestions → silent success (exit 0).
@@ -307,7 +314,10 @@ def print_suggestions(matches: List[Tuple[int, dict]]) -> None:
     print(f"Suggested skills: {', '.join(names)}")
 
 
-def _recommender_suggestions(changed_files: List[str]) -> List[str]:
+def _recommender_suggestions(
+    changed_files: List[str],
+    prompt: str,
+) -> List[str]:
     """Get richer skill suggestions from SkillRecommender (Layer 2).
 
     Attempts to import the full recommendation engine and run it against
@@ -330,12 +340,15 @@ def _recommender_suggestions(changed_files: List[str]) -> List[str]:
             context = ContextDetector.detect_from_files(files)
         else:
             git_files = ContextDetector.detect_from_git()
-            if not git_files:
+            if git_files:
+                context = ContextDetector.detect_from_files(git_files)
+            elif prompt.strip():
+                context = ContextDetector.detect_from_files([])
+            else:
                 return []
-            context = ContextDetector.detect_from_files(git_files)
 
         recommender = SkillRecommender()
-        recommendations = recommender.recommend_for_context(context)
+        recommendations = recommender.recommend_for_context(context, prompt=prompt)
 
         return [
             rec.skill_name
@@ -359,7 +372,7 @@ def main() -> int:
 
     # Merge Layer 2 (SkillRecommender) results after keyword matches
     keyword_names = [rule.get("name", "unknown") for _, rule in matches]
-    recommender_names = _recommender_suggestions(changed_files)
+    recommender_names = _recommender_suggestions(changed_files, prompt)
 
     # Deduplicate: keyword matches first, then recommender additions
     seen: Set[str] = set(keyword_names)
