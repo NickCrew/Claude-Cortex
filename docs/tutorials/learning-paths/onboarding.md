@@ -196,7 +196,7 @@ Learn to run validation, exports, and quality gates in pipelines.
 
 Package domain knowledge into reusable skill packs.
 
-**[Skill Authoring Cookbook](../skill-authoring-cookbook/)** — 30-45 min
+**Skill Authoring** — 30-45 min (now published at `site/tutorials/skill-authoring.md`)
 
 ### Set up AI Watch Mode
 

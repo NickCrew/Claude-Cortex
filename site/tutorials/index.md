@@ -25,6 +25,18 @@ result to another session, sub-agent, or external LLM.
 
 ---
 
+## Skill Authoring
+
+Write your own skills. Covers directory structure, the `SKILL.md` frontmatter
+contract, progressive disclosure for token efficiency, quality rubrics, and
+the common patterns to lift from when you don't want to start blank.
+
+[Start Tutorial]({% link tutorials/skill-authoring.md %}){: .btn .btn-primary .mr-2 }
+~30-45 minutes
+{: .fs-3 .text-grey-dk-000 }
+
+---
+
 ## Export Context for Handoffs
 
 Learn how to package the right context for a sub-agent, another session, or an

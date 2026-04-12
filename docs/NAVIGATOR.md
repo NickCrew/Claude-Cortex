@@ -26,8 +26,9 @@ Quick-reference map to all cortex documentation.
 ### Skills
 - [Skills Guide](guides/skills.md) — Skill management and usage
 - [Skill Showcase](reference/skill-showcase.md) — Curated skill highlights
-- [Skill Authoring Cookbook](tutorials/skill-authoring-cookbook.md) — Write your own skills
 - [Skills TUI Integration](guides/skills-tui-integration.md) — Skills in the TUI
+
+> Skill authoring tutorial has moved to the published site at `site/tutorials/skill-authoring.md`.
 
 ### TUI
 - [TUI Guide](guides/tui.md) — Full TUI documentation
@@ -60,6 +61,6 @@ Quick-reference map to all cortex documentation.
 | Audience | Start here |
 |----------|------------|
 | New user | [Getting Started](guides/getting-started.md) → [TUI Quick Start](guides/tui-quick-start.md) |
-| Skill author | [Skill Authoring Cookbook](tutorials/skill-authoring-cookbook.md) |
+| Skill author | See `site/tutorials/skill-authoring.md` in the published site |
 | AI/LLM user | [AI Intelligence](AI_INTELLIGENCE.md) → [LLM Quick Reference](guides/ai/LLM_QUICK_REFERENCE.md) |
 | Contributor | [CONTRIBUTING](../CONTRIBUTING.md) → [Architecture](architecture/README.md) |

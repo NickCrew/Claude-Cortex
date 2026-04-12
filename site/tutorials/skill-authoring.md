@@ -1,14 +1,15 @@
 ---
 layout: default
-title: Skill Authoring Cookbook
+title: Skill Authoring
 parent: Tutorials
-nav_order: 4
-permalink: /tutorials/skill-authoring-cookbook/
+nav_order: 1.5
+permalink: /tutorials/skill-authoring/
 ---
 
-# Skill Authoring Cookbook
+# Skill Authoring
 
-A practical guide for creating high-quality skills that extend Claude's capabilities with domain-specific expertise.
+A practical guide for creating high-quality skills that extend Cortex with
+domain-specific expertise.
 
 ## What You'll Learn
 

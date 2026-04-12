@@ -612,7 +612,7 @@ You've learned how to:
 - Use pre-commit hooks for local validation
 
 **Next Steps:**
-- [Skill Authoring](../skill-authoring-cookbook/) - Create custom skills
+- Skill Authoring (now published at `site/tutorials/skill-authoring.md`) - Create custom skills
 - [AI Watch Mode](../ai-watch-mode/) - Intelligent recommendations
 
 ---

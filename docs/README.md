@@ -38,7 +38,9 @@ If you are looking for the recommendation stack specifically, start here:
 - [Skills Guide](guides/skills.md)
 - [Hooks Guide](guides/hooks.md)
 - [TUI Guide](guides/tui.md)
-- [Skill Authoring Cookbook](tutorials/skill-authoring-cookbook.md)
+
+User-facing skill authoring tutorial now lives in the published site at
+`site/tutorials/skill-authoring.md`.
 
 ### Development Guides
 

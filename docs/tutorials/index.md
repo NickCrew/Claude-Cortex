@@ -62,8 +62,9 @@ Structured progressions that connect tutorials into a guided journey.
 ### Advanced
 
 - *Coming Soon:* **Custom Workflows** — Build YAML-based automation
-- **[Skill Authoring Cookbook](skill-authoring-cookbook/)** — Create reusable knowledge modules
 - **[CI/CD Integration](ci-cd-integration/)** — Automate context in pipelines
+
+> Skill authoring moved to the published site at `site/tutorials/skill-authoring.md`.
 
 ---
 
