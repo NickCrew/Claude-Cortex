@@ -16,7 +16,8 @@ In-depth guides for using Cortex features.
 - [CLI Usage]({% link guides/cli.md %}) -- command-line interface
 - [Terminal UI]({% link guides/tui.md %}) -- visual management interface
 - [AI Intelligence]({% link guides/ai-intelligence.md %}) -- recommendations, auto-activation, watch mode
-- [Skills]({% link guides/skills.md %}) -- skill system and ratings
+- [Working with Skills]({% link guides/working-with-skills.md %}) -- how to get value from 100+ skills (mental model, feedback loop, troubleshooting)
+- [Skills]({% link guides/skills.md %}) -- skill system commands and ratings
 - [Agent Activation]({% link guides/agent-activation.md %}) -- manual activation, dependencies, and recommendations
 - [Hooks]({% link guides/hooks.md %}) -- automation hooks for Claude Code events
 - [Rules]({% link guides/rules.md %}) -- behavioral constraints and best practices
