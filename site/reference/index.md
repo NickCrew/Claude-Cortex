@@ -17,3 +17,4 @@ Complete reference material for Cortex components.
 - [Agents]({% link reference/agents.md %}) -- 29 active agents
 - [Configuration]({% link reference/configuration.md %}) -- config file fields and environment variables
 - [Skill Showcase]({% link reference/skills.md %}) -- curated guide to the most sophisticated skills
+- [Skill Recommendation System]({% link reference/skill-recommendation-system.md %}) -- developer reference for the recommendation pipeline, strategies, and learning paths

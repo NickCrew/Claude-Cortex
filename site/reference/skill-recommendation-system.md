@@ -1,18 +1,21 @@
 ---
 layout: default
-title: Skill Recommendation & Review Learning
-nav_order: 10
-parent: Development
+title: Skill Recommendation System
+parent: Reference
+nav_order: 6
+permalink: /reference/skill-recommendation-system/
 ---
 
-# Skill Recommendation & Review Learning System
+# Skill Recommendation System
 
-This is the developer-facing guide to Cortex's skill recommendation pipeline.
-It covers the runtime architecture, review-learning path, and the current limits
-of the implementation.
+This is the developer-facing reference for Cortex's skill recommendation
+pipeline. It covers the runtime architecture, review-learning path, and the
+current limits of the implementation.
 
-For an end-user explanation, see
-[Skill Recommendation Engine](../../architecture/skill-recommendation-engine.md).
+For a user-facing guide to making the most of Cortex's skill suggestions,
+see [Working with Skills]({% link guides/working-with-skills.md %}). That
+page covers the mental model, feedback loop, and troubleshooting without
+the internals below.
 
 ## Scope
 
@@ -245,13 +248,23 @@ These rating commands are related but distinct from recommendation feedback:
 
 It does not currently inject:
 
-- prompt text
+- prompt text (see note below)
 - active agents from disk
 - active rules
 - active modes
 
 That is why the prompt hook and watch mode often feel more responsive than the
 raw CLI recommender for "what am I doing right now?" questions.
+
+**Prompt passthrough status.** The recommendation engine's public API
+(`SkillRecommender.recommend_for_context`, `_semantic_skill_recommendations`,
+`record_skill_success`, and `learn_from_feedback`) now accepts a keyword-only
+`prompt` kwarg, and `SemanticMatcher._session_to_text` embeds it alongside
+file-path and context-flag signals when present. The prompt auto-suggester
+hook already threads `CLAUDE_HOOK_PROMPT` through this path. The CLI
+`cortex skills recommend` command still does not capture or forward a prompt
+argument, so its results remain file-centric. Adding a `--prompt` flag or
+reading stdin would close the gap without further changes to the engine.
 
 ### Layer 1 and Layer 2 are complementary
 
@@ -270,14 +283,22 @@ then makes a best-effort call into skill learning. That bridge is intentionally
 non-blocking and should not be treated as the only source of truth for skill
 learning.
 
-## Recommended Documentation Entry Points
+## Keeping Docs in Sync
 
-When updating this subsystem, keep these pages in sync:
+When changing this subsystem, check these published pages for drift:
 
-- `docs/AI_INTELLIGENCE.md`
-- `docs/architecture/skill-recommendation-engine.md`
-- `docs/guides/skills.md`
-- `docs/tutorials/ai-watch-mode.md`
+- [Working with Skills]({% link guides/working-with-skills.md %}) -- the
+  user-facing overview. Update the mental-model and troubleshooting
+  sections if the recommendation strategies, failure modes, or feedback
+  commands change.
+- [Skills]({% link guides/skills.md %}) -- the command reference. Update
+  if `cortex skills recommend`, `feedback`, `rate`, or `context` subcommand
+  behavior changes.
+- [AI Intelligence]({% link guides/ai-intelligence.md %}) -- the
+  agent-side story. The fastembed troubleshooting callout there mirrors
+  the one in Working with Skills; keep them consistent.
+- [Hooks]({% link guides/hooks.md %}) -- Skill Auto-Suggester section.
+  Update if the hook's input signals or confidence cutoffs change.
 
-Those are the pages most likely to drift when command names, TUI behavior, or
-watch-mode flows change.
+These are the user-visible pages most likely to mislead if the runtime
+behavior they describe drifts from the code.
