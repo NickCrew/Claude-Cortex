@@ -101,10 +101,10 @@ def _resolve_claude_dir(
 ) -> Path:
     """Resolve the .claude directory for user configuration.
 
-    Uses CORTEX_SCOPE to determine which .claude to use:
+    Defaults to ``~/.claude`` unless CORTEX_SCOPE explicitly opts into a
+    project-local directory:
     - "project" or "local": Look for .claude in current directory tree
-    - "global" or "home": Use ~/.claude/
-    - "auto" (default): Search up for .claude, fallback to ~/.claude/
+    - "global" / "home" / "auto" (default): Use ~/.claude/
 
     Args:
         home: Optional home directory override
@@ -117,21 +117,9 @@ def _resolve_claude_dir(
     scope_value = (scope or os.environ.get(_CORTEX_SCOPE_ENV) or "auto").strip().lower()
 
     if scope_value in ("project", "local"):
-        # Use project-local .claude
         base = cwd or Path.cwd()
         found = _find_project_claude_dir(base)
         return found if found is not None else base / ".claude"
-
-    if scope_value in ("global", "home"):
-        # Use global ~/.claude/
-        base = Path(home) if home is not None else Path.home()
-        return base / ".claude"
-
-    # Auto mode: search up for .claude, fallback to ~/.claude/
-    base = cwd or Path.cwd()
-    found = _find_project_claude_dir(base)
-    if found is not None:
-        return found
 
     base = Path(home) if home is not None else Path.home()
     return base / ".claude"
