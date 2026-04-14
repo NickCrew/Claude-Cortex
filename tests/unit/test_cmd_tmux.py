@@ -36,9 +36,10 @@ class TestTmuxParsing:
 
     def test_send(self):
         ns = _parse(["tmux", "send", "build", "cargo", "build"])
+        assert ns.command == "tmux"
         assert ns.tmux_command == "send"
         assert ns.window == "build"
-        assert ns.command == ["cargo", "build"]
+        assert ns.command_parts == ["cargo", "build"]
 
     def test_type(self):
         ns = _parse(["tmux", "type", "build", "hello"])

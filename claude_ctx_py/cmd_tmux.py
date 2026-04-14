@@ -33,7 +33,12 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "send", help="Send command to window (presses Enter)"
     )
     send_parser.add_argument("window", help="Window name")
-    send_parser.add_argument("command", nargs="+", help="Command to send")
+    send_parser.add_argument(
+        "command_parts",
+        nargs="+",
+        metavar="command",
+        help="Command to send",
+    )
 
     # --- type ---
     type_parser = tmux_sub.add_parser(
@@ -142,7 +147,7 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
         return code
 
     if cmd == "send":
-        command_str = " ".join(args.command)
+        command_str = " ".join(args.command_parts)
         code, msg = tmux.tmux_send(args.window, command_str)
         _print(msg)
         return code
