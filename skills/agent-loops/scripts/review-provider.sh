@@ -165,6 +165,7 @@ review_provider_run() {
         --no-session-persistence
         --max-budget-usd "$max_budget"
         --strict-mcp-config
+        --disable-slash-commands
       )
 
       # --bare skips hooks, plugins, LSP, CLAUDE.md, and keychain reads
@@ -175,11 +176,15 @@ review_provider_run() {
         claude_cmd+=(--bare)
       fi
 
+      claude_cmd+=(--model "${CLAUDE_MODEL:-opus}")
+
       echo "Claude command: ${claude_cmd[*]}" >&2
       echo "Prompt size: $(wc -c <"$prompt_file" | tr -d ' ') bytes" >&2
 
+      # Tee stderr to terminal for real-time progress visibility while
+      # still capturing it in the log for post-mortem diagnostics.
       timeout "$timeout_seconds" "${claude_cmd[@]}" \
-        <"$prompt_file" >"$output_file" 2>"$stderr_log"
+        <"$prompt_file" >"$output_file" 2> >(tee "$stderr_log" >&2)
       local claude_exit=$?
 
       # Detect auth failures that slip past the pre-flight check.

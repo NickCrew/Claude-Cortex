@@ -318,7 +318,8 @@ _TMP_STANDARDS=$(mktemp /tmp/test-review-standards.XXXXXX)
 _TMP_WORKFLOW=$(mktemp /tmp/test-review-workflow.XXXXXX)
 _TMP_SOURCE=$(mktemp /tmp/test-review-source.XXXXXX)
 _TMP_TESTS=$(mktemp /tmp/test-review-tests.XXXXXX)
-trap 'rm -f "$SYSTEM_PROMPT_FILE" "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS"' EXIT
+_HEARTBEAT_PID=""
+trap '[[ -n "$_HEARTBEAT_PID" ]] && kill "$_HEARTBEAT_PID" 2>/dev/null; rm -f "$SYSTEM_PROMPT_FILE" "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS"' EXIT
 
 printf '%s' "$STANDARDS_CONTENT" >"$_TMP_STANDARDS"
 printf '%s' "$WORKFLOW_CONTENT" >"$_TMP_WORKFLOW"
@@ -406,6 +407,54 @@ if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
   echo "Auto provider order: ${PROVIDERS[*]}" >&2
 fi
 
+_emit_failure_summary() {
+  local reason="${1:-unknown}"
+  echo ""
+  echo "[AUDIT FAILED] $reason"
+  echo "Prompt size: ${PROMPT_SIZE} bytes"
+  echo "Mode:        ${MODE}"
+  echo "Module:      ${MODULE_PATH}"
+  echo "Tests:       ${TEST_PATH}"
+  if [[ -n "$GIT_MODE" ]]; then
+    echo "Git mode:    ${GIT_MODE} (base: ${BASE_REF})"
+  fi
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    echo "Path filters: ${PATH_FILTERS[*]}"
+  fi
+  echo "Provider:    ${REQUESTED_PROVIDER}"
+  echo "Output dir:  ${OUTPUT_DIR}"
+  echo ""
+  local found_log=0
+  for log in "$OUTPUT_DIR"/test-audit-"$TIMESTAMP".*.stderr.log; do
+    [[ -f "$log" ]] || continue
+    found_log=1
+    echo "Stderr log: $log"
+  done
+  for partial in "$OUTPUT_DIR"/test-audit-"$TIMESTAMP".*.partial.md "$OUTPUT_DIR"/test-audit-"$TIMESTAMP".*.invalid.md; do
+    [[ -f "$partial" ]] || continue
+    echo "Artifact:   $partial"
+  done
+  if [[ "$found_log" -eq 0 ]]; then
+    echo "Stderr logs: (none — providers may have been unavailable)"
+  fi
+}
+
+_heartbeat_start() {
+  local display_name="$1" start_time="$2"
+  (while true; do
+    sleep 15
+    echo "  [$display_name] Waiting for response ($(($(date +%s) - start_time))s elapsed)..." >&2
+  done) &
+  _HEARTBEAT_PID=$!
+}
+_heartbeat_stop() {
+  if [[ -n "${_HEARTBEAT_PID:-}" ]]; then
+    kill "$_HEARTBEAT_PID" 2>/dev/null
+    wait "$_HEARTBEAT_PID" 2>/dev/null || true
+    _HEARTBEAT_PID=""
+  fi
+}
+
 AVAILABLE_PROVIDER_FOUND=0
 
 for PROVIDER in "${PROVIDERS[@]}"; do
@@ -435,8 +484,10 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
   rm -f "$OUTPUT_FILE"
   START_TIME=$(date +%s)
+  _heartbeat_start "$(review_provider_display_name "$PROVIDER")" "$START_TIME"
 
   if review_provider_run "$PROVIDER" "$SYSTEM_PROMPT_FILE" "$OUTPUT_FILE" "$STDERR_LOG" "$TIMEOUT_SECONDS"; then
+    _heartbeat_stop
     ELAPSED=$(($(date +%s) - START_TIME))
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
@@ -483,6 +534,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         echo "Trying next provider fallback..." >&2
         continue
       fi
+      _emit_failure_summary "Contract validation failed ($PROVIDER)"
       exit 1
     fi
 
@@ -495,6 +547,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     tail -3 "$SYSTEM_PROMPT_FILE" | sed 's/^/    /' >&2
   else
     EXIT_CODE=$?
+    _heartbeat_stop
     ELAPSED=$(($(date +%s) - START_TIME))
 
     if [[ "$EXIT_CODE" -eq 124 ]]; then
@@ -520,12 +573,15 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     continue
   fi
 
+  _emit_failure_summary "Provider $PROVIDER failed (exit ${EXIT_CODE:-1})"
   exit 1
 done
 
 if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
   echo "Error: No audit providers are available in PATH. Install 'claude', 'gemini', or 'codex', or use the fresh-context Codex fallback." >&2
+  _emit_failure_summary "No providers available"
 else
   echo "Error: All audit providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
+  _emit_failure_summary "All providers failed"
 fi
 exit 1

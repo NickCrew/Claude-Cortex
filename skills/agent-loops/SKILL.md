@@ -142,19 +142,49 @@ reviewer instead of reviewing the code yourself.
 
 #### Automated Path: Provider-Aware Script
 
-> **BLOCKING CALL — DO NOT PROCEED UNTIL COMPLETE.**
+> **LONG-RUNNING CALL — USE THE POLLING PATTERN BELOW.**
 > This script invokes an external LLM and takes **3-5 minutes for larger diffs**.
-> You MUST wait for it to return before continuing. Do NOT run it in the background.
 > Do NOT start remediation, tests, or commits while the review is in progress.
 > When calling from a Bash tool, set `timeout: 600000` (10 min) — the default
 > 120-second timeout will kill the subprocess before the reviewer finishes.
 > The review is only done when you have a `REVIEW_FILE` path in hand.
 
-```bash
-# Review only the SOURCE files you changed (RECOMMENDED)
-# Do NOT include test files here — tests are reviewed in Loop 2 via test-review-request
-"$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs
+**Polling invocation (REQUIRED)** — run the review in the background and poll
+so the Bash tool receives periodic output and does not time out:
 
+```bash
+# Start review in background, capture stdout (the result file path) separately
+REVIEW_TMP=$(mktemp /tmp/review-out.XXXXXX)
+"$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/ src/auth.rs \
+  >"$REVIEW_TMP" &
+REVIEW_PID=$!
+
+# Poll every 15s — each echo keeps the Bash tool connection alive
+while kill -0 "$REVIEW_PID" 2>/dev/null; do
+  sleep 15
+  echo "[poll] Review still running (pid $REVIEW_PID)..."
+done
+
+# Collect exit code and read result
+wait "$REVIEW_PID"
+REVIEW_EXIT=$?
+if [[ $REVIEW_EXIT -eq 0 ]]; then
+  REVIEW_FILE=$(cat "$REVIEW_TMP")
+  echo "Review complete: $REVIEW_FILE"
+  cat "$REVIEW_FILE"
+else
+  echo "Review failed (exit $REVIEW_EXIT):"
+  cat "$REVIEW_TMP"   # contains failure summary with stderr paths and debug info
+fi
+rm -f "$REVIEW_TMP"
+```
+
+The script emits heartbeat lines to stderr every 15 seconds during provider
+execution. Combined with the poll loop above, this ensures continuous output.
+
+Additional invocation forms (wrap any of these in the polling pattern above):
+
+```bash
 # Review changes since a specific ref, scoped to a directory
 "$SKILL_DIR/scripts/specialist-review.sh" --git origin/main -- claude_ctx_py/
 
@@ -170,17 +200,9 @@ git diff HEAD~3..HEAD -- src/ | "$SKILL_DIR/scripts/specialist-review.sh" -
 # Custom output directory
 "$SKILL_DIR/scripts/specialist-review.sh" --git --output ./my-reviews -- src/
 
-# Force Gemini CLI for this run
+# Force a specific provider
 "$SKILL_DIR/scripts/specialist-review.sh" --provider gemini --git -- src/parser/
-
-# Force Codex CLI for this run
 "$SKILL_DIR/scripts/specialist-review.sh" --provider codex --git -- src/parser/
-```
-
-Read the output file path printed to stdout:
-```bash
-REVIEW_FILE=$("$SKILL_DIR/scripts/specialist-review.sh" --git -- src/parser/)
-cat "$REVIEW_FILE"
 ```
 
 **Always scope to the files you touched.** In a monorepo, an unscoped `--git` sends
@@ -220,8 +242,8 @@ If the bundled script cannot get a usable artifact from any scripted provider:
 - **Ignoring the output artifact** — The review is written to a file. Read it.
 - **Using a same-context Codex agent as reviewer** — If Codex is the fallback reviewer, it must have fresh context and no implementation authorship.
 - **Stopping at the first Claude failure** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
-- **Running the review in the background and moving on** — The review is a blocking gate. You must have `REVIEW_FILE` before proceeding to findings triage, remediation, tests, or commit. Do not run it with `run_in_background` or start other work while it runs.
-- **Using the default Bash tool timeout** — Reviews take 3-5 minutes for non-trivial diffs. Set `timeout: 600000` on the Bash call or the subprocess will be killed before the reviewer finishes.
+- **Skipping the polling pattern** — Use the polling invocation from the section above. The review takes 3-5 minutes; without the poll loop the Bash tool will time out or the agent will lose track of the process. Set `timeout: 600000` on the Bash call.
+- **Moving on before you have `REVIEW_FILE`** — The review is a gate. Do not proceed to findings triage, remediation, tests, or commit until the poll loop exits and you have a file path.
 
 ### `test-review-request` — Request Test Audit
 
@@ -243,20 +265,51 @@ the audit.
 
 #### Automated Path: Provider-Aware Script
 
-> **BLOCKING CALL — DO NOT PROCEED UNTIL COMPLETE.**
+> **LONG-RUNNING CALL — USE THE POLLING PATTERN BELOW.**
 > This script invokes an external LLM and takes **3-5 minutes for larger modules**.
-> You MUST wait for it to return before continuing. Do NOT run it in the background.
 > Do NOT start writing tests or commits while the audit is in progress.
 > When calling from a Bash tool, set `timeout: 600000` (10 min) — the default
 > 120-second timeout will kill the subprocess before the auditor finishes.
 > The audit is only done when you have a `REPORT_FILE` path in hand.
 
+**Polling invocation (REQUIRED)** — run the audit in the background and poll
+so the Bash tool receives periodic output and does not time out:
+
+```bash
+# Start audit in background, capture stdout (the result file path) separately
+REPORT_TMP=$(mktemp /tmp/audit-out.XXXXXX)
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git \
+  >"$REPORT_TMP" &
+AUDIT_PID=$!
+
+# Poll every 15s — each echo keeps the Bash tool connection alive
+while kill -0 "$AUDIT_PID" 2>/dev/null; do
+  sleep 15
+  echo "[poll] Audit still running (pid $AUDIT_PID)..."
+done
+
+# Collect exit code and read result
+wait "$AUDIT_PID"
+AUDIT_EXIT=$?
+if [[ $AUDIT_EXIT -eq 0 ]]; then
+  REPORT_FILE=$(cat "$REPORT_TMP")
+  echo "Audit complete: $REPORT_FILE"
+  cat "$REPORT_FILE"
+else
+  echo "Audit failed (exit $AUDIT_EXIT):"
+  cat "$REPORT_TMP"   # contains failure summary with stderr paths and debug info
+fi
+rm -f "$REPORT_TMP"
+```
+
+The script emits heartbeat lines to stderr every 15 seconds during provider
+execution. Combined with the poll loop above, this ensures continuous output.
+
+Additional invocation forms (wrap any of these in the polling pattern above):
+
 ```bash
 # Full audit of a module (default — reads ALL source files)
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module
-
-# Audit only changed files in a module (RECOMMENDED for large modules)
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git
 
 # Audit changed files since a specific ref
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git origin/main
@@ -270,20 +323,9 @@ the audit.
 # Quick review of specific test files only
 "$SKILL_DIR/scripts/test-review-request.sh" --quick /path/to/test_file.py
 
-# Custom output directory
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --output ./my-reports
-
-# Force Gemini CLI for this run
+# Force a specific provider
 "$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module
-
-# Force Codex CLI for this run
 "$SKILL_DIR/scripts/test-review-request.sh" --provider codex /path/to/module
-```
-
-Read the output file path printed to stdout:
-```bash
-REPORT_FILE=$("$SKILL_DIR/scripts/test-review-request.sh" src/parser)
-cat "$REPORT_FILE"
 ```
 
 Provider selection:
@@ -324,8 +366,8 @@ Act on findings:
 - **Ignoring the output artifact** — The gap report is written to a file. Read it.
 - **Using a same-context Codex agent as auditor** — If Codex is the fallback auditor, it must have fresh context and no authorship of the tested change.
 - **Proceeding without any audit artifact** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
-- **Running the audit in the background and moving on** — The audit is a blocking gate. You must have `REPORT_FILE` before proceeding to gap analysis, test writing, or commit. Do not run it with `run_in_background` or start other work while it runs.
-- **Using the default Bash tool timeout** — Audits take 3-5 minutes for non-trivial modules. Set `timeout: 600000` on the Bash call or the subprocess will be killed before the auditor finishes.
+- **Skipping the polling pattern** — Use the polling invocation from the section above. The audit takes 3-5 minutes; without the poll loop the Bash tool will time out or the agent will lose track of the process. Set `timeout: 600000` on the Bash call.
+- **Moving on before you have `REPORT_FILE`** — The audit is a gate. Do not proceed to gap analysis, test writing, or commit until the poll loop exits and you have a file path.
 
 ---
 

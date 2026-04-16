@@ -146,7 +146,8 @@ fi
 
 DIFF_FILE=$(mktemp /tmp/specialist-review-diff.XXXXXX)
 PROMPT_FILE=$(mktemp /tmp/specialist-review-prompt.XXXXXX)
-trap 'rm -f "$DIFF_FILE" "$PROMPT_FILE"' EXIT
+_HEARTBEAT_PID=""
+trap '[[ -n "$_HEARTBEAT_PID" ]] && kill "$_HEARTBEAT_PID" 2>/dev/null; rm -f "$DIFF_FILE" "$PROMPT_FILE"' EXIT
 
 if [[ "$DIFF_SOURCE" == "--git" ]]; then
   # Capture ALL changes vs base-ref: committed + staged + unstaged.
@@ -251,6 +252,7 @@ with open(sys.argv[4], 'w') as f:
 #   GEMINI_TIMEOUT            — Max seconds for Gemini CLI (default: 300)
 #   CODEX_TIMEOUT             — Max seconds for Codex CLI (default: 300)
 #   CLAUDE_MAX_BUDGET         — Max USD budget per Claude invocation (default: 2.00)
+#   CLAUDE_MODEL              — Optional Claude model override
 #   GEMINI_MODEL              — Optional Gemini model override
 #   CODEX_MODEL               — Optional Codex model override
 #   REVIEW_CONTEXT            — Lines of diff context, passed as -U<n> to git diff (default: 15)
@@ -281,6 +283,54 @@ if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
   echo "Auto provider order: ${PROVIDERS[*]}" >&2
 fi
 
+# Emit a structured failure summary to stdout so the calling agent can report
+# diagnostics.  Stderr logs and partial outputs use the timestamped naming
+# convention so we can glob for them without tracking state during the loop.
+_emit_failure_summary() {
+  local reason="${1:-unknown}"
+  echo ""
+  echo "[REVIEW FAILED] $reason"
+  echo "Prompt size: ${PROMPT_SIZE} bytes"
+  echo "Diff lines:  ${DIFF_LINES}"
+  echo "Diff source: ${DIFF_SOURCE} (base: ${BASE_REF})"
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    echo "Path filters: ${PATH_FILTERS[*]}"
+  fi
+  echo "Provider:    ${REQUESTED_PROVIDER}"
+  echo "Output dir:  ${OUTPUT_DIR}"
+  echo ""
+  local found_log=0
+  for log in "$OUTPUT_DIR"/review-"$TIMESTAMP".*.stderr.log; do
+    [[ -f "$log" ]] || continue
+    found_log=1
+    echo "Stderr log: $log"
+  done
+  for partial in "$OUTPUT_DIR"/review-"$TIMESTAMP".*.partial.md "$OUTPUT_DIR"/review-"$TIMESTAMP".*.invalid.md; do
+    [[ -f "$partial" ]] || continue
+    echo "Artifact:   $partial"
+  done
+  if [[ "$found_log" -eq 0 ]]; then
+    echo "Stderr logs: (none — providers may have been unavailable)"
+  fi
+}
+
+# Emit periodic progress so calling agents don't time out during long provider runs.
+_heartbeat_start() {
+  local display_name="$1" start_time="$2"
+  (while true; do
+    sleep 15
+    echo "  [$display_name] Waiting for response ($(($(date +%s) - start_time))s elapsed)..." >&2
+  done) &
+  _HEARTBEAT_PID=$!
+}
+_heartbeat_stop() {
+  if [[ -n "${_HEARTBEAT_PID:-}" ]]; then
+    kill "$_HEARTBEAT_PID" 2>/dev/null
+    wait "$_HEARTBEAT_PID" 2>/dev/null || true
+    _HEARTBEAT_PID=""
+  fi
+}
+
 AVAILABLE_PROVIDER_FOUND=0
 
 for PROVIDER in "${PROVIDERS[@]}"; do
@@ -302,6 +352,9 @@ for PROVIDER in "${PROVIDERS[@]}"; do
   echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
   if [[ "$PROVIDER" == "claude" ]]; then
     echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-2.00}" >&2
+    if [[ -n "${CLAUDE_MODEL:-}" ]]; then
+      echo "Claude model override: ${CLAUDE_MODEL}" >&2
+    fi
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
   elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
@@ -310,8 +363,10 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
   rm -f "$OUTPUT_FILE"
   START_TIME=$(date +%s)
+  _heartbeat_start "$(review_provider_display_name "$PROVIDER")" "$START_TIME"
 
   if review_provider_run "$PROVIDER" "$PROMPT_FILE" "$OUTPUT_FILE" "$STDERR_LOG" "$TIMEOUT_SECONDS"; then
+    _heartbeat_stop
     ELAPSED=$(($(date +%s) - START_TIME))
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
@@ -356,6 +411,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         echo "Trying next provider fallback..." >&2
         continue
       fi
+      _emit_failure_summary "Contract validation failed ($PROVIDER)"
       exit 1
     fi
 
@@ -368,6 +424,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     tail -3 "$PROMPT_FILE" | sed 's/^/    /' >&2
   else
     EXIT_CODE=$?
+    _heartbeat_stop
     ELAPSED=$(($(date +%s) - START_TIME))
 
     if [[ "$EXIT_CODE" -eq 124 ]]; then
@@ -393,12 +450,15 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     continue
   fi
 
+  _emit_failure_summary "Provider $PROVIDER failed (exit ${EXIT_CODE:-1})"
   exit 1
 done
 
 if [[ "$AVAILABLE_PROVIDER_FOUND" -eq 0 ]]; then
   echo "Error: No review providers are available in PATH. Install 'claude', 'gemini', or 'codex', or use the fresh-context Codex fallback." >&2
+  _emit_failure_summary "No providers available"
 else
   echo "Error: All review providers failed. Inspect stderr logs above or use the fresh-context Codex fallback." >&2
+  _emit_failure_summary "All providers failed"
 fi
 exit 1
