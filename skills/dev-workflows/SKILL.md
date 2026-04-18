@@ -1,6 +1,27 @@
 ---
 name: dev-workflows
 description: Use when running builds, executing tests, or improving developer experience workflows - provides structured guidance for build/test execution and DX improvement.
+keywords:
+  - DX
+  - build error
+  - build failure
+  - developer experience
+  - npm test
+  - onboarding
+  - run build
+  - run pytest
+  - run tests
+  - test coverage
+  - test failure
+  - test run
+  - test suite
+  - tooling improvement
+file_patterns:
+  - '**/.gitlab-ci.yml'
+  - '**/cd/**'
+  - '**/ci/**'
+  - .github/workflows/*.yml
+confidence: 0.7
 ---
 
 # Dev Workflows

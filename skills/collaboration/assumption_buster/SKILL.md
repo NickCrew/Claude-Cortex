@@ -1,6 +1,20 @@
 ---
 name: assumption-buster
 description: Flip, remove, or exaggerate assumptions to unlock new solution angles.
+keywords:
+  - challenge assumptions
+  - invert assumptions
+  - question assumptions
+  - stuck thinking
+  - what if we didn't
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.74
 license: MIT
 ---
 

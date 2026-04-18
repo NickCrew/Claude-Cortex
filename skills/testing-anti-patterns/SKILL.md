@@ -1,6 +1,21 @@
 ---
 name: testing-anti-patterns
 description: Use when writing or changing tests, adding mocks, or tempted to add test-only methods to production code - prevents testing mock behavior, production pollution with test-only methods, and mocking without understanding dependencies
+keywords:
+  - bad tests
+  - ineffective tests
+  - test smells
+  - testing anti-patterns
+file_patterns:
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*_test.py'
+  - '**/test_*.py'
+  - '**/tests/**/*.py'
+  - '**/tests/**/*.ts'
+  - '**/tests/**/*.tsx'
+confidence: 0.82
 ---
 
 # Testing Anti-Patterns

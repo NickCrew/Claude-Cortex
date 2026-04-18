@@ -1,6 +1,28 @@
 ---
 name: react-performance-optimization
 description: React performance optimization patterns using memoization, code splitting, and efficient rendering strategies. Use when optimizing slow React applications, reducing bundle size, or improving user experience with large datasets.
+keywords:
+  - React optimization
+  - React performance
+  - React.memo
+  - bundle size
+  - code splitting
+  - lazy loading
+  - re-render
+  - useCallback
+  - useMemo
+  - virtualization
+file_patterns:
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/package.json'
+  - '**/tests/**/*.ts'
+  - '**/tests/**/*.tsx'
+  - '**/tsconfig.json'
+confidence: 0.76
 ---
 
 # React Performance Optimization

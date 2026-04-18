@@ -1,6 +1,18 @@
 ---
 name: codanna-codebase-intelligence
 description: Use codanna MCP tools for semantic code search, call graphs, and impact analysis before grep/find.
+keywords:
+  - analyze impact
+  - call graph
+  - codanna
+  - codebase
+  - dependencies
+  - find callers
+  - find symbol
+  - refactor
+  - semantic search
+  - what calls
+  - who calls
 ---
 
 # Codanna Codebase Intelligence

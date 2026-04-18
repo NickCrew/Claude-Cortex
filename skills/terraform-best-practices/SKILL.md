@@ -1,6 +1,21 @@
 ---
 name: terraform-best-practices
 description: Terraform infrastructure-as-code best practices for scalable and maintainable cloud infrastructure. Use when writing Terraform modules, managing infrastructure state, or implementing infrastructure automation at scale.
+keywords:
+  - HCL
+  - IaC
+  - infrastructure as code
+  - infrastructure automation
+  - remote state
+  - state management
+  - terraform
+  - terraform module
+  - terraform workspace
+  - terragrunt
+file_patterns:
+  - '**/*.tf'
+  - '**/terraform/**'
+confidence: 0.9
 ---
 
 # Terraform Best Practices

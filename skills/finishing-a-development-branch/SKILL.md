@@ -1,6 +1,16 @@
 ---
 name: finishing-a-development-branch
 description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup
+keywords:
+  - cleanup branch
+  - code review
+  - finish branch
+  - merge branch
+  - pull request
+file_patterns:
+  - '**/.git/worktrees/**'
+  - '**/worktrees/**'
+confidence: 0.76
 ---
 
 # Finishing a Development Branch

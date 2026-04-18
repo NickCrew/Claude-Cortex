@@ -1,6 +1,16 @@
 ---
 name: testing-skills-with-subagents
 description: Use when creating or editing skills, before deployment, to verify they work under pressure and resist rationalization - applies RED-GREEN-REFACTOR cycle to process documentation by running baseline without skill, writing to address failures, iterating to close loopholes
+keywords:
+  - agent testing
+  - skill validation
+  - subagent testing
+  - test skills
+file_patterns:
+  - '**/recommendation-rules.json'
+  - '**/skill-rules.json'
+  - '**/skills/**'
+confidence: 0.78
 ---
 
 # Testing Skills With Subagents

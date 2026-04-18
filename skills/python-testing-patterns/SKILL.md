@@ -1,6 +1,22 @@
 ---
 name: python-testing-patterns
 description: Python testing patterns and best practices using pytest, mocking, and property-based testing. Use when writing unit tests, integration tests, or implementing test-driven development in Python projects.
+keywords:
+  - TDD
+  - hypothesis testing
+  - integration test
+  - mocking
+  - parametrize
+  - pytest
+  - test coverage
+  - test fixture
+  - test-driven development
+  - unit test
+file_patterns:
+  - '**/*_test.py'
+  - '**/test_*.py'
+  - '**/tests/**/*.py'
+confidence: 0.85
 ---
 
 # Python Testing Patterns

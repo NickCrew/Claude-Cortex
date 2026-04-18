@@ -1,6 +1,25 @@
 ---
 name: verification-before-completion
 description: Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always
+keywords:
+  - check before complete
+  - pre-completion check
+  - validation step
+  - verify
+file_patterns:
+  - '**/.github/pull_request*'
+  - '**/.github/workflows/*release*.yml'
+  - '**/.gitlab-ci.yml'
+  - '**/CHANGELOG*'
+  - '**/CODE_REVIEW.md'
+  - '**/RELEASE*'
+  - '**/cd/**'
+  - '**/ci/**'
+  - '**/pull_request_template*'
+  - '**/release/**'
+  - '**/releases/**'
+  - .github/workflows/*.yml
+confidence: 0.78
 ---
 
 # Verification Before Completion

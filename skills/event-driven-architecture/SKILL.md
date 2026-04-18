@@ -1,6 +1,23 @@
 ---
 name: event-driven-architecture
 description: Event-driven architecture patterns with event sourcing, CQRS, and message-driven communication. Use when designing distributed systems, microservices communication, or systems requiring eventual consistency and scalability.
+keywords:
+  - CQRS
+  - Kafka
+  - RabbitMQ
+  - domain event
+  - event bus
+  - event sourcing
+  - event-driven
+  - eventual consistency
+  - message broker
+  - message queue
+file_patterns:
+  - '**/*event_bus*.*'
+  - '**/cqrs/**'
+  - '**/event-sourcing/**'
+  - '**/eventsourcing/**'
+confidence: 0.84
 ---
 
 # Event-Driven Architecture Patterns

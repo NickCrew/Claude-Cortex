@@ -1,6 +1,20 @@
 ---
 name: systematic-debugging
 description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes - four-phase framework (root cause investigation, pattern analysis, hypothesis testing, implementation) that ensures understanding before attempting solutions
+keywords:
+  - bug fix
+  - bug fix strategy
+  - debug process
+  - systematic debug
+  - troubleshoot
+file_patterns:
+  - '**/*_test.py'
+  - '**/bugs/**'
+  - '**/debug/**'
+  - '**/issues/**'
+  - '**/test_*.py'
+  - '**/tests/**/*.py'
+confidence: 0.8
 ---
 
 # Systematic Debugging

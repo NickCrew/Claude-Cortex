@@ -1,6 +1,17 @@
 ---
 name: receiving-code-review
 description: Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation
+keywords:
+  - address feedback
+  - code changes
+  - code review feedback
+  - receive review
+  - review comments
+file_patterns:
+  - '**/.github/pull_request*'
+  - '**/CODE_REVIEW.md'
+  - '**/pull_request_template*'
+confidence: 0.78
 ---
 
 # Code Review Reception

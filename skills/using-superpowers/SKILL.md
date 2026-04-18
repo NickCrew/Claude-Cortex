@@ -1,6 +1,16 @@
 ---
 name: using-superpowers
 description: Use when starting any conversation - establishes mandatory workflows for finding and using skills, including using Skill tool before announcing usage, following brainstorming before coding, and creating TodoWrite todos for checklists
+keywords:
+  - agent capabilities
+  - framework usage
+  - superpowers
+file_patterns:
+  - '**/agents/**'
+  - '**/modes/**'
+  - '**/rules/**'
+  - '**/workflows/**'
+confidence: 0.76
 ---
 
 <EXTREMELY-IMPORTANT>

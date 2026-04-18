@@ -1,6 +1,22 @@
 ---
 name: python-performance-optimization
 description: Python performance optimization patterns using profiling, algorithmic improvements, and acceleration techniques. Use when optimizing slow Python code, reducing memory usage, or improving application throughput and latency.
+keywords:
+  - Cython
+  - NumPy
+  - Python performance
+  - cProfile
+  - memory profiling
+  - multiprocessing
+  - optimization
+  - performance tuning
+  - profiling
+  - vectorization
+file_patterns:
+  - '**/*.py'
+  - '**/pyproject.toml'
+  - '**/requirements.txt'
+confidence: 0.75
 ---
 
 # Python Performance Optimization

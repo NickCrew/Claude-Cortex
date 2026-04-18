@@ -1,6 +1,16 @@
 ---
 name: skill-creator
 description: Guide for creating effective skills. Use when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.
+keywords:
+  - create skill
+  - new skill
+  - skill authoring
+  - skill development
+file_patterns:
+  - '**/recommendation-rules.json'
+  - '**/skill-rules.json'
+  - '**/skills/**'
+confidence: 0.85
 license: MIT License - Complete terms in LICENSE.txt
 ---
 

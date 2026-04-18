@@ -1,6 +1,17 @@
 ---
 name: reasoning-controls
 description: Use when adjusting reasoning depth, budgets, or metrics visibility - provides guidance for selecting and applying reasoning controls safely.
+keywords:
+  - adjust reasoning
+  - reasoning budget
+  - reasoning depth
+  - reasoning metrics
+  - think hard
+  - token budget
+  - ultrathink
+file_patterns:
+  - '**/reasoning/**'
+confidence: 0.8
 ---
 
 # Reasoning Controls

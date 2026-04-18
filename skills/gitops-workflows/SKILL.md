@@ -1,6 +1,30 @@
 ---
 name: gitops-workflows
 description: GitOps workflows and patterns using ArgoCD and Flux for declarative Kubernetes deployments. Use when implementing CI/CD for Kubernetes, managing multi-environment deployments, or adopting declarative infrastructure practices.
+keywords:
+  - ArgoCD
+  - Flux
+  - GitOps
+  - GitOps automation
+  - continuous deployment
+  - declarative deployment
+  - deployment workflow
+  - git-based deployment
+  - infrastructure as code
+  - reconciliation
+file_patterns:
+  - '**/*.tf'
+  - '**/*deployment*.yaml'
+  - '**/.gitlab-ci.yml'
+  - '**/cd/**'
+  - '**/charts/**'
+  - '**/ci/**'
+  - '**/helm/**'
+  - '**/k8s/**'
+  - '**/kubernetes/**'
+  - '**/terraform/**'
+  - .github/workflows/*.yml
+confidence: 0.82
 ---
 
 # GitOps Workflows

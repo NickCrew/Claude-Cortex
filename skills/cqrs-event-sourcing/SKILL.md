@@ -1,6 +1,23 @@
 ---
 name: cqrs-event-sourcing
 description: CQRS and Event Sourcing patterns for scalable, auditable systems with separated read/write models. Use when building audit-required systems, implementing temporal queries, or designing high-scale applications with complex domain logic.
+keywords:
+  - CQRS
+  - aggregate root
+  - command query
+  - domain event
+  - event sourcing
+  - event store
+  - event stream
+  - projection
+  - read model
+  - write model
+file_patterns:
+  - '**/*event_bus*.*'
+  - '**/cqrs/**'
+  - '**/event-sourcing/**'
+  - '**/eventsourcing/**'
+confidence: 0.9
 ---
 
 # CQRS and Event Sourcing Patterns

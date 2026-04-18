@@ -1,6 +1,25 @@
 ---
 name: code-quality-workflow
 description: Use when assessing or improving code quality, maintainability, performance, or security hygiene - provides workflows for analysis, code review, and systematic improvements with validation steps.
+keywords:
+  - code quality
+  - code review
+  - maintainability
+  - needs review
+  - quality improvement
+  - quality review
+  - ready to merge
+  - refactor
+  - review this code
+file_patterns:
+  - '**/.github/pull_request*'
+  - '**/CODE_REVIEW.md'
+  - '**/components/**'
+  - '**/feature/**'
+  - '**/features/**'
+  - '**/pull_request_template*'
+  - '**/services/**'
+confidence: 0.8
 ---
 
 # Code Quality Workflow

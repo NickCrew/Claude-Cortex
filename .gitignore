@@ -82,4 +82,5 @@ PRINCIPLES.md
 logs/
 watch.pid
 skills/*.json
+!skills/skill-index.json
 **/reviews/

@@ -1,6 +1,24 @@
 ---
 name: kubernetes-deployment-patterns
 description: Kubernetes deployment strategies and workload patterns for production-grade applications. Use when deploying to Kubernetes, implementing rollout strategies, or designing cloud-native application architectures.
+keywords:
+  - DaemonSet
+  - StatefulSet
+  - blue-green deployment
+  - canary deployment
+  - deployment strategy
+  - helm
+  - k8s
+  - kubernetes
+  - pod
+  - rolling update
+file_patterns:
+  - '**/*deployment*.yaml'
+  - '**/charts/**'
+  - '**/helm/**'
+  - '**/k8s/**'
+  - '**/kubernetes/**'
+confidence: 0.9
 ---
 
 # Kubernetes Deployment Patterns

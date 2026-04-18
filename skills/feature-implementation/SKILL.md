@@ -1,6 +1,19 @@
 ---
 name: feature-implementation
 description: Use when implementing a feature or multi-file code change - provides structured implementation flow with persona selection, validation, and testing guidance.
+keywords:
+  - add feature
+  - build feature
+  - feature work
+  - implement API
+  - implement component
+  - implement feature
+file_patterns:
+  - '**/components/**'
+  - '**/feature/**'
+  - '**/features/**'
+  - '**/services/**'
+confidence: 0.8
 ---
 
 # Feature Implementation

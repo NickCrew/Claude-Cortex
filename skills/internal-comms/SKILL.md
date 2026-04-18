@@ -1,6 +1,28 @@
 ---
 name: internal-comms
 description: A set of resources to help write all kinds of internal communications, using company-specific formats. Use when asked to write internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).
+keywords:
+  - FAQ
+  - company newsletter
+  - incident report
+  - internal comms
+  - internal communications
+  - leadership update
+  - newsletter
+  - status report
+file_patterns:
+  - '**/CODE_OF_CONDUCT*'
+  - '**/CONTRIBUTING*'
+  - '**/README*'
+  - '**/announcement/**'
+  - '**/canvas/**'
+  - '**/changelog/**'
+  - '**/community/**'
+  - '**/design/**'
+  - '**/docs/**'
+  - '**/figma/**'
+  - '**/guides/**'
+confidence: 0.74
 license: MIT License - Complete terms in LICENSE.txt
 ---
 

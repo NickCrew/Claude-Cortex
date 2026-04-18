@@ -1,6 +1,17 @@
 ---
 name: tool-selection
 description: Use when selecting between MCP tools based on task complexity and requirements - provides a structured selection workflow and decision rationale.
+keywords:
+  - capability matching
+  - codanna
+  - mcp tool selection
+  - morphllm
+  - tool routing
+  - tool selection
+file_patterns:
+  - '**/mcp/**'
+  - '**/tools/**'
+confidence: 0.72
 ---
 
 # Tool Selection

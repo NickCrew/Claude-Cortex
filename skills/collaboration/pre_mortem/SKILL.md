@@ -1,6 +1,20 @@
 ---
 name: pre-mortem
 description: Imagine failure first to surface guardrails and feature mitigations.
+keywords:
+  - anticipate failure
+  - pre-mortem
+  - premortem
+  - risk analysis before
+  - what could go wrong
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.7
 license: MIT
 ---
 

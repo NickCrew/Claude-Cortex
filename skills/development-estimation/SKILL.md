@@ -1,6 +1,21 @@
 ---
 name: development-estimation
 description: Use when estimating time, effort, or complexity for features or projects - provides structured estimation workflows with breakdowns, risks, and confidence intervals.
+keywords:
+  - complexity estimate
+  - effort estimate
+  - estimate effort
+  - scoping
+  - t-shirt size
+  - time estimate
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.7
 ---
 
 # Development Estimation

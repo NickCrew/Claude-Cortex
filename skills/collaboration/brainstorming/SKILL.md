@@ -1,6 +1,20 @@
 ---
 name: brainstorming
 description: Rapid ideation skill adapted from obra/superpowers to kick off cortex sessions. Use when defining scope, aligning on goals, or exploring solution space before coding.
+keywords:
+  - brainstorm
+  - brainstorming session
+  - generate ideas
+  - ideation
+  - let's brainstorm
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.84
 license: MIT (obra/superpowers)
 ---
 

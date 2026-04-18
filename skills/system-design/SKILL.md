@@ -1,6 +1,24 @@
 ---
 name: system-design
 description: Use when designing system architecture, APIs, components, or data models - provides a structured design workflow with validation and documentation outputs.
+keywords:
+  - API specification
+  - architecture design
+  - architecture diagram
+  - component design
+  - data model
+  - design doc
+  - interface design
+  - schema design
+  - system architecture
+  - system design
+file_patterns:
+  - '**/architecture/**'
+  - '**/canvas/**'
+  - '**/design/**'
+  - '**/design/system/**'
+  - '**/figma/**'
+confidence: 0.8
 ---
 
 # System Design

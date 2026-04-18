@@ -1,6 +1,26 @@
 ---
 name: api-gateway-patterns
 description: API Gateway patterns for routing, authentication, rate limiting, and service composition in microservices architectures. Use when implementing API gateways, building BFF layers, or managing service-to-service communication at scale.
+keywords:
+  - API gateway
+  - BFF
+  - Kong
+  - Nginx
+  - backend for frontend
+  - gateway pattern
+  - load balancing
+  - rate limiting
+  - request routing
+  - reverse proxy
+file_patterns:
+  - '**/*.http'
+  - '**/api/**'
+  - '**/microservice/**'
+  - '**/openapi.*'
+  - '**/service/**/handlers/**'
+  - '**/services/**'
+  - '**/swagger.*'
+confidence: 0.8
 ---
 
 # API Gateway Patterns

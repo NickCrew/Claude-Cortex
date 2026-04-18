@@ -2,21 +2,38 @@
 name: agent-loops
 description: Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `cortex git commit` for all commits. Includes bundled provider-aware review scripts that keep same-model shell-outs as the last resort, plus a fresh-context Codex fallback for code review and test audit. Use this skill when starting any implementation task.
 keywords:
+  - agent loops
   - agent workflow
+  - atomic commit
+  - atomic commits
+  - circuit breaker
+  - code change task
+  - code quality
   - code review loop
-  - test writing loop
+  - filing issues from review findings
+  - implementation loop
+  - implementer
+  - independent review
   - lint gate
   - linter
-  - code quality
-  - implementer
   - remediation
-  - circuit breaker
-triggers:
-  - starting implementation work
-  - code change task
-  - writing tests after implementation
   - remediation cycle
-  - filing issues from review findings
+  - specialist review
+  - starting implementation work
+  - test writing loop
+  - writing tests after implementation
+file_patterns:
+  - '**/*.go'
+  - '**/*.java'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.kt'
+  - '**/*.py'
+  - '**/*.rs'
+  - '**/*.swift'
+  - '**/*.ts'
+  - '**/*.tsx'
+confidence: 0.74
 ---
 
 # Agent Workflow Loops

@@ -1,6 +1,23 @@
 ---
 name: api-design-patterns
 description: Comprehensive REST and GraphQL API design patterns with versioning, pagination, error handling, and HATEOAS principles. Use when designing APIs, defining endpoints, or architecting service contracts requiring production-grade patterns.
+keywords:
+  - API design
+  - API versioning
+  - GraphQL
+  - HATEOAS
+  - OpenAPI
+  - REST API
+  - endpoint design
+  - error handling
+  - pagination
+  - service contract
+file_patterns:
+  - '**/*.http'
+  - '**/api/**'
+  - '**/openapi.*'
+  - '**/swagger.*'
+confidence: 0.86
 ---
 
 # API Design Patterns

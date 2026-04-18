@@ -1,0 +1,2323 @@
+{
+  "$schema": "../schemas/skill-index.schema.json",
+  "version": "2026-04-18",
+  "generated_from": "SKILL.md front matter",
+  "skills": [
+    {
+      "name": "accessibility-audit",
+      "path": "accessibility-audit",
+      "description": "Fast, high-signal accessibility triage for pages, components, or PRs targeting WCAG 2.2 AA compliance.",
+      "keywords": [
+        "a11y",
+        "a11y audit",
+        "accessibility",
+        "accessibility check",
+        "audit",
+        "compliance",
+        "keyboard navigation",
+        "screen reader",
+        "wcag",
+        "wcag compliance"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "agent-loops",
+      "path": "agent-loops",
+      "description": "Complete operational workflow for implementer agents (Codex, Gemini, etc.) making code changes and writing tests. Drives all work through atomic commits — each loop operates on the smallest complete, reviewable change. Defines the Code Change Loop, Test Writing Loop, Lint Gate, and Issue Filing process with circuit breakers, severity levels, and escalation rules. Requires `cortex git commit` for all commits. Includes bundled provider-aware review scripts that keep same-model shell-outs as the last resort, plus a fresh-context Codex fallback for code review and test audit. Use this skill when starting any implementation task.",
+      "keywords": [
+        "agent loops",
+        "agent workflow",
+        "atomic commit",
+        "atomic commits",
+        "circuit breaker",
+        "code change task",
+        "code quality",
+        "code review loop",
+        "filing issues from review findings",
+        "implementation loop",
+        "implementer",
+        "independent review",
+        "lint gate",
+        "linter",
+        "remediation",
+        "remediation cycle",
+        "specialist review",
+        "starting implementation work",
+        "test writing loop",
+        "writing tests after implementation"
+      ],
+      "file_patterns": [
+        "**/*.go",
+        "**/*.java",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.kt",
+        "**/*.py",
+        "**/*.rs",
+        "**/*.swift",
+        "**/*.ts",
+        "**/*.tsx"
+      ],
+      "confidence": 0.74
+    },
+    {
+      "name": "api-design-patterns",
+      "path": "api-design-patterns",
+      "description": "Comprehensive REST and GraphQL API design patterns with versioning, pagination, error handling, and HATEOAS principles. Use when designing APIs, defining endpoints, or architecting service contracts requiring production-grade patterns.",
+      "keywords": [
+        "API design",
+        "API versioning",
+        "GraphQL",
+        "HATEOAS",
+        "OpenAPI",
+        "REST API",
+        "endpoint design",
+        "error handling",
+        "pagination",
+        "service contract"
+      ],
+      "file_patterns": [
+        "**/*.http",
+        "**/api/**",
+        "**/openapi.*",
+        "**/swagger.*"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "api-gateway-patterns",
+      "path": "api-gateway-patterns",
+      "description": "API Gateway patterns for routing, authentication, rate limiting, and service composition in microservices architectures. Use when implementing API gateways, building BFF layers, or managing service-to-service communication at scale.",
+      "keywords": [
+        "API gateway",
+        "BFF",
+        "Kong",
+        "Nginx",
+        "backend for frontend",
+        "gateway pattern",
+        "load balancing",
+        "rate limiting",
+        "request routing",
+        "reverse proxy"
+      ],
+      "file_patterns": [
+        "**/*.http",
+        "**/api/**",
+        "**/microservice/**",
+        "**/openapi.*",
+        "**/service/**/handlers/**",
+        "**/services/**",
+        "**/swagger.*"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "assumption-buster",
+      "path": "collaboration/assumption_buster",
+      "description": "Flip, remove, or exaggerate assumptions to unlock new solution angles.",
+      "keywords": [
+        "challenge assumptions",
+        "invert assumptions",
+        "question assumptions",
+        "stuck thinking",
+        "what if we didn't"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.74
+    },
+    {
+      "name": "async-python-patterns",
+      "path": "async-python-patterns",
+      "description": "Python asyncio and concurrent programming patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.",
+      "keywords": [
+        "FastAPI async",
+        "aiohttp",
+        "async await",
+        "async python",
+        "async/await",
+        "asyncio",
+        "concurrent python",
+        "coroutine",
+        "event loop",
+        "non-blocking"
+      ],
+      "file_patterns": [
+        "**/*.py",
+        "**/pyproject.toml",
+        "**/requirements.txt"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "name": "backlog-md",
+      "path": "backlog-md",
+      "description": "Task tracking system for agents via Backlog.md CLI. Use when creating deferred issues during implementation, filing audit findings, working assigned tasks, or managing project work. Optimized for agent workflows: structured issue filing, priority/labeling system, and task completion tracking.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "blog-post",
+      "path": "blog-post",
+      "description": "Use this skill when writing blog posts, articles, or long-form web content—from quick how-to guides to in-depth opinion pieces. Trigger phrases: 'write a blog post about', 'draft an article on', 'create a post for my blog'. Do NOT use for academic papers, news reporting, or content requiring real-time facts.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "brainstorming",
+      "path": "collaboration/brainstorming",
+      "description": "Rapid ideation skill adapted from obra/superpowers to kick off cortex sessions. Use when defining scope, aligning on goals, or exploring solution space before coding.",
+      "keywords": [
+        "brainstorm",
+        "brainstorming session",
+        "generate ideas",
+        "ideation",
+        "let's brainstorm"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.84
+    },
+    {
+      "name": "build-optimization",
+      "path": "build-optimization",
+      "description": "Build system optimization covering compilation, caching, incremental builds, and developer tooling. Use when improving build times, configuring CI pipelines, or designing developer tools.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "business-analyst",
+      "path": "business-analyst",
+      "description": "Use this skill when gathering and documenting business requirements, mapping processes, performing gap analysis, writing business requirements documents (BRDs), or modeling stakeholder impact. Trigger phrases: 'write a business requirements document', 'map this process', 'gather requirements for', 'gap analysis for', 'AS-IS TO-BE process'. Not for writing user stories (use product-manager skill), conducting user research (use ux-researcher), or financial modeling.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "canvas-design",
+      "path": "canvas-design",
+      "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. Use when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
+      "keywords": [
+        "art",
+        "canvas",
+        "canvas design",
+        "design",
+        "design philosophy",
+        "graphic design",
+        "poster",
+        "visual",
+        "visual art"
+      ],
+      "file_patterns": [
+        "**/canvas/**",
+        "**/design/**",
+        "**/figma/**"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "chart-builder",
+      "path": "chart-builder",
+      "description": "Use this skill when creating data visualizations, selecting the right chart type, or generating chart code. Trigger phrases: 'build a chart', 'visualize this data', 'create a graph', 'plot these numbers', 'which chart should I use for'. Not for building interactive dashboards, designing UI components, or creating infographics with design tools like Figma.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "codanna-codebase-intelligence",
+      "path": "codanna-codebase-intelligence",
+      "description": "Use codanna MCP tools for semantic code search, call graphs, and impact analysis before grep/find.",
+      "keywords": [
+        "analyze impact",
+        "call graph",
+        "codanna",
+        "codebase",
+        "dependencies",
+        "find callers",
+        "find symbol",
+        "refactor",
+        "semantic search",
+        "what calls",
+        "who calls"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "code-explanation",
+      "path": "code-explanation",
+      "description": "Use when explaining code, concepts, or system behavior to a specific audience level - provides a structured explanation workflow with depth control and validation steps.",
+      "keywords": [
+        "code explanation",
+        "explain architecture",
+        "explain code",
+        "explain function",
+        "explain this code",
+        "how does this work",
+        "teach code",
+        "walkthrough"
+      ],
+      "file_patterns": [
+        "**/CODE_OF_CONDUCT*",
+        "**/CONTRIBUTING*",
+        "**/README*",
+        "**/docs/**",
+        "**/guides/**"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "code-quality-workflow",
+      "path": "code-quality-workflow",
+      "description": "Use when assessing or improving code quality, maintainability, performance, or security hygiene - provides workflows for analysis, code review, and systematic improvements with validation steps.",
+      "keywords": [
+        "code quality",
+        "code review",
+        "maintainability",
+        "needs review",
+        "quality improvement",
+        "quality review",
+        "ready to merge",
+        "refactor",
+        "review this code"
+      ],
+      "file_patterns": [
+        "**/.github/pull_request*",
+        "**/CODE_REVIEW.md",
+        "**/components/**",
+        "**/feature/**",
+        "**/features/**",
+        "**/pull_request_template*",
+        "**/services/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "codex-code-review",
+      "path": "codex-code-review",
+      "description": "Automate code review remediation loops with the codex CLI. Requests reviews from codex, classifies findings by severity (P0-P4), fixes critical issues (P0/P1) through iterative cycles, defers quality improvements to backlog, and escalates after 3 review cycles. Use when working with code that needs structured remediation: 'codex review' in a request triggers this workflow.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "color-palette",
+      "path": "color-palette",
+      "description": "Use this skill when creating, evaluating, or documenting color palettes for brands, products, or design systems. Trigger phrases: 'create a color palette', 'what colors should I use', 'brand colors for', 'accessible color scheme'. Do NOT use for image editing, photo color correction, or print production color matching.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "competitor-analyst",
+      "path": "competitor-analyst",
+      "description": "Use this skill when analyzing competitors, building competitive positioning, creating feature comparison matrices, or applying strategic frameworks like SWOT or Porter's Five Forces. Trigger phrases: 'analyze our competitors', 'competitive analysis for', 'how do we compare to', 'create a feature matrix', 'SWOT analysis of'. Not for sizing the total market (use market-researcher), writing pitch decks (use pitch-deck-writer), or pricing strategy modeling.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "compliance-audit",
+      "path": "compliance-audit",
+      "description": "Regulatory compliance auditing across GDPR, HIPAA, PCI DSS, SOC 2, and ISO frameworks with automated evidence collection and gap analysis. Use when conducting compliance assessments, preparing for certifications, or implementing regulatory controls.",
+      "keywords": [
+        "GDPR compliance",
+        "HIPAA assessment",
+        "ISO 27001 alignment",
+        "PCI DSS certification",
+        "SOC 2 readiness",
+        "compliance audit",
+        "evidence collection",
+        "gap analysis",
+        "regulatory assessment"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "concept-forge",
+      "path": "collaboration/concept_forge",
+      "description": "Score concepts on impact/delight/effort and pick a 1-day spike.",
+      "keywords": [
+        "concept card",
+        "impact delight effort",
+        "prioritize ideas",
+        "rank ideas",
+        "score ideas"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "condition-based-waiting",
+      "path": "condition-based-waiting",
+      "description": "Use when tests have race conditions, timing dependencies, or inconsistent pass/fail behavior - replaces arbitrary timeouts with condition polling to wait for actual state changes, eliminating flaky tests from timing guesses",
+      "keywords": [
+        "asynchronous",
+        "condition",
+        "event-driven",
+        "polling",
+        "wait"
+      ],
+      "file_patterns": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/package.json",
+        "**/tsconfig.json"
+      ],
+      "confidence": 0.68
+    },
+    {
+      "name": "constructive-dissent",
+      "path": "constructive-dissent",
+      "description": "Structured disagreement protocols that expose weaknesses, test assumptions, and generate alternatives. Use when stress-testing proposals, playing devil's advocate, challenging architectural decisions, or auditing assumptions before finalizing plans.",
+      "keywords": [
+        "challenge this",
+        "critique proposal",
+        "devil's advocate",
+        "question assumptions",
+        "stress test",
+        "what could go wrong"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "copywriter",
+      "path": "copywriter",
+      "description": "Use this skill when writing persuasive, conversion-focused copy—landing pages, product descriptions, ads, sales emails, or any content designed to move someone to action. Trigger phrases: 'write copy for my landing page', 'describe this product', 'write an ad for'. Do NOT use for informational content, technical documentation, or long-form editorial writing.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "cortex-skills-loop",
+      "path": "cortex-skills-loop",
+      "description": "Drives the cortex skills recommend-feedback-rate loop. Use when a context change occurs (new file types, domain shift, task pivot) or when a task completes and skill effectiveness should be recorded.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "cqrs-event-sourcing",
+      "path": "cqrs-event-sourcing",
+      "description": "CQRS and Event Sourcing patterns for scalable, auditable systems with separated read/write models. Use when building audit-required systems, implementing temporal queries, or designing high-scale applications with complex domain logic.",
+      "keywords": [
+        "CQRS",
+        "aggregate root",
+        "command query",
+        "domain event",
+        "event sourcing",
+        "event store",
+        "event stream",
+        "projection",
+        "read model",
+        "write model"
+      ],
+      "file_patterns": [
+        "**/*event_bus*.*",
+        "**/cqrs/**",
+        "**/event-sourcing/**",
+        "**/eventsourcing/**"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "name": "dashboard-designer",
+      "path": "dashboard-designer",
+      "description": "Use this skill when designing a data dashboard—choosing KPIs, structuring layout, applying visual hierarchy, or deciding which BI tool to use. Trigger phrases: 'design a dashboard', 'build a KPI dashboard', 'what should my dashboard show', 'help me layout a dashboard', 'dashboard for monitoring'. Not for building chart code from scratch (use chart-builder), writing SQL queries (use sql-analyst), or designing marketing landing pages.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "database-design-patterns",
+      "path": "database-design-patterns",
+      "description": "Database schema design patterns and optimization strategies for relational and NoSQL databases. Use when designing database schemas, optimizing query performance, or implementing data persistence layers at scale.",
+      "keywords": [
+        "NoSQL design",
+        "data modeling",
+        "database design",
+        "database patterns",
+        "denormalization",
+        "foreign key",
+        "indexing",
+        "normalization",
+        "relational database",
+        "schema design"
+      ],
+      "file_patterns": [
+        "**/*ddl*.*",
+        "**/database/**",
+        "**/migrations/**",
+        "**/schema/**"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "dataset-curator",
+      "path": "dataset-curator",
+      "description": "Use this skill when designing, cleaning, deduplicating, or documenting datasets for model training and evaluation including schema design, class imbalance handling, and train/val/test splits. Not for running model training or hyperparameter tuning. Not for real-time data pipeline engineering.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "decision-maker",
+      "path": "decision-maker",
+      "description": "Use this skill when you face a complex or high-stakes decision and need a structured framework to evaluate options objectively. Ideal for career choices, product prioritization, vendor selection, or any multi-criteria trade-off. Not for trivial daily decisions or situations that require licensed professional advice.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "defense-in-depth",
+      "path": "defense-in-depth",
+      "description": "Use when invalid data causes failures deep in execution, requiring validation at multiple system layers - validates at every layer data passes through to make bugs structurally impossible",
+      "keywords": [
+        "defense in depth",
+        "layered security",
+        "multi-layered defense",
+        "security strategy"
+      ],
+      "file_patterns": [
+        "**/Dockerfile",
+        "**/docker-compose*.yml"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "design-critiquer",
+      "path": "design-critiquer",
+      "description": "Use this skill when reviewing, evaluating, or giving structured feedback on UI designs, wireframes, mockups, or design systems. Trigger phrases: 'critique this design', 'give feedback on my UI', 'review this wireframe', 'what's wrong with this design'. Do NOT use for writing code, implementing designs, or marketing material critique.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "design-system-architecture",
+      "path": "design-system-architecture",
+      "description": "Build scalable design systems with design tokens, component APIs, and documentation. Use when creating or evolving component libraries.",
+      "keywords": [
+        "component library",
+        "design system",
+        "design tokens",
+        "theme architecture",
+        "theming",
+        "ui components",
+        "ui kit"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "dev-workflows",
+      "path": "dev-workflows",
+      "description": "Use when running builds, executing tests, or improving developer experience workflows - provides structured guidance for build/test execution and DX improvement.",
+      "keywords": [
+        "DX",
+        "build error",
+        "build failure",
+        "developer experience",
+        "npm test",
+        "onboarding",
+        "run build",
+        "run pytest",
+        "run tests",
+        "test coverage",
+        "test failure",
+        "test run",
+        "test suite",
+        "tooling improvement"
+      ],
+      "file_patterns": [
+        "**/.gitlab-ci.yml",
+        "**/cd/**",
+        "**/ci/**",
+        ".github/workflows/*.yml"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "name": "development-estimation",
+      "path": "development-estimation",
+      "description": "Use when estimating time, effort, or complexity for features or projects - provides structured estimation workflows with breakdowns, risks, and confidence intervals.",
+      "keywords": [
+        "complexity estimate",
+        "effort estimate",
+        "estimate effort",
+        "scoping",
+        "t-shirt size",
+        "time estimate"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "name": "dispatching-parallel-agents",
+      "path": "dispatching-parallel-agents",
+      "description": "Use when facing 3+ independent failures that can be investigated without shared state or dependencies - dispatches multiple Claude agents to investigate and fix independent problems concurrently",
+      "keywords": [
+        "concurrent tasks",
+        "dispatch",
+        "multi-agent",
+        "orchestration",
+        "parallel agents"
+      ],
+      "file_patterns": [
+        "**/agents/**",
+        "**/bugs/**",
+        "**/debug/**",
+        "**/issues/**",
+        "**/modes/**",
+        "**/rules/**",
+        "**/workflows/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-architecture-review",
+      "path": "doc-architecture-review",
+      "description": "Evaluate documentation information architecture: navigation paths, discoverability, progressive disclosure, cross-linking, and mental model alignment. This skill should be used when restructuring docs, adding new sections, or when users report difficulty finding information.",
+      "keywords": [
+        "can users find docs",
+        "doc navigation",
+        "doc organization review",
+        "documentation structure",
+        "information architecture",
+        "review doc architecture"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-claim-validator",
+      "path": "doc-claim-validator",
+      "description": "Validate that claims in documentation match codebase reality. Extracts verifiable assertions (file paths, commands, function references, behavioral claims, dependencies) from markdown docs and checks them against the actual project. Use after code changes, before releases, or when docs feel untrustworthy.",
+      "keywords": [
+        "check docs against code",
+        "claim validation",
+        "doc claims",
+        "doc verification",
+        "docs are wrong",
+        "documentation accuracy",
+        "validate docs",
+        "verify documentation"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-completeness-audit",
+      "path": "doc-completeness-audit",
+      "description": "Audit documentation completeness by mapping what a doc set should cover against what it actually covers. Produces a prioritized gap report by topic, not just by file. This skill should be used after shipping features, before releases, or when users report missing documentation.",
+      "keywords": [
+        "are docs complete",
+        "audit doc completeness",
+        "doc coverage gaps",
+        "documentation gaps",
+        "what docs are missing"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-health-audit",
+      "path": "doc-health-audit",
+      "description": "Orchestrate a full documentation health audit across five dimensions: structural health, semantic accuracy, topic completeness, prose quality, and information architecture. Runs each phase in dependency order with phase gating. This skill should be used for pre-release audits, periodic health checks, or comprehensive documentation assessments.",
+      "keywords": [
+        "audit all docs",
+        "doc health check",
+        "documentation health",
+        "full doc audit",
+        "pre-release doc check"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-maintenance",
+      "path": "doc-maintenance",
+      "description": "Systematic documentation audit and maintenance. This skill should be used when documentation may be stale, missing, or misorganized — after feature work, refactors, dependency upgrades, or as a periodic health check. It prescribes folder structure for docs/ and manual/, dispatches haiku subagents for codebase/doc scanning, and routes doc creation to specialized agents (reference-builder, technical-writer, learning-guide) with docs-architect as quality gate.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "doc-quality-review",
+      "path": "doc-quality-review",
+      "description": "Assess documentation quality across readability, consistency, audience fit, and prose clarity. Produces a scored review with actionable findings. This skill should be used before releases, during doc reviews, or when documentation feels unclear or inconsistent.",
+      "keywords": [
+        "doc readability",
+        "documentation consistency",
+        "improve doc quality",
+        "is this doc well-written",
+        "prose review",
+        "review doc quality"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "documentation-production",
+      "path": "documentation-production",
+      "description": "Use when generating, updating, or organizing documentation (component/API docs, project indexes, diagrams, tutorials, learning paths) - provides structured workflows and references for docs generation, indexing, diagrams, and teaching.",
+      "keywords": [
+        "doc index",
+        "documentation",
+        "generate docs",
+        "learning path",
+        "mermaid diagram",
+        "sequence diagram",
+        "tutorial"
+      ],
+      "file_patterns": [
+        "**/CODE_OF_CONDUCT*",
+        "**/CONTRIBUTING*",
+        "**/README*",
+        "**/docs/**",
+        "**/guides/**"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "docx",
+      "path": "document-skills/docx",
+      "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "email-drafter",
+      "path": "email-drafter",
+      "description": "Use this skill when drafting professional or personal emails—cold outreach, follow-ups, internal memos, client communication, or any message that needs to be clear and effective. Trigger phrases: 'write an email to', 'draft a follow-up', 'help me email'. Do NOT use for mass marketing email campaigns (use copywriter skill) or legal/formal notices requiring specific language.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "eval-designer",
+      "path": "eval-designer",
+      "description": "Use this skill when building evaluation frameworks to measure LLM quality, safety, accuracy, or alignment including test suites, human eval rubrics, automated evals, and metrics design. Not for training or fine-tuning models. Not for dataset curation or benchmark comparison across publicly available models.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "evaluator-optimizer",
+      "path": "evaluator-optimizer",
+      "description": "Iterative refinement workflow for polishing code, documentation, or designs through systematic evaluation and improvement cycles. Use when refining drafts into production-grade quality.",
+      "keywords": [
+        "code quality",
+        "evaluation",
+        "evaluator-optimizer",
+        "improve iteratively",
+        "iteration",
+        "optimization",
+        "optimize this",
+        "polish",
+        "polish this",
+        "refine this",
+        "refinement"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "event-driven-architecture",
+      "path": "event-driven-architecture",
+      "description": "Event-driven architecture patterns with event sourcing, CQRS, and message-driven communication. Use when designing distributed systems, microservices communication, or systems requiring eventual consistency and scalability.",
+      "keywords": [
+        "CQRS",
+        "Kafka",
+        "RabbitMQ",
+        "domain event",
+        "event bus",
+        "event sourcing",
+        "event-driven",
+        "eventual consistency",
+        "message broker",
+        "message queue"
+      ],
+      "file_patterns": [
+        "**/*event_bus*.*",
+        "**/cqrs/**",
+        "**/event-sourcing/**",
+        "**/eventsourcing/**"
+      ],
+      "confidence": 0.84
+    },
+    {
+      "name": "executing-plans",
+      "path": "collaboration/executing-plans",
+      "description": "Execution discipline that translates plans into tracked tasks with orchestration and verification loops. Use when driving a plan through cortex’s task system, coordinating workstreams across agents, or ensuring every plan item is tracked, executed, and verified.",
+      "keywords": [
+        "execute plan",
+        "follow plan",
+        "start implementing"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "fact-checker",
+      "path": "fact-checker",
+      "description": "Use this skill when verifying factual claims, checking accuracy of statements, or assessing the credibility of information. Trigger phrases: 'fact-check this', 'is this true', 'verify this claim', 'check if this is accurate'. Do NOT use for subjective opinions, legal or medical advice, or claims requiring real-time data or breaking news.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "feature-implementation",
+      "path": "feature-implementation",
+      "description": "Use when implementing a feature or multi-file code change - provides structured implementation flow with persona selection, validation, and testing guidance.",
+      "keywords": [
+        "add feature",
+        "build feature",
+        "feature work",
+        "implement API",
+        "implement component",
+        "implement feature"
+      ],
+      "file_patterns": [
+        "**/components/**",
+        "**/feature/**",
+        "**/features/**",
+        "**/services/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "finishing-a-development-branch",
+      "path": "finishing-a-development-branch",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup",
+      "keywords": [
+        "cleanup branch",
+        "code review",
+        "finish branch",
+        "merge branch",
+        "pull request"
+      ],
+      "file_patterns": [
+        "**/.git/worktrees/**",
+        "**/worktrees/**"
+      ],
+      "confidence": 0.76
+    },
+    {
+      "name": "frontend-design",
+      "path": "frontend-design",
+      "description": "Use this skill when specifying, designing, or documenting UI components, layouts, and design systems for frontend implementation. Trigger phrases: 'design this UI component', 'create a responsive layout', 'spec the CSS for', 'design system for'. Do NOT use for backend development, server-side logic, data engineering, or writing server code.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "git-ops",
+      "path": "git-ops",
+      "description": "Use when performing git operations or generating smart commit messages - provides safe git workflow guidance, validation checks, and conventional commit formatting.",
+      "keywords": [
+        "conventional commit",
+        "git branch",
+        "git commit",
+        "git pull",
+        "git push",
+        "git status",
+        "merge conflict",
+        "rebase",
+        "smart commit"
+      ],
+      "file_patterns": [
+        "**/.git/worktrees/**",
+        "**/worktrees/**"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "github-actions-workflows",
+      "path": "github-actions-workflows",
+      "description": "GitHub Actions workflow patterns for CI/CD including matrix builds, reusable workflows, secrets management, and caching strategies. Use when setting up or optimizing GitHub Actions pipelines.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "gitops-workflows",
+      "path": "gitops-workflows",
+      "description": "GitOps workflows and patterns using ArgoCD and Flux for declarative Kubernetes deployments. Use when implementing CI/CD for Kubernetes, managing multi-environment deployments, or adopting declarative infrastructure practices.",
+      "keywords": [
+        "ArgoCD",
+        "Flux",
+        "GitOps",
+        "GitOps automation",
+        "continuous deployment",
+        "declarative deployment",
+        "deployment workflow",
+        "git-based deployment",
+        "infrastructure as code",
+        "reconciliation"
+      ],
+      "file_patterns": [
+        "**/*.tf",
+        "**/*deployment*.yaml",
+        "**/.gitlab-ci.yml",
+        "**/cd/**",
+        "**/charts/**",
+        "**/ci/**",
+        "**/helm/**",
+        "**/k8s/**",
+        "**/kubernetes/**",
+        "**/terraform/**",
+        ".github/workflows/*.yml"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "helm-chart-patterns",
+      "path": "helm-chart-patterns",
+      "description": "Helm chart development patterns for packaging and deploying Kubernetes applications. Use when creating reusable Helm charts, managing multi-environment deployments, or building application catalogs for Kubernetes.",
+      "keywords": [
+        "Helm",
+        "Helm chart",
+        "Helm deployment",
+        "Helm release",
+        "Helm upgrade",
+        "chart hooks",
+        "chart packaging",
+        "chart repository",
+        "chart template",
+        "values.yaml"
+      ],
+      "file_patterns": [
+        "**/*deployment*.yaml",
+        "**/charts/**",
+        "**/helm/**",
+        "**/k8s/**",
+        "**/kubernetes/**"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "idea-lab",
+      "path": "collaboration/idea_lab",
+      "description": "Timeboxed divergent ideation that outputs ranked options plus day-one experiments.",
+      "keywords": [
+        "divergent thinking",
+        "generate options fast",
+        "idea lab",
+        "quick ideation sprint"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "implementation-workflow",
+      "path": "implementation-workflow",
+      "description": "Use when turning PRDs or feature specs into actionable implementation workflows - provides structured task decomposition, dependency mapping, and validation gates.",
+      "keywords": [
+        "PRD",
+        "feature spec",
+        "implementation plan",
+        "implementation workflow",
+        "plan implementation",
+        "task breakdown",
+        "workflow plan"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.74
+    },
+    {
+      "name": "incident-response",
+      "path": "incident-response",
+      "description": "Incident triage, cascade prevention, and postmortem methodology. Use when handling production incidents, designing resilience patterns, or conducting chaos engineering exercises.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "interaction-design",
+      "path": "interaction-design",
+      "description": "User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states.",
+      "keywords": [
+        "animation",
+        "empty state",
+        "error state",
+        "feedback patterns",
+        "interaction design",
+        "loading state",
+        "micro-interaction",
+        "micro-interactions",
+        "state transitions",
+        "user flow",
+        "user flows"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "internal-comms",
+      "path": "internal-comms",
+      "description": "A set of resources to help write all kinds of internal communications, using company-specific formats. Use when asked to write internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
+      "keywords": [
+        "FAQ",
+        "company newsletter",
+        "incident report",
+        "internal comms",
+        "internal communications",
+        "leadership update",
+        "newsletter",
+        "status report"
+      ],
+      "file_patterns": [
+        "**/CODE_OF_CONDUCT*",
+        "**/CONTRIBUTING*",
+        "**/README*",
+        "**/announcement/**",
+        "**/canvas/**",
+        "**/changelog/**",
+        "**/community/**",
+        "**/design/**",
+        "**/docs/**",
+        "**/figma/**",
+        "**/guides/**"
+      ],
+      "confidence": 0.74
+    },
+    {
+      "name": "knowledge-synthesis",
+      "path": "knowledge-synthesis",
+      "description": "Extract insights from multi-agent interactions, identify patterns, and build collective intelligence through cross-agent learning and knowledge management. Use when synthesizing findings, building knowledge bases, or improving system-wide practices.",
+      "keywords": [
+        "build knowledge base",
+        "collective intelligence",
+        "cross-agent learning",
+        "extract patterns",
+        "synthesize knowledge"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "kubernetes-deployment-patterns",
+      "path": "kubernetes-deployment-patterns",
+      "description": "Kubernetes deployment strategies and workload patterns for production-grade applications. Use when deploying to Kubernetes, implementing rollout strategies, or designing cloud-native application architectures.",
+      "keywords": [
+        "DaemonSet",
+        "StatefulSet",
+        "blue-green deployment",
+        "canary deployment",
+        "deployment strategy",
+        "helm",
+        "k8s",
+        "kubernetes",
+        "pod",
+        "rolling update"
+      ],
+      "file_patterns": [
+        "**/*deployment*.yaml",
+        "**/charts/**",
+        "**/helm/**",
+        "**/k8s/**",
+        "**/kubernetes/**"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "name": "kubernetes-security-policies",
+      "path": "kubernetes-security-policies",
+      "description": "Kubernetes security policies, RBAC, and Pod Security Standards for hardened cluster deployments. Use when implementing cluster security, defining network policies, or enforcing security compliance in Kubernetes environments.",
+      "keywords": [
+        "OPA",
+        "RBAC",
+        "admission controller",
+        "container security",
+        "k8s security",
+        "kubernetes security",
+        "network policy",
+        "pod security",
+        "policy enforcement",
+        "security context"
+      ],
+      "file_patterns": [
+        "**/*deployment*.yaml",
+        "**/charts/**",
+        "**/helm/**",
+        "**/k8s/**",
+        "**/kubernetes/**"
+      ],
+      "confidence": 0.84
+    },
+    {
+      "name": "legacy-modernization",
+      "path": "legacy-modernization",
+      "description": "Modernize legacy systems using proven migration patterns like strangler fig, feature flags, and incremental refactoring. Use when planning system migrations, modernizing monoliths, or managing technical debt.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "market-researcher",
+      "path": "market-researcher",
+      "description": "Use this skill when sizing a market, analyzing competitors, designing customer surveys, segmenting audiences, or synthesizing research into market insights. Trigger phrases: 'size the market for', 'analyze our competitors', 'who is our target customer', 'design a survey to understand', 'TAM/SAM/SOM for'. Not for building financial models, writing pitch decks, or conducting UX usability research.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "mashup",
+      "path": "collaboration/mashup",
+      "description": "Force-fit patterns from other domains to spark novel concepts.",
+      "keywords": [
+        "borrow from other domains",
+        "cross-pollinate",
+        "gamification ideas",
+        "mashup",
+        "what would X do"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "mermaid-diagramming",
+      "path": "mermaid-diagramming",
+      "description": "Mermaid diagram creation covering flowcharts, sequence diagrams, ERDs, state machines, Gantt charts, and architecture views. Use when creating or updating technical diagrams in documentation.",
+      "keywords": [
+        "architecture diagram",
+        "class diagram",
+        "entity relationship diagram",
+        "flowchart",
+        "gantt chart",
+        "mermaid diagram",
+        "sequence diagram",
+        "state diagram"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "microservices-patterns",
+      "path": "microservices-patterns",
+      "description": "Comprehensive microservices architecture patterns covering service decomposition, communication, data management, and resilience strategies. Use when designing distributed systems, breaking down monoliths, or implementing service-to-service communication.",
+      "keywords": [
+        "API gateway",
+        "circuit breaker",
+        "distributed system",
+        "inter-service communication",
+        "microservices",
+        "saga pattern",
+        "service decomposition",
+        "service discovery",
+        "service mesh",
+        "service-to-service"
+      ],
+      "file_patterns": [
+        "**/microservice/**",
+        "**/service/**/handlers/**",
+        "**/services/**"
+      ],
+      "confidence": 0.84
+    },
+    {
+      "name": "model-comparator",
+      "path": "model-comparator",
+      "description": "Use this skill when comparing AI or LLM models on benchmarks, capability, cost, latency, context window, or task-specific fit to help teams select the right model for their use case and budget. Not for training or fine-tuning models. Not for building eval frameworks from scratch.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "multi-llm-consult",
+      "path": "multi-llm-consult",
+      "description": "Consult external LLMs (Gemini, OpenAI/Codex, Qwen) for second opinions, alternative plans, independent reviews, or delegated tasks. Use when a user asks for another model's perspective, wants to compare answers, or requests delegating a subtask to Gemini/Codex/Qwen.",
+      "keywords": [
+        "Codex",
+        "Gemini",
+        "Qwen",
+        "another LLM",
+        "compare models",
+        "cross-check",
+        "delegate to model",
+        "external model",
+        "second opinion"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "multi-perspective-analysis",
+      "path": "multi-perspective-analysis",
+      "description": "Adopt multiple expert personas sequentially for complex problem analysis from diverse perspectives. Single-agent only — do NOT spawn sub-agents.",
+      "keywords": [
+        "different angles",
+        "diverse viewpoints",
+        "expert analysis",
+        "expert personas",
+        "multi-perspective",
+        "multiple perspectives",
+        "synthesis"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "openapi-specification",
+      "path": "openapi-specification",
+      "description": "OpenAPI 3.x specification design, schema patterns, and validation for REST API contracts. Use when creating or maintaining API specifications, generating documentation, or validating API contracts.",
+      "keywords": [
+        "api contract",
+        "api specification",
+        "oas design",
+        "openapi spec",
+        "swagger definition"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "owasp-top-10",
+      "path": "owasp-top-10",
+      "description": "OWASP Top 10 security vulnerabilities with detection and remediation patterns. Use when conducting security audits, implementing secure coding practices, or reviewing code for common security vulnerabilities.",
+      "keywords": [
+        "CSRF",
+        "OWASP",
+        "SQL injection",
+        "XSS",
+        "authentication failure",
+        "broken access control",
+        "cryptographic failure",
+        "injection",
+        "security audit",
+        "security vulnerability"
+      ],
+      "file_patterns": [
+        "**/*secret*.py",
+        "**/*secret*.ts",
+        "**/auth/**",
+        "**/security/**"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "name": "pdf",
+      "path": "document-skills/pdf",
+      "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "playwright-cli",
+      "path": "playwright",
+      "description": "Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, test web applications, or extract information from web pages.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "pptx",
+      "path": "document-skills/pptx",
+      "description": "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "pre-mortem",
+      "path": "collaboration/pre_mortem",
+      "description": "Imagine failure first to surface guardrails and feature mitigations.",
+      "keywords": [
+        "anticipate failure",
+        "pre-mortem",
+        "premortem",
+        "risk analysis before",
+        "what could go wrong"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "name": "product-manager",
+      "path": "product-manager",
+      "description": "Use this skill when writing product requirements documents, prioritizing features, creating user stories, defining acceptance criteria, or setting product metrics. Trigger phrases: 'write a PRD for', 'prioritize this feature backlog', 'write user stories for', 'help me define acceptance criteria', 'what metrics should we track for'. Not for writing code, designing UI mockups, or conducting user research interviews.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "product-strategy",
+      "path": "product-strategy",
+      "description": "Product vision, roadmap development, and go-to-market execution with structured prioritization frameworks. Use when evaluating features, planning product direction, or assessing market fit.",
+      "keywords": [
+        "OKR definition",
+        "OKRs",
+        "feature planning",
+        "feature prioritization",
+        "go-to-market",
+        "prioritization",
+        "product strategy",
+        "product-market fit",
+        "roadmap",
+        "roadmap planning"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "prompt-engineering",
+      "path": "prompt-engineering",
+      "description": "Optimize prompts for LLMs and AI systems with structured techniques, evaluation patterns, and synthetic test data generation. Use when building AI features, improving agent performance, or crafting system prompts.",
+      "keywords": [
+        "LLM",
+        "LLM optimization",
+        "chain-of-thought",
+        "few-shot",
+        "prompt engineering",
+        "prompt template",
+        "synthetic data",
+        "synthetic test data",
+        "system prompt"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "proofreader",
+      "path": "proofreader",
+      "description": "Use this skill when reviewing written content for grammar, spelling, punctuation, style consistency, and tone—before publishing, submitting, or sending. Trigger phrases: 'proofread this', 'check my writing', 'review this for errors', 'edit this email/report/essay'. Do NOT use when structural rewrites or content changes are needed—proofreading fixes surface errors, not substantive problems.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "python-performance-optimization",
+      "path": "python-performance-optimization",
+      "description": "Python performance optimization patterns using profiling, algorithmic improvements, and acceleration techniques. Use when optimizing slow Python code, reducing memory usage, or improving application throughput and latency.",
+      "keywords": [
+        "Cython",
+        "NumPy",
+        "Python performance",
+        "cProfile",
+        "memory profiling",
+        "multiprocessing",
+        "optimization",
+        "performance tuning",
+        "profiling",
+        "vectorization"
+      ],
+      "file_patterns": [
+        "**/*.py",
+        "**/pyproject.toml",
+        "**/requirements.txt"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "name": "python-testing-patterns",
+      "path": "python-testing-patterns",
+      "description": "Python testing patterns and best practices using pytest, mocking, and property-based testing. Use when writing unit tests, integration tests, or implementing test-driven development in Python projects.",
+      "keywords": [
+        "TDD",
+        "hypothesis testing",
+        "integration test",
+        "mocking",
+        "parametrize",
+        "pytest",
+        "test coverage",
+        "test fixture",
+        "test-driven development",
+        "unit test"
+      ],
+      "file_patterns": [
+        "**/*_test.py",
+        "**/test_*.py",
+        "**/tests/**/*.py"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "name": "quality-audit",
+      "path": "quality-audit",
+      "description": "Meta-skill for auditing and validating skill quality. Use when reviewing skills for consistency, completeness, accuracy, and adherence to standards. Provides structured rubrics, scoring frameworks, and actionable recommendations.",
+      "keywords": [
+        "audit skill",
+        "review skill quality",
+        "rubric assessment",
+        "skill quality check",
+        "validate skill"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "react-performance-optimization",
+      "path": "react-performance-optimization",
+      "description": "React performance optimization patterns using memoization, code splitting, and efficient rendering strategies. Use when optimizing slow React applications, reducing bundle size, or improving user experience with large datasets.",
+      "keywords": [
+        "React optimization",
+        "React performance",
+        "React.memo",
+        "bundle size",
+        "code splitting",
+        "lazy loading",
+        "re-render",
+        "useCallback",
+        "useMemo",
+        "virtualization"
+      ],
+      "file_patterns": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/package.json",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.tsx",
+        "**/tsconfig.json"
+      ],
+      "confidence": 0.76
+    },
+    {
+      "name": "reasoning-controls",
+      "path": "reasoning-controls",
+      "description": "Use when adjusting reasoning depth, budgets, or metrics visibility - provides guidance for selecting and applying reasoning controls safely.",
+      "keywords": [
+        "adjust reasoning",
+        "reasoning budget",
+        "reasoning depth",
+        "reasoning metrics",
+        "think hard",
+        "token budget",
+        "ultrathink"
+      ],
+      "file_patterns": [
+        "**/reasoning/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "receiving-code-review",
+      "path": "receiving-code-review",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
+      "keywords": [
+        "address feedback",
+        "code changes",
+        "code review feedback",
+        "receive review",
+        "review comments"
+      ],
+      "file_patterns": [
+        "**/.github/pull_request*",
+        "**/CODE_REVIEW.md",
+        "**/pull_request_template*"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "reference-documentation",
+      "path": "reference-documentation",
+      "description": "Create exhaustive technical references, API documentation, and searchable reference materials. Use when building API docs, configuration references, or complete technical specifications.",
+      "keywords": [
+        "API documentation",
+        "configuration reference",
+        "parameter reference",
+        "reference docs",
+        "schema documentation",
+        "technical specification"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "regex-master",
+      "path": "regex-master",
+      "description": "Use this skill when building, explaining, or debugging regular expressions for pattern matching, validation, or text extraction. Trigger phrases: 'write a regex', 'match this pattern', 'validate this format', 'extract from text'. Not for natural language parsing or full grammar parsing (use a parser instead).",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "release-prep",
+      "path": "release-prep",
+      "description": "Use when preparing a production release or release candidate - provides a checklist-driven workflow for validation, versioning, build optimization, documentation updates, and deployment readiness.",
+      "keywords": [
+        "changelog",
+        "deploy prep",
+        "prepare release",
+        "release candidate",
+        "release checklist",
+        "release prep",
+        "version bump"
+      ],
+      "file_patterns": [
+        "**/.github/workflows/*release*.yml",
+        "**/CHANGELOG*",
+        "**/RELEASE*",
+        "**/announcement/**",
+        "**/changelog/**",
+        "**/community/**",
+        "**/release/**",
+        "**/releases/**"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "repo-cleanup",
+      "path": "repo-cleanup",
+      "description": "Use when a repository needs cleanup of dead code, build artifacts, unused dependencies, outdated docs, or stale tests - provides safe cleanup workflows, validation steps, and reporting templates for code, deps, docs, tests, and sprint archives.",
+      "keywords": [
+        "archive sprint",
+        "cleanup repo",
+        "dead code",
+        "docs cleanup",
+        "remove artifacts",
+        "repo cleanup",
+        "test cleanup",
+        "unused dependencies"
+      ],
+      "file_patterns": [
+        "**/archive/**",
+        "**/cleanup/**",
+        "**/deprecated/**",
+        "**/legacy/**"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "requesting-code-review",
+      "path": "requesting-code-review",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements - dispatches superpowers:code-reviewer subagent to review implementation against plan or requirements before proceeding",
+      "keywords": [
+        "code review process",
+        "pull request",
+        "request review",
+        "submit code"
+      ],
+      "file_patterns": [
+        "**/.github/pull_request*",
+        "**/CODE_REVIEW.md",
+        "**/pull_request_template*"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "requirements-discovery",
+      "path": "requirements-discovery",
+      "description": "Stakeholder interviews, PRD structure, and scope definition for software requirements elicitation. Use when gathering requirements, defining project scope, or structuring product requirement documents.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "research-methodology",
+      "path": "research-methodology",
+      "description": "Structured research using sophisticated query design, source vetting, and synthesis techniques. Use when conducting competitive analysis, market scans, historical investigations, or trend research.",
+      "keywords": [
+        "competitive analysis",
+        "fact verification",
+        "investigate",
+        "market scan",
+        "research topic",
+        "trend analysis"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "root-cause-tracing",
+      "path": "root-cause-tracing",
+      "description": "Use when errors occur deep in execution and you need to trace back to find the original trigger - systematically traces bugs backward through call stack, adding instrumentation when needed, to identify source of invalid data or incorrect behavior",
+      "keywords": [
+        "debugging",
+        "incident analysis",
+        "post-mortem",
+        "root cause",
+        "troubleshooting"
+      ],
+      "file_patterns": [
+        "**/bugs/**",
+        "**/debug/**",
+        "**/issues/**"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "secure-coding-practices",
+      "path": "secure-coding-practices",
+      "description": "Secure coding practices and defensive programming patterns for building security-first applications. Use when implementing authentication, handling user input, managing sensitive data, or conducting secure code reviews.",
+      "keywords": [
+        "code security",
+        "defense in depth",
+        "input validation",
+        "least privilege",
+        "output encoding",
+        "sanitization",
+        "secure by design",
+        "secure coding",
+        "security hardening",
+        "threat modeling"
+      ],
+      "file_patterns": [
+        "**/*secret*.py",
+        "**/*secret*.ts",
+        "**/auth/**",
+        "**/security/**"
+      ],
+      "confidence": 0.87
+    },
+    {
+      "name": "security-testing-patterns",
+      "path": "security-testing-patterns",
+      "description": "Security testing patterns including SAST, DAST, penetration testing, and vulnerability assessment techniques. Use when implementing security testing pipelines, conducting security audits, or validating application security controls.",
+      "keywords": [
+        "DAST",
+        "SAST",
+        "fuzz testing",
+        "pen test",
+        "penetration testing",
+        "security assessment",
+        "security automation",
+        "security testing",
+        "threat detection",
+        "vulnerability scanning"
+      ],
+      "file_patterns": [
+        "**/*secret*.py",
+        "**/*secret*.ts",
+        "**/Dockerfile",
+        "**/auth/**",
+        "**/docker-compose*.yml",
+        "**/security/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "session-management",
+      "path": "session-management",
+      "description": "Use when loading, saving, or reflecting on session context - provides structured workflows for session lifecycle management and reflection outputs.",
+      "keywords": [
+        "checkpoint restore",
+        "checkpoint save",
+        "reflect on session",
+        "restore session",
+        "save context",
+        "session context",
+        "session load",
+        "session save"
+      ],
+      "file_patterns": [
+        "**/.claude/**",
+        "**/sessions/**",
+        "**/tasks/**"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "sharing-skills",
+      "path": "sharing-skills",
+      "description": "Use when you've developed a broadly useful skill and want to contribute it upstream via pull request - guides process of branching, committing, pushing, and creating PR to contribute skills back to upstream repository",
+      "keywords": [
+        "export skill",
+        "share skill",
+        "skill collaboration",
+        "skill distribution"
+      ],
+      "file_patterns": [
+        "**/recommendation-rules.json",
+        "**/skill-rules.json",
+        "**/skills/**"
+      ],
+      "confidence": 0.76
+    },
+    {
+      "name": "skill-creator",
+      "path": "skill-creator",
+      "description": "Guide for creating effective skills. Use when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.",
+      "keywords": [
+        "create skill",
+        "new skill",
+        "skill authoring",
+        "skill development"
+      ],
+      "file_patterns": [
+        "**/recommendation-rules.json",
+        "**/skill-rules.json",
+        "**/skills/**"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "name": "socratic-questioning",
+      "path": "socratic-questioning",
+      "description": "Guide discovery through questioning techniques and pattern recognition for Clean Code, GoF design patterns, and architectural decisions. Use when coaching developers, facilitating design discussions, or helping teams discover solutions.",
+      "keywords": [
+        "coach developer",
+        "facilitate design discussion",
+        "guide discovery",
+        "socratic method",
+        "teach through questions"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "storyteller",
+      "path": "storyteller",
+      "description": "Use this skill when writing fiction, narrative nonfiction, brand stories, or any content where emotional engagement and narrative arc matter more than pure information delivery. Trigger phrases: 'write a short story', 'tell my brand's origin story', 'write a narrative about', 'create a character'. Do NOT use for purely informational content, technical writing, or persuasive copy without a narrative component.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "subagent-driven-development",
+      "path": "subagent-driven-development",
+      "description": "Use when executing implementation plans with independent tasks in the current session - dispatches fresh subagent for each task with code review between tasks, enabling fast iteration with quality gates",
+      "keywords": [
+        "agent development",
+        "agent orchestration",
+        "modular agent",
+        "subagent"
+      ],
+      "file_patterns": [
+        "**/agents/**",
+        "**/modes/**",
+        "**/rules/**",
+        "**/workflows/**"
+      ],
+      "confidence": 0.84
+    },
+    {
+      "name": "super-saiyan",
+      "path": "super-saiyan",
+      "description": "Maximum visual excellence for any UI platform. Use when building user interfaces, styling components, or polishing visual elements.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "system-design",
+      "path": "system-design",
+      "description": "Use when designing system architecture, APIs, components, or data models - provides a structured design workflow with validation and documentation outputs.",
+      "keywords": [
+        "API specification",
+        "architecture design",
+        "architecture diagram",
+        "component design",
+        "data model",
+        "design doc",
+        "interface design",
+        "schema design",
+        "system architecture",
+        "system design"
+      ],
+      "file_patterns": [
+        "**/architecture/**",
+        "**/canvas/**",
+        "**/design/**",
+        "**/design/system/**",
+        "**/figma/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "systematic-debugging",
+      "path": "systematic-debugging",
+      "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes - four-phase framework (root cause investigation, pattern analysis, hypothesis testing, implementation) that ensures understanding before attempting solutions",
+      "keywords": [
+        "bug fix",
+        "bug fix strategy",
+        "debug process",
+        "systematic debug",
+        "troubleshoot"
+      ],
+      "file_patterns": [
+        "**/*_test.py",
+        "**/bugs/**",
+        "**/debug/**",
+        "**/issues/**",
+        "**/test_*.py",
+        "**/tests/**/*.py"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "task-orchestration",
+      "path": "task-orchestration",
+      "description": "Use when coordinating complex tasks with orchestration, delegation, or parallel workstreams - provides structured workflows for orchestrate:brainstorm, orchestrate:spawn, and orchestrate:task.",
+      "keywords": [
+        "multi-agent",
+        "orchestrate",
+        "orchestration",
+        "parallel tasks",
+        "task management",
+        "workflow execution"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.66
+    },
+    {
+      "name": "template-skill",
+      "path": "template-skill",
+      "description": "A template for creating new skills. Use when initializing a new skill to ensure proper structure and metadata.",
+      "keywords": [
+        "boilerplate",
+        "new skill template",
+        "skill boilerplate",
+        "skill template"
+      ],
+      "file_patterns": [
+        "**/recommendation-rules.json",
+        "**/skill-rules.json",
+        "**/skills/**"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "template-skill-enhanced",
+      "path": "template-skill-enhanced",
+      "description": "Enhanced skill template with progressive disclosure, bundled resources, and quality rubrics. Use when creating new skills that need structured tiers, reference files, validation rubrics, or advanced bundling patterns beyond the basic template.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "terms-of-service",
+      "path": "terms-of-service",
+      "description": "Use this skill when you need to draft Terms of Service, a Privacy Policy, or an End-User License Agreement (EULA) for a web application, SaaS product, or mobile app. Produces comprehensive, plain-English legal documents that cover user rights, data practices, liability limits, and dispute resolution. Not a substitute for a licensed attorney; have a lawyer review before publishing for a production product.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "terraform-best-practices",
+      "path": "terraform-best-practices",
+      "description": "Terraform infrastructure-as-code best practices for scalable and maintainable cloud infrastructure. Use when writing Terraform modules, managing infrastructure state, or implementing infrastructure automation at scale.",
+      "keywords": [
+        "HCL",
+        "IaC",
+        "infrastructure as code",
+        "infrastructure automation",
+        "remote state",
+        "state management",
+        "terraform",
+        "terraform module",
+        "terraform workspace",
+        "terragrunt"
+      ],
+      "file_patterns": [
+        "**/*.tf",
+        "**/terraform/**"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "name": "test-driven-development",
+      "path": "test-driven-development",
+      "description": "Use when implementing any feature or bugfix, before writing implementation code - write the test first, watch it fail, write minimal code to pass; ensures tests actually verify behavior by requiring failure first",
+      "keywords": [
+        "TDD",
+        "integration test",
+        "red green refactor",
+        "test driven",
+        "unit test"
+      ],
+      "file_patterns": [
+        "**/*_test.py",
+        "**/test_*.py",
+        "**/tests/**/*.py"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "name": "test-generation",
+      "path": "test-generation",
+      "description": "Use when generating tests for new or existing code to improve coverage - provides a structured workflow for analyzing code, creating tests, and validating coverage goals.",
+      "keywords": [
+        "coverage target",
+        "generate tests",
+        "increase coverage",
+        "regression tests",
+        "test generation",
+        "test suite",
+        "write tests"
+      ],
+      "file_patterns": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*_test.py",
+        "**/test_*.py",
+        "**/tests/**/*.py",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.tsx"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "test-review",
+      "path": "test-review",
+      "description": "Review test quality and audit test coverage for any module. This skill should be used when reviewing existing tests, auditing test gaps, writing new tests, or when asked to assess test health. It pipelines testing standards into the audit workflow to produce a prioritized gap report. The output is a report, not code — do not write test implementations until the report is reviewed.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "testing-anti-patterns",
+      "path": "testing-anti-patterns",
+      "description": "Use when writing or changing tests, adding mocks, or tempted to add test-only methods to production code - prevents testing mock behavior, production pollution with test-only methods, and mocking without understanding dependencies",
+      "keywords": [
+        "bad tests",
+        "ineffective tests",
+        "test smells",
+        "testing anti-patterns"
+      ],
+      "file_patterns": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*_test.py",
+        "**/test_*.py",
+        "**/tests/**/*.py",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.tsx"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "testing-skills-with-subagents",
+      "path": "testing-skills-with-subagents",
+      "description": "Use when creating or editing skills, before deployment, to verify they work under pressure and resist rationalization - applies RED-GREEN-REFACTOR cycle to process documentation by running baseline without skill, writing to address failures, iterating to close loopholes",
+      "keywords": [
+        "agent testing",
+        "skill validation",
+        "subagent testing",
+        "test skills"
+      ],
+      "file_patterns": [
+        "**/recommendation-rules.json",
+        "**/skill-rules.json",
+        "**/skills/**"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "threat-modeling-techniques",
+      "path": "threat-modeling-techniques",
+      "description": "Threat modeling methodologies using STRIDE, attack trees, and risk assessment for proactive security analysis. Use when designing secure systems, conducting security reviews, or identifying potential attack vectors in applications.",
+      "keywords": [
+        "STRIDE",
+        "attack surface",
+        "attack tree",
+        "risk assessment",
+        "security architecture",
+        "security design",
+        "threat analysis",
+        "threat landscape",
+        "threat modeling",
+        "vulnerability analysis"
+      ],
+      "file_patterns": [
+        "**/*secret*.py",
+        "**/*secret*.ts",
+        "**/auth/**",
+        "**/security/**"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "token-efficiency",
+      "path": "token-efficiency",
+      "description": "Compressed communication using symbols and abbreviations. Use when context is limited or brevity is needed.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "tool-selection",
+      "path": "tool-selection",
+      "description": "Use when selecting between MCP tools based on task complexity and requirements - provides a structured selection workflow and decision rationale.",
+      "keywords": [
+        "capability matching",
+        "codanna",
+        "mcp tool selection",
+        "morphllm",
+        "tool routing",
+        "tool selection"
+      ],
+      "file_patterns": [
+        "**/mcp/**",
+        "**/tools/**"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "tutorial-design",
+      "path": "tutorial-design",
+      "description": "Design and write hands-on tutorials with progressive disclosure, exercises, and troubleshooting sections. Use when creating learning content, workshops, or step-by-step guides.",
+      "keywords": [
+        "create workshop",
+        "hands-on walkthrough",
+        "lab exercise",
+        "learning content",
+        "step-by-step guide",
+        "write tutorial"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "typescript-advanced-patterns",
+      "path": "typescript-advanced-patterns",
+      "description": "Advanced TypeScript patterns for type-safe, maintainable code using sophisticated type system features. Use when building type-safe APIs, implementing complex domain models, or leveraging TypeScript's advanced type capabilities.",
+      "keywords": [
+        "TypeScript",
+        "advanced types",
+        "branded types",
+        "conditional types",
+        "discriminated union",
+        "generic constraints",
+        "mapped types",
+        "template literal types",
+        "type guard",
+        "type inference"
+      ],
+      "file_patterns": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/package.json",
+        "**/tsconfig.json"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "ui-design-aesthetics",
+      "path": "ui-design-aesthetics",
+      "description": "Generates high-quality, non-generic UI designs with a focus on performance, progressive disclosure, and distinctive aesthetics.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "user-journey-mapping",
+      "path": "user-journey-mapping",
+      "description": "Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.",
+      "keywords": [
+        "conversion flow",
+        "conversion funnel",
+        "customer experience",
+        "customer journey",
+        "experience map",
+        "journey map",
+        "touchpoints",
+        "user journey"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "using-git-worktrees",
+      "path": "using-git-worktrees",
+      "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification",
+      "keywords": [
+        "git workflow",
+        "git worktree",
+        "multiple branches",
+        "parallel development"
+      ],
+      "file_patterns": [
+        "**/.git/worktrees/**",
+        "**/worktrees/**"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "name": "using-superpowers",
+      "path": "using-superpowers",
+      "description": "Use when starting any conversation - establishes mandatory workflows for finding and using skills, including using Skill tool before announcing usage, following brainstorming before coding, and creating TodoWrite todos for checklists",
+      "keywords": [
+        "agent capabilities",
+        "framework usage",
+        "superpowers"
+      ],
+      "file_patterns": [
+        "**/agents/**",
+        "**/modes/**",
+        "**/rules/**",
+        "**/workflows/**"
+      ],
+      "confidence": 0.76
+    },
+    {
+      "name": "ux-researcher",
+      "path": "ux-researcher",
+      "description": "Use this skill when planning or conducting user research, writing interview guides, designing surveys for UX insights, synthesizing qualitative findings, creating personas, or writing research reports. Trigger phrases: 'write a user interview guide', 'how do I conduct usability testing', 'synthesize research findings', 'create a user persona', 'design a UX survey'. Not for quantitative market sizing (use market-researcher), writing business requirements (use business-analyst), or product analytics.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "ux-review",
+      "path": "ux-review",
+      "description": "Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.",
+      "keywords": [
+        "design critique",
+        "heuristic evaluation",
+        "usability review",
+        "user experience analysis",
+        "ux review"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "ux-writer",
+      "path": "ux-writer",
+      "description": "Use this skill when crafting microcopy, UI text, or in-product writing—error messages, tooltips, button labels, empty states, onboarding flows, and confirmation dialogs. Trigger phrases: 'write microcopy for', 'write UI copy', 'write error messages', 'write onboarding text', 'button label for'. Do NOT use for marketing copy (use copywriter) or long-form documentation (use technical-writer).",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "verification-before-completion",
+      "path": "verification-before-completion",
+      "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+      "keywords": [
+        "check before complete",
+        "pre-completion check",
+        "validation step",
+        "verify"
+      ],
+      "file_patterns": [
+        "**/.github/pull_request*",
+        "**/.github/workflows/*release*.yml",
+        "**/.gitlab-ci.yml",
+        "**/CHANGELOG*",
+        "**/CODE_REVIEW.md",
+        "**/RELEASE*",
+        "**/cd/**",
+        "**/ci/**",
+        "**/pull_request_template*",
+        "**/release/**",
+        "**/releases/**",
+        ".github/workflows/*.yml"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "name": "vibe-security",
+      "path": "vibe-security",
+      "description": "Comprehensive secure coding guide covering OWASP web vulnerabilities with prevention patterns and checklists. Use when writing or reviewing web application code to prevent XSS, CSRF, SSRF, SQL injection, access control flaws, and other common security vulnerabilities.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "visual-modes",
+      "path": "visual-modes",
+      "description": "Use when activating visual showcase modes (supersaiyan, kamehameha, over9000) for UI or interaction design - provides mode-specific enhancement checklists.",
+      "keywords": [
+        "kamehameha",
+        "over 9000",
+        "over9000",
+        "showcase UI",
+        "supersaiyan",
+        "visual effects",
+        "visual mode"
+      ],
+      "file_patterns": [
+        "**/canvas/**",
+        "**/design/**",
+        "**/figma/**"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "name": "web-researcher",
+      "path": "web-researcher",
+      "description": "Use this skill when you need to research a topic online, gather information from multiple sources, or evaluate source credibility. Trigger phrases: 'research', 'find information about', 'look up', 'investigate'. Not for academic systematic reviews (use literature-reviewer) or fact-checking specific claims (use fact-checker).",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "webapp-testing",
+      "path": "webapp-testing",
+      "description": "Toolkit for interacting with and testing local web applications using Playwright. Use when verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+      "keywords": [
+        "UI testing",
+        "browser automation",
+        "frontend test",
+        "frontend testing",
+        "playwright",
+        "webapp testing"
+      ],
+      "file_patterns": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/tests/**/*.ts",
+        "**/tests/**/*.tsx"
+      ],
+      "confidence": 0.83
+    },
+    {
+      "name": "workflow-bug-fix",
+      "path": "workflow-bug-fix",
+      "description": "Systematic approach to identifying, fixing, and validating bug fixes. Use when fixing bugs, resolving issues, or addressing errors.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "workflow-feature",
+      "path": "workflow-feature",
+      "description": "Complete feature development workflow from design to deployment. Use when implementing new features or functionality.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "workflow-feature-development",
+      "path": "workflow-feature-development",
+      "description": "Complete workflow for developing new features from design to deployment. Use when starting a new feature, adding functionality, or building something new.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "workflow-performance",
+      "path": "workflow-performance",
+      "description": "Systematic performance analysis and optimization. Use when things are slow, need optimization, or preparing for scale.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "workflow-security-audit",
+      "path": "workflow-security-audit",
+      "description": "Comprehensive security assessment and remediation. Use for security reviews, compliance checks, vulnerability assessments.",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "writing-plans",
+      "path": "collaboration/writing-plans",
+      "description": "Structured plan-writing skill adapted from obra/superpowers. Produces actionable plans that map directly to cortex workflows and tasks.",
+      "keywords": [
+        "create a plan",
+        "how do we approach this",
+        "structure workstreams",
+        "write a plan"
+      ],
+      "file_patterns": [
+        "**/TODO.md",
+        "**/docs/plans/**",
+        "**/notes/**",
+        "**/planning/**",
+        "**/scenarios/**",
+        "**/todo.md"
+      ],
+      "confidence": 0.86
+    },
+    {
+      "name": "writing-skills",
+      "path": "writing-skills",
+      "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment - applies TDD to process documentation by testing with subagents before writing, iterating until bulletproof against rationalization",
+      "keywords": [
+        "create skill",
+        "skill authoring",
+        "skill development",
+        "write skill"
+      ],
+      "file_patterns": [
+        "**/recommendation-rules.json",
+        "**/skill-rules.json",
+        "**/skills/**"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "name": "xlsx",
+      "path": "document-skills/xlsx",
+      "description": "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization. When Claude needs to work with spreadsheets (.xlsx, .xlsm, .csv, .tsv, etc) for: (1) Creating new spreadsheets with formulas and formatting, (2) Reading or analyzing data, (3) Modify existing spreadsheets while preserving formulas, (4) Data analysis and visualization in spreadsheets, or (5) Recalculating formulas",
+      "keywords": [],
+      "file_patterns": [],
+      "confidence": 0.8
+    }
+  ]
+}

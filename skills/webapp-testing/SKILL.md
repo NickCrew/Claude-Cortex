@@ -1,6 +1,20 @@
 ---
 name: webapp-testing
 description: Toolkit for interacting with and testing local web applications using Playwright. Use when verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.
+keywords:
+  - UI testing
+  - browser automation
+  - frontend test
+  - frontend testing
+  - playwright
+  - webapp testing
+file_patterns:
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/tests/**/*.ts'
+  - '**/tests/**/*.tsx'
+confidence: 0.83
 license: MIT License - Complete terms in LICENSE.txt
 ---
 

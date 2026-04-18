@@ -1,6 +1,20 @@
 ---
 name: mashup
 description: Force-fit patterns from other domains to spark novel concepts.
+keywords:
+  - borrow from other domains
+  - cross-pollinate
+  - gamification ideas
+  - mashup
+  - what would X do
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.72
 license: MIT
 ---
 

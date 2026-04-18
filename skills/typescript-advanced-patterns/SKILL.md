@@ -1,6 +1,23 @@
 ---
 name: typescript-advanced-patterns
 description: Advanced TypeScript patterns for type-safe, maintainable code using sophisticated type system features. Use when building type-safe APIs, implementing complex domain models, or leveraging TypeScript's advanced type capabilities.
+keywords:
+  - TypeScript
+  - advanced types
+  - branded types
+  - conditional types
+  - discriminated union
+  - generic constraints
+  - mapped types
+  - template literal types
+  - type guard
+  - type inference
+file_patterns:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/package.json'
+  - '**/tsconfig.json'
+confidence: 0.78
 ---
 
 # TypeScript Advanced Patterns

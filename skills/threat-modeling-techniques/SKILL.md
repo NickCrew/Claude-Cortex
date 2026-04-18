@@ -1,6 +1,23 @@
 ---
 name: threat-modeling-techniques
 description: Threat modeling methodologies using STRIDE, attack trees, and risk assessment for proactive security analysis. Use when designing secure systems, conducting security reviews, or identifying potential attack vectors in applications.
+keywords:
+  - STRIDE
+  - attack surface
+  - attack tree
+  - risk assessment
+  - security architecture
+  - security design
+  - threat analysis
+  - threat landscape
+  - threat modeling
+  - vulnerability analysis
+file_patterns:
+  - '**/*secret*.py'
+  - '**/*secret*.ts'
+  - '**/auth/**'
+  - '**/security/**'
+confidence: 0.82
 ---
 
 # Threat Modeling Techniques

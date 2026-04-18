@@ -1,6 +1,18 @@
 ---
 name: condition-based-waiting
 description: Use when tests have race conditions, timing dependencies, or inconsistent pass/fail behavior - replaces arbitrary timeouts with condition polling to wait for actual state changes, eliminating flaky tests from timing guesses
+keywords:
+  - asynchronous
+  - condition
+  - event-driven
+  - polling
+  - wait
+file_patterns:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - '**/package.json'
+  - '**/tsconfig.json'
+confidence: 0.68
 ---
 
 # Condition-Based Waiting

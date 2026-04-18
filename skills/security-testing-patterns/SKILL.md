@@ -1,6 +1,25 @@
 ---
 name: security-testing-patterns
 description: Security testing patterns including SAST, DAST, penetration testing, and vulnerability assessment techniques. Use when implementing security testing pipelines, conducting security audits, or validating application security controls.
+keywords:
+  - DAST
+  - SAST
+  - fuzz testing
+  - pen test
+  - penetration testing
+  - security assessment
+  - security automation
+  - security testing
+  - threat detection
+  - vulnerability scanning
+file_patterns:
+  - '**/*secret*.py'
+  - '**/*secret*.ts'
+  - '**/Dockerfile'
+  - '**/auth/**'
+  - '**/docker-compose*.yml'
+  - '**/security/**'
+confidence: 0.8
 ---
 
 # Security Testing Patterns

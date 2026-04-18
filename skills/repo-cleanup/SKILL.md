@@ -1,6 +1,21 @@
 ---
 name: repo-cleanup
 description: Use when a repository needs cleanup of dead code, build artifacts, unused dependencies, outdated docs, or stale tests - provides safe cleanup workflows, validation steps, and reporting templates for code, deps, docs, tests, and sprint archives.
+keywords:
+  - archive sprint
+  - cleanup repo
+  - dead code
+  - docs cleanup
+  - remove artifacts
+  - repo cleanup
+  - test cleanup
+  - unused dependencies
+file_patterns:
+  - '**/archive/**'
+  - '**/cleanup/**'
+  - '**/deprecated/**'
+  - '**/legacy/**'
+confidence: 0.82
 ---
 
 # Repo Cleanup

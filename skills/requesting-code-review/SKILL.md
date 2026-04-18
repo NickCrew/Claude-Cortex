@@ -1,6 +1,16 @@
 ---
 name: requesting-code-review
 description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements - dispatches superpowers:code-reviewer subagent to review implementation against plan or requirements before proceeding
+keywords:
+  - code review process
+  - pull request
+  - request review
+  - submit code
+file_patterns:
+  - '**/.github/pull_request*'
+  - '**/CODE_REVIEW.md'
+  - '**/pull_request_template*'
+confidence: 0.82
 ---
 
 # Requesting Code Review

@@ -1,6 +1,22 @@
 ---
 name: code-explanation
 description: Use when explaining code, concepts, or system behavior to a specific audience level - provides a structured explanation workflow with depth control and validation steps.
+keywords:
+  - code explanation
+  - explain architecture
+  - explain code
+  - explain function
+  - explain this code
+  - how does this work
+  - teach code
+  - walkthrough
+file_patterns:
+  - '**/CODE_OF_CONDUCT*'
+  - '**/CONTRIBUTING*'
+  - '**/README*'
+  - '**/docs/**'
+  - '**/guides/**'
+confidence: 0.72
 ---
 
 # Code Explanation

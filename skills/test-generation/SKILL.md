@@ -1,6 +1,24 @@
 ---
 name: test-generation
 description: Use when generating tests for new or existing code to improve coverage - provides a structured workflow for analyzing code, creating tests, and validating coverage goals.
+keywords:
+  - coverage target
+  - generate tests
+  - increase coverage
+  - regression tests
+  - test generation
+  - test suite
+  - write tests
+file_patterns:
+  - '**/*.spec.ts'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*_test.py'
+  - '**/test_*.py'
+  - '**/tests/**/*.py'
+  - '**/tests/**/*.ts'
+  - '**/tests/**/*.tsx'
+confidence: 0.78
 ---
 
 # Test Generation

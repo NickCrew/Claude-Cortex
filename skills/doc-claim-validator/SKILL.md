@@ -1,22 +1,29 @@
 ---
 name: doc-claim-validator
-description: >-
-  Validate that claims in documentation match codebase reality. Extracts verifiable
-  assertions (file paths, commands, function references, behavioral claims, dependencies)
-  from markdown docs and checks them against the actual project. Use after code changes,
-  before releases, or when docs feel untrustworthy.
-version: 1.0.0
-tags: [documentation, validation, quality, verification]
-triggers:
-  - validate docs
-  - verify documentation
+description: Validate that claims in documentation match codebase reality. Extracts verifiable assertions (file paths, commands, function references, behavioral claims, dependencies) from markdown docs and checks them against the actual project. Use after code changes, before releases, or when docs feel untrustworthy.
+keywords:
+  - check docs against code
+  - claim validation
   - doc claims
+  - doc verification
   - docs are wrong
   - documentation accuracy
-  - check docs against code
+  - validate docs
+  - verify documentation
+version: 1.0.0
+tags:
+  - documentation
+  - validation
+  - quality
+  - verification
 dependencies:
-  skills: [doc-maintenance]
-  tools: [Grep, Glob, Read, Bash]
+  skills:
+    - doc-maintenance
+  tools:
+    - Grep
+    - Glob
+    - Read
+    - Bash
 token_estimate: ~3000
 ---
 

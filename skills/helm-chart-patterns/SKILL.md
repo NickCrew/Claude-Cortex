@@ -1,6 +1,24 @@
 ---
 name: helm-chart-patterns
 description: Helm chart development patterns for packaging and deploying Kubernetes applications. Use when creating reusable Helm charts, managing multi-environment deployments, or building application catalogs for Kubernetes.
+keywords:
+  - Helm
+  - Helm chart
+  - Helm deployment
+  - Helm release
+  - Helm upgrade
+  - chart hooks
+  - chart packaging
+  - chart repository
+  - chart template
+  - values.yaml
+file_patterns:
+  - '**/*deployment*.yaml'
+  - '**/charts/**'
+  - '**/helm/**'
+  - '**/k8s/**'
+  - '**/kubernetes/**'
+confidence: 0.86
 ---
 
 # Helm Chart Patterns

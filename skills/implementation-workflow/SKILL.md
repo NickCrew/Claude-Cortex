@@ -1,6 +1,22 @@
 ---
 name: implementation-workflow
 description: Use when turning PRDs or feature specs into actionable implementation workflows - provides structured task decomposition, dependency mapping, and validation gates.
+keywords:
+  - PRD
+  - feature spec
+  - implementation plan
+  - implementation workflow
+  - plan implementation
+  - task breakdown
+  - workflow plan
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.74
 ---
 
 # Implementation Workflow

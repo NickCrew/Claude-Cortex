@@ -1,6 +1,19 @@
 ---
 name: idea-lab
 description: Timeboxed divergent ideation that outputs ranked options plus day-one experiments.
+keywords:
+  - divergent thinking
+  - generate options fast
+  - idea lab
+  - quick ideation sprint
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.78
 license: MIT
 ---
 

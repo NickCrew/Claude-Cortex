@@ -1,6 +1,15 @@
 ---
 name: defense-in-depth
 description: Use when invalid data causes failures deep in execution, requiring validation at multiple system layers - validates at every layer data passes through to make bugs structurally impossible
+keywords:
+  - defense in depth
+  - layered security
+  - multi-layered defense
+  - security strategy
+file_patterns:
+  - '**/Dockerfile'
+  - '**/docker-compose*.yml'
+confidence: 0.8
 ---
 
 # Defense-in-Depth Validation

@@ -1,6 +1,21 @@
 ---
 name: task-orchestration
 description: Use when coordinating complex tasks with orchestration, delegation, or parallel workstreams - provides structured workflows for orchestrate:brainstorm, orchestrate:spawn, and orchestrate:task.
+keywords:
+  - multi-agent
+  - orchestrate
+  - orchestration
+  - parallel tasks
+  - task management
+  - workflow execution
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.66
 ---
 
 # Task Orchestration

@@ -1,6 +1,22 @@
 ---
 name: microservices-patterns
 description: Comprehensive microservices architecture patterns covering service decomposition, communication, data management, and resilience strategies. Use when designing distributed systems, breaking down monoliths, or implementing service-to-service communication.
+keywords:
+  - API gateway
+  - circuit breaker
+  - distributed system
+  - inter-service communication
+  - microservices
+  - saga pattern
+  - service decomposition
+  - service discovery
+  - service mesh
+  - service-to-service
+file_patterns:
+  - '**/microservice/**'
+  - '**/service/**/handlers/**'
+  - '**/services/**'
+confidence: 0.84
 ---
 
 # Microservices Architecture Patterns

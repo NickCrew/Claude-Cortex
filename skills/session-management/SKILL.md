@@ -1,6 +1,20 @@
 ---
 name: session-management
 description: Use when loading, saving, or reflecting on session context - provides structured workflows for session lifecycle management and reflection outputs.
+keywords:
+  - checkpoint restore
+  - checkpoint save
+  - reflect on session
+  - restore session
+  - save context
+  - session context
+  - session load
+  - session save
+file_patterns:
+  - '**/.claude/**'
+  - '**/sessions/**'
+  - '**/tasks/**'
+confidence: 0.72
 ---
 
 # Session Management

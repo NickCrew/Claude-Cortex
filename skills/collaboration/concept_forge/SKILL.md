@@ -1,6 +1,20 @@
 ---
 name: concept-forge
 description: Score concepts on impact/delight/effort and pick a 1-day spike.
+keywords:
+  - concept card
+  - impact delight effort
+  - prioritize ideas
+  - rank ideas
+  - score ideas
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.72
 license: MIT
 ---
 

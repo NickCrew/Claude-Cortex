@@ -1,6 +1,16 @@
 ---
 name: sharing-skills
 description: Use when you've developed a broadly useful skill and want to contribute it upstream via pull request - guides process of branching, committing, pushing, and creating PR to contribute skills back to upstream repository
+keywords:
+  - export skill
+  - share skill
+  - skill collaboration
+  - skill distribution
+file_patterns:
+  - '**/recommendation-rules.json'
+  - '**/skill-rules.json'
+  - '**/skills/**'
+confidence: 0.76
 ---
 
 # Sharing Skills

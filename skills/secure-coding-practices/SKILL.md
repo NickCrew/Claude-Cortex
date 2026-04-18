@@ -1,6 +1,23 @@
 ---
 name: secure-coding-practices
 description: Secure coding practices and defensive programming patterns for building security-first applications. Use when implementing authentication, handling user input, managing sensitive data, or conducting secure code reviews.
+keywords:
+  - code security
+  - defense in depth
+  - input validation
+  - least privilege
+  - output encoding
+  - sanitization
+  - secure by design
+  - secure coding
+  - security hardening
+  - threat modeling
+file_patterns:
+  - '**/*secret*.py'
+  - '**/*secret*.ts'
+  - '**/auth/**'
+  - '**/security/**'
+confidence: 0.87
 ---
 
 # Secure Coding Practices

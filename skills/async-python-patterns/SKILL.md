@@ -1,6 +1,22 @@
 ---
 name: async-python-patterns
 description: Python asyncio and concurrent programming patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.
+keywords:
+  - FastAPI async
+  - aiohttp
+  - async await
+  - async python
+  - async/await
+  - asyncio
+  - concurrent python
+  - coroutine
+  - event loop
+  - non-blocking
+file_patterns:
+  - '**/*.py'
+  - '**/pyproject.toml'
+  - '**/requirements.txt'
+confidence: 0.7
 ---
 
 # Async Python Patterns

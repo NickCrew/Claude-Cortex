@@ -1,8 +1,24 @@
 ---
 name: executing-plans
-description: "Execution discipline that translates plans into tracked tasks with orchestration and verification loops. Use when driving a plan through cortex’s task system, coordinating workstreams across agents, or ensuring every plan item is tracked, executed, and verified."
+description: Execution discipline that translates plans into tracked tasks with orchestration and verification loops. Use when driving a plan through cortex’s task system, coordinating workstreams across agents, or ensuring every plan item is tracked, executed, and verified.
+keywords:
+  - execute plan
+  - follow plan
+  - start implementing
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.82
 license: MIT (obra/superpowers)
-tags: [collaboration, execution, task-management, orchestration]
+tags:
+  - collaboration
+  - execution
+  - task-management
+  - orchestration
 ---
 
 # Executing Plans

@@ -1,6 +1,24 @@
 ---
 name: release-prep
 description: Use when preparing a production release or release candidate - provides a checklist-driven workflow for validation, versioning, build optimization, documentation updates, and deployment readiness.
+keywords:
+  - changelog
+  - deploy prep
+  - prepare release
+  - release candidate
+  - release checklist
+  - release prep
+  - version bump
+file_patterns:
+  - '**/.github/workflows/*release*.yml'
+  - '**/CHANGELOG*'
+  - '**/RELEASE*'
+  - '**/announcement/**'
+  - '**/changelog/**'
+  - '**/community/**'
+  - '**/release/**'
+  - '**/releases/**'
+confidence: 0.86
 ---
 
 # Release Prep

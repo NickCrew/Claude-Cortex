@@ -1,6 +1,16 @@
 ---
 name: writing-skills
 description: Use when creating new skills, editing existing skills, or verifying skills work before deployment - applies TDD to process documentation by testing with subagents before writing, iterating until bulletproof against rationalization
+keywords:
+  - create skill
+  - skill authoring
+  - skill development
+  - write skill
+file_patterns:
+  - '**/recommendation-rules.json'
+  - '**/skill-rules.json'
+  - '**/skills/**'
+confidence: 0.82
 ---
 
 # Writing Skills

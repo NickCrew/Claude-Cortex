@@ -1,6 +1,23 @@
 ---
 name: owasp-top-10
 description: OWASP Top 10 security vulnerabilities with detection and remediation patterns. Use when conducting security audits, implementing secure coding practices, or reviewing code for common security vulnerabilities.
+keywords:
+  - CSRF
+  - OWASP
+  - SQL injection
+  - XSS
+  - authentication failure
+  - broken access control
+  - cryptographic failure
+  - injection
+  - security audit
+  - security vulnerability
+file_patterns:
+  - '**/*secret*.py'
+  - '**/*secret*.ts'
+  - '**/auth/**'
+  - '**/security/**'
+confidence: 0.9
 ---
 
 # OWASP Top 10 Security Vulnerabilities

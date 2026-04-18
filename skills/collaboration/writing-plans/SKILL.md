@@ -1,6 +1,19 @@
 ---
 name: writing-plans
 description: Structured plan-writing skill adapted from obra/superpowers. Produces actionable plans that map directly to cortex workflows and tasks.
+keywords:
+  - create a plan
+  - how do we approach this
+  - structure workstreams
+  - write a plan
+file_patterns:
+  - '**/TODO.md'
+  - '**/docs/plans/**'
+  - '**/notes/**'
+  - '**/planning/**'
+  - '**/scenarios/**'
+  - '**/todo.md'
+confidence: 0.86
 license: MIT (obra/superpowers)
 ---
 

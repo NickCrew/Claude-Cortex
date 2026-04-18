@@ -1,6 +1,19 @@
 ---
 name: visual-modes
 description: Use when activating visual showcase modes (supersaiyan, kamehameha, over9000) for UI or interaction design - provides mode-specific enhancement checklists.
+keywords:
+  - kamehameha
+  - over 9000
+  - over9000
+  - showcase UI
+  - supersaiyan
+  - visual effects
+  - visual mode
+file_patterns:
+  - '**/canvas/**'
+  - '**/design/**'
+  - '**/figma/**'
+confidence: 0.72
 ---
 
 # Visual Modes

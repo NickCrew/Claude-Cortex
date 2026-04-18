@@ -1,6 +1,16 @@
 ---
 name: multi-llm-consult
 description: Consult external LLMs (Gemini, OpenAI/Codex, Qwen) for second opinions, alternative plans, independent reviews, or delegated tasks. Use when a user asks for another model's perspective, wants to compare answers, or requests delegating a subtask to Gemini/Codex/Qwen.
+keywords:
+  - Codex
+  - Gemini
+  - Qwen
+  - another LLM
+  - compare models
+  - cross-check
+  - delegate to model
+  - external model
+  - second opinion
 ---
 
 # Multi-LLM Consult

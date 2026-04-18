@@ -1,6 +1,23 @@
 ---
 name: database-design-patterns
 description: Database schema design patterns and optimization strategies for relational and NoSQL databases. Use when designing database schemas, optimizing query performance, or implementing data persistence layers at scale.
+keywords:
+  - NoSQL design
+  - data modeling
+  - database design
+  - database patterns
+  - denormalization
+  - foreign key
+  - indexing
+  - normalization
+  - relational database
+  - schema design
+file_patterns:
+  - '**/*ddl*.*'
+  - '**/database/**'
+  - '**/migrations/**'
+  - '**/schema/**'
+confidence: 0.86
 ---
 
 # Database Design Patterns
