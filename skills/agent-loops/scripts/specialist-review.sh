@@ -211,14 +211,49 @@ OUTPUT_FILE="$OUTPUT_DIR/review-$TIMESTAMP.md"
 
 DIFF_LINES=$(wc -l <"$DIFF_FILE" | tr -d ' ')
 
-# Truncate very large diffs
-MAX_LINES=2000
+# Enforce a hard size limit. Silent truncation would hand the reviewer a
+# partial diff and produce a "clean" review that never saw half the code —
+# worse than no review at all. Set AGENT_LOOPS_ALLOW_TRUNCATION=1 to opt
+# into the legacy truncating behavior (not recommended).
+MAX_LINES="${AGENT_LOOPS_MAX_DIFF_LINES:-2000}"
 if [[ "$DIFF_LINES" -gt "$MAX_LINES" ]]; then
-  echo "Warning: Diff is $DIFF_LINES lines. Truncating to $MAX_LINES for review." >&2
-  TRUNCATED_FILE=$(mktemp /tmp/specialist-review-trunc.XXXXXX)
-  head -n "$MAX_LINES" "$DIFF_FILE" >"$TRUNCATED_FILE"
-  printf '\n... [TRUNCATED: %s total lines, showing first %s] ...\n' "$DIFF_LINES" "$MAX_LINES" >>"$TRUNCATED_FILE"
-  mv "$TRUNCATED_FILE" "$DIFF_FILE"
+  if [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
+    echo "Warning: Diff is $DIFF_LINES lines. Truncating to $MAX_LINES (AGENT_LOOPS_ALLOW_TRUNCATION=1)." >&2
+    TRUNCATED_FILE=$(mktemp /tmp/specialist-review-trunc.XXXXXX)
+    head -n "$MAX_LINES" "$DIFF_FILE" >"$TRUNCATED_FILE"
+    printf '\n... [TRUNCATED: %s total lines, showing first %s] ...\n' "$DIFF_LINES" "$MAX_LINES" >>"$TRUNCATED_FILE"
+    mv "$TRUNCATED_FILE" "$DIFF_FILE"
+  else
+    cat >&2 <<EOF
+Error: Diff is $DIFF_LINES lines (limit: $MAX_LINES). Review aborted.
+
+A diff this large cannot be reviewed reliably in a single pass — the reviewer
+would miss issues and you would get a falsely clean report. Split the work
+into smaller, independently-reviewable chunks and invoke this script once per
+chunk.
+
+Ways to split:
+  1. By path filter — scope each review to a subset of the tree:
+       specialist-review.sh --git $BASE_REF -- path/to/module1
+       specialist-review.sh --git $BASE_REF -- path/to/module2
+
+  2. By ref range — review each commit (or commit pair) separately:
+       specialist-review.sh --git HEAD~3
+       specialist-review.sh --git HEAD~2
+       specialist-review.sh --git HEAD~1
+
+  3. By logical scope — if the change bundles unrelated concerns (bug fix
+     + feature, refactor + behavior change), split the branch first. See
+     "When to Split" in skills/agent-loops/SKILL.md.
+
+Reduce diff context with REVIEW_CONTEXT=<n> (currently $CONTEXT_LINES) only
+if the signal-to-noise ratio is the problem, not the scope.
+
+To bypass this check (not recommended — produces unreliable reviews), set:
+  AGENT_LOOPS_ALLOW_TRUNCATION=1
+EOF
+    exit 1
+  fi
 fi
 
 # Inline the perspective catalog, diff, and prior review into the prompt

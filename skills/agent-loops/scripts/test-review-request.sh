@@ -326,20 +326,53 @@ printf '%s' "$WORKFLOW_CONTENT" >"$_TMP_WORKFLOW"
 printf '%s' "$SOURCE_CONTENT" >"$_TMP_SOURCE"
 printf '%s' "$TEST_CONTENT" >"$_TMP_TESTS"
 
-# Truncate source and test content to stay within Claude's practical input
-# limits.  ~300 KB of combined content is roughly 75K tokens — a safe ceiling
-# for a single-turn --print invocation.
-MAX_CONTENT_BYTES=300000
-_TOTAL_BYTES=$(( $(wc -c <"$_TMP_SOURCE") + $(wc -c <"$_TMP_TESTS") ))
+# Enforce a hard size limit on source + test content. ~300 KB (roughly
+# 75K tokens) is the practical ceiling for a single-turn --print invocation.
+# Silent truncation would hand the auditor a partial module and produce
+# an audit that never saw the tail end of the code — worse than no audit.
+# Set AGENT_LOOPS_ALLOW_TRUNCATION=1 to opt into the legacy behavior.
+MAX_CONTENT_BYTES="${AGENT_LOOPS_MAX_CONTENT_BYTES:-300000}"
+_SOURCE_BYTES=$(wc -c <"$_TMP_SOURCE" | tr -d ' ')
+_TESTS_BYTES=$(wc -c <"$_TMP_TESTS" | tr -d ' ')
+_TOTAL_BYTES=$(( _SOURCE_BYTES + _TESTS_BYTES ))
 if [[ "$_TOTAL_BYTES" -gt "$MAX_CONTENT_BYTES" ]]; then
-  echo "Warning: Source + test content is $((_TOTAL_BYTES / 1024)) KB; truncating to $((MAX_CONTENT_BYTES / 1024)) KB." >&2
-  # Allocate 2/3 to source, 1/3 to tests
-  _MAX_SOURCE=$(( MAX_CONTENT_BYTES * 2 / 3 ))
-  _MAX_TESTS=$(( MAX_CONTENT_BYTES / 3 ))
-  truncate -s "$_MAX_SOURCE" "$_TMP_SOURCE" 2>/dev/null || { head -c "$_MAX_SOURCE" "$_TMP_SOURCE" > "$_TMP_SOURCE.trunc" && mv "$_TMP_SOURCE.trunc" "$_TMP_SOURCE"; }
-  truncate -s "$_MAX_TESTS" "$_TMP_TESTS" 2>/dev/null || { head -c "$_MAX_TESTS" "$_TMP_TESTS" > "$_TMP_TESTS.trunc" && mv "$_TMP_TESTS.trunc" "$_TMP_TESTS"; }
-  printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_SOURCE"
-  printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_TESTS"
+  if [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
+    echo "Warning: Source + test content is $((_TOTAL_BYTES / 1024)) KB; truncating to $((MAX_CONTENT_BYTES / 1024)) KB (AGENT_LOOPS_ALLOW_TRUNCATION=1)." >&2
+    # Allocate 2/3 to source, 1/3 to tests
+    _MAX_SOURCE=$(( MAX_CONTENT_BYTES * 2 / 3 ))
+    _MAX_TESTS=$(( MAX_CONTENT_BYTES / 3 ))
+    truncate -s "$_MAX_SOURCE" "$_TMP_SOURCE" 2>/dev/null || { head -c "$_MAX_SOURCE" "$_TMP_SOURCE" > "$_TMP_SOURCE.trunc" && mv "$_TMP_SOURCE.trunc" "$_TMP_SOURCE"; }
+    truncate -s "$_MAX_TESTS" "$_TMP_TESTS" 2>/dev/null || { head -c "$_MAX_TESTS" "$_TMP_TESTS" > "$_TMP_TESTS.trunc" && mv "$_TMP_TESTS.trunc" "$_TMP_TESTS"; }
+    printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_SOURCE"
+    printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_TESTS"
+  else
+    cat >&2 <<EOF
+Error: Source + test content is $((_TOTAL_BYTES / 1024)) KB (limit: $((MAX_CONTENT_BYTES / 1024)) KB). Audit aborted.
+
+  Source: $((_SOURCE_BYTES / 1024)) KB  ($MODULE_PATH)
+  Tests:  $((_TESTS_BYTES / 1024)) KB  ($TEST_PATH)
+
+A module this large cannot be audited reliably in a single pass — the
+auditor would miss gaps in the tail end and you would get a falsely
+complete report. Split the audit into smaller, independently-reviewable
+units and invoke this script once per unit.
+
+Ways to split:
+  1. By sub-module — audit each file or logical group separately:
+       test-review-request.sh path/to/module_a.py path/to/tests/test_a.py
+       test-review-request.sh path/to/module_b.py path/to/tests/test_b.py
+
+  2. By class or responsibility — if the module groups several concerns,
+     extract each concern into its own file first, then audit each one.
+
+  3. Consider whether the module itself is too large. A 200 KB source file
+     is usually a sign that it should be decomposed regardless of audit.
+
+To bypass this check (not recommended — produces unreliable audits), set:
+  AGENT_LOOPS_ALLOW_TRUNCATION=1
+EOF
+    exit 1
+  fi
 fi
 
 python3 - "$PROMPT_TEMPLATE" "$SYSTEM_PROMPT_FILE" "$MODULE_PATH" "$TEST_PATH" "$MODE" \
