@@ -16,7 +16,7 @@ from typing import List, Dict, Optional, Set, Tuple, Any
 from collections import Counter, defaultdict
 
 from .intelligence import SessionContext, PatternLearner
-from .core.base import _resolve_claude_dir
+from .core.base import _resolve_claude_dir, _resolve_cortex_root
 
 
 @dataclass
@@ -144,6 +144,7 @@ class SkillRecommender:
         """Initialize recommender with optional home directory."""
         self.home = _resolve_claude_dir(home)
         self.db_path = self.home / "data" / "skill-recommendations.db"
+        self.index_path = self.home / "skills" / "skill-index.json"
         self.rules_path = self.home / "skills" / "recommendation-rules.json"
         self._init_database()
         self._load_rules()
@@ -213,20 +214,88 @@ class SkillRecommender:
             conn.commit()
 
     def _load_rules(self) -> None:
-        """Load recommendation rules from configuration file."""
+        """Load recommendation rules, preferring the unified skill-index.json.
+
+        Precedence:
+          1. ``{home}/skills/skill-index.json`` — user install (when
+             installers copy or symlink the bundled index)
+          2. ``{cortex_root}/skills/skill-index.json`` — bundled repo copy,
+             matching how ``hooks/skill_auto_suggester.py`` resolves
+          3. ``{home}/skills/recommendation-rules.json`` — legacy file,
+             kept until Phase 5
+          4. Hardcoded defaults
+
+        Only branch 4 writes to disk (it seeds the legacy path so subsequent
+        runs have something to read). Index-derived rules are never persisted
+        — they come from SKILL.md front matter.
+        """
         self.rules: List[Dict[str, Any]] = []
+
+        index_candidates: List[Path] = [self.index_path]
+        try:
+            cortex_index = _resolve_cortex_root() / "skills" / "skill-index.json"
+            if cortex_index != self.index_path:
+                index_candidates.append(cortex_index)
+        except Exception:
+            pass
+
+        for candidate in index_candidates:
+            if not candidate.exists():
+                continue
+            try:
+                index_data = json.loads(candidate.read_text(encoding="utf-8"))
+                self.rules = self._rules_from_index(
+                    index_data.get("skills", [])
+                )
+                if self.rules:
+                    return
+            except (json.JSONDecodeError, OSError):
+                continue
 
         if self.rules_path.exists():
             try:
                 rules_data = json.loads(self.rules_path.read_text(encoding="utf-8"))
                 self.rules = rules_data.get("rules", [])
-            except (json.JSONDecodeError, Exception):
-                # If rules file doesn't exist or is invalid, use defaults
-                self.rules = self._get_default_rules()
-                self._save_rules()
-        else:
-            self.rules = self._get_default_rules()
-            self._save_rules()
+                if self.rules:
+                    return
+            except (json.JSONDecodeError, OSError):
+                pass
+
+        self.rules = self._get_default_rules()
+        self._save_rules()
+
+    @staticmethod
+    def _rules_from_index(
+        skills: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Project skill-index entries into the rule shape used by
+        ``_rule_based_recommendations``.
+
+        Only skills with a non-empty ``file_patterns`` list become rules — a
+        skill without file patterns has nothing to trigger on via this strategy.
+        """
+        rules: List[Dict[str, Any]] = []
+        for skill in skills:
+            file_patterns = skill.get("file_patterns") or []
+            if not file_patterns:
+                continue
+            name = skill.get("name", "")
+            if not name:
+                continue
+            confidence = skill.get("confidence", 0.8)
+            rules.append(
+                {
+                    "trigger": {"file_patterns": list(file_patterns)},
+                    "recommend": [
+                        {
+                            "skill": name,
+                            "confidence": float(confidence),
+                            "reason": f"File pattern match for {name}",
+                        }
+                    ],
+                }
+            )
+        return rules
 
     def _get_default_rules(self) -> List[Dict[str, Any]]:
         """Get default recommendation rules."""
