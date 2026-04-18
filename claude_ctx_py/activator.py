@@ -1,100 +1,83 @@
-"""Skill activation logic based on keyword matching."""
+"""Skill activation lookup: map free text to matching skill names via skill-index.json.
 
-import yaml
+Powers ``cortex skills analyze <text>``. Reads the unified skill index (either
+the user-local copy under ``~/.claude/skills/`` or the bundled Cortex repo copy)
+and returns every skill whose keywords appear as substrings of the input.
+
+Zero-YAML by design — the legacy ``skills/activation.yaml`` is no longer read
+from here. Users who haven't regenerated their index after upgrading should run
+``cortex skills rebuild-index`` once.
+"""
+
+from __future__ import annotations
+
+import json
 from pathlib import Path
-from typing import List, Dict, Set
+from typing import Dict, List
+
+from .core.base import _resolve_cortex_root
 
 
 def load_activation_map(claude_dir: Path) -> Dict[str, List[str]]:
-    """Load skill activation keywords from activation.yaml.
+    """Return a ``{skill_name: [lowercased keywords]}`` map from skill-index.json.
 
-    Args:
-        claude_dir: Path to the cortex directory
-
-    Returns:
-        Dictionary mapping skill names to their keyword lists
-
-    Raises:
-        FileNotFoundError: If activation.yaml doesn't exist
-        yaml.YAMLError: If activation.yaml is malformed
+    Preference order: the user's installed copy (``claude_dir/skills/skill-index.json``),
+    then the bundled Cortex repo copy. Returns ``{}`` if neither is readable —
+    callers treat that as "no skills matched".
     """
-    activation_file = claude_dir / "skills" / "activation.yaml"
+    for candidate in _index_candidates(claude_dir):
+        if not candidate.exists():
+            continue
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        skills = data.get("skills") or []
+        if not skills:
+            continue
+        return {
+            str(entry["name"]): [
+                str(kw).lower()
+                for kw in (entry.get("keywords") or [])
+                if isinstance(kw, str) and kw.strip()
+            ]
+            for entry in skills
+            if isinstance(entry, dict) and isinstance(entry.get("name"), str)
+        }
+    return {}
 
-    if not activation_file.exists():
-        raise FileNotFoundError(f"Activation file not found: {activation_file}")
 
-    with open(activation_file, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    if not data or "skills" not in data:
-        return {}
-
-    # Extract skill -> keywords mapping
-    activation_map = {}
-    for skill_name, config in data["skills"].items():
-        if "keywords" in config:
-            activation_map[skill_name] = [kw.lower() for kw in config["keywords"]]
-
-    return activation_map
+def _index_candidates(claude_dir: Path) -> List[Path]:
+    candidates = [claude_dir / "skills" / "skill-index.json"]
+    try:
+        bundled = _resolve_cortex_root() / "skills" / "skill-index.json"
+        if bundled != candidates[0]:
+            candidates.append(bundled)
+    except Exception:
+        pass
+    return candidates
 
 
 def analyze_text(text: str, claude_dir: Path) -> List[str]:
-    """Analyze text and return matching skill names.
-
-    Args:
-        text: Input text to analyze for skill keywords
-        claude_dir: Path to the cortex directory
-
-    Returns:
-        List of skill names that match keywords in the text
-    """
-    try:
-        activation_map = load_activation_map(claude_dir)
-    except (FileNotFoundError, yaml.YAMLError) as e:
-        # Return empty list if activation map can't be loaded
-        return []
-
+    """Return the sorted set of skill names whose keywords appear in ``text``."""
+    activation_map = load_activation_map(claude_dir)
     if not activation_map:
         return []
-
-    # Normalize input text
     text_lower = text.lower()
-
-    # Find matching skills
-    matches: Set[str] = set()
-
-    for skill_name, keywords in activation_map.items():
-        for keyword in keywords:
-            # Check if keyword appears in text
-            # Use word boundary logic for better matching
-            if keyword in text_lower:
-                matches.add(skill_name)
-                break  # Found match for this skill, move to next
-
-    return sorted(matches)
+    return sorted(
+        name
+        for name, keywords in activation_map.items()
+        if any(keyword in text_lower for keyword in keywords)
+    )
 
 
 def suggest_skills(text: str, claude_dir: Path) -> str:
-    """Analyze text and format skill suggestions for CLI output.
-
-    Args:
-        text: Input text to analyze for skill keywords
-        claude_dir: Path to the cortex directory
-
-    Returns:
-        Formatted string with skill suggestions
-    """
-    matching_skills = analyze_text(text, claude_dir)
-
-    if not matching_skills:
+    """Format the ``analyze_text`` result for CLI output."""
+    matches = analyze_text(text, claude_dir)
+    if not matches:
         return "No matching skills found for the provided text."
-
-    # Build formatted output
-    lines = [f"Found {len(matching_skills)} matching skill(s):\n"]
-
-    for skill in matching_skills:
-        lines.append(f"  - {skill}")
-
-    lines.append("\nTo view skill details, run: cortex skills info <skill-name>")
-
+    lines = [f"Found {len(matches)} matching skill(s):", ""]
+    lines.extend(f"  - {name}" for name in matches)
+    lines.append("")
+    lines.append("To view skill details, run: cortex skills info <skill-name>")
     return "\n".join(lines)
