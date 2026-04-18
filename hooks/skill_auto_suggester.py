@@ -14,12 +14,14 @@ A typical entry looks like:
 Environment:
   CLAUDE_HOOK_PROMPT     The user prompt text (provided by Claude Code)
   CLAUDE_CHANGED_FILES   Optional colon-separated list of changed files
-  CLAUDE_SKILL_RULES     Optional override path to skill-rules.json
+  CLAUDE_SKILL_INDEX     Optional override path to skill-index.json
+  CLAUDE_SKILL_RULES     Legacy override path to skill-rules.json (fallback)
   CORTEX_ROOT            Absolute path to the Cortex install root (set by
-                         Cortex; used to locate bundled rules and scripts)
+                         Cortex; used to locate bundled index and scripts)
 
-The hook reads skill keywords from skills/skill-rules.json (or the override) and
-prints the top matching skills. No suggestions → silent success (exit 0).
+The hook reads skill keywords from skills/skill-index.json (or the legacy
+skills/skill-rules.json fallback) and prints the top matching skills. No
+suggestions → silent success (exit 0).
 """
 
 from __future__ import annotations
@@ -148,24 +150,52 @@ def _log_hook(message: str) -> None:
         return
 
 
+def candidate_index_paths() -> List[Path]:
+    """Return possible locations for skill-index.json (preferred source)."""
+    paths: List[Path] = []
+    if os.getenv("CLAUDE_SKILL_INDEX"):
+        paths.append(Path(os.environ["CLAUDE_SKILL_INDEX"]).expanduser())
+
+    script_path = Path(__file__).resolve()
+    paths.append(script_path.parents[1] / "skills" / "skill-index.json")
+    paths.append(Path.home() / ".claude" / "skills" / "skill-index.json")
+
+    return paths
+
+
 def candidate_rule_paths() -> List[Path]:
-    """Return possible locations for skill-rules.json."""
-    paths = []
+    """Return possible locations for the legacy skill-rules.json fallback."""
+    paths: List[Path] = []
     if os.getenv("CLAUDE_SKILL_RULES"):
         paths.append(Path(os.environ["CLAUDE_SKILL_RULES"]).expanduser())
 
     script_path = Path(__file__).resolve()
-    repo_rules = script_path.parents[1] / "skills" / "skill-rules.json"
-    paths.append(repo_rules)
-
-    home_rules = Path.home() / ".claude" / "skills" / "skill-rules.json"
-    paths.append(home_rules)
+    paths.append(script_path.parents[1] / "skills" / "skill-rules.json")
+    paths.append(Path.home() / ".claude" / "skills" / "skill-rules.json")
 
     return paths
 
 
 def load_rules() -> list:
-    """Load rules from the first readable candidate path."""
+    """Load skill entries from skill-index.json (preferred) or the legacy
+    skill-rules.json fallback.
+
+    Both sources produce a list of dicts with ``name`` and ``keywords`` fields,
+    which is everything ``match_rules`` needs. The legacy fallback stays until
+    Phase 5 removes the file.
+    """
+    for path in candidate_index_paths():
+        if not path.exists():
+            continue
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            continue
+        skills = data.get("skills", [])
+        if skills:
+            return skills
+
     for path in candidate_rule_paths():
         if not path.exists():
             continue
@@ -177,6 +207,7 @@ def load_rules() -> list:
         rules = data.get("rules", [])
         if rules:
             return rules
+
     return []
 
 
