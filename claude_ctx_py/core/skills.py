@@ -376,6 +376,24 @@ def skill_analyze(text: str, home: Path | None = None) -> Tuple[int, str]:
         return 1, _color(f"Error analyzing text: {e}", RED)
 
 
+def skill_rebuild_index(home: Path | None = None) -> Tuple[int, str]:
+    """Rebuild skills/skill-index.json from SKILL.md front matter.
+
+    Resolves the skills root from the Cortex install (falling back to the
+    repo root in development mode) and writes a deterministic index document.
+    """
+    from .. import skill_index
+
+    skills_root: Path
+    if home is not None:
+        skills_root = Path(home) / "skills"
+    else:
+        from .base import _resolve_cortex_root
+        skills_root = _resolve_cortex_root() / "skills"
+
+    return skill_index.rebuild_index(skills_root=skills_root)
+
+
 def skill_deps(skill: str, home: Path | None = None) -> Tuple[int, str]:
     """Show which agents use a specific skill."""
     claude_dir = _resolve_claude_dir(home)

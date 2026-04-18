@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NickCrew/claude-cortex/schemas/skill-index.schema.json",
+  "title": "Skill Index",
+  "description": "Generated index of all skills in a Cortex installation, derived from each SKILL.md's front matter. Serves as the single source of truth for the UserPromptSubmit hook, the SkillRecommender, and `cortex skills analyze`.",
+  "type": "object",
+  "required": ["version", "generated_from", "skills"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Relative path to this schema file"
+    },
+    "version": {
+      "type": "string",
+      "description": "Schema version date (YYYY-MM-DD format)",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}(\\.\\d+)?$"
+    },
+    "generated_from": {
+      "type": "string",
+      "description": "Short label identifying the source of truth; always 'SKILL.md front matter' for current builds"
+    },
+    "skills": {
+      "type": "array",
+      "description": "Sorted list of skill entries (sorted by name for deterministic output)",
+      "items": {
+        "$ref": "#/definitions/skillEntry"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "skillEntry": {
+      "type": "object",
+      "required": ["name", "path", "description", "keywords", "file_patterns", "confidence"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique skill identifier (matches the SKILL.md front matter 'name' field)",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "path": {
+          "type": "string",
+          "description": "Directory path relative to skills/ root, using posix separators (e.g. 'agent-loops' or 'collaboration/brainstorming')"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description from the skill's front matter"
+        },
+        "keywords": {
+          "type": "array",
+          "description": "Keywords or phrases that should surface this skill. Substring-matched against prompts, file paths, and commit messages.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "file_patterns": {
+          "type": "array",
+          "description": "Glob patterns that trigger this skill via file-based matching in the SkillRecommender rule strategy.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "confidence": {
+          "type": "number",
+          "description": "Default confidence score (0-1) used when a file_patterns match fires",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

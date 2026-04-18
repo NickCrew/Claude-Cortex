@@ -160,6 +160,10 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "text",
         help="Text to analyze for skill keywords",
     )
+    skills_sub.add_parser(
+        "rebuild-index",
+        help="Regenerate skills/skill-index.json from SKILL.md front matter",
+    )
     skills_suggest_parser = skills_sub.add_parser(
         "suggest", help="Suggest skills based on project context"
     )
@@ -1206,6 +1210,10 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         print("Note: 'cortex skills analyze' is deprecated. Use 'cortex suggest --text' instead.", file=sys.stderr)
         text = getattr(args, "text", "")
         exit_code, message = core.skill_analyze(text)
+        _print(message)
+        return exit_code
+    if args.skills_command == "rebuild-index":
+        exit_code, message = core.skill_rebuild_index()
         _print(message)
         return exit_code
     if args.skills_command == "suggest":
