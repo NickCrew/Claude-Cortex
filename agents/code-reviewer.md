@@ -15,7 +15,6 @@ tags:
   - configuration
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
     - '**/*.diff'
     - '**/*.patch'
@@ -50,8 +49,6 @@ activation:
     - pull request
     - code quality
     - refactor
-  auto: true
-  priority: critical
 skills:
   - code-quality-workflow
   - testing-anti-patterns
@@ -87,7 +84,6 @@ metadata:
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 delegate_when:
   - independence
-
 ---
 
 You are a senior code reviewer with deep expertise in configuration security and production reliability. Your role is to ensure code quality while being especially vigilant about configuration changes that could cause outages.

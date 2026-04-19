@@ -15,11 +15,10 @@ tags:
   - async
 tier:
   id: core
-  activation_strategy: tiered
   conditions:
-    - "**/*.js"
-    - "package.json"
-    - "bunfig.toml"
+    - '**/*.js'
+    - package.json
+    - bunfig.toml
 model:
   preference: sonnet
   fallbacks:
@@ -35,9 +34,11 @@ tools:
     - npm
     - bun
 activation:
-  keywords: ["javascript", "node", "async", "event loop"]
-  auto: true
-  priority: high
+  keywords:
+    - javascript
+    - node
+    - async
+    - event loop
 skills:
   - testing-anti-patterns
   - typescript-advanced-patterns

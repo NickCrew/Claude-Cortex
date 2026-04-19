@@ -19,11 +19,10 @@ tags:
   - pattern
 tier:
   id: core
-  activation_strategy: auto
   conditions:
-    - "plan"
-    - "coordinate"
-    - "break down"
+    - plan
+    - coordinate
+    - break down
 model:
   preference: opus
   fallbacks:
@@ -42,9 +41,12 @@ tools:
       - Search
       - Write
 activation:
-  keywords: ["plan", "orchestrate", "coordinate", "break down", "delegate"]
-  auto: true
-  priority: high
+  keywords:
+    - plan
+    - orchestrate
+    - coordinate
+    - break down
+    - delegate
 skills:
   - task-orchestration
   - dispatching-parallel-agents
@@ -79,7 +81,6 @@ metadata:
   pattern: orchestrator-workers
 delegate_when:
   - parallel
-
 ---
 
 You are the **Orchestrator**, the central nervous system for complex problem solving. You implement the **Orchestrator-Workers** pattern.

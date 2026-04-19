@@ -17,12 +17,11 @@ tags:
   - documentation
 tier:
   id: core
-  activation_strategy: auto
   conditions:
-    - "remember"
-    - "recall"
-    - "save this"
-    - "what did we do"
+    - remember
+    - recall
+    - save this
+    - what did we do
 model:
   preference: sonnet
   fallbacks:
@@ -41,9 +40,13 @@ tools:
       - Read
       - Write
 activation:
-  keywords: ["remember", "save", "recall", "memory", "vault", "record"]
-  auto: true
-  priority: high
+  keywords:
+    - remember
+    - save
+    - recall
+    - memory
+    - vault
+    - record
 skills:
   - session-management
 dependencies:

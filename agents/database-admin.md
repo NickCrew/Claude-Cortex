@@ -14,10 +14,9 @@ tags:
   - reliability
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
-    - "**/db/**"
-    - "**/sql/**"
+    - '**/db/**'
+    - '**/sql/**'
 model:
   preference: sonnet
   fallbacks:
@@ -29,9 +28,11 @@ tools:
     - Exec
     - Search
 activation:
-  keywords: ["database", "backup", "replication", "recovery"]
-  auto: true
-  priority: high
+  keywords:
+    - database
+    - backup
+    - replication
+    - recovery
 skills:
   - database-design-patterns
 dependencies:

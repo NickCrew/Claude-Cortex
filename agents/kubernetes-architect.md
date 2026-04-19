@@ -21,7 +21,6 @@ tags:
   - cloud
 tier:
   id: specialist
-  activation_strategy: tiered
   conditions:
     - '**/k8s/**'
     - '**/helm/**'
@@ -50,8 +49,6 @@ activation:
     - k8s
     - helm
     - ingress
-  auto: true
-  priority: critical
 dependencies:
   requires:
     - cloud-architect

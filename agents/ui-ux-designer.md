@@ -14,10 +14,9 @@ tags:
   - accessibility
 tier:
   id: extended
-  activation_strategy: sequential
   conditions:
-    - "design/**"
-    - "figma/**"
+    - design/**
+    - figma/**
 model:
   preference: sonnet
   fallbacks:
@@ -29,9 +28,11 @@ tools:
     - MultiEdit
     - Search
 activation:
-  keywords: ["wireframe", "prototype", "design system", "user flow"]
-  auto: true
-  priority: normal
+  keywords:
+    - wireframe
+    - prototype
+    - design system
+    - user flow
 skills:
   - ux-review
   - accessibility-audit

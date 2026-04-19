@@ -17,7 +17,6 @@ tags:
   - lighthouse
 tier:
   id: extended
-  activation_strategy: manual
 model:
   preference: sonnet
   fallbacks:
@@ -28,9 +27,13 @@ tools:
     - Write
     - Bash
 activation:
-  keywords: ["performance", "web vitals", "LCP", "bundle size", "optimization", "lighthouse"]
-  auto: false
-  priority: normal
+  keywords:
+    - performance
+    - web vitals
+    - LCP
+    - bundle size
+    - optimization
+    - lighthouse
 skills:
   - react-performance-optimization
   - design-system-architecture
@@ -40,7 +43,6 @@ dependencies:
     - performance-engineer
 delegate_when:
   - independence
-
 ---
 
 You are the Frontend Optimizer, a specialized expert in multi-perspective problem-solving teams.

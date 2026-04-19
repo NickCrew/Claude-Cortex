@@ -15,7 +15,6 @@ tags:
   - iac
 tier:
   id: core
-  activation_strategy: tiered
   conditions:
     - '**/infra/**'
     - '**/cloud/**'
@@ -46,8 +45,6 @@ activation:
     - migration
     - scalability
     - cost
-  auto: true
-  priority: critical
 skills:
   - terraform-best-practices
   - kubernetes-deployment-patterns

@@ -497,9 +497,6 @@ def agent_validate(
     fields = schema.get("fields", {})
 
     allowed_categories = set(fields.get("category", {}).get("enum", []))
-    tier_fields = fields.get("tier", {}).get("properties", {})
-    allowed_tiers = set(tier_fields.get("id", {}).get("enum", []))
-    allowed_strategies = set(tier_fields.get("activation_strategy", {}).get("enum", []))
 
     include_all = bool(include_all) or not agent_names
 
@@ -589,15 +586,8 @@ def agent_validate(
         tier = metadata.get("tier")
         if isinstance(tier, dict):
             tier_id = tier.get("id")
-            if allowed_tiers and tier_id not in allowed_tiers:
-                local_errors.append(
-                    f"invalid tier.id '{tier_id}' (allowed: {sorted(allowed_tiers)})"
-                )
-            strategy = tier.get("activation_strategy")
-            if strategy and allowed_strategies and strategy not in allowed_strategies:
-                local_errors.append(
-                    f"invalid tier.activation_strategy '{strategy}' (allowed: {sorted(allowed_strategies)})"
-                )
+            if not isinstance(tier_id, str) or not tier_id.strip():
+                local_errors.append("'tier.id' must be a non-empty string")
         else:
             local_errors.append("'tier' must be an object")
 

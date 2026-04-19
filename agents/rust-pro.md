@@ -15,10 +15,9 @@ tags:
   - performance
 tier:
   id: core
-  activation_strategy: tiered
   conditions:
-    - "**/*.rs"
-    - "Cargo.toml"
+    - '**/*.rs'
+    - Cargo.toml
 model:
   preference: sonnet
   fallbacks:
@@ -31,9 +30,11 @@ tools:
     - MultiEdit
     - Search
 activation:
-  keywords: ["rust", "ownership", "borrowing", "async"]
-  auto: true
-  priority: high
+  keywords:
+    - rust
+    - ownership
+    - borrowing
+    - async
 skills:
   - test-driven-development
 dependencies:

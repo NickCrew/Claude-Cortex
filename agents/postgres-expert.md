@@ -13,7 +13,6 @@ tags:
   - performance
 tier:
   id: extended
-  activation_strategy: tiered
   conditions:
     - '**/*.sql'
     - '**/migrations/**'
@@ -36,8 +35,6 @@ activation:
     - psql
     - sql
     - index
-  auto: true
-  priority: high
 skills:
   - database-design-patterns
 dependencies:

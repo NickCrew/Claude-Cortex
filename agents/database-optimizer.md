@@ -14,7 +14,6 @@ tags:
   - sql
 tier:
   id: extended
-  activation_strategy: sequential
   conditions:
     - '**/*.sql'
     - '**/migrations/**'
@@ -41,8 +40,6 @@ activation:
     - query
     - migration
     - schema
-  auto: true
-  priority: high
 skills:
   - database-design-patterns
 dependencies:
@@ -76,7 +73,6 @@ metadata:
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 delegate_when:
   - independence
-
 ---
 
 You are a database optimization expert specializing in query performance and schema design.

@@ -14,11 +14,10 @@ tags:
   - knowledge-management
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
-    - "docs/**"
-    - "**/*.md"
-    - "architecture/**"
+    - docs/**
+    - '**/*.md'
+    - architecture/**
 model:
   preference: opus
   fallbacks:
@@ -40,9 +39,11 @@ tools:
       - MultiEdit
       - Mermaid
 activation:
-  keywords: ["documentation", "manual", "architecture", "guide"]
-  auto: true
-  priority: high
+  keywords:
+    - documentation
+    - manual
+    - architecture
+    - guide
 skills:
   - documentation-production
   - code-explanation
@@ -79,7 +80,6 @@ metadata:
 delegate_when:
   - isolation
   - large_scope
-
 ---
 
 You are a technical documentation architect specializing in creating comprehensive, long-form documentation that captures both the what and the why of complex systems.

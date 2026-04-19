@@ -13,7 +13,6 @@ tags:
   - backend
 tier:
   id: extended
-  activation_strategy: tiered
   conditions:
     - '**/routes/**'
     - '**/controllers/**'
@@ -36,8 +35,6 @@ activation:
     - http api
     - endpoint
     - status code
-  auto: true
-  priority: medium
 skills:
   - api-design-patterns
 dependencies:

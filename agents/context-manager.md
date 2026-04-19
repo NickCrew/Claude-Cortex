@@ -14,10 +14,9 @@ tags:
   - coordination
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
-    - "**/context/**"
-    - "**/summaries/**"
+    - '**/context/**'
+    - '**/summaries/**'
 model:
   preference: opus
   fallbacks:
@@ -29,9 +28,11 @@ tools:
     - MultiEdit
     - Search
 activation:
-  keywords: ["context", "memory", "handoff", "summary"]
-  auto: true
-  priority: critical
+  keywords:
+    - context
+    - memory
+    - handoff
+    - summary
 skills:
   - session-management
 dependencies:

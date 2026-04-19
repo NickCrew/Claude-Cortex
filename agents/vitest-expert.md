@@ -13,7 +13,6 @@ tags:
   - unit-tests
 tier:
   id: extended
-  activation_strategy: tiered
   conditions:
     - '**/*.test.{ts,tsx,js,jsx}'
     - '**/*.spec.{ts,tsx,js,jsx}'
@@ -35,8 +34,6 @@ activation:
     - vite test
     - unit test
     - testing
-  auto: true
-  priority: medium
 skills:
   - testing-anti-patterns
 dependencies:

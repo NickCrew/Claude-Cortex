@@ -60,8 +60,9 @@ fields:
       - business-product
       - meta-orchestration
       - research-analysis
-    description: Aligns with the 10-category taxonomy synced from
-      awesome-claude-code-subagents.
+      - frontend
+    description: Aligns with the 11-category taxonomy synced from
+      awesome-claude-code-subagents (plus ``frontend`` for UI/UX agents).
 
   tags:
     type: array[string]
@@ -74,20 +75,15 @@ fields:
     properties:
       id:
         type: string
-        enum: ["core", "extended", "specialist"]
-        description: Default activation tier within category profiles.
-      activation_strategy:
-        type: string
-        enum: ["sequential", "parallel", "tiered"]
-        default: "tiered"
-        description: Preferred orchestration pattern when the agent is
-          grouped with dependencies.
+        description: Descriptive tier label (e.g. "core", "extended",
+          "specialist"). Free-form — no runtime enforcement; used for
+          grouping in discovery UIs.
       conditions:
         type: array[string]
         optional: true
         example: ["*.ts", "package.json"]
-        description: File glob or signal conditions that auto-activate the
-          agent (consumed by suggestion engine).
+        description: File glob patterns consumed by the agent-suggest hook
+          as ``file_patterns`` for keyword matching.
 
   model:
     type: object
@@ -136,16 +132,12 @@ fields:
       keywords:
         type: array[string]
         optional: true
-      events:
-        type: array[string]
-        optional: true
-      auto:
-        type: boolean
-        default: false
-      priority:
-        type: string
-        enum: ["low", "normal", "high", "critical"]
-    description: Trigger metadata consumed by the agent suggestion engine.
+        description: Substring-matched against the user's prompt by
+          ``cortex hooks agent-suggest``.
+    description: Matching metadata consumed by the agent suggestion engine.
+      Legacy ``auto``, ``priority``, and ``events`` fields were removed in
+      the schema-evolution pass — they described runtime orchestration
+      semantics the Claude Code harness never offered.
 
   dependencies:
     type: object

@@ -14,7 +14,6 @@ tags:
   - qa
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
     - tests/**
     - '**/*.spec.*'
@@ -52,8 +51,6 @@ activation:
     - unit test
     - integration test
     - e2e
-  auto: true
-  priority: high
 skills:
   - test-review
   - python-testing-patterns
@@ -90,7 +87,6 @@ metadata:
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
 delegate_when:
   - independence
-
 ---
 
 You are a test automation specialist focused on comprehensive testing strategies.

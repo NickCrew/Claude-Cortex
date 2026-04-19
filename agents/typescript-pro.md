@@ -15,7 +15,6 @@ tags:
   - tooling
 tier:
   id: core
-  activation_strategy: tiered
   conditions:
     - '**/*.ts'
     - '**/*.tsx'
@@ -49,8 +48,6 @@ activation:
     - type
     - interface
     - generic
-  auto: true
-  priority: high
 dependencies:
   requires:
     - javascript-pro

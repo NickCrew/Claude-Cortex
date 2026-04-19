@@ -16,7 +16,6 @@ tags:
   - atomic-design
 tier:
   id: extended
-  activation_strategy: manual
 model:
   preference: sonnet
   fallbacks:
@@ -27,9 +26,12 @@ tools:
     - Write
     - Bash
 activation:
-  keywords: ["design system", "component library", "design tokens", "atomic design", "component API"]
-  auto: false
-  priority: normal
+  keywords:
+    - design system
+    - component library
+    - design tokens
+    - atomic design
+    - component API
 skills:
   - design-system-architecture
   - typescript-advanced-patterns

@@ -13,7 +13,6 @@ tags:
   - design
 tier:
   id: extended
-  activation_strategy: tiered
   conditions:
     - '**/tailwind.config.*'
     - '**/postcss.config.*'
@@ -36,8 +35,6 @@ activation:
     - tailwindcss
     - utility classes
     - postcss
-  auto: false
-  priority: medium
 skills:
   - design-system-architecture
   - accessibility-audit

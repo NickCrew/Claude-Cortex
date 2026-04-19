@@ -14,11 +14,10 @@ tags:
   - optimization
 tier:
   id: core
-  activation_strategy: auto
   conditions:
-    - "*.sql"
-    - "query"
-    - "database"
+    - '*.sql'
+    - query
+    - database
 model:
   preference: sonnet
   fallbacks:
@@ -30,9 +29,14 @@ tools:
     - Search
     - database-tool
 activation:
-  keywords: ["sql", "query", "database", "postgres", "mysql", "sqlite", "optimize query"]
-  auto: true
-  priority: high
+  keywords:
+    - sql
+    - query
+    - database
+    - postgres
+    - mysql
+    - sqlite
+    - optimize query
 skills:
   - database-design-patterns
 dependencies:

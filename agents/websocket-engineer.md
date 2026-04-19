@@ -14,11 +14,10 @@ tags:
   - infrastructure
 tier:
   id: extended
-  activation_strategy: sequential
   conditions:
-    - "**/*.ts"
-    - "**/*.js"
-    - "docker-compose.yml"
+    - '**/*.ts'
+    - '**/*.js'
+    - docker-compose.yml
 model:
   preference: sonnet
   fallbacks:
@@ -35,9 +34,11 @@ tools:
     - rabbitmq
     - centrifugo
 activation:
-  keywords: ["websocket", "real-time", "socket", "pubsub"]
-  auto: false
-  priority: high
+  keywords:
+    - websocket
+    - real-time
+    - socket
+    - pubsub
 skills:
   - event-driven-architecture
 dependencies:

@@ -14,7 +14,6 @@ tags:
   - reliability
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
     - '**/*.log'
     - '**/*.stacktrace'
@@ -49,8 +48,6 @@ activation:
     - exception
     - crash
     - traceback
-  auto: true
-  priority: high
 skills:
   - systematic-debugging
   - root-cause-tracing

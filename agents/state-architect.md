@@ -17,7 +17,6 @@ tags:
   - tanstack-query
 tier:
   id: extended
-  activation_strategy: manual
 model:
   preference: sonnet
   fallbacks:
@@ -28,9 +27,13 @@ tools:
     - Write
     - Bash
 activation:
-  keywords: ["state management", "redux", "zustand", "tanstack query", "global state", "server state"]
-  auto: false
-  priority: normal
+  keywords:
+    - state management
+    - redux
+    - zustand
+    - tanstack query
+    - global state
+    - server state
 skills:
   - react-performance-optimization
   - typescript-advanced-patterns

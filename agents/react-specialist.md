@@ -14,11 +14,10 @@ tags:
   - ux
 tier:
   id: extended
-  activation_strategy: tiered
   conditions:
-    - "**/*.tsx"
-    - "**/*.jsx"
-    - "package.json"
+    - '**/*.tsx'
+    - '**/*.jsx'
+    - package.json
 model:
   preference: sonnet
   fallbacks:
@@ -34,9 +33,11 @@ tools:
     - npm
     - typescript
 activation:
-  keywords: ["react", "hooks", "jsx", "concurrent"]
-  auto: false
-  priority: high
+  keywords:
+    - react
+    - hooks
+    - jsx
+    - concurrent
 skills:
   - react-performance-optimization
   - typescript-advanced-patterns

@@ -14,7 +14,6 @@ tags:
   - auth
 tier:
   id: core
-  activation_strategy: sequential
   conditions:
     - '**/auth/**'
     - '**/security/**'
@@ -46,8 +45,6 @@ activation:
     - credential
     - SQL injection
     - XSS
-  auto: true
-  priority: critical
 dependencies:
   recommends:
     - code-reviewer
@@ -84,7 +81,6 @@ skills:
 delegate_when:
   - independence
   - isolation
-
 ---
 
 You are a security auditor specializing in application security and secure coding practices.

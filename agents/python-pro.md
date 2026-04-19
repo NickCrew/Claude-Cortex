@@ -15,7 +15,6 @@ tags:
   - testing
 tier:
   id: core
-  activation_strategy: tiered
   conditions:
     - '**/*.py'
     - pyproject.toml
@@ -49,8 +48,6 @@ activation:
     - django
     - flask
     - fastapi
-  auto: true
-  priority: high
 skills:
   - async-python-patterns
   - python-testing-patterns
