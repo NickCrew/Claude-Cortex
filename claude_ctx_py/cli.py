@@ -122,6 +122,25 @@ def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     rules_edit.add_argument("rules", nargs="+", help="Rule name(s) (without .md)")
 
 
+def _build_completions_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Top-level ``cortex completions <shell>`` that prints the script to stdout.
+
+    Kept separate from ``cortex install completions`` (which writes to a file
+    in the user's shell config) because Homebrew's
+    ``generate_completions_from_executable`` helper captures stdout at build
+    time. The two share the same backing generator in ``claude_ctx_py.completions``.
+    """
+    completions_parser = subparsers.add_parser(
+        "completions",
+        help="Print shell completion script to stdout",
+    )
+    completions_parser.add_argument(
+        "shell",
+        choices=["bash", "zsh", "fish"],
+        help="Target shell",
+    )
+
+
 def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     hooks_parser = subparsers.add_parser("hooks", help="Hook commands")
     hooks_sub = hooks_parser.add_subparsers(dest="hooks_command")
@@ -1001,6 +1020,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_rules_parser(subparsers)
     _build_hooks_parser(subparsers)
     _build_skills_parser(subparsers)
+    _build_completions_parser(subparsers)
     _build_mcp_parser(subparsers)
     _build_worktree_parser(subparsers)
     from .cmd_git import build_git_parser
@@ -1197,6 +1217,12 @@ def _handle_rules_command(args: argparse.Namespace) -> int:
 
         return 1
     return 1
+
+
+def _handle_completions_command(args: argparse.Namespace) -> int:
+    from . import completions
+    sys.stdout.write(completions.get_completion_script(args.shell))
+    return 0
 
 
 def _handle_hooks_command(args: argparse.Namespace) -> int:
@@ -2928,6 +2954,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "rules": _handle_rules_command,
         "hooks": _handle_hooks_command,
         "skills": _handle_skills_command,
+        "completions": _handle_completions_command,
         "mcp": _handle_mcp_command,
         "worktree": _handle_worktree_command,
         "ai": _handle_ai_command,
