@@ -17,13 +17,16 @@ tier:
   id: core
   activation_strategy: tiered
   conditions:
-    - "**/infra/**"
-    - "**/cloud/**"
+    - '**/infra/**'
+    - '**/cloud/**'
+    - '**/*.tf'
+    - '**/infrastructure/**'
+    - '**/k8s/**'
 model:
   preference: sonnet
   fallbacks:
     - haiku
-  reasoning: "Cloud architecture design requires complex reasoning for cost optimization, multi-region strategies, and system-wide trade-offs. Sonnet provides superior architectural decision-making."
+  reasoning: Cloud architecture design requires complex reasoning for cost optimization, multi-region strategies, and system-wide trade-offs. Sonnet provides superior architectural decision-making.
 tools:
   catalog:
     - Read
@@ -33,7 +36,16 @@ tools:
     - Search
     - WebFetch
 activation:
-  keywords: ["cloud", "aws", "azure", "gcp", "architecture"]
+  keywords:
+    - cloud
+    - aws
+    - azure
+    - gcp
+    - architecture
+    - cloud architecture
+    - migration
+    - scalability
+    - cost
   auto: true
   priority: critical
 skills:

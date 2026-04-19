@@ -29,8 +29,6 @@ from typing import Dict, List, Optional, Any
 from .base import _extract_front_matter, _resolve_claude_dir, _resolve_cortex_root
 
 _SETTINGS_RELATIVE_PATHS = [
-    # Agent configuration
-    Path("agents/triggers.yaml"),
     # Skill configuration
     Path("skills/activation.yaml"),
     Path("skills/composition.yaml"),

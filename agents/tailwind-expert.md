@@ -4,8 +4,7 @@ name: tailwind-expert
 alias:
   - tailwindcss-expert
 summary: Tailwind CSS specialist for utility-first design systems and styling.
-description: Builds Tailwind configurations, component styling, and responsive design systems
-  with accessibility in mind.
+description: Builds Tailwind configurations, component styling, and responsive design systems with accessibility in mind.
 category: language-specialists
 tags:
   - tailwind

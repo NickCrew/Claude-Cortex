@@ -4,8 +4,7 @@ name: vitest-expert
 alias:
   - vitest-tester
 summary: Vitest specialist for fast unit tests in Vite-based projects.
-description: Builds Vitest suites with coverage, mocking, and CI integration for Vite and
-  modern JS stacks.
+description: Builds Vitest suites with coverage, mocking, and CI integration for Vite and modern JS stacks.
 category: quality-security
 tags:
   - vitest

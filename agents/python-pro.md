@@ -17,14 +17,14 @@ tier:
   id: core
   activation_strategy: tiered
   conditions:
-    - "**/*.py"
-    - "pyproject.toml"
-    - "requirements.txt"
+    - '**/*.py'
+    - pyproject.toml
+    - requirements.txt
 model:
   preference: haiku
   fallbacks:
     - sonnet
-  reasoning: "Deterministic code generation from well-defined specifications. Haiku provides 4x faster execution with 94% success rate for pattern-based Python code."
+  reasoning: Deterministic code generation from well-defined specifications. Haiku provides 4x faster execution with 94% success rate for pattern-based Python code.
 tools:
   catalog:
     - Read
@@ -42,7 +42,13 @@ tools:
     specialist:
       - Search
 activation:
-  keywords: ["python", "pytest", "async", "django", "flask"]
+  keywords:
+    - python
+    - pytest
+    - async
+    - django
+    - flask
+    - fastapi
   auto: true
   priority: high
 skills:

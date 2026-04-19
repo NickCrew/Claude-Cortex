@@ -16,9 +16,11 @@ tier:
   id: core
   activation_strategy: sequential
   conditions:
-    - "**/*.log"
-    - "**/*.stacktrace"
-    - "**/error/**"
+    - '**/*.log'
+    - '**/*.stacktrace'
+    - '**/error/**'
+    - '**/logs/**'
+    - '**/crash/**'
 model:
   preference: sonnet
   fallbacks:
@@ -38,7 +40,15 @@ tools:
     specialist:
       - MultiEdit
 activation:
-  keywords: ["error", "stack trace", "bug", "failure"]
+  keywords:
+    - error
+    - stack trace
+    - bug
+    - failure
+    - debug
+    - exception
+    - crash
+    - traceback
   auto: true
   priority: high
 skills:

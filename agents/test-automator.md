@@ -16,9 +16,13 @@ tier:
   id: core
   activation_strategy: sequential
   conditions:
-    - "tests/**"
-    - "**/*.spec.*"
-    - "pytest.ini"
+    - tests/**
+    - '**/*.spec.*'
+    - pytest.ini
+    - '**/*.test.{js,ts,py}'
+    - '**/*.spec.{js,ts,py}'
+    - '**/tests/**'
+    - '**/__tests__/**'
 model:
   preference: sonnet
   fallbacks:
@@ -40,7 +44,14 @@ tools:
     specialist:
       - MultiEdit
 activation:
-  keywords: ["test", "coverage", "automation", "qa"]
+  keywords:
+    - test
+    - coverage
+    - automation
+    - qa
+    - unit test
+    - integration test
+    - e2e
   auto: true
   priority: high
 skills:

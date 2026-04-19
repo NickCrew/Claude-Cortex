@@ -17,9 +17,10 @@ tier:
   id: core
   activation_strategy: sequential
   conditions:
-    - "**/*.diff"
-    - "**/*.patch"
-    - "**/.git/**"
+    - '**/*.diff'
+    - '**/*.patch'
+    - '**/.git/**'
+    - '**/*.{js,ts,jsx,tsx,py,go,rs,java}'
 model:
   preference: sonnet
   fallbacks:
@@ -39,7 +40,16 @@ tools:
     specialist:
       - MultiEdit
 activation:
-  keywords: ["code review", "PR", "diff", "configuration"]
+  keywords:
+    - code review
+    - PR
+    - diff
+    - configuration
+    - review
+    - check code
+    - pull request
+    - code quality
+    - refactor
   auto: true
   priority: critical
 skills:

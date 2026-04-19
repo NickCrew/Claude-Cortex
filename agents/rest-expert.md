@@ -4,8 +4,7 @@ name: rest-expert
 alias:
   - rest-architect
 summary: RESTful API specialist for HTTP contract design and implementation.
-description: Designs RESTful endpoints, status codes, pagination, and error contracts with
-  strong documentation.
+description: Designs RESTful endpoints, status codes, pagination, and error contracts with strong documentation.
 category: core-development
 tags:
   - rest

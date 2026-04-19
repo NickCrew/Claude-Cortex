@@ -16,8 +16,11 @@ tier:
   id: extended
   activation_strategy: sequential
   conditions:
-    - "**/*.sql"
-    - "**/migrations/**"
+    - '**/*.sql'
+    - '**/migrations/**'
+    - '**/models/**'
+    - '**/*model*.{js,ts,py}'
+    - '**/*schema*.{js,ts,py}'
 model:
   preference: sonnet
   fallbacks:
@@ -30,7 +33,14 @@ tools:
     - MultiEdit
     - Exec
 activation:
-  keywords: ["slow query", "index", "database performance"]
+  keywords:
+    - slow query
+    - index
+    - database performance
+    - database
+    - query
+    - migration
+    - schema
   auto: true
   priority: high
 skills:

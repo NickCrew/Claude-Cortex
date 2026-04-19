@@ -23,14 +23,16 @@ tier:
   id: specialist
   activation_strategy: tiered
   conditions:
-    - "**/k8s/**"
-    - "**/helm/**"
-    - "**/manifests/**"
+    - '**/k8s/**'
+    - '**/helm/**'
+    - '**/manifests/**'
+    - '**/*.yaml'
+    - '**/*.yml'
 model:
   preference: haiku
   fallbacks:
     - sonnet
-  reasoning: "Kubernetes manifest generation is deterministic and pattern-based. Haiku handles YAML scaffolding efficiently with significant speed improvements."
+  reasoning: Kubernetes manifest generation is deterministic and pattern-based. Haiku handles YAML scaffolding efficiently with significant speed improvements.
 tools:
   catalog:
     - Read
@@ -40,7 +42,14 @@ tools:
     - Search
     - WebFetch
 activation:
-  keywords: ["kubernetes", "gitops", "service mesh", "cluster"]
+  keywords:
+    - kubernetes
+    - gitops
+    - service mesh
+    - cluster
+    - k8s
+    - helm
+    - ingress
   auto: true
   priority: critical
 dependencies:

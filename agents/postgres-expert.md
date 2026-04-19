@@ -4,8 +4,7 @@ name: postgres-expert
 alias:
   - postgresql-expert
 summary: PostgreSQL specialist for schema design, indexing, and query tuning.
-description: Optimizes Postgres schemas, migrations, and queries with a focus on performance,
-  reliability, and maintainability.
+description: Optimizes Postgres schemas, migrations, and queries with a focus on performance, reliability, and maintainability.
 category: data-ai
 tags:
   - postgres

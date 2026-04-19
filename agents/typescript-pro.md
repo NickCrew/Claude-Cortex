@@ -17,14 +17,14 @@ tier:
   id: core
   activation_strategy: tiered
   conditions:
-    - "**/*.ts"
-    - "**/*.tsx"
-    - "tsconfig.json"
+    - '**/*.ts'
+    - '**/*.tsx'
+    - tsconfig.json
 model:
   preference: haiku
   fallbacks:
     - sonnet
-  reasoning: "Deterministic TypeScript code generation. Haiku excels at applying known patterns and type-safe implementations with 3.3x speed improvement."
+  reasoning: Deterministic TypeScript code generation. Haiku excels at applying known patterns and type-safe implementations with 3.3x speed improvement.
 tools:
   catalog:
     - Read
@@ -41,7 +41,14 @@ tools:
       - Search
       - Exec
 activation:
-  keywords: ["typescript", "tsconfig", "tsx", "typing"]
+  keywords:
+    - typescript
+    - tsconfig
+    - tsx
+    - typing
+    - type
+    - interface
+    - generic
   auto: true
   priority: high
 dependencies:

@@ -16,13 +16,15 @@ tier:
   id: core
   activation_strategy: sequential
   conditions:
-    - "**/auth/**"
-    - "**/security/**"
+    - '**/auth/**'
+    - '**/security/**'
+    - '**/*auth*.{js,ts,py}'
+    - '**/*security*.{js,ts,py}'
 model:
   preference: sonnet
   fallbacks:
     - haiku
-  reasoning: "Security vulnerability analysis and threat modeling are security-critical tasks requiring deep reasoning. Sonnet ensures thorough OWASP compliance and vulnerability detection."
+  reasoning: Security vulnerability analysis and threat modeling are security-critical tasks requiring deep reasoning. Sonnet ensures thorough OWASP compliance and vulnerability detection.
 tools:
   catalog:
     - Read
@@ -31,7 +33,19 @@ tools:
     - MultiEdit
     - Exec
 activation:
-  keywords: ["security audit", "OWASP", "JWT", "OAuth"]
+  keywords:
+    - security audit
+    - OWASP
+    - JWT
+    - OAuth
+    - security
+    - vulnerability
+    - auth
+    - password
+    - token
+    - credential
+    - SQL injection
+    - XSS
   auto: true
   priority: critical
 dependencies:
