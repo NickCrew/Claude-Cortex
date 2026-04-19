@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://cortex.dev/schemas/versions.schema.json",
+  "$comment": "IDE/editor reference only — NOT validated at runtime. Provides YAML autocomplete and inline diagnostics (VSCode, JetBrains) when editing versions.yaml. To add runtime validation, wire a checker into claude_ctx_py/dev_validate.py.",
   "title": "Skills Version Tracking",
   "description": "Maintains version history and compatibility information for skills",
   "type": "object",

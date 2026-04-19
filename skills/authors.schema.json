@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://cortex.dev/schemas/authors.schema.json",
+  "$comment": "IDE/editor reference only — NOT validated at runtime. Provides YAML autocomplete and inline diagnostics (VSCode, JetBrains) when editing authors.yaml. To add runtime validation, wire a checker into claude_ctx_py/dev_validate.py.",
   "title": "Authors Registry",
   "description": "Centralized author metadata for skill contributors",
   "type": "object",
