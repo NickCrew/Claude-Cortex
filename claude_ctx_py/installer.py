@@ -438,7 +438,7 @@ def install_post(
 
 
 # Directories to symlink into ~/.claude
-LINK_DIRS = ["agents", "skills", "rules"]
+LINK_DIRS = ["agents", "skills", "rules", "schemas"]
 
 
 def _link_commands_from_skills(
@@ -638,6 +638,38 @@ def _link_files_into_dir(
                 shutil.rmtree(link_path)
             try:
                 link_path.symlink_to(skill_dir)
+                created += 1
+            except OSError:
+                pass
+    elif category == "schemas":
+        # Flat directory of schema files. Symlink each so that updates to the
+        # repo copies propagate automatically — schemas are shipped artifacts,
+        # not user-customized settings.
+        for schema_file in sorted(src.iterdir()):
+            if not schema_file.is_file():
+                continue
+            if schema_file.suffix.lower() not in {".json", ".yaml", ".yml"}:
+                continue
+            link_path = dst / schema_file.name
+            if link_path.is_symlink():
+                if link_path.resolve() == schema_file.resolve():
+                    skipped += 1
+                    continue
+                if force:
+                    link_path.unlink()
+                else:
+                    skipped += 1
+                    continue
+            elif link_path.exists():
+                # Plain copy (legacy install) — replace with symlink on --force,
+                # otherwise skip so we don't clobber a user's local override.
+                if not force:
+                    skipped += 1
+                    continue
+                link_path.unlink()
+            link_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                link_path.symlink_to(schema_file)
                 created += 1
             except OSError:
                 pass
