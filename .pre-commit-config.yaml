@@ -1,0 +1,21 @@
+# Pre-commit hooks for contributors.
+#
+# Install once: `pip install pre-commit && pre-commit install`
+# Run manually: `pre-commit run --all-files`
+#
+# The CI workflow at .github/workflows/skill-index.yml enforces the same
+# skill-index drift check, so these hooks are optional but convenient.
+
+repos:
+  - repo: local
+    hooks:
+      - id: rebuild-skill-index
+        name: Rebuild skill-index.json and fail on drift
+        description: >-
+          Regenerates skills/skill-index.json from SKILL.md front matter.
+          Fails the commit if the index now differs from what was staged —
+          re-stage skills/skill-index.json and commit again.
+        entry: bash -c 'cortex skills rebuild-index && git diff --exit-code skills/skill-index.json'
+        language: system
+        files: '^skills/.*/SKILL\.md$'
+        pass_filenames: false
