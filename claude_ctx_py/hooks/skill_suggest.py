@@ -7,7 +7,6 @@ Environment inputs (provided by the Claude Code harness):
     CLAUDE_HOOK_PROMPT     The user prompt text
     CLAUDE_CHANGED_FILES   Optional colon-separated list of changed files
     CLAUDE_SKILL_INDEX     Optional override path to skill-index.json
-    CLAUDE_SKILL_RULES     Legacy override path to skill-rules.json (fallback)
     CORTEX_ROOT            Absolute path to the Cortex install root
 
 Migrated from ``hooks/skill_auto_suggester.py`` so the hook logic ships with
@@ -150,28 +149,11 @@ def candidate_index_paths() -> List[Path]:
     return paths
 
 
-def candidate_rule_paths() -> List[Path]:
-    """Return possible locations for the legacy skill-rules.json fallback."""
-    paths: List[Path] = []
-    if os.getenv("CLAUDE_SKILL_RULES"):
-        paths.append(Path(os.environ["CLAUDE_SKILL_RULES"]).expanduser())
-
-    try:
-        from ..core.base import _resolve_cortex_root
-
-        paths.append(_resolve_cortex_root() / "skills" / "skill-rules.json")
-    except Exception:
-        pass
-
-    paths.append(Path.home() / ".claude" / "skills" / "skill-rules.json")
-    return paths
-
-
 def load_entries() -> List[Dict[str, Any]]:
-    """Load skill entries from skill-index.json or the legacy fallback.
+    """Load skill entries from skill-index.json.
 
-    Both shapes expose ``name`` and ``keywords`` on each element, which is
-    everything ``match_entries`` requires.
+    Returns an empty list if no readable index is found — callers treat that
+    as "no skill suggestions this turn."
     """
     for path in candidate_index_paths():
         if not path.exists():
@@ -183,18 +165,6 @@ def load_entries() -> List[Dict[str, Any]]:
         skills = data.get("skills", [])
         if skills:
             return list(skills)
-
-    for path in candidate_rule_paths():
-        if not path.exists():
-            continue
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        rules = data.get("rules", [])
-        if rules:
-            return list(rules)
-
     return []
 
 

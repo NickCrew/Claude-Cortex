@@ -145,7 +145,6 @@ class SkillRecommender:
         self.home = _resolve_claude_dir(home)
         self.db_path = self.home / "data" / "skill-recommendations.db"
         self.index_path = self.home / "skills" / "skill-index.json"
-        self.rules_path = self.home / "skills" / "recommendation-rules.json"
         self._init_database()
         self._load_rules()
 
@@ -214,20 +213,16 @@ class SkillRecommender:
             conn.commit()
 
     def _load_rules(self) -> None:
-        """Load recommendation rules, preferring the unified skill-index.json.
+        """Load rule-strategy recommendations from skill-index.json.
 
         Precedence:
-          1. ``{home}/skills/skill-index.json`` — user install (when
-             installers copy or symlink the bundled index)
-          2. ``{cortex_root}/skills/skill-index.json`` — bundled repo copy,
-             matching how ``hooks/skill_auto_suggester.py`` resolves
-          3. ``{home}/skills/recommendation-rules.json`` — legacy file,
-             kept until Phase 5
-          4. Hardcoded defaults
+          1. ``{home}/skills/skill-index.json`` — user install
+          2. ``{cortex_root}/skills/skill-index.json`` — bundled repo copy
 
-        Only branch 4 writes to disk (it seeds the legacy path so subsequent
-        runs have something to read). Index-derived rules are never persisted
-        — they come from SKILL.md front matter.
+        If neither is readable the rule strategy simply produces no
+        recommendations — the other three strategies (semantic, agent, pattern)
+        continue to function. The former hardcoded defaults and legacy
+        ``recommendation-rules.json`` fallback were removed in Phase 5.
         """
         self.rules: List[Dict[str, Any]] = []
 
@@ -251,18 +246,6 @@ class SkillRecommender:
                     return
             except (json.JSONDecodeError, OSError):
                 continue
-
-        if self.rules_path.exists():
-            try:
-                rules_data = json.loads(self.rules_path.read_text(encoding="utf-8"))
-                self.rules = rules_data.get("rules", [])
-                if self.rules:
-                    return
-            except (json.JSONDecodeError, OSError):
-                pass
-
-        self.rules = self._get_default_rules()
-        self._save_rules()
 
     @staticmethod
     def _rules_from_index(
@@ -296,145 +279,6 @@ class SkillRecommender:
                 }
             )
         return rules
-
-    def _get_default_rules(self) -> List[Dict[str, Any]]:
-        """Get default recommendation rules."""
-        return [
-            {
-                "trigger": {
-                    "file_patterns": ["**/auth/**/*.py", "**/security/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "owasp-top-10",
-                        "confidence": 0.9,
-                        "reason": "Auth code detected, security review recommended"
-                    },
-                    {
-                        "skill": "secure-coding-practices",
-                        "confidence": 0.85,
-                        "reason": "Security-critical files modified"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/*.test.py", "**/*.spec.ts", "**/tests/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "testing-anti-patterns",
-                        "confidence": 0.85,
-                        "reason": "Test files detected, avoid common pitfalls"
-                    },
-                    {
-                        "skill": "test-driven-development",
-                        "confidence": 0.8,
-                        "reason": "Testing activity detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/*.tf", "**/terraform/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "terraform-best-practices",
-                        "confidence": 0.95,
-                        "reason": "Terraform files detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/k8s/**", "**/kubernetes/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "kubernetes-deployment-patterns",
-                        "confidence": 0.9,
-                        "reason": "Kubernetes configuration detected"
-                    },
-                    {
-                        "skill": "kubernetes-security-policies",
-                        "confidence": 0.85,
-                        "reason": "K8s security review recommended"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/.github/workflows/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "github-actions-workflows",
-                        "confidence": 0.95,
-                        "reason": "GitHub Actions workflow files detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/*openapi*.yml", "**/*openapi*.yaml", "**/*openapi*.json", "**/*swagger*.*"]
-                },
-                "recommend": [
-                    {
-                        "skill": "openapi-specification",
-                        "confidence": 0.9,
-                        "reason": "OpenAPI/Swagger spec files detected"
-                    },
-                    {
-                        "skill": "api-design-patterns",
-                        "confidence": 0.8,
-                        "reason": "API specification work detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/routes/**", "**/controllers/**", "**/api/**"]
-                },
-                "recommend": [
-                    {
-                        "skill": "api-design-patterns",
-                        "confidence": 0.85,
-                        "reason": "API route/controller files detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/migrations/**", "**/schema.sql", "**/*.sql"]
-                },
-                "recommend": [
-                    {
-                        "skill": "database-design-patterns",
-                        "confidence": 0.85,
-                        "reason": "Database migration/schema files detected"
-                    }
-                ]
-            },
-            {
-                "trigger": {
-                    "file_patterns": ["**/docs/**", "**/README.md", "**/*.mdx"]
-                },
-                "recommend": [
-                    {
-                        "skill": "documentation-production",
-                        "confidence": 0.8,
-                        "reason": "Documentation files detected"
-                    }
-                ]
-            },
-        ]
-
-    def _save_rules(self) -> None:
-        """Save recommendation rules to configuration file."""
-        self.rules_path.parent.mkdir(parents=True, exist_ok=True)
-        rules_data = {"rules": self.rules}
-        self.rules_path.write_text(json.dumps(rules_data, indent=2), encoding="utf-8")
 
     def recommend_for_context(
         self,
