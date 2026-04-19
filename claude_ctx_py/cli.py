@@ -129,6 +129,20 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         type=Path,
         help="Path to hooks.json (defaults to plugin root hooks/hooks.json)",
     )
+    hooks_sub.add_parser(
+        "skill-suggest",
+        help="UserPromptSubmit hook: suggest relevant skills "
+        "(invoked by Claude Code, not usually run directly)",
+    )
+    hooks_install = hooks_sub.add_parser(
+        "install",
+        help="Register a cortex hook subcommand in ~/.claude/settings.json",
+    )
+    hooks_install.add_argument(
+        "name",
+        choices=["skill-suggest"],
+        help="Hook subcommand to install",
+    )
 
 
 
@@ -1186,6 +1200,20 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
             return 0
         for error in errors:
             _print(error)
+        return 1
+    if args.hooks_command == "skill-suggest":
+        from .hooks.skill_suggest import run as run_skill_suggest
+        return run_skill_suggest()
+    if args.hooks_command == "install":
+        from .hooks import install_hook_command
+        if args.name == "skill-suggest":
+            ok, message = install_hook_command(
+                subcommand="skill-suggest",
+                event="UserPromptSubmit",
+            )
+            _print(message)
+            return 0 if ok else 1
+        _print(f"Unknown hook: {args.name}")
         return 1
     _print("Hooks command required. Use 'cortex hooks --help' for options.")
     return 1
