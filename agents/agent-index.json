@@ -1,0 +1,621 @@
+{
+  "$schema": "../schemas/agent-index.schema.json",
+  "version": "2026-04-19",
+  "generated_from": "agent .md front matter",
+  "agents": [
+    {
+      "name": "cloud-architect",
+      "path": "cloud-architect.md",
+      "description": "Design AWS/Azure/GCP infrastructure, implement Terraform IaC, and optimize cloud costs. Handles auto-scaling,\nmulti-region deployments, and serverless architectures. Use proactively for cloud infrastructure, cost optimization,\nor migration planning.",
+      "aliases": [
+        "cloud-platform-architect"
+      ],
+      "keywords": [
+        "architecture",
+        "aws",
+        "azure",
+        "cloud",
+        "cloud architecture",
+        "cost",
+        "gcp",
+        "migration",
+        "scalability"
+      ],
+      "file_patterns": [
+        "**/*.tf",
+        "**/cloud/**",
+        "**/infra/**",
+        "**/infrastructure/**",
+        "**/k8s/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "code-reviewer",
+      "path": "code-reviewer.md",
+      "description": "Expert code review specialist. Proactively reviews code for quality, security, and maintainability with heightened\nattention on configuration drift that could impact production reliability. Invoke immediately after code or config\nchanges to prevent regressions.",
+      "aliases": [
+        "quality-guardian"
+      ],
+      "keywords": [
+        "PR",
+        "check code",
+        "code quality",
+        "code review",
+        "configuration",
+        "diff",
+        "pull request",
+        "refactor",
+        "review"
+      ],
+      "file_patterns": [
+        "**/*.diff",
+        "**/*.patch",
+        "**/*.{js,ts,jsx,tsx,py,go,rs,java}",
+        "**/.git/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "component-architect",
+      "path": "component-architect.md",
+      "description": "Expert in building design systems with focus on component APIs, reusability patterns, and scalable\ncomponent architectures. Creates flexible, composable, accessible-by-default components.",
+      "aliases": [
+        "component-designer",
+        "design-system-architect"
+      ],
+      "keywords": [
+        "atomic design",
+        "component API",
+        "component library",
+        "design system",
+        "design tokens"
+      ],
+      "file_patterns": [],
+      "delegate_when": []
+    },
+    {
+      "name": "context-manager",
+      "path": "context-manager.md",
+      "description": "Manages context across multiple agents and long-running tasks. Use when coordinating complex multi-agent workflows or\nwhen context needs to be preserved across multiple sessions. Must be used for projects exceeding 10k tokens.",
+      "aliases": [
+        "memory-coordinator"
+      ],
+      "keywords": [
+        "context",
+        "handoff",
+        "memory",
+        "summary"
+      ],
+      "file_patterns": [
+        "**/context/**",
+        "**/summaries/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "database-admin",
+      "path": "database-admin.md",
+      "description": "Manage database operations, backups, replication, and monitoring. Handles user permissions, maintenance tasks, and\ndisaster recovery. Use proactively for database setup, operational issues, or recovery procedures.",
+      "aliases": [
+        "dba-operations"
+      ],
+      "keywords": [
+        "backup",
+        "database",
+        "recovery",
+        "replication"
+      ],
+      "file_patterns": [
+        "**/db/**",
+        "**/sql/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "database-optimizer",
+      "path": "database-optimizer.md",
+      "description": "Optimize SQL queries, design efficient indexes, and handle database migrations. Solves N+1 problems, slow queries,\nand implements caching. Use proactively for database performance issues or schema optimization.",
+      "aliases": [
+        "db-performance-engineer"
+      ],
+      "keywords": [
+        "database",
+        "database performance",
+        "index",
+        "migration",
+        "query",
+        "schema",
+        "slow query"
+      ],
+      "file_patterns": [
+        "**/*.sql",
+        "**/*model*.{js,ts,py}",
+        "**/*schema*.{js,ts,py}",
+        "**/migrations/**",
+        "**/models/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "debugger",
+      "path": "debugger.md",
+      "description": "Debugging specialist for errors, test failures, and unexpected behavior. Engage immediately when regressions surface\nto capture logs, reproduce failures, and drive rapid fixes with preventative recommendations.",
+      "aliases": [
+        "incident-debugger"
+      ],
+      "keywords": [
+        "bug",
+        "crash",
+        "debug",
+        "error",
+        "exception",
+        "failure",
+        "stack trace",
+        "traceback"
+      ],
+      "file_patterns": [
+        "**/*.log",
+        "**/*.stacktrace",
+        "**/crash/**",
+        "**/error/**",
+        "**/logs/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "docs-architect",
+      "path": "docs-architect.md",
+      "description": "Creates long-form documentation from existing codebases, architecture decisions, and operational knowledge. Analyzes\nsystems end-to-end to produce manuals, runbooks, and technical books that keep engineering teams aligned.",
+      "aliases": [
+        "documentation-architect"
+      ],
+      "keywords": [
+        "architecture",
+        "documentation",
+        "guide",
+        "manual"
+      ],
+      "file_patterns": [
+        "**/*.md",
+        "architecture/**",
+        "docs/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "frontend-optimizer",
+      "path": "frontend-optimizer.md",
+      "description": "Expert in frontend performance optimization with focus on Core Web Vitals, bundle optimization, and\nrendering performance. Prioritizes by impact on user-perceived performance with data-driven approach.",
+      "aliases": [
+        "performance-specialist",
+        "web-vitals-expert"
+      ],
+      "keywords": [
+        "LCP",
+        "bundle size",
+        "lighthouse",
+        "optimization",
+        "performance",
+        "web vitals"
+      ],
+      "file_patterns": [],
+      "delegate_when": []
+    },
+    {
+      "name": "javascript-pro",
+      "path": "javascript-pro.md",
+      "description": "Senior JavaScript engineer mastering ES2024+, async orchestration, and cross-runtime debugging. Excels at building\nresilient front-end and back-end JavaScript systems with an emphasis on performance, observability, and progressive\nmodernization.",
+      "aliases": [
+        "js-expert"
+      ],
+      "keywords": [
+        "async",
+        "event loop",
+        "javascript",
+        "node"
+      ],
+      "file_patterns": [
+        "**/*.js",
+        "bunfig.toml",
+        "package.json"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "kubernetes-architect",
+      "path": "kubernetes-architect.md",
+      "description": "Design cloud-native infrastructure with Kubernetes at its core across AWS/Azure/GCP and hybrid environments.\nImplement GitOps workflows, OpenGitOps principles, and cloud-native patterns. Masters EKS, AKS, GKE, and self-managed\nclusters. Handles service mesh, observability, and progressive delivery. Use proactively for Kubernetes architecture,\nGitOps implementation, or cloud-native transformation.",
+      "aliases": [
+        "k8s-architect"
+      ],
+      "keywords": [
+        "cluster",
+        "gitops",
+        "helm",
+        "ingress",
+        "k8s",
+        "kubernetes",
+        "service mesh"
+      ],
+      "file_patterns": [
+        "**/*.yaml",
+        "**/*.yml",
+        "**/helm/**",
+        "**/k8s/**",
+        "**/manifests/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "memory-keeper",
+      "path": "memory-keeper.md",
+      "description": "The designated guardian of the memory vault. Responsible for recording sessions, documenting fixes,\ncapturing domain knowledge, and retrieving past context. Use this agent to ensure insights aren't lost\nbetween sessions.",
+      "aliases": [
+        "archivist",
+        "librarian",
+        "scribe"
+      ],
+      "keywords": [
+        "memory",
+        "recall",
+        "record",
+        "remember",
+        "save",
+        "vault"
+      ],
+      "file_patterns": [
+        "recall",
+        "remember",
+        "save this",
+        "what did we do"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "orchestrator",
+      "path": "orchestrator.md",
+      "description": "A specialized agent that implements the Orchestrator-Workers pattern. It analyzes complex requests,\nbreaks them down into atomic tasks, delegates them to the most appropriate specialist agents or tools,\nand synthesizes the results. Use this agent for \"vague\" or multi-step requests.\nFor durable team design and capacity planning, use `agent-organizer` instead.",
+      "aliases": [
+        "coordinator",
+        "planner",
+        "task-manager"
+      ],
+      "keywords": [
+        "break down",
+        "coordinate",
+        "delegate",
+        "orchestrate",
+        "plan"
+      ],
+      "file_patterns": [
+        "break down",
+        "coordinate",
+        "plan"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "performance-monitor",
+      "path": "performance-monitor.md",
+      "description": "Expert performance monitor specializing in system-wide metrics collection, analysis, and optimization. Masters\nreal-time monitoring, anomaly detection, and performance insights across distributed agent systems with focus on\nobservability and continuous improvement.",
+      "aliases": [
+        "observability-specialist"
+      ],
+      "keywords": [
+        "anomaly",
+        "metrics",
+        "monitor",
+        "observability"
+      ],
+      "file_patterns": [
+        "metrics/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "postgres-expert",
+      "path": "postgres-expert.md",
+      "description": "Optimizes Postgres schemas, migrations, and queries with a focus on performance, reliability, and maintainability.",
+      "aliases": [
+        "postgresql-expert"
+      ],
+      "keywords": [
+        "index",
+        "postgres",
+        "postgresql",
+        "psql",
+        "sql"
+      ],
+      "file_patterns": [
+        "**/*.sql",
+        "**/migrations/**",
+        "**/schema.sql"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "python-pro",
+      "path": "python-pro.md",
+      "description": "Write idiomatic Python code with advanced features like decorators, generators, and async/await. Optimizes\nperformance, implements design patterns, and ensures comprehensive testing. Use proactively for Python\nrefactoring, optimization, or complex Python features.",
+      "aliases": [
+        "py-architect"
+      ],
+      "keywords": [
+        "async",
+        "django",
+        "fastapi",
+        "flask",
+        "pytest",
+        "python"
+      ],
+      "file_patterns": [
+        "**/*.py",
+        "pyproject.toml",
+        "requirements.txt"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "react-specialist",
+      "path": "react-specialist.md",
+      "description": "Senior React engineer mastering concurrent features, server components, and production-grade front-end systems. Drives\ncomponent quality, accessibility, and performance while coordinating with design and platform teams.",
+      "aliases": [
+        "react-engineer"
+      ],
+      "keywords": [
+        "concurrent",
+        "hooks",
+        "jsx",
+        "react"
+      ],
+      "file_patterns": [
+        "**/*.jsx",
+        "**/*.tsx",
+        "package.json"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "rest-expert",
+      "path": "rest-expert.md",
+      "description": "Designs RESTful endpoints, status codes, pagination, and error contracts with strong documentation.",
+      "aliases": [
+        "rest-architect"
+      ],
+      "keywords": [
+        "endpoint",
+        "http api",
+        "rest",
+        "restful",
+        "status code"
+      ],
+      "file_patterns": [
+        "**/*openapi*.{yml,yaml,json}",
+        "**/controllers/**",
+        "**/routes/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "rust-pro",
+      "path": "rust-pro.md",
+      "description": "Write idiomatic Rust with ownership patterns, lifetimes, and trait implementations. Masters async/await, safe\nconcurrency, and zero-cost abstractions. Use proactively for Rust memory safety, performance optimization, or systems\nprogramming.",
+      "aliases": [
+        "rust-specialist"
+      ],
+      "keywords": [
+        "async",
+        "borrowing",
+        "ownership",
+        "rust"
+      ],
+      "file_patterns": [
+        "**/*.rs",
+        "Cargo.toml"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "security-auditor",
+      "path": "security-auditor.md",
+      "description": "Review code for vulnerabilities, implement secure authentication, and ensure OWASP compliance. Handles JWT, OAuth2,\nCORS, CSP, and encryption. Use proactively for security reviews, auth flows, or vulnerability fixes.",
+      "aliases": [
+        "appsec-auditor"
+      ],
+      "keywords": [
+        "JWT",
+        "OAuth",
+        "OWASP",
+        "SQL injection",
+        "XSS",
+        "auth",
+        "credential",
+        "password",
+        "security",
+        "security audit",
+        "token",
+        "vulnerability"
+      ],
+      "file_patterns": [
+        "**/*auth*.{js,ts,py}",
+        "**/*security*.{js,ts,py}",
+        "**/auth/**",
+        "**/security/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "sql-pro",
+      "path": "sql-pro.md",
+      "description": "Expert SQL engineer. Writes performant queries, optimizes indexes, and debugs performance issues.\nCan translate natural language questions into complex SQL with self-correction capabilities.",
+      "aliases": [
+        "database-specialist"
+      ],
+      "keywords": [
+        "database",
+        "mysql",
+        "optimize query",
+        "postgres",
+        "query",
+        "sql",
+        "sqlite"
+      ],
+      "file_patterns": [
+        "*.sql",
+        "database",
+        "query"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "state-architect",
+      "path": "state-architect.md",
+      "description": "Expert in state management patterns from local component state to complex global stores and server state\nsynchronization. Selects and implements the right state solution for each type of state.",
+      "aliases": [
+        "frontend-state-specialist",
+        "state-management-expert"
+      ],
+      "keywords": [
+        "global state",
+        "redux",
+        "server state",
+        "state management",
+        "tanstack query",
+        "zustand"
+      ],
+      "file_patterns": [],
+      "delegate_when": []
+    },
+    {
+      "name": "tailwind-expert",
+      "path": "tailwind-expert.md",
+      "description": "Builds Tailwind configurations, component styling, and responsive design systems with accessibility in mind.",
+      "aliases": [
+        "tailwindcss-expert"
+      ],
+      "keywords": [
+        "postcss",
+        "tailwind",
+        "tailwindcss",
+        "utility classes"
+      ],
+      "file_patterns": [
+        "**/*.css",
+        "**/*.scss",
+        "**/postcss.config.*",
+        "**/tailwind.config.*"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "test-automator",
+      "path": "test-automator.md",
+      "description": "Test automation specialist delivering coverage improvements, deterministic suites, and pipeline integration. Ideal for\nestablishing or upgrading testing strategy, fixtures, and quality gates across the stack.",
+      "aliases": [
+        "quality-automator"
+      ],
+      "keywords": [
+        "automation",
+        "coverage",
+        "e2e",
+        "integration test",
+        "qa",
+        "test",
+        "unit test"
+      ],
+      "file_patterns": [
+        "**/*.spec.*",
+        "**/*.spec.{js,ts,py}",
+        "**/*.test.{js,ts,py}",
+        "**/__tests__/**",
+        "**/tests/**",
+        "pytest.ini",
+        "tests/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "typescript-pro",
+      "path": "typescript-pro.md",
+      "description": "Master TypeScript with advanced types, generics, and strict type safety. Handles complex type systems,\ndecorators, and enterprise-grade patterns. Use proactively for TypeScript architecture, type inference\noptimization, or advanced typing patterns.",
+      "aliases": [
+        "ts-expert"
+      ],
+      "keywords": [
+        "generic",
+        "interface",
+        "tsconfig",
+        "tsx",
+        "type",
+        "typescript",
+        "typing"
+      ],
+      "file_patterns": [
+        "**/*.ts",
+        "**/*.tsx",
+        "tsconfig.json"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "ui-ux-designer",
+      "path": "ui-ux-designer.md",
+      "description": "Create interface designs, wireframes, and design systems. Masters user research, prototyping, and accessibility\nstandards. Use proactively for design systems, user flows, or interface optimization.",
+      "aliases": [
+        "product-designer"
+      ],
+      "keywords": [
+        "design system",
+        "prototype",
+        "user flow",
+        "wireframe"
+      ],
+      "file_patterns": [
+        "design/**",
+        "figma/**"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "vitest-expert",
+      "path": "vitest-expert.md",
+      "description": "Builds Vitest suites with coverage, mocking, and CI integration for Vite and modern JS stacks.",
+      "aliases": [
+        "vitest-tester"
+      ],
+      "keywords": [
+        "testing",
+        "unit test",
+        "vite test",
+        "vitest"
+      ],
+      "file_patterns": [
+        "**/*.spec.{ts,tsx,js,jsx}",
+        "**/*.test.{ts,tsx,js,jsx}",
+        "vitest.config.*"
+      ],
+      "delegate_when": []
+    },
+    {
+      "name": "websocket-engineer",
+      "path": "websocket-engineer.md",
+      "description": "Senior real-time systems engineer specializing in WebSocket protocols, bidirectional messaging, and large-scale\nstreaming infrastructure. Balances performance, reliability, and observability for interactive applications.",
+      "aliases": [
+        "realtime-architect"
+      ],
+      "keywords": [
+        "pubsub",
+        "real-time",
+        "socket",
+        "websocket"
+      ],
+      "file_patterns": [
+        "**/*.js",
+        "**/*.ts",
+        "docker-compose.yml"
+      ],
+      "delegate_when": []
+    }
+  ]
+}

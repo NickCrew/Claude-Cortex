@@ -96,6 +96,10 @@ def _build_agent_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         nargs="*",
         help="Agent names or paths to validate",
     )
+    agent_sub.add_parser(
+        "rebuild-index",
+        help="Regenerate agents/agent-index.json from agent front matter",
+    )
 
 
 def _build_rules_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -134,13 +138,18 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="UserPromptSubmit hook: suggest relevant skills "
         "(invoked by Claude Code, not usually run directly)",
     )
+    hooks_sub.add_parser(
+        "agent-suggest",
+        help="UserPromptSubmit hook: suggest relevant specialist agents "
+        "for consultation or delegation",
+    )
     hooks_install = hooks_sub.add_parser(
         "install",
         help="Register a cortex hook subcommand in ~/.claude/settings.json",
     )
     hooks_install.add_argument(
         "name",
-        choices=["skill-suggest"],
+        choices=["skill-suggest", "agent-suggest"],
         help="Hook subcommand to install",
     )
 
@@ -1110,6 +1119,11 @@ def _handle_agent_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.agent_command == "rebuild-index":
+        from . import agent_index
+        exit_code, message = agent_index.rebuild_index()
+        _print(message)
+        return exit_code
     return 1
 
 
@@ -1204,11 +1218,14 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
     if args.hooks_command == "skill-suggest":
         from .hooks.skill_suggest import run as run_skill_suggest
         return run_skill_suggest()
+    if args.hooks_command == "agent-suggest":
+        from .hooks.agent_suggest import run as run_agent_suggest
+        return run_agent_suggest()
     if args.hooks_command == "install":
         from .hooks import install_hook_command
-        if args.name == "skill-suggest":
+        if args.name in ("skill-suggest", "agent-suggest"):
             ok, message = install_hook_command(
-                subcommand="skill-suggest",
+                subcommand=args.name,
                 event="UserPromptSubmit",
             )
             _print(message)
