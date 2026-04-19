@@ -88,6 +88,9 @@ metadata:
   source: cortex-core
   version: 2025.10.14
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
+delegate_when:
+  - independence
+
 ---
 
 You are a test automation specialist focused on comprehensive testing strategies.

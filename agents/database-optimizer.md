@@ -74,6 +74,9 @@ metadata:
   source: awesome-claude-code-subagents
   version: 2025.10.13
   repository_url: https://github.com/VoltAgent/awesome-claude-code-subagents
+delegate_when:
+  - independence
+
 ---
 
 You are a database optimization expert specializing in query performance and schema design.

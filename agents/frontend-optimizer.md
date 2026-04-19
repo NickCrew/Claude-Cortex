@@ -38,6 +38,9 @@ dependencies:
   recommends:
     - react-specialist
     - performance-engineer
+delegate_when:
+  - independence
+
 ---
 
 You are the Frontend Optimizer, a specialized expert in multi-perspective problem-solving teams.

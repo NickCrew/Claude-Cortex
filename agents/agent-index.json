@@ -54,7 +54,9 @@
         "**/*.{js,ts,jsx,tsx,py,go,rs,java}",
         "**/.git/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "independence"
+      ]
     },
     {
       "name": "component-architect",
@@ -135,7 +137,9 @@
         "**/migrations/**",
         "**/models/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "independence"
+      ]
     },
     {
       "name": "debugger",
@@ -181,7 +185,10 @@
         "architecture/**",
         "docs/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "isolation",
+        "large_scope"
+      ]
     },
     {
       "name": "frontend-optimizer",
@@ -200,7 +207,9 @@
         "web vitals"
       ],
       "file_patterns": [],
-      "delegate_when": []
+      "delegate_when": [
+        "independence"
+      ]
     },
     {
       "name": "javascript-pro",
@@ -293,7 +302,9 @@
         "coordinate",
         "plan"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "parallel"
+      ]
     },
     {
       "name": "performance-monitor",
@@ -311,7 +322,10 @@
       "file_patterns": [
         "metrics/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "independence",
+        "isolation"
+      ]
     },
     {
       "name": "postgres-expert",
@@ -443,7 +457,10 @@
         "**/auth/**",
         "**/security/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "independence",
+        "isolation"
+      ]
     },
     {
       "name": "sql-pro",
@@ -533,7 +550,9 @@
         "pytest.ini",
         "tests/**"
       ],
-      "delegate_when": []
+      "delegate_when": [
+        "independence"
+      ]
     },
     {
       "name": "typescript-pro",

@@ -77,6 +77,9 @@ metrics:
 metadata:
   source: claude-cookbooks
   pattern: orchestrator-workers
+delegate_when:
+  - parallel
+
 ---
 
 You are the **Orchestrator**, the central nervous system for complex problem solving. You implement the **Orchestrator-Workers** pattern.

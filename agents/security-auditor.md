@@ -81,6 +81,10 @@ skills:
   - secure-coding-practices
   - threat-modeling-techniques
   - security-testing-patterns
+delegate_when:
+  - independence
+  - isolation
+
 ---
 
 You are a security auditor specializing in application security and secure coding practices.
