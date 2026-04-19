@@ -1,0 +1,49 @@
+name: Agent Index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agents/*.md'
+      - 'agents/agent-index.json'
+      - 'claude_ctx_py/agent_index.py'
+      - 'claude_ctx_py/core/agents.py'
+      - 'claude_ctx_py/cli.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'agents/*.md'
+      - 'agents/agent-index.json'
+      - 'claude_ctx_py/agent_index.py'
+      - 'claude_ctx_py/core/agents.py'
+      - 'claude_ctx_py/cli.py'
+
+jobs:
+  drift-check:
+    name: Fail if agent-index.json is stale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install cortex
+        run: uv sync --dev
+
+      - name: Rebuild agent-index.json
+        run: uv run cortex agent rebuild-index
+        env:
+          CORTEX_ROOT: ${{ github.workspace }}
+
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code agents/agent-index.json; then
+            echo ""
+            echo "::error::agents/agent-index.json is out of sync with agent front matter."
+            echo "::error::Run 'cortex agent rebuild-index' locally and commit the result."
+            exit 1
+          fi

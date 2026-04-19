@@ -3,8 +3,9 @@
 # Install once: `pip install pre-commit && pre-commit install`
 # Run manually: `pre-commit run --all-files`
 #
-# The CI workflow at .github/workflows/skill-index.yml enforces the same
-# skill-index drift check, so these hooks are optional but convenient.
+# The CI workflows at .github/workflows/skill-index.yml and
+# .github/workflows/agent-index.yml enforce the same drift checks, so these
+# hooks are optional but convenient.
 
 repos:
   - repo: local
@@ -18,4 +19,15 @@ repos:
         entry: bash -c 'cortex skills rebuild-index && git diff --exit-code skills/skill-index.json'
         language: system
         files: '^skills/.*/SKILL\.md$'
+        pass_filenames: false
+
+      - id: rebuild-agent-index
+        name: Rebuild agent-index.json and fail on drift
+        description: >-
+          Regenerates agents/agent-index.json from agent .md front matter.
+          Fails the commit if the index now differs from what was staged —
+          re-stage agents/agent-index.json and commit again.
+        entry: bash -c 'cortex agent rebuild-index && git diff --exit-code agents/agent-index.json'
+        language: system
+        files: '^agents/[^/]+\.md$'
         pass_filenames: false
