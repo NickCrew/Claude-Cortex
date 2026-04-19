@@ -990,10 +990,24 @@ def _build_statusline_parser(
     statusline.add_statusline_arguments(statusline_parser)
 
 
+def _resolve_version() -> str:
+    """Return the installed package version, or 'dev' if not installed."""
+    try:
+        from importlib.metadata import version as _pkg_version
+        return _pkg_version("claude-cortex")
+    except Exception:
+        return "dev"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cortex",
         description="Python implementation of cortex list and status commands",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"cortex {_resolve_version()}",
     )
     parser.add_argument(
         "--scope",
