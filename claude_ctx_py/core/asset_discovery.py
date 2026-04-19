@@ -34,8 +34,7 @@ _SETTINGS_RELATIVE_PATHS = [
     Path("skills/versions.yaml"),
     Path("skills/registry.yaml"),
     Path("skills/community/registry.yaml"),
-    # Skill schemas
-    Path("skills/activation.schema.json"),
+    # Skill schemas (IDE-reference, no runtime validation — see each schema's $comment)
     Path("skills/composition.schema.json"),
     Path("skills/versions.schema.json"),
     Path("skills/analytics.schema.json"),
@@ -44,11 +43,6 @@ _SETTINGS_RELATIVE_PATHS = [
     Path("skills/rubric.schema.yaml"),
     Path("skills/authors.yaml"),
     Path("skills/authors.schema.json"),
-    # Validation schemas
-    Path("schemas/agent-schema-v2.yaml"),
-    Path("schemas/triggers.schema.json"),
-    Path("schemas/recommendation-rules.schema.json"),
-    Path("schemas/skill-rules.schema.json"),
 ]
 
 
