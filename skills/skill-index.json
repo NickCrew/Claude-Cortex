@@ -161,7 +161,15 @@
       "name": "backlog-md",
       "path": "backlog-md",
       "description": "Task tracking system for agents via Backlog.md CLI. Use when creating deferred issues during implementation, filing audit findings, working assigned tasks, or managing project work. Optimized for agent workflows: structured issue filing, priority/labeling system, and task completion tracking.",
-      "keywords": [],
+      "keywords": [
+        "agent workflows",
+        "backlog",
+        "backlog CLI",
+        "backlog md",
+        "issue filing",
+        "project management",
+        "task tracking"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -169,7 +177,16 @@
       "name": "blog-post",
       "path": "blog-post",
       "description": "Use this skill when writing blog posts, articles, or long-form web content—from quick how-to guides to in-depth opinion pieces. Trigger phrases: 'write a blog post about', 'draft an article on', 'create a post for my blog'. Do NOT use for academic papers, news reporting, or content requiring real-time facts.",
-      "keywords": [],
+      "keywords": [
+        "SEO",
+        "blog",
+        "blog post",
+        "post",
+        "tutorial writing",
+        "web content",
+        "write article",
+        "write blog"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -198,7 +215,16 @@
       "name": "build-optimization",
       "path": "build-optimization",
       "description": "Build system optimization covering compilation, caching, incremental builds, and developer tooling. Use when improving build times, configuring CI pipelines, or designing developer tools.",
-      "keywords": [],
+      "keywords": [
+        "CI/CD",
+        "build",
+        "build optimization",
+        "build times",
+        "bundle splitting",
+        "caching",
+        "compilation performance",
+        "optimization"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -206,7 +232,16 @@
       "name": "business-analyst",
       "path": "business-analyst",
       "description": "Use this skill when gathering and documenting business requirements, mapping processes, performing gap analysis, writing business requirements documents (BRDs), or modeling stakeholder impact. Trigger phrases: 'write a business requirements document', 'map this process', 'gather requirements for', 'gap analysis for', 'AS-IS TO-BE process'. Not for writing user stories (use product-manager skill), conducting user research (use ux-researcher), or financial modeling.",
-      "keywords": [],
+      "keywords": [
+        "BRD",
+        "analyst",
+        "business",
+        "business analyst",
+        "business requirements",
+        "gap analysis",
+        "process mapping",
+        "requirements gathering"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -236,7 +271,15 @@
       "name": "chart-builder",
       "path": "chart-builder",
       "description": "Use this skill when creating data visualizations, selecting the right chart type, or generating chart code. Trigger phrases: 'build a chart', 'visualize this data', 'create a graph', 'plot these numbers', 'which chart should I use for'. Not for building interactive dashboards, designing UI components, or creating infographics with design tools like Figma.",
-      "keywords": [],
+      "keywords": [
+        "builder",
+        "chart",
+        "chart builder",
+        "chart type",
+        "data visualization",
+        "graph",
+        "matplotlib"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -313,7 +356,16 @@
       "name": "codex-code-review",
       "path": "codex-code-review",
       "description": "Automate code review remediation loops with the codex CLI. Requests reviews from codex, classifies findings by severity (P0-P4), fixes critical issues (P0/P1) through iterative cycles, defers quality improvements to backlog, and escalates after 3 review cycles. Use when working with code that needs structured remediation: 'codex review' in a request triggers this workflow.",
-      "keywords": [],
+      "keywords": [
+        "code",
+        "code quality",
+        "code remediation",
+        "codex",
+        "codex code review",
+        "codex review",
+        "review",
+        "review findings"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -321,7 +373,14 @@
       "name": "color-palette",
       "path": "color-palette",
       "description": "Use this skill when creating, evaluating, or documenting color palettes for brands, products, or design systems. Trigger phrases: 'create a color palette', 'what colors should I use', 'brand colors for', 'accessible color scheme'. Do NOT use for image editing, photo color correction, or print production color matching.",
-      "keywords": [],
+      "keywords": [
+        "WCAG contrast",
+        "brand colors",
+        "color",
+        "color palette",
+        "color system",
+        "palette"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -329,7 +388,15 @@
       "name": "competitor-analyst",
       "path": "competitor-analyst",
       "description": "Use this skill when analyzing competitors, building competitive positioning, creating feature comparison matrices, or applying strategic frameworks like SWOT or Porter's Five Forces. Trigger phrases: 'analyze our competitors', 'competitive analysis for', 'how do we compare to', 'create a feature matrix', 'SWOT analysis of'. Not for sizing the total market (use market-researcher), writing pitch decks (use pitch-deck-writer), or pricing strategy modeling.",
-      "keywords": [],
+      "keywords": [
+        "SWOT",
+        "analyst",
+        "competitive analysis",
+        "competitor",
+        "competitor analyst",
+        "feature matrix",
+        "positioning"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -338,14 +405,20 @@
       "path": "compliance-audit",
       "description": "Regulatory compliance auditing across GDPR, HIPAA, PCI DSS, SOC 2, and ISO frameworks with automated evidence collection and gap analysis. Use when conducting compliance assessments, preparing for certifications, or implementing regulatory controls.",
       "keywords": [
+        "GDPR",
         "GDPR compliance",
+        "HIPAA",
         "HIPAA assessment",
         "ISO 27001 alignment",
+        "PCI DSS",
         "PCI DSS certification",
         "SOC 2 readiness",
+        "audit",
+        "compliance",
         "compliance audit",
         "evidence collection",
         "gap analysis",
+        "regulatory",
         "regulatory assessment"
       ],
       "file_patterns": [],
@@ -396,9 +469,14 @@
       "path": "constructive-dissent",
       "description": "Structured disagreement protocols that expose weaknesses, test assumptions, and generate alternatives. Use when stress-testing proposals, playing devil's advocate, challenging architectural decisions, or auditing assumptions before finalizing plans.",
       "keywords": [
+        "challenge assumptions",
         "challenge this",
+        "constructive",
+        "constructive dissent",
+        "critique",
         "critique proposal",
         "devil's advocate",
+        "dissent",
         "question assumptions",
         "stress test",
         "what could go wrong"
@@ -410,7 +488,14 @@
       "name": "copywriter",
       "path": "copywriter",
       "description": "Use this skill when writing persuasive, conversion-focused copy—landing pages, product descriptions, ads, sales emails, or any content designed to move someone to action. Trigger phrases: 'write copy for my landing page', 'describe this product', 'write an ad for'. Do NOT use for informational content, technical documentation, or long-form editorial writing.",
-      "keywords": [],
+      "keywords": [
+        "ad copy",
+        "copywriter",
+        "landing page",
+        "product description",
+        "sales email",
+        "write copy"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -418,7 +503,15 @@
       "name": "cortex-skills-loop",
       "path": "cortex-skills-loop",
       "description": "Drives the cortex skills recommend-feedback-rate loop. Use when a context change occurs (new file types, domain shift, task pivot) or when a task completes and skill effectiveness should be recorded.",
-      "keywords": [],
+      "keywords": [
+        "context change",
+        "cortex",
+        "cortex skills loop",
+        "loop",
+        "skill feedback",
+        "skills",
+        "skills recommend"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -450,7 +543,15 @@
       "name": "dashboard-designer",
       "path": "dashboard-designer",
       "description": "Use this skill when designing a data dashboard—choosing KPIs, structuring layout, applying visual hierarchy, or deciding which BI tool to use. Trigger phrases: 'design a dashboard', 'build a KPI dashboard', 'what should my dashboard show', 'help me layout a dashboard', 'dashboard for monitoring'. Not for building chart code from scratch (use chart-builder), writing SQL queries (use sql-analyst), or designing marketing landing pages.",
-      "keywords": [],
+      "keywords": [
+        "BI tool",
+        "KPI dashboard",
+        "dashboard",
+        "dashboard designer",
+        "dashboard layout",
+        "design dashboard",
+        "designer"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -482,7 +583,15 @@
       "name": "dataset-curator",
       "path": "dataset-curator",
       "description": "Use this skill when designing, cleaning, deduplicating, or documenting datasets for model training and evaluation including schema design, class imbalance handling, and train/val/test splits. Not for running model training or hyperparameter tuning. Not for real-time data pipeline engineering.",
-      "keywords": [],
+      "keywords": [
+        "class imbalance",
+        "curator",
+        "data cleaning",
+        "dataset",
+        "dataset curation",
+        "dataset curator",
+        "train test split"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -490,7 +599,15 @@
       "name": "decision-maker",
       "path": "decision-maker",
       "description": "Use this skill when you face a complex or high-stakes decision and need a structured framework to evaluate options objectively. Ideal for career choices, product prioritization, vendor selection, or any multi-criteria trade-off. Not for trivial daily decisions or situations that require licensed professional advice.",
-      "keywords": [],
+      "keywords": [
+        "RICE",
+        "decision",
+        "decision framework",
+        "decision maker",
+        "make decision",
+        "maker",
+        "weighted scoring"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -514,7 +631,14 @@
       "name": "design-critiquer",
       "path": "design-critiquer",
       "description": "Use this skill when reviewing, evaluating, or giving structured feedback on UI designs, wireframes, mockups, or design systems. Trigger phrases: 'critique this design', 'give feedback on my UI', 'review this wireframe', 'what's wrong with this design'. Do NOT use for writing code, implementing designs, or marketing material critique.",
-      "keywords": [],
+      "keywords": [
+        "critique design",
+        "critiquer",
+        "design critiquer",
+        "design feedback",
+        "design review",
+        "review UI"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -611,11 +735,17 @@
       "path": "doc-architecture-review",
       "description": "Evaluate documentation information architecture: navigation paths, discoverability, progressive disclosure, cross-linking, and mental model alignment. This skill should be used when restructuring docs, adding new sections, or when users report difficulty finding information.",
       "keywords": [
+        "architecture",
         "can users find docs",
+        "doc",
+        "doc architecture",
+        "doc architecture review",
         "doc navigation",
+        "doc organization",
         "doc organization review",
         "documentation structure",
         "information architecture",
+        "review",
         "review doc architecture"
       ],
       "file_patterns": [],
@@ -644,8 +774,14 @@
       "description": "Audit documentation completeness by mapping what a doc set should cover against what it actually covers. Produces a prioritized gap report by topic, not just by file. This skill should be used after shipping features, before releases, or when users report missing documentation.",
       "keywords": [
         "are docs complete",
+        "audit",
+        "audit coverage",
         "audit doc completeness",
+        "completeness",
+        "doc",
+        "doc completeness audit",
         "doc coverage gaps",
+        "doc gaps",
         "documentation gaps",
         "what docs are missing"
       ],
@@ -657,10 +793,17 @@
       "path": "doc-health-audit",
       "description": "Orchestrate a full documentation health audit across five dimensions: structural health, semantic accuracy, topic completeness, prose quality, and information architecture. Runs each phase in dependency order with phase gating. This skill should be used for pre-release audits, periodic health checks, or comprehensive documentation assessments.",
       "keywords": [
+        "audit",
         "audit all docs",
+        "doc",
+        "doc audit",
+        "doc health",
+        "doc health audit",
         "doc health check",
+        "documentation assessment",
         "documentation health",
         "full doc audit",
+        "health",
         "pre-release doc check"
       ],
       "file_patterns": [],
@@ -670,7 +813,13 @@
       "name": "doc-maintenance",
       "path": "doc-maintenance",
       "description": "Systematic documentation audit and maintenance. This skill should be used when documentation may be stale, missing, or misorganized — after feature work, refactors, dependency upgrades, or as a periodic health check. It prescribes folder structure for docs/ and manual/, dispatches haiku subagents for codebase/doc scanning, and routes doc creation to specialized agents (reference-builder, technical-writer, learning-guide) with docs-architect as quality gate.",
-      "keywords": [],
+      "keywords": [
+        "doc",
+        "doc audit",
+        "doc maintenance",
+        "maintenance",
+        "stale docs"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -679,11 +828,18 @@
       "path": "doc-quality-review",
       "description": "Assess documentation quality across readability, consistency, audience fit, and prose clarity. Produces a scored review with actionable findings. This skill should be used before releases, during doc reviews, or when documentation feels unclear or inconsistent.",
       "keywords": [
+        "doc",
+        "doc quality",
+        "doc quality review",
         "doc readability",
         "documentation consistency",
         "improve doc quality",
         "is this doc well-written",
+        "prose quality",
         "prose review",
+        "quality",
+        "readability",
+        "review",
         "review doc quality"
       ],
       "file_patterns": [],
@@ -715,7 +871,12 @@
       "name": "docx",
       "path": "document-skills/docx",
       "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks",
-      "keywords": [],
+      "keywords": [
+        "Word document",
+        "docx",
+        "docx file",
+        "tracked changes"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -723,7 +884,15 @@
       "name": "email-drafter",
       "path": "email-drafter",
       "description": "Use this skill when drafting professional or personal emails—cold outreach, follow-ups, internal memos, client communication, or any message that needs to be clear and effective. Trigger phrases: 'write an email to', 'draft a follow-up', 'help me email'. Do NOT use for mass marketing email campaigns (use copywriter skill) or legal/formal notices requiring specific language.",
-      "keywords": [],
+      "keywords": [
+        "cold outreach",
+        "draft email",
+        "drafter",
+        "email",
+        "email drafter",
+        "follow-up",
+        "write email"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -731,7 +900,15 @@
       "name": "eval-designer",
       "path": "eval-designer",
       "description": "Use this skill when building evaluation frameworks to measure LLM quality, safety, accuracy, or alignment including test suites, human eval rubrics, automated evals, and metrics design. Not for training or fine-tuning models. Not for dataset curation or benchmark comparison across publicly available models.",
-      "keywords": [],
+      "keywords": [
+        "LLM eval",
+        "designer",
+        "eval",
+        "eval designer",
+        "evaluation framework",
+        "rubric",
+        "test suite"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -802,7 +979,14 @@
       "name": "fact-checker",
       "path": "fact-checker",
       "description": "Use this skill when verifying factual claims, checking accuracy of statements, or assessing the credibility of information. Trigger phrases: 'fact-check this', 'is this true', 'verify this claim', 'check if this is accurate'. Do NOT use for subjective opinions, legal or medical advice, or claims requiring real-time data or breaking news.",
-      "keywords": [],
+      "keywords": [
+        "check accuracy",
+        "checker",
+        "fact",
+        "fact checker",
+        "fact-check",
+        "verify claim"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -847,7 +1031,14 @@
       "name": "frontend-design",
       "path": "frontend-design",
       "description": "Use this skill when specifying, designing, or documenting UI components, layouts, and design systems for frontend implementation. Trigger phrases: 'design this UI component', 'create a responsive layout', 'spec the CSS for', 'design system for'. Do NOT use for backend development, server-side logic, data engineering, or writing server code.",
-      "keywords": [],
+      "keywords": [
+        "CSS spec",
+        "design UI",
+        "design system",
+        "frontend",
+        "frontend design",
+        "responsive layout"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -876,7 +1067,15 @@
       "name": "github-actions-workflows",
       "path": "github-actions-workflows",
       "description": "GitHub Actions workflow patterns for CI/CD including matrix builds, reusable workflows, secrets management, and caching strategies. Use when setting up or optimizing GitHub Actions pipelines.",
-      "keywords": [],
+      "keywords": [
+        "CI/CD",
+        "GitHub Actions",
+        "actions",
+        "github",
+        "github actions workflows",
+        "workflow automation",
+        "workflows"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -983,7 +1182,14 @@
       "name": "incident-response",
       "path": "incident-response",
       "description": "Incident triage, cascade prevention, and postmortem methodology. Use when handling production incidents, designing resilience patterns, or conducting chaos engineering exercises.",
-      "keywords": [],
+      "keywords": [
+        "incident",
+        "incident response",
+        "outage",
+        "postmortem",
+        "response",
+        "triage"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1045,6 +1251,10 @@
         "collective intelligence",
         "cross-agent learning",
         "extract patterns",
+        "knowledge",
+        "knowledge base",
+        "knowledge synthesis",
+        "synthesis",
         "synthesize knowledge"
       ],
       "file_patterns": [],
@@ -1104,7 +1314,14 @@
       "name": "legacy-modernization",
       "path": "legacy-modernization",
       "description": "Modernize legacy systems using proven migration patterns like strangler fig, feature flags, and incremental refactoring. Use when planning system migrations, modernizing monoliths, or managing technical debt.",
-      "keywords": [],
+      "keywords": [
+        "framework migration",
+        "legacy",
+        "legacy modernization",
+        "modernization",
+        "modernize code",
+        "strangler fig"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1112,7 +1329,15 @@
       "name": "market-researcher",
       "path": "market-researcher",
       "description": "Use this skill when sizing a market, analyzing competitors, designing customer surveys, segmenting audiences, or synthesizing research into market insights. Trigger phrases: 'size the market for', 'analyze our competitors', 'who is our target customer', 'design a survey to understand', 'TAM/SAM/SOM for'. Not for building financial models, writing pitch decks, or conducting UX usability research.",
-      "keywords": [],
+      "keywords": [
+        "TAM SAM",
+        "competitive",
+        "customer survey",
+        "market",
+        "market researcher",
+        "market sizing",
+        "researcher"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1142,12 +1367,17 @@
       "path": "mermaid-diagramming",
       "description": "Mermaid diagram creation covering flowcharts, sequence diagrams, ERDs, state machines, Gantt charts, and architecture views. Use when creating or updating technical diagrams in documentation.",
       "keywords": [
+        "ERD",
         "architecture diagram",
         "class diagram",
+        "create diagram",
+        "diagramming",
         "entity relationship diagram",
         "flowchart",
         "gantt chart",
+        "mermaid",
         "mermaid diagram",
+        "mermaid diagramming",
         "sequence diagram",
         "state diagram"
       ],
@@ -1181,7 +1411,14 @@
       "name": "model-comparator",
       "path": "model-comparator",
       "description": "Use this skill when comparing AI or LLM models on benchmarks, capability, cost, latency, context window, or task-specific fit to help teams select the right model for their use case and budget. Not for training or fine-tuning models. Not for building eval frameworks from scratch.",
-      "keywords": [],
+      "keywords": [
+        "LLM evaluation",
+        "comparator",
+        "compare models",
+        "cost analysis",
+        "model",
+        "model comparator"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1224,10 +1461,15 @@
       "path": "openapi-specification",
       "description": "OpenAPI 3.x specification design, schema patterns, and validation for REST API contracts. Use when creating or maintaining API specifications, generating documentation, or validating API contracts.",
       "keywords": [
+        "API spec",
+        "OpenAPI",
+        "REST contract",
         "api contract",
         "api specification",
         "oas design",
         "openapi spec",
+        "openapi specification",
+        "specification",
         "swagger definition"
       ],
       "file_patterns": [],
@@ -1261,7 +1503,12 @@
       "name": "pdf",
       "path": "document-skills/pdf",
       "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale.",
-      "keywords": [],
+      "keywords": [
+        "PDF processing",
+        "extract text",
+        "merge PDF",
+        "pdf"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1269,7 +1516,14 @@
       "name": "playwright-cli",
       "path": "playwright",
       "description": "Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, test web applications, or extract information from web pages.",
-      "keywords": [],
+      "keywords": [
+        "Playwright",
+        "browser automation",
+        "cli",
+        "form filling",
+        "playwright cli",
+        "web testing"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1277,7 +1531,12 @@
       "name": "pptx",
       "path": "document-skills/pptx",
       "description": "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks",
-      "keywords": [],
+      "keywords": [
+        "PowerPoint",
+        "edit slides",
+        "pptx",
+        "presentation"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1306,7 +1565,14 @@
       "name": "product-manager",
       "path": "product-manager",
       "description": "Use this skill when writing product requirements documents, prioritizing features, creating user stories, defining acceptance criteria, or setting product metrics. Trigger phrases: 'write a PRD for', 'prioritize this feature backlog', 'write user stories for', 'help me define acceptance criteria', 'what metrics should we track for'. Not for writing code, designing UI mockups, or conducting user research interviews.",
-      "keywords": [],
+      "keywords": [
+        "feature prioritization",
+        "manager",
+        "product",
+        "product manager",
+        "user stories",
+        "write PRD"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1351,7 +1617,13 @@
       "name": "proofreader",
       "path": "proofreader",
       "description": "Use this skill when reviewing written content for grammar, spelling, punctuation, style consistency, and tone—before publishing, submitting, or sending. Trigger phrases: 'proofread this', 'check my writing', 'review this for errors', 'edit this email/report/essay'. Do NOT use when structural rewrites or content changes are needed—proofreading fixes surface errors, not substantive problems.",
-      "keywords": [],
+      "keywords": [
+        "editing",
+        "grammar check",
+        "proofread",
+        "proofreader",
+        "spelling"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1406,11 +1678,16 @@
       "path": "quality-audit",
       "description": "Meta-skill for auditing and validating skill quality. Use when reviewing skills for consistency, completeness, accuracy, and adherence to standards. Provides structured rubrics, scoring frameworks, and actionable recommendations.",
       "keywords": [
+        "audit",
         "audit skill",
+        "quality",
+        "quality audit",
         "review skill quality",
         "rubric assessment",
+        "skill quality",
         "skill quality check",
-        "validate skill"
+        "validate skill",
+        "validation"
       ],
       "file_patterns": [],
       "confidence": 0.8
@@ -1485,11 +1762,16 @@
       "path": "reference-documentation",
       "description": "Create exhaustive technical references, API documentation, and searchable reference materials. Use when building API docs, configuration references, or complete technical specifications.",
       "keywords": [
+        "API docs",
         "API documentation",
         "configuration reference",
+        "documentation",
         "parameter reference",
+        "reference",
         "reference docs",
+        "reference documentation",
         "schema documentation",
+        "technical spec",
         "technical specification"
       ],
       "file_patterns": [],
@@ -1499,7 +1781,13 @@
       "name": "regex-master",
       "path": "regex-master",
       "description": "Use this skill when building, explaining, or debugging regular expressions for pattern matching, validation, or text extraction. Trigger phrases: 'write a regex', 'match this pattern', 'validate this format', 'extract from text'. Not for natural language parsing or full grammar parsing (use a parser instead).",
-      "keywords": [],
+      "keywords": [
+        "master",
+        "pattern matching",
+        "regex",
+        "regex master",
+        "text extraction"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1571,7 +1859,13 @@
       "name": "requirements-discovery",
       "path": "requirements-discovery",
       "description": "Stakeholder interviews, PRD structure, and scope definition for software requirements elicitation. Use when gathering requirements, defining project scope, or structuring product requirement documents.",
-      "keywords": [],
+      "keywords": [
+        "discovery",
+        "gather requirements",
+        "requirements",
+        "requirements discovery",
+        "stakeholder interview"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1584,6 +1878,9 @@
         "fact verification",
         "investigate",
         "market scan",
+        "methodology",
+        "research",
+        "research methodology",
         "research topic",
         "trend analysis"
       ],
@@ -1718,10 +2015,14 @@
       "path": "socratic-questioning",
       "description": "Guide discovery through questioning techniques and pattern recognition for Clean Code, GoF design patterns, and architectural decisions. Use when coaching developers, facilitating design discussions, or helping teams discover solutions.",
       "keywords": [
+        "coach",
         "coach developer",
         "facilitate design discussion",
         "guide discovery",
+        "questioning",
+        "socratic",
         "socratic method",
+        "socratic questioning",
         "teach through questions"
       ],
       "file_patterns": [],
@@ -1731,7 +2032,12 @@
       "name": "storyteller",
       "path": "storyteller",
       "description": "Use this skill when writing fiction, narrative nonfiction, brand stories, or any content where emotional engagement and narrative arc matter more than pure information delivery. Trigger phrases: 'write a short story', 'tell my brand's origin story', 'write a narrative about', 'create a character'. Do NOT use for purely informational content, technical writing, or persuasive copy without a narrative component.",
-      "keywords": [],
+      "keywords": [
+        "brand story",
+        "narrative",
+        "storyteller",
+        "write story"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1757,7 +2063,14 @@
       "name": "super-saiyan",
       "path": "super-saiyan",
       "description": "Maximum visual excellence for any UI platform. Use when building user interfaces, styling components, or polishing visual elements.",
-      "keywords": [],
+      "keywords": [
+        "UI excellence",
+        "animation",
+        "saiyan",
+        "super",
+        "super saiyan",
+        "visual polish"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1850,7 +2163,11 @@
       "name": "template-skill-enhanced",
       "path": "template-skill-enhanced",
       "description": "Enhanced skill template with progressive disclosure, bundled resources, and quality rubrics. Use when creating new skills that need structured tiers, reference files, validation rubrics, or advanced bundling patterns beyond the basic template.",
-      "keywords": [],
+      "keywords": [
+        "create skill",
+        "skill template",
+        "template skill enhanced"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1858,7 +2175,12 @@
       "name": "terms-of-service",
       "path": "terms-of-service",
       "description": "Use this skill when you need to draft Terms of Service, a Privacy Policy, or an End-User License Agreement (EULA) for a web application, SaaS product, or mobile app. Produces comprehensive, plain-English legal documents that cover user rights, data practices, liability limits, and dispute resolution. Not a substitute for a licensed attorney; have a lawyer review before publishing for a production product.",
-      "keywords": [],
+      "keywords": [
+        "EULA",
+        "Privacy Policy",
+        "Terms of Service",
+        "terms"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -1931,7 +2253,14 @@
       "name": "test-review",
       "path": "test-review",
       "description": "Review test quality and audit test coverage for any module. This skill should be used when reviewing existing tests, auditing test gaps, writing new tests, or when asked to assess test health. It pipelines testing standards into the audit workflow to produce a prioritized gap report. The output is a report, not code — do not write test implementations until the report is reviewed.",
-      "keywords": [],
+      "keywords": [
+        "review",
+        "review tests",
+        "test",
+        "test coverage",
+        "test quality",
+        "test review"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2002,7 +2331,13 @@
       "name": "token-efficiency",
       "path": "token-efficiency",
       "description": "Compressed communication using symbols and abbreviations. Use when context is limited or brevity is needed.",
-      "keywords": [],
+      "keywords": [
+        "abbreviations",
+        "compressed communication",
+        "efficiency",
+        "token",
+        "token efficiency"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2030,10 +2365,13 @@
       "description": "Design and write hands-on tutorials with progressive disclosure, exercises, and troubleshooting sections. Use when creating learning content, workshops, or step-by-step guides.",
       "keywords": [
         "create workshop",
+        "hands-on guide",
         "hands-on walkthrough",
         "lab exercise",
         "learning content",
         "step-by-step guide",
+        "tutorial",
+        "tutorial design",
         "write tutorial"
       ],
       "file_patterns": [],
@@ -2067,7 +2405,13 @@
       "name": "ui-design-aesthetics",
       "path": "ui-design-aesthetics",
       "description": "Generates high-quality, non-generic UI designs with a focus on performance, progressive disclosure, and distinctive aesthetics.",
-      "keywords": [],
+      "keywords": [
+        "aesthetic excellence",
+        "aesthetics",
+        "design UI",
+        "ui design aesthetics",
+        "visual design"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2125,7 +2469,13 @@
       "name": "ux-researcher",
       "path": "ux-researcher",
       "description": "Use this skill when planning or conducting user research, writing interview guides, designing surveys for UX insights, synthesizing qualitative findings, creating personas, or writing research reports. Trigger phrases: 'write a user interview guide', 'how do I conduct usability testing', 'synthesize research findings', 'create a user persona', 'design a UX survey'. Not for quantitative market sizing (use market-researcher), writing business requirements (use business-analyst), or product analytics.",
-      "keywords": [],
+      "keywords": [
+        "researcher",
+        "usability testing",
+        "user interview",
+        "user research",
+        "ux researcher"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2134,8 +2484,11 @@
       "path": "ux-review",
       "description": "Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.",
       "keywords": [
+        "UX review",
+        "accessibility audit",
         "design critique",
         "heuristic evaluation",
+        "review",
         "usability review",
         "user experience analysis",
         "ux review"
@@ -2147,7 +2500,14 @@
       "name": "ux-writer",
       "path": "ux-writer",
       "description": "Use this skill when crafting microcopy, UI text, or in-product writing—error messages, tooltips, button labels, empty states, onboarding flows, and confirmation dialogs. Trigger phrases: 'write microcopy for', 'write UI copy', 'write error messages', 'write onboarding text', 'button label for'. Do NOT use for marketing copy (use copywriter) or long-form documentation (use technical-writer).",
-      "keywords": [],
+      "keywords": [
+        "UI text",
+        "button label",
+        "error message",
+        "ux writer",
+        "write microcopy",
+        "writer"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2181,7 +2541,15 @@
       "name": "vibe-security",
       "path": "vibe-security",
       "description": "Comprehensive secure coding guide covering OWASP web vulnerabilities with prevention patterns and checklists. Use when writing or reviewing web application code to prevent XSS, CSRF, SSRF, SQL injection, access control flaws, and other common security vulnerabilities.",
-      "keywords": [],
+      "keywords": [
+        "OWASP",
+        "XSS CSRF",
+        "secure coding",
+        "security",
+        "vibe",
+        "vibe security",
+        "vulnerability"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2209,7 +2577,14 @@
       "name": "web-researcher",
       "path": "web-researcher",
       "description": "Use this skill when you need to research a topic online, gather information from multiple sources, or evaluate source credibility. Trigger phrases: 'research', 'find information about', 'look up', 'investigate'. Not for academic systematic reviews (use literature-reviewer) or fact-checking specific claims (use fact-checker).",
-      "keywords": [],
+      "keywords": [
+        "gather information",
+        "research online",
+        "researcher",
+        "web",
+        "web research",
+        "web researcher"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2238,7 +2613,14 @@
       "name": "workflow-bug-fix",
       "path": "workflow-bug-fix",
       "description": "Systematic approach to identifying, fixing, and validating bug fixes. Use when fixing bugs, resolving issues, or addressing errors.",
-      "keywords": [],
+      "keywords": [
+        "bug",
+        "error resolution",
+        "fix",
+        "fix bug",
+        "root cause",
+        "workflow bug fix"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2246,7 +2628,12 @@
       "name": "workflow-feature",
       "path": "workflow-feature",
       "description": "Complete feature development workflow from design to deployment. Use when implementing new features or functionality.",
-      "keywords": [],
+      "keywords": [
+        "develop feature",
+        "feature",
+        "feature implementation",
+        "workflow feature"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2254,7 +2641,13 @@
       "name": "workflow-feature-development",
       "path": "workflow-feature-development",
       "description": "Complete workflow for developing new features from design to deployment. Use when starting a new feature, adding functionality, or building something new.",
-      "keywords": [],
+      "keywords": [
+        "develop feature",
+        "development",
+        "feature",
+        "new functionality",
+        "workflow feature development"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2262,7 +2655,13 @@
       "name": "workflow-performance",
       "path": "workflow-performance",
       "description": "Systematic performance analysis and optimization. Use when things are slow, need optimization, or preparing for scale.",
-      "keywords": [],
+      "keywords": [
+        "bottleneck",
+        "optimize performance",
+        "performance",
+        "scaling",
+        "workflow performance"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2270,7 +2669,13 @@
       "name": "workflow-security-audit",
       "path": "workflow-security-audit",
       "description": "Comprehensive security assessment and remediation. Use for security reviews, compliance checks, vulnerability assessments.",
-      "keywords": [],
+      "keywords": [
+        "audit",
+        "security",
+        "security audit",
+        "vulnerability scan",
+        "workflow security audit"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     },
@@ -2315,7 +2720,13 @@
       "name": "xlsx",
       "path": "document-skills/xlsx",
       "description": "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization. When Claude needs to work with spreadsheets (.xlsx, .xlsm, .csv, .tsv, etc) for: (1) Creating new spreadsheets with formulas and formatting, (2) Reading or analyzing data, (3) Modify existing spreadsheets while preserving formulas, (4) Data analysis and visualization in spreadsheets, or (5) Recalculating formulas",
-      "keywords": [],
+      "keywords": [
+        "Excel",
+        "data analysis",
+        "formulas",
+        "spreadsheet",
+        "xlsx"
+      ],
       "file_patterns": [],
       "confidence": 0.8
     }

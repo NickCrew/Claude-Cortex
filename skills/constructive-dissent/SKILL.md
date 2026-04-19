@@ -1,7 +1,11 @@
 ---
 name: constructive-dissent
-description: "Structured disagreement protocols that expose weaknesses, test assumptions, and generate alternatives. Use when stress-testing proposals, playing devil's advocate, challenging architectural decisions, or auditing assumptions before finalizing plans."
-tags: [decision-making, critical-thinking, collaboration, analysis]
+description: Structured disagreement protocols that expose weaknesses, test assumptions, and generate alternatives. Use when stress-testing proposals, playing devil's advocate, challenging architectural decisions, or auditing assumptions before finalizing plans.
+tags:
+  - decision-making
+  - critical-thinking
+  - collaboration
+  - analysis
 triggers:
   - challenge this
   - devil's advocate
@@ -9,6 +13,14 @@ triggers:
   - stress test
   - critique proposal
   - question assumptions
+keywords:
+  - devil's advocate
+  - stress test
+  - challenge assumptions
+  - critique
+  - constructive
+  - dissent
+  - constructive dissent
 ---
 
 # Constructive Dissent

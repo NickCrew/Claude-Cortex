@@ -1,10 +1,20 @@
 ---
 name: proofreader
-description: "Use this skill when reviewing written content for grammar, spelling, punctuation, style consistency, and tone—before publishing, submitting, or sending. Trigger phrases: 'proofread this', 'check my writing', 'review this for errors', 'edit this email/report/essay'. Do NOT use when structural rewrites or content changes are needed—proofreading fixes surface errors, not substantive problems."
+description: 'Use this skill when reviewing written content for grammar, spelling, punctuation, style consistency, and tone—before publishing, submitting, or sending. Trigger phrases: ''proofread this'', ''check my writing'', ''review this for errors'', ''edit this email/report/essay''. Do NOT use when structural rewrites or content changes are needed—proofreading fixes surface errors, not substantive problems.'
 version: 1.0.0
 author: community
-tags: [writing, proofreading, editing, grammar]
+tags:
+  - writing
+  - proofreading
+  - editing
+  - grammar
 license: MIT
+keywords:
+  - proofread
+  - grammar check
+  - spelling
+  - editing
+  - proofreader
 ---
 
 # Proofreader

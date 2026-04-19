@@ -1,6 +1,12 @@
 ---
 name: workflow-feature-development
 description: Complete workflow for developing new features from design to deployment. Use when starting a new feature, adding functionality, or building something new.
+keywords:
+  - develop feature
+  - new functionality
+  - feature
+  - development
+  - workflow feature development
 ---
 
 # Feature Development Workflow

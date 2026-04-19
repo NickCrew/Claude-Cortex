@@ -1,13 +1,24 @@
 ---
 name: knowledge-synthesis
 description: Extract insights from multi-agent interactions, identify patterns, and build collective intelligence through cross-agent learning and knowledge management. Use when synthesizing findings, building knowledge bases, or improving system-wide practices.
-tags: [knowledge-management, insights, patterns, synthesis]
+tags:
+  - knowledge-management
+  - insights
+  - patterns
+  - synthesis
 triggers:
   - synthesize knowledge
   - extract patterns
   - build knowledge base
   - cross-agent learning
   - collective intelligence
+keywords:
+  - synthesize knowledge
+  - extract patterns
+  - knowledge base
+  - knowledge
+  - synthesis
+  - knowledge synthesis
 ---
 
 # Knowledge Synthesis

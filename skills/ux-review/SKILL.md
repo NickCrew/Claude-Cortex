@@ -1,13 +1,23 @@
 ---
 name: ux-review
-description: "Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance."
-tags: [ux, usability, accessibility, design-review, heuristics]
+description: Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.
+tags:
+  - ux
+  - usability
+  - accessibility
+  - design-review
+  - heuristics
 triggers:
   - ux review
   - usability review
   - design critique
   - user experience analysis
   - heuristic evaluation
+keywords:
+  - UX review
+  - usability review
+  - accessibility audit
+  - review
 ---
 
 # UX Review

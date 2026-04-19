@@ -1,13 +1,24 @@
 ---
 name: openapi-specification
 description: OpenAPI 3.x specification design, schema patterns, and validation for REST API contracts. Use when creating or maintaining API specifications, generating documentation, or validating API contracts.
-tags: [openapi, swagger, api, documentation, rest]
+tags:
+  - openapi
+  - swagger
+  - api
+  - documentation
+  - rest
 triggers:
   - openapi spec
   - swagger definition
   - api contract
   - api specification
   - oas design
+keywords:
+  - OpenAPI
+  - API spec
+  - REST contract
+  - specification
+  - openapi specification
 ---
 
 # OpenAPI Specification

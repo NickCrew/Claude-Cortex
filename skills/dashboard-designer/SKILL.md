@@ -1,10 +1,22 @@
 ---
 name: dashboard-designer
-description: "Use this skill when designing a data dashboard—choosing KPIs, structuring layout, applying visual hierarchy, or deciding which BI tool to use. Trigger phrases: 'design a dashboard', 'build a KPI dashboard', 'what should my dashboard show', 'help me layout a dashboard', 'dashboard for monitoring'. Not for building chart code from scratch (use chart-builder), writing SQL queries (use sql-analyst), or designing marketing landing pages."
+description: 'Use this skill when designing a data dashboard—choosing KPIs, structuring layout, applying visual hierarchy, or deciding which BI tool to use. Trigger phrases: ''design a dashboard'', ''build a KPI dashboard'', ''what should my dashboard show'', ''help me layout a dashboard'', ''dashboard for monitoring''. Not for building chart code from scratch (use chart-builder), writing SQL queries (use sql-analyst), or designing marketing landing pages.'
 version: 1.0.0
 author: community
-tags: [data, dashboard, visualization, business-intelligence]
+tags:
+  - data
+  - dashboard
+  - visualization
+  - business-intelligence
 license: MIT
+keywords:
+  - design dashboard
+  - KPI dashboard
+  - BI tool
+  - dashboard layout
+  - dashboard
+  - designer
+  - dashboard designer
 ---
 
 # Dashboard Designer

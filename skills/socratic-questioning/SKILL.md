@@ -1,13 +1,25 @@
 ---
 name: socratic-questioning
 description: Guide discovery through questioning techniques and pattern recognition for Clean Code, GoF design patterns, and architectural decisions. Use when coaching developers, facilitating design discussions, or helping teams discover solutions.
-tags: [education, coaching, socratic, design-patterns, clean-code]
+tags:
+  - education
+  - coaching
+  - socratic
+  - design-patterns
+  - clean-code
 triggers:
   - socratic method
   - guide discovery
   - teach through questions
   - coach developer
   - facilitate design discussion
+keywords:
+  - socratic method
+  - guide discovery
+  - coach
+  - socratic
+  - questioning
+  - socratic questioning
 ---
 
 # Socratic Questioning

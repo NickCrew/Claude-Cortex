@@ -1,10 +1,22 @@
 ---
 name: chart-builder
-description: "Use this skill when creating data visualizations, selecting the right chart type, or generating chart code. Trigger phrases: 'build a chart', 'visualize this data', 'create a graph', 'plot these numbers', 'which chart should I use for'. Not for building interactive dashboards, designing UI components, or creating infographics with design tools like Figma."
+description: 'Use this skill when creating data visualizations, selecting the right chart type, or generating chart code. Trigger phrases: ''build a chart'', ''visualize this data'', ''create a graph'', ''plot these numbers'', ''which chart should I use for''. Not for building interactive dashboards, designing UI components, or creating infographics with design tools like Figma.'
 version: 1.0.0
 author: community
-tags: [data, visualization, charts, graphs]
+tags:
+  - data
+  - visualization
+  - charts
+  - graphs
 license: MIT
+keywords:
+  - data visualization
+  - chart type
+  - matplotlib
+  - graph
+  - chart
+  - builder
+  - chart builder
 ---
 
 # Chart Builder

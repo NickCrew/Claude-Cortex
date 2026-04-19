@@ -1,6 +1,12 @@
 ---
 name: workflow-performance
 description: Systematic performance analysis and optimization. Use when things are slow, need optimization, or preparing for scale.
+keywords:
+  - optimize performance
+  - bottleneck
+  - scaling
+  - performance
+  - workflow performance
 ---
 
 # Performance Optimization Workflow

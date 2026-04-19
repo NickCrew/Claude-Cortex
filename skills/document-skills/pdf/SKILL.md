@@ -2,6 +2,11 @@
 name: pdf
 description: Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale.
 license: MIT License. Proprietary. LICENSE.txt has complete terms
+keywords:
+  - PDF processing
+  - extract text
+  - merge PDF
+  - pdf
 ---
 
 # PDF Processing Guide

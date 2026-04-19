@@ -1,12 +1,12 @@
 ---
 name: doc-completeness-audit
-description: >-
-  Audit documentation completeness by mapping what a doc set should cover against
-  what it actually covers. Produces a prioritized gap report by topic, not just by
-  file. This skill should be used after shipping features, before releases, or when
-  users report missing documentation.
+description: Audit documentation completeness by mapping what a doc set should cover against what it actually covers. Produces a prioritized gap report by topic, not just by file. This skill should be used after shipping features, before releases, or when users report missing documentation.
 version: 1.0.0
-tags: [documentation, audit, completeness, review]
+tags:
+  - documentation
+  - audit
+  - completeness
+  - review
 triggers:
   - audit doc completeness
   - what docs are missing
@@ -14,9 +14,23 @@ triggers:
   - documentation gaps
   - are docs complete
 dependencies:
-  skills: [doc-maintenance, doc-claim-validator]
-  tools: [Grep, Glob, Read, Bash, Agent]
+  skills:
+    - doc-maintenance
+    - doc-claim-validator
+  tools:
+    - Grep
+    - Glob
+    - Read
+    - Bash
+    - Agent
 token_estimate: ~3500
+keywords:
+  - doc gaps
+  - audit coverage
+  - completeness
+  - doc
+  - audit
+  - doc completeness audit
 ---
 
 # Documentation Completeness Audit

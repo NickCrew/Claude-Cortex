@@ -1,10 +1,22 @@
 ---
 name: color-palette
-description: "Use this skill when creating, evaluating, or documenting color palettes for brands, products, or design systems. Trigger phrases: 'create a color palette', 'what colors should I use', 'brand colors for', 'accessible color scheme'. Do NOT use for image editing, photo color correction, or print production color matching."
+description: 'Use this skill when creating, evaluating, or documenting color palettes for brands, products, or design systems. Trigger phrases: ''create a color palette'', ''what colors should I use'', ''brand colors for'', ''accessible color scheme''. Do NOT use for image editing, photo color correction, or print production color matching.'
 version: 1.0.0
 author: community
-tags: [design, color, palette, accessibility, branding]
+tags:
+  - design
+  - color
+  - palette
+  - accessibility
+  - branding
 license: MIT
+keywords:
+  - color palette
+  - brand colors
+  - color system
+  - WCAG contrast
+  - color
+  - palette
 ---
 
 # Color Palette

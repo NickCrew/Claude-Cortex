@@ -1,11 +1,13 @@
 ---
 name: tutorial-design
-description: >-
-  Design and write hands-on tutorials with progressive disclosure, exercises,
-  and troubleshooting sections. Use when creating learning content, workshops,
-  or step-by-step guides.
+description: Design and write hands-on tutorials with progressive disclosure, exercises, and troubleshooting sections. Use when creating learning content, workshops, or step-by-step guides.
 version: 1.0.0
-tags: [tutorials, pedagogy, learning, workshops, documentation]
+tags:
+  - tutorials
+  - pedagogy
+  - learning
+  - workshops
+  - documentation
 triggers:
   - write tutorial
   - create workshop
@@ -14,9 +16,19 @@ triggers:
   - learning content
   - lab exercise
 dependencies:
-  skills: [documentation-production, code-explanation]
-  tools: [Read, Write]
+  skills:
+    - documentation-production
+    - code-explanation
+  tools:
+    - Read
+    - Write
 token_estimate: ~2500
+keywords:
+  - write tutorial
+  - learning content
+  - hands-on guide
+  - tutorial
+  - tutorial design
 ---
 
 # Tutorial Design

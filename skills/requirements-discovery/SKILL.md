@@ -1,6 +1,12 @@
 ---
 name: requirements-discovery
 description: Stakeholder interviews, PRD structure, and scope definition for software requirements elicitation. Use when gathering requirements, defining project scope, or structuring product requirement documents.
+keywords:
+  - gather requirements
+  - stakeholder interview
+  - requirements
+  - discovery
+  - requirements discovery
 ---
 
 # Requirements Discovery

@@ -1,10 +1,20 @@
 ---
 name: regex-master
-description: "Use this skill when building, explaining, or debugging regular expressions for pattern matching, validation, or text extraction. Trigger phrases: 'write a regex', 'match this pattern', 'validate this format', 'extract from text'. Not for natural language parsing or full grammar parsing (use a parser instead)."
+description: 'Use this skill when building, explaining, or debugging regular expressions for pattern matching, validation, or text extraction. Trigger phrases: ''write a regex'', ''match this pattern'', ''validate this format'', ''extract from text''. Not for natural language parsing or full grammar parsing (use a parser instead).'
 version: 1.0.0
 author: community
-tags: [coding, regex, pattern-matching, text-processing]
+tags:
+  - coding
+  - regex
+  - pattern-matching
+  - text-processing
 license: MIT
+keywords:
+  - regex
+  - pattern matching
+  - text extraction
+  - master
+  - regex master
 ---
 
 # Regex Master

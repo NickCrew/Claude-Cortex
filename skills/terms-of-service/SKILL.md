@@ -1,10 +1,19 @@
 ---
 name: terms-of-service
-description: "Use this skill when you need to draft Terms of Service, a Privacy Policy, or an End-User License Agreement (EULA) for a web application, SaaS product, or mobile app. Produces comprehensive, plain-English legal documents that cover user rights, data practices, liability limits, and dispute resolution. Not a substitute for a licensed attorney; have a lawyer review before publishing for a production product."
+description: Use this skill when you need to draft Terms of Service, a Privacy Policy, or an End-User License Agreement (EULA) for a web application, SaaS product, or mobile app. Produces comprehensive, plain-English legal documents that cover user rights, data practices, liability limits, and dispute resolution. Not a substitute for a licensed attorney; have a lawyer review before publishing for a production product.
 version: 1.0.0
 author: community
-tags: [legal, terms-of-service, privacy-policy, saas]
+tags:
+  - legal
+  - terms-of-service
+  - privacy-policy
+  - saas
 license: MIT
+keywords:
+  - Terms of Service
+  - Privacy Policy
+  - EULA
+  - terms
 ---
 
 # Terms of Service

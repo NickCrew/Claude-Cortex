@@ -1,10 +1,22 @@
 ---
 name: competitor-analyst
-description: "Use this skill when analyzing competitors, building competitive positioning, creating feature comparison matrices, or applying strategic frameworks like SWOT or Porter's Five Forces. Trigger phrases: 'analyze our competitors', 'competitive analysis for', 'how do we compare to', 'create a feature matrix', 'SWOT analysis of'. Not for sizing the total market (use market-researcher), writing pitch decks (use pitch-deck-writer), or pricing strategy modeling."
+description: 'Use this skill when analyzing competitors, building competitive positioning, creating feature comparison matrices, or applying strategic frameworks like SWOT or Porter''s Five Forces. Trigger phrases: ''analyze our competitors'', ''competitive analysis for'', ''how do we compare to'', ''create a feature matrix'', ''SWOT analysis of''. Not for sizing the total market (use market-researcher), writing pitch decks (use pitch-deck-writer), or pricing strategy modeling.'
 version: 1.0.0
 author: community
-tags: [business, competitive-analysis, strategy, market]
+tags:
+  - business
+  - competitive-analysis
+  - strategy
+  - market
 license: MIT
+keywords:
+  - competitive analysis
+  - SWOT
+  - feature matrix
+  - positioning
+  - competitor
+  - analyst
+  - competitor analyst
 ---
 
 # Competitor Analyst

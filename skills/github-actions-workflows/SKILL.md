@@ -1,6 +1,14 @@
 ---
 name: github-actions-workflows
 description: GitHub Actions workflow patterns for CI/CD including matrix builds, reusable workflows, secrets management, and caching strategies. Use when setting up or optimizing GitHub Actions pipelines.
+keywords:
+  - GitHub Actions
+  - CI/CD
+  - workflow automation
+  - github
+  - actions
+  - workflows
+  - github actions workflows
 ---
 
 # GitHub Actions Workflows

@@ -1,10 +1,23 @@
 ---
 name: eval-designer
-description: "Use this skill when building evaluation frameworks to measure LLM quality, safety, accuracy, or alignment including test suites, human eval rubrics, automated evals, and metrics design. Not for training or fine-tuning models. Not for dataset curation or benchmark comparison across publicly available models."
+description: Use this skill when building evaluation frameworks to measure LLM quality, safety, accuracy, or alignment including test suites, human eval rubrics, automated evals, and metrics design. Not for training or fine-tuning models. Not for dataset curation or benchmark comparison across publicly available models.
 version: 1.0.0
 author: community
-tags: [ai, evaluation, llm, benchmarking, safety]
+tags:
+  - ai
+  - evaluation
+  - llm
+  - benchmarking
+  - safety
 license: MIT
+keywords:
+  - evaluation framework
+  - LLM eval
+  - test suite
+  - rubric
+  - eval
+  - designer
+  - eval designer
 ---
 
 # Eval Designer

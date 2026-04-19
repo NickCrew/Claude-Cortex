@@ -1,6 +1,14 @@
 ---
 name: backlog-md
-description: "Task tracking system for agents via Backlog.md CLI. Use when creating deferred issues during implementation, filing audit findings, working assigned tasks, or managing project work. Optimized for agent workflows: structured issue filing, priority/labeling system, and task completion tracking."
+description: 'Task tracking system for agents via Backlog.md CLI. Use when creating deferred issues during implementation, filing audit findings, working assigned tasks, or managing project work. Optimized for agent workflows: structured issue filing, priority/labeling system, and task completion tracking.'
+keywords:
+  - task tracking
+  - backlog CLI
+  - project management
+  - issue filing
+  - agent workflows
+  - backlog
+  - backlog md
 ---
 
 # Backlog.md Task Tracking for Agents

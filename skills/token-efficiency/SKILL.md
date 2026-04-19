@@ -1,6 +1,12 @@
 ---
 name: token-efficiency
 description: Compressed communication using symbols and abbreviations. Use when context is limited or brevity is needed.
+keywords:
+  - compressed communication
+  - abbreviations
+  - token
+  - efficiency
+  - token efficiency
 ---
 
 # Token Efficiency

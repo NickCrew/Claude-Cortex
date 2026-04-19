@@ -1,7 +1,20 @@
 ---
 name: vibe-security
-description: "Comprehensive secure coding guide covering OWASP web vulnerabilities with prevention patterns and checklists. Use when writing or reviewing web application code to prevent XSS, CSRF, SSRF, SQL injection, access control flaws, and other common security vulnerabilities."
-tags: [security, web-development, owasp, secure-coding, vulnerability-prevention]
+description: Comprehensive secure coding guide covering OWASP web vulnerabilities with prevention patterns and checklists. Use when writing or reviewing web application code to prevent XSS, CSRF, SSRF, SQL injection, access control flaws, and other common security vulnerabilities.
+tags:
+  - security
+  - web-development
+  - owasp
+  - secure-coding
+  - vulnerability-prevention
+keywords:
+  - secure coding
+  - OWASP
+  - XSS CSRF
+  - vulnerability
+  - vibe
+  - security
+  - vibe security
 ---
 
 # Secure Coding Guide for Web Applications

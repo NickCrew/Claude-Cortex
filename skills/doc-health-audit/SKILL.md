@@ -1,13 +1,12 @@
 ---
 name: doc-health-audit
-description: >-
-  Orchestrate a full documentation health audit across five dimensions: structural
-  health, semantic accuracy, topic completeness, prose quality, and information
-  architecture. Runs each phase in dependency order with phase gating. This skill
-  should be used for pre-release audits, periodic health checks, or comprehensive
-  documentation assessments.
+description: 'Orchestrate a full documentation health audit across five dimensions: structural health, semantic accuracy, topic completeness, prose quality, and information architecture. Runs each phase in dependency order with phase gating. This skill should be used for pre-release audits, periodic health checks, or comprehensive documentation assessments.'
 version: 1.0.0
-tags: [documentation, audit, orchestration, review]
+tags:
+  - documentation
+  - audit
+  - orchestration
+  - review
 triggers:
   - full doc audit
   - doc health check
@@ -21,8 +20,21 @@ dependencies:
     - doc-completeness-audit
     - doc-quality-review
     - doc-architecture-review
-  tools: [Read, Grep, Glob, Bash, Agent]
+  tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
+    - Agent
 token_estimate: ~2000
+keywords:
+  - doc audit
+  - doc health
+  - documentation assessment
+  - doc
+  - health
+  - audit
+  - doc health audit
 ---
 
 # Documentation Health Audit

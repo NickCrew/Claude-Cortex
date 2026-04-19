@@ -1,10 +1,23 @@
 ---
 name: business-analyst
-description: "Use this skill when gathering and documenting business requirements, mapping processes, performing gap analysis, writing business requirements documents (BRDs), or modeling stakeholder impact. Trigger phrases: 'write a business requirements document', 'map this process', 'gather requirements for', 'gap analysis for', 'AS-IS TO-BE process'. Not for writing user stories (use product-manager skill), conducting user research (use ux-researcher), or financial modeling."
+description: 'Use this skill when gathering and documenting business requirements, mapping processes, performing gap analysis, writing business requirements documents (BRDs), or modeling stakeholder impact. Trigger phrases: ''write a business requirements document'', ''map this process'', ''gather requirements for'', ''gap analysis for'', ''AS-IS TO-BE process''. Not for writing user stories (use product-manager skill), conducting user research (use ux-researcher), or financial modeling.'
 version: 1.0.0
 author: community
-tags: [business, analysis, requirements, process]
+tags:
+  - business
+  - analysis
+  - requirements
+  - process
 license: MIT
+keywords:
+  - business requirements
+  - requirements gathering
+  - process mapping
+  - gap analysis
+  - BRD
+  - business
+  - analyst
+  - business analyst
 ---
 
 # Business Analyst

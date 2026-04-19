@@ -1,6 +1,14 @@
 ---
 name: cortex-skills-loop
-description: "Drives the cortex skills recommend-feedback-rate loop. Use when a context change occurs (new file types, domain shift, task pivot) or when a task completes and skill effectiveness should be recorded."
+description: Drives the cortex skills recommend-feedback-rate loop. Use when a context change occurs (new file types, domain shift, task pivot) or when a task completes and skill effectiveness should be recorded.
+keywords:
+  - skills recommend
+  - skill feedback
+  - context change
+  - cortex
+  - skills
+  - loop
+  - cortex skills loop
 ---
 
 # Cortex Skills Loop

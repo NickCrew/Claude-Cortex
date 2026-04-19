@@ -1,6 +1,13 @@
 ---
 name: legacy-modernization
 description: Modernize legacy systems using proven migration patterns like strangler fig, feature flags, and incremental refactoring. Use when planning system migrations, modernizing monoliths, or managing technical debt.
+keywords:
+  - modernize code
+  - strangler fig
+  - framework migration
+  - legacy
+  - modernization
+  - legacy modernization
 ---
 
 # Legacy Modernization

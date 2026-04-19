@@ -1,10 +1,19 @@
 ---
 name: storyteller
-description: "Use this skill when writing fiction, narrative nonfiction, brand stories, or any content where emotional engagement and narrative arc matter more than pure information delivery. Trigger phrases: 'write a short story', 'tell my brand's origin story', 'write a narrative about', 'create a character'. Do NOT use for purely informational content, technical writing, or persuasive copy without a narrative component."
+description: 'Use this skill when writing fiction, narrative nonfiction, brand stories, or any content where emotional engagement and narrative arc matter more than pure information delivery. Trigger phrases: ''write a short story'', ''tell my brand''s origin story'', ''write a narrative about'', ''create a character''. Do NOT use for purely informational content, technical writing, or persuasive copy without a narrative component.'
 version: 1.0.0
 author: community
-tags: [writing, storytelling, narrative, creative]
+tags:
+  - writing
+  - storytelling
+  - narrative
+  - creative
 license: MIT
+keywords:
+  - write story
+  - brand story
+  - narrative
+  - storyteller
 ---
 
 # Storyteller

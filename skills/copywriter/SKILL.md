@@ -1,10 +1,21 @@
 ---
 name: copywriter
-description: "Use this skill when writing persuasive, conversion-focused copy—landing pages, product descriptions, ads, sales emails, or any content designed to move someone to action. Trigger phrases: 'write copy for my landing page', 'describe this product', 'write an ad for'. Do NOT use for informational content, technical documentation, or long-form editorial writing."
+description: 'Use this skill when writing persuasive, conversion-focused copy—landing pages, product descriptions, ads, sales emails, or any content designed to move someone to action. Trigger phrases: ''write copy for my landing page'', ''describe this product'', ''write an ad for''. Do NOT use for informational content, technical documentation, or long-form editorial writing.'
 version: 1.0.0
 author: community
-tags: [writing, copywriting, marketing, conversion]
+tags:
+  - writing
+  - copywriting
+  - marketing
+  - conversion
 license: MIT
+keywords:
+  - write copy
+  - landing page
+  - product description
+  - sales email
+  - ad copy
+  - copywriter
 ---
 
 # Copywriter

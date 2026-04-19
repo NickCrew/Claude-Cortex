@@ -1,10 +1,22 @@
 ---
 name: market-researcher
-description: "Use this skill when sizing a market, analyzing competitors, designing customer surveys, segmenting audiences, or synthesizing research into market insights. Trigger phrases: 'size the market for', 'analyze our competitors', 'who is our target customer', 'design a survey to understand', 'TAM/SAM/SOM for'. Not for building financial models, writing pitch decks, or conducting UX usability research."
+description: 'Use this skill when sizing a market, analyzing competitors, designing customer surveys, segmenting audiences, or synthesizing research into market insights. Trigger phrases: ''size the market for'', ''analyze our competitors'', ''who is our target customer'', ''design a survey to understand'', ''TAM/SAM/SOM for''. Not for building financial models, writing pitch decks, or conducting UX usability research.'
 version: 1.0.0
 author: community
-tags: [business, market-research, analysis, competitive]
+tags:
+  - business
+  - market-research
+  - analysis
+  - competitive
 license: MIT
+keywords:
+  - market sizing
+  - TAM SAM
+  - customer survey
+  - competitive
+  - market
+  - researcher
+  - market researcher
 ---
 
 # Market Researcher

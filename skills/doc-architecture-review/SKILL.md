@@ -1,12 +1,13 @@
 ---
 name: doc-architecture-review
-description: >-
-  Evaluate documentation information architecture: navigation paths, discoverability,
-  progressive disclosure, cross-linking, and mental model alignment. This skill should
-  be used when restructuring docs, adding new sections, or when users report difficulty
-  finding information.
+description: 'Evaluate documentation information architecture: navigation paths, discoverability, progressive disclosure, cross-linking, and mental model alignment. This skill should be used when restructuring docs, adding new sections, or when users report difficulty finding information.'
 version: 1.0.0
-tags: [documentation, review, information-architecture, navigation, organization]
+tags:
+  - documentation
+  - review
+  - information-architecture
+  - navigation
+  - organization
 triggers:
   - review doc architecture
   - doc organization review
@@ -15,9 +16,23 @@ triggers:
   - doc navigation
   - information architecture
 dependencies:
-  skills: [doc-completeness-audit]
-  tools: [Read, Grep, Glob, Bash, Agent]
+  skills:
+    - doc-completeness-audit
+  tools:
+    - Read
+    - Grep
+    - Glob
+    - Bash
+    - Agent
 token_estimate: ~3500
+keywords:
+  - doc architecture
+  - doc organization
+  - information architecture
+  - doc
+  - architecture
+  - review
+  - doc architecture review
 ---
 
 # Documentation Architecture Review

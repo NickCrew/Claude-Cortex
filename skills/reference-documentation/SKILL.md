@@ -1,11 +1,12 @@
 ---
 name: reference-documentation
-description: >-
-  Create exhaustive technical references, API documentation, and searchable
-  reference materials. Use when building API docs, configuration references,
-  or complete technical specifications.
+description: Create exhaustive technical references, API documentation, and searchable reference materials. Use when building API docs, configuration references, or complete technical specifications.
 version: 1.0.0
-tags: [documentation, reference, api, specification]
+tags:
+  - documentation
+  - reference
+  - api
+  - specification
 triggers:
   - API documentation
   - reference docs
@@ -14,9 +15,20 @@ triggers:
   - schema documentation
   - parameter reference
 dependencies:
-  skills: [documentation-production]
-  tools: [Read, Write, Grep, Glob]
+  skills:
+    - documentation-production
+  tools:
+    - Read
+    - Write
+    - Grep
+    - Glob
 token_estimate: ~2500
+keywords:
+  - API docs
+  - reference
+  - technical spec
+  - documentation
+  - reference documentation
 ---
 
 # Reference Documentation

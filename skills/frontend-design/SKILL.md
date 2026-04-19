@@ -1,10 +1,23 @@
 ---
 name: frontend-design
-description: "Use this skill when specifying, designing, or documenting UI components, layouts, and design systems for frontend implementation. Trigger phrases: 'design this UI component', 'create a responsive layout', 'spec the CSS for', 'design system for'. Do NOT use for backend development, server-side logic, data engineering, or writing server code."
+description: 'Use this skill when specifying, designing, or documenting UI components, layouts, and design systems for frontend implementation. Trigger phrases: ''design this UI component'', ''create a responsive layout'', ''spec the CSS for'', ''design system for''. Do NOT use for backend development, server-side logic, data engineering, or writing server code.'
 version: 1.0.0
 author: community
-tags: [design, frontend, css, layout, responsive, components]
+tags:
+  - design
+  - frontend
+  - css
+  - layout
+  - responsive
+  - components
 license: MIT
+keywords:
+  - design UI
+  - responsive layout
+  - CSS spec
+  - design system
+  - frontend
+  - frontend design
 ---
 
 # Frontend Design

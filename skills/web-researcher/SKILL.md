@@ -1,10 +1,21 @@
 ---
 name: web-researcher
-description: "Use this skill when you need to research a topic online, gather information from multiple sources, or evaluate source credibility. Trigger phrases: 'research', 'find information about', 'look up', 'investigate'. Not for academic systematic reviews (use literature-reviewer) or fact-checking specific claims (use fact-checker)."
+description: 'Use this skill when you need to research a topic online, gather information from multiple sources, or evaluate source credibility. Trigger phrases: ''research'', ''find information about'', ''look up'', ''investigate''. Not for academic systematic reviews (use literature-reviewer) or fact-checking specific claims (use fact-checker).'
 version: 1.0.0
 author: community
-tags: [research, web, search, information-gathering]
+tags:
+  - research
+  - web
+  - search
+  - information-gathering
 license: MIT
+keywords:
+  - research online
+  - gather information
+  - web research
+  - web
+  - researcher
+  - web researcher
 ---
 
 # Web Researcher

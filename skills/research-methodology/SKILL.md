@@ -1,7 +1,11 @@
 ---
 name: research-methodology
 description: Structured research using sophisticated query design, source vetting, and synthesis techniques. Use when conducting competitive analysis, market scans, historical investigations, or trend research.
-tags: [research, analysis, fact-checking, synthesis]
+tags:
+  - research
+  - analysis
+  - fact-checking
+  - synthesis
 triggers:
   - research topic
   - competitive analysis
@@ -9,6 +13,12 @@ triggers:
   - trend analysis
   - fact verification
   - investigate
+keywords:
+  - research
+  - competitive analysis
+  - trend analysis
+  - methodology
+  - research methodology
 ---
 
 # Research Methodology

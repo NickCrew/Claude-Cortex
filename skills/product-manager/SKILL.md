@@ -1,10 +1,21 @@
 ---
 name: product-manager
-description: "Use this skill when writing product requirements documents, prioritizing features, creating user stories, defining acceptance criteria, or setting product metrics. Trigger phrases: 'write a PRD for', 'prioritize this feature backlog', 'write user stories for', 'help me define acceptance criteria', 'what metrics should we track for'. Not for writing code, designing UI mockups, or conducting user research interviews."
+description: 'Use this skill when writing product requirements documents, prioritizing features, creating user stories, defining acceptance criteria, or setting product metrics. Trigger phrases: ''write a PRD for'', ''prioritize this feature backlog'', ''write user stories for'', ''help me define acceptance criteria'', ''what metrics should we track for''. Not for writing code, designing UI mockups, or conducting user research interviews.'
 version: 1.0.0
 author: community
-tags: [business, product-management, roadmap, strategy]
+tags:
+  - business
+  - product-management
+  - roadmap
+  - strategy
 license: MIT
+keywords:
+  - write PRD
+  - user stories
+  - feature prioritization
+  - product
+  - manager
+  - product manager
 ---
 
 # Product Manager

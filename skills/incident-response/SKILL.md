@@ -1,6 +1,13 @@
 ---
 name: incident-response
 description: Incident triage, cascade prevention, and postmortem methodology. Use when handling production incidents, designing resilience patterns, or conducting chaos engineering exercises.
+keywords:
+  - incident response
+  - outage
+  - postmortem
+  - triage
+  - incident
+  - response
 ---
 
 # Incident Response

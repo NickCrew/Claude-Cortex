@@ -1,10 +1,22 @@
 ---
 name: email-drafter
-description: "Use this skill when drafting professional or personal emails—cold outreach, follow-ups, internal memos, client communication, or any message that needs to be clear and effective. Trigger phrases: 'write an email to', 'draft a follow-up', 'help me email'. Do NOT use for mass marketing email campaigns (use copywriter skill) or legal/formal notices requiring specific language."
+description: 'Use this skill when drafting professional or personal emails—cold outreach, follow-ups, internal memos, client communication, or any message that needs to be clear and effective. Trigger phrases: ''write an email to'', ''draft a follow-up'', ''help me email''. Do NOT use for mass marketing email campaigns (use copywriter skill) or legal/formal notices requiring specific language.'
 version: 1.0.0
 author: community
-tags: [writing, email, communication, professional]
+tags:
+  - writing
+  - email
+  - communication
+  - professional
 license: MIT
+keywords:
+  - write email
+  - draft email
+  - cold outreach
+  - follow-up
+  - email
+  - drafter
+  - email drafter
 ---
 
 # Email Drafter

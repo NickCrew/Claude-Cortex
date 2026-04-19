@@ -1,11 +1,12 @@
 ---
 name: mermaid-diagramming
-description: >-
-  Mermaid diagram creation covering flowcharts, sequence diagrams, ERDs, state
-  machines, Gantt charts, and architecture views. Use when creating or updating
-  technical diagrams in documentation.
+description: Mermaid diagram creation covering flowcharts, sequence diagrams, ERDs, state machines, Gantt charts, and architecture views. Use when creating or updating technical diagrams in documentation.
 version: 1.0.0
-tags: [mermaid, diagrams, visualization, documentation]
+tags:
+  - mermaid
+  - diagrams
+  - visualization
+  - documentation
 triggers:
   - mermaid diagram
   - flowchart
@@ -16,9 +17,20 @@ triggers:
   - architecture diagram
   - class diagram
 dependencies:
-  skills: [documentation-production]
-  tools: [Read, Write]
+  skills:
+    - documentation-production
+  tools:
+    - Read
+    - Write
 token_estimate: ~2500
+keywords:
+  - create diagram
+  - flowchart
+  - sequence diagram
+  - ERD
+  - mermaid
+  - diagramming
+  - mermaid diagramming
 ---
 
 # Mermaid Diagramming

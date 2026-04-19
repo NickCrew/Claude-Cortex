@@ -1,12 +1,13 @@
 ---
 name: doc-quality-review
-description: >-
-  Assess documentation quality across readability, consistency, audience fit, and
-  prose clarity. Produces a scored review with actionable findings. This skill should
-  be used before releases, during doc reviews, or when documentation feels unclear
-  or inconsistent.
+description: Assess documentation quality across readability, consistency, audience fit, and prose clarity. Produces a scored review with actionable findings. This skill should be used before releases, during doc reviews, or when documentation feels unclear or inconsistent.
 version: 1.0.0
-tags: [documentation, review, quality, readability, consistency]
+tags:
+  - documentation
+  - review
+  - quality
+  - readability
+  - consistency
 triggers:
   - review doc quality
   - is this doc well-written
@@ -16,8 +17,20 @@ triggers:
   - prose review
 dependencies:
   skills: []
-  tools: [Read, Grep, Glob, Agent]
+  tools:
+    - Read
+    - Grep
+    - Glob
+    - Agent
 token_estimate: ~3500
+keywords:
+  - doc quality
+  - prose quality
+  - readability
+  - doc
+  - quality
+  - review
+  - doc quality review
 ---
 
 # Documentation Quality Review

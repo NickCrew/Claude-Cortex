@@ -1,10 +1,22 @@
 ---
 name: decision-maker
-description: "Use this skill when you face a complex or high-stakes decision and need a structured framework to evaluate options objectively. Ideal for career choices, product prioritization, vendor selection, or any multi-criteria trade-off. Not for trivial daily decisions or situations that require licensed professional advice."
+description: Use this skill when you face a complex or high-stakes decision and need a structured framework to evaluate options objectively. Ideal for career choices, product prioritization, vendor selection, or any multi-criteria trade-off. Not for trivial daily decisions or situations that require licensed professional advice.
 version: 1.0.0
 author: community
-tags: [productivity, decision-making, frameworks, analysis]
+tags:
+  - productivity
+  - decision-making
+  - frameworks
+  - analysis
 license: MIT
+keywords:
+  - make decision
+  - decision framework
+  - RICE
+  - weighted scoring
+  - decision
+  - maker
+  - decision maker
 ---
 
 # Decision Maker

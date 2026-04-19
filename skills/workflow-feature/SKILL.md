@@ -1,6 +1,11 @@
 ---
 name: workflow-feature
 description: Complete feature development workflow from design to deployment. Use when implementing new features or functionality.
+keywords:
+  - develop feature
+  - feature implementation
+  - feature
+  - workflow feature
 ---
 
 # Feature Development Workflow

@@ -1,10 +1,22 @@
 ---
 name: ux-writer
-description: "Use this skill when crafting microcopy, UI text, or in-product writing—error messages, tooltips, button labels, empty states, onboarding flows, and confirmation dialogs. Trigger phrases: 'write microcopy for', 'write UI copy', 'write error messages', 'write onboarding text', 'button label for'. Do NOT use for marketing copy (use copywriter) or long-form documentation (use technical-writer)."
+description: 'Use this skill when crafting microcopy, UI text, or in-product writing—error messages, tooltips, button labels, empty states, onboarding flows, and confirmation dialogs. Trigger phrases: ''write microcopy for'', ''write UI copy'', ''write error messages'', ''write onboarding text'', ''button label for''. Do NOT use for marketing copy (use copywriter) or long-form documentation (use technical-writer).'
 version: 1.0.0
 author: community
-tags: [design, ux-writing, microcopy, ui-text, copywriting]
+tags:
+  - design
+  - ux-writing
+  - microcopy
+  - ui-text
+  - copywriting
 license: MIT
+keywords:
+  - write microcopy
+  - UI text
+  - button label
+  - error message
+  - writer
+  - ux writer
 ---
 
 # UX Writer

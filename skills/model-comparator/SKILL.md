@@ -1,10 +1,22 @@
 ---
 name: model-comparator
-description: "Use this skill when comparing AI or LLM models on benchmarks, capability, cost, latency, context window, or task-specific fit to help teams select the right model for their use case and budget. Not for training or fine-tuning models. Not for building eval frameworks from scratch."
+description: Use this skill when comparing AI or LLM models on benchmarks, capability, cost, latency, context window, or task-specific fit to help teams select the right model for their use case and budget. Not for training or fine-tuning models. Not for building eval frameworks from scratch.
 version: 1.0.0
 author: community
-tags: [ai, model-comparison, llm, benchmarking, cost-analysis]
+tags:
+  - ai
+  - model-comparison
+  - llm
+  - benchmarking
+  - cost-analysis
 license: MIT
+keywords:
+  - compare models
+  - LLM evaluation
+  - cost analysis
+  - model
+  - comparator
+  - model comparator
 ---
 
 # Model Comparator

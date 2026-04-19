@@ -1,6 +1,13 @@
 ---
 name: super-saiyan
 description: Maximum visual excellence for any UI platform. Use when building user interfaces, styling components, or polishing visual elements.
+keywords:
+  - UI excellence
+  - visual polish
+  - animation
+  - super
+  - saiyan
+  - super saiyan
 ---
 
 # Super Saiyan 🔥

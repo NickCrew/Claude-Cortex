@@ -1,9 +1,17 @@
 ---
 name: template-skill-enhanced
-description: "Enhanced skill template with progressive disclosure, bundled resources, and quality rubrics. Use when creating new skills that need structured tiers, reference files, validation rubrics, or advanced bundling patterns beyond the basic template."
+description: Enhanced skill template with progressive disclosure, bundled resources, and quality rubrics. Use when creating new skills that need structured tiers, reference files, validation rubrics, or advanced bundling patterns beyond the basic template.
 version: 1.0.0
 license: MIT
-tags: [skill-creation, template, progressive-disclosure, bundling]
+tags:
+  - skill-creation
+  - template
+  - progressive-disclosure
+  - bundling
+keywords:
+  - create skill
+  - skill template
+  - template skill enhanced
 ---
 
 # Enhanced Skill Template

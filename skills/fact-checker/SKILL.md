@@ -1,10 +1,21 @@
 ---
 name: fact-checker
-description: "Use this skill when verifying factual claims, checking accuracy of statements, or assessing the credibility of information. Trigger phrases: 'fact-check this', 'is this true', 'verify this claim', 'check if this is accurate'. Do NOT use for subjective opinions, legal or medical advice, or claims requiring real-time data or breaking news."
+description: 'Use this skill when verifying factual claims, checking accuracy of statements, or assessing the credibility of information. Trigger phrases: ''fact-check this'', ''is this true'', ''verify this claim'', ''check if this is accurate''. Do NOT use for subjective opinions, legal or medical advice, or claims requiring real-time data or breaking news.'
 version: 1.0.0
 author: community
-tags: [research, fact-checking, verification, credibility]
+tags:
+  - research
+  - fact-checking
+  - verification
+  - credibility
 license: MIT
+keywords:
+  - fact-check
+  - verify claim
+  - check accuracy
+  - fact
+  - checker
+  - fact checker
 ---
 
 # Fact Checker

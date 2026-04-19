@@ -1,6 +1,15 @@
 ---
 name: codex-code-review
-description: "Automate code review remediation loops with the codex CLI. Requests reviews from codex, classifies findings by severity (P0-P4), fixes critical issues (P0/P1) through iterative cycles, defers quality improvements to backlog, and escalates after 3 review cycles. Use when working with code that needs structured remediation: 'codex review' in a request triggers this workflow."
+description: 'Automate code review remediation loops with the codex CLI. Requests reviews from codex, classifies findings by severity (P0-P4), fixes critical issues (P0/P1) through iterative cycles, defers quality improvements to backlog, and escalates after 3 review cycles. Use when working with code that needs structured remediation: ''codex review'' in a request triggers this workflow.'
+keywords:
+  - codex review
+  - code remediation
+  - code quality
+  - review findings
+  - codex
+  - code
+  - review
+  - codex code review
 ---
 
 # Codex Code Review Loop

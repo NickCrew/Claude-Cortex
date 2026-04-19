@@ -1,6 +1,12 @@
 ---
 name: ui-design-aesthetics
 description: Generates high-quality, non-generic UI designs with a focus on performance, progressive disclosure, and distinctive aesthetics.
+keywords:
+  - design UI
+  - visual design
+  - aesthetic excellence
+  - aesthetics
+  - ui design aesthetics
 ---
 
 # UI Design & Aesthetics

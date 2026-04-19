@@ -1,10 +1,22 @@
 ---
 name: design-critiquer
-description: "Use this skill when reviewing, evaluating, or giving structured feedback on UI designs, wireframes, mockups, or design systems. Trigger phrases: 'critique this design', 'give feedback on my UI', 'review this wireframe', 'what's wrong with this design'. Do NOT use for writing code, implementing designs, or marketing material critique."
+description: 'Use this skill when reviewing, evaluating, or giving structured feedback on UI designs, wireframes, mockups, or design systems. Trigger phrases: ''critique this design'', ''give feedback on my UI'', ''review this wireframe'', ''what''s wrong with this design''. Do NOT use for writing code, implementing designs, or marketing material critique.'
 version: 1.0.0
 author: community
-tags: [design, critique, ux, ui, feedback]
+tags:
+  - design
+  - critique
+  - ux
+  - ui
+  - feedback
 license: MIT
+keywords:
+  - critique design
+  - design feedback
+  - review UI
+  - design review
+  - critiquer
+  - design critiquer
 ---
 
 # Design Critiquer

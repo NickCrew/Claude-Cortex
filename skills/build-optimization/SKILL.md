@@ -1,6 +1,15 @@
 ---
 name: build-optimization
 description: Build system optimization covering compilation, caching, incremental builds, and developer tooling. Use when improving build times, configuring CI pipelines, or designing developer tools.
+keywords:
+  - build times
+  - compilation performance
+  - caching
+  - CI/CD
+  - bundle splitting
+  - build
+  - optimization
+  - build optimization
 ---
 
 # Build Optimization

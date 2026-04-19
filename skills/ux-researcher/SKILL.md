@@ -1,10 +1,20 @@
 ---
 name: ux-researcher
-description: "Use this skill when planning or conducting user research, writing interview guides, designing surveys for UX insights, synthesizing qualitative findings, creating personas, or writing research reports. Trigger phrases: 'write a user interview guide', 'how do I conduct usability testing', 'synthesize research findings', 'create a user persona', 'design a UX survey'. Not for quantitative market sizing (use market-researcher), writing business requirements (use business-analyst), or product analytics."
+description: 'Use this skill when planning or conducting user research, writing interview guides, designing surveys for UX insights, synthesizing qualitative findings, creating personas, or writing research reports. Trigger phrases: ''write a user interview guide'', ''how do I conduct usability testing'', ''synthesize research findings'', ''create a user persona'', ''design a UX survey''. Not for quantitative market sizing (use market-researcher), writing business requirements (use business-analyst), or product analytics.'
 version: 1.0.0
 author: community
-tags: [business, ux, research, user-interviews]
+tags:
+  - business
+  - ux
+  - research
+  - user-interviews
 license: MIT
+keywords:
+  - user research
+  - user interview
+  - usability testing
+  - researcher
+  - ux researcher
 ---
 
 # UX Researcher

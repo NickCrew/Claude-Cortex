@@ -1,6 +1,13 @@
 ---
 name: workflow-bug-fix
 description: Systematic approach to identifying, fixing, and validating bug fixes. Use when fixing bugs, resolving issues, or addressing errors.
+keywords:
+  - fix bug
+  - root cause
+  - error resolution
+  - bug
+  - fix
+  - workflow bug fix
 ---
 
 # Bug Fix Workflow

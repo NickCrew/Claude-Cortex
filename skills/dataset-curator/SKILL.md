@@ -1,10 +1,22 @@
 ---
 name: dataset-curator
-description: "Use this skill when designing, cleaning, deduplicating, or documenting datasets for model training and evaluation including schema design, class imbalance handling, and train/val/test splits. Not for running model training or hyperparameter tuning. Not for real-time data pipeline engineering."
+description: Use this skill when designing, cleaning, deduplicating, or documenting datasets for model training and evaluation including schema design, class imbalance handling, and train/val/test splits. Not for running model training or hyperparameter tuning. Not for real-time data pipeline engineering.
 version: 1.0.0
 author: community
-tags: [ai, dataset, machine-learning, data-curation]
+tags:
+  - ai
+  - dataset
+  - machine-learning
+  - data-curation
 license: MIT
+keywords:
+  - dataset curation
+  - data cleaning
+  - train test split
+  - class imbalance
+  - dataset
+  - curator
+  - dataset curator
 ---
 
 # Dataset Curator
