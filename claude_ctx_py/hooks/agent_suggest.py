@@ -113,31 +113,48 @@ def detected_delegation_signals(search_text: str) -> Set[str]:
     return found
 
 
+#: See ``claude_ctx_py.hooks.skill_suggest.PROMPT_HIT_WEIGHT`` — same rationale.
+PROMPT_HIT_WEIGHT = 3
+
+
 def match_entries(
     prompt: str,
     files: List[str],
     entries: List[Dict[str, Any]],
 ) -> List[Tuple[int, Dict[str, Any]]]:
-    """Rank agent entries by keyword/file hit count."""
+    """Rank agent entries by weighted keyword + file-pattern hits.
+
+    Keyword hits in the user's prompt carry ``PROMPT_HIT_WEIGHT`` points;
+    the same keyword in file-context or git-context carries 1 point. File
+    pattern matches (glob against changed files) also carry 1 point — those
+    are inherently context signals, not prompt-driven.
+    """
     if not entries:
         return []
 
     prompt_lower = prompt.lower()
     file_text = " ".join(f.lower() for f in files)
-    all_keywords = extract_file_context(files) | get_git_context()
-    search_text = f"{prompt_lower} {file_text} {' '.join(all_keywords)}"
+    context_keywords = extract_file_context(files) | get_git_context()
+    context_text = f"{file_text} {' '.join(context_keywords)}"
 
     matches: List[Tuple[int, Dict[str, Any]]] = []
     for entry in entries:
-        hits = 0
+        prompt_hits = 0
+        context_hits = 0
         for kw in entry.get("keywords", []):
-            if isinstance(kw, str) and kw.strip() and kw.lower() in search_text:
-                hits += 1
+            if not isinstance(kw, str) or not kw.strip():
+                continue
+            kw_lower = kw.lower()
+            if kw_lower in prompt_lower:
+                prompt_hits += 1
+            elif kw_lower in context_text:
+                context_hits += 1
         for pattern in entry.get("file_patterns", []):
             if isinstance(pattern, str) and _glob_match_any(pattern, files):
-                hits += 1
-        if hits:
-            matches.append((hits, entry))
+                context_hits += 1
+        score = prompt_hits * PROMPT_HIT_WEIGHT + context_hits
+        if score > 0:
+            matches.append((score, entry))
 
     matches.sort(key=lambda item: (-item[0], str(item[1].get("name", ""))))
     return matches

@@ -240,27 +240,41 @@ def get_git_context() -> Set[str]:
     return keywords
 
 
+#: Weight applied to keyword hits found in the user's prompt. Git and
+#: file-context matches count at 1x; prompt matches carry more signal
+#: because the user is actively asking about the topic.
+PROMPT_HIT_WEIGHT = 3
+
+
 def match_entries(
     prompt: str,
     files: List[str],
     entries: List[Dict[str, Any]],
     max_results: int = 5,
 ) -> List[Tuple[int, Dict[str, Any]]]:
-    """Rank entries by keyword hits against prompt + file + git context."""
+    """Rank entries by weighted keyword hits.
+
+    A keyword that appears in the user's prompt counts for
+    ``PROMPT_HIT_WEIGHT`` points; the same keyword appearing only in
+    file-context or git-context counts for 1 point. Prompts with explicit
+    intent beat incidental matches from the working tree's git activity.
+    """
     if not entries:
         return []
 
     prompt_lower = prompt.lower()
     file_text = " ".join(f.lower() for f in files)
-    all_keywords = extract_file_context(files) | get_git_context()
-    search_text = f"{prompt_lower} {file_text} {' '.join(all_keywords)}"
+    context_keywords = extract_file_context(files) | get_git_context()
+    context_text = f"{file_text} {' '.join(context_keywords)}"
 
     matches: List[Tuple[int, Dict[str, Any]]] = []
     for entry in entries:
         keywords = [str(k).lower() for k in entry.get("keywords", [])]
-        hits = sum(1 for kw in keywords if kw in search_text)
-        if hits > 0:
-            matches.append((hits, entry))
+        prompt_hits = sum(1 for kw in keywords if kw and kw in prompt_lower)
+        context_hits = sum(1 for kw in keywords if kw and kw in context_text)
+        score = prompt_hits * PROMPT_HIT_WEIGHT + context_hits
+        if score > 0:
+            matches.append((score, entry))
 
     matches.sort(key=lambda item: (-item[0], str(item[1].get("name", ""))))
     return matches[:max_results]
