@@ -72,6 +72,18 @@ Skills are suggested automatically as you work via a two-layer pipeline: fast ke
 
 ## Install
 
+### macOS (Homebrew)
+
+```bash
+brew tap NickCrew/cortex
+brew install cortex
+```
+
+`post_install` symlinks bundled agents, skills, rules, and schemas into
+`~/.claude/` automatically. Opt out with `CORTEX_SKIP_LINK=1 brew install cortex`.
+
+### Python (any platform)
+
 ```bash
 # Recommended
 pipx install claude-cortex
@@ -80,7 +92,10 @@ pipx install claude-cortex
 pip install claude-cortex
 ```
 
-For development:
+If you install via Homebrew **and** pip, whichever binary comes first in your
+`$PATH` wins. Uninstall one to avoid ambiguity.
+
+### Development
 
 ```bash
 git clone https://github.com/NickCrew/claude-cortex.git
