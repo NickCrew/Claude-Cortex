@@ -76,7 +76,7 @@ def _resolve_cortex_root() -> Path:
     # Auto-detect repository root (development mode)
     this_file = Path(__file__).resolve()
     repo_root = this_file.parent.parent.parent
-    if (repo_root / "agents").is_dir() and (repo_root / "hooks").is_dir():
+    if (repo_root / "agents").is_dir() and (repo_root / "pyproject.toml").is_file():
         return repo_root
 
     # Check for bundled assets in package
