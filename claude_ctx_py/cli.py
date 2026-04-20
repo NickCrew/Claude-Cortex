@@ -152,23 +152,18 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         type=Path,
         help="Path to hooks.json (defaults to plugin root hooks/hooks.json)",
     )
-    hooks_sub.add_parser(
-        "skill-suggest",
-        help="UserPromptSubmit hook: suggest relevant skills "
-        "(invoked by Claude Code, not usually run directly)",
-    )
-    hooks_sub.add_parser(
-        "agent-suggest",
-        help="UserPromptSubmit hook: suggest relevant specialist agents "
-        "for consultation or delegation",
-    )
+    from .hooks import HOOK_SUBCOMMANDS
+
+    for _hook_name, _hook_meta in HOOK_SUBCOMMANDS.items():
+        hooks_sub.add_parser(_hook_name, help=_hook_meta["help"])
+
     hooks_install = hooks_sub.add_parser(
         "install",
         help="Register a cortex hook subcommand in ~/.claude/settings.json",
     )
     hooks_install.add_argument(
         "name",
-        choices=["skill-suggest", "agent-suggest"],
+        choices=sorted(HOOK_SUBCOMMANDS.keys()),
         help="Hook subcommand to install",
     )
 
@@ -825,65 +820,6 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     install_sub = install_parser.add_subparsers(dest="install_command")
 
-    # Install aliases
-    aliases_parser = install_sub.add_parser(
-        "aliases", help="Install shell aliases for Warp AI and terminal AI tools"
-    )
-    aliases_parser.add_argument(
-        "--shell",
-        choices=["bash", "zsh", "fish"],
-        help="Target shell (auto-detected if not specified)",
-    )
-    aliases_parser.add_argument(
-        "--rc-file",
-        dest="rc_file",
-        type=Path,
-        help="Target RC file (auto-detected if not specified)",
-    )
-    aliases_parser.add_argument(
-        "--force", action="store_true", help="Reinstall even if already installed"
-    )
-    aliases_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be done without making changes",
-    )
-    aliases_parser.add_argument(
-        "--uninstall", action="store_true", help="Remove installed aliases"
-    )
-    aliases_parser.add_argument(
-        "--show", action="store_true", help="Show available aliases without installing"
-    )
-
-    # Install shell completions
-    completions_parser = install_sub.add_parser(
-        "completions", help="Install shell completion scripts"
-    )
-    completions_parser.add_argument(
-        "--shell",
-        choices=["bash", "zsh", "fish"],
-        help="Target shell (auto-detected if not specified)",
-    )
-    completions_parser.add_argument(
-        "--path",
-        dest="completion_path",
-        type=Path,
-        help="Target completion file path (overrides default)",
-    )
-    completions_parser.add_argument(
-        "--system",
-        action="store_true",
-        help="Use system completion directory (may require sudo)",
-    )
-    completions_parser.add_argument(
-        "--force", action="store_true", help="Overwrite existing completion file"
-    )
-    completions_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be done without writing files",
-    )
-
     # Install manpages
     manpage_parser = install_sub.add_parser(
         "manpage", help="Install manpage files"
@@ -905,44 +841,9 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without writing files",
     )
 
-    # Run all post-install steps
-    post_parser = install_sub.add_parser(
-        "post", help="Install completions and manpages"
-    )
-    post_parser.add_argument(
-        "--shell",
-        choices=["bash", "zsh", "fish"],
-        help="Target shell (auto-detected if not specified)",
-    )
-    post_parser.add_argument(
-        "--completion-path",
-        dest="completion_path",
-        type=Path,
-        help="Override completion output path",
-    )
-    post_parser.add_argument(
-        "--manpath",
-        dest="manpath",
-        type=Path,
-        help="Override manpage directory",
-    )
-    post_parser.add_argument(
-        "--system",
-        action="store_true",
-        help="Use system paths for completions/manpages",
-    )
-    post_parser.add_argument(
-        "--force", action="store_true", help="Overwrite existing completion file"
-    )
-    post_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would be done without writing files",
-    )
-
     # Link bundled content into ~/.claude
     link_parser = install_sub.add_parser(
-        "link", help="Symlink bundled content (agents, skills, rules, hooks) into ~/.claude"
+        "link", help="Symlink bundled content (agents, skills, rules, schemas) into ~/.claude"
     )
     link_parser.add_argument(
         "--source",
@@ -1255,23 +1156,37 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
         for error in errors:
             _print(error)
         return 1
-    if args.hooks_command == "skill-suggest":
-        from .hooks.skill_suggest import run as run_skill_suggest
-        return run_skill_suggest()
-    if args.hooks_command == "agent-suggest":
-        from .hooks.agent_suggest import run as run_agent_suggest
-        return run_agent_suggest()
+    from .hooks import HOOK_SUBCOMMANDS, install_hook_command
+
+    if args.hooks_command in HOOK_SUBCOMMANDS:
+        if args.hooks_command == "skill-suggest":
+            from .hooks.skill_suggest import run
+        elif args.hooks_command == "agent-suggest":
+            from .hooks.agent_suggest import run
+        elif args.hooks_command == "large-file-gate":
+            from .hooks.large_file_gate import run
+        elif args.hooks_command == "subagent-output-validator":
+            from .hooks.subagent_output_validator import run
+        elif args.hooks_command == "workspace-validator":
+            from .hooks.workspace_validator import run
+        else:
+            _print(f"Unknown hook: {args.hooks_command}")
+            return 1
+        return run()
+
     if args.hooks_command == "install":
-        from .hooks import install_hook_command
-        if args.name in ("skill-suggest", "agent-suggest"):
-            ok, message = install_hook_command(
-                subcommand=args.name,
-                event="UserPromptSubmit",
-            )
-            _print(message)
-            return 0 if ok else 1
-        _print(f"Unknown hook: {args.name}")
-        return 1
+        if args.name not in HOOK_SUBCOMMANDS:
+            _print(f"Unknown hook: {args.name}")
+            return 1
+        meta = HOOK_SUBCOMMANDS[args.name]
+        ok, message = install_hook_command(
+            subcommand=args.name,
+            event=meta["event"],
+            matcher=meta["matcher"],
+        )
+        _print(message)
+        return 0 if ok else 1
+
     _print("Hooks command required. Use 'cortex hooks --help' for options.")
     return 1
 
@@ -1759,62 +1674,12 @@ def _handle_export_command(args: argparse.Namespace) -> int:
 
 
 def _handle_install_command(args: argparse.Namespace) -> int:
-    if args.install_command == "aliases":
-        from . import shell_integration
-
-        # Show aliases without installing
-        if args.show:
-            _print(shell_integration.show_aliases())
-            return 0
-
-        # Uninstall aliases
-        if args.uninstall:
-            exit_code, message = shell_integration.uninstall_aliases(
-                shell=args.shell, rc_file=args.rc_file, dry_run=args.dry_run
-            )
-            _print(message)
-            return exit_code
-
-        # Install aliases
-        exit_code, message = shell_integration.install_aliases(
-            shell=args.shell,
-            rc_file=args.rc_file,
-            force=args.force,
-            dry_run=args.dry_run,
-        )
-        _print(message)
-        return exit_code
-    if args.install_command == "completions":
-        from . import installer
-
-        exit_code, message = installer.install_completions(
-            shell=args.shell,
-            target_path=args.completion_path,
-            system=args.system,
-            force=args.force,
-            dry_run=args.dry_run,
-        )
-        _print(message)
-        return exit_code
     if args.install_command == "manpage":
         from . import installer
 
         exit_code, message = installer.install_manpages(
             target_dir=args.manpath,
             system=args.system,
-            dry_run=args.dry_run,
-        )
-        _print(message)
-        return exit_code
-    if args.install_command == "post":
-        from . import installer
-
-        exit_code, message = installer.install_post(
-            shell=args.shell,
-            completion_path=args.completion_path,
-            manpath=args.manpath,
-            system=args.system,
-            force=args.force,
             dry_run=args.dry_run,
         )
         _print(message)

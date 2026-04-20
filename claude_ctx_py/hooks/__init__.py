@@ -10,12 +10,67 @@ action.
 
 from __future__ import annotations
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, TypedDict
 
 from ..core.hooks import load_settings, save_settings
 
 
 HOOK_COMMAND_PREFIX = "cortex hooks"
+
+
+class HookMeta(TypedDict):
+    """Registration metadata for a ``cortex hooks <name>`` subcommand."""
+
+    event: str
+    matcher: str
+    help: str
+
+
+# Single source of truth for every hook subcommand: help text for the argparse
+# parser, plus the (event, matcher) pair that ``cortex hooks install`` writes
+# into settings.json. Keeping this in one place means adding a new hook is a
+# single-file edit, and the install allowlist and argparse choices stay in sync
+# automatically.
+HOOK_SUBCOMMANDS: Dict[str, HookMeta] = {
+    "skill-suggest": {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "help": (
+            "UserPromptSubmit hook: suggest relevant skills "
+            "(invoked by Claude Code, not usually run directly)"
+        ),
+    },
+    "agent-suggest": {
+        "event": "UserPromptSubmit",
+        "matcher": "",
+        "help": (
+            "UserPromptSubmit hook: suggest relevant specialist agents "
+            "for consultation or delegation"
+        ),
+    },
+    "large-file-gate": {
+        "event": "PostToolUse",
+        "matcher": "",
+        "help": "PostToolUse hook: block oversized files in the changed set",
+    },
+    "subagent-output-validator": {
+        "event": "SubagentStop",
+        "matcher": "",
+        "help": (
+            "SubagentStop hook: flag hallucinated file references in "
+            "subagent output"
+        ),
+    },
+    "workspace-validator": {
+        "event": "PreToolUse",
+        "matcher": "Task",
+        "help": (
+            "PreToolUse hook (Task matcher): validate paths referenced in "
+            "Task prompts before subagent spawns"
+        ),
+    },
+}
+
 
 # Legacy standalone scripts whose registrations should be migrated away from
 # when a subcommand replacement is installed. Each value is the subcommand
@@ -23,6 +78,9 @@ HOOK_COMMAND_PREFIX = "cortex hooks"
 LEGACY_SCRIPT_REPLACEMENTS: Dict[str, str] = {
     "skill_auto_suggester.py": "skill-suggest",
     "skill_auto_suggester": "skill-suggest",
+    "large_file_gate.py": "large-file-gate",
+    "subagent_output_validator.py": "subagent-output-validator",
+    "workspace_validator.py": "workspace-validator",
 }
 
 
