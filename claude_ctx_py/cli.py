@@ -144,14 +144,7 @@ def _build_completions_parser(subparsers: argparse._SubParsersAction[Any]) -> No
 def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     hooks_parser = subparsers.add_parser("hooks", help="Hook commands")
     hooks_sub = hooks_parser.add_subparsers(dest="hooks_command")
-    hooks_validate = hooks_sub.add_parser(
-        "validate", help="Validate hooks.json configuration"
-    )
-    hooks_validate.add_argument(
-        "--path",
-        type=Path,
-        help="Path to hooks.json (defaults to plugin root hooks/hooks.json)",
-    )
+
     from .hooks import HOOK_SUBCOMMANDS
 
     for _hook_name, _hook_meta in HOOK_SUBCOMMANDS.items():
@@ -1141,21 +1134,6 @@ def _handle_completions_command(args: argparse.Namespace) -> int:
 
 
 def _handle_hooks_command(args: argparse.Namespace) -> int:
-    if args.hooks_command == "validate":
-        path = getattr(args, "path", None)
-        if path is None:
-            cortex_root = getattr(args, "cortex_root", None) or core._resolve_cortex_root()
-            path = cortex_root / "hooks" / "hooks.json"
-        if not path.exists():
-            _print(f"Hooks config not found: {path}")
-            return 1
-        is_valid, errors = core.validate_hooks_config_file(path)
-        if is_valid:
-            _print(f"Hooks config OK: {path}")
-            return 0
-        for error in errors:
-            _print(error)
-        return 1
     from .hooks import HOOK_SUBCOMMANDS, install_hook_command
 
     if args.hooks_command in HOOK_SUBCOMMANDS:
