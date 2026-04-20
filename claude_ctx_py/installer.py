@@ -404,39 +404,6 @@ def bootstrap(
     return 0, "\n".join(summary)
 
 
-def install_post(
-    shell: Optional[str] = None,
-    completion_path: Optional[Path] = None,
-    manpath: Optional[Path] = None,
-    system: bool = False,
-    force: bool = False,
-    dry_run: bool = False,
-) -> Tuple[int, str]:
-    """Run post-install steps (completions and manpages)."""
-    results = []
-    exit_code = 0
-
-    code, message = install_completions(
-        shell=shell,
-        target_path=completion_path,
-        system=system,
-        force=force,
-        dry_run=dry_run,
-    )
-    results.append(message)
-    exit_code = max(exit_code, code)
-
-    code, message = install_manpages(
-        target_dir=manpath,
-        system=system,
-        dry_run=dry_run,
-    )
-    results.append(message)
-    exit_code = max(exit_code, code)
-
-    return exit_code, "\n\n".join(results)
-
-
 # Directories to symlink into ~/.claude
 LINK_DIRS = ["agents", "skills", "rules", "schemas"]
 
