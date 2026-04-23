@@ -52,7 +52,8 @@ are the last resort. You never grade your own homework.
 - `references/audit-workflow.md` — Test gap discovery (how to find what's missing)
 - `references/perspective-catalog.md` — Review perspective selection (used by primary and fallback code review)
 - `references/review-prompt.md` — Code review prompt template for fallback reviewers
-- `references/audit-prompt.md` — Test audit prompt template for fallback reviewers
+- `references/audit-prompt.md` — Test audit prompt template for module-scope (full-contract) audits
+- `references/diff-audit-prompt.md` — Test audit prompt template for diff-scope (per-commit) audits; used by `diff-test-audit.sh` when `--git` is active
 
 **Bundled scripts:**
 - `$SKILL_DIR/scripts/specialist-review.sh` — Provider-aware Claude/Gemini/Codex CLI path for code review
@@ -342,12 +343,19 @@ filters the audit to changed files; add `-- <paths>` to narrow further):
 "$SKILL_DIR/scripts/diff-test-audit.sh" <module> --git -- <touched-files>
 ```
 
+When `--git` is active, the script uses a **diff-focused prompt**
+(`references/diff-audit-prompt.md`) that explicitly scopes findings to
+behaviors introduced or modified by the diff. Pre-existing untested code in
+touched files is **out of scope** — those gaps are not reported. This
+prevents the "audit surfaces noise in neighboring code" problem a
+full-contract prompt would produce even at file scope.
+
 For full module audits (mapping a module's public contract and surveying
 coverage across unmodified code), use the **`test-review` skill** instead. It
 uses parallel Haiku sub-agents with synthesis — better suited to exhaustive
-module work. Using module scope here during atomic-commit flows generates
-noise: gaps in pre-existing code your commit didn't touch become P2/P3 items
-you then have to defer.
+module work. The full-contract prompt (`audit-prompt.md`) is still used by
+this script when invoked without `--git`, but that path is legacy — module
+audits belong in `test-review`.
 
 #### IMPORTANT: Do Not Audit the Tests Yourself
 

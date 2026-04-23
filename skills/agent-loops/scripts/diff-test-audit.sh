@@ -61,6 +61,7 @@ create_temp_markdown() {
 }
 
 PROMPT_TEMPLATE="$SKILL_DIR/references/audit-prompt.md"
+DIFF_PROMPT_TEMPLATE="$SKILL_DIR/references/diff-audit-prompt.md"
 
 # Reference files baked into the prompt (bundled in agent-loops/references/)
 TESTING_STANDARDS="$SKILL_DIR/references/testing-standards.md"
@@ -226,6 +227,7 @@ read_file_or_dir() {
 }
 
 echo "Reading source files..." >&2
+DIFF_CONTENT=""
 if [[ -n "$GIT_MODE" ]]; then
   # Build git diff --name-only args
   GIT_DIFF_ARGS=("$BASE_REF" "--" "$MODULE_PATH")
@@ -235,6 +237,9 @@ if [[ -n "$GIT_MODE" ]]; then
 
   mapfile -t CHANGED_FILES < <(git diff --name-only "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)
 
+  # Capture the actual diff content for the diff-focused prompt.
+  DIFF_CONTENT="$(git diff "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)"
+
   # Include untracked (new) files so they aren't invisible to the audit.
   UNTRACKED_ARGS=(--others --exclude-standard -- "$MODULE_PATH")
   if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
@@ -242,6 +247,22 @@ if [[ -n "$GIT_MODE" ]]; then
   fi
   mapfile -t UNTRACKED_FILES < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
   CHANGED_FILES+=("${UNTRACKED_FILES[@]}")
+
+  # Synthesize "new file" diffs for untracked files so DIFF_CONTENT sees them.
+  for ufile in "${UNTRACKED_FILES[@]}"; do
+    if [[ ! -e "$ufile" && -e "$REPO_ROOT/$ufile" ]]; then
+      ufile_abs="$REPO_ROOT/$ufile"
+    else
+      ufile_abs="$ufile"
+    fi
+    if [[ -f "$ufile_abs" ]]; then
+      DIFF_CONTENT+=$'\n'"diff --git a/$ufile b/$ufile"$'\n'"new file mode 100644"$'\n'"--- /dev/null"$'\n'"+++ b/$ufile"$'\n'
+      # Prefix each line with + to mark as addition
+      while IFS= read -r line || [[ -n "$line" ]]; do
+        DIFF_CONTENT+="+$line"$'\n'
+      done <"$ufile_abs"
+    fi
+  done
 
   if [[ ${#CHANGED_FILES[@]} -eq 0 ]]; then
     echo "No changed files found in $MODULE_PATH (base: $BASE_REF). Nothing to audit." >&2
@@ -326,13 +347,15 @@ _TMP_STANDARDS=$(mktemp /tmp/test-review-standards.XXXXXX)
 _TMP_WORKFLOW=$(mktemp /tmp/test-review-workflow.XXXXXX)
 _TMP_SOURCE=$(mktemp /tmp/test-review-source.XXXXXX)
 _TMP_TESTS=$(mktemp /tmp/test-review-tests.XXXXXX)
+_TMP_DIFF=$(mktemp /tmp/test-review-diff.XXXXXX)
 _HEARTBEAT_PID=""
-trap '[[ -n "$_HEARTBEAT_PID" ]] && kill "$_HEARTBEAT_PID" 2>/dev/null; rm -f "$SYSTEM_PROMPT_FILE" "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS"' EXIT
+trap '[[ -n "$_HEARTBEAT_PID" ]] && kill "$_HEARTBEAT_PID" 2>/dev/null; rm -f "$SYSTEM_PROMPT_FILE" "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS" "$_TMP_DIFF"' EXIT
 
 printf '%s' "$STANDARDS_CONTENT" >"$_TMP_STANDARDS"
 printf '%s' "$WORKFLOW_CONTENT" >"$_TMP_WORKFLOW"
 printf '%s' "$SOURCE_CONTENT" >"$_TMP_SOURCE"
 printf '%s' "$TEST_CONTENT" >"$_TMP_TESTS"
+printf '%s' "$DIFF_CONTENT" >"$_TMP_DIFF"
 
 # Enforce a soft size limit on source + test content. The default is tuned
 # for reliable single-pass audits, but modern provider context windows can
@@ -403,12 +426,25 @@ EOF
   fi
 fi
 
-python3 - "$PROMPT_TEMPLATE" "$SYSTEM_PROMPT_FILE" "$MODULE_PATH" "$TEST_PATH" "$MODE" \
-         "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS" <<'PYEOF'
+# Select prompt template: diff-focused for --git mode, module-audit otherwise.
+# The diff-focused template instructs the reviewer to scope findings to
+# behaviors introduced or modified by the diff — pre-existing untested
+# code in touched files is out of scope (use the test-review skill for that).
+if [[ -n "$GIT_MODE" && -f "$DIFF_PROMPT_TEMPLATE" ]]; then
+  SELECTED_TEMPLATE="$DIFF_PROMPT_TEMPLATE"
+  SELECTED_MODE="diff"
+  echo "Prompt mode: diff-focused (scope=diff-introduced behaviors only)" >&2
+else
+  SELECTED_TEMPLATE="$PROMPT_TEMPLATE"
+  SELECTED_MODE="$MODE"
+fi
+
+python3 - "$SELECTED_TEMPLATE" "$SYSTEM_PROMPT_FILE" "$MODULE_PATH" "$TEST_PATH" "$SELECTED_MODE" \
+         "$_TMP_STANDARDS" "$_TMP_WORKFLOW" "$_TMP_SOURCE" "$_TMP_TESTS" "$_TMP_DIFF" <<'PYEOF'
 import sys
 
 (template_path, output_path, module_path, test_path, mode,
- standards_file, workflow_file, source_file, tests_file) = sys.argv[1:10]
+ standards_file, workflow_file, source_file, tests_file, diff_file) = sys.argv[1:11]
 
 with open(template_path) as f:
     template = f.read()
@@ -424,6 +460,7 @@ template = template.replace('{{TESTING_STANDARDS}}', read_tmp(standards_file))
 template = template.replace('{{AUDIT_WORKFLOW}}', read_tmp(workflow_file))
 template = template.replace('{{SOURCE_CONTENT}}', read_tmp(source_file))
 template = template.replace('{{TEST_CONTENT}}', read_tmp(tests_file))
+template = template.replace('{{DIFF_CONTENT}}', read_tmp(diff_file))
 
 with open(output_path, 'w') as f:
     f.write(template)
