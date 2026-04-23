@@ -62,10 +62,10 @@ Key views in the TUI:
 
 ```bash
 # Agent recommendations
-cortex ai recommend
+cortex suggest
 
 # Auto-activate high-confidence agents
-cortex ai auto-activate
+cortex suggest --activate
 
 # Skill recommendations
 cortex skills recommend
@@ -76,7 +76,7 @@ cortex skills recommend
 ```bash
 cortex --help
 cortex skills --help
-cortex ai --help
+cortex suggest --help
 ```
 
 ## Next Steps

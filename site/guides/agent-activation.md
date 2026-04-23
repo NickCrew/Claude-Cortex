@@ -52,8 +52,8 @@ Use the agent intelligence system when you want Cortex to suggest who should be
 active based on the current repo context:
 
 ```bash
-cortex ai recommend
-cortex ai auto-activate
+cortex suggest
+cortex suggest --activate
 ```
 
 This is recommendation-driven activation, not skill loading.
@@ -120,7 +120,7 @@ Then:
 Use **agents** when:
 
 - you want a specialist persona active for the task
-- you want recommendation-driven activation from `cortex ai`
+- you want recommendation-driven activation from `cortex suggest`
 - you are managing the working set of collaborators
 
 Use **skills** when:

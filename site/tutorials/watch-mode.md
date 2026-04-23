@@ -7,7 +7,7 @@ nav_order: 6
 
 # Watch Mode Setup and Use
 
-This tutorial shows how to bring `cortex ai watch` into your daily workflow
+This tutorial shows how to bring `cortex suggest --watch` into your daily workflow
 without turning it into background noise.
 
 Watch mode is most useful when you want Cortex to notice changes as your task
@@ -40,7 +40,7 @@ leave it off.
 
 ## What Watch Mode Actually Does
 
-`cortex ai watch` monitors your current working context and continuously checks
+`cortex suggest --watch` monitors your current working context and continuously checks
 for recommendation signals.
 
 In practice it can surface:
@@ -48,7 +48,7 @@ In practice it can surface:
 - agent recommendations from the AI intelligence system
 - skill suggestions tied to the same evolving context
 
-That means watch mode is not just "run `cortex ai recommend` once." It is the
+That means watch mode is not just "run `cortex suggest` once." It is the
 continuous version of that recommendation loop.
 
 ## Step 1: Start in the Foreground, Safely
@@ -56,7 +56,7 @@ continuous version of that recommendation loop.
 For a first session, avoid automatic activation:
 
 ```bash
-cortex ai watch --no-auto-activate
+cortex suggest --watch --no-auto-activate
 ```
 
 This is the best way to learn what watch mode is doing without letting it take
@@ -65,7 +65,7 @@ action yet.
 If you are comfortable with the defaults and want the full behavior:
 
 ```bash
-cortex ai watch
+cortex suggest --watch
 ```
 
 ### Why start this way
@@ -94,13 +94,13 @@ recommendation.
 Raise it if watch mode feels noisy:
 
 ```bash
-cortex ai watch --no-auto-activate --threshold 0.8
+cortex suggest --watch --no-auto-activate --threshold 0.8
 ```
 
 Lower it if you want more sensitivity:
 
 ```bash
-cortex ai watch --no-auto-activate --threshold 0.6
+cortex suggest --watch --no-auto-activate --threshold 0.6
 ```
 
 ### Rule of thumb
@@ -117,13 +117,13 @@ The interval controls how often watch mode checks for changes.
 Slow it down if the repo is busy or you want less chatter:
 
 ```bash
-cortex ai watch --no-auto-activate --interval 5
+cortex suggest --watch --no-auto-activate --interval 5
 ```
 
 Speed it up if you want faster feedback:
 
 ```bash
-cortex ai watch --no-auto-activate --interval 1.5
+cortex suggest --watch --no-auto-activate --interval 1.5
 ```
 
 The right setting depends on how quickly your task context is changing and how
@@ -134,8 +134,8 @@ much feedback you actually want to read.
 If you do not want to watch everything, point it at specific directories:
 
 ```bash
-cortex ai watch --dir src
-cortex ai watch --dir src --dir tests
+cortex suggest --watch --dir src
+cortex suggest --watch --dir src --dir tests
 ```
 
 This is often better than lowering the threshold endlessly. If the signal is
@@ -147,25 +147,25 @@ confidence.
 Once the behavior feels useful, you can move it into the background:
 
 ```bash
-cortex ai watch --daemon
+cortex suggest --watch --daemon
 ```
 
 Check whether the daemon is running:
 
 ```bash
-cortex ai watch --status
+cortex suggest --watch --status
 ```
 
 Stop it when you are done:
 
 ```bash
-cortex ai watch --stop
+cortex suggest --watch --stop
 ```
 
 If you want a custom daemon log file:
 
 ```bash
-cortex ai watch --daemon --log ~/tmp/cortex-watch.log
+cortex suggest --watch --daemon --log ~/tmp/cortex-watch.log
 ```
 
 Daemon mode is best when:
@@ -216,7 +216,7 @@ Watch mode is a bad fit when:
 In those cases, prefer:
 
 ```bash
-cortex ai recommend
+cortex suggest
 ```
 
 That gives you a point-in-time recommendation without the overhead of a running
@@ -227,7 +227,7 @@ watch loop.
 Start with this:
 
 ```text
-1. cortex ai watch --no-auto-activate
+1. cortex suggest --watch --no-auto-activate
 2. observe whether the recommendations feel useful
 3. raise threshold if it is noisy
 4. narrow --dir if the repo scope is too broad

@@ -23,7 +23,7 @@ that help most during real work:
 ## What You'll Learn
 
 - how to prepare a feature task before you start editing files
-- how to use `cortex skills` and `cortex ai` together without mixing them up
+- how to use `cortex skills` and `cortex suggest` together without mixing them up
 - how to isolate work with `cortex git worktree`
 - how to run the work inside a tmux window
 - how to finish with review-oriented skills and an atomic commit
@@ -101,7 +101,7 @@ The distinction is:
 Now switch to the agent side:
 
 ```bash
-cortex ai recommend
+cortex suggest
 ```
 
 If the recommendation looks useful, activate the smallest agent set that fits
@@ -239,7 +239,7 @@ A practical end-to-end flow looks like this:
 1. Define the smallest reviewable feature slice
 2. cortex skills recommend
 3. cortex skills context --no-write
-4. cortex ai recommend
+4. cortex suggest
 5. cortex agent activate ...
 6. cortex git worktree add ...
 7. cortex tmux new ...

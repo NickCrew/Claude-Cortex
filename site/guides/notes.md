@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Memory Vault
+title: Notes Vault
 parent: Guides
 nav_order: 7
 ---
 
-# Memory Vault
+# Notes Vault
 
-The Memory Vault provides persistent knowledge storage across Claude Code sessions. Capture domain knowledge, project context, session summaries, and bug fixes in structured markdown notes.
+The Notes Vault provides persistent knowledge storage across Claude Code sessions. Capture domain knowledge, project context, session summaries, and bug fixes in structured markdown notes.
 
 ## Note Types
 
@@ -23,15 +23,15 @@ The Memory Vault provides persistent knowledge storage across Claude Code sessio
 ### Quick Knowledge
 
 ```bash
-cortex memory remember "FastAPI uses Starlette under the hood"
-cortex memory remember "Uses ASGI" --topic "fastapi" --tags "python,async"
+cortex notes remember "FastAPI uses Starlette under the hood"
+cortex notes remember "Uses ASGI" --topic "fastapi" --tags "python,async"
 ```
 
 ### Project Context
 
 ```bash
-cortex memory project "my-api" --purpose "REST API for users"
-cortex memory project "auth-service" \
+cortex notes project "my-api" --purpose "REST API for users"
+cortex notes project "auth-service" \
   --path "~/services/auth" \
   --related "user-db,redis"
 ```
@@ -39,8 +39,8 @@ cortex memory project "auth-service" \
 ### Session Summaries
 
 ```bash
-cortex memory capture "Added auth" --summary "Built JWT authentication"
-cortex memory capture "API Refactor" \
+cortex notes capture "Added auth" --summary "Built JWT authentication"
+cortex notes capture "API Refactor" \
   --summary "Refactored API endpoints" \
   --decisions "Use dependency injection|Add caching layer" \
   --implementations "Refactored auth|Added Redis cache" \
@@ -51,7 +51,7 @@ cortex memory capture "API Refactor" \
 ### Bug Fixes
 
 ```bash
-cortex memory fix "Token expired too fast" \
+cortex notes fix "Token expired too fast" \
   --problem "Tokens expiring in 1 minute" \
   --cause "Wrong TTL constant" \
   --solution "Changed TTL to 3600 seconds"
@@ -61,20 +61,20 @@ cortex memory fix "Token expired too fast" \
 
 ```bash
 # List all notes
-cortex memory list
+cortex notes list
 
 # List by type
-cortex memory list knowledge
-cortex memory list sessions --recent 5
-cortex memory list fixes --tags "my-api"
+cortex notes list knowledge
+cortex notes list sessions --recent 5
+cortex notes list fixes --tags "my-api"
 
 # Search across notes
-cortex memory search "asyncio"
-cortex memory search "authentication" --type knowledge
-cortex memory search "bug" --limit 5
+cortex notes search "asyncio"
+cortex notes search "authentication" --type knowledge
+cortex notes search "bug" --limit 5
 
 # Vault statistics
-cortex memory stats
+cortex notes stats
 ```
 
 ## Auto-Capture
@@ -83,13 +83,13 @@ Auto-capture creates session notes automatically based on session length:
 
 ```bash
 # Enable auto-capture
-cortex memory auto on
+cortex notes auto on
 
 # Disable
-cortex memory auto off
+cortex notes auto off
 
 # Check status
-cortex memory auto status
+cortex notes auto status
 ```
 
 Auto-capture triggers when:
@@ -99,11 +99,11 @@ Auto-capture triggers when:
 
 ## TUI Memory View
 
-Press `M` in the TUI to open the Memory Vault:
+Press `M` in the TUI to open the Notes Vault:
 
 | Key | Action |
 |:----|:-------|
-| `M` | Open Memory Vault view |
+| `M` | Open Notes Vault view |
 | `/` | Focus search input |
 | `n` or `N` | New note dialog |
 | `r` | Refresh notes list |
@@ -179,14 +179,14 @@ The agent proactively captures session context, retrieves relevant past notes, a
 ## CLI Reference
 
 ```bash
-cortex memory remember TEXT [--topic TOPIC] [--tags TAGS]
-cortex memory project NAME [--path PATH] [--purpose PURPOSE] [--related PROJECTS]
-cortex memory capture [TITLE] [--summary TEXT] [--decisions TEXT]
+cortex notes remember TEXT [--topic TOPIC] [--tags TAGS]
+cortex notes project NAME [--path PATH] [--purpose PURPOSE] [--related PROJECTS]
+cortex notes capture [TITLE] [--summary TEXT] [--decisions TEXT]
                               [--implementations TEXT] [--open TEXT] [--project NAME]
-cortex memory fix TITLE [--problem TEXT] [--cause TEXT] [--solution TEXT]
+cortex notes fix TITLE [--problem TEXT] [--cause TEXT] [--solution TEXT]
                         [--files FILES] [--project NAME]
-cortex memory auto [on|off|status]
-cortex memory list [TYPE] [--recent N] [--tags TAGS]
-cortex memory search QUERY [--type TYPE] [--limit N]
-cortex memory stats
+cortex notes auto [on|off|status]
+cortex notes list [TYPE] [--recent N] [--tags TAGS]
+cortex notes search QUERY [--type TYPE] [--limit N]
+cortex notes stats
 ```

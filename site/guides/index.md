@@ -21,8 +21,8 @@ In-depth guides for using Cortex features.
 - [Agent Activation]({% link guides/agent-activation.md %}) -- manual activation, dependencies, and recommendations
 - [Hooks]({% link guides/hooks.md %}) -- automation hooks for Claude Code events
 - [Rules]({% link guides/rules.md %}) -- behavioral constraints and best practices
-- [Review Recommendations]({% link guides/review.md %}) -- standalone `cortex review` workflow
-- [Memory Vault]({% link guides/memory.md %}) -- persistent knowledge storage
+- [Review Recommendations]({% link guides/review.md %}) -- standalone `cortex suggest --review` workflow
+- [Notes Vault]({% link guides/notes.md %}) -- persistent knowledge storage
 - [Planning & Collaboration]({% link guides/planning.md %}) -- brainstorm, plan, execute workflow
 - [Agent Loops]({% link guides/agent-loops.md %}) -- implementation quality gates (code, test, lint)
 - [Export Context]({% link guides/export.md %}) -- package context for sub-agents and external LLMs

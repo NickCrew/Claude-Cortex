@@ -31,7 +31,7 @@ Cortex resolves two different roots:
 
 | File | Location | Purpose |
 |:-----|:---------|:--------|
-| `cortex-config.json` | `<CORTEX_ROOT>/cortex-config.json` | Watch-mode defaults consumed by `cortex ai watch` |
+| `cortex-config.json` | `<CORTEX_ROOT>/cortex-config.json` | Watch-mode defaults consumed by `cortex suggest --watch` |
 | `intelligence-config.json` | `<claude-dir>/intelligence-config.json` | LLM intelligence, model selection, budget, and caching |
 | `recommendation-rules.json` | `<claude-dir>/skills/recommendation-rules.json` | File-pattern-based skill recommendations |
 | `skill-rules.json` | `<CORTEX_ROOT>/skills/skill-rules.json` with fallback to `~/.claude/skills/skill-rules.json` | Keyword-based skill suggestions |
@@ -69,10 +69,10 @@ Watch-mode defaults.
 
 ```bash
 # Uses defaults from <CORTEX_ROOT>/cortex-config.json when present
-cortex ai watch
+cortex suggest --watch
 
 # Override defaults at runtime
-cortex ai watch --no-auto-activate --threshold 0.8 --interval 1.5
+cortex suggest --watch --no-auto-activate --threshold 0.8 --interval 1.5
 ```
 
 ## intelligence-config.json
@@ -220,7 +220,7 @@ cortex --scope global status
 cortex --cortex-root /path/to/cortex status
 
 # Inspect watch-mode options
-cortex ai watch --help
+cortex suggest --watch --help
 ```
 
 ## Related

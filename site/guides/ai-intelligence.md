@@ -9,7 +9,7 @@ nav_order: 3
 
 Cortex ships two related recommendation systems:
 
-1. **Agent intelligence** powers `cortex ai ...`
+1. **Agent intelligence** powers `cortex suggest ...`
 2. **Skill recommendations** power `cortex skills recommend`, the Claude Code
    hook, and watch-mode skill suggestions
 
@@ -50,7 +50,7 @@ deactivation. High-confidence, high-impact deactivations can be auto-applied.
 ### Inspect recommendations
 
 ```bash
-cortex ai recommend
+cortex suggest
 ```
 
 Analyzes the current git diff, prints recommended agents, and shows a workflow
@@ -59,7 +59,7 @@ prediction when enough history exists (minimum 3 recorded sessions).
 ### Auto-activate high-confidence agents
 
 ```bash
-cortex ai auto-activate
+cortex suggest --activate
 ```
 
 Activates agents whose recommendation is marked for auto-activation.
@@ -67,8 +67,8 @@ Activates agents whose recommendation is marked for auto-activation.
 ### Export recommendations
 
 ```bash
-cortex ai export
-cortex ai export --output recommendations.json
+cortex suggest --export
+cortex suggest --export --output recommendations.json
 ```
 
 Exports agent recommendations and workflow predictions to a JSON file
@@ -77,7 +77,7 @@ Exports agent recommendations and workflow predictions to a JSON file
 ### Record a successful session
 
 ```bash
-cortex ai record-success --outcome "feature complete"
+cortex suggest --record-success --outcome "feature complete"
 ```
 
 Records the current session as successful, improving future agent recommendations
@@ -86,7 +86,7 @@ through pattern learning.
 ### Ingest a specialist review
 
 ```bash
-cortex ai ingest-review path/to/review.md
+cortex suggest --ingest-review path/to/review.md
 ```
 
 Feeds structured specialist review output into the learning system.
@@ -99,23 +99,23 @@ Watch mode monitors git-backed changes and continuously provides recommendations
 
 ```bash
 # Foreground
-cortex ai watch
+cortex suggest --watch
 
 # Background daemon
-cortex ai watch --daemon
+cortex suggest --watch --daemon
 
 # Inspect / stop the daemon
-cortex ai watch --status
-cortex ai watch --stop
+cortex suggest --watch --status
+cortex suggest --watch --stop
 ```
 
 ### Overriding defaults
 
 ```bash
-cortex ai watch --no-auto-activate
-cortex ai watch --threshold 0.8
-cortex ai watch --interval 5
-cortex ai watch --dir ~/project-a --dir ~/project-b
+cortex suggest --watch --no-auto-activate
+cortex suggest --watch --threshold 0.8
+cortex suggest --watch --interval 5
+cortex suggest --watch --dir ~/project-a --dir ~/project-b
 ```
 
 ### Default behavior
@@ -207,7 +207,7 @@ The Skills view (press `5`) is where you browse and rate skills separately.
 Record a successful session:
 
 ```bash
-cortex ai record-success --outcome "feature complete"
+cortex suggest --record-success --outcome "feature complete"
 ```
 
 This primarily improves future **agent** recommendations through pattern learning.
@@ -216,7 +216,7 @@ If you use structured specialist reviews, you can also feed them into skill
 learning:
 
 ```bash
-cortex ai ingest-review path/to/review.md
+cortex suggest --ingest-review path/to/review.md
 ```
 
 ## Important Distinction

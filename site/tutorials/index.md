@@ -97,7 +97,7 @@ treating it as authoritative.
 
 ## Review Prep with Cortex Review
 
-Use `cortex review` as a standalone prep step before review work. This tutorial
+Use `cortex suggest --review` as a standalone prep step before review work. This tutorial
 shows how to preview review-oriented skills, add context signals, and load the
 right skill context without confusing review prep with a full review engine.
 

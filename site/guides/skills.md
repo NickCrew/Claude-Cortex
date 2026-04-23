@@ -276,7 +276,7 @@ cortex skills validate documentation-production
 
 The recommendation system has two halves:
 
-- `cortex ai ...` is for **agent** intelligence
+- `cortex suggest ...` is for **agent** intelligence
 - `cortex skills ...` plus the hook/watch pipeline are for **skill**
   recommendations
 

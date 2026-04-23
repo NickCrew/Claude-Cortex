@@ -190,7 +190,7 @@ The shortest practical pattern is:
 6. Commit with `committer`.
 
 The review and audit steps inside `agent-loops` are part of the skill workflow
-itself. They are not the same thing as `cortex review`, which is a separate
+itself. They are not the same thing as `cortex suggest --review`, which is a separate
 standalone recommendation surface for loading review-relevant skills.
 
 ## What This Guide Is Not

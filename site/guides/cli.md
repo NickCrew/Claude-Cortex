@@ -16,7 +16,7 @@ the installed Cortex environment.
 cortex --help
 cortex status
 cortex tui
-cortex review --dry-run
+cortex suggest --review --dry-run
 ```
 
 Use `cortex <group> --help` to inspect a command group before relying on older
@@ -45,12 +45,12 @@ cortex rules edit <name>       # Edit a rule file
 ## AI Intelligence
 
 ```bash
-cortex ai recommend            # Get AI recommendations
-cortex ai auto-activate        # Auto-activate high-confidence agents
-cortex ai watch                # Start real-time monitoring
-cortex ai watch --daemon       # Run watch mode in background
-cortex ai record-success --outcome "feature complete"
-cortex ai export --output recommendations.json
+cortex suggest            # Get AI recommendations
+cortex suggest --activate        # Auto-activate high-confidence agents
+cortex suggest --watch                # Start real-time monitoring
+cortex suggest --watch --daemon       # Run watch mode in background
+cortex suggest --record-success --outcome "feature complete"
+cortex suggest --export --output recommendations.json
 ```
 
 ## Skills
@@ -86,7 +86,7 @@ skill library.
 
 ```bash
 cortex docs                    # Browse bundled docs
-cortex review --context debug  # Run review gate with extra context
+cortex suggest --review --context debug  # Run review gate with extra context
 ```
 
 For slash commands specifically, treat `skills/` as the source of truth and

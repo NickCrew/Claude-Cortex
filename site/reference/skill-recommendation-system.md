@@ -152,7 +152,7 @@ future skill suggestions.
 ### Entry point
 
 ```bash
-cortex ai ingest-review path/to/review.md
+cortex suggest --ingest-review path/to/review.md
 ```
 
 ### Implementation
@@ -278,7 +278,7 @@ deterministic fallback that still works when:
 
 ### Session success learning is best-effort
 
-`cortex ai record-success` feeds active agents into agent learning directly and
+`cortex suggest --record-success` feeds active agents into agent learning directly and
 then makes a best-effort call into skill learning. That bridge is intentionally
 non-blocking and should not be treated as the only source of truth for skill
 learning.

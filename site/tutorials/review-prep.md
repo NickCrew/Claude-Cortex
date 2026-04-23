@@ -7,18 +7,18 @@ nav_order: 8
 
 # Review Prep with Cortex Review
 
-This tutorial shows how to use `cortex review` to prepare for review work.
+This tutorial shows how to use `cortex suggest --review` to prepare for review work.
 
-The key idea is simple: `cortex review` is not a full review engine. It is a
+The key idea is simple: `cortex suggest --review` is not a full review engine. It is a
 standalone recommendation step that helps you load the right review-relevant
 skills before you review a diff manually or with another agent.
 
 ## What You'll Learn
 
-- how to use `cortex review --dry-run` to preview review-oriented skills
+- how to use `cortex suggest --review --dry-run` to preview review-oriented skills
 - how to add context signals with `--context`
 - how to turn the recommendations into a usable skill-loading step
-- how to keep `cortex review` separate from the larger `agent-loops` workflow
+- how to keep `cortex suggest --review` separate from the larger `agent-loops` workflow
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ skills before you review a diff manually or with another agent.
 
 ## What Cortex Review Actually Does
 
-`cortex review` looks at the current working context, adds any extra context
+`cortex suggest --review` looks at the current working context, adds any extra context
 signals you provide, and recommends review-relevant skills to load before you
 proceed.
 
@@ -51,7 +51,7 @@ It does **not** do the whole review for you.
 
 Keep this distinction clean:
 
-- `cortex review` prepares review work
+- `cortex suggest --review` prepares review work
 - `agent-loops` is a broader implementation workflow with its own review and
   test-audit gates
 
@@ -63,7 +63,7 @@ does not replace the other.
 Preview the recommendations first:
 
 ```bash
-cortex review --dry-run
+cortex suggest --review --dry-run
 ```
 
 The output varies by repo and current context, but the point of the dry run is
@@ -78,8 +78,8 @@ always the same:
 If the review needs a specific lens, add it explicitly:
 
 ```bash
-cortex review --dry-run --context debug
-cortex review --dry-run --context feature --context security
+cortex suggest --review --dry-run --context debug
+cortex suggest --review --dry-run --context feature --context security
 ```
 
 This is useful when the current diff alone does not fully express the kind of
@@ -108,7 +108,7 @@ Depending on the situation, common follow-on skills can include:
 - `/ctx:security-testing-patterns`
 - `/ctx:python-testing-patterns`
 
-The exact mix will vary. The important thing is to use `cortex review` to
+The exact mix will vary. The important thing is to use `cortex suggest --review` to
 narrow the field before you start.
 
 ## Step 4: Perform the Actual Review
@@ -133,7 +133,7 @@ For security-sensitive work, you may want the review to lean on:
 /ctx:security-testing-patterns
 ```
 
-The point is that `cortex review` helps you pick the right lens before you use
+The point is that `cortex suggest --review` helps you pick the right lens before you use
 the actual review workflow.
 
 ## Step 5: Keep the Outcome in the Main Session
@@ -145,14 +145,14 @@ Once the review-relevant skills are loaded, stay grounded in your real task:
 3. decide what needs to change
 4. rerun the prep step only if the review context changes materially
 
-`cortex review` should shorten the path to a better review. It should not turn
+`cortex suggest --review` should shorten the path to a better review. It should not turn
 into a separate workflow you have to maintain on its own.
 
 ## Safe Defaults
 
 If you are unsure, use this pattern:
 
-1. run `cortex review --dry-run`
+1. run `cortex suggest --review --dry-run`
 2. add one `--context` value if the review needs a specific angle
 3. run `cortex skills context --no-write`
 4. load the most relevant review skill
@@ -169,12 +169,12 @@ The workflow is:
 3. load the suggested skill context
 4. run the actual review with the right skill
 
-That is the best way to use `cortex review`: as a composable review-prep
+That is the best way to use `cortex suggest --review`: as a composable review-prep
 helper, not as a replacement for the review itself.
 
 ## Related
 
-- [Review Recommendations]({% link guides/review.md %}) -- reference guide for the `cortex review` command
+- [Review Recommendations]({% link guides/review.md %}) -- reference guide for the `cortex suggest --review` command
 - [Bug Fix Workflow in Cortex]({% link tutorials/bug-fix-workflow.md %}) -- see how review prep fits into a debugging flow
 - [Multi-LLM Consultation Workflow]({% link tutorials/multi-llm-consultation.md %}) -- take curated review context to another model if needed
 - [Agent Loops]({% link guides/agent-loops.md %}) -- separate implementation discipline workflow

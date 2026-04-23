@@ -140,7 +140,7 @@ existing test, not a big speculative test sweep.
 Before review, use the standalone review-recommendation helper:
 
 ```bash
-cortex review --context debug
+cortex suggest --review --context debug
 ```
 
 This helps Cortex suggest review-relevant skills for the debugging scenario.
@@ -190,7 +190,7 @@ A practical bug-fix loop looks like this:
 4. /ctx:systematic-debugging
 5. /ctx:agent-loops
 6. /ctx:test-generation
-7. cortex review --context debug
+7. cortex suggest --review --context debug
 8. /ctx:requesting-code-review
 9. cortex git commit ...
 ```
@@ -214,5 +214,5 @@ The strongest Cortex bug-fix workflow is:
 
 - [Feature Workflow in Cortex]({% link tutorials/feature-workflow.md %}) -- compare the build-new flow against the fix-existing flow
 - [Skills to Context Handoff]({% link tutorials/skill-recommendations.md %}) -- generate the skill context that feeds the debugging loop
-- [Review Recommendations]({% link guides/review.md %}) -- use `cortex review` as a composable review helper
+- [Review Recommendations]({% link guides/review.md %}) -- use `cortex suggest --review` as a composable review helper
 - [Git Workflow]({% link guides/git-workflow.md %}) -- deeper guide to atomic commits and worktree hygiene

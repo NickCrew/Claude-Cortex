@@ -75,7 +75,7 @@ Each task includes:
 - Validation criteria
 
 Plans can stay in the conversation, or you can save plan documents and inspect
-them later with the `cortex plan` command group.
+them later with the `cortex docs --plans` command group.
 
 ## /collaboration:executing-plans
 
@@ -100,10 +100,10 @@ Drives plan execution through task tracking and verification.
 Use the CLI to inspect saved plans:
 
 ```bash
-cortex plan list
-cortex plan view <plan-name>
-cortex plan edit <plan-name>
-cortex plan path
+cortex docs --plans list
+cortex docs --plans view <plan-name>
+cortex docs --plans edit <plan-name>
+cortex docs --plans path
 ```
 
 ## Putting It Together

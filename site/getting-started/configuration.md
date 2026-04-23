@@ -69,10 +69,10 @@ cortex --cortex-root /path/to/claude-cortex status
 
 ```bash
 # Use defaults from <CORTEX_ROOT>/cortex-config.json
-cortex ai watch
+cortex suggest --watch
 
 # Override at runtime
-cortex ai watch --dir . --threshold 0.8 --interval 1.5
+cortex suggest --watch --dir . --threshold 0.8 --interval 1.5
 ```
 
 ## Rules And Skills
