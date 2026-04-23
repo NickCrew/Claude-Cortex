@@ -252,6 +252,48 @@ If the bundled script cannot get a usable artifact from any scripted provider:
 4. Save that output under `.agents/reviews/review-<timestamp>-fallback.md` and treat
    the saved path as `REVIEW_FILE`.
 
+#### Size Guards and `--jumbo`
+
+Both `specialist-review.sh` and `test-review-request.sh` enforce a **soft
+size guard** before sending content to the reviewer:
+
+| Script                   | Default limit          | Env override                          |
+|--------------------------|------------------------|---------------------------------------|
+| `specialist-review.sh`   | 3000 diff lines        | `AGENT_LOOPS_MAX_DIFF_LINES`          |
+| `test-review-request.sh` | 500 KB source + tests  | `AGENT_LOOPS_MAX_CONTENT_BYTES`       |
+
+The guard behaves as a two-step decision gate, not a hard cap:
+
+1. **First run aborts on oversize.** The abort is deliberate: it forces you
+   to consider whether the change can be split before sending a large
+   payload to the reviewer. The error message lists concrete split
+   strategies (by path filter, by ref range, by sub-module, by logical
+   scope). Try those first.
+
+2. **If splitting doesn't make sense, rerun with `--jumbo`.** Use this flag
+   when the change is genuinely cohesive and decomposing it would fragment
+   a single logical unit — a refactor that only reads correctly as a whole,
+   generated code, or a single-commit feature whose parts don't stand alone.
+   `--jumbo` sends the full content to the reviewer (no truncation).
+
+   ```bash
+   # First run aborts with splitting guidance
+   "$SKILL_DIR/scripts/specialist-review.sh" --git -- src/big-refactor/
+
+   # After deciding the change can't be split, retry with --jumbo
+   "$SKILL_DIR/scripts/specialist-review.sh" --jumbo --git -- src/big-refactor/
+   ```
+
+`--jumbo` is a considered override, not a default. Use it only after the
+abort made you think about splitting. Modern provider context windows
+(Claude Opus/Sonnet 4.x, Gemini 2.5 Pro, GPT-5) can absorb the full
+payload, but reviewers do their best work on focused diffs — so prefer
+splitting when it's natural, and reach for `--jumbo` when it isn't.
+
+`AGENT_LOOPS_ALLOW_TRUNCATION=1` still exists for backward compatibility
+but silently truncates, which produces partial reviews. Prefer `--jumbo`
+over truncation in nearly every case.
+
 #### Anti-Patterns
 
 - **Performing the review yourself** — Use an independent reviewer, never the implementer.
@@ -261,6 +303,7 @@ If the bundled script cannot get a usable artifact from any scripted provider:
 - **Stopping at the first Claude failure** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
 - **Skipping the polling pattern** — Use the polling invocation from the section above. The review takes 3-5 minutes; without the poll loop the Bash tool will time out or the agent will lose track of the process. Set `timeout: 600000` on the Bash call.
 - **Moving on before you have `REVIEW_FILE`** — The review is a gate. Do not proceed to findings triage, remediation, tests, or commit until the poll loop exits and you have a file path.
+- **Reaching for `--jumbo` before considering a split** — The first-run abort is a forcing function. Use `--jumbo` only after you've decided the change is cohesive; don't paper over a legitimately splittable diff.
 
 ### `test-review-request` — Request Test Audit
 
@@ -376,6 +419,23 @@ Act on findings:
 - **P1 (Reliability/Edge Cases)**: Fix in current sprint.
 - **P2 (Completeness/Confidence)**: Backlog.
 
+#### Size Guards and `--jumbo`
+
+`test-review-request.sh` enforces the same two-step size guard as
+`specialist-review.sh` (limit: 500 KB of source + tests combined). On the
+first oversized run the script aborts with splitting suggestions; pass
+`--jumbo` on retry if the module is cohesive and cannot be decomposed.
+See the full explanation under *specialist-review → Size Guards and
+`--jumbo`* above — the decision framework is identical.
+
+```bash
+# First run aborts when source+tests exceed 500 KB
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/big/module
+
+# After deciding the module can't be split, retry with --jumbo
+"$SKILL_DIR/scripts/test-review-request.sh" --jumbo /path/to/big/module
+```
+
 #### Anti-Patterns
 
 - **Performing the audit yourself** — Use an independent auditor, never the implementer.
@@ -385,6 +445,7 @@ Act on findings:
 - **Proceeding without any audit artifact** — Let the script try the non-self provider before the same-model last resort and fresh-context Codex.
 - **Skipping the polling pattern** — Use the polling invocation from the section above. The audit takes 3-5 minutes; without the poll loop the Bash tool will time out or the agent will lose track of the process. Set `timeout: 600000` on the Bash call.
 - **Moving on before you have `REPORT_FILE`** — The audit is a gate. Do not proceed to gap analysis, test writing, or commit until the poll loop exits and you have a file path.
+- **Reaching for `--jumbo` before considering a split** — The first-run abort is a forcing function. Use `--jumbo` only after you've decided the module is cohesive; don't paper over a legitimately splittable audit.
 
 ---
 

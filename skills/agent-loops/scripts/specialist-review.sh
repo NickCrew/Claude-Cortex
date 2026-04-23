@@ -12,6 +12,9 @@
 #   --output <dir>         Output directory (default: .agents/reviews)
 #   --prior-review <file>  Include previous review output for continuity across cycles
 #   --provider <name>      auto (default), claude, gemini, or codex
+#   --jumbo                Bypass the diff-size guard for a single run. Use only
+#                          after the default abort forced you to consider splitting
+#                          and you determined the change cannot be decomposed.
 #   -- path...             Limit git diff to these paths (passed to git diff)
 #
 # Examples:
@@ -70,6 +73,7 @@ CONTEXT_LINES="${REVIEW_CONTEXT:-15}"
 PRIOR_REVIEW_FILE=""
 PATH_FILTERS=()
 REQUESTED_PROVIDER="${SPECIALIST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
+JUMBO="${AGENT_LOOPS_JUMBO:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -103,6 +107,10 @@ while [[ $# -gt 0 ]]; do
       echo "Error: --provider requires auto, claude, gemini, or codex" >&2
       exit 1
     fi
+    shift
+    ;;
+  --jumbo)
+    JUMBO=1
     shift
     ;;
   --)
@@ -211,13 +219,19 @@ OUTPUT_FILE="$OUTPUT_DIR/review-$TIMESTAMP.md"
 
 DIFF_LINES=$(wc -l <"$DIFF_FILE" | tr -d ' ')
 
-# Enforce a hard size limit. Silent truncation would hand the reviewer a
-# partial diff and produce a "clean" review that never saw half the code —
-# worse than no review at all. Set AGENT_LOOPS_ALLOW_TRUNCATION=1 to opt
-# into the legacy truncating behavior (not recommended).
-MAX_LINES="${AGENT_LOOPS_MAX_DIFF_LINES:-2000}"
+# Enforce a soft size limit. The default is tuned for what a single provider
+# pass can review reliably, but modern provider context windows can absorb
+# more when a change legitimately cannot be split. The guard intentionally
+# aborts on the first oversized run to force a splitting decision — pass
+# --jumbo on retry if you determine the change is cohesive and cannot be
+# decomposed. AGENT_LOOPS_ALLOW_TRUNCATION=1 still truncates (legacy).
+MAX_LINES="${AGENT_LOOPS_MAX_DIFF_LINES:-3000}"
 if [[ "$DIFF_LINES" -gt "$MAX_LINES" ]]; then
-  if [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
+  if [[ "$JUMBO" == "1" ]]; then
+    echo "Jumbo mode: bypassing size guard ($DIFF_LINES lines > $MAX_LINES limit)." >&2
+    echo "  The full diff will be sent to the reviewer. Verify the chosen provider's" >&2
+    echo "  context window is large enough (Claude Opus/Sonnet, Gemini 2.5 Pro, GPT-5 all fit)." >&2
+  elif [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
     echo "Warning: Diff is $DIFF_LINES lines. Truncating to $MAX_LINES (AGENT_LOOPS_ALLOW_TRUNCATION=1)." >&2
     TRUNCATED_FILE=$(mktemp /tmp/specialist-review-trunc.XXXXXX)
     head -n "$MAX_LINES" "$DIFF_FILE" >"$TRUNCATED_FILE"
@@ -225,14 +239,14 @@ if [[ "$DIFF_LINES" -gt "$MAX_LINES" ]]; then
     mv "$TRUNCATED_FILE" "$DIFF_FILE"
   else
     cat >&2 <<EOF
-Error: Diff is $DIFF_LINES lines (limit: $MAX_LINES). Review aborted.
+Error: Diff is $DIFF_LINES lines (limit: $MAX_LINES). Review aborted on first try.
 
-A diff this large cannot be reviewed reliably in a single pass — the reviewer
-would miss issues and you would get a falsely clean report. Split the work
-into smaller, independently-reviewable chunks and invoke this script once per
-chunk.
+This abort is deliberate: before a large diff goes to the reviewer you should
+consider whether it can be split. A smaller, scoped review catches more real
+issues and produces a less noisy report.
 
-Ways to split:
+STEP 1 — Can you split? Try the options below first:
+
   1. By path filter — scope each review to a subset of the tree:
        specialist-review.sh --git $BASE_REF -- path/to/module1
        specialist-review.sh --git $BASE_REF -- path/to/module2
@@ -246,11 +260,22 @@ Ways to split:
      + feature, refactor + behavior change), split the branch first. See
      "When to Split" in skills/agent-loops/SKILL.md.
 
-Reduce diff context with REVIEW_CONTEXT=<n> (currently $CONTEXT_LINES) only
-if the signal-to-noise ratio is the problem, not the scope.
+  Reduce diff context with REVIEW_CONTEXT=<n> (currently $CONTEXT_LINES) only
+  if the signal-to-noise ratio is the problem, not the scope.
 
-To bypass this check (not recommended — produces unreliable reviews), set:
-  AGENT_LOOPS_ALLOW_TRUNCATION=1
+STEP 2 — If the change genuinely cannot be decomposed (cohesive refactor,
+single-commit feature that only makes sense reviewed together, generated
+code), rerun with --jumbo to bypass the size guard for this invocation:
+
+    specialist-review.sh --jumbo --git $BASE_REF -- <paths>
+
+--jumbo sends the FULL diff to the reviewer (no truncation). You are opting
+into a single large-context review; modern providers' context windows can
+handle it, but the review is harder for the model to do well — use --jumbo
+as a deliberate choice, not a default.
+
+Legacy: AGENT_LOOPS_ALLOW_TRUNCATION=1 still truncates silently (worse than
+--jumbo in nearly every case; kept for backward compatibility).
 EOF
     exit 1
   fi

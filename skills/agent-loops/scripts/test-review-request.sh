@@ -15,6 +15,9 @@
 #   -- path...        Limit git diff to these paths (passed to git diff)
 #   --debug           Save prompt and provider output to log files for debugging
 #   --provider <name> auto (default), claude, gemini, or codex
+#   --jumbo           Bypass the source+test size guard for a single run. Use only
+#                     after the default abort forced you to consider splitting
+#                     and you determined the module cannot be decomposed.
 #
 # Environment:
 #   AGENT_LOOPS_LLM_PROVIDER Default provider selection: auto|claude|gemini|codex
@@ -74,6 +77,7 @@ BASE_REF="HEAD~1"
 PATH_FILTERS=()
 DEBUG="${CLAUDE_DEBUG:-0}"
 REQUESTED_PROVIDER="${TEST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
+JUMBO="${AGENT_LOOPS_JUMBO:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -120,6 +124,10 @@ while [[ $# -gt 0 ]]; do
       echo "Error: --provider requires auto, claude, gemini, or codex" >&2
       exit 1
     fi
+    shift
+    ;;
+  --jumbo)
+    JUMBO=1
     shift
     ;;
   *)
@@ -326,17 +334,23 @@ printf '%s' "$WORKFLOW_CONTENT" >"$_TMP_WORKFLOW"
 printf '%s' "$SOURCE_CONTENT" >"$_TMP_SOURCE"
 printf '%s' "$TEST_CONTENT" >"$_TMP_TESTS"
 
-# Enforce a hard size limit on source + test content. ~300 KB (roughly
-# 75K tokens) is the practical ceiling for a single-turn --print invocation.
-# Silent truncation would hand the auditor a partial module and produce
-# an audit that never saw the tail end of the code — worse than no audit.
-# Set AGENT_LOOPS_ALLOW_TRUNCATION=1 to opt into the legacy behavior.
-MAX_CONTENT_BYTES="${AGENT_LOOPS_MAX_CONTENT_BYTES:-300000}"
+# Enforce a soft size limit on source + test content. The default is tuned
+# for reliable single-pass audits, but modern provider context windows can
+# absorb larger payloads when a module genuinely cannot be split. The guard
+# intentionally aborts on the first oversized run to force a splitting
+# decision — pass --jumbo on retry if you determine the module is cohesive
+# and cannot be decomposed. AGENT_LOOPS_ALLOW_TRUNCATION=1 still truncates
+# (legacy; worse than --jumbo because the auditor misses the tail end).
+MAX_CONTENT_BYTES="${AGENT_LOOPS_MAX_CONTENT_BYTES:-500000}"
 _SOURCE_BYTES=$(wc -c <"$_TMP_SOURCE" | tr -d ' ')
 _TESTS_BYTES=$(wc -c <"$_TMP_TESTS" | tr -d ' ')
 _TOTAL_BYTES=$(( _SOURCE_BYTES + _TESTS_BYTES ))
 if [[ "$_TOTAL_BYTES" -gt "$MAX_CONTENT_BYTES" ]]; then
-  if [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
+  if [[ "$JUMBO" == "1" ]]; then
+    echo "Jumbo mode: bypassing size guard ($((_TOTAL_BYTES / 1024)) KB > $((MAX_CONTENT_BYTES / 1024)) KB limit)." >&2
+    echo "  Full source + tests will be sent to the auditor. Verify the chosen provider's" >&2
+    echo "  context window is large enough (Claude Opus/Sonnet, Gemini 2.5 Pro, GPT-5 all fit)." >&2
+  elif [[ "${AGENT_LOOPS_ALLOW_TRUNCATION:-0}" == "1" ]]; then
     echo "Warning: Source + test content is $((_TOTAL_BYTES / 1024)) KB; truncating to $((MAX_CONTENT_BYTES / 1024)) KB (AGENT_LOOPS_ALLOW_TRUNCATION=1)." >&2
     # Allocate 2/3 to source, 1/3 to tests
     _MAX_SOURCE=$(( MAX_CONTENT_BYTES * 2 / 3 ))
@@ -347,29 +361,43 @@ if [[ "$_TOTAL_BYTES" -gt "$MAX_CONTENT_BYTES" ]]; then
     printf '\n\n... [TRUNCATED — content exceeded %s KB limit] ...\n' "$((MAX_CONTENT_BYTES / 1024))" >>"$_TMP_TESTS"
   else
     cat >&2 <<EOF
-Error: Source + test content is $((_TOTAL_BYTES / 1024)) KB (limit: $((MAX_CONTENT_BYTES / 1024)) KB). Audit aborted.
+Error: Source + test content is $((_TOTAL_BYTES / 1024)) KB (limit: $((MAX_CONTENT_BYTES / 1024)) KB). Audit aborted on first try.
 
   Source: $((_SOURCE_BYTES / 1024)) KB  ($MODULE_PATH)
   Tests:  $((_TESTS_BYTES / 1024)) KB  ($TEST_PATH)
 
-A module this large cannot be audited reliably in a single pass — the
-auditor would miss gaps in the tail end and you would get a falsely
-complete report. Split the audit into smaller, independently-reviewable
-units and invoke this script once per unit.
+This abort is deliberate: before a large module goes to the auditor you
+should consider whether it can be split. A scoped audit catches more real
+gaps and produces a less noisy report.
 
-Ways to split:
+STEP 1 — Can you split? Try the options below first:
+
   1. By sub-module — audit each file or logical group separately:
-       test-review-request.sh path/to/module_a.py path/to/tests/test_a.py
-       test-review-request.sh path/to/module_b.py path/to/tests/test_b.py
+       test-review-request.sh path/to/module_a.py --tests path/to/tests/test_a.py
+       test-review-request.sh path/to/module_b.py --tests path/to/tests/test_b.py
 
   2. By class or responsibility — if the module groups several concerns,
      extract each concern into its own file first, then audit each one.
 
-  3. Consider whether the module itself is too large. A 200 KB source file
+  3. By --git scope — limit the audit to changed files since a base ref:
+       test-review-request.sh $MODULE_PATH --git HEAD~1 -- path/to/changed/
+
+  4. Consider whether the module itself is too large. A 200 KB source file
      is usually a sign that it should be decomposed regardless of audit.
 
-To bypass this check (not recommended — produces unreliable audits), set:
-  AGENT_LOOPS_ALLOW_TRUNCATION=1
+STEP 2 — If the module genuinely cannot be decomposed (single cohesive file,
+generated code, a refactor that only makes sense audited together), rerun
+with --jumbo to bypass the size guard for this invocation:
+
+    test-review-request.sh $MODULE_PATH --jumbo [--tests ...]
+
+--jumbo sends the FULL source + tests to the auditor (no truncation). You
+are opting into a single large-context audit; modern providers' context
+windows can handle it, but the audit is harder for the model to do well —
+use --jumbo as a deliberate choice, not a default.
+
+Legacy: AGENT_LOOPS_ALLOW_TRUNCATION=1 still truncates silently (worse
+than --jumbo in nearly every case; kept for backward compatibility).
 EOF
     exit 1
   fi
