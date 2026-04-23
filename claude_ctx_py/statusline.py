@@ -16,6 +16,13 @@ from typing import Any, Callable, Dict, Iterable, Mapping, TextIO, cast
 from .core.base import _resolve_claude_dir
 
 try:
+    from zoneinfo import ZoneInfo
+
+    _ET: ZoneInfo | None = ZoneInfo("America/New_York")
+except Exception:  # pragma: no cover - missing tzdata
+    _ET = None
+
+try:
     import yaml
 
     HAS_YAML = True
@@ -133,6 +140,7 @@ DEFAULT_CONFIG: ConfigDict = {
         "state": "⚡",
         "tag": "",
         "time": "◷",
+        "cache": "↻",
     },
 }
 
@@ -174,6 +182,18 @@ def ms_to_hhmmss(ms: int) -> str:
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
     return f"{hours:02d}:{minutes:02d}"
+
+
+def _fmt_tokens(n: int) -> str:
+    """Compact token count: 500, 1.2k, 50k, 1.5M."""
+    n = int(n or 0)
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f}M"
+    if n >= 10_000:
+        return f"{n // 1_000}k"
+    if n >= 1_000:
+        return f"{n / 1_000:.1f}k"
+    return str(n)
 
 
 def shorten_path(path: str, max_parts: int = 4) -> str:
@@ -501,8 +521,15 @@ class StatusData:
     cwd: str = ""
     git: str = ""
     tokens_pct: int = 0
+    # Cumulative session totals (kept for format_oneline/format_json back-compat)
     input_tokens: int = 0
     output_tokens: int = 0
+    # Current-call tokens (from context_window.current_usage) — drive the default view
+    current_input_tokens: int = 0
+    current_output_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
+    context_window_size: int = 0
     lines_added: int = 0
     lines_removed: int = 0
     cost_usd: float = 0.0
@@ -514,6 +541,10 @@ class StatusData:
     docker: str = ""
     venv: str = ""
     node: str = ""
+    five_hour_remaining: float | None = None
+    seven_day_remaining: float | None = None
+    five_hour_resets_at: int | None = None
+    seven_day_resets_at: int | None = None
 
 
 # =========================================================================
@@ -541,22 +572,89 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
             line1.append(ctx)
     lines.append(sep.join(line1))
 
-    tokens = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}"
-    in_out = (
-        f"{C.B_BLU}{icons.get('in_tokens', '󰜮')} {data.input_tokens} "
-        f"{C.B_YEL}{icons.get('out_tokens', '󰜷')} {data.output_tokens}{C.NC}"
+    if data.context_window_size and data.current_input_tokens:
+        ctx_display = (
+            f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}% "
+            f"{C.WHI}({_fmt_tokens(data.current_input_tokens)}"
+            f"/{_fmt_tokens(data.context_window_size)}){C.NC}"
+        )
+    else:
+        ctx_display = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}"
+
+    line2_parts = [ctx_display]
+
+    cache_total = data.cache_read_tokens + data.cache_creation_tokens
+    if cache_total > 0 and data.current_input_tokens > 0:
+        cache_pct = (data.cache_read_tokens * 100) // data.current_input_tokens
+        line2_parts.append(
+            f"{C.B_CYA}{icons.get('cache', '↻')} {cache_pct}%{C.NC}"
+        )
+
+    out_display = (
+        f"{C.B_YEL}{icons.get('out_tokens', '󰜷')} "
+        f"{_fmt_tokens(data.current_output_tokens)}{C.NC}"
     )
+    line2_parts.append(out_display)
+
     changes = (
         f"{C.B_GRE}{icons.get('added', '')} {data.lines_added} "
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
     cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
-    lines.append(sep.join([tokens, in_out, changes, cost]))
+    line2_parts.extend([changes, cost])
+    lines.append(sep.join(line2_parts))
+
+    rate_parts = []
+    if data.five_hour_remaining is not None:
+        part = f"{_rate_color(data.five_hour_remaining)}5h {data.five_hour_remaining:.0f}%{C.NC}"
+        reset = _format_reset_time(data.five_hour_resets_at)
+        if reset:
+            part = f"{part} {C.CYA}→ {reset}{C.NC}"
+        rate_parts.append(part)
+    if data.seven_day_remaining is not None:
+        part = f"{_rate_color(data.seven_day_remaining)}7d {data.seven_day_remaining:.0f}%{C.NC}"
+        reset = _format_reset_time(data.seven_day_resets_at)
+        if reset:
+            part = f"{part} {C.CYA}→ {reset}{C.NC}"
+        rate_parts.append(part)
+    if rate_parts:
+        lines.append(sep.join(rate_parts))
 
     model = f"{C.B_BLU}{icons.get('model', '')} {data.model}{C.NC}"
     lines.append(sep.join([model, data.version]))
 
     return "\n".join(lines)
+
+
+def _rate_color(remaining: float) -> str:
+    """Color rate-limit remaining: green high, yellow mid, red low."""
+    if remaining >= 50:
+        return C.B_GRE
+    if remaining >= 20:
+        return C.B_YEL
+    return C.B_RED
+
+
+def _format_reset_time(epoch: int | None) -> str:
+    """Format a Unix-epoch reset timestamp as 12-hour ET time.
+
+    Same-day resets render as ``3:45 PM``; other days include a weekday
+    and calendar date (``Mon Apr 27 2:05 AM``). Falls back to UTC if
+    tzdata is unavailable.
+    """
+    if not epoch:
+        return ""
+    try:
+        if _ET is None:
+            dt = datetime.fromtimestamp(int(epoch), timezone.utc)
+        else:
+            dt = datetime.fromtimestamp(int(epoch), _ET)
+        now = datetime.now(dt.tzinfo)
+        if dt.date() == now.date():
+            return dt.strftime("%-I:%M %p")
+        return dt.strftime("%a %b %-d %-I:%M %p")
+    except (ValueError, OverflowError, OSError):
+        return ""
 
 
 def format_oneline(data: StatusData, config: ConfigDict) -> str:
@@ -580,12 +678,21 @@ def format_json(data: StatusData, _config: ConfigDict) -> str:
             "tokens_pct": data.tokens_pct,
             "input_tokens": data.input_tokens,
             "output_tokens": data.output_tokens,
+            "current_input_tokens": data.current_input_tokens,
+            "current_output_tokens": data.current_output_tokens,
+            "cache_read_tokens": data.cache_read_tokens,
+            "cache_creation_tokens": data.cache_creation_tokens,
+            "context_window_size": data.context_window_size,
             "lines_added": data.lines_added,
             "lines_removed": data.lines_removed,
             "cost_usd": data.cost_usd,
             "session_time": data.session_time,
             "model": data.model,
             "version": data.version,
+            "five_hour_remaining": data.five_hour_remaining,
+            "seven_day_remaining": data.seven_day_remaining,
+            "five_hour_resets_at": data.five_hour_resets_at,
+            "seven_day_resets_at": data.seven_day_resets_at,
         },
         indent=2,
     )
@@ -661,32 +768,61 @@ def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> Statu
     ctx = claude_data.get("context_window", {})
     context_size = ctx.get("context_window_size", 1)
 
-    usage = ctx.get("current_usage")
-    if usage:
-        current = sum(
-            [
-                usage.get("input_tokens", 0),
-                usage.get("cache_creation_input_tokens", 0),
-                usage.get("cache_read_input_tokens", 0),
-            ]
-        )
-        tokens_pct = (current * 100) // context_size if context_size else 0
-    else:
-        tokens_pct = 0
+    usage = ctx.get("current_usage") or {}
+    current_input_raw = int(usage.get("input_tokens", 0) or 0)
+    cache_creation_tokens = int(usage.get("cache_creation_input_tokens", 0) or 0)
+    cache_read_tokens = int(usage.get("cache_read_input_tokens", 0) or 0)
+    current_output_tokens = int(usage.get("output_tokens", 0) or 0)
+    current_input_tokens = current_input_raw + cache_creation_tokens + cache_read_tokens
+    tokens_pct = (
+        (current_input_tokens * 100) // context_size
+        if usage and context_size
+        else 0
+    )
 
     cost = claude_data.get("cost", {})
+
+    rate_limits = claude_data.get("rate_limits") or {}
+    five_hour = rate_limits.get("five_hour") or {}
+    seven_day = rate_limits.get("seven_day") or {}
+    five_hour_used = five_hour.get("used_percentage")
+    seven_day_used = seven_day.get("used_percentage")
+    five_hour_remaining = (
+        100 - float(five_hour_used) if five_hour_used is not None else None
+    )
+    seven_day_remaining = (
+        100 - float(seven_day_used) if seven_day_used is not None else None
+    )
+
+    def _as_epoch(value: Any) -> int | None:
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    five_hour_resets_at = _as_epoch(five_hour.get("resets_at"))
+    seven_day_resets_at = _as_epoch(seven_day.get("resets_at"))
 
     data = StatusData(
         cwd=cwd,
         tokens_pct=tokens_pct,
         input_tokens=ctx.get("total_input_tokens", 0),
         output_tokens=ctx.get("total_output_tokens", 0),
+        current_input_tokens=current_input_tokens,
+        current_output_tokens=current_output_tokens,
+        cache_read_tokens=cache_read_tokens,
+        cache_creation_tokens=cache_creation_tokens,
+        context_window_size=int(context_size or 0),
         lines_added=cost.get("total_lines_added", 0),
         lines_removed=cost.get("total_lines_removed", 0),
         cost_usd=cost.get("total_cost_usd", 0.0),
         session_time=ms_to_hhmmss(claude_data.get("session_duration_ms", 0)),
         model=claude_data.get("model", {}).get("display_name", ""),
         version=get_claude_version(),
+        five_hour_remaining=five_hour_remaining,
+        seven_day_remaining=seven_day_remaining,
+        five_hour_resets_at=five_hour_resets_at,
+        seven_day_resets_at=seven_day_resets_at,
     )
 
     icons = _get_icons(config)
