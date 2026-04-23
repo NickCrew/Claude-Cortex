@@ -313,6 +313,49 @@ via `CLAUDE_MAX_BUDGET` (default $0.50).
 
 **Trigger:** Starting any implementation task in a multi-agent workflow.
 
+### `multi-specialist-review`
+
+**User-triggered multi-agent code review with grounded, verifiable findings.**
+
+Spawns 3-5 parallel specialist sub-agents (one per review perspective —
+correctness, security, performance, architecture, etc.), each reading actual
+source files via Read/Grep/Glob rather than just inlined diffs. Findings are
+mechanically verified against the codebase before synthesis into a single
+review artifact.
+
+Extracted from `agent-loops` because team-based review is a user-triggered
+operation — the cost profile (~$2-3/review) and authority profile (PR-level,
+security-sensitive changes) warrant explicit invocation, not autonomous agent
+decision-making.
+
+#### Orchestration Phases
+
+| Phase | Action | Cost |
+|---|---|---|
+| **0 — Triage** | `triage_perspectives.py` selects 3-5 perspectives from file types and content signals | Free (deterministic) |
+| **1 — Parallel specialists** | Spawn N sub-agents in one message; each writes findings JSON | ~$2-3 |
+| **2 — Citation verification** | `verify_citations.py` validates file paths, line ranges, and quoted code against disk | Free (deterministic) |
+| **3 — Synthesis** | Team lead deduplicates, merges multi-perspective findings, renumbers | In-context (no spawn) |
+| **4 — Validate** | `validate-review-contract.py` (from agent-loops) confirms the review artifact shape | Free (deterministic) |
+
+#### Bundled Scripts
+
+| Script | Purpose |
+|---|---|
+| `triage_perspectives.py` | Deterministic perspective selection based on file extensions and content signals |
+| `verify_citations.py` | Mechanical validation of findings against actual source files (±5 line tolerance) |
+
+| What makes it sophisticated |
+|---|
+| Specialists read actual source files (not just diffs) — reduces hallucination and catches issues invisible to diff-only review |
+| Citation verification rejects findings where file/line/quoted-code don't match disk — strips hallucinated references before they reach the user |
+| Multi-perspective independence: parallel dispatch, zero cross-specialist context leakage |
+| Deterministic triage, verification, and validation (Phases 0, 2, 4) add zero API cost to the review |
+| Requires Claude Code team API — Codex/Gemini agents flag for team review in their handoff rather than invoking |
+
+**Trigger:** User-invoked (slash command or direct skill reference). Not for
+autonomous agent workflows.
+
 ---
 
 ## Ideation & Product Skills
