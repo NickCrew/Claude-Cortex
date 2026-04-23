@@ -1,10 +1,10 @@
 ---
 id: TASK-13
 title: Fix flaky test_specialist_review_falls_back_to_gemini_when_claude_fails
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-23 05:22'
-updated_date: '2026-04-23 05:26'
+updated_date: '2026-04-23 05:45'
 labels:
   - test
   - bug
@@ -43,8 +43,8 @@ The test expects a `claude.log` file to be created during the fake Claude invoca
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The test passes locally with `uv run pytest tests/unit/test_agent_loops_review_scripts.py::test_specialist_review_falls_back_to_gemini_when_claude_fails`
-- [ ] #2 Root cause identified (stub not installed vs. redirection broken vs. other)
+- [x] #1 The test passes locally with `uv run pytest tests/unit/test_agent_loops_review_scripts.py::test_specialist_review_falls_back_to_gemini_when_claude_fails`
+- [x] #2 Root cause identified (stub not installed vs. redirection broken vs. other)
 - [x] #3 Audit the remaining specialist-review tests in the same file and confirm they pass or file separate follow-ups for any that also fail
 <!-- AC:END -->
 
@@ -73,3 +73,17 @@ The test expects a `claude.log` file to be created during the fake Claude invoca
 
 **Narrowed diagnosis:** Tests that exercise fake-claude *succeeding* all pass and write claude.log correctly. The failing test is the one where fake-claude is configured to *fail* (non-zero exit). The claude.log expected at line 188 is missing in that path, suggesting the failure-simulation stub either (a) exits before logging, or (b) uses a different log-writing mechanism than the success-simulation stub. Compare the fake-claude implementations in this test vs. the passing tests to find the divergence.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+**Root cause:** When the test runs from inside Claude Code (or any process with `CLAUDECODE=1` / `CODEX_THREAD_ID` / `GEMINI_CLI_*` markers in the environment), `env = os.environ.copy()` inherited those markers. The provider auto-detection in `review-provider.sh` then concluded self=claude (or whatever marker was present), which pushed Claude to the end of the fallback order. Gemini was tried first, succeeded, and Claude was never invoked — so the fake-claude stub never reached the line that writes `claude.log`, causing the line-188 `claude_log.read_text()` assertion to fail with FileNotFoundError.
+
+The sister test `test_specialist_review_auto_keeps_self_provider_last` (line 198) had already encountered this class of environment-leakage issue and solved it by explicitly setting `AGENT_LOOPS_SELF_PROVIDER="gemini"`. The failing test was missing this pin.
+
+**Fix:** Set `env["AGENT_LOOPS_SELF_PROVIDER"] = "codex"` in the failing test. With self=codex, the auto order becomes `claude, gemini, codex` — claude is tried first (fails as designed, writes log), gemini is the fallback (succeeds), matching the test's name and intent.
+
+**Verification:** Target test passes (15.59s). Full test file: 15/15 passed.
+
+**Lesson for future tests of `specialist-review` / `diff-test-audit`:** always pin `AGENT_LOOPS_SELF_PROVIDER` in tests that exercise provider ordering. Inheriting `os.environ` without scrubbing CLI markers makes the test order environment-dependent.
+<!-- SECTION:FINAL_SUMMARY:END -->

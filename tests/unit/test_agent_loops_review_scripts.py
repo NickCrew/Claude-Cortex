@@ -167,6 +167,12 @@ EOF
     env = os.environ.copy()
     env["PATH"] = f"{fake_bin}:{env['PATH']}"
     env["PYTHONPATH"] = str(REPO_ROOT)
+    # Pin self provider so the auto order is deterministic regardless of
+    # whichever CLI env markers leaked in from os.environ (CLAUDECODE,
+    # CODEX_THREAD_ID, GEMINI_CLI_*). With self=codex, the order becomes
+    # claude, gemini, codex — claude is tried first (fails as designed),
+    # gemini is the fallback (succeeds), matching this test's intent.
+    env["AGENT_LOOPS_SELF_PROVIDER"] = "codex"
 
     result = _run(
         [
