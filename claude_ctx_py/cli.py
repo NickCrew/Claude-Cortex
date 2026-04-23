@@ -877,19 +877,6 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Use Rich markup instead of ANSI colors",
     )
-    review_parser = subparsers.add_parser("review", help="Run review gate before task completion")
-    review_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what reviewers would be activated without activating",
-    )
-    review_parser.add_argument(
-        "--context", "-c",
-        action="append",
-        dest="review_contexts",
-        help="Additional context signals (e.g., -c debug -c feature)",
-    )
-
     return parser
 
 
@@ -1454,15 +1441,6 @@ def _handle_install_command(args: argparse.Namespace) -> int:
     else:
         _print("Install subcommand required. Use 'cortex install --help'")
         return 1
-
-
-def _handle_review_command(args: argparse.Namespace) -> int:
-    print("Note: 'cortex review' is deprecated. Use 'cortex suggest --review' instead.", file=sys.stderr)
-    from . import cmd_review
-    return cmd_review.main(
-        dry_run=getattr(args, "dry_run", False),
-        extra_context=getattr(args, "review_contexts", None),
-    )
 
 
 def _handle_git_command(args: argparse.Namespace) -> int:
@@ -2672,7 +2650,6 @@ def main(argv: Iterable[str] | None = None) -> int:
         "docs": _handle_docs_command,
         "dev": _handle_dev_command,
         "uninstall": _handle_uninstall_command,
-        "review": _handle_review_command,
         "suggest": _handle_suggest_command,
         "git": _handle_git_command,
         "tmux": _handle_tmux_command,
