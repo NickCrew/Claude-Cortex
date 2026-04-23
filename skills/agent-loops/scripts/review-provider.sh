@@ -2,7 +2,7 @@
 #
 # review-provider.sh — Shared provider helpers for agent-loops review scripts.
 #
-# Source this file from specialist-review.sh and test-review-request.sh.
+# Source this file from specialist-review.sh and diff-test-audit.sh.
 
 review_provider_detect_self() {
   local self_provider="${AGENT_LOOPS_SELF_PROVIDER:-}"

@@ -20,7 +20,7 @@ Cover the remaining failure-path gaps in agent-loops review tooling: exhaustion 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 specialist-review.sh has a test proving all-provider failure exits non-zero with a clear error
-- [ ] #2 test-review-request.sh has a test proving all-provider failure exits non-zero with a clear error
+- [ ] #2 diff-test-audit.sh has a test proving all-provider failure exits non-zero with a clear error
 - [ ] #3 both scripts have a test proving explicit --provider failure does not fall back to another provider
 - [ ] #4 targeted review-script tests or equivalent focused verification pass
 <!-- AC:END -->

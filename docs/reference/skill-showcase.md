@@ -297,7 +297,7 @@ via `CLAUDE_MAX_BUDGET` (default $0.50).
 | Script | Purpose |
 |---|---|
 | `specialist-review.sh` | Multi-perspective code review with diff capture, prior-review continuity, and contract validation |
-| `test-review-request.sh` | Test coverage audit with auto-discovery of test directories and inline source analysis |
+| `diff-test-audit.sh` | Test coverage audit with auto-discovery of test directories and inline source analysis |
 | `review-provider.sh` | Shared provider abstraction (detection, ordering, invocation, timeout) |
 | `validate-review-contract.py` | Validates and normalizes review artifacts against required markdown contracts |
 

@@ -132,7 +132,7 @@ done
 
 # --- Reject test files in path filters ---
 # specialist-review is for source files only. Test files belong in Loop 2
-# via test-review-request.sh.
+# via diff-test-audit.sh.
 if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
   TEST_FILES=()
   for pf in "${PATH_FILTERS[@]}"; do
@@ -142,7 +142,7 @@ if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
   done
   if [[ ${#TEST_FILES[@]} -gt 0 ]]; then
     echo "Error: Test files detected in path filter — specialist-review is for source files only." >&2
-    echo "  Move these to Loop 2 (test-review-request.sh):" >&2
+    echo "  Move these to Loop 2 (diff-test-audit.sh):" >&2
     for tf in "${TEST_FILES[@]}"; do
       echo "    $tf" >&2
     done

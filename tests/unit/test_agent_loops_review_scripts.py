@@ -13,7 +13,7 @@ SPECIALIST_REVIEW = (
     REPO_ROOT / "skills/agent-loops/scripts/specialist-review.sh"
 )
 TEST_REVIEW = (
-    REPO_ROOT / "skills/agent-loops/scripts/test-review-request.sh"
+    REPO_ROOT / "skills/agent-loops/scripts/diff-test-audit.sh"
 )
 
 

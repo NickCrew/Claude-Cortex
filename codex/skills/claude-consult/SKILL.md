@@ -20,7 +20,7 @@ has domain-specific skills pre-loaded and tools scoped to its role.
 
 **This is NOT a replacement for the review gates.** The `agent-loops` skill
 defines formal code review (`specialist-review`) and test audit
-(`test-review-request`) gates that run after implementation. This skill is for
+(`diff-test-audit`) gates that run after implementation. This skill is for
 asking questions **during** implementation — before you've written code, while
 you're writing it, or when you're stuck.
 

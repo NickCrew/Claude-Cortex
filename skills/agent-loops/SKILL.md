@@ -56,7 +56,7 @@ are the last resort. You never grade your own homework.
 
 **Bundled scripts:**
 - `$SKILL_DIR/scripts/specialist-review.sh` — Provider-aware Claude/Gemini/Codex CLI path for code review
-- `$SKILL_DIR/scripts/test-review-request.sh` — Provider-aware Claude/Gemini/Codex CLI path for test audit
+- `$SKILL_DIR/scripts/diff-test-audit.sh` — Provider-aware Claude/Gemini/Codex CLI path for test audit
 
 ### Locate Scripts
 
@@ -78,7 +78,7 @@ at the start of your session and reuse the variable.
 |------|-------|-----|
 | **Implementer** | Codex or Gemini | Writes code changes and test code |
 | **Code Reviewer** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `specialist-review` keeps same-model shell-outs last; fallback reviewer uses bundled prompts and produces a review artifact |
-| **Test Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `test-review-request` keeps same-model shell-outs last; fallback auditor uses bundled prompts and produces an audit artifact |
+| **Test Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `diff-test-audit` keeps same-model shell-outs last; fallback auditor uses bundled prompts and produces an audit artifact |
 | **Remediator** | Codex or Gemini | Fixes findings from the independent review/audit artifact |
 
 **Critical rule:** Codex and Gemini NEVER self-review unless every independent
@@ -163,7 +163,7 @@ makes reviews more precise and catches downstream breakage the diff doesn't show
 
 Scope `specialist-review` to **source files only**. Do NOT include test files
 (`*.test.*`, `*.spec.*`, `__tests__/`) in the path filter — tests are reviewed
-separately in **Loop 2** via `test-review-request`.
+separately in **Loop 2** via `diff-test-audit`.
 
 #### IMPORTANT: Do Not Review the Code Yourself
 
@@ -275,13 +275,13 @@ If the bundled script cannot get a usable artifact from any scripted provider:
 
 #### Size Guards and `--jumbo`
 
-Both `specialist-review.sh` and `test-review-request.sh` enforce a **soft
+Both `specialist-review.sh` and `diff-test-audit.sh` enforce a **soft
 size guard** before sending content to the reviewer:
 
 | Script                   | Default limit          | Env override                          |
 |--------------------------|------------------------|---------------------------------------|
 | `specialist-review.sh`   | 3000 diff lines        | `AGENT_LOOPS_MAX_DIFF_LINES`          |
-| `test-review-request.sh` | 500 KB source + tests  | `AGENT_LOOPS_MAX_CONTENT_BYTES`       |
+| `diff-test-audit.sh` | 500 KB source + tests  | `AGENT_LOOPS_MAX_CONTENT_BYTES`       |
 
 The guard behaves as a two-step decision gate, not a hard cap:
 
@@ -326,7 +326,7 @@ over truncation in nearly every case.
 - **Moving on before you have `REVIEW_FILE`** — The review is a gate. Do not proceed to findings triage, remediation, tests, or commit until the poll loop exits and you have a file path.
 - **Reaching for `--jumbo` before considering a split** — The first-run abort is a forcing function. Use `--jumbo` only after you've decided the change is cohesive; don't paper over a legitimately splittable diff.
 
-### `test-review-request` — Request Test Audit
+### `diff-test-audit` — Request Test Audit
 
 **When:** Per-commit test coverage check — verifies the files your diff touched have adequate tests.
 **What you get back:** A gap report covering both missing coverage AND test quality issues (mirror tests, flaky assertions, etc.) scoped to your changed files, with P0/P1/P2 severity.
@@ -338,8 +338,8 @@ a module-level survey. Default to scoping by files the diff touched (`--git`
 filters the audit to changed files; add `-- <paths>` to narrow further):
 
 ```bash
-"$SKILL_DIR/scripts/test-review-request.sh" <module> --git
-"$SKILL_DIR/scripts/test-review-request.sh" <module> --git -- <touched-files>
+"$SKILL_DIR/scripts/diff-test-audit.sh" <module> --git
+"$SKILL_DIR/scripts/diff-test-audit.sh" <module> --git -- <touched-files>
 ```
 
 For full module audits (mapping a module's public contract and surveying
@@ -378,7 +378,7 @@ so the Bash tool receives periodic output and does not time out:
 # Start audit in background, capture stdout (the result file path) separately
 # Default scope: --git filters to files the current diff touched
 REPORT_TMP=$(mktemp /tmp/audit-out.XXXXXX)
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git \
+"$SKILL_DIR/scripts/diff-test-audit.sh" /path/to/module --git \
   >"$REPORT_TMP" &
 AUDIT_PID=$!
 
@@ -411,20 +411,20 @@ All default to diff scope via `--git`; for full module audits use the
 
 ```bash
 # Default: audit changed files since main
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git
+"$SKILL_DIR/scripts/diff-test-audit.sh" /path/to/module --git
 
 # Narrow further with explicit file filter
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git -- src/parser/ src/auth.py
+"$SKILL_DIR/scripts/diff-test-audit.sh" /path/to/module --git -- src/parser/ src/auth.py
 
 # Audit changed files since a specific ref
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git origin/main
+"$SKILL_DIR/scripts/diff-test-audit.sh" /path/to/module --git origin/main
 
 # Quick review of specific test files only
-"$SKILL_DIR/scripts/test-review-request.sh" --quick /path/to/test_file.py
+"$SKILL_DIR/scripts/diff-test-audit.sh" --quick /path/to/test_file.py
 
 # Force a specific provider (still diff-scoped via --git)
-"$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module --git
-"$SKILL_DIR/scripts/test-review-request.sh" --provider codex /path/to/module --git
+"$SKILL_DIR/scripts/diff-test-audit.sh" --provider gemini /path/to/module --git
+"$SKILL_DIR/scripts/diff-test-audit.sh" --provider codex /path/to/module --git
 ```
 
 Provider selection:
@@ -460,7 +460,7 @@ Act on findings:
 
 #### Size Guards and `--jumbo`
 
-`test-review-request.sh` enforces the same two-step size guard as
+`diff-test-audit.sh` enforces the same two-step size guard as
 `specialist-review.sh` (limit: 500 KB of source + tests combined). On the
 first oversized run the script aborts with splitting suggestions; pass
 `--jumbo` on retry if the module is cohesive and cannot be decomposed.
@@ -469,10 +469,10 @@ See the full explanation under *specialist-review → Size Guards and
 
 ```bash
 # First run aborts when source+tests exceed 500 KB
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/big/module
+"$SKILL_DIR/scripts/diff-test-audit.sh" /path/to/big/module
 
 # After deciding the module can't be split, retry with --jumbo
-"$SKILL_DIR/scripts/test-review-request.sh" --jumbo /path/to/big/module
+"$SKILL_DIR/scripts/diff-test-audit.sh" --jumbo /path/to/big/module
 ```
 
 #### Anti-Patterns
@@ -791,14 +791,14 @@ The audit does double duty: it finds missing coverage AND flags bad tests (mirro
 
 | Role | Agent | Skill |
 |------|-------|-------|
-| **Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `test-review-request` keeps same-model shell-outs last; fallback auditor uses bundled references and writes an artifact |
+| **Auditor** | Claude preferred; non-self scripted fallback next; same-model provider last; fresh-context Codex final fallback | `diff-test-audit` keeps same-model shell-outs last; fallback auditor uses bundled references and writes an artifact |
 | **Test Writer** | Codex or Gemini | Writes tests per `references/testing-standards.md` standards |
 
 ### Pragmatic Enforcement Policy
 
 Use a hybrid gate to avoid unnecessary friction while preserving confidence:
 
-- **Non-trivial code changes (default):** The test-writing loop is required. Do not close the loop without audit evidence from `test-review-request` or a fallback audit artifact, and a re-audit state with no unresolved P0/P1 gaps.
+- **Non-trivial code changes (default):** The test-writing loop is required. Do not close the loop without audit evidence from `diff-test-audit` or a fallback audit artifact, and a re-audit state with no unresolved P0/P1 gaps.
 - **Trivial changes (explicit exception):** Docs-only, comments-only, formatting-only, or rename-only edits may skip the audit loop.
 - **Mandatory note for skips:** Every skip must include `audit skipped: trivial` with a one-line reason in the loop summary.
 - **Uncertainty rule:** If it is not clearly trivial, run the audit.
@@ -1061,7 +1061,7 @@ When filing deferred findings in this repository:
 - Using `cortex git commit` for all commits (not `git commit`) unless explicitly approved otherwise
 - Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
-- Running `"$SKILL_DIR/scripts/test-review-request.sh" <module> --git` (diff-scoped) for initial audit and each re-audit; reach for the `test-review` skill if you need a full module audit instead
+- Running `"$SKILL_DIR/scripts/diff-test-audit.sh" <module> --git` (diff-scoped) for initial audit and each re-audit; reach for the `test-review` skill if you need a full module audit instead
 - Preserving fallback review/audit artifacts in `.agents/reviews/` when Claude is unavailable
 - Falling back to another model family before the same-model last resort when Claude is unavailable
 - Fixing ONLY the findings the independent review/audit artifact identifies (no scope creep during remediation)
@@ -1131,11 +1131,11 @@ These metrics help tune the loop — if you're consistently hitting 3 iterations
    │   └── cortex git commit "type(scope): summary" <files>
    │       │
    │   ├── TEST WRITING LOOP
-   │   │   ├── test-review-request → Claude audits, else non-self provider, else same-model last resort, else fresh-context Codex
+   │   │   ├── diff-test-audit → Claude audits, else non-self provider, else same-model last resort, else fresh-context Codex
    │   │   ├── Human: scope approval (P0/P1 auto-approved)
    │   │   ├── You: write tests (testing-standards.md)
    │   │   ├── You: verify tests pass locally
-   │   │   ├── test-review-request → re-audit using the same reviewer chain (max 3 cycles)
+   │   │   ├── diff-test-audit → re-audit using the same reviewer chain (max 3 cycles)
    │   │   ├── You: remediate P0/P1 gaps and bad tests
    │   │   ├── File issues for P2/P3
    │   │   ├── Run full test suite → Pass?

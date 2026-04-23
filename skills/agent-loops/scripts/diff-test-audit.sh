@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# test-review-request.sh — Invoke a test coverage audit via Claude/Gemini/Codex CLI
+# diff-test-audit.sh — Invoke a test coverage audit via Claude/Gemini/Codex CLI
 #
 # Usage:
-#   test-review-request.sh <module-path> [options]
-#   test-review-request.sh <module-path> --git [base-ref] [-- path...]
-#   test-review-request.sh --quick <test-file-path> [options]
+#   diff-test-audit.sh <module-path> [options]
+#   diff-test-audit.sh <module-path> --git [base-ref] [-- path...]
+#   diff-test-audit.sh --quick <test-file-path> [options]
 #
 # Options:
 #   --tests <path>    Specify test directory (default: auto-discover)
@@ -139,8 +139,8 @@ done
 
 if [[ -z "$MODULE_PATH" ]]; then
   echo "Error: Module path is required." >&2
-  echo "Usage: test-review-request.sh <module-path> [--git [base-ref]] [--tests <path>] [--output <dir>] [-- path...]" >&2
-  echo "       test-review-request.sh --quick <test-file> [--output <dir>]" >&2
+  echo "Usage: diff-test-audit.sh <module-path> [--git [base-ref]] [--tests <path>] [--output <dir>] [-- path...]" >&2
+  echo "       diff-test-audit.sh --quick <test-file> [--output <dir>]" >&2
   exit 1
 fi
 
@@ -317,7 +317,7 @@ fi
 # Use python3 for substitution since inlined content contains characters
 # that break sed (backticks, slashes, regex metacharacters, etc.)
 
-SYSTEM_PROMPT_FILE=$(mktemp /tmp/test-review-request-system.XXXXXX)
+SYSTEM_PROMPT_FILE=$(mktemp /tmp/diff-test-audit-system.XXXXXX)
 
 # Write content to temp files instead of environment variables to avoid
 # ARG_MAX limits.  Large modules (>256 KB of source + tests) would silently
@@ -373,14 +373,14 @@ gaps and produces a less noisy report.
 STEP 1 — Can you split? Try the options below first:
 
   1. By sub-module — audit each file or logical group separately:
-       test-review-request.sh path/to/module_a.py --tests path/to/tests/test_a.py
-       test-review-request.sh path/to/module_b.py --tests path/to/tests/test_b.py
+       diff-test-audit.sh path/to/module_a.py --tests path/to/tests/test_a.py
+       diff-test-audit.sh path/to/module_b.py --tests path/to/tests/test_b.py
 
   2. By class or responsibility — if the module groups several concerns,
      extract each concern into its own file first, then audit each one.
 
   3. By --git scope — limit the audit to changed files since a base ref:
-       test-review-request.sh $MODULE_PATH --git HEAD~1 -- path/to/changed/
+       diff-test-audit.sh $MODULE_PATH --git HEAD~1 -- path/to/changed/
 
   4. Consider whether the module itself is too large. A 200 KB source file
      is usually a sign that it should be decomposed regardless of audit.
@@ -389,7 +389,7 @@ STEP 2 — If the module genuinely cannot be decomposed (single cohesive file,
 generated code, a refactor that only makes sense audited together), rerun
 with --jumbo to bypass the size guard for this invocation:
 
-    test-review-request.sh $MODULE_PATH --jumbo [--tests ...]
+    diff-test-audit.sh $MODULE_PATH --jumbo [--tests ...]
 
 --jumbo sends the FULL source + tests to the auditor (no truncation). You
 are opting into a single large-context audit; modern providers' context
