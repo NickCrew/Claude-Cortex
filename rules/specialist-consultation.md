@@ -1,8 +1,8 @@
 # Specialist Consultation
 
-> *When you need expert advice, second opinions, sanity checks, plan review,
+> _When you need expert advice, second opinions, sanity checks, plan review,
 > design input, pros/cons analysis, hazard warnings, or a specialist's
-> perspective on trade-offs.*
+> perspective on trade-offs._
 
 ## Two shapes of help
 
@@ -94,6 +94,5 @@ If it's empty, treat the agent as consultation-only.
   - **Rust:** `rust-pro`
   - **Typescript/Javascript:** `typescript-pro`, `javascript-pro`
 - **Project Management**
-  - **Planning/Delegation:** `orchestrator`
   - **Hand-offs/Summaries:** `context-manager`
   - **Persistence:** `memory-keeper`
