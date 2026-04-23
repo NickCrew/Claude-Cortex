@@ -31,12 +31,18 @@ report — not test code.
 This skill is a three-phase pipeline. Execute the phases in order. Do not skip
 Phase 1 — the standards must be loaded before reviewing any test code.
 
+> **Shared review infrastructure.** The testing standards and audit workflow
+> references live in `skills/agent-loops/references/` — they are shared with
+> the `agent-loops` skill, which uses the same contract for per-commit test
+> coverage checks. Both skills reference the same source of truth to prevent
+> drift.
+
 ### Phase 1: Load the Standards
 
 Read the project testing standards to calibrate what "good" looks like:
 
 ```
-cat skills/test-review/references/testing-standards.md
+cat skills/agent-loops/references/testing-standards.md
 ```
 
 This file defines:
@@ -59,7 +65,7 @@ of the audit workflow. This keeps the main context clean for analysis.
 Read the audit workflow first so you understand what the agents need to do:
 
 ```
-cat skills/test-review/references/audit-workflow.md
+cat skills/agent-loops/references/audit-workflow.md
 ```
 
 #### Step 2a: Scope the work
@@ -102,7 +108,7 @@ Task tool:
   subagent_type: Explore
   model: haiku
   prompt: |
-    Read the audit workflow at skills/test-review/references/audit-workflow.md.
+    Read the audit workflow at skills/agent-loops/references/audit-workflow.md.
     Then execute Steps 1 and 2 for the module at [MODULE_PATH].
 
     Step 1 - Map the Public Contract:
@@ -137,7 +143,7 @@ Task tool:
   subagent_type: Explore
   model: haiku
   prompt: |
-    Read the audit workflow at skills/test-review/references/audit-workflow.md.
+    Read the audit workflow at skills/agent-loops/references/audit-workflow.md.
     Then execute Steps 1 and 2 for the following SOURCE FILES ONLY:
     [LIST OF FILES IN THIS PARTITION]
 
