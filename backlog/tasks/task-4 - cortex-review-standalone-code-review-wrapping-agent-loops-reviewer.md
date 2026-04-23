@@ -12,7 +12,7 @@ labels:
 dependencies: []
 references:
   - skills/agent-loops/scripts/specialist-review.sh
-  - skills/agent-loops/scripts/triage_perspectives.py
+  - skills/multi-specialist-review/scripts/triage_perspectives.py
   - skills/agent-loops/references/perspective-catalog.md
 priority: medium
 ---
@@ -26,7 +26,7 @@ Now that `cortex review` has been deprecated in favor of `cortex suggest --revie
 
 Key assets to reuse:
 - `skills/agent-loops/scripts/specialist-review.sh` — provider-aware review script
-- `skills/agent-loops/scripts/triage_perspectives.py` — perspective selection
+- `skills/multi-specialist-review/scripts/triage_perspectives.py` — perspective selection
 - `skills/agent-loops/references/perspective-catalog.md` — perspective-to-skill mapping
 - `skills/agent-loops/references/review-prompt.md` — review prompt template
 <!-- SECTION:DESCRIPTION:END -->
