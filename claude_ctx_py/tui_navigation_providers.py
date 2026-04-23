@@ -172,7 +172,7 @@ class ViewNavigationProvider(Provider):
             ("watch_mode", "👁️ Watch Mode", "File watching", "w"),
             ("flags", "🚩 Flags", "Flag explorer", "F"),
             ("assets", "📁 Assets", "Asset manager", "A"),
-            ("memory", "🧠 Memory", "Memory vault", "M"),
+            ("memory", "🧠 Notes", "Notes vault", "M"),
             ("scenarios", "🗺️ Scenarios", "View scenarios", "S"),
             ("orchestrate", "🎯 Orchestrate", "Task orchestration", "o"),
             ("galaxy", "✨ Galaxy", "Agent constellation", "g"),

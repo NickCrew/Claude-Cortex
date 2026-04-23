@@ -242,8 +242,8 @@ class AgentCommandProvider(Provider):
             # TOOLS & UTILITIES
             # ═══════════════════════════════════════════════════════
             (
-                f"[bright_magenta]🧠[/] [bold]Memory Vault[/bold] [dim bright_magenta]✦[/dim bright_magenta]",
-                f"[dim]Browse memory notes [dim white]│[/dim white] Hotkey: [magenta]M[/magenta] or [magenta]Ctrl+M[/magenta][/dim]",
+                f"[bright_magenta]🧠[/] [bold]Notes Vault[/bold] [dim bright_magenta]✦[/dim bright_magenta]",
+                f"[dim]Browse notes [dim white]│[/dim white] Hotkey: [magenta]M[/magenta] or [magenta]Ctrl+M[/magenta][/dim]",
                 "show_memory",
                 CATEGORY_TOOLS,
             ),

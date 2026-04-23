@@ -4463,8 +4463,8 @@ class AgentTUI(App[None]):
         """Switch to memory view."""
         self.load_memory_notes()
         self.current_view = "memory"
-        self.status_message = "Switched to Memory Vault"
-        self.notify("🧠 Memory Vault", severity="information", timeout=1)
+        self.status_message = "Switched to Notes Vault"
+        self.notify("🧠 Notes Vault", severity="information", timeout=1)
 
     def action_view_watch_mode(self) -> None:
         """Switch to watch mode view."""
@@ -5625,7 +5625,7 @@ class AgentTUI(App[None]):
         if self.current_view != "memory":
             self.action_view_memory()
 
-        dialog = MemoryNoteCreateDialog("New Memory Note")
+        dialog = MemoryNoteCreateDialog("New Note")
         self.push_screen(dialog, callback=self._handle_memory_note_create)
 
     def _handle_memory_note_create(
@@ -8149,12 +8149,6 @@ class AgentTUI(App[None]):
                                     saved_cursor_row, table.row_count - 1
                                 )
                                 table.move_cursor(row=new_cursor_row)
-                            if (
-                                clean_message.strip()
-                                .lower()
-                                .startswith(("activated", "deactivated"))
-                            ):
-                                self._show_restart_required()
                         except Exception as e:
                             self.status_message = f"Error: {e}"
                             self.notify(
@@ -8219,7 +8213,6 @@ class AgentTUI(App[None]):
                                             saved_cursor_row, table.row_count - 1
                                         )
                                         table.move_cursor(row=new_cursor_row)
-                                    self._show_restart_required()
                                 else:
                                     self.notify(
                                         f"✗ {clean_message}",
@@ -8294,7 +8287,6 @@ class AgentTUI(App[None]):
                                         saved_cursor_row, table.row_count - 1
                                     )
                                     table.move_cursor(row=new_cursor_row)
-                                self._show_restart_required()
                             else:
                                 self.notify(
                                     f"✗ Failed to toggle {skill_name}",

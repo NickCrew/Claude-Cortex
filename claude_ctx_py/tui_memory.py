@@ -196,11 +196,11 @@ class MemoryScreen(Screen[None]):
         """Refresh the notes list."""
         query = self.query_one("#search-input", Input).value
         self.load_notes(query)
-        self.notify("Memory Vault refreshed")
+        self.notify("Notes Vault refreshed")
 
     def action_new_note(self) -> None:
         """Create a new note."""
-        dialog = MemoryNoteCreateDialog("New Memory Note")
+        dialog = MemoryNoteCreateDialog("New Note")
         self.app.push_screen(dialog, callback=self._handle_new_note_create)
 
     def _normalize_note_type(self, raw: str) -> Optional[str]:

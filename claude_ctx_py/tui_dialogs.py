@@ -763,7 +763,7 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]Enter[/cyan] → Show asset details
 """,
             "memory": """
-[bold]Memory Vault:[/bold]
+[bold]Notes Vault:[/bold]
   [cyan]Enter[/cyan] → View note content
   [cyan]N[/cyan]     → New note
   [cyan]O[/cyan]     → Open note in editor ($EDITOR)
