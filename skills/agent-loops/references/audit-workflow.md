@@ -2,7 +2,7 @@
 
 This document defines the process for discovering untested or under-tested behavior in a codebase. The output is a prioritized gap report — **not code**. Do not write test implementations until the report is reviewed and approved.
 
-See `TESTING.md` for test quality standards that apply when tests are eventually written.
+See `testing-standards.md` for test quality standards that apply when tests are eventually written.
 
 ---
 
@@ -52,7 +52,7 @@ BEHAVIORS for connect_parser:
 Read every test file that covers the module. For each test, record:
 - What behavior it exercises (map to Step 1 list)
 - Whether it tests the happy path, edge case, or failure mode
-- Whether assertions are meaningful (see TESTING.md anti-patterns)
+- Whether assertions are meaningful (see testing-standards.md anti-patterns)
 
 **Mark each behavior from Step 1:**
 - ✅ **Covered** — at least one test verifies this with meaningful assertions
@@ -234,5 +234,5 @@ Assign P2 when the untested behavior:
 ## What This Audit is NOT
 
 - **Not a coverage report.** Line coverage misses semantic gaps. A line can be "covered" by a test that asserts nothing meaningful.
-- **Not a test plan.** This report identifies WHAT is missing. How to implement the tests is governed by `TESTING.md`.
+- **Not a test plan.** This report identifies WHAT is missing. How to implement the tests is governed by `testing-standards.md`.
 - **Not busywork.** If a module is genuinely well-tested, the report should say so clearly and move on. Don't manufacture gaps to look thorough.
