@@ -255,6 +255,146 @@ def install_manpages(
     return 0, "\n".join(message)
 
 
+CORTEX_ALIASES_MARKER_START = "# >>> cortex aliases >>>"
+CORTEX_ALIASES_MARKER_END = "# <<< cortex aliases <<<"
+
+CORTEX_ALIASES_CONTENT = """\
+# cortex aliases — managed by `cortex install aliases`.
+# Edit freely; rerunning with --force overwrites this file.
+# To disable, remove the marker block from your shell rc file.
+
+alias cx='cortex'
+
+# Git
+alias cgc='cortex git commit'
+alias cgp='cortex git patch'
+alias cgs='cortex git stash'
+alias cgb='cortex git branch'
+alias cgpu='cortex git push'
+
+# Docs + project memories
+alias cdx='cortex docs'
+alias cdm='cortex docs --memories'
+alias cdp='cortex docs --plans'
+cdmp() {
+    local proj="$1"; shift
+    cortex docs --memories --project "$proj" "$@"
+}
+
+# Notes capture (basic-memory vault)
+alias cnt='cortex notes'
+alias cnr='cortex notes remember'
+alias cnf='cortex notes fix'
+alias cnc='cortex notes capture'
+alias cnl='cortex notes list'
+alias cns='cortex notes search'
+
+# Interactive surfaces
+alias ctui='cortex tui'
+alias ctm='cortex tmux'
+alias cst='cortex status'
+alias csg='cortex suggest'
+alias crv='cortex review'
+
+# Less-frequent
+alias cmcp='cortex mcp'
+alias cdev='cortex dev'
+"""
+
+
+def _default_aliases_path() -> Path:
+    return Path.home() / ".cortex_aliases"
+
+
+def _default_rc_path(shell: str) -> Path:
+    home = Path.home()
+    if shell == "zsh":
+        return home / ".zshrc"
+    if shell == "bash":
+        return home / ".bashrc"
+    raise ValueError(f"Unsupported shell for aliases: {shell}")
+
+
+def _rc_source_block(target: Path) -> str:
+    return (
+        f"\n{CORTEX_ALIASES_MARKER_START}\n"
+        f'[ -f "{target}" ] && . "{target}"\n'
+        f"{CORTEX_ALIASES_MARKER_END}\n"
+    )
+
+
+def install_aliases(
+    shell: Optional[str] = None,
+    target_path: Optional[Path] = None,
+    rc_path: Optional[Path] = None,
+    force: bool = False,
+    dry_run: bool = False,
+) -> Tuple[int, str]:
+    """Install cortex shell aliases and source them from the user's rc file."""
+    try:
+        if shell is None:
+            shell, _ = shell_integration.detect_shell()
+        shell = shell.lower()
+    except RuntimeError as exc:
+        return 1, str(exc)
+
+    if shell not in ("bash", "zsh"):
+        return 1, (
+            f"Unsupported shell for aliases: {shell}. "
+            "Supported: bash, zsh. Fish uses different syntax — "
+            "open an issue if you'd like support."
+        )
+
+    target = target_path or _default_aliases_path()
+    try:
+        rc = rc_path or _default_rc_path(shell)
+    except ValueError as exc:
+        return 1, str(exc)
+
+    actions: List[str] = []
+
+    if target.exists() and not force:
+        actions.append(
+            f"Aliases file already exists at {target} (use --force to overwrite)"
+        )
+    elif dry_run:
+        actions.append(f"Would write aliases to: {target}")
+    else:
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(CORTEX_ALIASES_CONTENT, encoding="utf-8")
+        except OSError as exc:
+            return 1, f"Failed to write {target}: {exc}"
+        actions.append(f"Wrote aliases to: {target}")
+
+    existing = ""
+    if rc.is_file():
+        try:
+            existing = rc.read_text(encoding="utf-8", errors="replace")
+        except OSError as exc:
+            return 1, f"Failed to read {rc}: {exc}"
+
+    if CORTEX_ALIASES_MARKER_START in existing:
+        actions.append(f"{rc} already sources cortex aliases — left unchanged")
+    elif dry_run:
+        actions.append(f"Would append source block to: {rc}")
+    else:
+        block = _rc_source_block(target)
+        try:
+            rc.parent.mkdir(parents=True, exist_ok=True)
+            with rc.open("a", encoding="utf-8") as fh:
+                if existing and not existing.endswith("\n"):
+                    fh.write("\n")
+                fh.write(block)
+        except OSError as exc:
+            return 1, f"Failed to update {rc}: {exc}"
+        actions.append(f"Appended source block to: {rc}")
+
+    reload_tip = "exec zsh" if shell == "zsh" else "source ~/.bashrc"
+    actions.append(f"Reload to activate: {reload_tip}")
+    return 0, "\n".join(actions)
+
+
 def install_docs(
     target_dir: Optional[Path] = None, dry_run: bool = False
 ) -> Tuple[int, str]:

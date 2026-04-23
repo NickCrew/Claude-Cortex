@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from pathlib import Path
 from typing import Optional
 
@@ -193,6 +195,7 @@ class DocsBrowserApp(App[None]):
         Binding("s", "focus_search", "Search"),
         Binding("v", "focus_viewer", "View"),
         Binding("t", "focus_tree", "Tree"),
+        Binding("e", "edit_current", "Edit in $EDITOR"),
         Binding("tab", "cycle_focus", "Next Pane", show=False),
         Binding("escape", "clear_search", "Clear Search"),
         Binding("r", "reload", "Reload"),
@@ -247,7 +250,9 @@ class DocsBrowserApp(App[None]):
 
         # Status bar
         with Container(id="status-bar"):
-            self.status_label = Label("t=tree  v=view  s=search  Tab=cycle  b=bookmark  q=quit")
+            self.status_label = Label(
+                "t=tree  v=view  s=search  e=edit  b=bookmark  r=reload  Tab=cycle  q=quit"
+            )
             yield self.status_label
 
         yield Footer()
@@ -391,6 +396,27 @@ class DocsBrowserApp(App[None]):
         if self.current_file:
             self.load_file(self.current_file)
             self.update_status("Reloaded")
+
+    def action_edit_current(self) -> None:
+        """Open the currently-viewed file in $EDITOR, then reload it."""
+        if not self.current_file:
+            self.update_status("No file selected — pick one from the tree first")
+            return
+
+        editor = os.environ.get("EDITOR", "vim")
+        target = self.current_file
+        try:
+            with self.suspend():
+                subprocess.run([editor, str(target)], check=False)
+        except FileNotFoundError:
+            self.update_status(f"Editor not found: {editor}")
+            return
+        except Exception as exc:
+            self.update_status(f"Editor error: {exc}")
+            return
+
+        self.load_file(target)
+        self.update_status(f"Reloaded after edit: {target.name}")
 
     def update_status(self, message: str) -> None:
         """Update the status bar."""

@@ -480,156 +480,6 @@ def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
 
 
 
-def _build_worktree_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    worktree_parser = subparsers.add_parser(
-        "worktree", help="Git worktree management commands"
-    )
-    worktree_sub = worktree_parser.add_subparsers(dest="worktree_command")
-    worktree_sub.add_parser("list", help="List git worktrees")
-
-    worktree_add_parser = worktree_sub.add_parser("add", help="Add a new worktree")
-    worktree_add_parser.add_argument("branch", help="Branch name for the worktree")
-    worktree_add_parser.add_argument(
-        "--path",
-        dest="worktree_path",
-        help="Target path for the worktree (defaults to .worktrees/<branch>)",
-    )
-    worktree_add_parser.add_argument(
-        "--base",
-        dest="worktree_base",
-        help="Base reference for a new branch (default: HEAD)",
-    )
-    worktree_add_parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force add even if branch is checked out elsewhere",
-    )
-    worktree_add_parser.add_argument(
-        "--no-gitignore",
-        dest="worktree_gitignore",
-        action="store_false",
-        help="Skip updating .gitignore for local worktree directories",
-    )
-
-    worktree_remove_parser = worktree_sub.add_parser(
-        "remove", help="Remove a worktree"
-    )
-    worktree_remove_parser.add_argument(
-        "target", help="Worktree path or branch name"
-    )
-    worktree_remove_parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force removal even if worktree is dirty",
-    )
-
-    worktree_prune_parser = worktree_sub.add_parser(
-        "prune", help="Prune stale worktrees"
-    )
-    worktree_prune_parser.add_argument(
-        "--dry-run",
-        dest="worktree_dry_run",
-        action="store_true",
-        help="Show what would be pruned without deleting",
-    )
-    worktree_prune_parser.add_argument(
-        "--verbose",
-        dest="worktree_verbose",
-        action="store_true",
-        help="Verbose prune output",
-    )
-
-    worktree_dir_parser = worktree_sub.add_parser(
-        "dir", help="Show or set the worktree base directory"
-    )
-    worktree_dir_parser.add_argument(
-        "path",
-        nargs="?",
-        help="Base directory path to store in git config",
-    )
-    worktree_dir_parser.add_argument(
-        "--clear",
-        action="store_true",
-        help="Clear the configured base directory",
-    )
-
-
-def _build_ai_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    ai_parser = subparsers.add_parser("ai", help="AI assistant commands")
-    ai_sub = ai_parser.add_subparsers(dest="ai_command")
-    ai_sub.add_parser("recommend", help="Show intelligent agent recommendations")
-    ai_sub.add_parser(
-        "auto-activate", help="Auto-activate high-confidence recommendations"
-    )
-    ai_export = ai_sub.add_parser("export", help="Export recommendations to JSON")
-    ai_export.add_argument(
-        "--output",
-        default="ai-recommendations.json",
-        help="Output file path (default: ai-recommendations.json)",
-    )
-    ai_record = ai_sub.add_parser(
-        "record-success", help="Record current session as successful for learning"
-    )
-    ai_record.add_argument(
-        "--outcome",
-        default="success",
-        help="Outcome description (default: success)",
-    )
-    ai_ingest = ai_sub.add_parser(
-        "ingest-review", help="Ingest specialist review into skill learning"
-    )
-    ai_ingest.add_argument("file", help="Path to review markdown file")
-    ai_watch = ai_sub.add_parser(
-        "watch", help="Watch mode - real-time monitoring and recommendations"
-    )
-    ai_watch.add_argument(
-        "--no-auto-activate",
-        dest="no_auto_activate",
-        action="store_true",
-        default=None,
-        help="Disable auto-activation of high-confidence agents",
-    )
-    ai_watch.add_argument(
-        "--daemon",
-        action="store_true",
-        help="Run watch mode in the background as a daemon",
-    )
-    ai_watch.add_argument(
-        "--status",
-        action="store_true",
-        help="Show watch daemon status",
-    )
-    ai_watch.add_argument(
-        "--stop",
-        action="store_true",
-        help="Stop the watch daemon",
-    )
-    ai_watch.add_argument(
-        "--log",
-        dest="watch_log",
-        help="Log file for daemon mode (default: ~/.claude/logs/watch.log)",
-    )
-    ai_watch.add_argument(
-        "--threshold",
-        type=float,
-        default=None,
-        help="Confidence threshold for notifications (0.0-1.0, default: config or 0.7)",
-    )
-    ai_watch.add_argument(
-        "--interval",
-        type=float,
-        default=None,
-        help="Check interval in seconds (default: config or 2.0)",
-    )
-    ai_watch.add_argument(
-        "--dir",
-        dest="watch_dirs",
-        action="append",
-        default=[],
-        help="Directory to watch (can be repeated or comma-separated)",
-    )
-
-
 def _build_suggest_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     suggest_parser = subparsers.add_parser(
         "suggest",
@@ -746,6 +596,24 @@ def _build_suggest_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Additional context signals for review mode",
     )
 
+    # Learning signals: feed the intelligence layer
+    suggest_parser.add_argument(
+        "--record-success",
+        action="store_true",
+        help="Record the current session's active agents as a successful outcome",
+    )
+    suggest_parser.add_argument(
+        "--outcome",
+        default="success",
+        help="Outcome description for --record-success (default: success)",
+    )
+    suggest_parser.add_argument(
+        "--ingest-review",
+        dest="ingest_review_file",
+        metavar="FILE",
+        help="Ingest a specialist review markdown file into skill learning",
+    )
+
 
 def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     export_parser = subparsers.add_parser("export", help="Export context commands")
@@ -859,6 +727,39 @@ def _build_install_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Show what would be done without making changes",
     )
 
+    # Install shell aliases
+    aliases_parser = install_sub.add_parser(
+        "aliases",
+        help="Install cortex shell aliases (~/.cortex_aliases, sourced from rc)",
+    )
+    aliases_parser.add_argument(
+        "--shell",
+        choices=["bash", "zsh"],
+        help="Target shell (auto-detected if omitted)",
+    )
+    aliases_parser.add_argument(
+        "--path",
+        dest="aliases_path",
+        type=Path,
+        help="Override aliases file location (default: ~/.cortex_aliases)",
+    )
+    aliases_parser.add_argument(
+        "--rc",
+        dest="aliases_rc",
+        type=Path,
+        help="Shell rc file to patch (default: ~/.zshrc or ~/.bashrc)",
+    )
+    aliases_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing aliases file",
+    )
+    aliases_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without writing",
+    )
+
     # Configure statusline
     statusline_parser = install_sub.add_parser(
         "statusline", help="Configure Claude Code statusline to use cortex"
@@ -930,7 +831,6 @@ def build_parser() -> argparse.ArgumentParser:
     _build_skills_parser(subparsers)
     _build_completions_parser(subparsers)
     _build_mcp_parser(subparsers)
-    _build_worktree_parser(subparsers)
     from .cmd_git import build_git_parser
     build_git_parser(subparsers)
     from .cmd_tmux import build_tmux_parser
@@ -954,15 +854,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=str,
         help="Start on a specific view (e.g., 'flags', 'agents', 'rules')",
     )
-    _build_ai_parser(subparsers)
     _build_suggest_parser(subparsers)
     _build_export_parser(subparsers)
     _build_install_parser(subparsers)
-    _build_memory_parser(subparsers)
-    _build_plan_parser(subparsers)
+    _build_notes_parser(subparsers)
     _build_docs_parser(subparsers)
     _build_dev_parser(subparsers)
-    _build_file_parser(subparsers)
     uninstall_parser = subparsers.add_parser("uninstall", help="Uninstall cortex")
     uninstall_parser.add_argument(
         "--dry-run",
@@ -1408,159 +1305,19 @@ def _handle_mcp_command(args: argparse.Namespace) -> int:
     return 1
 
 
-def _handle_worktree_command(args: argparse.Namespace) -> int:
-    if args.worktree_command == "list":
-        exit_code, message = core.worktree_list()
-        _print(message)
-        return exit_code
-    if args.worktree_command == "add":
-        exit_code, message = core.worktree_add(
-            args.branch,
-            path=getattr(args, "worktree_path", None),
-            base=getattr(args, "worktree_base", None),
-            force=getattr(args, "force", False),
-            ensure_gitignore=getattr(args, "worktree_gitignore", True),
-        )
-        _print(message)
-        return exit_code
-    if args.worktree_command == "remove":
-        exit_code, message = core.worktree_remove(
-            args.target,
-            force=getattr(args, "force", False),
-        )
-        _print(message)
-        return exit_code
-    if args.worktree_command == "prune":
-        exit_code, message = core.worktree_prune(
-            dry_run=getattr(args, "worktree_dry_run", False),
-            verbose=getattr(args, "worktree_verbose", False),
-        )
-        _print(message)
-        return exit_code
-    if args.worktree_command == "dir":
-        if getattr(args, "clear", False):
-            exit_code, message = core.worktree_clear_base_dir()
-            _print(message)
-            return exit_code
-        path = getattr(args, "path", None)
-        if path:
-            exit_code, message = core.worktree_set_base_dir(path)
-            _print(message)
-            return exit_code
-
-        base_dir, source, error = core.worktree_get_base_dir()
-        if error:
-            _print(error)
-            return 1
-        if base_dir:
-            _print(f"{base_dir} ({source})")
-            return 0
-        _print("No worktree base directory configured")
-        return 0
-    return 1
-
-
-def _handle_ai_command(args: argparse.Namespace) -> int:
-    from . import cmd_ai
-
-    if args.ai_command == "recommend":
-        print("Note: 'cortex ai recommend' is deprecated. Use 'cortex suggest' instead.", file=sys.stderr)
-        return cmd_ai.ai_recommend()
-    elif args.ai_command == "auto-activate":
-        print("Note: 'cortex ai auto-activate' is deprecated. Use 'cortex suggest --activate' instead.", file=sys.stderr)
-        return cmd_ai.ai_auto_activate()
-    elif args.ai_command == "export":
-        print("Note: 'cortex ai export' is deprecated. Use 'cortex suggest --export' instead.", file=sys.stderr)
-        return cmd_ai.ai_export_json(args.output)
-    elif args.ai_command == "record-success":
-        return cmd_ai.ai_record_success(args.outcome)
-    elif args.ai_command == "ingest-review":
-        return cmd_ai.ai_ingest_review(args.file)
-    elif args.ai_command == "watch":
-        print("Note: 'cortex ai watch' is deprecated. Use 'cortex suggest --watch' instead.", file=sys.stderr)
-        from . import watch
-
-        if args.status and args.stop:
-            _print("Choose either --status or --stop.")
-            return 1
-        if (args.status or args.stop) and args.daemon:
-            _print("Use --status/--stop without --daemon.")
-            return 1
-        if args.status:
-            exit_code, message = watch.watch_daemon_status()
-            _print(message)
-            return exit_code
-        if args.stop:
-            exit_code, message = watch.stop_watch_daemon()
-            _print(message)
-            return exit_code
-
-        defaults = watch.load_watch_defaults()
-        for warning in defaults.warnings:
-            _print(f"Config warning: {warning}")
-
-        watch_dirs: List[Path] = []
-        for entry in getattr(args, "watch_dirs", []) or []:
-            for raw in entry.split(","):
-                cleaned = raw.strip()
-                if not cleaned:
-                    continue
-                watch_dirs.append(Path(os.path.expanduser(cleaned)))
-
-        if watch_dirs:
-            invalid = [p for p in watch_dirs if not p.exists() or not p.is_dir()]
-            if invalid:
-                _print("Invalid watch directory(s):")
-                for path in invalid:
-                    _print(f"  - {path}")
-                return 1
-
-        if args.no_auto_activate is True:
-            auto_activate = False
-        elif defaults.auto_activate is not None:
-            auto_activate = defaults.auto_activate
-        else:
-            auto_activate = True
-
-        threshold = (
-            args.threshold
-            if args.threshold is not None
-            else (defaults.threshold if defaults.threshold is not None else 0.7)
-        )
-        interval = (
-            args.interval
-            if args.interval is not None
-            else (defaults.interval if defaults.interval is not None else 2.0)
-        )
-        directories = watch_dirs or defaults.directories
-
-        if args.daemon:
-            log_path = None
-            if args.watch_log:
-                log_path = Path(os.path.expanduser(args.watch_log)).resolve()
-            exit_code, message = watch.start_watch_daemon(
-                auto_activate=auto_activate,
-                threshold=threshold,
-                interval=interval,
-                directories=directories,
-                log_path=log_path,
-            )
-            _print(message)
-            return exit_code
-
-        return watch.watch_main(
-            auto_activate=auto_activate,
-            threshold=threshold,
-            interval=interval,
-            directories=directories,
-        )
-    else:
-        _print("AI command required. Use 'cortex ai --help' for options.")
-        return 1
-
-
 def _handle_suggest_command(args: argparse.Namespace) -> int:
     from . import cmd_suggest
+
+    # Learning signals (route to cmd_ai which owns the intelligence layer)
+    if getattr(args, "record_success", False):
+        from . import cmd_ai
+
+        return cmd_ai.ai_record_success(getattr(args, "outcome", "success"))
+    ingest_review_file = getattr(args, "ingest_review_file", None)
+    if ingest_review_file:
+        from . import cmd_ai
+
+        return cmd_ai.ai_ingest_review(ingest_review_file)
 
     # --text mode: text analysis
     if getattr(args, "suggest_text", None):
@@ -1673,6 +1430,18 @@ def _handle_install_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.install_command == "aliases":
+        from . import installer
+
+        exit_code, message = installer.install_aliases(
+            shell=getattr(args, "shell", None),
+            target_path=getattr(args, "aliases_path", None),
+            rc_path=getattr(args, "aliases_rc", None),
+            force=getattr(args, "force", False),
+            dry_run=getattr(args, "dry_run", False),
+        )
+        _print(message)
+        return exit_code
     if args.install_command == "statusline":
         from .core import hooks
 
@@ -1712,15 +1481,16 @@ def _handle_statusline_command(args: argparse.Namespace) -> int:
     return statusline.render_statusline(args)
 
 
-def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    """Build the memory command parser for persistent knowledge capture."""
-    memory_parser = subparsers.add_parser(
-        "memory", help="Memory capture commands for persistent knowledge storage"
+def _build_notes_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    """Build the notes command parser for persistent knowledge capture."""
+    notes_parser = subparsers.add_parser(
+        "notes",
+        help="Capture and manage notes in the basic-memory vault (~/basic-memory/)",
     )
-    memory_sub = memory_parser.add_subparsers(dest="memory_command")
+    notes_sub = notes_parser.add_subparsers(dest="notes_command")
 
     # remember - Quick knowledge capture
-    remember_parser = memory_sub.add_parser(
+    remember_parser = notes_sub.add_parser(
         "remember", help="Quick capture of domain knowledge"
     )
     remember_parser.add_argument("text", help="Knowledge text to capture")
@@ -1734,7 +1504,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # project - Project context capture
-    project_parser = memory_sub.add_parser(
+    project_parser = notes_sub.add_parser(
         "project", help="Capture or update project context"
     )
     project_parser.add_argument("name", help="Project name")
@@ -1757,7 +1527,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # capture - Session summary
-    capture_parser = memory_sub.add_parser(
+    capture_parser = notes_sub.add_parser(
         "capture", help="Capture session summary"
     )
     capture_parser.add_argument(
@@ -1792,7 +1562,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # fix - Bug fix documentation
-    fix_parser = memory_sub.add_parser("fix", help="Record a bug fix")
+    fix_parser = notes_sub.add_parser("fix", help="Record a bug fix")
     fix_parser.add_argument("title", help="Issue title")
     fix_parser.add_argument(
         "--problem", dest="fix_problem", help="What was broken/wrong"
@@ -1813,7 +1583,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # auto - Toggle auto-capture
-    auto_parser = memory_sub.add_parser(
+    auto_parser = notes_sub.add_parser(
         "auto", help="Toggle or check auto-capture state"
     )
     auto_parser.add_argument(
@@ -1825,7 +1595,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # list - List notes
-    list_parser = memory_sub.add_parser("list", help="List notes in the vault")
+    list_parser = notes_sub.add_parser("list", help="List notes in the vault")
     list_parser.add_argument(
         "note_type",
         nargs="?",
@@ -1845,7 +1615,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # search - Search notes
-    search_parser = memory_sub.add_parser("search", help="Search notes by content")
+    search_parser = notes_sub.add_parser("search", help="Search notes by content")
     search_parser.add_argument("query", help="Search query")
     search_parser.add_argument(
         "--type",
@@ -1861,38 +1631,7 @@ def _build_memory_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
     # stats - Show vault statistics
-    memory_sub.add_parser("stats", help="Show vault statistics")
-
-
-def _build_plan_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    """Build the plan command parser for viewing plan files."""
-    plan_parser = subparsers.add_parser(
-        "plan", help="View and manage plan files"
-    )
-    plan_sub = plan_parser.add_subparsers(dest="plan_command")
-
-    # list - List all plan files
-    plan_list = plan_sub.add_parser("list", help="List all plan files")
-    plan_list.add_argument(
-        "--limit", type=int, default=10, help="Number of recent plans to show (default: 10)"
-    )
-    plan_list.add_argument(
-        "--all", action="store_true", help="Show all plans (no limit)"
-    )
-
-    # view - View a plan file
-    plan_view = plan_sub.add_parser("view", help="View a plan file")
-    plan_view.add_argument("plan", help="Plan filename (with or without .md)")
-    plan_view.add_argument(
-        "--raw", action="store_true", help="Show raw markdown without rendering"
-    )
-
-    # edit - Edit a plan file
-    plan_edit = plan_sub.add_parser("edit", help="Edit a plan file in $EDITOR")
-    plan_edit.add_argument("plan", help="Plan filename (with or without .md)")
-
-    # path - Show the plans directory path
-    plan_sub.add_parser("path", help="Show the plans directory path")
+    notes_sub.add_parser("stats", help="Show vault statistics")
 
 
 def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -1901,8 +1640,27 @@ def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "docs", help="Browse documentation (includes bundled package docs)"
     )
     docs_parser.add_argument(
-        "--path", type=Path, default=None,
-        help="Browse docs from an arbitrary directory instead of Cortex docs"
+        "--path",
+        type=Path,
+        default=None,
+        help="Browse docs from an arbitrary directory instead of Cortex docs",
+    )
+    docs_parser.add_argument(
+        "--memories",
+        action="store_true",
+        help="Browse Claude Code project memory files (~/.claude/projects/*/memory/)",
+    )
+    docs_parser.add_argument(
+        "--plans",
+        action="store_true",
+        help="Browse Claude Code plan files (~/.claude/plans/)",
+    )
+    docs_parser.add_argument(
+        "--project",
+        help=(
+            "With --memories, scope to one project by basename (e.g. 'Cortex') "
+            "or absolute path. Required for --memories tui."
+        ),
     )
     docs_sub = docs_parser.add_subparsers(dest="docs_command")
 
@@ -1967,17 +1725,6 @@ def _build_dev_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
     dev_sub = dev_parser.add_subparsers(dest="dev_command")
 
-    # validate - Validate skills registry
-    validate_parser = dev_sub.add_parser(
-        "validate", help="Validate skills registry against schema"
-    )
-    validate_parser.add_argument(
-        "--verbose", action="store_true", help="Show detailed validation output"
-    )
-    validate_parser.add_argument(
-        "--check-paths", action="store_true", help="Verify skill paths exist"
-    )
-
     # manpages - Generate manpages
     manpages_parser = dev_sub.add_parser(
         "manpages", help="Generate manpage files"
@@ -2000,36 +1747,11 @@ def _build_dev_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     )
 
 
-def _build_file_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    """Build the file command parser for file utilities."""
-    file_parser = subparsers.add_parser(
-        "file", help="Claude Files API utilities"
-    )
-    file_sub = file_parser.add_subparsers(dest="file_command")
-
-    # download - Download file by ID
-    download_parser = file_sub.add_parser(
-        "download", help="Download file by ID"
-    )
-    download_parser.add_argument("file_id", help="File ID to download")
-    download_parser.add_argument(
-        "--output", "-o", type=Path, help="Output file path"
-    )
-
-    # extract-ids - Extract file IDs from response
-    extract_parser = file_sub.add_parser(
-        "extract-ids", help="Extract file IDs from API response"
-    )
-    extract_parser.add_argument(
-        "response_file", type=Path, help="JSON response file"
-    )
-
-
-def _handle_memory_command(args: argparse.Namespace) -> int:
-    """Handle memory subcommands for persistent knowledge capture."""
+def _handle_notes_command(args: argparse.Namespace) -> int:
+    """Handle notes subcommands for persistent knowledge capture."""
     from . import memory
 
-    if args.memory_command == "remember":
+    if args.notes_command == "remember":
         tags = None
         if getattr(args, "remember_tags", None):
             tags = [t.strip() for t in args.remember_tags.split(",")]
@@ -2041,7 +1763,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "project":
+    if args.notes_command == "project":
         related = None
         if getattr(args, "project_related", None):
             related = [r.strip() for r in args.project_related.split(",")]
@@ -2055,7 +1777,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "capture":
+    if args.notes_command == "capture":
         decisions = None
         if getattr(args, "capture_decisions", None):
             decisions = [d.strip() for d in args.capture_decisions.split("|")]
@@ -2077,7 +1799,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "fix":
+    if args.notes_command == "fix":
         files = None
         if getattr(args, "fix_files", None):
             files = [f.strip() for f in args.fix_files.split(",")]
@@ -2092,14 +1814,14 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "auto":
+    if args.notes_command == "auto":
         exit_code, message = memory.memory_auto(
             action=getattr(args, "action", "status"),
         )
         _print(message)
         return exit_code
 
-    if args.memory_command == "list":
+    if args.notes_command == "list":
         tags = None
         if getattr(args, "list_tags", None):
             tags = [t.strip() for t in args.list_tags.split(",")]
@@ -2111,7 +1833,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "search":
+    if args.notes_command == "search":
         exit_code, message = memory.memory_search(
             query=args.query,
             note_type=getattr(args, "search_type", None),
@@ -2120,7 +1842,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print(message)
         return exit_code
 
-    if args.memory_command == "stats":
+    if args.notes_command == "stats":
         stats = memory.get_vault_stats()
         lines = [
             f"Vault: {stats['vault_path']}",
@@ -2134,7 +1856,7 @@ def _handle_memory_command(args: argparse.Namespace) -> int:
         _print("\n".join(lines))
         return 0
 
-    _print("Memory command required. Use 'cortex memory --help' for options.")
+    _print("Notes command required. Use 'cortex notes --help' for options.")
     return 1
 
 
@@ -2146,128 +1868,6 @@ def _get_plans_dir() -> Path:
     plans_dir_str = settings.get("plansDirectory", "~/.claude/plans")
     plans_dir = Path(plans_dir_str).expanduser().resolve()
     return plans_dir
-
-
-def _handle_plan_command(args: argparse.Namespace) -> int:
-    """Handle plan subcommands for viewing plan files."""
-    import subprocess
-    from datetime import datetime
-
-    if args.plan_command == "path":
-        plans_dir = _get_plans_dir()
-        _print(str(plans_dir))
-        return 0
-
-    if args.plan_command == "list":
-        plans_dir = _get_plans_dir()
-        if not plans_dir.exists():
-            _print(f"Plans directory does not exist: {plans_dir}")
-            return 1
-
-        # Get all .md files
-        plan_files = list(plans_dir.glob("*.md"))
-        if not plan_files:
-            _print(f"No plan files found in {plans_dir}")
-            return 0
-
-        # Sort by modification time (newest first)
-        plan_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-
-        # Apply limit
-        limit = None if args.all else args.limit
-        if limit:
-            plan_files = plan_files[:limit]
-
-        # Print header
-        _print(f"[0;34mPlans in {plans_dir}:[0m")
-        _print("")
-
-        # Print each plan with metadata
-        for plan_file in plan_files:
-            stat = plan_file.stat()
-            mtime = datetime.fromtimestamp(stat.st_mtime)
-            size_kb = stat.st_size / 1024
-
-            # Read first line for title/preview
-            try:
-                with open(plan_file, "r", encoding="utf-8") as f:
-                    first_line = f.readline().strip()
-                    # Remove markdown heading markers
-                    preview = first_line.lstrip("#").strip()
-                    if not preview:
-                        preview = plan_file.stem
-            except Exception:
-                preview = plan_file.stem
-
-            _print(f"  [0;32m{plan_file.stem}[0m")
-            _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M:%S')}")
-            _print(f"    Size: {size_kb:.1f}KB")
-            if preview != plan_file.stem:
-                _print(f"    Preview: {preview[:80]}")
-            _print("")
-
-        if limit and len(plan_files) == limit:
-            _print(f"[0;33mShowing {limit} most recent plans. Use --all to see all plans.[0m")
-
-        return 0
-
-    if args.plan_command == "view":
-        plans_dir = _get_plans_dir()
-        plan_name = args.plan
-        if not plan_name.endswith(".md"):
-            plan_name += ".md"
-
-        plan_file = plans_dir / plan_name
-        if not plan_file.exists():
-            _print(f"Plan not found: {plan_file}")
-            return 1
-
-        try:
-            content = plan_file.read_text(encoding="utf-8")
-
-            # Check if raw mode is requested
-            if getattr(args, "raw", False):
-                _print(content)
-            else:
-                # Render markdown with Rich
-                from rich.console import Console
-                from rich.markdown import Markdown
-
-                console = Console()
-                md = Markdown(content)
-                console.print(md)
-            return 0
-        except Exception as e:
-            _print(f"Failed to read plan: {e}")
-            return 1
-
-    if args.plan_command == "edit":
-        import subprocess
-
-        plans_dir = _get_plans_dir()
-        plan_name = args.plan
-        if not plan_name.endswith(".md"):
-            plan_name += ".md"
-
-        plan_file = plans_dir / plan_name
-        if not plan_file.exists():
-            _print(f"Plan not found: {plan_file}")
-            return 1
-
-        editor = os.environ.get("EDITOR", "vim")
-        try:
-            subprocess.run([editor, str(plan_file)])
-            return 0
-        except FileNotFoundError:
-            _print(f"Editor not found: {editor}")
-            _print("Set $EDITOR environment variable to your preferred editor")
-            return 1
-        except Exception as e:
-            _print(f"Failed to open editor: {e}")
-            return 1
-
-    _print("Plan command required. Use 'cortex plan --help' for options.")
-    return 1
 
 
 def _get_docs_dir() -> Path:
@@ -2371,6 +1971,124 @@ def _get_bookmarks_file() -> Path:
     return Path.home() / ".claude" / "cortex" / "docs-bookmarks.json"
 
 
+_CLAUDE_PROJECTS_DIR = Path.home() / ".claude" / "projects"
+_CWD_JSONL_RE = re.compile(r'"cwd"\s*:\s*"([^"]+)"')
+
+
+def _decode_project_cwd(project_dir: Path) -> Path | None:
+    """Extract the original cwd from sidecar session jsonl files.
+
+    Claude Code's project-dir encoding collapses '/', ' ', and '.' to '-',
+    so the directory name alone is lossy. The jsonl session logs embed the
+    original cwd, which is the authoritative source.
+    """
+    for jsonl in project_dir.glob("*.jsonl"):
+        try:
+            with jsonl.open("r", encoding="utf-8", errors="replace") as fh:
+                chunk = fh.read(65536)
+        except OSError:
+            continue
+        match = _CWD_JSONL_RE.search(chunk)
+        if match:
+            return Path(match.group(1))
+    return None
+
+
+def _project_basename(project_dir: Path) -> str:
+    """Displayable basename for a Claude project dir."""
+    cwd = _decode_project_cwd(project_dir)
+    if cwd and cwd.name:
+        return cwd.name
+    raw = project_dir.name.lstrip("-")
+    return raw.rsplit("-", 1)[-1] if raw else project_dir.name
+
+
+def _iter_memory_projects() -> List[tuple[Path, str]]:
+    """Return [(project_dir, basename)] for every project with memory/*.md files."""
+    out: List[tuple[Path, str]] = []
+    if not _CLAUDE_PROJECTS_DIR.is_dir():
+        return out
+    for project_dir in sorted(_CLAUDE_PROJECTS_DIR.iterdir()):
+        if not project_dir.is_dir():
+            continue
+        memory_dir = project_dir / "memory"
+        if memory_dir.is_dir() and any(memory_dir.glob("*.md")):
+            out.append((project_dir, _project_basename(project_dir)))
+    return out
+
+
+def _resolve_memory_project(name: str) -> tuple[Path | None, List[str]]:
+    """Resolve a --project selector to a project's memory/ dir.
+
+    Returns (memory_dir, error_lines). On a single match, error_lines is
+    empty. On zero or multiple matches, memory_dir is None and error_lines
+    holds user-facing diagnostics.
+    """
+    candidate = Path(name).expanduser()
+    if candidate.is_absolute():
+        if candidate.is_dir():
+            resolved = candidate.resolve()
+            for project_dir, _ in _iter_memory_projects():
+                decoded = _decode_project_cwd(project_dir)
+                if decoded and decoded.resolve() == resolved:
+                    return project_dir / "memory", []
+        return None, [f"No Claude memory dir found for path: {candidate}"]
+
+    projects = _iter_memory_projects()
+    matches = [(pd, bn) for pd, bn in projects if bn == name]
+    if not matches:
+        available = sorted({bn for _, bn in projects})
+        lines = [f"No project memory found for basename: {name}"]
+        if available:
+            lines.append(f"Available: {', '.join(available)}")
+        return None, lines
+    if len(matches) > 1:
+        lines = [f"Ambiguous basename '{name}' matches multiple projects:"]
+        for pd, _ in matches:
+            cwd = _decode_project_cwd(pd)
+            qualifier = str(cwd) if cwd else pd.name
+            lines.append(f"  - {qualifier}")
+        lines.append("Pass --project with the absolute path to disambiguate.")
+        return None, lines
+    return matches[0][0] / "memory", []
+
+
+def _iter_memory_files() -> List[tuple[Path, str]]:
+    """[(real_path, virtual_path)] across all project memory dirs.
+
+    Virtual paths use the form '<basename>/<filename>'. When basenames
+    collide the encoded dir name is appended in brackets to keep paths
+    unique and hint at the source.
+    """
+    counts: Dict[str, int] = {}
+    for _, bn in _iter_memory_projects():
+        counts[bn] = counts.get(bn, 0) + 1
+
+    out: List[tuple[Path, str]] = []
+    for project_dir, basename in _iter_memory_projects():
+        prefix = (
+            basename
+            if counts.get(basename, 0) == 1
+            else f"{basename}[{project_dir.name}]"
+        )
+        for md in sorted((project_dir / "memory").glob("*.md")):
+            out.append((md, f"{prefix}/{md.name}"))
+    return out
+
+
+def _resolve_virtual_memory_path(virtual: str) -> Path | None:
+    """Convert a 'basename/file.md' virtual path to a real file path."""
+    target = Path(virtual)
+    parts = target.parts
+    if len(parts) != 2:
+        return None
+    prefix, filename = parts
+    for real, vpath in _iter_memory_files():
+        if vpath == f"{prefix}/{filename}":
+            return real
+    return None
+
+
 def _load_bookmarks() -> Dict[str, str]:
     """Load bookmarks from file."""
     import json
@@ -2394,15 +2112,198 @@ def _save_bookmarks(bookmarks: Dict[str, str]) -> None:
     )
 
 
+def _handle_memories_cross_command(args: argparse.Namespace) -> int:
+    """Handle cross-project memory browsing when --memories is used without --project."""
+    import subprocess
+    from datetime import datetime
+
+    cmd = args.docs_command
+
+    if cmd == "path":
+        _print(str(_CLAUDE_PROJECTS_DIR))
+        return 0
+
+    if cmd in (None, ""):
+        _print("Docs command required. Try: cortex docs --memories list")
+        return 1
+
+    files = _iter_memory_files()
+    if not files:
+        _print("No project memories found in ~/.claude/projects/*/memory/")
+        return 0
+
+    if cmd == "list":
+        filter_pattern = getattr(args, "filter", None)
+        if filter_pattern:
+            files = [(r, v) for r, v in files if filter_pattern in v]
+
+        sort_by = getattr(args, "sort", "name")
+        if sort_by == "name":
+            files.sort(key=lambda pair: pair[1])
+        elif sort_by == "modified":
+            files.sort(key=lambda pair: pair[0].stat().st_mtime, reverse=True)
+        elif sort_by == "size":
+            files.sort(key=lambda pair: pair[0].stat().st_size, reverse=True)
+
+        _print(f"[0;34mProject memories across {_CLAUDE_PROJECTS_DIR}:[0m")
+        _print(f"[0;33m{len(files)} files found[0m")
+        _print("")
+
+        current_group = None
+        for real, vpath in files:
+            group = vpath.split("/", 1)[0]
+            if group != current_group:
+                current_group = group
+                _print(f"[0;36m{group}/[0m")
+            stat = real.stat()
+            mtime = datetime.fromtimestamp(stat.st_mtime)
+            size_kb = stat.st_size / 1024
+            _print(f"  [0;32m{Path(vpath).name}[0m")
+            _print(f"    Path: {vpath}")
+            _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M')}")
+            _print(f"    Size: {size_kb:.1f}KB")
+            _print("")
+        return 0
+
+    if cmd == "tree":
+        from rich.console import Console
+        from rich.tree import Tree
+
+        console = Console()
+        tree = Tree(f"[bold blue]projects/[/bold blue]", guide_style="dim")
+        groups: Dict[str, List[str]] = {}
+        for _, vpath in files:
+            group, name = vpath.split("/", 1)
+            groups.setdefault(group, []).append(name)
+        for group in sorted(groups):
+            branch = tree.add(f"[blue]{group}/[/blue]", guide_style="dim")
+            for name in sorted(groups[group]):
+                branch.add(f"[green]{name}[/green]")
+        console.print(tree)
+        return 0
+
+    if cmd == "view" or cmd == "edit":
+        requested = str(args.path)
+        target: Path | None = _resolve_virtual_memory_path(requested)
+        if target is None and not requested.endswith(".md"):
+            target = _resolve_virtual_memory_path(requested + ".md")
+        if target is None:
+            _print(f"Memory file not found: {requested}")
+            _print("Try: cortex docs --memories list")
+            return 1
+        if cmd == "view":
+            try:
+                content = target.read_text(encoding="utf-8")
+            except OSError as e:
+                _print(f"Failed to read memory: {e}")
+                return 1
+            if getattr(args, "raw", False):
+                _print(content)
+            else:
+                from rich.console import Console
+                from rich.markdown import Markdown
+
+                Console().print(Markdown(content))
+            return 0
+        editor = os.environ.get("EDITOR", "vim")
+        try:
+            subprocess.run([editor, str(target)])
+            return 0
+        except FileNotFoundError:
+            _print(f"Editor not found: {editor}")
+            return 1
+
+    if cmd == "search":
+        query = args.query.lower()
+        limit = getattr(args, "limit", 20)
+        results: List[Dict[str, Any]] = []
+        for real, vpath in files:
+            try:
+                content = real.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            for line_num, line in enumerate(content.split("\n"), 1):
+                if query in line.lower():
+                    results.append(
+                        {"file": vpath, "line": line_num, "content": line.strip()}
+                    )
+                    if len(results) >= limit:
+                        break
+            if len(results) >= limit:
+                break
+
+        if not results:
+            _print(f"No results found for '{args.query}'")
+            return 0
+
+        _print(f"[0;34mSearch results for '{args.query}':[0m")
+        _print(f"[0;33mFound {len(results)} matches[0m")
+        _print("")
+        for r in results:
+            _print(f"[0;32m{r['file']}[0m:[0;33m{r['line']}[0m")
+            _print(f"  {r['content'][:100]}")
+            _print("")
+        return 0
+
+    _print(f"Subcommand '{cmd}' is not supported in cross-project --memories mode.")
+    _print(
+        "Use --project to scope to one project, or try: list, tree, view, search, edit, path"
+    )
+    return 1
+
+
 def _handle_docs_command(args: argparse.Namespace) -> int:
     """Handle docs subcommands for browsing project documentation."""
     import subprocess
     from datetime import datetime
 
-    # --path override: browse an arbitrary docs directory
-    _override = getattr(args, "path", None)
+    memories_mode = getattr(args, "memories", False)
+    plans_mode = getattr(args, "plans", False)
+    project_selector = getattr(args, "project", None)
+
+    if memories_mode and plans_mode:
+        _print("--memories and --plans are mutually exclusive")
+        return 1
+    if project_selector and not memories_mode:
+        _print("--project is only valid with --memories")
+        return 1
+
+    memory_project_dir: Path | None = None
+    cross_project_memory = False
+    if memories_mode:
+        if args.docs_command == "bookmark":
+            _print("Bookmarks are not supported in --memories mode")
+            return 1
+        if project_selector:
+            memory_project_dir, errors = _resolve_memory_project(project_selector)
+            if memory_project_dir is None:
+                for line in errors:
+                    _print(line)
+                return 1
+        else:
+            if args.docs_command == "tui":
+                _print(
+                    "--memories tui requires --project (cross-project TUI not yet supported)"
+                )
+                return 1
+            cross_project_memory = True
+
+    plans_dir: Path | None = None
+    if plans_mode:
+        plans_dir = _get_plans_dir()
+        if not plans_dir.is_dir():
+            _print(f"Plans directory not found: {plans_dir}")
+            return 1
+
+    # Resolve the docs directory override in priority order:
+    # memory project → plans dir → user-provided --path
+    _override = memory_project_dir or plans_dir or getattr(args, "path", None)
+
     def _docs_dir() -> Path:
         return _override if _override else _get_docs_dir()
+
+    if cross_project_memory:
+        return _handle_memories_cross_command(args)
 
     if args.docs_command == "path":
         docs_dir = _docs_dir()
@@ -2706,13 +2607,6 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
 
 def _handle_dev_command(args: argparse.Namespace) -> int:
     """Handle dev subcommands for development tools."""
-    if args.dev_command == "validate":
-        from .commands.dev_validate import main as validate_main
-        return validate_main([
-            *(["--verbose"] if getattr(args, "verbose", False) else []),
-            *(["--check-paths"] if getattr(args, "check_paths", False) else []),
-        ])
-
     if args.dev_command == "manpages":
         from .commands.dev_manpages import main as manpages_main
         return manpages_main()
@@ -2728,48 +2622,6 @@ def _handle_dev_command(args: argparse.Namespace) -> int:
         return exit_code
 
     _print("Dev command required. Use 'cortex dev --help' for options.")
-    return 1
-
-
-def _handle_file_command(args: argparse.Namespace) -> int:
-    """Handle file subcommands for Claude Files API utilities."""
-    if args.file_command == "download":
-        from .utils.files import download_file, save_file
-        from anthropic import Anthropic
-
-        client = Anthropic()
-        file_id = args.file_id
-        output_path = getattr(args, "output", None)
-
-        try:
-            content = download_file(client, file_id)
-            if output_path:
-                save_file(content, output_path)
-                _print(f"File saved to: {output_path}")
-            else:
-                _print(content)
-            return 0
-        except Exception as e:
-            _print(f"Error downloading file: {e}")
-            return 1
-
-    if args.file_command == "extract-ids":
-        from .utils.files import extract_file_ids
-        import json
-
-        response_file = args.response_file
-        try:
-            with open(response_file, "r") as f:
-                response = json.load(f)
-            file_ids = extract_file_ids(response)
-            for file_id in file_ids:
-                _print(file_id)
-            return 0
-        except Exception as e:
-            _print(f"Error extracting file IDs: {e}")
-            return 1
-
-    _print("File command required. Use 'cortex file --help' for options.")
     return 1
 
 
@@ -2813,16 +2665,12 @@ def main(argv: Iterable[str] | None = None) -> int:
         "skills": _handle_skills_command,
         "completions": _handle_completions_command,
         "mcp": _handle_mcp_command,
-        "worktree": _handle_worktree_command,
-        "ai": _handle_ai_command,
         "export": _handle_export_command,
         "install": _handle_install_command,
         "statusline": _handle_statusline_command,
-        "memory": _handle_memory_command,
-        "plan": _handle_plan_command,
+        "notes": _handle_notes_command,
         "docs": _handle_docs_command,
         "dev": _handle_dev_command,
-        "file": _handle_file_command,
         "uninstall": _handle_uninstall_command,
         "review": _handle_review_command,
         "suggest": _handle_suggest_command,
