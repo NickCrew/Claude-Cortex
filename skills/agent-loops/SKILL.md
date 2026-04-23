@@ -89,6 +89,28 @@ independent reviewer using this selection order:
 
 If neither path is available, stop and escalate to the user.
 
+## Why Shell-Based Review (Even for Claude)
+
+The bundled scripts aren't a Codex/Gemini accommodation — they exist to enable
+**cross-model independent review**, which every agent benefits from. The
+provider rotation explicitly keeps the current agent's own model family last,
+so a Claude agent invoking `specialist-review.sh` gets its review from Gemini
+or Codex first, not another Claude instance.
+
+Two kinds of reviewer independence are in play:
+
+- **Cross-model independence** (shell scripts): reviewer is a *different model
+  family* with different training data and alignment. Catches blind spots
+  inherent to the current model. Requires shelling out to a different provider.
+- **Fresh-context independence** (sub-agents): reviewer is the *same model
+  family* but with no prior context. Catches local anchoring bias. Cheap to
+  obtain via Task-tool sub-agents in Claude Code.
+
+Agent-loops uses the first mechanism as its baseline because cross-model is a
+stronger guarantee than fresh-context alone. Claude-native sub-agent flows
+(like `multi-specialist-review`) add within-model multi-perspective diversity
+on top of the shell-based baseline when warranted — they don't replace it.
+
 ## Reviewer Selection Order
 
 When a review or audit is required, use this exact fallback chain:
