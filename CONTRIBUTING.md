@@ -42,14 +42,14 @@ Unacceptable behavior includes harassment, discrimination, trolling, or personal
 2. Clone your fork locally:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/cortex-plugin.git
-   cd cortex-plugin
+   git clone https://github.com/YOUR_USERNAME/claude-cortex.git
+   cd claude-cortex
    ```
 
 3. Add upstream remote:
 
    ```bash
-   git remote add upstream https://github.com/NickCrew/cortex-plugin.git
+   git remote add upstream https://github.com/NickCrew/claude-cortex.git
    ```
 
 ### Install Development Dependencies
@@ -63,16 +63,6 @@ python3 -m pip install -r requirements-dev.txt
 
 # Verify installation
 cortex --version
-```
-
-### Set Up Environment
-
-```bash
-# Point the cortex CLI to your local development copy
-export CLAUDE_PLUGIN_ROOT="$(pwd)"
-
-# Add to your shell config for persistence
-echo 'export CLAUDE_PLUGIN_ROOT="/path/to/your/cortex-plugin"' >> ~/.zshrc
 ```
 
 ## Types of Contributions
@@ -517,16 +507,16 @@ Document how to test your changes in PR description:
 
 ### Resources
 
-- **Documentation**: [Project docs](https://nickcrew.github.io/cortex-plugin/)
+- **Documentation**: [Project docs](https://cortex.atlascrew.dev)
 - **Skills guide**: [skills/README.md](skills/README.md)
 - **Community guide**: [skills/community/README.md](skills/community/README.md)
 - **Template**: [skills/community/.template/SKILL.md](skills/community/.template/SKILL.md)
 
 ### Support Channels
 
-- **Questions**: [GitHub Discussions](https://github.com/NickCrew/cortex-plugin/discussions)
-- **Bug reports**: [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues)
-- **Feature requests**: [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues) with `enhancement` label
+- **Questions**: [GitHub Discussions](https://github.com/NickCrew/claude-cortex/discussions)
+- **Bug reports**: [GitHub Issues](https://github.com/NickCrew/claude-cortex/issues)
+- **Feature requests**: [GitHub Issues](https://github.com/NickCrew/claude-cortex/issues) with `enhancement` label
 - **PR help**: Comment on your pull request
 
 ### Tips for New Contributors
@@ -556,9 +546,9 @@ By contributing, you agree that your contributions will be licensed under the sa
 
 If you have questions not covered here:
 
-1. Check existing [documentation](https://nickcrew.github.io/cortex-plugin/)
-2. Search [GitHub Issues](https://github.com/NickCrew/cortex-plugin/issues)
-3. Ask in [GitHub Discussions](https://github.com/NickCrew/cortex-plugin/discussions)
+1. Check existing [documentation](https://nickcrew.github.io/claude-cortex/)
+2. Search [GitHub Issues](https://github.com/NickCrew/claude-cortex/issues)
+3. Ask in [GitHub Discussions](https://github.com/NickCrew/claude-cortex/discussions)
 4. Open a new issue with the `question` label
 
 We're here to help make your contribution successful!
