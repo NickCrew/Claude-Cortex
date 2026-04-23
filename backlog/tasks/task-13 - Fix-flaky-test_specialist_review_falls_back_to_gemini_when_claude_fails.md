@@ -4,6 +4,7 @@ title: Fix flaky test_specialist_review_falls_back_to_gemini_when_claude_fails
 status: To Do
 assignee: []
 created_date: '2026-04-23 05:22'
+updated_date: '2026-04-23 05:26'
 labels:
   - test
   - bug
@@ -44,5 +45,31 @@ The test expects a `claude.log` file to be created during the fake Claude invoca
 <!-- AC:BEGIN -->
 - [ ] #1 The test passes locally with `uv run pytest tests/unit/test_agent_loops_review_scripts.py::test_specialist_review_falls_back_to_gemini_when_claude_fails`
 - [ ] #2 Root cause identified (stub not installed vs. redirection broken vs. other)
-- [ ] #3 Audit the remaining specialist-review tests in the same file and confirm they pass or file separate follow-ups for any that also fail
+- [x] #3 Audit the remaining specialist-review tests in the same file and confirm they pass or file separate follow-ups for any that also fail
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+**Full test-file audit (183.80s, 15 tests, 1 fail / 14 pass):**
+
+- ✅ `test_review_provider_detect_self_uses_gemini_cli_env_markers`
+- ✅ `test_review_provider_detect_self_uses_codex_cli_env_markers`
+- ✅ `test_review_provider_detect_self_uses_claude_cli_env_markers`
+- ❌ `test_specialist_review_falls_back_to_gemini_when_claude_fails`
+- ✅ `test_specialist_review_auto_keeps_self_provider_last`
+- ✅ `test_specialist_review_auto_detects_gemini_self_provider_from_cli_env`
+- ✅ `test_test_review_request_supports_explicit_gemini_provider`
+- ✅ `test_test_review_request_auto_keeps_self_provider_last`
+- ✅ `test_test_review_request_auto_detects_gemini_self_provider_from_cli_env`
+- ✅ `test_specialist_review_supports_explicit_codex_provider`
+- ✅ `test_test_review_request_supports_explicit_codex_provider`
+- ✅ `test_test_review_request_normalizes_provider_preamble_and_section_aliases`
+- ✅ `test_specialist_review_normalizes_provider_preamble`
+- ✅ `test_specialist_review_normalizes_code_review_section_aliases`
+- ✅ `test_test_review_request_preserves_invalid_artifact_when_normalization_fails`
+
+**Failure is well-isolated.** The diff-test-audit tests (formerly test-review-request) all pass, confirming the rename didn't cause regressions. Other specialist-review tests with fake-claude stubs also pass, including ones that check for `--print` in logs. The failing test is specifically the **Claude-fails-fallback-to-Gemini** path.
+
+**Narrowed diagnosis:** Tests that exercise fake-claude *succeeding* all pass and write claude.log correctly. The failing test is the one where fake-claude is configured to *fail* (non-zero exit). The claude.log expected at line 188 is missing in that path, suggesting the failure-simulation stub either (a) exits before logging, or (b) uses a different log-writing mechanism than the success-simulation stub. Compare the fake-claude implementations in this test vs. the passing tests to find the divergence.
+<!-- SECTION:NOTES:END -->
