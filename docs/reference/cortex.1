@@ -1,4 +1,4 @@
-.TH CORTEX 1 "2026-03-27" "cortex 2.0.0" "User Commands"
+.TH CORTEX 1 "2026-04-23" "cortex 2.0.0" "User Commands"
 .SH NAME
 cortex \- Python implementation of cortex list and status commands
 .SH SYNOPSIS
@@ -35,11 +35,11 @@ Hook commands
 .B skills
 Skill commands
 .TP
+.B completions
+Print shell completion script to stdout
+.TP
 .B mcp
 MCP server commands
-.TP
-.B worktree
-Git worktree management commands
 .TP
 .B git
 Safe git operations
@@ -53,8 +53,8 @@ Render Claude Code status line
 .B tui
 Launch interactive TUI for agent management
 .TP
-.B ai
-AI assistant commands
+.B suggest
+Unified skill and agent suggestions for the current context
 .TP
 .B export
 Export context commands
@@ -62,20 +62,14 @@ Export context commands
 .B install
 Install CLI integrations and optional extras
 .TP
-.B memory
-Memory capture commands for persistent knowledge storage
-.TP
-.B plan
-View and manage plan files
+.B notes
+Capture and manage notes in the basic-memory vault (~/basic-memory/)
 .TP
 .B docs
 Browse documentation (includes bundled package docs)
 .TP
 .B dev
 Development and maintenance tools
-.TP
-.B file
-Claude Files API utilities
 .TP
 .B uninstall
 Uninstall cortex

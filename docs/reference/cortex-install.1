@@ -1,4 +1,4 @@
-.TH CORTEX-INSTALL 1 "2026-03-27" "cortex-install 2.0.0" "User Commands"
+.TH CORTEX-INSTALL 1 "2026-04-23" "cortex-install 2.0.0" "User Commands"
 .SH NAME
 cortex-install \- Command-line tool
 .SH SYNOPSIS
@@ -22,20 +22,14 @@ ICOMMAND
 .SH COMMANDS
 Available commands:
 .TP
-.B aliases
-Install shell aliases for Warp AI and terminal AI tools
-.TP
-.B completions
-Install shell completion scripts
-.TP
 .B manpage
 Install manpage files
 .TP
-.B post
-Install completions and manpages
-.TP
 .B link
-Symlink bundled content (agents, skills, rules, hooks) into ~/.claude
+Symlink bundled content (agents, skills, rules, schemas) into ~/.claude
+.TP
+.B aliases
+Install cortex shell aliases (~/.cortex_aliases, sourced from rc)
 .TP
 .B statusline
 Configure Claude Code statusline to use cortex

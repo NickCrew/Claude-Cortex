@@ -1,4 +1,4 @@
-.TH CORTEX-HOOKS 1 "2026-03-27" "cortex-hooks 2.0.0" "User Commands"
+.TH CORTEX-HOOKS 1 "2026-04-23" "cortex-hooks 2.0.0" "User Commands"
 .SH NAME
 cortex-hooks \- Command-line tool
 .SH SYNOPSIS
@@ -22,8 +22,23 @@ ICOMMAND
 .SH COMMANDS
 Available commands:
 .TP
-.B validate
-Validate hooks.json configuration
+.B skill-suggest
+UserPromptSubmit hook: suggest relevant skills (invoked by Claude Code, not usually run directly)
+.TP
+.B agent-suggest
+UserPromptSubmit hook: suggest relevant specialist agents for consultation or delegation
+.TP
+.B large-file-gate
+PostToolUse hook: block oversized files in the changed set
+.TP
+.B subagent-output-validator
+SubagentStop hook: flag hallucinated file references in subagent output
+.TP
+.B workspace-validator
+PreToolUse hook (Task matcher): validate paths referenced in Task prompts before subagent spawns
+.TP
+.B install
+Register a cortex hook subcommand in ~/.claude/settings.json
 .TP
 .SH OPTIONS
 .TP
