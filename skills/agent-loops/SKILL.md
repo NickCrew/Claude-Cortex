@@ -306,8 +306,26 @@ over truncation in nearly every case.
 
 ### `test-review-request` — Request Test Audit
 
-**When:** Initial audit (before writing tests) and re-audit (after writing/fixing tests).
-**What you get back:** A gap report covering both missing coverage AND test quality issues (mirror tests, flaky assertions, etc.), with P0/P1/P2 severity.
+**When:** Per-commit test coverage check — verifies the files your diff touched have adequate tests.
+**What you get back:** A gap report covering both missing coverage AND test quality issues (mirror tests, flaky assertions, etc.) scoped to your changed files, with P0/P1/P2 severity.
+
+#### Scope: Default to Diff, Not Module
+
+This audit is a per-commit completeness check — did your change get tested — not
+a module-level survey. Default to scoping by files the diff touched (`--git`
+filters the audit to changed files; add `-- <paths>` to narrow further):
+
+```bash
+"$SKILL_DIR/scripts/test-review-request.sh" <module> --git
+"$SKILL_DIR/scripts/test-review-request.sh" <module> --git -- <touched-files>
+```
+
+For full module audits (mapping a module's public contract and surveying
+coverage across unmodified code), use the **`test-review` skill** instead. It
+uses parallel Haiku sub-agents with synthesis — better suited to exhaustive
+module work. Using module scope here during atomic-commit flows generates
+noise: gaps in pre-existing code your commit didn't touch become P2/P3 items
+you then have to defer.
 
 #### IMPORTANT: Do Not Audit the Tests Yourself
 
@@ -336,6 +354,7 @@ so the Bash tool receives periodic output and does not time out:
 
 ```bash
 # Start audit in background, capture stdout (the result file path) separately
+# Default scope: --git filters to files the current diff touched
 REPORT_TMP=$(mktemp /tmp/audit-out.XXXXXX)
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git \
   >"$REPORT_TMP" &
@@ -364,27 +383,26 @@ rm -f "$REPORT_TMP"
 The script emits heartbeat lines to stderr every 15 seconds during provider
 execution. Combined with the poll loop above, this ensures continuous output.
 
-Additional invocation forms (wrap any of these in the polling pattern above):
+Additional invocation forms (wrap any of these in the polling pattern above).
+All default to diff scope via `--git`; for full module audits use the
+`test-review` skill, not this one.
 
 ```bash
-# Full audit of a module (default — reads ALL source files)
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module
+# Default: audit changed files since main
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git
+
+# Narrow further with explicit file filter
+"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git -- src/parser/ src/auth.py
 
 # Audit changed files since a specific ref
 "$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git origin/main
 
-# Audit changed files with additional path filters
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --git -- src/parser/ src/auth.py
-
-# Full audit with specific test directory
-"$SKILL_DIR/scripts/test-review-request.sh" /path/to/module --tests /path/to/tests
-
 # Quick review of specific test files only
 "$SKILL_DIR/scripts/test-review-request.sh" --quick /path/to/test_file.py
 
-# Force a specific provider
-"$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module
-"$SKILL_DIR/scripts/test-review-request.sh" --provider codex /path/to/module
+# Force a specific provider (still diff-scoped via --git)
+"$SKILL_DIR/scripts/test-review-request.sh" --provider gemini /path/to/module --git
+"$SKILL_DIR/scripts/test-review-request.sh" --provider codex /path/to/module --git
 ```
 
 Provider selection:
@@ -1021,7 +1039,7 @@ When filing deferred findings in this repository:
 - Using `cortex git commit` for all commits (not `git commit`) unless explicitly approved otherwise
 - Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
-- Running `"$SKILL_DIR/scripts/test-review-request.sh" <module>` for initial audit and each re-audit
+- Running `"$SKILL_DIR/scripts/test-review-request.sh" <module> --git` (diff-scoped) for initial audit and each re-audit; reach for the `test-review` skill if you need a full module audit instead
 - Preserving fallback review/audit artifacts in `.agents/reviews/` when Claude is unavailable
 - Falling back to another model family before the same-model last resort when Claude is unavailable
 - Fixing ONLY the findings the independent review/audit artifact identifies (no scope creep during remediation)
