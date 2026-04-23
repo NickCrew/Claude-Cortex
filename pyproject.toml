@@ -6,13 +6,18 @@ build-backend = "setuptools.build_meta"
 name = "claude-cortex"
 version = "4.4.3"
 description = "Context orchestration CLI with curated agents, rules, skills, and management tools for Claude Code"
-authors = [{name = "Nicholas Ferguson", email = "nick@atlascrew.dev"}]
+authors = [{ name = "Nicholas Ferguson", email = "nick@atlascrew.dev" }]
 license = "MIT"
 readme = "README.md"
 keywords = [
-  "AI", "claude code", "codex",
-  "claude", "AI augmented development",
-  "AI agents", "development tools", "AI tools",
+  "AI",
+  "claude code",
+  "codex",
+  "claude",
+  "AI augmented development",
+  "AI agents",
+  "development tools",
+  "AI tools",
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -22,13 +27,13 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "argcomplete>=3.2",
-    "rich>=13.0.0",
-    "textual>=0.47.0",
-    "PyYAML>=6.0.0",
-    "psutil>=5.9.0",
-    "jsonplate>=0.0.1",
-    "jsonschema>=4.25.1",
+  "argcomplete>=3.2",
+  "rich>=13.0.0",
+  "textual>=0.47.0",
+  "PyYAML>=6.0.0",
+  "psutil>=5.9.0",
+  "jsonplate>=0.0.1",
+  "jsonschema>=4.25.1",
 ]
 [project.urls]
 Issues = "https://github.com/NickCrew/claude-cortex/issues"
@@ -40,36 +45,33 @@ Homepage = "https://atlascrew.dev"
 [project.optional-dependencies]
 # AI Intelligence features
 ai = [
-    "fastembed>=0.7.4",  # Semantic similarity matching
-    "numpy>=1.24.0",     # Required by fastembed
+  "fastembed>=0.7.4", # Semantic similarity matching
+  "numpy>=1.24.0",    # Required by fastembed
 ]
 llm = [
-    "anthropic>=0.18.0",  # Optional LLM-powered recommendations
+  "anthropic>=0.18.0", # Optional LLM-powered recommendations
 ]
-dashboard = [
-    "fastapi>=0.100.0",
-    "uvicorn>=0.20.0",
-]
+dashboard = ["fastapi>=0.100.0", "uvicorn>=0.20.0"]
 # Development dependencies
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "pytest-mock>=3.12.0",
-    "mypy>=1.7.0",
-    "types-PyYAML>=6.0.0",
-    "types-psutil>=5.9.0",
-    "black>=23.0.0",
-    "PyYAML>=6.0.0",
-    "build>=1.0.0",
-    "python-semantic-release>=9.0.0",
+  "pytest>=7.4.0",
+  "pytest-cov>=4.1.0",
+  "pytest-mock>=3.12.0",
+  "mypy>=1.7.0",
+  "types-PyYAML>=6.0.0",
+  "types-psutil>=5.9.0",
+  "black>=23.0.0",
+  "PyYAML>=6.0.0",
+  "build>=1.0.0",
+  "python-semantic-release>=9.0.0",
 ]
 # All optional features
 all = [
-    "fastembed>=0.7.4",
-    "numpy>=1.24.0",
-    "anthropic>=0.18.0",
-    "fastapi>=0.100.0",
-    "uvicorn>=0.20.0",
+  "fastembed>=0.7.4",
+  "numpy>=1.24.0",
+  "anthropic>=0.18.0",
+  "fastapi>=0.100.0",
+  "uvicorn>=0.20.0",
 ]
 
 [project.scripts]
@@ -86,82 +88,77 @@ include = ["claude_ctx_py*"]
 # Regenerate with: cortex dev manpages
 # Validate with:   cortex dev validate-manpages
 "share/man/man1" = [
-    "docs/reference/cortex.1",
-    "docs/reference/cortex-agent.1",
-    "docs/reference/cortex-ai.1",
-    "docs/reference/cortex-dev.1",
-    "docs/reference/cortex-docs.1",
-    "docs/reference/cortex-export.1",
-    "docs/reference/cortex-file.1",
-    "docs/reference/cortex-git.1",
-    "docs/reference/cortex-hooks.1",
-    "docs/reference/cortex-install.1",
-    "docs/reference/cortex-mcp.1",
-    "docs/reference/cortex-memory.1",
-    "docs/reference/cortex-plan.1",
-    "docs/reference/cortex-review.1",
-    "docs/reference/cortex-rules.1",
-    "docs/reference/cortex-skills.1",
-    "docs/reference/cortex-status.1",
-    "docs/reference/cortex-statusline.1",
-    "docs/reference/cortex-tmux.1",
-    "docs/reference/cortex-tui.1",
-    "docs/reference/cortex-uninstall.1",
-    "docs/reference/cortex-worktree.1",
+  "docs/reference/cortex.1",
+  "docs/reference/cortex-agent.1",
+  "docs/reference/cortex-completions.1",
+  "docs/reference/cortex-dev.1",
+  "docs/reference/cortex-docs.1",
+  "docs/reference/cortex-export.1",
+  "docs/reference/cortex-git.1",
+  "docs/reference/cortex-install.1",
+  "docs/reference/cortex-mcp.1",
+  "docs/reference/cortex-notes.1",
+  "docs/reference/cortex-rules.1",
+  "docs/reference/cortex-skills.1",
+  "docs/reference/cortex-suggest.1",
+  "docs/reference/cortex-status.1",
+  "docs/reference/cortex-statusline.1",
+  "docs/reference/cortex-tmux.1",
+  "docs/reference/cortex-tui.1",
+  "docs/reference/cortex-uninstall.1",
 ]
 # Root-level docs
 "share/claude-cortex/docs" = [
-    "site/index.md",
-    "CHANGELOG.md",
-    "CREDITS.md",
-    "LICENSE",
+  "site/index.md",
+  "CHANGELOG.md",
+  "CREDITS.md",
+  "LICENSE",
 ]
 # Getting started
 "share/claude-cortex/docs/getting-started" = [
-    "site/getting-started/index.md",
-    "site/getting-started/installation.md",
-    "site/getting-started/configuration.md",
-    "site/getting-started/quick-start.md",
+  "site/getting-started/index.md",
+  "site/getting-started/installation.md",
+  "site/getting-started/configuration.md",
+  "site/getting-started/quick-start.md",
 ]
 # Guides
 "share/claude-cortex/docs/guides" = [
-    "site/guides/index.md",
-    "site/guides/agent-activation.md",
-    "site/guides/agent-loops.md",
-    "site/guides/ai-intelligence.md",
-    "site/guides/cli.md",
-    "site/guides/doc-health-audit.md",
-    "site/guides/docs-commands.md",
-    "site/guides/export.md",
-    "site/guides/git-workflow.md",
-    "site/guides/hooks.md",
-    "site/guides/llm-consult.md",
-    "site/guides/memory.md",
-    "site/guides/planning.md",
-    "site/guides/review.md",
-    "site/guides/rules.md",
-    "site/guides/skills.md",
-    "site/guides/tmux-workflow.md",
-    "site/guides/tui.md",
+  "site/guides/index.md",
+  "site/guides/agent-activation.md",
+  "site/guides/agent-loops.md",
+  "site/guides/ai-intelligence.md",
+  "site/guides/cli.md",
+  "site/guides/doc-health-audit.md",
+  "site/guides/docs-commands.md",
+  "site/guides/export.md",
+  "site/guides/git-workflow.md",
+  "site/guides/hooks.md",
+  "site/guides/llm-consult.md",
+  "site/guides/memory.md",
+  "site/guides/planning.md",
+  "site/guides/review.md",
+  "site/guides/rules.md",
+  "site/guides/skills.md",
+  "site/guides/tmux-workflow.md",
+  "site/guides/tui.md",
 ]
 # Tutorials
 "share/claude-cortex/docs/tutorials" = [
-    "site/tutorials/index.md",
-    "site/tutorials/bug-fix-workflow.md",
-    "site/tutorials/export-context.md",
-    "site/tutorials/feature-workflow.md",
-    "site/tutorials/skill-recommendations.md",
-    "site/tutorials/tui-first-20-minutes.md",
-    "site/tutorials/watch-mode.md",
+  "site/tutorials/index.md",
+  "site/tutorials/bug-fix-workflow.md",
+  "site/tutorials/export-context.md",
+  "site/tutorials/feature-workflow.md",
+  "site/tutorials/skill-recommendations.md",
+  "site/tutorials/tui-first-20-minutes.md",
+  "site/tutorials/watch-mode.md",
 ]
 # Reference
 "share/claude-cortex/docs/reference" = [
-    "site/reference/index.md",
-    "site/reference/agents.md",
-    "site/reference/commands.md",
-    "site/reference/configuration.md",
-    "site/reference/flags.md",
-    "site/reference/skills.md",
+  "site/reference/index.md",
+  "site/reference/agents.md",
+  "site/reference/commands.md",
+  "site/reference/configuration.md",
+  "site/reference/skills.md",
 ]
 
 
@@ -202,36 +199,32 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "-v",
-    "--strict-markers",
-    "--tb=short",
-    "--cov=claude_ctx_py",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
-    "--cov-branch",
+  "-v",
+  "--strict-markers",
+  "--tb=short",
+  "--cov=claude_ctx_py",
+  "--cov-report=term-missing",
+  "--cov-report=html",
+  "--cov-report=xml",
+  "--cov-branch",
 ]
 markers = [
-    "unit: Unit tests for individual components",
-    "integration: Integration tests for CLI and workflows",
-    "slow: Tests that take longer to run",
-    "fast: Tests that run quickly (< 1 second)",
-    "tui: Tests for TUI components",
-    "cli: Tests for CLI interface",
-    "core: Tests for core functionality",
-    "intelligence: Tests for AI/intelligence features",
-    "smoke: Smoke tests for critical paths",
-    "regression: Regression tests for bug fixes",
-    "requires_yaml: Tests that require PyYAML to be installed",
+  "unit: Unit tests for individual components",
+  "integration: Integration tests for CLI and workflows",
+  "slow: Tests that take longer to run",
+  "fast: Tests that run quickly (< 1 second)",
+  "tui: Tests for TUI components",
+  "cli: Tests for CLI interface",
+  "core: Tests for core functionality",
+  "intelligence: Tests for AI/intelligence features",
+  "smoke: Smoke tests for critical paths",
+  "regression: Regression tests for bug fixes",
+  "requires_yaml: Tests that require PyYAML to be installed",
 ]
 
 [tool.coverage.run]
 source = ["claude_ctx_py"]
-omit = [
-    "*/tests/*",
-    "*/__pycache__/*",
-    "*/site-packages/*",
-]
+omit = ["*/tests/*", "*/__pycache__/*", "*/site-packages/*"]
 
 [tool.coverage.report]
 # Progressive coverage target (current: 15%, target: 80%)
@@ -245,14 +238,14 @@ precision = 2
 show_missing = true
 skip_covered = false
 exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
-    "@abc.abstractmethod",
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "@abstractmethod",
+  "@abc.abstractmethod",
 ]
 
 [tool.coverage.html]
@@ -316,7 +309,18 @@ env = "GIT_COMMIT_AUTHOR"
 default = "semantic-release <semantic-release>"
 
 [tool.semantic_release.commit_parser_options]
-allowed_tags = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "style", "refactor", "test"]
+allowed_tags = [
+  "build",
+  "chore",
+  "ci",
+  "docs",
+  "feat",
+  "fix",
+  "perf",
+  "style",
+  "refactor",
+  "test",
+]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
 
@@ -330,6 +334,4 @@ dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
 
 [dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]
+dev = ["pytest>=8.4.2"]
