@@ -89,11 +89,27 @@ def _run_commit(
     message: str,
     files: List[str],
     cwd: Path,
+    *,
+    with_pathspec: bool = True,
 ) -> Tuple[bool, str]:
-    """Attempt ``git commit``.  Returns ``(success, stderr)``."""
-    code, _out, err = run_git(
-        ["commit", "-m", message, "--", *files], cwd
-    )
+    """Attempt ``git commit``.  Returns ``(success, stderr)``.
+
+    When *with_pathspec* is True (default), commit only the named *files*
+    using ``git commit -- <files>`` semantics — equivalent to ``--only``,
+    which re-stages the working-tree content of those paths. Suitable when
+    the caller has already synced the index to the working tree for these
+    paths (e.g. ``git_commit`` after ``git add -A -- <files>``).
+
+    When *with_pathspec* is False, commit whatever is currently in the index
+    without pathspec args. Required when the caller has hand-staged a subset
+    of hunks (e.g. ``git_patch`` after ``git apply --cached``); passing
+    pathspec there triggers ``--only`` mode and silently replaces the staged
+    hunks with full working-tree content.
+    """
+    args = ["commit", "-m", message]
+    if with_pathspec:
+        args.extend(["--", *files])
+    code, _out, err = run_git(args, cwd)
     return code == 0, err
 
 
@@ -102,6 +118,8 @@ def _try_lock_retry(
     message: str,
     files: List[str],
     cwd: Path,
+    *,
+    with_pathspec: bool = True,
 ) -> Tuple[bool, str]:
     """If *stderr* indicates a stale lock, remove it and retry once."""
     match = _LOCK_RE.search(stderr)
@@ -118,7 +136,7 @@ def _try_lock_retry(
     except OSError:
         return False, stderr
 
-    return _run_commit(message, files, cwd)
+    return _run_commit(message, files, cwd, with_pathspec=with_pathspec)
 
 
 def git_commit(

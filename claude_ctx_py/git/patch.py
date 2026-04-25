@@ -110,13 +110,15 @@ def git_patch(
         if code == 0:
             return 1, f"No staged changes detected for: {' '.join(files)}"
 
-        # 7. Commit
-        ok, commit_err = _run_commit(message, files, work_cwd)
+        # 7. Commit the index without pathspec — passing files here would
+        #    trigger git's --only mode and re-stage working-tree content,
+        #    silently overwriting the hunks just applied via ``apply --cached``.
+        ok, commit_err = _run_commit(message, files, work_cwd, with_pathspec=False)
 
         # 8. Lock retry
         if not ok and force_lock:
             ok, commit_err = _try_lock_retry(
-                commit_err, message, files, work_cwd
+                commit_err, message, files, work_cwd, with_pathspec=False
             )
 
         if not ok:
