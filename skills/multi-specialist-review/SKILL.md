@@ -33,10 +33,10 @@ For atomic-commit review, use the baseline `specialist-review.sh` from the
 
 ## Prerequisites — Claude Code Only
 
-> **This skill requires the Claude Code team API** (`TeamCreate`, `Agent`,
-> `TaskCreate`, `SendMessage`). It cannot be invoked from Codex or Gemini
-> sessions, or from external shells. The parallel sub-agent orchestration and
-> cross-agent coordination depend on primitives only Claude Code provides.
+> **This skill requires the Claude Code `Agent` tool** with the `code-reviewer`
+> subagent type available. It cannot be invoked from Codex or Gemini sessions,
+> or from external shells. Parallelism comes from issuing multiple `Agent`
+> calls in a single assistant message — no team API is needed.
 
 ## Cost
 
@@ -46,7 +46,9 @@ source files, not just diffs), and mechanical citation verification.
 
 ## Orchestration Procedure
 
-Follow these phases exactly. You are the team lead — do not delegate orchestration.
+Follow these phases exactly. You are the orchestrator — do not delegate
+orchestration. Each phase is run by you in-context; only Phase 1 spawns
+sub-agents, and they are one-shot Agent calls that return and exit.
 
 ### Phase 0 — Triage (deterministic, no API cost)
 
@@ -63,41 +65,36 @@ python3 skills/multi-specialist-review/scripts/triage_perspectives.py /tmp/revie
 This outputs JSON with `perspectives`, `display_names`, `focus_areas`, and
 `changed_files`. Save the output — you'll use it to parameterize each specialist.
 
-### Phase 1 — Create team and spawn specialists
+### Phase 1 — Spawn specialists as parallel one-shot Agents
 
-1. Create the team:
-   ```
-   TeamCreate(team_name="review-YYYYMMDD-HHMMSS")
-   ```
+Spawn **all** specialists in a **single assistant message** with one `Agent`
+tool call per perspective. Issuing multiple `Agent` calls in one message runs
+them concurrently — that is the parallelism mechanism. Do **not** use
+`team_name=`, `TeamCreate`, or `TaskCreate`; see the anti-pattern note below
+for why.
 
-2. Create one task per perspective:
-   ```
-   TaskCreate(subject="Review: Correctness", description="Review changed files through Correctness lens")
-   ```
+For each perspective from the triage output:
 
-3. Spawn all specialists **in a single message** for parallel execution. For each
-   perspective from the triage output, use the specialist prompt template:
+```
+Agent(
+  description="Specialist review: {perspective}",
+  subagent_type="code-reviewer",
+  model="sonnet",
+  prompt=<specialist-prompt-template.md with {{PERSPECTIVE}}, {{FOCUS_AREAS}},
+          {{CHANGED_FILES}}, {{DIFF_CONTENT}} filled in>
+)
+```
 
-   ```
-   Agent(
-     name="specialist-{perspective}",
-     subagent_type="code-reviewer",
-     model="sonnet",
-     team_name="review-YYYYMMDD-HHMMSS",
-     prompt=<specialist-prompt-template.md with {{PERSPECTIVE}}, {{FOCUS_AREAS}},
-             {{CHANGED_FILES}}, {{DIFF_CONTENT}} filled in>
-   )
-   ```
+The template is at `skills/multi-specialist-review/references/specialist-prompt-template.md`.
+Each specialist:
+- Inherits the `code-reviewer` toolset (Read, Grep, Glob, etc.) because it
+  is a one-shot Agent call, not a team spawn
+- Reads actual source files via Read/Grep/Glob (not just inlined diffs)
+- Returns its structured JSON object as its final assistant message
 
-   The template is at `skills/multi-specialist-review/references/specialist-prompt-template.md`.
-   Each specialist:
-   - Reads actual source files via Read/Grep/Glob (not just inlined diffs)
-   - Outputs structured JSON with grounded, verifiable findings
-   - Writes output to `.agents/reviews/specialist-{perspective}-{timestamp}.json`
-
-4. Assign each task to its corresponding specialist via TaskUpdate.
-
-5. Wait for all specialists to report completion (automatic via team notifications).
+When each Agent call returns, **you** (the orchestrator) write its JSON
+result to `.agents/reviews/specialist-{perspective}-{timestamp}.json`. The
+verifier in Phase 2 reads these files from disk.
 
 ### Phase 2 — Citation verification (deterministic, no API cost)
 
@@ -115,7 +112,7 @@ This mechanically validates every finding:
 
 Findings that fail verification are stripped with documented reasons.
 
-### Phase 3 — Synthesis (team lead, no extra agent)
+### Phase 3 — Synthesis (orchestrator, no extra agent)
 
 Read the verified findings JSON and
 `skills/multi-specialist-review/references/synthesis-prompt.md`.
@@ -137,12 +134,10 @@ python3 skills/agent-loops/scripts/validate-review-contract.py code-review \
   .agents/reviews/review-{timestamp}.md
 ```
 
-Then shut down all teammates and delete the team:
-```
-SendMessage(to="*", message={type: "shutdown_request"})
-# Wait for shutdown confirmations, then:
-TeamDelete()
-```
+There is no team to tear down — one-shot Agent calls return and exit on
+their own. Optionally trash the per-specialist `.agents/reviews/specialist-*.json`
+intermediates once the synthesized review is written; keep
+`verified-findings.json` and the final markdown.
 
 The output file path is the review artifact — return its path to the user.
 
@@ -192,9 +187,17 @@ decides and triggers it.
 
 ## Anti-Patterns
 
+- **Spawning specialists via `team_name=` / `TeamCreate`** — Team-spawned
+  agents do **not** inherit the `code-reviewer` toolset; they get only
+  inter-agent coordination tools (`SendMessage`, `Task*`) and no
+  Read/Grep/Glob/Write/Bash. The observable failure is specialists
+  announcing "I'll read the files" in plain text, then idling between
+  turns without ever invoking a tool. Always use one-shot `Agent()` calls
+  in a single message instead — they get the full inherited toolset and
+  have no idle-between-turns state.
 - **Spawning specialists sequentially** — Launch all in a single message block for parallel execution.
 - **Skipping citation verification** — Always run `verify_citations.py`. Specialists hallucinate file references.
-- **Adding synthesis as another agent** — The team lead does synthesis in-context. No extra spawn needed.
+- **Adding synthesis as another agent** — The orchestrator does synthesis in-context. No extra spawn needed.
 - **Using this for small diffs** — Single-turn `specialist-review.sh` is 4-6x cheaper and sufficient for atomic commits.
-- **Reviewing your own code** — The team lead must not be the implementer.
+- **Reviewing your own code** — The orchestrator must not be the implementer.
 - **Invoking autonomously from an agent workflow** — This skill is user-triggered. Agents should signal in their handoff, not execute.
