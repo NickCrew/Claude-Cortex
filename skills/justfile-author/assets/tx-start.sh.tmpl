@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# tx-start-<service>.sh — launched by `just svc-<service>` inside a tmux window.
+#
+# Responsibilities:
+#   1. Resolve the project root regardless of caller cwd.
+#   2. Activate the required runtime (nvm/asdf/uv/etc.) so the tmux shell
+#      matches the dev's normal shell, not whatever zsh inherits from tmux.
+#   3. Provide sensible env defaults (override from the parent shell).
+#   4. Exec the actual service command — let it own stdout/stderr so
+#      `cortex tmux read` shows the real process output.
+#
+# Keep the env-bootstrap logic here, NOT in the justfile. The justfile
+# should be portable across machines; this script is where machine-specific
+# runtime activation lives.
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+# ── Runtime activation ─────────────────────────────────────────────
+# Pick the block that matches the project's stack and delete the rest.
+
+# --- Node via nvm ------------------------------------------------
+# export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+# if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+#   . "$NVM_DIR/nvm.sh"
+#   nvm use >/dev/null || nvm install >/dev/null
+# fi
+
+# --- Python via uv -----------------------------------------------
+# Nothing to activate; `uv run` handles the venv. Skip if not using uv.
+
+# --- Anything via asdf -------------------------------------------
+# if [[ -s "$HOME/.asdf/asdf.sh" ]]; then
+#   . "$HOME/.asdf/asdf.sh"
+# fi
+
+# ── Env defaults ───────────────────────────────────────────────────
+# Use ${VAR:-default} so the parent shell's value (or .env) wins.
+# export PORT="${PORT:-3000}"
+# export DATABASE_URL="${DATABASE_URL:-postgres://localhost/{{PROJECT_SLUG}}_dev}"
+
+# ── Launch ─────────────────────────────────────────────────────────
+# Replace with the actual service command. Use `exec` so the script's PID
+# becomes the service's PID — `cortex tmux running` then reflects the
+# real process state, not the wrapper's.
+
+exec {{SERVICE_CMD}}

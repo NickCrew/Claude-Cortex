@@ -1,0 +1,109 @@
+##  {{PROJECT_TITLE}} — Makefile wrapper for just
+##  Every recipe forwards to the justfile. Run `make install-just` if just
+##  is missing — the wrapper will offer to install it on first use.
+
+SHELL     := /bin/bash
+JUST_DEST ?= $(HOME)/bin
+
+# ── Passthrough recipes ────────────────────────────────────────────
+# Keep this list in sync with the justfile. New recipes added to the
+# justfile must be appended both to .PHONY and to the passthrough rule
+# block below, otherwise `make <recipe>` will fall through to the
+# implicit-rule machinery and fail with a confusing error.
+
+.PHONY: default help \
+        install dev \
+        tmux-new svc-dev svc-up svc-list svc-status svc-read-dev \
+        svc-session svc-shell svc-attach \
+        svc-stop-dev svc-stop svc-down svc-restart-dev svc-restart svc-reset \
+        build typecheck lint test test-watch ci clean
+
+default: help
+
+help: ## Show available targets.
+	@echo "Makefile targets (passthrough to justfile):"
+	@echo ""
+	@echo "  make install          Install dependencies"
+	@echo "  make dev              Start the dev server (foreground)"
+	@echo "  make tmux-new         Create the tmux service session"
+	@echo "  make svc-dev          Start the dev server in a tmux window"
+	@echo "  make svc-up           Start every service window"
+	@echo "  make svc-status       Show status for service windows"
+	@echo "  make svc-stop         Stop every service window"
+	@echo "  make svc-restart      Restart every service window"
+	@echo "  make svc-reset        Recreate the tmux service session"
+	@echo "  make build            Production build"
+	@echo "  make typecheck        Static type-checking"
+	@echo "  make lint             Lint"
+	@echo "  make test             Run the test suite"
+	@echo "  make test-watch       Run tests in watch mode"
+	@echo "  make ci               Aggregate CI gate (typecheck + lint + test)"
+	@echo "  make clean            Remove build artifacts"
+	@echo ""
+	@echo "  make test-file FILE=… Run a single test file"
+	@echo ""
+	@echo "  make install-just     Install the just command runner"
+	@echo "  make help             Show this help"
+
+install dev tmux-new svc-dev svc-up svc-list svc-status svc-read-dev svc-session svc-shell svc-attach svc-stop-dev svc-stop svc-down svc-restart-dev svc-restart svc-reset build typecheck lint test test-watch ci clean:
+	@if ! command -v just >/dev/null 2>&1; then \
+		read -p "just is not installed. Install now? [Y/n] " yn; \
+		case "$${yn:-Y}" in \
+			[Yy]*) $(MAKE) install-just;; \
+			*) echo "Aborted."; exit 1;; \
+		esac; \
+	fi; \
+	just $@
+
+# Argument-bearing recipe: `make test-file FILE=path/to/file`.
+.PHONY: test-file
+test-file:
+	@if ! command -v just >/dev/null 2>&1; then \
+		read -p "just is not installed. Install now? [Y/n] " yn; \
+		case "$${yn:-Y}" in \
+			[Yy]*) $(MAKE) install-just;; \
+			*) echo "Aborted."; exit 1;; \
+		esac; \
+	fi; \
+	just test-file $(FILE)
+
+# ── Install just ───────────────────────────────────────────────────
+# Cascades through preferred installers in order: brew (macOS default) →
+# cargo (already-have-rust dev) → snap (some Linux) → official curl script
+# (universal fallback, prints PATH advice if $JUST_DEST is not on $PATH).
+
+.PHONY: install-just
+install-just:
+	@if command -v just >/dev/null 2>&1; then \
+		echo "just is already installed: $$(command -v just)"; \
+		just --version; \
+		exit 0; \
+	fi; \
+	\
+	DEST="$(JUST_DEST)"; \
+	\
+	if echo ":$$PATH:" | grep -q ":$$DEST:"; then \
+		echo "Installing just to $$DEST (already in PATH)..."; \
+		curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$$DEST"; \
+		exit 0; \
+	fi; \
+	\
+	echo "$$DEST is not in PATH — trying package managers..."; \
+	\
+	if command -v brew >/dev/null 2>&1; then \
+		echo "Installing via brew..."; \
+		brew install just; \
+	elif command -v cargo >/dev/null 2>&1; then \
+		echo "Installing via cargo..."; \
+		cargo install just; \
+	elif command -v snap >/dev/null 2>&1; then \
+		echo "Installing via snap..."; \
+		snap install --classic --edge just; \
+	else \
+		echo "No package manager found — installing via official script to $$DEST..."; \
+		mkdir -p "$$DEST"; \
+		curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to "$$DEST"; \
+		echo ""; \
+		echo "Add $$DEST to your PATH:"; \
+		echo "  export PATH=\"$$DEST:\$$PATH\""; \
+	fi

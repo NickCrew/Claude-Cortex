@@ -1,0 +1,175 @@
+# {{PROJECT_TITLE}} — task runner
+# Install: brew install just   (or: make install-just)
+# Usage:   just <recipe>   |   just --list
+
+set dotenv-load := false
+set shell       := ["zsh", "-c"]
+
+# ── Project identity ───────────────────────────────────────────────
+# `project` is the lowercased, underscore-normalized form of the directory
+# name. It is used as the default tmux session name and as the prefix for
+# every tmux service window. Override the session at runtime by exporting
+# TMUX_SESSION before invoking `just`.
+project     := "{{PROJECT_SLUG}}"
+svc_session := env("TMUX_SESSION", project)
+
+# Each long-running local service gets its own window: `<project>-<role>`.
+tmux_app_window   := project + "-app"
+# Add or remove window vars here as services are added or removed.
+# tmux_proxy_window := project + "-proxy"
+# tmux_worker_window := project + "-worker"
+
+# ── Default ────────────────────────────────────────────────────────
+
+# Show available recipes.
+default:
+    @just --list
+
+# ── tmux session helpers ───────────────────────────────────────────
+
+# Idempotently create the tmux session used by all svc-* recipes.
+tmux-new:
+    @session="{{ svc_session }}"; \
+    if tmux has-session -t "$session" 2>/dev/null; then \
+        echo "tmux session '$session' already exists"; \
+    else \
+        tmux new-session -d -s "$session" -n shell; \
+        echo "created tmux session '$session'"; \
+    fi
+
+# Internal: start a service in a dedicated tmux window. Idempotent — if the
+# window exists and the process is running, this is a no-op; if the window
+# exists but the process exited, restart it; otherwise create the window.
+_svc-start window cmd: tmux-new
+    @session="{{ svc_session }}"; window="{{ window }}"; cmd="{{ cmd }}"; \
+    if tmux list-windows -t "$session" -F "#{window_name}" | grep -qx "$window"; then \
+        if cortex tmux running "$window" >/dev/null 2>&1; then \
+            echo "$window is already running"; \
+        else \
+            tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
+        fi; \
+    else \
+        tmux new-window -d -t "$session:" -n "$window"; \
+        tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
+    fi
+    @cortex tmux read {{ window }} 20
+
+# Internal: stop a service window if it exists.
+_svc-stop window:
+    @if tmux list-windows -t "{{ svc_session }}" -F "#{window_name}" | grep -qx "{{ window }}"; then cortex tmux kill {{ window }}; fi
+
+# ── Foreground dev recipes ─────────────────────────────────────────
+# These run in the current shell, blocking until killed. Prefer the svc-*
+# variants below when running inside an agent or alongside other work.
+
+# Install dependencies.
+install:
+    {{INSTALL_CMD}}
+
+# Start the dev server in the foreground.
+dev:
+    {{DEV_CMD}}
+
+# ── Background service recipes (svc-*) ─────────────────────────────
+# These launch the same processes in dedicated tmux windows so an agent can
+# keep working while services run. Each maps to a thin shell wrapper in
+# scripts/ that handles env setup (nvm, asdf, uv, etc.) before exec'ing the
+# real command — keep that env logic out of the justfile.
+
+# Start the dev server in a tmux window.
+svc-dev:
+    @just _svc-start {{ tmux_app_window }} "./scripts/tx-start-app.sh"
+
+# Add a svc recipe per service. Pattern:
+# svc-proxy:
+#     @just _svc-start {{ tmux_proxy_window }} "./scripts/tx-start-proxy.sh"
+
+# Start every service window. Add new svc-* recipes as deps.
+svc-up: svc-dev
+
+# List the windows in the service session.
+svc-list: tmux-new
+    @cortex tmux list
+
+# Show status for every service window.
+svc-status:
+    @echo "== {{ tmux_app_window }} =="
+    @cortex tmux status {{ tmux_app_window }} || true
+
+# Read recent output from the dev window.
+svc-read-dev:
+    @cortex tmux read {{ tmux_app_window }} 50
+
+# Print the tmux session name (useful for `tmux attach -t $(just svc-session)`).
+svc-session:
+    @echo "{{ svc_session }}"
+
+# Attach to (or switch to) the service session's shell window.
+svc-shell: tmux-new
+    @session="{{ svc_session }}"; \
+    tmux select-window -t "$session:shell"; \
+    if [ -n "$TMUX" ]; then \
+        tmux switch-client -t "$session"; \
+    else \
+        tmux attach-session -t "$session"; \
+    fi
+
+# Alias for svc-shell.
+svc-attach: svc-shell
+
+# Stop the dev service window.
+svc-stop-dev:
+    @just _svc-stop {{ tmux_app_window }}
+
+# Stop every service window. Add new svc-stop-* recipes as deps.
+svc-stop: svc-stop-dev
+
+# Alias for svc-stop.
+svc-down: svc-stop
+
+# Restart the dev service window.
+svc-restart-dev: svc-stop-dev
+    @just svc-dev
+
+# Restart every service window.
+svc-restart: svc-stop
+    @just svc-up
+
+# Recreate the tmux session (kills every window in it).
+svc-reset:
+    @if tmux has-session -t "{{ svc_session }}" 2>/dev/null; then tmux kill-session -t "{{ svc_session }}"; fi
+    @just tmux-new
+
+# ── Quality recipes ────────────────────────────────────────────────
+# Required across every project: build, lint, test, typecheck, ci, clean.
+
+# Production build.
+build:
+    {{BUILD_CMD}}
+
+# Static checks (no compilation output).
+typecheck:
+    {{TYPECHECK_CMD}}
+
+# Lint.
+lint:
+    {{LINT_CMD}}
+
+# Run the test suite.
+test:
+    {{TEST_CMD}}
+
+# Run a single test file: `just test-file path/to/file`.
+test-file file:
+    {{TEST_FILE_CMD}}
+
+# Watch tests.
+test-watch:
+    {{TEST_WATCH_CMD}}
+
+# Aggregate quality gate. Used in CI and pre-merge.
+ci: typecheck lint test
+
+# Remove build artifacts.
+clean:
+    {{CLEAN_CMD}}
