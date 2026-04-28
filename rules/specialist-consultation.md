@@ -46,6 +46,8 @@ Agent({
 
 Expect 3-5 points back, not a rewritten plan.
 
+Verify any concrete claims (symbols, paths, line numbers, quoted code) before acting on them — see `delegation-verification.md`.
+
 ## Consultation vs delegation
 
 - **Consultation** keeps ownership with you. The specialist injects perspective;
