@@ -44,6 +44,21 @@ Approximately **$2-3 per review** vs ~$2.00 for single-turn `specialist-review`.
 The premium buys multi-perspective coverage, grounded findings (sub-agents read
 source files, not just diffs), and mechanical citation verification.
 
+## CRITICAL — How specialists are spawned
+
+> **Spawn specialists with one-shot `Agent()` calls only. Do NOT use
+> `TeamCreate`, `team_name=`, or `TaskCreate` to spawn them.**
+>
+> Team-spawned subagents inherit a restricted runtime tool set
+> (`SendMessage`, `Task*` only) — no Read, Grep, Glob, Write, or Bash.
+> The observable failure is specialists narrating "I'll read the files"
+> in plain text and idling between turns without invoking any tool.
+> This has burned this skill twice. The fix is structural: use one-shot
+> `Agent()` calls in a single message, which inherit the `code-reviewer`
+> agent type's full toolset and have no between-turn idle state.
+> Phase 1 below codifies this; the anti-pattern section at the bottom
+> repeats the rule with the diagnostic signal so it can't be missed.
+
 ## Orchestration Procedure
 
 Follow these phases exactly. You are the orchestrator — do not delegate
