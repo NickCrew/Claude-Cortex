@@ -15,8 +15,48 @@ from pathlib import Path
 from typing import List, Dict, Optional, Set, Tuple, Any
 from collections import Counter, defaultdict
 
-from .intelligence import SessionContext, PatternLearner
+from .intelligence import (
+    PatternLearner,
+    ProjectSignature,
+    SessionContext,
+    compute_project_signature,
+)
 from .core.base import _resolve_claude_dir, _resolve_cortex_root
+
+
+# Cross-cutting skills that bypass project-signature filtering. These are
+# workflow / quality / process skills that earn their place regardless of
+# the project's domain, so they should remain candidates even when the
+# signature would otherwise filter them out.
+ALWAYS_ON_SKILLS: frozenset[str] = frozenset(
+    {
+        "atomic-commits",
+        "backlog-md",
+        "code-quality-workflow",
+        "dev-workflows",
+        "evaluator-optimizer",
+        "feature-implementation",
+        "find-skills",
+        "git-ops",
+        "implementation-workflow",
+        "multi-perspective-analysis",
+        "multi-specialist-review",
+        "receiving-code-review",
+        "requesting-code-review",
+        "session-management",
+        "skill-creator",
+        "systematic-debugging",
+        "task-orchestration",
+        "test-driven-development",
+        "test-generation",
+        "testing-anti-patterns",
+        "token-efficiency",
+        "using-superpowers",
+        "verification-before-completion",
+        "workflow-bug-fix",
+        "writing-skills",
+    }
+)
 
 
 @dataclass
@@ -285,6 +325,7 @@ class SkillRecommender:
         context: SessionContext,
         *,
         prompt: str | None = None,
+        project_signature: Optional[ProjectSignature] = None,
     ) -> List[SkillRecommendation]:
         """
         Generate skill recommendations based on current context.
@@ -297,6 +338,13 @@ class SkillRecommender:
 
         Args:
             context: Current session context
+            prompt: Optional natural-language task description used by the
+                semantic-similarity strategy.
+            project_signature: Optional project signature. When provided,
+                skills whose ``file_patterns`` cannot intersect the
+                signature are filtered out before ranking, except for
+                skills on ``ALWAYS_ON_SKILLS``. When ``None`` (default),
+                no filtering is applied.
 
         Returns:
             List of skill recommendations, sorted by confidence (high to low)
@@ -339,6 +387,15 @@ class SkillRecommender:
             else:
                 recommendations[rec.skill_name] = rec
 
+        # Project-signature filter: drop skills whose file_patterns do not
+        # plausibly intersect the project, except always-on skills which
+        # bypass filtering. Applied after strategies merge so confidence
+        # boosts from cross-strategy agreement are preserved.
+        if project_signature is not None:
+            recommendations = self._apply_project_filter(
+                recommendations, project_signature
+            )
+
         # Sort by confidence (highest first)
         sorted_recs = sorted(
             recommendations.values(),
@@ -350,6 +407,46 @@ class SkillRecommender:
         self._record_recommendations(sorted_recs, context)
 
         return sorted_recs
+
+    def _apply_project_filter(
+        self,
+        recommendations: Dict[str, SkillRecommendation],
+        signature: ProjectSignature,
+    ) -> Dict[str, SkillRecommendation]:
+        """Drop recommendations that don't plausibly apply to this project.
+
+        A recommendation is kept if any of the following holds:
+          * The skill is in ``ALWAYS_ON_SKILLS``.
+          * The skill has no ``file_patterns`` declared (no negative
+            evidence — keep it).
+          * At least one of the skill's ``file_patterns`` intersects the
+            project signature.
+        """
+        filtered: Dict[str, SkillRecommendation] = {}
+        for skill_name, rec in recommendations.items():
+            if skill_name in ALWAYS_ON_SKILLS:
+                filtered[skill_name] = rec
+                continue
+            patterns = self._patterns_for_skill(skill_name)
+            if signature.matches_any(patterns):
+                filtered[skill_name] = rec
+        return filtered
+
+    def _patterns_for_skill(self, skill_name: str) -> List[str]:
+        """Return the ``file_patterns`` declared for ``skill_name``.
+
+        Looks the skill up across the rule set built from
+        ``skill-index.json`` (see ``_rules_from_index``). Returns an empty
+        list when the skill has no patterns or isn't in the index.
+        """
+        patterns: List[str] = []
+        for rule in self.rules:
+            for rec_data in rule.get("recommend", []):
+                if rec_data.get("skill") == skill_name:
+                    patterns.extend(
+                        rule.get("trigger", {}).get("file_patterns", [])
+                    )
+        return patterns
 
     def _rule_based_recommendations(
         self,

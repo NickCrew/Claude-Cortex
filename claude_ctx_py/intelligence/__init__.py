@@ -22,14 +22,20 @@ from claude_ctx_py.intelligence.base import (
     WorkflowPrediction,
     get_current_context,
 )
+from claude_ctx_py.intelligence.project_signature import (
+    ProjectSignature,
+    compute_project_signature,
+)
 
 __all__ = [
     "AgentRecommendation",
     "ContextDetector",
     "IntelligentAgent",
     "PatternLearner",
+    "ProjectSignature",
     "SessionContext",
     "WorkflowPrediction",
+    "compute_project_signature",
     "get_current_context",
 ]
 

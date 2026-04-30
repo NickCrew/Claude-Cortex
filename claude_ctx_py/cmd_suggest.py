@@ -14,7 +14,25 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .core import _resolve_claude_dir
-from .intelligence import IntelligentAgent, get_current_context
+from .intelligence import (
+    IntelligentAgent,
+    ProjectSignature,
+    compute_project_signature,
+    get_current_context,
+)
+
+
+def _safe_project_signature(cwd: Path) -> Optional[ProjectSignature]:
+    """Compute a project signature for filtering, swallowing errors.
+
+    A failed signature computation should never break suggestions — falling
+    back to ``None`` simply skips the project filter and yields the
+    pre-existing behavior.
+    """
+    try:
+        return compute_project_signature(cwd)
+    except Exception:
+        return None
 
 
 # ── Formatting helpers ────────────────────────────────────────────
@@ -149,7 +167,10 @@ def suggest_default(
     if not agents_only:
         try:
             recommender = SkillRecommender()
-            skill_recs = recommender.recommend_for_context(context)
+            signature = _safe_project_signature(Path(project_dir))
+            skill_recs = recommender.recommend_for_context(
+                context, project_signature=signature
+            )
         except Exception as exc:
             print(f"Warning: Skill recommendations unavailable: {exc}", file=sys.stderr)
 
@@ -272,7 +293,10 @@ def suggest_activate() -> int:
     try:
         context = get_current_context()
         recommender = SkillRecommender()
-        skill_recs = recommender.recommend_for_context(context)
+        signature = _safe_project_signature(Path.cwd())
+        skill_recs = recommender.recommend_for_context(
+            context, project_signature=signature
+        )
         high_conf = [r for r in skill_recs if r.confidence >= 0.8]
 
         if high_conf:
@@ -404,7 +428,10 @@ def suggest_export(output_file: str = "suggestions.json") -> int:
     # Skill suggestions
     context = get_current_context()
     recommender = SkillRecommender()
-    skill_recs = recommender.recommend_for_context(context)
+    signature = _safe_project_signature(Path.cwd())
+    skill_recs = recommender.recommend_for_context(
+        context, project_signature=signature
+    )
 
     combined: Dict[str, Any] = {
         **agent_data,
