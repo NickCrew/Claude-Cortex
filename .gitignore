@@ -39,8 +39,9 @@ Thumbs.db
 # Metrics data
 .claude/.metrics/
 
-# Runtime intelligence data
-intelligence/
+# Runtime intelligence data (root-level only — does NOT match
+# claude_ctx_py/intelligence/, which is the source-code package).
+/intelligence/
 
 # Testing
 .pytest_cache/
