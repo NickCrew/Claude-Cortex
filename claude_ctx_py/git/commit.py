@@ -74,13 +74,47 @@ def _verify_files_exist(files: List[str], cwd: Path) -> Optional[str]:
     return None
 
 
-def _unstage_all(cwd: Path) -> Optional[str]:
-    """Reset the staging area.  Returns error string on failure, else ``None``."""
+def _clear_stale_lock_from_error(stderr: str) -> bool:
+    """Remove a stale ``index.lock`` file referenced in ``stderr``.
+
+    Returns ``True`` if a lock matching the error message existed and was
+    successfully removed; ``False`` otherwise (no lock match, lock already
+    gone, or removal failed).
+    """
+    match = _LOCK_RE.search(stderr)
+    if not match:
+        return False
+    lock_path = Path(match.group(1))
+    if not lock_path.exists():
+        return False
+    try:
+        lock_path.unlink()
+    except OSError:
+        return False
+    sys.stderr.write(f"Removed stale git lock: {lock_path}\n")
+    return True
+
+
+def _unstage_all(cwd: Path, *, force_lock: bool = False) -> Optional[str]:
+    """Reset the staging area.  Returns error string on failure, else ``None``.
+
+    When ``force_lock`` is ``True`` and the unstage call fails because of a
+    stale ``index.lock``, the lock is removed and the unstage is retried
+    once. This is the first index-touching step in both ``git_commit`` and
+    ``git_patch``, so a stale lock blocks the entire pipeline here unless
+    we recover at this point.
+    """
     code, _out, err = run_git(["restore", "--staged", ":/"], cwd)
     if code != 0:
         # Fresh repo with no HEAD — nothing to unstage, that's fine.
         if "Could not resolve HEAD" in err or "HEAD" in err:
             return None
+        if force_lock and _clear_stale_lock_from_error(err):
+            code, _out, err = run_git(["restore", "--staged", ":/"], cwd)
+            if code == 0:
+                return None
+            if "Could not resolve HEAD" in err or "HEAD" in err:
+                return None
         return f"Failed to unstage: {err.strip()}"
     return None
 
@@ -121,21 +155,9 @@ def _try_lock_retry(
     *,
     with_pathspec: bool = True,
 ) -> Tuple[bool, str]:
-    """If *stderr* indicates a stale lock, remove it and retry once."""
-    match = _LOCK_RE.search(stderr)
-    if not match:
+    """If *stderr* indicates a stale lock, remove it and retry the commit once."""
+    if not _clear_stale_lock_from_error(stderr):
         return False, stderr
-
-    lock_path = Path(match.group(1))
-    if not lock_path.exists():
-        return False, stderr
-
-    try:
-        lock_path.unlink()
-        sys.stderr.write(f"Removed stale git lock: {lock_path}\n")
-    except OSError:
-        return False, stderr
-
     return _run_commit(message, files, cwd, with_pathspec=with_pathspec)
 
 
@@ -179,7 +201,7 @@ def git_commit(
     _emit_warnings(check_atomicity(message, files))
 
     # 3. Unstage everything
-    unstage_err = _unstage_all(work_cwd)
+    unstage_err = _unstage_all(work_cwd, force_lock=force_lock)
     if unstage_err:
         return 1, f"Error: {unstage_err}"
 

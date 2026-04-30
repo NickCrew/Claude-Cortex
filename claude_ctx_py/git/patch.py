@@ -67,7 +67,7 @@ def git_patch(
     _emit_warnings(check_atomicity(message, files))
 
     # 3. Unstage everything
-    unstage_err = _unstage_all(work_cwd)
+    unstage_err = _unstage_all(work_cwd, force_lock=force_lock)
     if unstage_err:
         return 1, f"Error: {unstage_err}"
 

@@ -98,6 +98,50 @@ class TestGitCommit:
         assert code == 0
         assert not lock.exists()
 
+    @patch(f"{_MOD}.run_git")
+    @patch(f"{_MOD}.resolve_repo_root", return_value=(Path("/repo"), None))
+    def test_lock_retry_at_unstage_with_force(self, _root, mock_run, tmp_path):
+        """Stale lock blocking the unstage step should be cleared under force_lock."""
+        f = tmp_path / "file.py"
+        f.write_text("x")
+        lock = tmp_path / ".git" / "index.lock"
+        lock.parent.mkdir(parents=True)
+        lock.write_text("")
+
+        mock_run.side_effect = [
+            # 1st restore --staged fails because of stale lock
+            (1, "", f"fatal: Unable to create '{lock}': File exists."),
+            # retry restore --staged after lock is cleared
+            (0, "", ""),
+            (0, "", ""),   # add -A
+            (1, "", ""),   # diff --staged --quiet (1 = has changes)
+            (0, "", ""),   # commit succeeds
+        ]
+        code, msg = git_commit("fix: bug", [str(f)], force_lock=True, cwd=tmp_path)
+        assert code == 0
+        assert not lock.exists()
+
+    @patch(f"{_MOD}.run_git")
+    @patch(f"{_MOD}.resolve_repo_root", return_value=(Path("/repo"), None))
+    def test_lock_at_unstage_without_force_does_not_retry(
+        self, _root, mock_run, tmp_path
+    ):
+        """Without force_lock, the unstage step should NOT remove the lock."""
+        f = tmp_path / "file.py"
+        f.write_text("x")
+        lock = tmp_path / ".git" / "index.lock"
+        lock.parent.mkdir(parents=True)
+        lock.write_text("")
+
+        mock_run.side_effect = [
+            (1, "", f"fatal: Unable to create '{lock}': File exists."),
+        ]
+        code, msg = git_commit("fix: bug", [str(f)], cwd=tmp_path)
+        assert code == 1
+        assert "Failed to unstage" in msg
+        # Lock must remain — we did not opt into clearing it.
+        assert lock.exists()
+
     @patch(f"{_MOD}.resolve_repo_root", return_value=(None, "Not a git repository"))
     def test_not_in_repo(self, _root):
         code, msg = git_commit("fix: bug", ["file.py"])
@@ -115,3 +159,30 @@ class TestGitCommit:
         code, msg = git_commit("fix: bug", ["nonexistent.py"], cwd=tmp_path)
         assert code == 1
         assert "not found" in msg.lower()
+
+
+class TestClearStaleLockFromError:
+    """Pure-logic tests for the lock-clearing helper."""
+
+    def test_match_and_clear(self, tmp_path: Path) -> None:
+        from claude_ctx_py.git.commit import _clear_stale_lock_from_error
+
+        lock = tmp_path / "index.lock"
+        lock.write_text("")
+        stderr = f"fatal: Unable to create '{lock}': File exists."
+
+        assert _clear_stale_lock_from_error(stderr) is True
+        assert not lock.exists()
+
+    def test_non_matching_error_returns_false(self, tmp_path: Path) -> None:
+        from claude_ctx_py.git.commit import _clear_stale_lock_from_error
+
+        assert _clear_stale_lock_from_error("some other error") is False
+
+    def test_lock_already_gone_returns_false(self, tmp_path: Path) -> None:
+        from claude_ctx_py.git.commit import _clear_stale_lock_from_error
+
+        lock = tmp_path / "index.lock"
+        # Reference a path that doesn't exist
+        stderr = f"fatal: Unable to create '{lock}': File exists."
+        assert _clear_stale_lock_from_error(stderr) is False
