@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from claude_ctx_py.tmux.run import (
+    _strip_pane,
     ensure_session,
     ensure_window,
     resolve_session,
@@ -92,3 +93,39 @@ class TestEnsureWindow:
     def test_session_missing(self, _):
         sess, err = ensure_window("win", "missing")
         assert err is not None
+
+    @patch(f"{_MOD}.run_tmux")
+    def test_pane_suffix_stripped(self, mock_run):
+        mock_run.side_effect = [
+            (0, "", ""),             # has-session
+            (0, "claude\nshell\n", ""),  # list-windows
+        ]
+        # `claude.1` should validate against window `claude`.
+        sess, err = ensure_window("claude.1", "test")
+        assert err is None
+
+    @patch(f"{_MOD}.run_tmux")
+    def test_dotted_window_name_preserved(self, mock_run):
+        # A window literally named `my.config` (non-numeric suffix) is
+        # not stripped — the regex only matches `.<digits>$`.
+        mock_run.side_effect = [
+            (0, "", ""),
+            (0, "my.config\n", ""),
+        ]
+        sess, err = ensure_window("my.config", "test")
+        assert err is None
+
+
+@pytest.mark.unit
+class TestStripPane:
+    def test_strips_numeric_suffix(self):
+        assert _strip_pane("claude.1") == "claude"
+        assert _strip_pane("shell.0") == "shell"
+        assert _strip_pane("name.42") == "name"
+
+    def test_preserves_non_numeric_suffix(self):
+        assert _strip_pane("my.config") == "my.config"
+        assert _strip_pane("file.tsx") == "file.tsx"
+
+    def test_no_suffix(self):
+        assert _strip_pane("claude") == "claude"

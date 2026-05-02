@@ -7,11 +7,22 @@ that all other ``tmux/*`` modules build on.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 DEFAULT_LINES = 50
+
+# Trailing ``.<digits>`` is treated as a pane index. Only matches when
+# the suffix is purely numeric, so window names containing dots
+# (rare but legal) keep working.
+_PANE_SUFFIX = re.compile(r"\.\d+$")
+
+
+def _strip_pane(window: str) -> str:
+    """Drop a ``.<pane_index>`` suffix if present, otherwise return as-is."""
+    return _PANE_SUFFIX.sub("", window)
 
 
 def resolve_session() -> str:
@@ -69,7 +80,10 @@ def ensure_window(
 ) -> Tuple[str, Optional[str]]:
     """Verify that *window* exists in *session*.
 
-    Calls :func:`ensure_session` first, then checks the window list.
+    Accepts both ``window`` and ``window.pane`` forms; only the window
+    half is validated against the session's window list. Pane indexing
+    is passed through to tmux unmodified.
+
     Returns ``(session_name, None)`` on success or
     ``(session_name, error_message)`` on failure.
     """
@@ -84,10 +98,11 @@ def ensure_window(
         return sess, f"Failed to list windows in session '{sess}'"
 
     windows = [line.strip() for line in out.splitlines() if line.strip()]
-    if window not in windows:
+    win_only = _strip_pane(window)
+    if win_only not in windows:
         avail = ", ".join(windows) if windows else "(none)"
         return sess, (
-            f"Window '{window}' not found in session '{sess}'. "
+            f"Window '{win_only}' not found in session '{sess}'. "
             f"Available: {avail}"
         )
     return sess, None
