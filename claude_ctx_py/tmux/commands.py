@@ -40,6 +40,47 @@ def tmux_send(
     return 0, f"Sent to {window}: {command}"
 
 
+def tmux_say(
+    window: str,
+    message: str,
+    session: Optional[str] = None,
+    settle: float = 0.5,
+) -> Tuple[int, str]:
+    """Deliver *message* to a TUI running in *window*.
+
+    Sends the text and the submit keystroke as **two separate**
+    ``send-keys`` calls with a *settle* pause in between. TUIs like
+    Claude Code and Codex use a debounced input box; combining text
+    and ``Enter`` in one call can race the render loop and submit a
+    truncated message.
+
+    Unlike :func:`tmux_send`, this does *not* prepend ``C-c`` — that
+    would interrupt the running TUI. Use ``tmux_send`` for shells.
+    """
+    if not window or not window.strip():
+        return 1, "Window name required"
+    if not message:
+        return 1, "Message required"
+
+    sess, err = ensure_window(window, session)
+    if err:
+        return 1, err
+
+    target = _target(sess, window)
+
+    code, _out, tmux_err = run_tmux(["send-keys", "-t", target, message])
+    if code != 0:
+        return 1, f"Failed to send message: {tmux_err.strip()}"
+
+    if settle > 0:
+        time.sleep(settle)
+
+    code, _out, tmux_err = run_tmux(["send-keys", "-t", target, "Enter"])
+    if code != 0:
+        return 1, f"Failed to submit message: {tmux_err.strip()}"
+    return 0, f"Said to {window}: {message}"
+
+
 def tmux_type(
     window: str,
     text: str,

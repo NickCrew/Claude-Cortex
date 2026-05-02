@@ -5,7 +5,7 @@ Provides agent-friendly tmux window management and output capture.
 
 from __future__ import annotations
 
-from .commands import tmux_interrupt, tmux_keys, tmux_send, tmux_type
+from .commands import tmux_interrupt, tmux_keys, tmux_say, tmux_send, tmux_type
 from .justfile import tmux_justfile
 from .output import tmux_dump, tmux_read, tmux_running, tmux_status, tmux_wait, tmux_watch
 from .run import resolve_session, run_tmux
@@ -21,6 +21,7 @@ __all__ = [
     "tmux_kill",
     # commands
     "tmux_send",
+    "tmux_say",
     "tmux_type",
     "tmux_keys",
     "tmux_interrupt",

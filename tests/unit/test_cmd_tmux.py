@@ -41,6 +41,17 @@ class TestTmuxParsing:
         assert ns.window == "build"
         assert ns.command_parts == ["cargo", "build"]
 
+    def test_say(self):
+        ns = _parse(["tmux", "say", "claude", "hello", "world"])
+        assert ns.tmux_command == "say"
+        assert ns.window == "claude"
+        assert ns.message_parts == ["hello", "world"]
+        assert ns.settle == 0.5
+
+    def test_say_custom_settle(self):
+        ns = _parse(["tmux", "say", "claude", "hi", "--settle", "1.0"])
+        assert ns.settle == 1.0
+
     def test_type(self):
         ns = _parse(["tmux", "type", "build", "hello"])
         assert ns.tmux_command == "type"
@@ -128,6 +139,14 @@ class TestTmuxDispatch:
         code = handle_tmux_command(_parse(["tmux", "interrupt", "build"]))
         assert code == 0
         mock_fn.assert_called_once_with("build")
+
+    @patch(f"{_TMUX}.tmux_say", return_value=(0, "Said"))
+    def test_say(self, mock_fn):
+        code = handle_tmux_command(
+            _parse(["tmux", "say", "claude", "hello", "world"])
+        )
+        assert code == 0
+        mock_fn.assert_called_once_with("claude", "hello world", settle=0.5)
 
     @patch(f"{_TMUX}.tmux_read", return_value=(0, "output"))
     def test_read(self, mock_fn):

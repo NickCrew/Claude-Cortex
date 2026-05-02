@@ -40,6 +40,25 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Command to send",
     )
 
+    # --- say ---
+    say_parser = tmux_sub.add_parser(
+        "say",
+        help="Send a message to a TUI (text + settle + Enter, no C-c clear)",
+    )
+    say_parser.add_argument("window", help="Window name")
+    say_parser.add_argument(
+        "message_parts",
+        nargs="+",
+        metavar="message",
+        help="Message text",
+    )
+    say_parser.add_argument(
+        "--settle",
+        type=float,
+        default=0.5,
+        help="Seconds to pause before Enter (default: 0.5)",
+    )
+
     # --- type ---
     type_parser = tmux_sub.add_parser(
         "type", help="Type text without pressing Enter"
@@ -149,6 +168,12 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
     if cmd == "send":
         command_str = " ".join(args.command_parts)
         code, msg = tmux.tmux_send(args.window, command_str)
+        _print(msg)
+        return code
+
+    if cmd == "say":
+        message_str = " ".join(args.message_parts)
+        code, msg = tmux.tmux_say(args.window, message_str, settle=args.settle)
         _print(msg)
         return code
 
