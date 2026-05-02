@@ -143,6 +143,17 @@ The following projects inspired architectural decisions, design patterns, and wo
 
 Code's emphasis on developer experience, local-first architecture, and reasoning controls informed our TUI design, settings management, and the thinking budget system.
 
+### Tmux Orchestrator
+**Repository:** [Jedward23/Tmux-Orchestrator](https://github.com/Jedward23/Tmux-Orchestrator)
+**License:** MIT License
+**Inspiration:**
+- Send-and-settle timing pattern for delivering messages to TUIs (`cortex tmux say`) — the upstream project's `send-claude-message.sh` documented why text and Enter must be separate `send-keys` calls with a settle pause when the target is a debounced input box (Claude Code, Codex, etc.).
+- Multi-session "what is every agent doing right now?" digest (`cortex tmux snapshot`) — modelled on the orchestrator's `create_monitoring_snapshot()` pattern.
+- Hub-and-spoke window-naming convention documented in `docs/guides/tmux-orchestration.md` (e.g. `Claude-<role>`, `<runtime>-Dev`, `TEMP-<task>`).
+- The `-c <cwd>` window-creation gotcha and the always-capture-pane-after-send verification habit, both documented in the Tmux-Orchestrator's `CLAUDE.md` and `LEARNINGS.md`.
+
+The Tmux-Orchestrator's scheduling/PM-hierarchy components were intentionally not adopted; only the tmux primitives and message-passing patterns informed cortex's tmux module.
+
 ## Technology Stack Credits
 
 ### Python Textual TUI Framework
@@ -191,4 +202,4 @@ If you believe your work has been used in a way that constitutes copyright infri
 
 ---
 
-**Last Updated:** April 2026
+**Last Updated:** May 2026
