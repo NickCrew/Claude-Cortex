@@ -20,6 +20,28 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     # --- list ---
     tmux_sub.add_parser("list", help="List windows in session")
 
+    # --- sessions ---
+    tmux_sub.add_parser(
+        "sessions", help="List every tmux session with attached state"
+    )
+
+    # --- snapshot ---
+    snap_parser = tmux_sub.add_parser(
+        "snapshot",
+        help="Multi-session digest with last N lines per window",
+    )
+    snap_parser.add_argument(
+        "--lines",
+        type=int,
+        default=10,
+        help="Lines of recent output to include per window (default: 10)",
+    )
+    snap_parser.add_argument(
+        "--session",
+        default=None,
+        help="Scope snapshot to a single session (default: all)",
+    )
+
     # --- new ---
     new_parser = tmux_sub.add_parser("new", help="Create a new window")
     new_parser.add_argument("window", help="Window name")
@@ -152,6 +174,19 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
 
     if cmd == "list":
         code, msg = tmux.tmux_list()
+        _print(msg)
+        return code
+
+    if cmd == "sessions":
+        code, msg = tmux.tmux_sessions()
+        _print(msg)
+        return code
+
+    if cmd == "snapshot":
+        code, msg = tmux.tmux_snapshot(
+            lines=args.lines,
+            session=getattr(args, "session", None),
+        )
         _print(msg)
         return code
 

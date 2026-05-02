@@ -24,6 +24,21 @@ class TestTmuxParsing:
         ns = _parse(["tmux", "list"])
         assert ns.tmux_command == "list"
 
+    def test_sessions(self):
+        ns = _parse(["tmux", "sessions"])
+        assert ns.tmux_command == "sessions"
+
+    def test_snapshot_defaults(self):
+        ns = _parse(["tmux", "snapshot"])
+        assert ns.tmux_command == "snapshot"
+        assert ns.lines == 10
+        assert ns.session is None
+
+    def test_snapshot_custom(self):
+        ns = _parse(["tmux", "snapshot", "--lines", "20", "--session", "main"])
+        assert ns.lines == 20
+        assert ns.session == "main"
+
     def test_new(self):
         ns = _parse(["tmux", "new", "build"])
         assert ns.tmux_command == "new"
@@ -115,6 +130,20 @@ class TestTmuxDispatch:
         code = handle_tmux_command(_parse(["tmux", "list"]))
         assert code == 0
         mock_fn.assert_called_once()
+
+    @patch(f"{_TMUX}.tmux_sessions", return_value=(0, "main"))
+    def test_sessions(self, mock_fn):
+        code = handle_tmux_command(_parse(["tmux", "sessions"]))
+        assert code == 0
+        mock_fn.assert_called_once()
+
+    @patch(f"{_TMUX}.tmux_snapshot", return_value=(0, "snap"))
+    def test_snapshot(self, mock_fn):
+        code = handle_tmux_command(
+            _parse(["tmux", "snapshot", "--lines", "5", "--session", "main"])
+        )
+        assert code == 0
+        mock_fn.assert_called_once_with(lines=5, session="main")
 
     @patch(f"{_TMUX}.tmux_new", return_value=(0, "Created"))
     def test_new(self, mock_fn):
