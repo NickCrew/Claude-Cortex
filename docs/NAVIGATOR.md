@@ -47,6 +47,7 @@ Quick-reference map to all cortex documentation.
 - [Hooks Guide](guides/hooks.md) — Hook installation and authoring
 - [Integrations](guides/integrations.md) — External tool connections
 - [MCP Guides](guides/mcp/) — MCP server setup
+- [Tmux Orchestration](guides/tmux-orchestration.md) — Driving sibling agents and processes via `cortex tmux`
 
 ### Development Plans
 - [Multi-Specialist Review](development/plans/multi-specialist-review.md) — Parallel specialist code review with citation verification
