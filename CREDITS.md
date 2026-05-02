@@ -131,6 +131,14 @@ These skills are used under MIT License and were adapted to fit the cortex frame
 
 The following projects inspired architectural decisions, design patterns, and workflow concepts in cortex (no direct code copying):
 
+### Agent Deck
+**Repository:** [asheshgoplani/agent-deck](https://github.com/asheshgoplani/agent-deck)
+**License:** MIT License
+**Inspiration:**
+- The `llms.txt` + `llms-full.txt` documentation convention (`site/llms.txt`, with a relative symlink at the repo root) — agent-deck demonstrated a clean two-file implementation of the [llmstxt.org](https://llmstxt.org) spec: a short summary served from the site root for paste-into-LLM access, paired with a long-form reference for deeper context. The pattern of two hand-maintained plain-text files (no front matter, passed through Jekyll verbatim alongside `robots.txt`) came from agent-deck's example.
+
+Agent Deck is a session orchestrator — a different product category from Cortex — so its core features (conductors, watcher framework, MCP socket pooling, cost tracking, multi-channel notifications) were intentionally not adopted. Only the documentation pattern informed Cortex.
+
 ### Code CLI
 **Repository:** [just-every/code](https://github.com/just-every/code)
 **License:** Apache-2.0 License

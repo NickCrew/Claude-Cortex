@@ -1,0 +1,90 @@
+# Cortex
+
+> Multi-model development orchestration for Claude Code, Codex, and Gemini
+
+Cortex is a context orchestration framework that coordinates AI coding agents across model providers, shipped as a Python CLI plus Textual TUI. It bundles curated agents, skills, rules, and hooks for Claude Code, and enforces quality gates — independent code review, test-coverage audits, lint checks — so that no agent grades its own homework.
+
+## Core principle
+
+The agent that writes the code never reviews it. When one model implements a feature, the review is routed to a different model family first, then to a different model in the same family, with same-instance review only as a last resort. Every review produces a structured artifact with severity levels and a pass/fail verdict.
+
+## Three quality loops
+
+- **Code change loop** — implement → independent review → remediate P0/P1 → re-review (max 3 cycles)
+- **Test writing loop** — audit gaps → write tests → verify → re-audit (max 3 cycles)
+- **Lint gate** — discover linter → auto-fix → check → remediate (max 2 cycles)
+
+P0/P1 findings block the loop. P2/P3 are filed as backlog issues. Circuit breakers escalate to a human rather than looping infinitely.
+
+## What ships
+
+| Asset | Purpose |
+|---|---|
+| `agents/` | Specialized subagents (review, security, architecture, language pros) |
+| `skills/` | Skill modules with progressive disclosure |
+| `rules/` | Behavioral guardrails and coding conventions |
+| `hooks/` | Claude Code lifecycle automation (skill suggestion, validation) |
+| `claude_ctx_py/` | Python CLI and Textual TUI |
+
+## Skill suggestion (not activation)
+
+Skills surface as you work via a two-layer pipeline: fast keyword matching on every prompt (~50ms), with optional semantic matching (`fastembed`) for deeper recommendations. The TUI runs a background watch daemon for continuous suggestions. Cortex suggests; it does not auto-activate — the user or agent decides whether to invoke a suggested skill.
+
+Agents, by contrast, stay active once installed.
+
+## Install
+
+```
+# Python (any platform)
+pipx install claude-cortex
+
+# macOS (Homebrew)
+brew tap NickCrew/cortex
+brew install cortex
+```
+
+Then link bundled assets into `~/.claude/` and launch the TUI:
+
+```
+cortex install link
+cortex tui
+```
+
+## CLI surface
+
+```
+cortex status                          active agents, rules, hooks, skills
+cortex agent list|status               manage agent definitions
+cortex skills list|info|recommend      discover and inspect skills
+cortex rules list|activate             manage behavioral rules
+cortex hooks list|install              install and validate hooks
+cortex mcp list|diagnose               MCP server discovery and diagnostics
+cortex ai recommend|watch              skill recommendations (one-shot or daemon)
+cortex review                          run review workflows
+cortex tui                             launch terminal UI
+cortex docs                            browse bundled documentation
+```
+
+`cortex <command> --help` shows the full surface for any subcommand.
+
+## Scope resolution
+
+Cortex resolves its data folder in this order:
+
+1. `CORTEX_SCOPE` (`project` / `global` / `plugin`)
+2. `CLAUDE_PLUGIN_ROOT` (set by Claude Code for plugin commands)
+3. `CORTEX_ROOT` (default: `~/.cortex`)
+
+Active assets are tracked in `.active-*` state files (`.active-agents`, `.active-rules`, etc.) — not in CLAUDE.md comments.
+
+## Links
+
+- Repository: https://github.com/NickCrew/claude-cortex
+- Documentation: https://cortex.atlascrew.dev
+- PyPI: https://pypi.org/project/claude-cortex/
+- Issues: https://github.com/NickCrew/claude-cortex/issues
+- Changelog: https://github.com/NickCrew/claude-cortex/blob/main/CHANGELOG.md
+
+## License
+
+MIT
