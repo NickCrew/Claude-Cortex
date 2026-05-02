@@ -57,6 +57,34 @@ def tmux_new(
     return 0, f"Created window: {window}"
 
 
+def tmux_rename(
+    old: str,
+    new: str,
+    session: Optional[str] = None,
+) -> Tuple[int, str]:
+    """Rename window *old* to *new*.
+
+    Useful for self-labeling: an agent that takes over a window can
+    relabel it (e.g. ``Claude-Frontend``) so a sibling agent surveying
+    sessions via ``tmux snapshot`` knows what each window is for.
+    """
+    if not old or not old.strip():
+        return 1, "Old window name required"
+    if not new or not new.strip():
+        return 1, "New window name required"
+
+    sess, err = ensure_window(old, session)
+    if err:
+        return 1, err
+
+    code, _out, tmux_err = run_tmux(
+        ["rename-window", "-t", _target(sess, old), new]
+    )
+    if code != 0:
+        return 1, f"Failed to rename window: {tmux_err.strip()}"
+    return 0, f"Renamed {old} -> {new}"
+
+
 def tmux_kill(window: str, session: Optional[str] = None) -> Tuple[int, str]:
     """Kill a window."""
     if not window or not window.strip():

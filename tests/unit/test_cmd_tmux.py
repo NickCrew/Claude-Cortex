@@ -54,6 +54,12 @@ class TestTmuxParsing:
         assert ns.tmux_command == "kill"
         assert ns.window == "build"
 
+    def test_rename(self):
+        ns = _parse(["tmux", "rename", "old", "new"])
+        assert ns.tmux_command == "rename"
+        assert ns.old == "old"
+        assert ns.new == "new"
+
     def test_send(self):
         ns = _parse(["tmux", "send", "build", "cargo", "build"])
         assert ns.command == "tmux"
@@ -170,6 +176,12 @@ class TestTmuxDispatch:
         code = handle_tmux_command(_parse(["tmux", "kill", "build"]))
         assert code == 0
         mock_fn.assert_called_once_with("build")
+
+    @patch(f"{_TMUX}.tmux_rename", return_value=(0, "Renamed"))
+    def test_rename(self, mock_fn):
+        code = handle_tmux_command(_parse(["tmux", "rename", "old", "new"]))
+        assert code == 0
+        mock_fn.assert_called_once_with("old", "new")
 
     @patch(f"{_TMUX}.tmux_send", return_value=(0, "Sent"))
     def test_send(self, mock_fn):

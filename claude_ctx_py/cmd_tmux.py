@@ -56,6 +56,11 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     kill_parser = tmux_sub.add_parser("kill", help="Kill a window")
     kill_parser.add_argument("window", help="Window name")
 
+    # --- rename ---
+    rename_parser = tmux_sub.add_parser("rename", help="Rename a window")
+    rename_parser.add_argument("old", help="Existing window name")
+    rename_parser.add_argument("new", help="New window name")
+
     # --- send ---
     send_parser = tmux_sub.add_parser(
         "send", help="Send command to window (presses Enter)"
@@ -204,6 +209,11 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
 
     if cmd == "kill":
         code, msg = tmux.tmux_kill(args.window)
+        _print(msg)
+        return code
+
+    if cmd == "rename":
+        code, msg = tmux.tmux_rename(args.old, args.new)
         _print(msg)
         return code
 

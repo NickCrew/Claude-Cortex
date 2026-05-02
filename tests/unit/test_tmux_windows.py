@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from claude_ctx_py.tmux.windows import tmux_kill, tmux_list, tmux_new
+from claude_ctx_py.tmux.windows import tmux_kill, tmux_list, tmux_new, tmux_rename
 
 _MOD = "claude_ctx_py.tmux.windows"
 
@@ -53,6 +53,33 @@ class TestTmuxNew:
         code, msg = tmux_new("")
         assert code == 1
         assert "name" in msg.lower()
+
+
+@pytest.mark.unit
+class TestTmuxRename:
+    @patch(f"{_MOD}.run_tmux", return_value=(0, "", ""))
+    @patch(f"{_MOD}.ensure_window", return_value=("test", None))
+    def test_success(self, _win, mock_run):
+        code, msg = tmux_rename("old", "new", "test")
+        assert code == 0
+        assert "old -> new" in msg
+        sent = mock_run.call_args.args[0]
+        assert sent[0] == "rename-window"
+        assert "new" in sent
+
+    def test_empty_old(self):
+        code, _msg = tmux_rename("", "new")
+        assert code == 1
+
+    def test_empty_new(self):
+        code, _msg = tmux_rename("old", "")
+        assert code == 1
+
+    @patch(f"{_MOD}.ensure_window", return_value=("test", "Window not found"))
+    def test_window_missing(self, _win):
+        code, msg = tmux_rename("nope", "new", "test")
+        assert code == 1
+        assert "not found" in msg
 
 
 @pytest.mark.unit
