@@ -34,6 +34,21 @@ class TestTmuxNew:
         assert code == 0
         assert "build" in msg
 
+    @patch(f"{_MOD}.run_tmux", return_value=(0, "", ""))
+    @patch(f"{_MOD}.ensure_session", return_value=("test", None))
+    def test_no_cwd_omits_c_flag(self, _sess, mock_run):
+        tmux_new("build", "test")
+        sent_args = mock_run.call_args.args[0]
+        assert "-c" not in sent_args
+
+    @patch(f"{_MOD}.run_tmux", return_value=(0, "", ""))
+    @patch(f"{_MOD}.ensure_session", return_value=("test", None))
+    def test_cwd_passes_c_flag(self, _sess, mock_run):
+        tmux_new("build", "test", cwd="/tmp/work")
+        sent_args = mock_run.call_args.args[0]
+        assert "-c" in sent_args
+        assert "/tmp/work" in sent_args
+
     def test_empty_name(self):
         code, msg = tmux_new("")
         assert code == 1

@@ -43,6 +43,11 @@ class TestTmuxParsing:
         ns = _parse(["tmux", "new", "build"])
         assert ns.tmux_command == "new"
         assert ns.window == "build"
+        assert ns.cwd is None
+
+    def test_new_with_cwd(self):
+        ns = _parse(["tmux", "new", "build", "--cwd", "/tmp/work"])
+        assert ns.cwd == "/tmp/work"
 
     def test_kill(self):
         ns = _parse(["tmux", "kill", "build"])
@@ -145,11 +150,20 @@ class TestTmuxDispatch:
         assert code == 0
         mock_fn.assert_called_once_with(lines=5, session="main")
 
+    @patch("claude_ctx_py.cmd_tmux.os.getcwd", return_value="/cwd/here")
     @patch(f"{_TMUX}.tmux_new", return_value=(0, "Created"))
-    def test_new(self, mock_fn):
+    def test_new_defaults_to_current_dir(self, mock_fn, _getcwd):
         code = handle_tmux_command(_parse(["tmux", "new", "build"]))
         assert code == 0
-        mock_fn.assert_called_once_with("build")
+        mock_fn.assert_called_once_with("build", cwd="/cwd/here")
+
+    @patch(f"{_TMUX}.tmux_new", return_value=(0, "Created"))
+    def test_new_with_explicit_cwd(self, mock_fn):
+        code = handle_tmux_command(
+            _parse(["tmux", "new", "build", "--cwd", "/tmp/work"])
+        )
+        assert code == 0
+        mock_fn.assert_called_once_with("build", cwd="/tmp/work")
 
     @patch(f"{_TMUX}.tmux_kill", return_value=(0, "Killed"))
     def test_kill(self, mock_fn):

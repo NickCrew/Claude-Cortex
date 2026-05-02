@@ -27,8 +27,19 @@ def tmux_list(session: Optional[str] = None) -> Tuple[int, str]:
     return 0, out.strip()
 
 
-def tmux_new(window: str, session: Optional[str] = None) -> Tuple[int, str]:
-    """Create a new window."""
+def tmux_new(
+    window: str,
+    session: Optional[str] = None,
+    cwd: Optional[str] = None,
+) -> Tuple[int, str]:
+    """Create a new window.
+
+    If *cwd* is provided, pass it as ``-c`` so the new window's shell
+    starts there. Otherwise tmux falls back to the directory where the
+    tmux *server* was started, which is rarely what callers want — the
+    CLI handler defaults *cwd* to the current working directory to
+    prevent that surprise.
+    """
     if not window or not window.strip():
         return 1, "Window name required"
 
@@ -36,9 +47,11 @@ def tmux_new(window: str, session: Optional[str] = None) -> Tuple[int, str]:
     if err:
         return 1, err
 
-    code, _out, tmux_err = run_tmux(
-        ["new-window", "-t", sess, "-n", window]
-    )
+    args = ["new-window", "-t", sess, "-n", window]
+    if cwd:
+        args.extend(["-c", cwd])
+
+    code, _out, tmux_err = run_tmux(args)
     if code != 0:
         return 1, f"Failed to create window: {tmux_err.strip()}"
     return 0, f"Created window: {window}"

@@ -6,6 +6,7 @@ Delegates to :mod:`claude_ctx_py.tmux` for all domain logic.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from typing import Any
 
@@ -45,6 +46,11 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     # --- new ---
     new_parser = tmux_sub.add_parser("new", help="Create a new window")
     new_parser.add_argument("window", help="Window name")
+    new_parser.add_argument(
+        "--cwd",
+        default=None,
+        help="Working directory for the new window (default: current directory)",
+    )
 
     # --- kill ---
     kill_parser = tmux_sub.add_parser("kill", help="Kill a window")
@@ -191,7 +197,8 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
         return code
 
     if cmd == "new":
-        code, msg = tmux.tmux_new(args.window)
+        cwd = args.cwd if args.cwd else os.getcwd()
+        code, msg = tmux.tmux_new(args.window, cwd=cwd)
         _print(msg)
         return code
 
