@@ -1,4 +1,4 @@
-.TH CORTEX-TMUX 1 "2026-04-23" "cortex-tmux 2.0.0" "User Commands"
+.TH CORTEX-TMUX 1 "2026-05-02" "cortex-tmux 2.0.0" "User Commands"
 .SH NAME
 cortex-tmux \- Command-line tool
 .SH SYNOPSIS
@@ -25,14 +25,26 @@ Available commands:
 .B list
 List windows in session
 .TP
+.B sessions
+List every tmux session with attached state
+.TP
+.B snapshot
+Multi-session digest with last N lines per window
+.TP
 .B new
 Create a new window
 .TP
 .B kill
 Kill a window
 .TP
+.B rename
+Rename a window
+.TP
 .B send
 Send command to window (presses Enter)
+.TP
+.B say
+Send a message to a TUI (text + settle + Enter, no C-c clear)
 .TP
 .B type
 Type text without pressing Enter

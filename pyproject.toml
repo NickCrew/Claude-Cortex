@@ -95,6 +95,7 @@ include = ["claude_ctx_py*"]
   "docs/reference/cortex-docs.1",
   "docs/reference/cortex-export.1",
   "docs/reference/cortex-git.1",
+  "docs/reference/cortex-hooks.1",
   "docs/reference/cortex-install.1",
   "docs/reference/cortex-mcp.1",
   "docs/reference/cortex-notes.1",
