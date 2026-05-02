@@ -144,25 +144,23 @@ especially if you expect parallel work or a long-running branch.
 
 ## Step 5: Start a Dedicated Tmux Window
 
-Create a named window for the feature work:
+Create a named window rooted in the worktree directory:
 
 ```bash
-cortex tmux new feature
+cortex tmux new feature --cwd path/to/worktree
 ```
 
-Start the work inside it:
+`--cwd` is the important bit — without it, tmux starts new windows in
+whatever directory the tmux *server* was launched in, which is rarely
+the worktree you just made.
 
-```bash
-cortex tmux send feature "cd path/to/worktree && $SHELL"
-```
-
-Or kick off a long-running task directly:
+Kick off a long-running task directly:
 
 ```bash
 cortex tmux send feature "pytest -m unit"
 ```
 
-You can inspect output without attaching:
+Inspect output without attaching:
 
 ```bash
 cortex tmux read feature 80
