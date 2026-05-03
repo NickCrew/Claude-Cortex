@@ -29,13 +29,7 @@ default:
 
 # Idempotently create the tmux session used by all svc-* recipes.
 tmux-new:
-    @session="{{ svc_session }}"; \
-    if tmux has-session -t "$session" 2>/dev/null; then \
-        echo "tmux session '$session' already exists"; \
-    else \
-        tmux new-session -d -s "$session" -n shell; \
-        echo "created tmux session '$session'"; \
-    fi
+    @cortex tmux session-new {{ svc_session }} --cwd "$PWD"
 
 # Internal: start a service in a dedicated tmux window. Idempotent — if the
 # window exists and the process is running, this is a no-op; if the window
@@ -109,13 +103,7 @@ svc-session:
 
 # Attach to (or switch to) the service session's shell window.
 svc-shell: tmux-new
-    @session="{{ svc_session }}"; \
-    tmux select-window -t "$session:shell"; \
-    if [ -n "$TMUX" ]; then \
-        tmux switch-client -t "$session"; \
-    else \
-        tmux attach-session -t "$session"; \
-    fi
+    @cortex tmux attach {{ svc_session }} --window shell
 
 # Alias for svc-shell.
 svc-attach: svc-shell
@@ -140,7 +128,7 @@ svc-restart: svc-stop
 
 # Recreate the tmux session (kills every window in it).
 svc-reset:
-    @if tmux has-session -t "{{ svc_session }}" 2>/dev/null; then tmux kill-session -t "{{ svc_session }}"; fi
+    @cortex tmux session-kill {{ svc_session }} 2>/dev/null || true
     @just tmux-new
 
 # ── Quality recipes ────────────────────────────────────────────────

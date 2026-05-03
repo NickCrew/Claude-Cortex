@@ -92,6 +92,8 @@ deciding whether to `svc-restart` something.
 it instead of `tmux capture-pane` / `tmux kill-window` / etc. — it gives
 consistent error handling and stays compatible with future cortex changes.
 
+### Window-level
+
 | Command                                | Use case                                                |
 | -------------------------------------- | ------------------------------------------------------- |
 | `cortex tmux new <win> [--cwd <path>]` | Create a window rooted at `--cwd` (defaults to `$PWD`). |
@@ -102,21 +104,31 @@ consistent error handling and stays compatible with future cortex changes.
 | `cortex tmux kill <win>`               | Stop the window's process and close the window.         |
 | `cortex tmux list`                     | List all windows in the active service session.         |
 | `cortex tmux rename <old> <new>`       | Rename a window (use to label agent-claimed panes).     |
-| `cortex tmux sessions`                 | List every tmux session on the box.                     |
-| `cortex tmux snapshot [--lines N]`     | Multi-session digest with last N lines per window.      |
+
+### Session-level
+
+| Command                                              | Use case                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------- |
+| `cortex tmux session-new [name] [--cwd <path>]`      | Idempotently create a session — re-runs return "already exists".    |
+| `cortex tmux session-kill [name]`                    | Kill a session and every window in it (errors if it doesn't exist). |
+| `cortex tmux attach [name] [--window <name>]`        | Attach (or `switch-client` if inside tmux); optional starting win.  |
+| `cortex tmux sessions`                               | List every tmux session on the box.                                 |
+| `cortex tmux snapshot [--lines N]`                   | Multi-session digest with last N lines per window.                  |
+
+`session-new` is *idempotent by default*: if the session already exists
+it returns success with an "already exists" message, so it's safe to
+list as a recipe dependency that gets re-evaluated on every invocation.
+`session-kill`, by contrast, errors loudly on a missing session — kill
+is destructive and silent failure is the wrong default; recipes that
+want fire-and-forget should append `2>/dev/null || true`.
+
+### When to reach for `say` instead of `send`
 
 For TUI agents (Claude Code, Codex) running inside a service window
 rather than a long-lived process, use `cortex tmux say <win> <message>`
 instead of `send`. `say` skips the `Ctrl-C` clear and inserts a settle
 pause between text and Enter, both of which are required to safely
 deliver a message to a debounced TUI input box.
-
-When wrapping or extending svc recipes, prefer these over `tmux send-keys
-'kill-pane'` and friends. The remaining places where raw tmux is still
-needed in the template — `tmux-new` (session create), `svc-shell`
-(attach/switch), `svc-reset` (kill-session) — all operate on the
-*session*, not on individual windows; cortex tmux currently exposes only
-window-level operations.
 
 ## The tx-start-<role>.sh wrapper
 
