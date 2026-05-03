@@ -489,7 +489,7 @@ Cortex surfaces skills via two paths.
 
 ### Path 1: Prompt-time suggestions (Claude Code hook)
 
-The `skill_auto_suggester.py` hook runs on `UserPromptSubmit`. It analyzes:
+The `cortex hooks skill-suggest` hook runs on `UserPromptSubmit`. It analyzes:
 
 - The user's prompt text
 - Changed files
@@ -676,19 +676,19 @@ The full operator contract — exact reviewer/auditor fallback rules, script inv
 
 ## 8. Hooks
 
-Hooks are scripts that run automatically on Claude Code lifecycle events.
+Hooks run automatically on Claude Code lifecycle events. In current Cortex, hooks are CLI subcommands under `cortex hooks <name>` — registering a hook adds an entry to `~/.claude/settings.json` that invokes the cortex subcommand. The on-disk Python/shell scripts under `hooks/` in older installs are deprecated; if `~/.claude/settings.json` still references them by path, replace those entries with `cortex hooks <name>`.
 
 ### Bundled hooks
 
 | Hook | Event | Purpose |
 |---|---|---|
-| `skill_auto_suggester.py` | UserPromptSubmit | Suggest skills based on prompt + file context |
-| `secret_scan.py` | PostToolUse | Scan changed files for leaked secrets |
-| `large_file_gate.py` | PostToolUse | Block oversized files |
-| `workspace_validator.py` | PreToolUse (Task) | Validate workspace context before subagent spawn |
-| `subagent_output_validator.py` | SubagentStop | Catch hallucinated file references in subagent output |
-| `execution-enforcer.sh` | UserPromptSubmit | Reinforce execution principles |
-| `post-edit-check.sh` | PostToolUse | Run type checks after Rust/TypeScript edits |
+| `cortex hooks skill-suggest` | UserPromptSubmit | Suggest relevant skills based on prompt + file context |
+| `cortex hooks agent-suggest` | UserPromptSubmit | Suggest specialist agents for consultation or delegation |
+| `cortex hooks large-file-gate` | PostToolUse | Block oversized files in the changed set |
+| `cortex hooks subagent-output-validator` | SubagentStop | Flag hallucinated file references in subagent output |
+| `cortex hooks workspace-validator` | PreToolUse (Task matcher) | Validate paths referenced in Task prompts before subagent spawns |
+
+These are normally invoked by Claude Code, not run directly. Each accepts `--help` for its specific options.
 
 ### Lifecycle events
 
@@ -719,12 +719,12 @@ Hooks can target specific tools:
 
 ### Registration
 
-Hooks live in `~/.claude/settings.json`. There used to be a `hooks/hooks.json` plugin manifest in the repo; that has been removed. Files under `hooks/` are plain hook scripts; settings.json points at them.
+Hook registration lives in `~/.claude/settings.json`. There used to be a `hooks/hooks.json` plugin manifest in the repo; that has been removed.
 
 Three ways to register:
 
-1. **TUI** (recommended): `cortex tui`, press `7`. Select hook, install. The TUI validates event names and writes correct JSON.
-2. **CLI**: `cortex install link` symlinks `hooks/` into `~/.claude/hooks/`, but does not write settings.json. Use `cortex hooks install <name>` to register.
+1. **TUI** (recommended): `cortex tui`, press `7`. Select a hook, install. The TUI validates event names and writes correct JSON.
+2. **CLI**: `cortex hooks install <name>` registers a cortex hook subcommand in `~/.claude/settings.json`.
 3. **By hand**: edit `~/.claude/settings.json`:
 
 ```json
@@ -735,7 +735,7 @@ Three ways to register:
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/skill_auto_suggester.py"
+            "command": "cortex hooks skill-suggest"
           }
         ]
       }
@@ -978,11 +978,13 @@ Affects both the skill auto-suggester hook and `cortex suggest`.
 
 ### Hooks are not firing
 
-Cortex used to ship a `hooks/hooks.json` plugin manifest. That has been removed; hooks now live in `~/.claude/settings.json`. If hooks were working under an older Cortex install and stopped, check that:
+Cortex's hooks are `cortex hooks <name>` subcommands registered in `~/.claude/settings.json`. If hooks aren't firing, check:
 
-1. `cortex install link` has run (so `~/.claude/hooks/` is symlinked).
-2. The hook is registered in `~/.claude/settings.json` (use `cortex tui` → press `7` to verify).
-3. `~/.claude/logs/hooks.log` has recent entries — empty log usually means the hook is not registered or the script path is wrong.
+1. The hook is registered in `~/.claude/settings.json` — use `cortex tui` → press `7` to verify, or run `cortex hooks install <name>`.
+2. `cortex hooks <name> --help` runs cleanly from a shell — confirms the CLI is on `$PATH`.
+3. `~/.claude/logs/hooks.log` has recent entries. An empty log usually means the hook is not registered.
+
+If you're upgrading from an older Cortex install and `~/.claude/settings.json` still references script paths like `python3 ~/.claude/hooks/skill_auto_suggester.py`, replace those entries with `cortex hooks skill-suggest` (or the corresponding subcommand) — the on-disk scripts are deprecated.
 
 ### Wrong scope
 
@@ -1043,7 +1045,7 @@ Override the log path with `CORTEX_WATCH_LOG_PATH` or `--log PATH`.
 - **Circuit breaker** — the cycle limit on each loop in `agent-loops`. Three for review and audit, two for lint. Triggers escalation rather than infinite remediation.
 - **Claude directory** — the resolved `.claude/` directory (`~/.claude` or a project-local `.claude/`).
 - **Confidence score** — float 0.0–1.0 attached to a recommendation. The default activation threshold is 0.7.
-- **Hook** — a script that runs on a Claude Code lifecycle event (UserPromptSubmit, PostToolUse, etc.).
+- **Hook** — a `cortex hooks <name>` subcommand that runs on a Claude Code lifecycle event (UserPromptSubmit, PostToolUse, etc.). Registered in `~/.claude/settings.json`. On-disk hook scripts under `hooks/` in older installs are deprecated.
 - **MCP** — Model Context Protocol; servers provide tools and resources to Claude Code.
 - **P0/P1/P2/P3** — review severities used by `agent-loops`. P0/P1 block loop exit; P2/P3 are filed as backlog issues.
 - **Progressive disclosure** — the skill loading model: only `SKILL.md` loads by default; `references/` files load on demand.
