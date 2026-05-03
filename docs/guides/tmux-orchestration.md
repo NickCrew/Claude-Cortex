@@ -108,6 +108,38 @@ The orchestrator pattern this enables: a coordinator agent runs
 `cortex tmux snapshot` periodically, decides who to message, then uses
 `cortex tmux say` to talk to whichever sibling needs attention.
 
+## Session lifecycle
+
+The whole module is window-centric, but every project has its own
+session that needs to come up before windows can land in it.
+
+```bash
+# Idempotently create the project's session (resolved name if no arg)
+cortex tmux session-new
+cortex tmux session-new my-project --cwd /path/to/project
+
+# Tear down the whole session (and every window in it)
+cortex tmux session-kill my-project
+
+# Land in the session — switch-client if you're already inside tmux,
+# attach-session if you're at a bare shell. --window selects a
+# starting window first.
+cortex tmux attach my-project --window shell
+```
+
+Two asymmetries worth knowing:
+
+- **`session-new` is idempotent by default.** Re-running returns
+  success with an "already exists" message, so it's safe as a
+  recipe dependency that fires on every invocation.
+- **`session-kill` errors loudly on a missing session.** Kill is
+  destructive; silent failure is the wrong default. Append
+  `2>/dev/null || true` for fire-and-forget.
+
+`attach` defers to your context: `tmux switch-client` when `$TMUX`
+is set, `tmux attach-session` when it isn't. The latter takes over
+the terminal until you detach.
+
 ## Window self-labeling
 
 `cortex tmux rename <old> <new>` lets an agent claim and label its
