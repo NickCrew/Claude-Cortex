@@ -39,6 +39,37 @@ class TestTmuxParsing:
         assert ns.lines == 20
         assert ns.session == "main"
 
+    def test_session_new_defaults(self):
+        ns = _parse(["tmux", "session-new"])
+        assert ns.tmux_command == "session-new"
+        assert ns.name is None
+        assert ns.cwd is None
+        assert ns.window == "shell"
+
+    def test_session_new_with_args(self):
+        ns = _parse(
+            ["tmux", "session-new", "proj", "--cwd", "/work", "--window", "main"]
+        )
+        assert ns.name == "proj"
+        assert ns.cwd == "/work"
+        assert ns.window == "main"
+
+    def test_session_kill(self):
+        ns = _parse(["tmux", "session-kill", "proj"])
+        assert ns.tmux_command == "session-kill"
+        assert ns.name == "proj"
+
+    def test_attach_defaults(self):
+        ns = _parse(["tmux", "attach"])
+        assert ns.tmux_command == "attach"
+        assert ns.name is None
+        assert ns.window is None
+
+    def test_attach_with_window(self):
+        ns = _parse(["tmux", "attach", "proj", "--window", "shell"])
+        assert ns.name == "proj"
+        assert ns.window == "shell"
+
     def test_new(self):
         ns = _parse(["tmux", "new", "build"])
         assert ns.tmux_command == "new"
@@ -155,6 +186,27 @@ class TestTmuxDispatch:
         )
         assert code == 0
         mock_fn.assert_called_once_with(lines=5, session="main")
+
+    @patch("claude_ctx_py.cmd_tmux.os.getcwd", return_value="/cwd/here")
+    @patch(f"{_TMUX}.tmux_session_new", return_value=(0, "Created"))
+    def test_session_new_defaults_cwd(self, mock_fn, _getcwd):
+        code = handle_tmux_command(_parse(["tmux", "session-new", "proj"]))
+        assert code == 0
+        mock_fn.assert_called_once_with("proj", cwd="/cwd/here", window="shell")
+
+    @patch(f"{_TMUX}.tmux_session_kill", return_value=(0, "Killed"))
+    def test_session_kill(self, mock_fn):
+        code = handle_tmux_command(_parse(["tmux", "session-kill", "proj"]))
+        assert code == 0
+        mock_fn.assert_called_once_with("proj")
+
+    @patch(f"{_TMUX}.tmux_attach", return_value=(0, "Detached"))
+    def test_attach(self, mock_fn):
+        code = handle_tmux_command(
+            _parse(["tmux", "attach", "proj", "--window", "shell"])
+        )
+        assert code == 0
+        mock_fn.assert_called_once_with("proj", window="shell")
 
     @patch("claude_ctx_py.cmd_tmux.os.getcwd", return_value="/cwd/here")
     @patch(f"{_TMUX}.tmux_new", return_value=(0, "Created"))

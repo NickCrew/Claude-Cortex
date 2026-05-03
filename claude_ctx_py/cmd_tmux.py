@@ -26,6 +26,56 @@ def build_tmux_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "sessions", help="List every tmux session with attached state"
     )
 
+    # --- session-new ---
+    sn_parser = tmux_sub.add_parser(
+        "session-new", help="Idempotently create a tmux session"
+    )
+    sn_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Session name (default: $TMUX_SESSION or current directory)",
+    )
+    sn_parser.add_argument(
+        "--cwd",
+        default=None,
+        help="Working directory for the initial window (default: current dir)",
+    )
+    sn_parser.add_argument(
+        "--window",
+        default="shell",
+        help="Initial window name (default: shell)",
+    )
+
+    # --- session-kill ---
+    sk_parser = tmux_sub.add_parser(
+        "session-kill",
+        help="Kill a tmux session and every window in it",
+    )
+    sk_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Session name (default: $TMUX_SESSION or current directory)",
+    )
+
+    # --- attach ---
+    attach_parser = tmux_sub.add_parser(
+        "attach",
+        help="Attach to a session (switch-client if already inside tmux)",
+    )
+    attach_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Session name (default: $TMUX_SESSION or current directory)",
+    )
+    attach_parser.add_argument(
+        "--window",
+        default=None,
+        help="Window to select before attaching",
+    )
+
     # --- snapshot ---
     snap_parser = tmux_sub.add_parser(
         "snapshot",
@@ -191,6 +241,25 @@ def handle_tmux_command(args: argparse.Namespace) -> int:
     if cmd == "sessions":
         code, msg = tmux.tmux_sessions()
         _print(msg)
+        return code
+
+    if cmd == "session-new":
+        cwd = args.cwd if args.cwd else os.getcwd()
+        code, msg = tmux.tmux_session_new(
+            args.name, cwd=cwd, window=args.window
+        )
+        _print(msg)
+        return code
+
+    if cmd == "session-kill":
+        code, msg = tmux.tmux_session_kill(args.name)
+        _print(msg)
+        return code
+
+    if cmd == "attach":
+        code, msg = tmux.tmux_attach(args.name, window=args.window)
+        if msg:
+            _print(msg)
         return code
 
     if cmd == "snapshot":

@@ -9,6 +9,7 @@ from .commands import tmux_interrupt, tmux_keys, tmux_say, tmux_send, tmux_type
 from .justfile import tmux_justfile
 from .output import tmux_dump, tmux_read, tmux_running, tmux_status, tmux_wait, tmux_watch
 from .run import resolve_session, run_tmux
+from .sessions import tmux_attach, tmux_session_kill, tmux_session_new
 from .snapshot import tmux_sessions, tmux_snapshot
 from .windows import tmux_kill, tmux_list, tmux_new, tmux_rename
 
@@ -37,6 +38,10 @@ __all__ = [
     # snapshot
     "tmux_sessions",
     "tmux_snapshot",
+    # session lifecycle
+    "tmux_session_new",
+    "tmux_session_kill",
+    "tmux_attach",
     # generation
     "tmux_justfile",
 ]
