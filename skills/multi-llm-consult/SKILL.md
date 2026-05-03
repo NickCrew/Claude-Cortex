@@ -36,13 +36,13 @@ Use a bundled script to query external LLM providers with a sanitized prompt and
 Always run `--help` first:
 
 ```bash
-python scripts/consult_llm.py --help
+python skills/multi-llm-consult/scripts/consult_llm.py --help
 ```
 
 Example: second opinion
 
 ```bash
-python scripts/consult_llm.py \
+python skills/multi-llm-consult/scripts/consult_llm.py \
   --provider gemini \
   --purpose second-opinion \
   --prompt "We plan to refactor module X. What risks or gaps do you see?"
@@ -51,7 +51,7 @@ python scripts/consult_llm.py \
 Example: delegate a review
 
 ```bash
-python scripts/consult_llm.py \
+python skills/multi-llm-consult/scripts/consult_llm.py \
   --provider qwen \
   --purpose review \
   --prompt-file /tmp/review_request.md \
@@ -61,7 +61,7 @@ python scripts/consult_llm.py \
 Example: plan check with Codex (OpenAI)
 
 ```bash
-python scripts/consult_llm.py \
+python skills/multi-llm-consult/scripts/consult_llm.py \
   --provider codex \
   --purpose plan \
   --prompt "Draft a 5-step plan for implementing feature Y."
