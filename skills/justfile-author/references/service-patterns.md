@@ -29,18 +29,31 @@ boilerplate lives in exactly one place.
 ```just
 _svc-start window cmd: tmux-new
     @session="{{ svc_session }}"; window="{{ window }}"; cmd="{{ cmd }}"; \
-    if tmux list-windows -t "$session" -F "#{window_name}" | grep -qx "$window"; then \
-        if cortex tmux running "$window" >/dev/null 2>&1; then \
-            echo "$window is already running"; \
-        else \
-            tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
-        fi; \
+    export TMUX_SESSION="$session"; \
+    if cortex tmux running "$window" >/dev/null 2>&1; then \
+        echo "$window is already running"; \
     else \
-        tmux new-window -d -t "$session:" -n "$window"; \
-        tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
+        cortex tmux new "$window" --cwd "$PWD" 2>/dev/null || true; \
+        cortex tmux send "$window" "$cmd"; \
     fi
-    @cortex tmux read {{ window }} 20
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux read "{{ window }}" 20
 ```
+
+Two non-obvious bits in this recipe:
+
+- **`cortex tmux new --cwd "$PWD"`** is *idempotent-by-failure*: it
+  errors when the window already exists, but `2>/dev/null || true`
+  swallows that case, and the unconditional `cortex tmux send`
+  afterwards delivers the command whether the window was just
+  created or already there. This eliminates the explicit
+  `tmux list-windows | grep` existence check earlier versions used.
+- **`export TMUX_SESSION="$session"`** keeps cortex tmux on the same
+  session that `tmux-new` created. Without this, `cortex tmux`'s
+  fallback (cwd-derived, hyphen-normalized) can resolve to a
+  *different* session name than the justfile's `svc_session`
+  (project-slug-derived, often underscore-normalized) when
+  `TMUX_SESSION` is unset in the caller's environment. The export is
+  cheap insurance — every recipe that calls cortex tmux should do it.
 
 A new svc recipe is a one-liner:
 
@@ -79,16 +92,31 @@ deciding whether to `svc-restart` something.
 it instead of `tmux capture-pane` / `tmux kill-window` / etc. — it gives
 consistent error handling and stays compatible with future cortex changes.
 
-| Command                          | Use case                                        |
-| -------------------------------- | ----------------------------------------------- |
-| `cortex tmux read <win> [N]`     | Tail last N lines of the window (default 30).   |
-| `cortex tmux status <win>`       | Pid + run state of the process in the window.   |
-| `cortex tmux running <win>`      | Exit 0 iff the window's process is running.     |
-| `cortex tmux kill <win>`         | Stop the window's process and close the window. |
-| `cortex tmux list`               | List all windows in the active service session. |
+| Command                                | Use case                                                |
+| -------------------------------------- | ------------------------------------------------------- |
+| `cortex tmux new <win> [--cwd <path>]` | Create a window rooted at `--cwd` (defaults to `$PWD`). |
+| `cortex tmux send <win> <cmd>`         | Send a command (presses Enter, clears partial input).   |
+| `cortex tmux read <win> [N]`           | Tail last N lines of the window (default 50).           |
+| `cortex tmux status <win>`             | Window name + last few lines of output.                 |
+| `cortex tmux running <win>`            | Exit 0 iff the window's process is running.             |
+| `cortex tmux kill <win>`               | Stop the window's process and close the window.         |
+| `cortex tmux list`                     | List all windows in the active service session.         |
+| `cortex tmux rename <old> <new>`       | Rename a window (use to label agent-claimed panes).     |
+| `cortex tmux sessions`                 | List every tmux session on the box.                     |
+| `cortex tmux snapshot [--lines N]`     | Multi-session digest with last N lines per window.      |
+
+For TUI agents (Claude Code, Codex) running inside a service window
+rather than a long-lived process, use `cortex tmux say <win> <message>`
+instead of `send`. `say` skips the `Ctrl-C` clear and inserts a settle
+pause between text and Enter, both of which are required to safely
+deliver a message to a debounced TUI input box.
 
 When wrapping or extending svc recipes, prefer these over `tmux send-keys
-'kill-pane'` and friends.
+'kill-pane'` and friends. The remaining places where raw tmux is still
+needed in the template — `tmux-new` (session create), `svc-shell`
+(attach/switch), `svc-reset` (kill-session) — all operate on the
+*session*, not on individual windows; cortex tmux currently exposes only
+window-level operations.
 
 ## The tx-start-<role>.sh wrapper
 

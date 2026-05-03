@@ -40,23 +40,26 @@ tmux-new:
 # Internal: start a service in a dedicated tmux window. Idempotent — if the
 # window exists and the process is running, this is a no-op; if the window
 # exists but the process exited, restart it; otherwise create the window.
+#
+# `cortex tmux new --cwd "$PWD"` is benign when the window already exists
+# (returns non-zero, swallowed); the subsequent `cortex tmux send` runs
+# unconditionally. Exporting TMUX_SESSION keeps cortex tmux on the same
+# session that `tmux-new` created, even when TMUX_SESSION is unset in the
+# caller's environment.
 _svc-start window cmd: tmux-new
     @session="{{ svc_session }}"; window="{{ window }}"; cmd="{{ cmd }}"; \
-    if tmux list-windows -t "$session" -F "#{window_name}" | grep -qx "$window"; then \
-        if cortex tmux running "$window" >/dev/null 2>&1; then \
-            echo "$window is already running"; \
-        else \
-            tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
-        fi; \
+    export TMUX_SESSION="$session"; \
+    if cortex tmux running "$window" >/dev/null 2>&1; then \
+        echo "$window is already running"; \
     else \
-        tmux new-window -d -t "$session:" -n "$window"; \
-        tmux send-keys -t "$session:$window" "cd \"$PWD\" && $cmd" C-m; \
+        cortex tmux new "$window" --cwd "$PWD" 2>/dev/null || true; \
+        cortex tmux send "$window" "$cmd"; \
     fi
-    @cortex tmux read {{ window }} 20
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux read "{{ window }}" 20
 
 # Internal: stop a service window if it exists.
 _svc-stop window:
-    @if tmux list-windows -t "{{ svc_session }}" -F "#{window_name}" | grep -qx "{{ window }}"; then cortex tmux kill {{ window }}; fi
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux kill "{{ window }}" 2>/dev/null || true
 
 # ── Foreground dev recipes ─────────────────────────────────────────
 # These run in the current shell, blocking until killed. Prefer the svc-*
@@ -89,16 +92,16 @@ svc-up: svc-dev
 
 # List the windows in the service session.
 svc-list: tmux-new
-    @cortex tmux list
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux list
 
 # Show status for every service window.
 svc-status:
     @echo "== {{ tmux_app_window }} =="
-    @cortex tmux status {{ tmux_app_window }} || true
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux status {{ tmux_app_window }} || true
 
 # Read recent output from the dev window.
 svc-read-dev:
-    @cortex tmux read {{ tmux_app_window }} 50
+    @export TMUX_SESSION="{{ svc_session }}"; cortex tmux read {{ tmux_app_window }} 50
 
 # Print the tmux session name (useful for `tmux attach -t $(just svc-session)`).
 svc-session:
