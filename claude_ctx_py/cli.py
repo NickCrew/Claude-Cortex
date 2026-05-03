@@ -1031,6 +1031,8 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
             from .hooks.subagent_output_validator import run
         elif args.hooks_command == "workspace-validator":
             from .hooks.workspace_validator import run
+        elif args.hooks_command == "commit-cadence":
+            from .hooks.commit_cadence import run
         else:
             _print(f"Unknown hook: {args.hooks_command}")
             return 1

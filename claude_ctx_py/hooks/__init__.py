@@ -69,6 +69,14 @@ HOOK_SUBCOMMANDS: Dict[str, HookMeta] = {
             "Task prompts before subagent spawns"
         ),
     },
+    "commit-cadence": {
+        "event": "Stop",
+        "matcher": "",
+        "help": (
+            "Stop hook: nudge the model to offer a commit when the working "
+            "tree has uncommitted changes at turn end"
+        ),
+    },
 }
 
 
