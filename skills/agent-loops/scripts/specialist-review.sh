@@ -369,6 +369,10 @@ _emit_failure_summary() {
     [[ -f "$partial" ]] || continue
     echo "Artifact:   $partial"
   done
+  for prompt in "$OUTPUT_DIR"/review-"$TIMESTAMP".*.prompt.md; do
+    [[ -f "$prompt" ]] || continue
+    echo "Prompt:     $prompt"
+  done
   if [[ "$found_log" -eq 0 ]]; then
     echo "Stderr logs: (none — providers may have been unavailable)"
   fi
@@ -407,7 +411,16 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
   AVAILABLE_PROVIDER_FOUND=1
   STDERR_LOG="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.stderr.log"
+  PROMPT_PRESERVED="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.prompt.md"
   TIMEOUT_SECONDS="$(review_provider_timeout "$PROVIDER" "$DEFAULT_TIMEOUT")"
+
+  # Preserve the assembled prompt for every attempt; the success branches
+  # below rm -f it on a clean validation. On any failure path (timeout,
+  # empty output, contract miss, silent provider refusal) the file remains
+  # in OUTPUT_DIR so the caller can post-mortem the exact bytes that were
+  # sent — invaluable for diagnosing silent-empty failures where stderr
+  # offers no signal.
+  cp "$PROMPT_FILE" "$PROMPT_PRESERVED" 2>/dev/null || true
 
   echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
   if [[ "$PROVIDER" == "claude" ]]; then
@@ -432,7 +445,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
 
     if [[ -s "$OUTPUT_FILE" ]]; then
       if python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >/dev/null 2>&1; then
-        rm -f "$STDERR_LOG"
+        rm -f "$STDERR_LOG" "$PROMPT_PRESERVED"
         python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
         echo "$OUTPUT_FILE"
         exit 0
@@ -452,7 +465,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         else
           rm -f "$NORMALIZED_OUTPUT"
         fi
-        rm -f "$STDERR_LOG"
+        rm -f "$STDERR_LOG" "$PROMPT_PRESERVED"
         python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
         echo "$OUTPUT_FILE"
         exit 0
