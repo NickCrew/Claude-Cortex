@@ -81,6 +81,7 @@ Active assets are tracked in `.active-*` state files (`.active-agents`, `.active
 
 - Repository: https://github.com/NickCrew/claude-cortex
 - Documentation: https://cortex.atlascrew.dev
+- Full reference for LLMs: https://cortex.atlascrew.dev/llms-full.txt
 - PyPI: https://pypi.org/project/claude-cortex/
 - Issues: https://github.com/NickCrew/claude-cortex/issues
 - Changelog: https://github.com/NickCrew/claude-cortex/blob/main/CHANGELOG.md
