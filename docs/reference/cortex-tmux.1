@@ -28,6 +28,15 @@ List windows in session
 .B sessions
 List every tmux session with attached state
 .TP
+.B session-new
+Idempotently create a tmux session
+.TP
+.B session-kill
+Kill a tmux session and every window in it
+.TP
+.B attach
+Attach to a session (switch-client if already inside tmux)
+.TP
 .B snapshot
 Multi-session digest with last N lines per window
 .TP
