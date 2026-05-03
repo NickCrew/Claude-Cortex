@@ -21,6 +21,34 @@ wait for completion, and interrupt safely when needed.
 If the session does not exist, Cortex returns a helpful error instead of
 guessing.
 
+### Creating, killing, and attaching to sessions
+
+The convention is one session per project, named after the project
+directory. Three commands cover the lifecycle:
+
+```bash
+# Idempotently create — safe to call repeatedly, returns
+# "already exists" if the session is up
+cortex tmux session-new
+cortex tmux session-new my-project --cwd /path/to/project
+
+# Kill the session and every window in it (errors loudly if missing)
+cortex tmux session-kill my-project
+
+# Land in the session. switch-client when $TMUX is set,
+# attach-session otherwise. --window selects a starting window first.
+cortex tmux attach
+cortex tmux attach my-project --window shell
+```
+
+Two asymmetries worth knowing:
+
+- **`session-new` is idempotent.** Re-runs return success with an
+  "already exists" message, so it's safe as a setup-recipe dependency.
+- **`session-kill` is loud.** It errors on a missing session because
+  kill is destructive — append `2>/dev/null || true` if you want
+  fire-and-forget semantics.
+
 ## What It Is For
 
 Use `cortex tmux` when you want to:
