@@ -10,12 +10,21 @@ action.
 
 from __future__ import annotations
 
-from typing import Dict, Tuple, TypedDict
+import json
+from pathlib import Path
+from typing import Any, Dict, Literal, Tuple, TypedDict
 
 from ..core.hooks import load_settings, save_settings
 
 
 HOOK_COMMAND_PREFIX = "cortex hooks"
+
+
+# Supported registration targets. Each maps to a config file the harness
+# reads at startup. Both files share the JSON shape `{"hooks": {<event>:
+# [...]}}` — only the path differs.
+HookTarget = Literal["claude", "codex"]
+INSTALL_TARGETS: Tuple[HookTarget, ...] = ("claude", "codex")
 
 
 class HookMeta(TypedDict):
@@ -102,22 +111,66 @@ def _matches_legacy_script(command: str, subcommand: str) -> bool:
     return False
 
 
+def _codex_hooks_config_path() -> Path:
+    """Path to ``~/.codex/hooks.json``. Codex also accepts a ``[hooks]``
+    table in ``~/.codex/config.toml``, but JSON is trivially merged
+    without disturbing user TOML; that's our chosen sibling."""
+    return Path.home() / ".codex" / "hooks.json"
+
+
+def _load_target_config(target: HookTarget) -> Dict[str, Any]:
+    if target == "codex":
+        path = _codex_hooks_config_path()
+        if not path.exists():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return load_settings()
+
+
+def _save_target_config(target: HookTarget, data: Dict[str, Any]) -> Tuple[bool, str]:
+    if target == "codex":
+        path = _codex_hooks_config_path()
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            return True, f"Saved {path}"
+        except OSError as exc:
+            return False, f"Failed to save {path}: {exc}"
+    return save_settings(data)
+
+
+def _target_config_label(target: HookTarget) -> str:
+    if target == "codex":
+        return str(_codex_hooks_config_path())
+    return "~/.claude/settings.json"
+
+
 def install_hook_command(
     subcommand: str,
     event: str,
     matcher: str = "",
+    target: HookTarget = "claude",
 ) -> Tuple[bool, str]:
-    """Register ``cortex hooks <subcommand>`` in ``~/.claude/settings.json``.
+    """Register ``cortex hooks <subcommand>`` in the harness's hooks config.
+
+    Target ``"claude"`` (default) writes to ``~/.claude/settings.json``;
+    ``"codex"`` writes to ``~/.codex/hooks.json``. Both files share the
+    same JSON shape, so the body below is target-agnostic — only load/
+    save are parameterized.
 
     Removes any existing entry whose command references a legacy standalone
     script that this subcommand replaces (see ``LEGACY_SCRIPT_REPLACEMENTS``),
     then appends a new ``cortex hooks <subcommand>`` entry if one does not
     already exist.
 
-    Returns ``(ok, message)``. ``ok`` is False only on settings.json I/O
-    failure — an idempotent no-op (already installed) is a successful True.
+    Returns ``(ok, message)``. ``ok`` is False only on config I/O failure —
+    an idempotent no-op (already installed) is a successful True.
     """
-    settings = load_settings()
+    settings = _load_target_config(target)
     hooks_section = settings.setdefault("hooks", {})
     event_entries = hooks_section.setdefault(event, [])
 
@@ -161,13 +214,13 @@ def install_hook_command(
         changed = True
 
     if not changed:
-        return True, f"Already registered: {target_command}"
+        return True, f"Already registered: {target_command} ({_target_config_label(target)})"
 
-    ok, msg = save_settings(settings)
+    ok, msg = _save_target_config(target, settings)
     if not ok:
         return False, msg
 
-    note = f"Registered: {target_command} (event={event})"
+    note = f"Registered: {target_command} (event={event}, {_target_config_label(target)})"
     if migrated_from:
         note += f"\n  Migrated from legacy: {', '.join(migrated_from)}"
     return True, note

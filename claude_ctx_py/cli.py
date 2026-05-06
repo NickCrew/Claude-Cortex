@@ -152,12 +152,21 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
 
     hooks_install = hooks_sub.add_parser(
         "install",
-        help="Register a cortex hook subcommand in ~/.claude/settings.json",
+        help="Register a cortex hook subcommand with a harness's hooks config",
     )
     hooks_install.add_argument(
         "name",
         choices=sorted(HOOK_SUBCOMMANDS.keys()),
         help="Hook subcommand to install",
+    )
+    hooks_install.add_argument(
+        "--target",
+        choices=["claude", "codex"],
+        default="claude",
+        help=(
+            "Where to register the hook (default: claude → ~/.claude/settings.json; "
+            "codex → ~/.codex/hooks.json)"
+        ),
     )
 
 
@@ -1047,6 +1056,7 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
             subcommand=args.name,
             event=meta["event"],
             matcher=meta["matcher"],
+            target=getattr(args, "target", "claude"),
         )
         _print(message)
         return 0 if ok else 1
