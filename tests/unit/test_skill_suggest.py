@@ -5,10 +5,17 @@ agents collaborate, the git log and changed-files list are cross-task
 pollution rather than per-agent intent — so the ranker requires the
 user's own prompt to mention a skill keyword before surfacing anything.
 These tests pin that contract.
+
+The hook also dispatches on harness shape: Claude Code passes input via
+env vars and expects plain stdout; Codex passes JSON on stdin and
+expects a JSON ``hookSpecificOutput`` envelope. Both paths share the
+same matching logic and multi-agent gate.
 """
 
 from __future__ import annotations
 
+import io
+import json
 from unittest.mock import patch
 
 import pytest
@@ -143,3 +150,97 @@ class TestMainIntegration:
         captured = capsys.readouterr()
         assert exit_code == 0
         assert "code-review" in captured.out
+
+
+def _codex_stdin(payload: dict) -> io.StringIO:
+    """Build a fake Codex hook stdin from a payload dict, with isatty False."""
+    stream = io.StringIO(json.dumps(payload))
+    stream.isatty = lambda: False  # type: ignore[method-assign]
+    return stream
+
+
+@pytest.mark.unit
+class TestCodexDispatch:
+    """Codex passes JSON on stdin; output must be a hookSpecificOutput envelope."""
+
+    def test_codex_json_input_emits_hookSpecificOutput(
+        self, capsys, monkeypatch
+    ) -> None:
+        """Codex prompt with a real keyword → JSON envelope on stdout."""
+        monkeypatch.delenv("CLAUDE_HOOK_PROMPT", raising=False)
+        monkeypatch.delenv("CLAUDE_CHANGED_FILES", raising=False)
+        monkeypatch.setenv("CORTEX_SKIP_RECOMMENDER", "1")
+        payload = {
+            "hook_event_name": "UserPromptSubmit",
+            "session_id": "s1",
+            "cwd": "/tmp",
+            "model": "gpt-5",
+            "prompt": "please review this code",
+        }
+        monkeypatch.setattr("sys.stdin", _codex_stdin(payload))
+        with patch(
+            f"{_MOD}.load_entries",
+            return_value=[{"name": "code-review", "keywords": ["review"]}],
+        ), patch(f"{_MOD}.get_git_context", return_value=set()), patch(
+            f"{_MOD}._git_changed_files", return_value=[]
+        ):
+            exit_code = skill_suggest.main()
+        captured = capsys.readouterr()
+        assert exit_code == 0
+
+        # Output must be valid JSON in the Codex contract shape
+        parsed = json.loads(captured.out)
+        assert parsed["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
+        assert "code-review" in parsed["hookSpecificOutput"]["additionalContext"]
+
+    def test_codex_silenced_on_zero_prompt_hits(self, capsys, monkeypatch) -> None:
+        """Multi-agent gate applies to Codex too: 'yeah' → empty stdout."""
+        monkeypatch.delenv("CLAUDE_HOOK_PROMPT", raising=False)
+        monkeypatch.delenv("CLAUDE_CHANGED_FILES", raising=False)
+        monkeypatch.setenv("CORTEX_SKIP_RECOMMENDER", "1")
+        payload = {
+            "hook_event_name": "UserPromptSubmit",
+            "session_id": "s1",
+            "cwd": "/tmp",
+            "model": "gpt-5",
+            "prompt": "yeah",
+        }
+        monkeypatch.setattr("sys.stdin", _codex_stdin(payload))
+        with patch(
+            f"{_MOD}.load_entries",
+            return_value=[{"name": "doc-foo", "keywords": ["doc"]}],
+        ), patch(f"{_MOD}.get_git_context", return_value=set()), patch(
+            f"{_MOD}._git_changed_files", return_value=["docs/foo.md"]
+        ):
+            exit_code = skill_suggest.main()
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out == ""
+
+    def test_no_input_returns_silently(self, capsys, monkeypatch) -> None:
+        """Manual invocation with no env vars and no stdin JSON → exit 0,
+        no output. Avoids confusing terminal behavior when developers run
+        `cortex hooks skill-suggest` directly without input."""
+        monkeypatch.delenv("CLAUDE_HOOK_PROMPT", raising=False)
+        monkeypatch.delenv("CLAUDE_CHANGED_FILES", raising=False)
+        # stdin is a TTY-like object: no payload available
+        empty_stream = io.StringIO("")
+        empty_stream.isatty = lambda: True  # type: ignore[method-assign]
+        monkeypatch.setattr("sys.stdin", empty_stream)
+        exit_code = skill_suggest.main()
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out == ""
+
+    def test_codex_malformed_json_falls_through_silently(
+        self, capsys, monkeypatch
+    ) -> None:
+        """Garbage on stdin without Claude env vars → no crash, no output."""
+        monkeypatch.delenv("CLAUDE_HOOK_PROMPT", raising=False)
+        bad_stream = io.StringIO("not-json-at-all")
+        bad_stream.isatty = lambda: False  # type: ignore[method-assign]
+        monkeypatch.setattr("sys.stdin", bad_stream)
+        exit_code = skill_suggest.main()
+        captured = capsys.readouterr()
+        assert exit_code == 0
+        assert captured.out == ""

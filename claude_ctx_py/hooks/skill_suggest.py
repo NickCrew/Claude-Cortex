@@ -113,6 +113,60 @@ EXT_PATTERNS: Dict[str, List[str]] = {
 }
 
 
+def _read_codex_stdin() -> Dict[str, Any] | None:
+    """Detect a Codex hook payload on stdin.
+
+    Codex invokes hooks with a JSON object on stdin (per the Codex Hooks
+    API). Claude Code uses env vars and pipes nothing relevant. We
+    distinguish them mechanically: env-var presence wins (handled by the
+    caller); only when no Claude env signal is set do we look at stdin.
+
+    Returns the parsed dict if stdin contains a JSON object with the
+    expected ``hook_event_name`` field, ``None`` otherwise. Robust against
+    TTY stdin (manual invocation) and malformed input.
+    """
+    try:
+        if sys.stdin.isatty():
+            return None
+    except (OSError, ValueError):
+        return None
+    try:
+        text = sys.stdin.read()
+    except (OSError, ValueError):
+        return None
+    if not text.strip():
+        return None
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    if isinstance(data, dict) and data.get("hook_event_name"):
+        return data
+    return None
+
+
+def _git_changed_files() -> List[str]:
+    """Best-effort: list files changed vs HEAD (staged + unstaged).
+
+    Used for Codex hook input where the harness does not pass changed
+    files directly. Empty list on any failure (not a git repo, git
+    missing, etc.) — the prompt-keyword gate still produces correct
+    behavior with no context input, just without context-tiebreak.
+    """
+    import subprocess
+
+    try:
+        out = subprocess.check_output(
+            ["git", "diff", "--name-only", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+        )
+        return [line.strip() for line in out.splitlines() if line.strip()]
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError, subprocess.TimeoutExpired):
+        return []
+
+
 def _hook_log_path() -> Path:
     for name in HOOK_LOG_ENV:
         value = os.getenv(name, "").strip()
@@ -332,10 +386,25 @@ def _recommender_suggestions(
 
 
 def main() -> int:
-    prompt = os.getenv("CLAUDE_HOOK_PROMPT", "")
-    changed_files = split_changed_files(os.getenv("CLAUDE_CHANGED_FILES", ""))
-    entries = load_entries()
+    # Dispatch on harness shape: Claude Code passes input via env vars;
+    # Codex passes a JSON payload on stdin. The CLAUDE_HOOK_PROMPT env
+    # var is the definitive Claude marker — when it's set (even empty)
+    # we take the env-var path. Otherwise we look for a Codex payload.
+    # Both paths share the same scoring logic and multi-agent gate; only
+    # the I/O envelope differs.
+    if "CLAUDE_HOOK_PROMPT" in os.environ:
+        harness = "claude"
+        prompt = os.getenv("CLAUDE_HOOK_PROMPT", "")
+        changed_files = split_changed_files(os.getenv("CLAUDE_CHANGED_FILES", ""))
+    else:
+        codex_payload = _read_codex_stdin()
+        if codex_payload is None:
+            return 0
+        harness = "codex"
+        prompt = str(codex_payload.get("prompt", ""))
+        changed_files = _git_changed_files()
 
+    entries = load_entries()
     if not entries:
         return 0
 
@@ -349,7 +418,9 @@ def main() -> int:
     # cross-task pollution under a fancier ranker. Silence both layers
     # together rather than letting the recommender backdoor noise in.
     if not matches:
-        _log_hook(f"prompt_len={len(prompt)} silenced=true (no prompt hits)")
+        _log_hook(
+            f"harness={harness} prompt_len={len(prompt)} silenced=true (no prompt hits)"
+        )
         return 0
 
     keyword_names = [entry.get("name", "unknown") for _, entry in matches]
@@ -364,12 +435,26 @@ def main() -> int:
     merged_names = merged_names[:max_results]
 
     _log_hook(
-        f"prompt_len={len(prompt)} keyword_matches={len(matches)} "
-        f"recommender={len(recommender_names)} top={merged_names}"
+        f"harness={harness} prompt_len={len(prompt)} "
+        f"keyword_matches={len(matches)} recommender={len(recommender_names)} "
+        f"top={merged_names}"
     )
 
-    if merged_names:
-        print(f"Suggested skills: {', '.join(merged_names)}")
+    if not merged_names:
+        return 0
+
+    summary = f"Suggested skills: {', '.join(merged_names)}"
+    if harness == "codex":
+        # Codex expects a structured JSON envelope; additionalContext is
+        # how hook output reaches the model on the next turn.
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": summary,
+            }
+        }))
+    else:
+        print(summary)
     return 0
 
 
