@@ -29,7 +29,6 @@ class SkillRecommendation:
     triggers: List[str]
     related_agents: List[str]
     estimated_value: str  # "high", "medium", "low"
-    auto_activate: bool  # Activate if confidence >= 0.8
 
     def should_notify(self) -> bool:
         """Determine if this recommendation should notify the user."""
@@ -380,7 +379,6 @@ class SkillRecommender:
                             triggers=file_patterns,
                             related_agents=[],
                             estimated_value=self._estimate_value(rec_data["confidence"]),
-                            auto_activate=rec_data["confidence"] >= 0.8
                         )
                         recommendations.append(rec)
 
@@ -403,7 +401,6 @@ class SkillRecommender:
                         triggers=[f"agent:{agent_name}"],
                         related_agents=[agent_name],
                         estimated_value=self._estimate_value(confidence),
-                        auto_activate=confidence >= 0.8
                     )
                     recommendations.append(rec)
 
@@ -452,7 +449,6 @@ class SkillRecommender:
                         triggers=["semantic_match"],
                         related_agents=[],
                         estimated_value=self._estimate_value(confidence),
-                        auto_activate=False,
                     )
                 )
 
@@ -518,7 +514,6 @@ class SkillRecommender:
                     triggers=["historical_pattern"],
                     related_agents=[],
                     estimated_value=self._estimate_value(confidence),
-                    auto_activate=False  # Never auto-activate pattern-based
                 )
                 recommendations.append(rec)
 
