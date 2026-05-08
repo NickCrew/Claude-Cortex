@@ -118,6 +118,99 @@ class TestMatchEntries:
 
 
 @pytest.mark.unit
+class TestWholeTokenPromptMatching:
+    """Prompt matching is token-equality, not substring. A keyword like
+    'doc' must NOT match inside compound identifiers ('doc-001') or
+    inside longer words ('documentation'). Reported behavior: telling
+    an agent to 'read doc-##' was triggering all the doc-* skills."""
+
+    def test_compound_identifier_does_not_match_prefix_keyword(self) -> None:
+        """'doc' keyword must not match inside 'doc-001'."""
+        entries = [{"name": "doc-health-audit", "keywords": ["doc"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="please read doc-001",
+                files=[],
+                entries=entries,
+            )
+        assert result == []
+
+    def test_word_containing_keyword_as_prefix_does_not_match(self) -> None:
+        """'doc' keyword must not match inside 'documentation'."""
+        entries = [{"name": "doc-health-audit", "keywords": ["doc"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="please update the documentation",
+                files=[],
+                entries=entries,
+            )
+        assert result == []
+
+    def test_standalone_token_still_matches(self) -> None:
+        """'doc' keyword must still match a free-standing 'doc' token."""
+        entries = [{"name": "doc-health-audit", "keywords": ["doc"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="please read the doc here",
+                files=[],
+                entries=entries,
+            )
+        names = [entry["name"] for _, entry in result]
+        assert names == ["doc-health-audit"]
+
+    def test_punctuation_around_token_does_not_block_match(self) -> None:
+        """'review' should still match 'review!' and 'review,' — surrounding
+        punctuation is stripped during tokenization."""
+        entries = [{"name": "code-review", "keywords": ["review"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="please review! this code, ok?",
+                files=[],
+                entries=entries,
+            )
+        names = [entry["name"] for _, entry in result]
+        assert names == ["code-review"]
+
+    def test_multi_word_keyword_matches_adjacent_tokens(self) -> None:
+        """Multi-word keyword 'wcag compliance' matches adjacent tokens
+        in the prompt."""
+        entries = [{"name": "accessibility-audit", "keywords": ["wcag compliance"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="please ensure wcag compliance for this page",
+                files=[],
+                entries=entries,
+            )
+        names = [entry["name"] for _, entry in result]
+        assert names == ["accessibility-audit"]
+
+    def test_multi_word_keyword_does_not_match_non_adjacent_tokens(self) -> None:
+        """Multi-word keyword 'wcag compliance' must not match when its
+        words appear non-adjacently."""
+        entries = [{"name": "accessibility-audit", "keywords": ["wcag compliance"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="wcag is important and we want compliance",
+                files=[],
+                entries=entries,
+            )
+        assert result == []
+
+    def test_hyphenated_keyword_matches_same_compound(self) -> None:
+        """A keyword that itself contains a hyphen ('test-driven') must
+        match a prompt token with the same compound form."""
+        entries = [{"name": "tdd", "keywords": ["test-driven"]}]
+        with patch(f"{_MOD}.get_git_context", return_value=set()):
+            result = skill_suggest.match_entries(
+                prompt="use test-driven for this",
+                files=[],
+                entries=entries,
+            )
+        names = [entry["name"] for _, entry in result]
+        assert names == ["tdd"]
+
+
+@pytest.mark.unit
 class TestMainIntegration:
     """End-to-end tests for the hook's main() — verifies that Layer 2
     (the recommender) is also gated when Layer 1 finds no prompt match."""

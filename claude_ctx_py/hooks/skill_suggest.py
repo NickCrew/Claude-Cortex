@@ -300,6 +300,40 @@ def get_git_context() -> Set[str]:
 PROMPT_HIT_WEIGHT = 3
 
 
+# Compound tokens (alphanumeric + internal hyphen/underscore) — `doc-001`,
+# `test-driven-development`, `auth_handler`. We treat these as atomic so
+# substrings like `doc` don't false-match inside `doc-001`. Surrounding
+# punctuation (commas, periods) is stripped because tokens like `doc.`
+# should still match the keyword `doc`.
+_PROMPT_TOKEN_RE = re.compile(r"[a-z0-9][a-z0-9_-]*", re.IGNORECASE)
+
+
+def _prompt_tokens(text: str) -> List[str]:
+    """Tokenize prompt text into lowercase atoms.
+
+    Whitespace and punctuation (other than internal hyphens/underscores)
+    are token boundaries. So `read doc-001 and doc, please` → `['read',
+    'doc-001', 'and', 'doc', 'please']` — the standalone 'doc' is its
+    own token, but 'doc-001' is one atomic unit and won't substring-match
+    the keyword 'doc'.
+    """
+    return [m.group().lower() for m in _PROMPT_TOKEN_RE.finditer(text)]
+
+
+def _keyword_matches_prompt(keyword: str, prompt_tokens: List[str]) -> bool:
+    """Whole-token match of a (possibly multi-word) keyword against a
+    tokenized prompt. Multi-word keywords like `wcag compliance` match
+    when their words appear as adjacent tokens."""
+    kw_tokens = keyword.lower().split()
+    if not kw_tokens or len(kw_tokens) > len(prompt_tokens):
+        return False
+    n = len(kw_tokens)
+    return any(
+        prompt_tokens[i : i + n] == kw_tokens
+        for i in range(len(prompt_tokens) - n + 1)
+    )
+
+
 def match_entries(
     prompt: str,
     files: List[str],
@@ -316,7 +350,13 @@ def match_entries(
     if not entries:
         return []
 
-    prompt_lower = prompt.lower()
+    # Prompt is matched at token-equality (so 'doc' won't false-match
+    # inside 'doc-001' or 'documentation'). Context is still substring-
+    # matched because it's a tiebreak among prompt-matched entries, not
+    # a gate — and shared context naturally contains compound identifiers
+    # (file paths, branch names) where token-strict matching would miss
+    # legitimate signal.
+    prompt_tokens = _prompt_tokens(prompt)
     file_text = " ".join(f.lower() for f in files)
     context_keywords = extract_file_context(files) | get_git_context()
     context_text = f"{file_text} {' '.join(context_keywords)}"
@@ -333,7 +373,9 @@ def match_entries(
     saw_prompt_hit = False
     for entry in entries:
         keywords = [str(k).lower() for k in entry.get("keywords", [])]
-        prompt_hits = sum(1 for kw in keywords if kw and kw in prompt_lower)
+        prompt_hits = sum(
+            1 for kw in keywords if kw and _keyword_matches_prompt(kw, prompt_tokens)
+        )
         context_hits = sum(1 for kw in keywords if kw and kw in context_text)
         score = prompt_hits * PROMPT_HIT_WEIGHT + context_hits
         if prompt_hits:
