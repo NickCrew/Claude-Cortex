@@ -84,4 +84,5 @@ logs/
 watch.pid
 skills/*.json
 !skills/skill-index.json
+skills/*.zip
 **/reviews/
