@@ -24,9 +24,7 @@ def settings_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 @pytest.mark.unit
 class TestInstallHookCommand:
-    def test_registers_subcommand_on_empty_settings(
-        self, settings_file: Path
-    ) -> None:
+    def test_registers_subcommand_on_empty_settings(self, settings_file: Path) -> None:
         ok, message = install_hook_command(
             subcommand="skill-suggest",
             event="UserPromptSubmit",
@@ -49,6 +47,34 @@ class TestInstallHookCommand:
         entries = data["hooks"]["UserPromptSubmit"]
         commands = [h["command"] for e in entries for h in e["hooks"]]
         assert commands.count("cortex hooks skill-suggest") == 1
+
+    def test_normalizes_command_prefix(self, settings_file: Path) -> None:
+        ok, _message = install_hook_command(
+            "skill-suggest",
+            "UserPromptSubmit",
+            command_prefix=" cortex-minimal   hooks ",
+        )
+
+        assert ok is True
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+        command = data["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"]
+        assert command == "cortex-minimal hooks skill-suggest"
+
+    def test_rejects_empty_command_prefix(self) -> None:
+        with pytest.raises(ValueError, match="command_prefix must be non-empty"):
+            install_hook_command(
+                "skill-suggest",
+                "UserPromptSubmit",
+                command_prefix="  ",
+            )
+
+    def test_rejects_unsafe_command_prefix(self) -> None:
+        with pytest.raises(ValueError, match="unsupported shell characters"):
+            install_hook_command(
+                "skill-suggest",
+                "UserPromptSubmit",
+                command_prefix="cortex hooks; rm -rf ~",
+            )
 
     def test_migrates_legacy_script_entry(self, settings_file: Path) -> None:
         """A settings.json pointing at the old script is rewritten cleanly."""
@@ -79,15 +105,11 @@ class TestInstallHookCommand:
         assert "Migrated from legacy" in message
         data = json.loads(settings_file.read_text(encoding="utf-8"))
         commands = [
-            h["command"]
-            for e in data["hooks"]["UserPromptSubmit"]
-            for h in e["hooks"]
+            h["command"] for e in data["hooks"]["UserPromptSubmit"] for h in e["hooks"]
         ]
         assert commands == ["cortex hooks skill-suggest"]
 
-    def test_preserves_unrelated_hooks_on_same_event(
-        self, settings_file: Path
-    ) -> None:
+    def test_preserves_unrelated_hooks_on_same_event(self, settings_file: Path) -> None:
         settings_file.write_text(
             json.dumps(
                 {
@@ -114,13 +136,45 @@ class TestInstallHookCommand:
         assert ok is True
         data = json.loads(settings_file.read_text(encoding="utf-8"))
         commands = sorted(
-            h["command"]
-            for e in data["hooks"]["UserPromptSubmit"]
-            for h in e["hooks"]
+            h["command"] for e in data["hooks"]["UserPromptSubmit"] for h in e["hooks"]
         )
         assert commands == [
             "cortex hooks skill-suggest",
             "python3 /some/other/hook.py",
+        ]
+
+    def test_preserves_same_event_different_matcher(self, settings_file: Path) -> None:
+        settings_file.write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "UserPromptSubmit": [
+                            {
+                                "matcher": "Write",
+                                "hooks": [
+                                    {
+                                        "type": "command",
+                                        "command": "python3 /tmp/write-hook.py",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        ok, _ = install_hook_command("skill-suggest", "UserPromptSubmit")
+
+        assert ok is True
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+        commands = sorted(
+            h["command"] for e in data["hooks"]["UserPromptSubmit"] for h in e["hooks"]
+        )
+        assert commands == [
+            "cortex hooks skill-suggest",
+            "python3 /tmp/write-hook.py",
         ]
 
     def test_preserves_other_events(self, settings_file: Path) -> None:

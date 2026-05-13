@@ -11,13 +11,14 @@ action.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, Literal, Tuple, TypedDict
 
 from ..core.hooks import load_settings, save_settings
 
-
 HOOK_COMMAND_PREFIX = "cortex hooks"
+_SAFE_COMMAND_PREFIX_RE = re.compile(r"^[A-Za-z0-9_./\\: -]+$")
 
 
 # Supported registration targets. Each maps to a config file the harness
@@ -65,10 +66,7 @@ HOOK_SUBCOMMANDS: Dict[str, HookMeta] = {
     "subagent-output-validator": {
         "event": "SubagentStop",
         "matcher": "",
-        "help": (
-            "SubagentStop hook: flag hallucinated file references in "
-            "subagent output"
-        ),
+        "help": "SubagentStop hook: flag hallucinated file references in subagent output",
     },
     "workspace-validator": {
         "event": "PreToolUse",
@@ -154,8 +152,9 @@ def install_hook_command(
     event: str,
     matcher: str = "",
     target: HookTarget = "claude",
+    command_prefix: str = HOOK_COMMAND_PREFIX,
 ) -> Tuple[bool, str]:
-    """Register ``cortex hooks <subcommand>`` in the harness's hooks config.
+    """Register a hook subcommand in the harness's hooks config.
 
     Target ``"claude"`` (default) writes to ``~/.claude/settings.json``;
     ``"codex"`` writes to ``~/.codex/hooks.json``. Both files share the
@@ -164,17 +163,26 @@ def install_hook_command(
 
     Removes any existing entry whose command references a legacy standalone
     script that this subcommand replaces (see ``LEGACY_SCRIPT_REPLACEMENTS``),
-    then appends a new ``cortex hooks <subcommand>`` entry if one does not
+    then appends a new ``<command_prefix> <subcommand>`` entry if one does not
     already exist.
 
     Returns ``(ok, message)``. ``ok`` is False only on config I/O failure —
     an idempotent no-op (already installed) is a successful True.
+
+    ``command_prefix`` is trusted executable text written to the harness config;
+    do not pass user-supplied shell fragments here.
     """
+    normalized_prefix = " ".join(command_prefix.split())
+    if not normalized_prefix:
+        raise ValueError("command_prefix must be non-empty")
+    if not _SAFE_COMMAND_PREFIX_RE.fullmatch(normalized_prefix):
+        raise ValueError("command_prefix contains unsupported shell characters")
+
     settings = _load_target_config(target)
     hooks_section = settings.setdefault("hooks", {})
     event_entries = hooks_section.setdefault(event, [])
 
-    target_command = f"{HOOK_COMMAND_PREFIX} {subcommand}"
+    target_command = f"{normalized_prefix} {subcommand}"
     changed = False
     migrated_from: list[str] = []
     already_present = False
@@ -214,13 +222,18 @@ def install_hook_command(
         changed = True
 
     if not changed:
-        return True, f"Already registered: {target_command} ({_target_config_label(target)})"
+        return (
+            True,
+            f"Already registered: {target_command} ({_target_config_label(target)})",
+        )
 
     ok, msg = _save_target_config(target, settings)
     if not ok:
         return False, msg
 
-    note = f"Registered: {target_command} (event={event}, {_target_config_label(target)})"
+    note = (
+        f"Registered: {target_command} (event={event}, {_target_config_label(target)})"
+    )
     if migrated_from:
         note += f"\n  Migrated from legacy: {', '.join(migrated_from)}"
     return True, note

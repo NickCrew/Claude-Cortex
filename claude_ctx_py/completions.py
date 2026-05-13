@@ -7,9 +7,10 @@ so they stay in sync with the CLI without manual updates.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
-
+from typing import Dict, List, Tuple
 
 # ---------------------------------------------------------------------------
 # Parser tree discovery
@@ -92,6 +93,31 @@ def _escape_fish(text: str) -> str:
     return text.replace('"', '\\"').replace("'", "\\'")
 
 
+def _completion_command_name(parser: argparse.ArgumentParser) -> str:
+    """Return the executable name used in generated completion scripts."""
+    prog_parts = (parser.prog or "").split()
+    command_name = prog_parts[0] if prog_parts else ""
+    if not command_name:
+        raise ValueError("Completion parser must define a non-empty prog")
+    return command_name
+
+
+def _completion_function_name(command_name: str) -> str:
+    """Return a shell-safe completion function stem for *command_name*."""
+    return "_" + re.sub(r"[^A-Za-z0-9_]", "_", command_name)
+
+
+def _completion_path_function_name(root_func: str, *parts: str) -> str:
+    """Return a collision-resistant function name for a command path."""
+    safe_path = "_".join(re.sub(r"[^A-Za-z0-9_]", "_", part) for part in parts)
+    # Non-security digest: keeps shell helper names unique when paths sanitize
+    # to the same identifier.
+    digest = hashlib.blake2s(
+        "\0".join(parts).encode("utf-8"), digest_size=4
+    ).hexdigest()
+    return f"{root_func}_{safe_path}_{digest}"
+
+
 # ---------------------------------------------------------------------------
 # Zsh completion
 # ---------------------------------------------------------------------------
@@ -100,7 +126,7 @@ def _escape_fish(text: str) -> str:
 def _zsh_command_function(
     func_name: str,
     cmd: CommandInfo,
-    depth: int = 0,
+    root_func: str,
 ) -> List[str]:
     """Generate a zsh completion function for a command and its children."""
     lines: List[str] = []
@@ -135,12 +161,14 @@ def _zsh_command_function(
         lines.append("")
         lines.append(f"{indent}case $state in")
         lines.append(f"{indent}    subcmd)")
-        lines.append(f"{indent}        _describe -t subcmds '{cmd.name} command' subcmds")
+        lines.append(
+            f"{indent}        _describe -t subcmds '{cmd.name} command' subcmds"
+        )
         lines.append(f"{indent}        ;;")
         lines.append(f"{indent}    args)")
         lines.append(f"{indent}        case $words[1] in")
         for sub in cmd.subcommands:
-            child_func = f"_cortex_{cmd.name}_{sub.name}".replace("-", "_")
+            child_func = _completion_path_function_name(root_func, cmd.name, sub.name)
             lines.append(f"{indent}            {sub.name}) {child_func} ;;")
         lines.append(f"{indent}        esac")
         lines.append(f"{indent}        ;;")
@@ -159,11 +187,13 @@ def _zsh_command_function(
 def generate_zsh_completion(parser: argparse.ArgumentParser) -> str:
     """Generate zsh completion script from parser."""
     tree = _discover_tree(parser)
+    command_name = _completion_command_name(parser)
+    root_func = _completion_function_name(command_name)
 
     lines = [
-        "#compdef cortex",
-        "# Zsh completion for cortex (auto-generated)",
-        "# Regenerate: cortex install completions --force",
+        f"#compdef {command_name}",
+        f"# Zsh completion for {command_name} (auto-generated)",
+        f"# Regenerate: {command_name} completions zsh",
         "",
     ]
 
@@ -171,16 +201,16 @@ def generate_zsh_completion(parser: argparse.ArgumentParser) -> str:
     for cmd in tree:
         for sub in cmd.subcommands:
             # Leaf subcommand functions
-            child_func = f"_cortex_{cmd.name}_{sub.name}".replace("-", "_")
-            lines.extend(_zsh_command_function(child_func, sub, depth=2))
+            child_func = _completion_path_function_name(root_func, cmd.name, sub.name)
+            lines.extend(_zsh_command_function(child_func, sub, root_func))
 
         # Parent command functions
         if cmd.subcommands or cmd.flags:
-            parent_func = f"_cortex_{cmd.name}".replace("-", "_")
-            lines.extend(_zsh_command_function(parent_func, cmd, depth=1))
+            parent_func = _completion_path_function_name(root_func, cmd.name)
+            lines.extend(_zsh_command_function(parent_func, cmd, root_func))
 
     # Main function
-    lines.append("_cortex() {")
+    lines.append(f"{root_func}() {{")
     lines.append("    local -a commands")
     lines.append("    commands=(")
     for cmd in tree:
@@ -206,12 +236,12 @@ def generate_zsh_completion(parser: argparse.ArgumentParser) -> str:
     lines.append("")
     lines.append("    case $state in")
     lines.append("        command)")
-    lines.append("            _describe -t commands 'cortex command' commands")
+    lines.append(f"            _describe -t commands '{command_name} command' commands")
     lines.append("            ;;")
     lines.append("        args)")
     lines.append("            case $words[1] in")
     for cmd in tree:
-        func_name = f"_cortex_{cmd.name}".replace("-", "_")
+        func_name = _completion_path_function_name(root_func, cmd.name)
         if cmd.subcommands or cmd.flags:
             lines.append(f"                {cmd.name}) {func_name} ;;")
         else:
@@ -220,7 +250,7 @@ def generate_zsh_completion(parser: argparse.ArgumentParser) -> str:
     lines.append("            ;;")
     lines.append("    esac")
     lines.append("}")
-    lines.append('_cortex "$@"')
+    lines.append(f'{root_func} "$@"')
     return "\n".join(lines) + "\n"
 
 
@@ -232,11 +262,13 @@ def generate_zsh_completion(parser: argparse.ArgumentParser) -> str:
 def generate_bash_completion(parser: argparse.ArgumentParser) -> str:
     """Generate bash completion script from parser."""
     tree = _discover_tree(parser)
+    command_name = _completion_command_name(parser)
+    func_name = f"{_completion_function_name(command_name)}_completion"
 
     lines = [
-        "# Bash completion for cortex (auto-generated)",
-        "# Regenerate: cortex install completions --force",
-        "_cortex_completion() {",
+        f"# Bash completion for {command_name} (auto-generated)",
+        f"# Regenerate: {command_name} completions bash",
+        f"{func_name}() {{",
         "    local cur prev cmd subcmd",
         "    COMPREPLY=()",
         '    cur="${COMP_WORDS[COMP_CWORD]}"',
@@ -262,25 +294,30 @@ def generate_bash_completion(parser: argparse.ArgumentParser) -> str:
     lines.append('    if [[ "${cur}" == --* ]]; then')
     lines.append('        case "${cmd}" in')
     for cmd in tree:
-        if cmd.flags:
+        has_subcommand_flags = any(sub.flags for sub in cmd.subcommands)
+        if cmd.flags or has_subcommand_flags:
             flag_names = " ".join(f for f, _ in cmd.flags)
             lines.append(f"            {cmd.name})")
 
-            # If there are subcommands, also check subcommand flags
-            if cmd.subcommands:
+            if cmd.flags:
+                lines.append("                if [[ ${COMP_CWORD} -lt 3 ]]; then")
+                lines.append(
+                    f'                    COMPREPLY=($(compgen -W "{flag_names}" -- ${{cur}}))'
+                )
+                lines.append("                fi")
+
+            if has_subcommand_flags:
                 lines.append("                if [[ ${COMP_CWORD} -ge 3 ]]; then")
                 lines.append('                    subcmd="${COMP_WORDS[2]}"')
                 lines.append('                    case "${subcmd}" in')
                 for sub in cmd.subcommands:
                     if sub.flags:
                         sub_flags = " ".join(f for f, _ in sub.flags)
-                        lines.append(f'                        {sub.name}) COMPREPLY=($(compgen -W "{sub_flags}" -- ${{cur}})) ;;')
+                        lines.append(
+                            f'                        {sub.name}) COMPREPLY=($(compgen -W "{sub_flags}" -- ${{cur}})) ;;'
+                        )
                 lines.append("                    esac")
-                lines.append("                else")
-                lines.append(f'                    COMPREPLY=($(compgen -W "{flag_names}" -- ${{cur}}))')
                 lines.append("                fi")
-            else:
-                lines.append(f'                COMPREPLY=($(compgen -W "{flag_names}" -- ${{cur}}))')
             lines.append("                ;;")
     lines.append("        esac")
     lines.append("        return 0")
@@ -293,16 +330,20 @@ def generate_bash_completion(parser: argparse.ArgumentParser) -> str:
     for cmd in tree:
         if cmd.subcommands:
             sub_names = " ".join(sub.name for sub in cmd.subcommands)
-            lines.append(f'            {cmd.name}) COMPREPLY=($(compgen -W "{sub_names}" -- ${{cur}})) ;;')
+            lines.append(
+                f'            {cmd.name}) COMPREPLY=($(compgen -W "{sub_names}" -- ${{cur}})) ;;'
+            )
     lines.append("        esac")
     lines.append("    fi")
     lines.append("")
 
-    lines.extend([
-        "    return 0",
-        "}",
-        "complete -F _cortex_completion cortex",
-    ])
+    lines.extend(
+        [
+            "    return 0",
+            "}",
+            f"complete -F {func_name} {command_name}",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -314,10 +355,11 @@ def generate_bash_completion(parser: argparse.ArgumentParser) -> str:
 def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
     """Generate fish completion script from parser."""
     tree = _discover_tree(parser)
+    command_name = _completion_command_name(parser)
 
     lines = [
-        "# Fish completion for cortex (auto-generated)",
-        "# Regenerate: cortex install completions --force",
+        f"# Fish completion for {command_name} (auto-generated)",
+        f"# Regenerate: {command_name} completions fish",
         "",
     ]
 
@@ -326,7 +368,7 @@ def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
     for cmd in tree:
         desc = _escape_fish(cmd.help) if cmd.help else cmd.name
         lines.append(
-            f'complete -c cortex -f -n "__fish_use_subcommand" -a "{cmd.name}" -d "{desc}"'
+            f'complete -c {command_name} -f -n "__fish_use_subcommand" -a "{cmd.name}" -d "{desc}"'
         )
     lines.append("")
 
@@ -337,7 +379,7 @@ def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
             for sub in cmd.subcommands:
                 desc = _escape_fish(sub.help) if sub.help else sub.name
                 lines.append(
-                    f'complete -c cortex -f -n "__fish_seen_subcommand_from {cmd.name}" -a "{sub.name}" -d "{desc}"'
+                    f'complete -c {command_name} -f -n "__fish_seen_subcommand_from {cmd.name}" -a "{sub.name}" -d "{desc}"'
                 )
             lines.append("")
 
@@ -348,7 +390,7 @@ def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
                 long_name = flag.lstrip("-")
                 desc = _escape_fish(help_text) if help_text else long_name
                 lines.append(
-                    f'complete -c cortex -f -n "__fish_seen_subcommand_from {cmd.name}" -l "{long_name}" -d "{desc}"'
+                    f'complete -c {command_name} -f -n "__fish_seen_subcommand_from {cmd.name}" -l "{long_name}" -d "{desc}"'
                 )
             lines.append("")
 
@@ -359,9 +401,14 @@ def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
                 for flag, help_text in sub.flags:
                     long_name = flag.lstrip("-")
                     desc = _escape_fish(help_text) if help_text else long_name
-                    # Fish doesn't have great 3-level condition support, approximate with seen_subcommand
+                    condition = (
+                        f"__fish_seen_subcommand_from {cmd.name}; "
+                        f"and __fish_seen_subcommand_from {sub.name}"
+                    )
+                    # Fish's stock helper is token-presence based; anchoring to
+                    # both names reduces cross-parent leaks for common subcommands.
                     lines.append(
-                        f'complete -c cortex -f -n "__fish_seen_subcommand_from {sub.name}" -l "{long_name}" -d "{desc}"'
+                        f'complete -c {command_name} -f -n "{condition}" -l "{long_name}" -d "{desc}"'
                     )
                 lines.append("")
 
@@ -371,6 +418,7 @@ def generate_fish_completion(parser: argparse.ArgumentParser) -> str:
 # ---------------------------------------------------------------------------
 # Compatibility shim
 # ---------------------------------------------------------------------------
+
 
 def _discover_commands(
     parser: argparse.ArgumentParser,
@@ -391,13 +439,16 @@ def _discover_commands(
 # ---------------------------------------------------------------------------
 
 
-def get_completion_script(shell: str, parser: argparse.ArgumentParser | None = None) -> str:
+def get_completion_script(
+    shell: str, parser: argparse.ArgumentParser | None = None
+) -> str:
     """Get completion script for the specified shell.
 
     If *parser* is ``None``, builds one from :func:`claude_ctx_py.cli.build_parser`.
     """
     if parser is None:
         from .cli import build_parser
+
         parser = build_parser()
 
     shell = shell.lower()

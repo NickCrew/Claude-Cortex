@@ -92,6 +92,17 @@ pipx install claude-cortex
 pip install claude-cortex
 ```
 
+The Python package also installs `cortex-minimal`, a smaller command surface for
+agent runtime environments:
+
+```bash
+uvx --from claude-cortex cortex-minimal --help
+uvx --from claude-cortex cortex-minimal git --help
+```
+
+It exposes only `git`, `tmux`, `statusline`, `hooks`, and `completions` while
+sharing the same tested implementations as the full `cortex` CLI.
+
 If you install via Homebrew **and** pip, whichever binary comes first in your
 `$PATH` wins. Uninstall one to avoid ambiguity.
 
