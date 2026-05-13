@@ -1,0 +1,106 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/exports/readme/{{PRODUCT_SLUG}}-readme-dark.webp" />
+    <source media="(prefers-color-scheme: light)" srcset="brand/exports/readme/{{PRODUCT_SLUG}}-readme-light.webp" />
+    <img alt="{{PRODUCT_NAME}} — {{LOCKED_HERO_NOUN}} {{LOCKED_HERO_VERB}}" src="brand/exports/readme/{{PRODUCT_SLUG}}-readme-dark.webp" width="100%" />
+  </picture>
+</p>
+
+<p align="center">
+  <strong>{{LOCKED_HERO_NOUN}}</strong><br />
+  <em>{{LOCKED_HERO_VERB}}</em>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="License: {{LICENSE_BADGE}}" src="https://img.shields.io/badge/license-{{LICENSE_SLUG}}-blue?style=flat-square" /></a>
+  <a href="CONTRIBUTING.md"><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" /></a>
+</p>
+
+---
+
+## What is {{PRODUCT_NAME}}?
+
+{{ONE_PARAGRAPH_PRODUCT_DESCRIPTION}}
+
+{{TAGLINE}}.
+
+{{METHODOLOGY_PARAGRAPH}}.
+
+Read the long-form positioning argument in [`brand/MANIFESTO.md`](brand/MANIFESTO.md).
+
+## {{KEY_CONCEPT_HEADING}}
+
+{{KEY_CONCEPT_DESCRIPTION}}
+
+## Features
+
+- {{FEATURE_1}}
+- {{FEATURE_2}}
+- {{FEATURE_3}}
+- {{FEATURE_4}}
+- {{FEATURE_5}}
+- **Self-hostable** — open-source under {{LICENSE}}; the {{DURABLE_NOUN}} you build belongs to you, not the platform
+
+## Getting started
+
+### Prerequisites
+
+- {{PREREQ_1}}
+- {{PREREQ_2}}
+
+### Installation
+
+```bash
+git clone {{REPO_URL}}
+cd {{PRODUCT_SLUG}}
+
+{{INSTALL_COMMANDS}}
+```
+
+### Development
+
+```bash
+{{DEV_COMMANDS}}
+```
+
+Open [http://localhost:{{DEV_PORT}}]({{DEV_URL}}) in your browser.
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| {{LAYER_1}} | {{TECH_1}} |
+| {{LAYER_2}} | {{TECH_2}} |
+| {{LAYER_3}} | {{TECH_3}} |
+
+## Contributing
+
+Contributions are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development setup, code style, the PR process, and the {{LICENSE}} contribution stance.
+
+By participating in this project, you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Security
+
+If you've found a vulnerability, **please don't open a public issue**. See [`SECURITY.md`](SECURITY.md) for the disclosure flow, response expectations, and scope.
+
+## License
+
+[{{LICENSE_BADGE}}](LICENSE)
+
+{{PRODUCT_NAME}} — {{ONE_LINE_DESCRIPTION}}
+Copyright (C) {{YEAR}} {{COPYRIGHT_HOLDER}}
+
+## Documentation
+
+- [`brand/MANIFESTO.md`](brand/MANIFESTO.md) — long-form positioning argument
+- [`brand/PRICING.md`](brand/PRICING.md) — pricing argument and terms
+- [`brand/BRAND.md`](brand/BRAND.md) — visual brand reference (marks, colors, typography)
+- [`brand/COPY.md`](brand/COPY.md) — language reference (locked vocabulary, voice)
+- [`brand/BIOS.md`](brand/BIOS.md) — reusable founder / company / social bios
+- [`docs/`](docs/) — project documentation and architecture
+
+## Links
+
+- **Repo:** [{{REPO_URL}}]({{REPO_URL}})
+- **Issues:** [{{REPO_URL}}/issues]({{REPO_URL}}/issues)
+- **Contact:** {{CONTACT_EMAIL}}

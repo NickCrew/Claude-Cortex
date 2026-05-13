@@ -1,0 +1,168 @@
+# Brand Recipes
+
+Common-task playbook. Step-by-step for the things people do most often in this directory. For library navigation, see [`README.md`](README.md). For at-a-glance lookup, see [`CHEATSHEET.md`](CHEATSHEET.md).
+
+---
+
+## Add a new concept sheet
+
+Concept sheets are 1200×630 thesis-led posters in [`_source/html/`](_source/html/).
+
+1. **Create the source HTML.** Copy an existing concept sheet as a starting point. Rename to `_source/html/{slug}.html`. Update the `<title>`, the `#{slug}-dark` and `#{slug}-light` IDs, the per-variant CSS, the lockup, headline, and body content.
+2. **Add the slug to the renderer.** Open `justfile`, find the `brand-concepts` recipe, and add the slug to the `sheets="..."` list.
+3. **Add the cleanup case.** In `brand-clean-concepts`, add the slug to the `for slug in ...` list. (If you forget this, the file persists when `just brand-clean` runs — annoying but not destructive.)
+4. **Render.** Run `just brand-concepts`. Verify output at `brand/exports/concepts/{{PRODUCT_SLUG}}-{slug}-{theme}.webp`.
+5. **Update inventory.** Add the new sheet to the inventory tree in [`BRAND.md`](BRAND.md), and to the asset → phrase index in [`COPY.md`](COPY.md) if it uses any locked phrases.
+6. **Log it.** Add a short entry to [`CHANGELOG.md`](CHANGELOG.md).
+
+## Update the tagline (or any locked phrase)
+
+The tagline is currently {{TAGLINE}}. Locked phrases by definition rarely change — this recipe is for when the user explicitly wants to update one.
+
+1. **Find every reference.** Grep across the repo:
+   ```bash
+   grep -rln "{{TAGLINE_GREP_FRAGMENT}}" brand/ README.md
+   ```
+   Update [`COPY.md`](COPY.md) "At a glance" table and the "Locked phrases" section first — that's the canonical location.
+2. **Sweep visual assets.** Tagline appears as text in many HTML sheets. Update each `_source/html/*.html` source.
+3. **Re-render.** `just brand` to regenerate every category that uses the tagline.
+4. **Sweep brand docs.** Update [`CHEATSHEET.md`](CHEATSHEET.md), [`BIOS.md`](BIOS.md) if it mentions the tagline, [`README.md`](README.md), and [`press/README.md`](press/README.md).
+5. **Sweep repo-root.** Check the project [`README.md`](../README.md) and any landing-page or marketing surface code.
+6. **Log it.** Substantive vocabulary change → entry in [`CHANGELOG.md`](CHANGELOG.md). Document the *why*.
+
+## Refresh the press kit
+
+Refresh when:
+- A new logo variant lands.
+- The README hero is re-rendered.
+- Bios change.
+- A new piece of attribution policy is added.
+
+1. **Confirm the canonical sources are current.** [`BIOS.md`](BIOS.md) for bios, [`exports/readme/`](exports/readme/) for hero, [`icons/svg/`](icons/svg/) for logos.
+2. **Re-render high-res logo PNGs** if SVG sources changed:
+   ```bash
+   cd brand/press/logos
+   rsvg-convert -w 1200 ../../icons/svg/{{PRODUCT_SLUG}}-mark.svg -o {{PRODUCT_SLUG}}-mark-1200.png
+   # ...etc for each mark variant
+   ```
+3. **Copy fresh hero WebPs** if `exports/readme/` was re-rendered:
+   ```bash
+   cp brand/exports/readme/{{PRODUCT_SLUG}}-readme-{dark,light}.webp brand/press/hero/
+   ```
+4. **Sync inlined bios in press/README.md** if BIOS.md changed.
+5. **Log it** in [`CHANGELOG.md`](CHANGELOG.md).
+
+## Run a full re-render of the visual library
+
+```bash
+just brand
+```
+
+Chains `brand-concepts`, `brand-banners`, `brand-social`, `brand-readme`, `brand-method`, `brand-manifesto`, then `brand-webp` (PNG → WebP conversion), then optionally `brand-composites`.
+
+## Render only one category
+
+```bash
+just brand-readme         # README hero
+just brand-method         # methodology one-pager
+just brand-manifesto      # manifesto anti-card
+just brand-concepts       # all concept posters
+just brand-banners        # hero banners
+just brand-social         # social channel assets
+```
+
+## Clean up renders without nuking AI exports
+
+```bash
+just brand-clean              # all pipeline-rendered files (WebP + PNG)
+just brand-webp-clean         # only WebP (preserves any PNG)
+just brand-clean-{category}   # one category only
+```
+
+**Key behavior:** the cleanup recipes enumerate the exact files each `brand-{cat}` render produces — they don't `rm -rf` whole category directories. Adobe Illustrator exports and other non-pipeline files in `brand/exports/` survive cleanup.
+
+When adding a new render category, add a matching `brand-clean-{cat}` recipe and chain it from `brand-webp-clean`.
+
+## Verify FAQ / BIOS word counts
+
+```bash
+python3 ~/.claude/skills/brand-library-architect/scripts/word_count.py brand/FAQ.md
+python3 ~/.claude/skills/brand-library-architect/scripts/word_count.py brand/BIOS.md
+```
+
+The script verifies:
+- FAQ answers are 50–150 words.
+- Founder bio variants are 50/100/250 ±5 words.
+- Company boilerplate variants are 50/100/250 ±5 words.
+- Social profile bios fit platform character caps.
+
+Run before committing changes to FAQ.md or BIOS.md.
+
+## Vocabulary check (don't-use words)
+
+```bash
+bash ~/.claude/skills/brand-library-architect/scripts/vocab_check.sh brand/
+```
+
+Greps for the don't-use vocabulary list. All hits should be in explicit "What NOT to use" callouts or "Avoid" example blocks — not in positive descriptions.
+
+## Verify cross-link integrity
+
+```bash
+cd brand
+grep -rEho '\[`?[^]]+`?\]\([^)]+\.md[^)]*\)' *.md press/ \
+  | grep -oE '\([^)]+\)' \
+  | tr -d '()' \
+  | sort -u \
+  | while read target; do
+      [[ -f "$target" || -f "press/$target" ]] || echo "MISSING: $target"
+    done
+```
+
+Any `MISSING:` output points at a broken cross-link.
+
+## Run a discovery audit
+
+If you're auditing the brand library state, invoke the [`brand-library-architect`](file:///Users/nick/.claude/skills/brand-library-architect/) personal skill in Phase-0-only mode:
+
+> "Run brand library discovery on this repo"
+
+The skill produces a `brand/discovery.md` capturing inventory, inferences, conflicts surfaced, and any external sources the user provides.
+
+## Add a new asset category
+
+1. **Create the HTML source** at `_source/html/{name}.html`. Follow the per-variant ID-scoped CSS pattern. Include the render-mode handler script.
+2. **Add a render recipe** to `justfile`:
+   ```
+   brand-{name}:
+       #!/usr/bin/env bash
+       set -euo pipefail
+       mkdir -p brand/exports/{name}
+       for theme in dark light; do
+         out="brand/exports/{name}/{{PRODUCT_SLUG}}-{name}-${theme}.png"
+         npx --yes playwright screenshot \
+           --viewport-size="{W},{H}" \
+           "file://$(pwd)/brand/_source/html/{name}.html#{name}-${theme}" "$out" 2>/dev/null
+       done
+   ```
+3. **Add a cleanup recipe** to `justfile`:
+   ```
+   brand-clean-{name}:
+       #!/usr/bin/env bash
+       for theme in dark light; do
+         rm -f "brand/exports/{name}/{{PRODUCT_SLUG}}-{name}-${theme}.webp"
+         rm -f "brand/exports/{name}/thumbs/{{PRODUCT_SLUG}}-{name}-${theme}.webp"
+       done
+   ```
+4. **Chain into umbrella recipes.** Add `brand-{name}` to the `brand:` umbrella; add `brand-clean-{name}` to the `brand-webp-clean:` chain.
+5. **Update [`BRAND.md`](BRAND.md) inventory tree.**
+6. **Log it** in [`CHANGELOG.md`](CHANGELOG.md).
+
+## Audit existing brand surfaces against locked vocabulary
+
+When the locked vocabulary changes (or you suspect drift):
+
+1. Run the vocab check.
+2. For each hit, classify: positive use describing the product (problem) vs explicit don't-use callout / Avoid example (fine).
+3. Fix the positive uses.
+4. Log the audit in [`CHANGELOG.md`](CHANGELOG.md) with the date, what was found, what changed.

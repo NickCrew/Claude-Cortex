@@ -1,0 +1,105 @@
+# MANIFESTO
+
+{{ONE_LINE_THESIS_OR_PROVOCATIVE_OPENER}}
+
+{{OPENING_PARAGRAPH}} — describe what's broken in the category, in concrete terms. Name the failure modes. The reader should recognize the world being described.
+
+{{CATEGORY_INDICTMENT}} — the structural pattern that makes the category broken. Take a position; don't hedge.
+
+{{PRODUCT_NAME}} exists because {{REASON_FOR_EXISTENCE}}. The work that actually changes outcomes is the work nobody is helping the user do. {{PRODUCT_NAME}} does that.
+
+So we built one that does.
+
+## {{SECTION_1_TITLE}}
+
+{{SECTION_1_OPENING_CLAIM}}
+
+By "{{KEY_TERM}}" we mean: {{KEY_TERM_DEFINITION}}. Most {{CATEGORY_TOOLS}} work from {{SHALLOW_PATTERN}}. That produces {{SHALLOW_OUTPUT}}. You can tell because {{TELL_FOR_SHALLOW}}.
+
+{{PRODUCT_NAME}}'s {{DURABLE_NOUN}} isn't {{NAIVE_THING}}. {{DURABLE_NOUN_DESCRIPTION}}.
+
+{{TAGLINE}}.
+
+This is the part most {{CATEGORY_TOOLS}} skip. They jump straight to {{SHORTCUT}} because {{SHORTCUT}} demos well. Building the {{DURABLE_NOUN}} takes time and feels like work. It is work. There's no version of this that gets faster by hiding the {{DURABLE_NOUN}} from the user and pretending the artifact came from somewhere magic.
+
+## {{SECTION_2_TITLE}}
+
+{{SECTION_2_THESIS}}
+
+Most AI tools start with a blank page and ask you to fill it. That works fine for tasks where the AI knows more than you about the topic. It works terribly for tasks where the topic is *you* (or *your business*, or *your specific situation*). {{PRODUCT_NAME}}'s job isn't to {{NAIVE_AI_BEHAVIOR}}. Its job is to {{CORRECTION_BEHAVIOR}}.
+
+Each pass surfaces what was already true.
+
+{{REFINEMENT_DETAIL}} — the system extracts what you already know, structures it, lets you correct what comes out wrong. The next cut is closer to right by default.
+
+The result reads like you because it is you. There are no AI tells because the AI didn't write your story. The AI structured what you said about your story. The voice was always yours.
+
+## {{SECTION_3_ANTI_PATTERN_TITLE}}
+
+We don't {{ANTI_PATTERN}} because {{ANTI_PATTERN_REASON}}.
+
+{{ANTI_PATTERN_CATEGORY_DESCRIPTION}}. The math only works if {{CONDITION}}. {{WHY_CONDITION_FAILS}}.
+
+The tools selling this know the math doesn't work. The pitch is selling effort relief, not outcomes. {{PROOF_POINT}}.
+
+We're optimizing for the opposite.
+
+{{POSITIVE_ALTERNATIVE}} — small numbers of {{GOOD_THING}}, not large numbers of {{BAD_THING}}. {{REASONING}}.
+
+This is the strategy that fits the current market. {{MARKET_CONDITION}}. {{WHY_PRECISION_BEATS_VOLUME}}.
+
+## {{SECTION_4_TITLE}}
+
+{{LIVE_MODE_OR_SIMILAR_DEFENSE}}
+
+{{NUANCED_DISTINCTION_BETWEEN_OUR_FEATURE_AND_CHEATING_TOOLS}}
+
+{{PRODUCT_NAME}}'s {{FEATURE_NAME}} is structurally different. {{STRUCTURAL_EXPLANATION}}.
+
+{{POSITIVE_FRAME}}.
+
+Worth saying out loud: {{REAL_WORLD_CONTEXT}}.
+
+The deeper architectural point: {{FEATURE_NAME}} is just another face of the same {{DURABLE_NOUN}}. Nobody calls a {{ARTIFACT}} a cheatsheet. Nobody objects to a candidate / user / customer showing up prepared.
+
+## {{SECTION_5_PRICING_TITLE}}
+
+{{PRICING_THESIS}}
+
+{{WORK_PATTERN_DESCRIPTION}}. {{WHY_DEFAULT_MODEL_FAILS}}. The whole pricing model is misaligned with the work.
+
+{{PRODUCT_NAME}} sells in {{PRICING_UNIT}}. {{PRICING_UNIT_RATIONALE}}.
+
+The {{PRICING_UNIT}} runs in {{INTENSITY_PATTERN}}. The pricing should too.
+
+{{ALIGNMENT_OF_INCENTIVES_ARGUMENT}}.
+
+For the numbers, the refund terms, and the alignment-vs-subscription comparison, see [`PRICING.md`](PRICING.md).
+
+## {{SECTION_6_DATA_TITLE}}
+
+The {{DURABLE_NOUN}} belongs to the user. We mean it structurally, not as marketing.
+
+Every feature in {{PRODUCT_NAME}} is built so the data is exportable, the code is auditable, and the entire system is self-hostable. {{LICENSE_SPECIFIC_DETAIL}}.
+
+Open-source is the credibility. *{{TRUST_LINE_PROMISE}}* is the promise.
+
+The reason we can ship export and self-host without losing customers is that the moat isn't your data. The moat is the product. {{PRODUCT_NAME}} is the place where {{DURABLE_NOUN_WORKING_FLOW}} is ergonomic. {{TAKE_DATA_ELSEWHERE_SCENARIO}}.
+
+We're selling a product, not custody.
+
+## What it adds up to
+
+{{CLOSE_PHRASE_1}}
+
+{{COMPOUND_VALUE_OVER_TIME_DESCRIPTION}}.
+
+{{CLOSE_PHRASE_2}} — every cycle is a deeper version of the user.
+
+{{LOCKED_HERO_NOUN}} {{LOCKED_HERO_VERB}}.
+
+That's the whole pitch.
+
+---
+
+*{{TRUST_LINE}} · {{DOMAIN}}*

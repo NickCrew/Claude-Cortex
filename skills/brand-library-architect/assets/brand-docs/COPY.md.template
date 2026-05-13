@@ -1,0 +1,153 @@
+# {{PRODUCT_NAME}} Copy Reference
+
+Canonical taglines, hero copy, brand vocabulary, concept names, and the
+phrases worth lifting elsewhere. Companion to [`BRAND.md`](BRAND.md)
+(which handles marks, colors, typography). This doc handles language.
+
+For the long-form positioning argument that uses these phrases in
+context, see [`MANIFESTO.md`](MANIFESTO.md).
+
+---
+
+## At a glance
+
+| Slot | Phrase |
+|---|---|
+| Tagline | **{{TAGLINE}}** |
+| Hero | **{{LOCKED_HERO_NOUN}}** *{{LOCKED_HERO_VERB}}* |
+| Social / ad | {{SOCIAL_AD_COPY}} |
+| Trust line | {{TRUST_LINE}} |
+| Brand verb | **{{BRAND_VERB}}** |
+| Domain | {{DOMAIN}} |
+
+---
+
+## Voice and register
+
+{{PRODUCT_NAME}} copy is **declarative, confident, and self-aware**. {{VOICE_DESCRIPTION}}
+
+**Tonal moves we use:**
+- Short sentences. Cuts before clauses.
+- Italic accent on the *key word* in a display title (Instrument Serif italic + brand color).
+- Mono uppercase for system metadata (`v3 · public`, `01 / 02 / 03`).
+- Owned verbs over generic ones (`{{BRAND_VERB}}` not `{{COMPETITOR_VERB}}`).
+- The reader is a peer, not a prospect.
+
+**Em-dash policy** — two rules for two registers:
+
+> **Display copy** (principle cards, hero subtitles, captions) may use
+> connective em dashes for rhythm at large size.
+>
+> **Long-form prose** (manifesto, blog posts, body copy ≥ 2 paragraphs)
+> avoids connective em dashes. Prefer commas, colons, or new sentences.
+
+**Tonal moves we avoid:**
+- Hyperbolic claims ("revolutionary", "next-generation").
+- "AI-powered" as a marketing label.
+- Flat utility verbs ("optimize", "streamline", "leverage").
+- Aspirational fluff ("unleash your potential").
+- Empty contrast ("not just X, but Y").
+
+---
+
+## Locked phrases
+
+These don't change without intent. If you're updating one, plan to update it everywhere it appears.
+
+### Tagline
+
+> **{{TAGLINE}}**
+
+{{TAGLINE_DESCRIPTION}}
+
+### Hero copy
+
+> **{{LOCKED_HERO_NOUN}}**
+> *{{LOCKED_HERO_VERB}}*
+
+{{HERO_DESCRIPTION}}
+
+### Trust line
+
+> {{TRUST_LINE}}
+
+{{TRUST_LINE_DESCRIPTION}}
+
+---
+
+## Brand vocabulary
+
+### `{{BRAND_VERB}}` — the brand verb
+
+> ✅ "{{GOOD_VERB_USE_1}}"
+> ✅ "{{GOOD_VERB_USE_2}}"
+> ❌ "{{BAD_VERB_USE_1}}" (every product in the category says this)
+> ❌ "{{BAD_VERB_USE_2}}" (implies one-shot AI / wrong category)
+
+**Why "{{BRAND_VERB}}":** {{BRAND_VERB_RATIONALE}}
+
+### `{{DURABLE_NOUN}}` — the durable noun
+
+The thing the user builds once. Always lowercase unless starting a sentence. Don't substitute:
+
+> ❌ "{{BAD_NOUN_1}}" ({{REASON_1}})
+> ❌ "{{BAD_NOUN_2}}" ({{REASON_2}})
+
+---
+
+## What NOT to use
+
+Generic vocabulary that flattens the brand into the SaaS-startup category. Replace where you find it.
+
+| Don't use | Use instead | Why |
+|---|---|---|
+| Tailor / Generate / Customize | **{{BRAND_VERB}}** | Generic; the brand verb is structural |
+| Profile | **{{DURABLE_NOUN}}** | Suggests presentation layer |
+| Career platform / Customer platform / etc. | (concept name) | Platform is generic |
+| Stand out | (rephrase) | Empty competitive framing |
+| AI-powered (as label) | Describe what it does | Don't lead with the tech |
+| Game-changing / Revolutionary / Next-generation | (avoid) | Hyperbolic |
+| {{PRODUCT_SPECIFIC_BANNED_1}} | {{ALTERNATIVE_1}} | {{REASON_1}} |
+| {{PRODUCT_SPECIFIC_BANNED_2}} | {{ALTERNATIVE_2}} | {{REASON_2}} |
+
+---
+
+## Topics covered elsewhere
+
+| Topic | Lives in | What it covers |
+|---|---|---|
+| Reusable founder/company bios | [`BIOS.md`](BIOS.md) | 50w / 100w / 250w bios; social profile bios |
+| Predictable Q&A | [`FAQ.md`](FAQ.md) | Canonical answers to 10 common questions |
+| Term definitions | [`GLOSSARY.md`](GLOSSARY.md) | Brand vocabulary with cross-references |
+| Tone by surface | [`TONE.md`](TONE.md) | Register guide for support / release / tweet / blog / email |
+| Anti-positioning | [`MANIFESTO.md`](MANIFESTO.md) | Long-form positioning argument |
+| Pricing language | [`PRICING.md`](PRICING.md) | $X / pass-or-subscription / window / refund |
+
+---
+
+## Asset → phrase index
+
+If you change a phrase, here's where it appears so you know what to update.
+
+### Tagline (`{{TAGLINE}}`)
+
+- {{LIST_TAGLINE_LOCATIONS}}
+
+### Hero copy
+
+- {{LIST_HERO_LOCATIONS}}
+
+### Trust line
+
+- {{LIST_TRUST_LOCATIONS}}
+
+---
+
+## When you write something new
+
+The 4-step gut check before publishing brand copy:
+
+1. **Does this say something only {{PRODUCT_NAME}} can say?** If a competitor's landing page could host the same sentence, rewrite.
+2. **Did you reach for the owned verb?** If you wrote *tailor* / *generate* / *customize* — fix it.
+3. **Is the locked hero or tagline within reach?** Anchor every asset.
+4. **Is the register right for the surface?** Mono-uppercase for system slots; display serif italic for editorial accents; body sans for prose.

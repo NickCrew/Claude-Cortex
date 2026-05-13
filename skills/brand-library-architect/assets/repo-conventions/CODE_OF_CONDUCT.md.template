@@ -1,0 +1,52 @@
+# Code of Conduct
+
+## Our standard
+
+The {{PRODUCT_NAME}} project adopts the **Contributor Covenant, version 2.1** as its Code of Conduct. The canonical text is maintained at [contributor-covenant.org/version/2/1/code_of_conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/), and is incorporated into this project by reference.
+
+By participating in this project — contributing code, opening issues, reviewing pull requests, or engaging in any project-related discussion — you agree to abide by the Covenant.
+
+## Why the Contributor Covenant
+
+The Covenant is the standard adopted by most major open-source projects (Kubernetes, React, Vue, Rails, and thousands more). Adopting it rather than writing a custom CoC means:
+
+- Contributors who already know the Covenant don't need to re-learn this project's rules.
+- The text is community-maintained and updated over time; we benefit from those updates without having to re-litigate them.
+- It's translated into many languages — non-English-speaking contributors can read it in their own language at the canonical source.
+
+## Quick summary (informational only)
+
+The Covenant text is the authoritative version. The summary below is informational, not a replacement.
+
+**Pledge.** We aim to make participation in this project a welcoming, respectful, and harassment-free experience for everyone.
+
+**Expectations.** Be considerate. Assume good intent. Disagree with ideas, not people. Take responsibility for mistakes. Center the community's well-being above any individual's preferences. Use welcoming and inclusive language.
+
+**Enforcement.** Maintainers will enforce the Covenant. Consequences range from a private warning to permanent removal from project spaces, scaled to the severity and recurrence of the violation. The Covenant's "Enforcement Guidelines" section describes the ladder.
+
+**Scope.** This Code of Conduct applies in all project spaces (the repository, issue trackers, pull-request discussions, project-affiliated communication channels) and in public spaces when an individual is officially representing the project.
+
+## Reporting
+
+Reports of unacceptable behavior go to:
+
+> **{{CONTACT_EMAIL}}**
+
+Reports are reviewed and investigated promptly and fairly. The identity of reporters is kept confidential to the extent practical; we will not share reporter identity beyond what is necessary to investigate and respond.
+
+If a maintainer is the subject of a report, the report should still go to the address above; we will arrange external review if needed.
+
+## Enforcement guidelines
+
+We follow the **Community Impact Guidelines** published with Contributor Covenant 2.1 (linked above). Those guidelines describe a four-step ladder:
+
+1. **Correction** — private written warning with clarity about why the behavior was inappropriate.
+2. **Warning** — formal warning with consequences for continued behavior.
+3. **Temporary ban** — temporary ban from project spaces for a specified period.
+4. **Permanent ban** — permanent removal from project spaces.
+
+The full guidelines, including the criteria for each step, are at the canonical Covenant URL above.
+
+## Attribution
+
+This Code of Conduct adopts the [Contributor Covenant, version 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/), authored by Coraline Ada Ehmke and the Contributor Covenant community. Used under the [Creative Commons Attribution 4.0 license](https://creativecommons.org/licenses/by/4.0/).

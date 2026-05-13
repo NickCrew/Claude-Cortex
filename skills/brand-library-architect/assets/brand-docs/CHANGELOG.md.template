@@ -1,0 +1,71 @@
+# Brand Changelog
+
+What changed in the brand library and when. Public-surface audits, vocabulary updates, structural reorganizations, retired assets — all anchored here so future drift is measurable against a known-good baseline.
+
+When you make a substantive brand change, append an entry with the date and what changed. Format: `## YYYY-MM-DD · {short title}` followed by a paragraph and bullet list.
+
+For voice and register guidance, see [`COPY.md`](COPY.md). For library navigation, see [`README.md`](README.md).
+
+---
+
+## {{INITIAL_DATE}} · brand library bootstrap
+
+Initial brand library scaffolded via the [`brand-library-architect`](https://github.com/example/brand-library-architect) skill. Phase 0 (Discovery) inventoried existing assets; Phase 1 (Decision rubric) captured commitments in `decisions.md`; Phase 2 (Bootstrap) created the directory structure and seeded BRAND.md, COPY.md, MANIFESTO.md.
+
+Subsequent phases populated:
+- {{PHASE_2_DESCRIPTION}}
+- {{PHASE_3_DESCRIPTION}}
+- {{PHASE_4_DESCRIPTION}}
+- {{PHASE_5_DESCRIPTION}}
+- {{PHASE_6_DESCRIPTION}}
+
+**Initial commitments locked in `decisions.md`:**
+- Brand verb: `{{BRAND_VERB}}`
+- Durable noun: `{{DURABLE_NOUN}}`
+- Tagline: {{TAGLINE}}
+- Hero: {{LOCKED_HERO_NOUN}} *{{LOCKED_HERO_VERB}}*
+- Primary color: `{{PRIMARY_HEX}}`
+- License: {{LICENSE}}
+- Pricing model: {{PRICING_MODEL}}
+
+---
+
+<!-- Append new entries above this line. Examples below show the format
+     for common change types: -->
+
+<!--
+## YYYY-MM-DD · public-surface audit
+
+Sweep of public-facing assets to align with locked vocabulary. Caught {{NUMBER}} drifts:
+
+- **{{ASSET_NAME}}** — old phrase → new phrase. Reason for change.
+- **{{ASSET_NAME}}** — pre-rebrand language replaced with locked positioning.
+
+**Known-deferred:** {{ITEMS_DEFERRED_AND_WHY}}.
+
+## YYYY-MM-DD · vocabulary update
+
+Updated `{{TERM}}` from `{{OLD_VALUE}}` to `{{NEW_VALUE}}`. Reason: {{REASON}}.
+
+Updated all references:
+- `COPY.md` "Locked phrases" / "Brand vocabulary" sections
+- `BIOS.md` (if mentioned)
+- `MANIFESTO.md` (if mentioned)
+- All HTML sheets in `_source/html/`
+- Re-rendered visual library via `just brand`
+
+## YYYY-MM-DD · new asset type added
+
+Added `{{TYPE_NAME}}` ({{DIMENSIONS}}). Use for {{USE_CASE}}.
+
+- New source: `_source/html/{{TYPE_SLUG}}.html`
+- New render recipe: `brand-{{TYPE_SLUG}}` in justfile
+- New cleanup recipe: `brand-clean-{{TYPE_SLUG}}` in justfile, chained from `brand-webp-clean`
+- Inventory tree updated in `BRAND.md`
+
+## YYYY-MM-DD · retired asset
+
+Retired `{{ASSET_NAME}}`. Reason: {{REASON}}.
+
+Source archived to `_source/html/_archive/{{ASSET_NAME}}.html`. Removed from active render pipeline. Removed from inventory tree in `BRAND.md`. Cross-references in COPY.md / GLOSSARY.md updated to note retirement.
+-->

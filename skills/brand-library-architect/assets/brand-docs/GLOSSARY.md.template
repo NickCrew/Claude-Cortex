@@ -1,0 +1,84 @@
+# {{PRODUCT_NAME}} Glossary
+
+Definitions of brand terms. Each entry includes good usage, what NOT to substitute, and "See also" cross-refs.
+
+For the broader vocabulary discussion, see [`COPY.md`](COPY.md). For predictable Q&A using these terms, see [`FAQ.md`](FAQ.md).
+
+---
+
+## {{BRAND_VERB}}
+
+*(verb)* — The brand verb. {{BRAND_VERB_DEFINITION}}.
+
+- ✅ "{{BRAND_VERB_GOOD_USE_1}}"
+- ✅ "{{BRAND_VERB_GOOD_USE_2}}"
+- ❌ "Tailor X" (every product in the category says this)
+- ❌ "Generate a custom X" (implies one-shot AI)
+- ❌ "Optimize" (empty utility verb)
+- ❌ "Customize" (generic)
+
+**See also:** *{{DURABLE_NOUN}}*, *{{ARTIFACT_TERM}}*.
+
+## {{DURABLE_NOUN}}
+
+*(noun)* — {{DURABLE_NOUN_DEFINITION}}. Always lowercase unless starting a sentence.
+
+- ✅ "{{NOUN_GOOD_USE_1}}"
+- ✅ "{{NOUN_GOOD_USE_2}}"
+- ❌ "Profile" (suggests presentation layer)
+- ❌ "{{BAD_NOUN_2}}" ({{REASON_2}})
+
+**See also:** *{{BRAND_VERB}}*, *{{COMPONENT_TERM}}*.
+
+## {{ARTIFACT_TERM}}
+
+*(noun)* — {{ARTIFACT_DEFINITION}}.
+
+- ✅ "{{ARTIFACT_GOOD_USE_1}}"
+- ❌ "{{BAD_ARTIFACT_USE}}" ({{REASON}})
+
+**See also:** *{{BRAND_VERB}}*, *{{DURABLE_NOUN}}*.
+
+## {{SUBSTRATE_TERM}}
+
+*(noun)* — {{SUBSTRATE_DEFINITION}}.
+
+- ✅ "{{SUBSTRATE_GOOD_USE}}"
+
+**See also:** *{{DURABLE_NOUN}}*, *{{CONCEPT_NAME}}*.
+
+## {{POSITIONING_TERM}}
+
+*(noun)* — {{POSITIONING_DEFINITION}}.
+
+- ✅ "{{POSITIONING_GOOD_USE}}"
+
+**See also:** *{{BRAND_VERB}}*, *{{DURABLE_NOUN}}*.
+
+## {{PRICING_UNIT}}
+
+*(noun)* — {{PRICING_UNIT_DEFINITION}}.
+
+- ✅ "{{PRICING_GOOD_USE_1}}"
+- ❌ "Subscription" — the difference is structural, not branding.
+
+**See also:** [`PRICING.md`](PRICING.md).
+
+## {{RETIRED_TERM}}
+
+*(retired)* — {{RETIRED_TERM_HISTORY}}. Retired in favor of {{REPLACEMENT}}.
+
+- ❌ Don't introduce *{{RETIRED_TERM}}* in new copy.
+
+**See also:** {{REPLACEMENT_LINK}}.
+
+## {{CONCEPT_NAME}}
+
+*(concept name; capitalized)* — {{CONCEPT_NAME_DEFINITION}}. Capitalized as a proper noun when invoking the concept.
+
+- ✅ "{{PRODUCT_NAME}}'s **{{CONCEPT_NAME}}** {{CONCEPT_USE}}"
+- ✅ "{{LOWERCASE_DESCRIPTIVE_USE}}" (descriptive use, lowercase, fine in product / hero copy)
+- ❌ "{{BAD_CONCEPT_USE}}" — adding {{BAD_WORD}} weakens the claim
+- ❌ "Career platform / customer platform / etc." — banned (generic)
+
+**See also:** *{{DURABLE_NOUN}}*, *{{SUBSTRATE_TERM}}*.

@@ -1,0 +1,113 @@
+# {{PRODUCT_NAME}} Pricing
+
+Public-facing pricing language. Numbers, the argument behind them, and what stays the user's after a {{PRICING_UNIT}} closes. For long-form positioning, see [`MANIFESTO.md`](MANIFESTO.md). For predictable Q&A, see [`FAQ.md`](FAQ.md). For internal entitlement enforcement, see {{INTERNAL_PRICING_DOC_PATH}} (if applicable).
+
+---
+
+## Quick facts
+
+| What | Detail |
+|---|---|
+| Price | **{{PRICE}}** |
+| {{PRICING_UNIT_LABEL}} | {{PRICING_UNIT_DURATION}} |
+| Usage window | {{USAGE_WINDOW}} |
+| Refund | {{REFUND_WINDOW}} |
+| Subscription | {{SUBSCRIPTION_POLICY}} |
+| Self-host | {{SELF_HOST_POLICY}} |
+| Currency | {{CURRENCY}} |
+
+---
+
+## Why {{PRICING_UNIT}}
+
+{{WORK_PATTERN_DESCRIPTION}}.
+
+{{WHY_DEFAULT_PRICING_FAILS}}.
+
+{{PRODUCT_NAME}} sells in {{PRICING_UNIT_PLURAL}} — {{PRICING_UNIT_RATIONALE}}.
+
+When the {{PRICING_UNIT}} closes, the {{DURABLE_NOUN}} stays the user's. {{COMPOUND_VALUE_OVER_TIME}}.
+
+Read the long-form argument in [`MANIFESTO.md`](MANIFESTO.md#{{PRICING_MANIFESTO_ANCHOR}}).
+
+---
+
+## Why not subscription
+
+The argument isn't about price. It's about **alignment**.
+
+{{ALIGNMENT_VS_TIME_ARGUMENT}}.
+
+{{HONEST_VS_DISHONEST_ALIGNMENT}}.
+
+The deeper point is incentive structure. {{INCENTIVE_ARGUMENT}}.
+
+{{PRICING_MODEL}} is also why we can credibly say "{{TRUST_LINE_PROMISE}}." {{LOCK_IN_VS_NO_LOCK_IN}}.
+
+---
+
+## What stays mine
+
+The {{DURABLE_NOUN}} is the user's, structurally. After the {{PRICING_UNIT}} closes:
+
+- **Data exports cleanly.** {{EXPORT_DETAIL}}.
+- **The application is open-source.** {{LICENSE}}. {{LICENSE_BENEFITS}}.
+- **Self-host is first-class.** {{SELF_HOST_DETAIL}}.
+- **The hosted product re-opens with the next {{PRICING_UNIT}}.** {{COMPOUND_VALUE_NOTE}}.
+
+Open-source is the credibility; *{{TRUST_LINE_PROMISE}}* is the promise. The {{PRICING_MODEL}} structure is what makes those credible at the level of incentives.
+
+---
+
+## Comparison to {{COMPETITOR_CATEGORY}}
+
+The category-specific differences from {{COMPETITOR_LIST}}:
+
+| Axis | {{COMPETITOR_CATEGORY}} | {{PRODUCT_NAME}} |
+|---|---|---|
+| **Pricing structure** | {{COMPETITOR_PRICING}} | {{OUR_PRICING}} |
+| **Incentive alignment** | {{COMPETITOR_INCENTIVE}} | {{OUR_INCENTIVE}} |
+| **What you build** | {{COMPETITOR_OUTPUT}} | {{OUR_OUTPUT}} |
+| **Data ownership** | {{COMPETITOR_DATA}} | {{OUR_DATA}} |
+| **What expires** | {{COMPETITOR_EXPIRY}} | {{OUR_EXPIRY}} |
+
+This isn't a price comparison; it's an alignment comparison.
+
+---
+
+## Refund and pause
+
+- **Refund window:** {{REFUND_DETAIL}}.
+- **Pause:** {{PAUSE_MECHANICS}}.
+- **Re-buying:** {{REBUY_PATTERN}}.
+
+---
+
+## What's not here
+
+This doc is the public-facing pricing argument. Implementation details — entitlement enforcement, billing system contracts — live in {{INTERNAL_DOC_LOCATION}} (if applicable). If you're a contributor or operator and need to know exactly which features are gated or how billing is wired, that's where to look.
+
+Topics deliberately out of scope:
+
+- **Future tiers / promo programs.** Not yet, not until they exist.
+- **Self-host pricing.** {{SELF_HOST_PRICING_NOTE}}.
+- **Enterprise / team plans.** Not yet, not until they exist.
+- **Discount codes / partner pricing.** Not yet.
+
+When any of those become real, this doc gets updated.
+
+---
+
+## Distribution
+
+`brand/PRICING.md` is the canonical source for public pricing language. When the public site lands, it'll mirror to `{{DOMAIN}}/pricing`.
+
+---
+
+## Questions
+
+**Pricing inquiries:** [{{CONTACT_EMAIL}}](mailto:{{CONTACT_EMAIL}})
+
+**How the {{DURABLE_NOUN}} works after a {{PRICING_UNIT}} closes:** see [`MANIFESTO.md`](MANIFESTO.md#{{DATA_OWNERSHIP_ANCHOR}}).
+
+**Why {{PRICING_UNIT}} instead of subscription:** see [`FAQ.md`](FAQ.md#why-{{PRICING_UNIT_SLUG}}-instead-of-subscription).

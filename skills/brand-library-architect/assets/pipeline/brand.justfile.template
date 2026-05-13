@@ -1,0 +1,330 @@
+# Brand asset render pipeline recipes.
+#
+# Templated for {{PRODUCT_NAME}}. Append these to the project's existing
+# justfile (or create a new justfile if none exists). The recipes assume:
+#   - Playwright installed (`npx --yes playwright` works)
+#   - cwebp installed (`brew install webp` on macOS)
+#   - rsvg-convert installed (optional; for SVG → high-res PNG rendering)
+#
+# Usage:
+#   just brand                        # render every category
+#   just brand-concepts               # render concept sheets only
+#   just brand-readme                 # render README hero only
+#   just brand-webp                   # convert all PNG exports to WebP
+#   just brand-composites             # render composite reference sheets
+#
+# After changes to source HTML sheets in brand/_source/html/, run `just brand`
+# to re-render the full library. After WebP conversion, the PNG sources
+# are deleted (WebP-only export library).
+
+# Render every brand category in sequence.
+brand: brand-concepts brand-banners brand-social brand-readme brand-method brand-manifesto brand-og brand-poster brand-swatch brand-webp
+    @echo ""
+    @echo "All brand assets rendered to brand/exports/ (WebP-only)"
+
+# Render concept sheets at 1200×630 (system, identity, methodology, etc).
+# Add concept slugs to the sheets="..." list as new concept sheets are created.
+brand-concepts:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/concepts
+    sheets="{{CONCEPT_SHEET_LIST}}"  # space-separated slugs, e.g., "system identity method"
+    for sheet in $sheets; do
+      for theme in dark light; do
+        id="${sheet}-${theme}"
+        out="brand/exports/concepts/{{PRODUCT_SLUG}}-${id}.png"
+        npx --yes playwright screenshot \
+          --viewport-size="1200,630" \
+          "file://$(pwd)/brand/_source/html/${sheet}.html#${id}" "$out" 2>/dev/null
+        printf "  ✓ %s\n" "$out"
+      done
+    done
+    echo ""
+    echo "Rendered concept variants"
+
+# Render banner sheet variants (1200×630 hero designs).
+brand-banners:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/banners
+    pairs="bold-dark:hero-bold-dark bold-light:hero-bold-light atm-dark:hero-atmospheric-dark atm-light:hero-atmospheric-light"
+    for entry in $pairs; do
+      id="${entry%%:*}"
+      name="${entry##*:}"
+      out="brand/exports/banners/{{PRODUCT_SLUG}}-${name}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1200,630" \
+        "file://$(pwd)/brand/_source/html/banners.html#${id}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+
+# Render social channel assets (mixed sizes).
+brand-social:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/social
+    # OG (1200×630)
+    for theme in dark light; do
+      out="brand/exports/social/{{PRODUCT_SLUG}}-og-image-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1200,630" \
+        "file://$(pwd)/brand/_source/html/og.html#og-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+    # Twitter banner (1500×500)
+    out="brand/exports/social/{{PRODUCT_SLUG}}-twitter-banner.png"
+    npx --yes playwright screenshot \
+      --viewport-size="1500,500" \
+      "file://$(pwd)/brand/_source/html/social.html#twitter" "$out" 2>/dev/null
+    printf "  ✓ %s\n" "$out"
+    # GitHub banner (1280×320)
+    out="brand/exports/social/{{PRODUCT_SLUG}}-github-banner.png"
+    npx --yes playwright screenshot \
+      --viewport-size="1280,320" \
+      "file://$(pwd)/brand/_source/html/social.html#github" "$out" 2>/dev/null
+    printf "  ✓ %s\n" "$out"
+
+# Render OG image (1200×630 dark+light) — Open Graph link previews.
+brand-og:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/social
+    for theme in dark light; do
+      out="brand/exports/social/{{PRODUCT_SLUG}}-og-image-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1200,630" \
+        "file://$(pwd)/brand/_source/html/og.html#og-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+
+# Render README hero (1280×640 2:1, dark+light).
+brand-readme:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/readme
+    for theme in dark light; do
+      out="brand/exports/readme/{{PRODUCT_SLUG}}-readme-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1280,640" \
+        "file://$(pwd)/brand/_source/html/readme.html#readme-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+    echo ""
+    echo "Rendered 2 readme variants"
+
+# Render methodology one-pager (1600×900 widescreen, dark+light).
+brand-method:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/method
+    for theme in dark light; do
+      out="brand/exports/method/{{PRODUCT_SLUG}}-method-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1600,900" \
+        "file://$(pwd)/brand/_source/html/method.html#method-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+    echo ""
+    echo "Rendered 2 method variants"
+
+# Render manifesto anti-card (1080×1350 portrait, dark+light).
+brand-manifesto:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/manifesto
+    for theme in dark light; do
+      out="brand/exports/manifesto/{{PRODUCT_SLUG}}-manifesto-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1080,1350" \
+        "file://$(pwd)/brand/_source/html/manifesto.html#manifesto-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+    echo ""
+    echo "Rendered 2 manifesto variants"
+
+# Render brand summary poster (1224×1584 letter portrait, dark+light).
+# Designer-handoff one-pager: wordmark · color palette · typography ·
+# locked phrases · footer. Letter-portrait at 144 DPI prints clean on
+# letter/A4. Different from the screen-friendly internal reference card.
+brand-poster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/poster
+    for theme in dark light; do
+      out="brand/exports/poster/{{PRODUCT_SLUG}}-poster-${theme}.png"
+      npx --yes playwright screenshot \
+        --viewport-size="1224,1584" \
+        "file://$(pwd)/brand/_source/html/poster.html#poster-${theme}" "$out" 2>/dev/null
+      printf "  ✓ %s\n" "$out"
+    done
+    echo ""
+    echo "Rendered 2 poster variants"
+
+# Render designer swatch sheet (1584×1224 letter landscape, light only).
+# Standard designer-kit reference: lockup specimens · color swatches ·
+# typography. Print-default light-bg. Output also copied to brand/press/
+# swatch/ for journalists and external designers (PNG over WebP — designers
+# print and import to slides/Figma).
+brand-swatch:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p brand/exports/swatch
+    out="brand/exports/swatch/{{PRODUCT_SLUG}}-swatch.png"
+    npx --yes playwright screenshot \
+      --viewport-size="1584,1224" \
+      "file://$(pwd)/brand/_source/html/swatch.html#swatch" "$out" 2>/dev/null
+    printf "  ✓ %s\n" "$out"
+    echo ""
+    echo "Rendered designer swatch sheet"
+
+# Convert all PNG exports to WebP (~75% smaller). Removes the source PNG.
+# Two outputs per source:
+#   - exports/{cat}/foo.webp        (max 1600px wide, q90)
+#   - exports/{cat}/thumbs/foo.webp (max 800px wide, q80)
+brand-webp:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v cwebp >/dev/null 2>&1; then
+      echo "✗ cwebp not found — install with: brew install webp"
+      exit 1
+    fi
+    for png in $(find brand/exports -name "*.png" -not -path "*/thumbs/*"); do
+      dir=$(dirname "$png")
+      base=$(basename "$png" .png)
+      mkdir -p "$dir/thumbs"
+      cwebp -quiet -q 90 -resize 1600 0 "$png" -o "$dir/${base}.webp"
+      cwebp -quiet -q 80 -resize 800 0 "$png" -o "$dir/thumbs/${base}.webp"
+      rm "$png"
+      printf "  ✓ %s/%s.png → .webp + thumb\n" "$(basename "$dir")" "$base"
+    done
+
+# Render composite reference sheets (per-category contact sheets).
+# Optional — useful for browsing the brand library at a glance.
+brand-composites:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v cwebp >/dev/null 2>&1; then
+      echo "✗ cwebp not found — install with: brew install webp"
+      exit 1
+    fi
+    mkdir -p brand/exports/composite/thumbs
+    rows="{{COMPOSITE_ROWS}}"  # space-separated id:width,height
+    for row in $rows; do
+      id="${row%%:*}"
+      size="${row##*:}"
+      png="brand/exports/composite/{{PRODUCT_SLUG}}-composite-${id}.png"
+      webp="brand/exports/composite/{{PRODUCT_SLUG}}-composite-${id}.webp"
+      thumb="brand/exports/composite/thumbs/{{PRODUCT_SLUG}}-composite-${id}.webp"
+      npx --yes playwright screenshot \
+        --viewport-size="${size}" \
+        "file://$(pwd)/brand/_source/html/composite.html#composite-${id}" "$png" 2>/dev/null
+      cwebp -quiet -q 90 -resize 1600 0 "$png" -o "$webp"
+      cwebp -quiet -q 80 -resize 800 0 "$png" -o "$thumb"
+      rm "$png"
+      printf "  ✓ %s\n" "$webp"
+    done
+    echo ""
+    echo "Rendered composite reference sheets (WebP + thumb)"
+
+# Clean rendered brand exports (HTML sources untouched).
+#
+# IMPORTANT: brand/exports/ may also contain Adobe Illustrator exports or
+# other manually-placed assets that share the {{PRODUCT_SLUG}}-* prefix.
+# This recipe deletes ONLY the specific files the Playwright+cwebp render
+# pipeline produces, enumerated below per category. Files not in the
+# enumeration (e.g., AI exports) are preserved.
+#
+# When adding a new render category:
+#   1. Add a brand-clean-{name} recipe enumerating the files it produces
+#   2. Chain it from brand-webp-clean (and brand-clean inherits it)
+brand-webp-clean: brand-clean-concepts brand-clean-banners brand-clean-social brand-clean-readme brand-clean-method brand-clean-manifesto brand-clean-og brand-clean-poster brand-clean-swatch
+    # Remove only thumbs/ directories that are now empty
+    @find brand/exports -type d -name 'thumbs' -empty -delete 2>/dev/null || true
+    @echo "Removed pipeline-rendered WebP files; AI exports preserved"
+
+# Same enumeration as brand-webp-clean but also removes any .png renders
+# that linger if a render was interrupted before WebP conversion.
+brand-clean: brand-webp-clean
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/concepts/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/banners/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/social/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/readme/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/method/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/manifesto/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/poster/*' -delete 2>/dev/null || true
+    @find brand/exports -name '{{PRODUCT_SLUG}}-*.png' -path '*/swatch/*' -delete 2>/dev/null || true
+    @echo "Cleaned pipeline-rendered brand exports; AI exports preserved"
+
+# Per-category clean recipes. Each enumerates the exact files that recipe's
+# render produces. Adobe Illustrator exports and other non-pipeline files
+# in brand/exports/ are preserved.
+
+brand-clean-concepts:
+    #!/usr/bin/env bash
+    # Update {{CONCEPT_SLUG_LIST}} when concept sheets are added/removed.
+    for slug in {{CONCEPT_SLUG_LIST}}; do
+      for theme in dark light; do
+        rm -f "brand/exports/concepts/{{PRODUCT_SLUG}}-${slug}-${theme}.webp"
+        rm -f "brand/exports/concepts/thumbs/{{PRODUCT_SLUG}}-${slug}-${theme}.webp"
+      done
+    done
+
+brand-clean-banners:
+    #!/usr/bin/env bash
+    for style in bold atmospheric editorial; do
+      for theme in dark light; do
+        rm -f "brand/exports/banners/{{PRODUCT_SLUG}}-hero-${style}-${theme}.webp"
+        rm -f "brand/exports/banners/thumbs/{{PRODUCT_SLUG}}-hero-${style}-${theme}.webp"
+      done
+    done
+
+brand-clean-social:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/social/{{PRODUCT_SLUG}}-og-image-${theme}.webp"
+      rm -f "brand/exports/social/thumbs/{{PRODUCT_SLUG}}-og-image-${theme}.webp"
+    done
+    rm -f brand/exports/social/{{PRODUCT_SLUG}}-twitter-banner.webp
+    rm -f brand/exports/social/{{PRODUCT_SLUG}}-github-banner.webp
+    rm -f brand/exports/social/thumbs/{{PRODUCT_SLUG}}-twitter-banner.webp
+    rm -f brand/exports/social/thumbs/{{PRODUCT_SLUG}}-github-banner.webp
+
+brand-clean-og:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/social/{{PRODUCT_SLUG}}-og-image-${theme}.webp"
+      rm -f "brand/exports/social/thumbs/{{PRODUCT_SLUG}}-og-image-${theme}.webp"
+    done
+
+brand-clean-readme:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/readme/{{PRODUCT_SLUG}}-readme-${theme}.webp"
+      rm -f "brand/exports/readme/thumbs/{{PRODUCT_SLUG}}-readme-${theme}.webp"
+    done
+
+brand-clean-method:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/method/{{PRODUCT_SLUG}}-method-${theme}.webp"
+      rm -f "brand/exports/method/thumbs/{{PRODUCT_SLUG}}-method-${theme}.webp"
+    done
+
+brand-clean-manifesto:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/manifesto/{{PRODUCT_SLUG}}-manifesto-${theme}.webp"
+      rm -f "brand/exports/manifesto/thumbs/{{PRODUCT_SLUG}}-manifesto-${theme}.webp"
+    done
+
+brand-clean-poster:
+    #!/usr/bin/env bash
+    for theme in dark light; do
+      rm -f "brand/exports/poster/{{PRODUCT_SLUG}}-poster-${theme}.webp"
+      rm -f "brand/exports/poster/thumbs/{{PRODUCT_SLUG}}-poster-${theme}.webp"
+    done
+
+brand-clean-swatch:
+    #!/usr/bin/env bash
+    rm -f brand/exports/swatch/{{PRODUCT_SLUG}}-swatch.webp
+    rm -f brand/exports/swatch/thumbs/{{PRODUCT_SLUG}}-swatch.webp

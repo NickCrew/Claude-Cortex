@@ -1,0 +1,109 @@
+# {{PRODUCT_NAME}} Cheatsheet
+
+The 30-second reference. Locked phrases, brand vocabulary, colors, fonts, key URLs. No narrative.
+
+For the full library navigator, see [`README.md`](README.md). For chronological history, see [`CHANGELOG.md`](CHANGELOG.md).
+
+---
+
+## Locked phrases
+
+| Slot | Phrase |
+|---|---|
+| **Tagline** | {{TAGLINE}} |
+| **Hero** | {{LOCKED_HERO_NOUN}} *{{LOCKED_HERO_VERB}}* |
+| **Trust line** | {{TRUST_LINE}} |
+| **Social / ad** | {{SOCIAL_AD_COPY}} |
+| **Close phrase** | {{CLOSE_PHRASE}} |
+
+## Brand vocabulary
+
+| Term | Type | Notes |
+|---|---|---|
+| **{{BRAND_VERB}}** | verb | The brand verb. Never *tailor* / *generate* / *customize*. |
+| **{{DURABLE_NOUN}}** | noun | The durable thing the user builds. |
+| {{ARTIFACT_TERM}} | noun | A presentation produced by recutting (resume, letter, recruiter card, …) |
+| {{SUBSTRATE_TERM}} | noun | The structural foundation underneath the model |
+| {{POSITIONING_TERM}} | noun | A positioning angle |
+| {{PRICING_UNIT}} | noun | A {{PRICING_UNIT_DURATION}} usage window (the pricing unit) |
+
+For full definitions and don't-substitute callouts, see [`GLOSSARY.md`](GLOSSARY.md).
+
+## Don't use
+
+- ❌ Tailor / Generate / Customize → ✅ {{BRAND_VERB}}
+- ❌ Profile / Customer data → ✅ {{DURABLE_NOUN}}
+- ❌ Stand out / Stand out from the crowd
+- ❌ AI-powered (as marketing label)
+- ❌ Game-changing / Revolutionary / Next-generation
+- ❌ {{PRODUCT_SPECIFIC_BANNED}}
+
+Full list in [`COPY.md`](COPY.md#what-not-to-use).
+
+## Colors
+
+| Hex | Role |
+|---|---|
+| `{{PRIMARY_HEX}}` | Primary brand color — when in doubt, use this |
+| `{{BRAND_LIGHT_HEX}}` | Light face / accent |
+| `{{BRAND_MID_HEX}}` | Mid-tone variant |
+| `{{ACCENT_HEX}}` | Default accent |
+
+| Hex | Role |
+|---|---|
+| `{{DARK_BG}}` | Dark theme background |
+| `{{LIGHT_BG}}` | Light theme background |
+
+Full color system with named tokens in [`BRAND.md`](BRAND.md#color-system).
+
+## Typography
+
+| Use | Family | Weight |
+|---|---|---|
+| Body | {{BODY_FONT}} | {{BODY_WEIGHTS}} |
+| Mono | {{MONO_FONT}} | {{MONO_WEIGHTS}} |
+| Wordmark | {{WORDMARK_FONT}} | {{WORDMARK_WEIGHT}} |
+| Display | {{DISPLAY_FONT}} | {{DISPLAY_WEIGHTS}} |
+
+## Pricing facts (if applicable)
+
+| What | Detail |
+|---|---|
+| Price | {{PRICE}} |
+| Pass duration | {{PRICING_UNIT_DURATION}} |
+| Usage window | {{USAGE_WINDOW}} |
+| Refund | {{REFUND_WINDOW}} |
+| Subscription | {{SUBSCRIPTION_POLICY}} |
+
+Full pricing argument in [`PRICING.md`](PRICING.md).
+
+## Key URLs and contact
+
+| What | Where |
+|---|---|
+| Domain | {{DOMAIN}} |
+| Repo | {{REPO_URL_SHORT}} |
+| Press contact | {{CONTACT_EMAIL}} |
+| Manifesto URL | `{{DOMAIN}}/manifesto` *(state if pending)* |
+| Pricing URL | `{{DOMAIN}}/pricing` *(state if pending)* |
+| Press URL | `{{DOMAIN}}/press` *(state if pending)* |
+
+## Render commands
+
+```bash
+just brand                  # full library
+just brand-{category}       # any single category
+just brand-clean            # remove only pipeline renders (preserves AI exports)
+```
+
+See [`RECIPES.md`](RECIPES.md) for common task walkthroughs.
+
+## Locked positioning rules
+
+1. Lead with the structural claim, not a question.
+2. Use the brand verb (`{{BRAND_VERB}}`).
+3. Italic accent on the brand-claim noun in display titles.
+4. Mono-uppercase for system metadata; sans-serif for body; display serif for hero.
+5. Em-dash policy: display copy may use connective em-dashes; long-form prose avoids them.
+
+Voice and register details in [`COPY.md`](COPY.md#voice-and-register).

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PRODUCT_NAME}} — Designer Swatch Sheet (Letter landscape · press kit)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{{GOOGLE_FONTS_URL}}" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d24;
+  font-family: '{{BODY_FONT}}', sans-serif;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+}
+.sheet-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{BRAND_LIGHT_HEX}};
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.3);
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.5);
+  margin-bottom: 12px;
+}
+.sheet-item { display: flex; flex-direction: column; align-items: center; }
+
+/* Render mode: when URL has a variant hash, isolate that variant for screenshot */
+body.render { padding: 0; gap: 0; background: {{LIGHT_BG}}; }
+body.render .sheet-label { display: none; }
+body.render .sheet-item { margin: 0; }
+body.render .sheet-item.hidden { display: none; }
+
+/* ─────────────────────────────────────────────────────────────
+   #swatch · Letter landscape (1584×1224 at 144 DPI = 11"×8.5")
+   Light-bg only. Designer-handoff swatch reference. Lives in
+   press/swatch/ alongside hero and logos.
+   ───────────────────────────────────────────────────────────── */
+#swatch {
+  width: 1584px; height: 1224px;
+  background: {{LIGHT_BG}};
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: 64px 80px;
+}
+#swatch::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.6;
+  background-image:
+    linear-gradient(rgba({{PRIMARY_RGB}}, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba({{PRIMARY_RGB}}, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* Header strip */
+#swatch .sw-header {
+  position: relative; z-index: 1;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-bottom: 18px;
+  border-bottom: 1px solid {{LIGHT_BORDER_PLUS}};
+  margin-bottom: 28px;
+}
+#swatch .sw-mark {
+  display: flex; align-items: center; gap: 18px;
+}
+#swatch .sw-wordmark {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-weight: 400; font-size: 60px; color: {{LIGHT_TEXT}};
+  letter-spacing: 2px; line-height: 1;
+}
+#swatch .sw-title-block {
+  text-align: right;
+}
+#swatch .sw-eyebrow {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; color: {{PRIMARY_HEX}};
+  letter-spacing: 3px; text-transform: uppercase;
+  opacity: 0.65; margin-bottom: 6px;
+}
+#swatch .sw-title {
+  font-family: '{{DISPLAY_FONT}}', sans-serif;
+  font-weight: 300; font-size: 34px; color: {{LIGHT_TEXT}};
+  letter-spacing: -0.3px; line-height: 1;
+}
+#swatch .sw-title em {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-style: italic; font-weight: 400; color: {{PRIMARY_HEX}};
+}
+
+/* Section pattern */
+#swatch .sw-section {
+  position: relative; z-index: 1;
+  margin-bottom: 24px;
+}
+#swatch .sw-section-title {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; color: {{PRIMARY_HEX}};
+  letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 14px; opacity: 0.85;
+}
+
+/* Row 1 — lockup specimens */
+#swatch .sw-lockups {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 0.7fr 0.7fr;
+  gap: 12px;
+}
+#swatch .sw-spec {
+  background: {{LIGHT_SURFACE}}; border: 1px solid {{LIGHT_BORDER}};
+  border-radius: 6px; padding: 14px 18px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  min-height: 180px;
+}
+#swatch .sw-spec::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, {{PRIMARY_HEX}}, #1e5a82);
+}
+#swatch .sw-spec-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; color: {{PRIMARY_HEX}};
+  letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 12px; opacity: 0.8;
+}
+#swatch .sw-spec-content {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+#swatch .sw-spec-spec {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; color: {{LIGHT_TEXT_TERTIARY}};
+  letter-spacing: 0.4px; line-height: 1.4;
+  margin-top: 10px; text-align: center;
+}
+#swatch .sw-lockup-row {
+  display: flex; align-items: center; gap: 12px;
+}
+#swatch .sw-lockup-text {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-weight: 400; color: {{LIGHT_TEXT}};
+  line-height: 1;
+}
+/* Mono-black lockup specimen — context-color swap */
+#swatch .sw-spec.sw-mono { background: {{LIGHT_SURFACE}}; }
+#swatch .sw-spec.sw-mono::before {
+  background: linear-gradient(90deg, {{LIGHT_TEXT}}, {{LIGHT_TEXT_DIM}});
+}
+#swatch .sw-spec.sw-mono .sw-spec-label { color: {{LIGHT_TEXT_DIM}}; }
+#swatch .sw-spec.sw-mono .sw-lockup-text { color: {{LIGHT_TEXT}}; }
+/* On-dark lockup specimen */
+#swatch .sw-spec.sw-on-dark {
+  background: {{DARK_BG}}; border-color: {{DARK_BORDER}};
+}
+#swatch .sw-spec.sw-on-dark::before {
+  background: linear-gradient(90deg, {{BRAND_LIGHT_HEX}}, {{PRIMARY_HEX}});
+}
+#swatch .sw-spec.sw-on-dark .sw-spec-label { color: {{BRAND_LIGHT_HEX}}; opacity: 0.85; }
+#swatch .sw-spec.sw-on-dark .sw-lockup-text { color: {{DARK_TEXT}}; }
+#swatch .sw-spec.sw-on-dark .sw-spec-spec { color: {{DARK_TEXT_TERTIARY}}; }
+
+/* Row 2 — color swatches */
+#swatch .sw-color-grid {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr 1fr;
+  gap: 16px;
+}
+#swatch .sw-color-card {
+  background: {{LIGHT_SURFACE}}; border: 1px solid {{LIGHT_BORDER}};
+  border-radius: 6px; padding: 14px 18px;
+  position: relative; overflow: hidden;
+}
+#swatch .sw-color-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, {{PRIMARY_HEX}}, #1e5a82);
+}
+#swatch .sw-color-card-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; color: {{PRIMARY_HEX}};
+  letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 12px; opacity: 0.8;
+}
+#swatch .sw-swatches {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+#swatch .sw-swatch {
+  width: 90px; height: 78px;
+  border-radius: 5px;
+  display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 6px 10px;
+}
+#swatch .sw-swatch-name {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 8.5px; letter-spacing: 1.2px; text-transform: uppercase;
+  opacity: 0.75;
+}
+#swatch .sw-swatch-hex {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+#swatch .sw-status-row {
+  display: flex; gap: 6px;
+}
+#swatch .sw-status {
+  flex: 1; height: 78px; border-radius: 5px;
+  display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 6px 10px;
+}
+
+/* Row 3 — typography specimens */
+#swatch .sw-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+#swatch .sw-type-card {
+  background: {{LIGHT_SURFACE}}; border: 1px solid {{LIGHT_BORDER}};
+  border-radius: 6px; padding: 16px 20px 18px;
+  display: flex; flex-direction: column;
+  min-height: 230px;
+  position: relative; overflow: hidden;
+}
+#swatch .sw-type-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, {{PRIMARY_HEX}}, #1e5a82);
+}
+#swatch .sw-type-meta {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; color: {{PRIMARY_HEX}};
+  letter-spacing: 2px; text-transform: uppercase;
+  opacity: 0.8; margin-bottom: 4px;
+}
+#swatch .sw-type-name {
+  font-family: '{{BODY_FONT}}', sans-serif;
+  font-weight: 500; font-size: 15px; color: {{LIGHT_TEXT}};
+  letter-spacing: -0.1px; margin-bottom: 14px;
+}
+#swatch .sw-type-spec {
+  flex: 1; display: flex; align-items: center;
+  font-size: 0;
+}
+#swatch .sw-type-role {
+  font-family: '{{BODY_FONT}}', sans-serif;
+  font-weight: 400; font-size: 11px; color: {{LIGHT_TEXT_DIM}};
+  letter-spacing: 0.2px; line-height: 1.5;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid {{LIGHT_BORDER}};
+}
+
+/* Footer strip */
+#swatch .sw-footer {
+  position: relative; z-index: 1;
+  margin-top: auto;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid {{LIGHT_BORDER_PLUS}};
+}
+#swatch .sw-footer-block {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 10px; color: {{LIGHT_TEXT_DIM}};
+  letter-spacing: 1.5px; line-height: 1.6;
+}
+#swatch .sw-footer-key {
+  text-transform: uppercase; color: {{LIGHT_TEXT_TERTIARY}};
+}
+</style>
+</head>
+<body>
+
+<!--
+  Designer swatch sheet · letter landscape (1584×1224 at 144 DPI = 11"×8.5").
+
+  Light-bg only — print-default. Standard designer-kit reference: lockup
+  specimens, color swatches with hex codes, typography specimens with
+  weights and roles. No copy / no manifesto material — purely visual
+  primitives.
+
+  Output gets copied to brand/press/swatch/ alongside hero/ and logos/
+  so journalists and external designers grab it via the press kit.
+
+  TODO when adapting per product:
+    1. Replace lockup specimens (5 cards) — sizes/contexts will match
+       your product (hero / app / on-dark / mono / gem-only).
+    2. Replace color palette swatches — match your product's actual
+       palette steps. Keep the "primary" outline ring on the canonical color.
+    3. Replace status colors with your product's status palette
+       (success / warning / error) or remove the status card entirely.
+    4. Replace typography sample text with phrases that exhibit each
+       font's working size and role.
+
+  Renders via `just brand-swatch`.
+-->
+
+<div class="sheet-item">
+  <div class="sheet-label">#swatch · 1584×1224 · letter landscape</div>
+  <div id="swatch">
+
+    <div class="sw-header">
+      <div class="sw-mark">
+        <svg viewBox="0 0 22 32" width="44" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {{MARK_SVG_LIGHT}}
+        </svg>
+        <span class="sw-wordmark">{{PRODUCT_NAME}}</span>
+      </div>
+      <div class="sw-title-block">
+        <div class="sw-eyebrow">Brand · designer reference</div>
+        <h1 class="sw-title">Marks · Colors · <em>Type</em></h1>
+      </div>
+    </div>
+
+    <!-- ─── Row 1 · Lockup specimens ─── -->
+    <div class="sw-section">
+      <div class="sw-section-title">Lockup specimens</div>
+      <div class="sw-lockups">
+
+        <!-- Hero color · primary brand -->
+        <div class="sw-spec">
+          <div class="sw-spec-label">Hero · primary brand · ≥48px</div>
+          <div class="sw-spec-content">
+            <div class="sw-lockup-row">
+              <svg viewBox="0 0 22 32" width="60" height="87" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {{MARK_SVG_LIGHT}}
+              </svg>
+              <span class="sw-lockup-text" style="font-size:60px; letter-spacing:2px;">{{PRODUCT_NAME}}</span>
+            </div>
+          </div>
+          <div class="sw-spec-spec">{{WORDMARK_FONT}} 400 · 60px · gap 12px · gem 60h</div>
+        </div>
+
+        <!-- App color · medium -->
+        <div class="sw-spec">
+          <div class="sw-spec-label">App · 24–40px</div>
+          <div class="sw-spec-content">
+            <div class="sw-lockup-row">
+              <svg viewBox="0 0 22 32" width="34" height="49" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {{MARK_SVG_LIGHT}}
+              </svg>
+              <span class="sw-lockup-text" style="font-size:36px; letter-spacing:1.5px;">{{PRODUCT_NAME}}</span>
+            </div>
+          </div>
+          <div class="sw-spec-spec">36px · gap 10px · gem 34h</div>
+        </div>
+
+        <!-- On dark -->
+        <div class="sw-spec sw-on-dark">
+          <div class="sw-spec-label">On dark</div>
+          <div class="sw-spec-content">
+            <div class="sw-lockup-row">
+              <svg viewBox="0 0 22 32" width="34" height="49" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {{MARK_SVG_DARK}}
+              </svg>
+              <span class="sw-lockup-text" style="font-size:36px; letter-spacing:1.5px;">{{PRODUCT_NAME}}</span>
+            </div>
+          </div>
+          <div class="sw-spec-spec">Light-mark variant on dark surface</div>
+        </div>
+
+        <!-- Mono black -->
+        <div class="sw-spec sw-mono">
+          <div class="sw-spec-label">Mono · single-color print</div>
+          <div class="sw-spec-content">
+            <div class="sw-lockup-row" style="gap:8px;">
+              <!-- TODO-MARK: replace with mono (single fill) version of your mark -->
+              <svg viewBox="0 0 22 32" width="22" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {{MARK_SVG_MONO}}
+              </svg>
+              <span class="sw-lockup-text" style="font-size:24px; letter-spacing:1px;">{{PRODUCT_NAME}}</span>
+            </div>
+          </div>
+          <div class="sw-spec-spec">B/W fax · letterhead · stamp</div>
+        </div>
+
+        <!-- Gem only -->
+        <div class="sw-spec">
+          <div class="sw-spec-label">Mark · ≤24px</div>
+          <div class="sw-spec-content">
+            <svg viewBox="0 0 22 32" width="42" height="61" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {{MARK_SVG_LIGHT}}
+            </svg>
+          </div>
+          <div class="sw-spec-spec">Favicon · sidebar · app icon</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── Row 2 · Color swatches ─── -->
+    <!-- TODO-PALETTE: brand-blue 7-step palette below is FACET-style placeholder.
+         Replace with your product's actual palette. -->
+    <div class="sw-section">
+      <div class="sw-section-title">Color · {{PRIMARY_HEX}} is primary</div>
+      <div class="sw-color-grid">
+
+        <!-- Brand color steps -->
+        <div class="sw-color-card">
+          <div class="sw-color-card-label">Brand color · 7-step</div>
+          <div class="sw-swatches">
+            <div class="sw-swatch" style="background:#1e5a82;">
+              <span class="sw-swatch-name" style="color:{{ACCENT_HEX}};">deep</span>
+              <span class="sw-swatch-hex" style="color:{{ACCENT_HEX}};">#1e5a82</span>
+            </div>
+            <div class="sw-swatch" style="background:{{PRIMARY_HEX}}; outline:2px solid #1e5a82; outline-offset:-2px;">
+              <span class="sw-swatch-name" style="color:{{ACCENT_HEX}};">primary</span>
+              <span class="sw-swatch-hex" style="color:{{ACCENT_HEX}};">{{PRIMARY_HEX}}</span>
+            </div>
+            <div class="sw-swatch" style="background:#3d88b8;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">mid+</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#3d88b8</span>
+            </div>
+            <div class="sw-swatch" style="background:#4a94c8;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">mid</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#4a94c8</span>
+            </div>
+            <div class="sw-swatch" style="background:{{ACCENT_HEX}};">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">accent</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">{{ACCENT_HEX}}</span>
+            </div>
+            <div class="sw-swatch" style="background:{{BRAND_LIGHT_HEX}};">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">light</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">{{BRAND_LIGHT_HEX}}</span>
+            </div>
+            <div class="sw-swatch" style="background:#7ac4f0;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">highlight</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#7ac4f0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Surfaces -->
+        <div class="sw-color-card">
+          <div class="sw-color-card-label">Surface · dark + light</div>
+          <div class="sw-swatches">
+            <div class="sw-swatch" style="background:{{DARK_BG}};">
+              <span class="sw-swatch-name" style="color:{{DARK_TEXT_TERTIARY}};">dark bg</span>
+              <span class="sw-swatch-hex" style="color:{{DARK_TEXT_DIM}};">{{DARK_BG}}</span>
+            </div>
+            <div class="sw-swatch" style="background:{{DARK_SURFACE}};">
+              <span class="sw-swatch-name" style="color:{{DARK_TEXT_TERTIARY}};">surface</span>
+              <span class="sw-swatch-hex" style="color:{{DARK_TEXT_DIM}};">{{DARK_SURFACE}}</span>
+            </div>
+            <div class="sw-swatch" style="background:{{LIGHT_BG}}; border:1px solid {{LIGHT_BORDER_PLUS}};">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT_DIM}};">light bg</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">{{LIGHT_BG}}</span>
+            </div>
+            <div class="sw-swatch" style="background:{{LIGHT_SURFACE}}; border:1px solid {{LIGHT_BORDER_PLUS}};">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT_DIM}};">surface</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">{{LIGHT_SURFACE}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <!-- TODO-STATUS: replace with your status palette or remove this card. -->
+        <div class="sw-color-card">
+          <div class="sw-color-card-label">Status</div>
+          <div class="sw-status-row">
+            <div class="sw-status" style="background:#3fbf8a;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">success</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#3fbf8a</span>
+            </div>
+            <div class="sw-status" style="background:#d8a34d;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">warning</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#d8a34d</span>
+            </div>
+            <div class="sw-status" style="background:#f07178;">
+              <span class="sw-swatch-name" style="color:{{LIGHT_TEXT}};">error</span>
+              <span class="sw-swatch-hex" style="color:{{LIGHT_TEXT}};">#f07178</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── Row 3 · Typography ─── -->
+    <div class="sw-section">
+      <div class="sw-section-title">Typography · Google Fonts · open-source</div>
+      <div class="sw-type-grid">
+
+        <div class="sw-type-card">
+          <div class="sw-type-meta">Wordmark</div>
+          <div class="sw-type-name">{{WORDMARK_FONT}}</div>
+          <div class="sw-type-spec">
+            <span style="font-family:'{{WORDMARK_FONT}}'; font-size:64px; font-weight:400; color:{{LIGHT_TEXT}}; letter-spacing:1.5px; line-height:1;">{{PRODUCT_NAME}}</span>
+          </div>
+          <div class="sw-type-role">400 · wordmark only · italic accent for brand-claim nouns</div>
+        </div>
+
+        <div class="sw-type-card">
+          <div class="sw-type-meta">Display</div>
+          <div class="sw-type-name">{{DISPLAY_FONT}}</div>
+          <div class="sw-type-spec">
+            <!-- TODO-COPY: a hero-display sample (~2-3 words) -->
+            <span style="font-family:'{{DISPLAY_FONT}}'; font-size:38px; font-weight:200; color:{{LIGHT_TEXT}}; letter-spacing:-0.3px; line-height:1.05;">{{TAGLINE_FRAGMENT}}</span>
+          </div>
+          <div class="sw-type-role">200–500 · hero · marketing display · landing</div>
+        </div>
+
+        <div class="sw-type-card">
+          <div class="sw-type-meta">Body</div>
+          <div class="sw-type-name">{{BODY_FONT}}</div>
+          <div class="sw-type-spec">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <!-- TODO-COPY: a body sample, two short lines -->
+              <span style="font-family:'{{BODY_FONT}}'; font-weight:400; font-size:17px; color:{{LIGHT_TEXT}}; line-height:1.4;">{{BODY_SAMPLE_PRIMARY}}</span>
+              <span style="font-family:'{{BODY_FONT}}'; font-weight:400; font-size:13px; color:{{LIGHT_TEXT_DIM}}; line-height:1.4;">{{BODY_SAMPLE_SECONDARY}}</span>
+            </div>
+          </div>
+          <div class="sw-type-role">300–700 · all UI body text · labels · nav</div>
+        </div>
+
+        <div class="sw-type-card">
+          <div class="sw-type-meta">Mono</div>
+          <div class="sw-type-name">{{MONO_FONT}}</div>
+          <div class="sw-type-spec">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <!-- TODO-COPY: a system-metadata-style mono sample -->
+              <span style="font-family:'{{MONO_FONT}}'; font-weight:400; font-size:14px; color:{{PRIMARY_HEX}}; letter-spacing:0.5px;">{{MONO_SAMPLE_TEXT}}</span>
+              <span style="font-family:'{{MONO_FONT}}'; font-weight:500; font-size:11px; color:{{LIGHT_TEXT}}; letter-spacing:1.5px; text-transform:uppercase;">{{TAGLINE_FRAGMENT}}</span>
+            </div>
+          </div>
+          <div class="sw-type-role">400 · 500 · code · system metadata · tagline tracker</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="sw-footer">
+      <div class="sw-footer-block">
+        <span class="sw-footer-key">Domain</span> {{DOMAIN}}
+      </div>
+      <div class="sw-footer-block">
+        <span class="sw-footer-key">Repo</span> {{REPO_URL_SHORT}}
+      </div>
+      <div class="sw-footer-block">
+        <span class="sw-footer-key">Press</span> {{CONTACT_EMAIL}}
+      </div>
+      <div class="sw-footer-block">
+        <span class="sw-footer-key">License</span> {{LICENSE}}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Render mode: hash like #swatch isolates that variant for Playwright screenshot.
+  (function() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    document.body.classList.add('render');
+    const target = document.getElementById(hash);
+    if (!target) return;
+    const targetItem = target.closest('.sheet-item');
+    document.querySelectorAll('.sheet-item').forEach(item => {
+      if (item !== targetItem) item.classList.add('hidden');
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+# {{PRODUCT_NAME}} Bios & Boilerplate
+
+Reusable copy chunks for press requests, partnership emails, conference programs, podcast intros, "about" pages, and social profiles.
+
+Companion to [`BRAND.md`](BRAND.md), [`COPY.md`](COPY.md), and [`MANIFESTO.md`](MANIFESTO.md).
+
+**Voice constraint:** all copy uses the locked vocabulary from [`COPY.md`](COPY.md). Avoid the "what NOT to use" list patterns.
+
+**What's not here:** specific pricing numbers (in `PRICING.md`); customer testimonials, case studies, or coverage clips (none yet — pre-launch); founder location or biographical specifics beyond what's verifiable.
+
+---
+
+## Founder
+
+### Founder bio — 50 words
+
+> {{FOUNDER_BIO_50W}}
+
+*Word count: {{FOUNDER_50W_COUNT}} (target 50, ±5).*
+
+Use for: conference program bios, short panel intros, social profile short-bios.
+
+### Founder bio — 100 words
+
+> {{FOUNDER_BIO_100W}}
+
+*Word count: {{FOUNDER_100W_COUNT}} (target 100, ±5).*
+
+Use for: podcast episode descriptions, partnership email signatures, "about the founder" page sections.
+
+### Founder bio — 250 words
+
+> {{FOUNDER_BIO_250W}}
+
+*Word count: {{FOUNDER_250W_COUNT}} (target 250, ±5).*
+
+Use for: long-form press requests, founder pages, investor decks, deeper podcast intros.
+
+---
+
+## Company
+
+### Company boilerplate — 50 words
+
+> {{COMPANY_50W}}
+
+*Word count: {{COMPANY_50W_COUNT}} (target 50, ±5).*
+
+Use for: short partner page descriptions, app store one-liners, social profile descriptions.
+
+### Company boilerplate — 100 words
+
+> {{COMPANY_100W}}
+
+*Word count: {{COMPANY_100W_COUNT}} (target 100, ±5).*
+
+Use for: medium-form press releases, partner integration pages, "about" sections, podcast show-notes.
+
+### Company boilerplate — 250 words
+
+> {{COMPANY_250W}}
+
+*Word count: {{COMPANY_250W_COUNT}} (target 250, ±5).*
+
+Use for: long-form press releases, partnership pitch documents, public landing page "about" section, conference sponsor write-ups.
+
+---
+
+## Social profile bios
+
+### Twitter (≤160 chars)
+
+> {{TWITTER_BIO}}
+
+*Character count: {{TWITTER_COUNT}}.*
+
+### LinkedIn company tagline (≤120 chars)
+
+> {{LINKEDIN_TAGLINE}}
+
+*Character count: {{LINKEDIN_COUNT}}.*
+
+### GitHub bio (≤160 chars)
+
+> {{GITHUB_BIO}}
+
+*Character count: {{GITHUB_COUNT}}.*
+
+### BlueSky (≤256 chars)
+
+> {{BLUESKY_BIO}}
+
+*Character count: {{BLUESKY_COUNT}}.*
+
+---
+
+## Notes for use
+
+- **Founder + company boilerplate often pair.** Pick lengths that match (50w + 50w, 250w + 250w) — mismatched pairs make one feel padded.
+- **Don't quote past these.** If a publication needs a *different* word count, write it custom rather than tweaking these. Stable versions stay stable.
+- **Verify before press.** Before any pre-launch piece goes public, spot-check that "currently preparing for public launch" still matches reality.

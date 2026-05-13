@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PRODUCT_NAME}} — Methodology One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{{GOOGLE_FONTS_URL}}" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d24;
+  font-family: '{{BODY_FONT}}', sans-serif;
+  padding: 40px 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 56px;
+}
+.sheet-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{BRAND_LIGHT_HEX}};
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.3);
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.5);
+  margin-bottom: 12px;
+}
+.sheet-item { display: flex; flex-direction: column; align-items: center; }
+
+body.render { padding: 0; gap: 0; background: {{DARK_BG}}; }
+body.render .sheet-label { display: none; }
+body.render .sheet-item { margin: 0; }
+body.render .sheet-item.hidden { display: none; }
+
+/* ─────────────────────────────────────────────────────────────
+   #method-dark  ·  1600×900  ·  Methodology one-pager (dark)
+   ───────────────────────────────────────────────────────────── */
+#method-dark {
+  width: 1600px; height: 900px;
+  background: {{DARK_BG}};
+  position: relative; overflow: hidden;
+}
+#method-dark::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.5;
+  background-image:
+    linear-gradient(rgba({{BRAND_LIGHT_RGB}}, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba({{BRAND_LIGHT_RGB}}, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+#method-dark::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%,
+    rgba({{BRAND_LIGHT_RGB}}, 0.10) 0%, rgba({{BRAND_PRIMARY_RGB}}, 0.04) 40%, transparent 70%);
+  pointer-events: none;
+}
+#method-dark .frame {
+  position: relative; height: 100%;
+  padding: 56px 80px 48px;
+  display: flex; flex-direction: column;
+  z-index: 1;
+}
+#method-dark .header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 32px;
+}
+#method-dark .lockup { display: flex; align-items: center; gap: 14px; }
+#method-dark .lockup-text {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-weight: 400; font-size: 32px; color: {{DARK_TEXT}};
+  letter-spacing: 1.5px; line-height: 1;
+}
+#method-dark .header-meta {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{ACCENT_HEX}};
+  letter-spacing: 2.5px; text-transform: uppercase;
+  opacity: 0.65;
+}
+#method-dark .title-block { margin-bottom: 40px; }
+#method-dark .eyebrow {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{ACCENT_HEX}};
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 12px; opacity: 0.65;
+}
+#method-dark .title {
+  font-family: '{{DISPLAY_FONT}}', sans-serif;
+  font-weight: 200; font-size: 64px;
+  color: {{DARK_TEXT}}; letter-spacing: -0.7px;
+  line-height: 1;
+}
+#method-dark .title em {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-style: italic; font-weight: 400;
+  color: {{BRAND_LIGHT_HEX}};
+}
+
+#method-dark .phases {
+  display: grid;
+  grid-template-columns: 1fr 28px 1fr 28px 1fr;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 32px;
+}
+#method-dark .arrow {
+  display: flex; align-items: center; justify-content: center;
+  font-family: '{{DISPLAY_FONT}}', sans-serif;
+  font-weight: 200; font-size: 32px;
+  color: {{ACCENT_HEX}}; opacity: 0.6;
+}
+#method-dark .phase {
+  border: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.20);
+  border-radius: 6px;
+  padding: 24px 28px;
+  background: linear-gradient(180deg, rgba({{BRAND_LIGHT_RGB}}, 0.05) 0%, rgba({{BRAND_LIGHT_RGB}}, 0.01) 100%);
+  display: flex; flex-direction: column; gap: 14px;
+}
+#method-dark .phase-head {
+  display: flex; align-items: baseline; gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.15);
+}
+#method-dark .phase-num {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{ACCENT_HEX}};
+  letter-spacing: 2px; opacity: 0.7;
+}
+#method-dark .phase-name {
+  font-family: '{{DISPLAY_FONT}}', sans-serif;
+  font-weight: 300; font-size: 28px;
+  color: {{DARK_TEXT}}; letter-spacing: -0.3px;
+}
+#method-dark .phase-tag {
+  margin-left: auto;
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 10px; color: #8b97a8;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  opacity: 0.7;
+}
+#method-dark .steps { display: flex; flex-direction: column; gap: 8px; }
+#method-dark .step { display: flex; align-items: baseline; gap: 12px; }
+#method-dark .step-bullet {
+  width: 6px; height: 6px;
+  border-radius: 1px;
+  background: {{ACCENT_HEX}};
+  opacity: 0.7;
+  flex-shrink: 0;
+  transform: rotate(45deg) translateY(2px);
+}
+#method-dark .step-text {
+  font-family: '{{BODY_FONT}}', sans-serif;
+  font-weight: 400; font-size: 16px;
+  color: {{DARK_TEXT_DIM}}; line-height: 1.4;
+}
+#method-dark .step-text .dim { color: #8b97a8; font-weight: 300; }
+
+#method-dark .feedback {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px;
+  padding: 16px 0;
+  margin-bottom: 24px;
+}
+#method-dark .feedback-rule {
+  flex: 0 0 80px; height: 1px;
+  background: linear-gradient(90deg, rgba({{BRAND_LIGHT_RGB}}, 0) 0%, rgba({{BRAND_LIGHT_RGB}}, 0.4) 100%);
+}
+#method-dark .feedback-rule.right {
+  background: linear-gradient(90deg, rgba({{BRAND_LIGHT_RGB}}, 0.4) 0%, rgba({{BRAND_LIGHT_RGB}}, 0) 100%);
+}
+#method-dark .feedback-text {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{BRAND_LIGHT_HEX}};
+  letter-spacing: 2.5px; text-transform: uppercase;
+}
+#method-dark .feedback-text .arrow-loop {
+  font-size: 16px; margin-right: 6px;
+  display: inline-block;
+}
+
+#method-dark .callout {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-style: italic; font-size: 22px;
+  color: {{BRAND_LIGHT_HEX}}; opacity: 0.85;
+  text-align: center;
+  letter-spacing: 0.3px;
+  margin-bottom: 28px;
+}
+
+#method-dark .footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #1a1e28;
+}
+#method-dark .tagline {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; color: #6b7a8d;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+#method-dark .url {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; color: {{ACCENT_HEX}};
+  letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+
+<!--
+  Method sheet · 1600×900 widescreen one-pager. Compresses the full method
+  into a single shareable visual: 3 phases each with sub-steps, plus a
+  feedback loop showing how the final phase feeds back into the first.
+  Use as blog header, landing-page method section, README inset, deck cover.
+-->
+
+<!-- ─── METHOD · DARK ─── -->
+<div class="sheet-item">
+  <div class="sheet-label">#method-dark · 1600×900</div>
+  <div id="method-dark">
+    <div class="frame">
+      <div class="header">
+        <div class="lockup">
+          <svg width="30" height="44" viewBox="0 0 22 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {{MARK_SVG_DARK}}
+          </svg>
+          <span class="lockup-text">{{PRODUCT_NAME}}</span>
+        </div>
+        <div class="header-meta">The method · 01</div>
+      </div>
+
+      <div class="title-block">
+        <div class="eyebrow">How {{PRODUCT_NAME}} works</div>
+        <h1 class="title">The <em>{{METHOD_NOUN}}</em>, expanded.</h1>
+      </div>
+
+      <div class="phases">
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">01</span>
+            <span class="phase-name">{{PHASE_1_NAME}}</span>
+            <span class="phase-tag">{{PHASE_1_TAG}}</span>
+          </div>
+          <div class="steps">
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_1_STEP_1}} <span class="dim">— {{PHASE_1_STEP_1_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_1_STEP_2}} <span class="dim">— {{PHASE_1_STEP_2_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_1_STEP_3}} <span class="dim">— {{PHASE_1_STEP_3_DETAIL}}</span></span></div>
+          </div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">02</span>
+            <span class="phase-name">{{PHASE_2_NAME}}</span>
+            <span class="phase-tag">{{PHASE_2_TAG}}</span>
+          </div>
+          <div class="steps">
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_2_STEP_1}} <span class="dim">— {{PHASE_2_STEP_1_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_2_STEP_2}} <span class="dim">— {{PHASE_2_STEP_2_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_2_STEP_3}} <span class="dim">— {{PHASE_2_STEP_3_DETAIL}}</span></span></div>
+          </div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">03</span>
+            <span class="phase-name">{{PHASE_3_NAME}}</span>
+            <span class="phase-tag">{{PHASE_3_TAG}}</span>
+          </div>
+          <div class="steps">
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_3_STEP_1}} <span class="dim">— {{PHASE_3_STEP_1_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_3_STEP_2}} <span class="dim">— {{PHASE_3_STEP_2_DETAIL}}</span></span></div>
+            <div class="step"><span class="step-bullet"></span><span class="step-text">{{PHASE_3_STEP_3}} <span class="dim">— {{PHASE_3_STEP_3_DETAIL}}</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback">
+        <span class="feedback-rule"></span>
+        <span class="feedback-text"><span class="arrow-loop">↺</span>{{FEEDBACK_LABEL}}</span>
+        <span class="feedback-rule right"></span>
+      </div>
+
+      <p class="callout">{{CLOSING_CALLOUT}}</p>
+
+      <div class="footer">
+        <div class="tagline">{{TAGLINE}}</div>
+        <div class="url">{{DOMAIN}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── METHOD · LIGHT ─── -->
+<!-- Duplicate dark variant, swap colors -->
+
+<script>
+  (function() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    document.body.classList.add('render');
+    const target = document.getElementById(hash);
+    if (!target) return;
+    const targetItem = target.closest('.sheet-item');
+    document.querySelectorAll('.sheet-item').forEach(item => {
+      if (item !== targetItem) item.classList.add('hidden');
+    });
+  })();
+</script>
+
+</body>
+</html>

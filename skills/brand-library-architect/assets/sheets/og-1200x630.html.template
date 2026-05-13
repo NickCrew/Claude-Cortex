@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PRODUCT_NAME}} — Open Graph image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{{GOOGLE_FONTS_URL}}" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d24;
+  font-family: '{{BODY_FONT}}', sans-serif;
+  padding: 40px 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 56px;
+}
+.sheet-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{BRAND_LIGHT_HEX}};
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.3);
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.5);
+  margin-bottom: 12px;
+}
+.sheet-item { display: flex; flex-direction: column; align-items: center; }
+
+body.render { padding: 0; gap: 0; background: {{DARK_BG}}; }
+body.render .sheet-label { display: none; }
+body.render .sheet-item { margin: 0; }
+body.render .sheet-item.hidden { display: none; }
+
+/* ─────────────────────────────────────────────────────────────
+   #og-dark  ·  1200×630  ·  Open Graph link preview (dark)
+   ───────────────────────────────────────────────────────────── */
+#og-dark {
+  width: 1200px; height: 630px; background: {{DARK_BG}};
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+#og-dark::before {
+  content: ''; position: absolute;
+  width: 900px; height: 700px; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center,
+    rgba({{BRAND_LIGHT_RGB}}, 0.08) 0%, rgba({{BRAND_PRIMARY_RGB}}, 0.04) 40%, transparent 70%);
+  pointer-events: none;
+}
+#og-dark .facet-grid {
+  position: absolute; inset: 0; opacity: 0.025;
+  background-image:
+    linear-gradient(40deg, {{BRAND_LIGHT_HEX}} 1px, transparent 1px),
+    linear-gradient(-40deg, {{BRAND_LIGHT_HEX}} 1px, transparent 1px);
+  background-size: 60px 60px; pointer-events: none;
+}
+#og-dark .vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(5,7,9,0.7) 100%);
+  pointer-events: none;
+}
+#og-dark .corner {
+  position: absolute; z-index: 2;
+  width: 36px; height: 36px;
+}
+#og-dark .corner-tl { top: 28px; left: 28px;
+  border-top: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12);
+  border-left: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12); }
+#og-dark .corner-tr { top: 28px; right: 28px;
+  border-top: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12);
+  border-right: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12); }
+#og-dark .corner-bl { bottom: 28px; left: 28px;
+  border-bottom: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12);
+  border-left: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12); }
+#og-dark .corner-br { bottom: 28px; right: 28px;
+  border-bottom: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12);
+  border-right: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.12); }
+#og-dark .content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 32px;
+}
+#og-dark .lockup { display: flex; align-items: center; gap: 20px; }
+#og-dark .lockup-text {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-weight: 400; font-size: 96px; color: {{DARK_TEXT}};
+  letter-spacing: 3px; line-height: 1;
+}
+#og-dark .pitch {
+  font-family: '{{BODY_FONT}}', sans-serif;
+  font-weight: 300; font-size: 22px;
+  color: {{DARK_TEXT_DIM}}; line-height: 1.4;
+  text-align: center;
+  max-width: 720px;
+}
+#og-dark .tagline {
+  font-family: '{{MONO_FONT}}', monospace; font-size: 12px;
+  color: {{BRAND_LIGHT_HEX}}; letter-spacing: 2.5px; text-transform: uppercase;
+  opacity: 0.85;
+}
+#og-dark .url {
+  font-family: '{{MONO_FONT}}', monospace; font-size: 13px;
+  color: {{ACCENT_HEX}}; letter-spacing: 2px;
+  opacity: 0.85;
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<!--
+  OG image · 1200×630 Open Graph link preview. Centered symmetric composition.
+  Renders when {{PRODUCT_NAME}} URLs are unfurled in social platforms, Slack,
+  iMessage, etc.
+-->
+
+<!-- ─── OG · DARK ─── -->
+<div class="sheet-item">
+  <div class="sheet-label">#og-dark · 1200×630</div>
+  <div id="og-dark">
+    <div class="facet-grid"></div>
+    <div class="vignette"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="content">
+      <div class="lockup">
+        <svg width="92" height="134" viewBox="0 0 22 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {{MARK_SVG_DARK}}
+        </svg>
+        <span class="lockup-text">{{PRODUCT_NAME}}</span>
+      </div>
+      <div class="pitch">{{LOCKED_HERO_NOUN}} <em>{{LOCKED_HERO_VERB}}</em></div>
+      <div class="tagline">{{TRUST_LINE}}</div>
+      <div class="url">{{DOMAIN}}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── OG · LIGHT ─── -->
+<!-- Duplicate dark variant, swap colors -->
+
+<script>
+  (function() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    document.body.classList.add('render');
+    const target = document.getElementById(hash);
+    if (!target) return;
+    const targetItem = target.closest('.sheet-item');
+    document.querySelectorAll('.sheet-item').forEach(item => {
+      if (item !== targetItem) item.classList.add('hidden');
+    });
+  })();
+</script>
+
+</body>
+</html>

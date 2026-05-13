@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{PRODUCT_NAME}} — Brand Summary Poster (Letter portrait · designer handoff)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{{GOOGLE_FONTS_URL}}" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1d24;
+  font-family: '{{BODY_FONT}}', sans-serif;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 56px;
+}
+.sheet-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; color: {{BRAND_LIGHT_HEX}};
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba({{BRAND_LIGHT_RGB}}, 0.3);
+  border-radius: 4px;
+  background: rgba(10, 12, 16, 0.5);
+  margin-bottom: 12px;
+}
+.sheet-item { display: flex; flex-direction: column; align-items: center; }
+
+/* Render mode: when URL has a variant hash, isolate that variant for screenshot */
+body.render { padding: 0; gap: 0; background: {{DARK_BG}}; }
+body.render .sheet-label { display: none; }
+body.render .sheet-item { margin: 0; }
+body.render .sheet-item.hidden { display: none; }
+
+/* Shared poster layout — both #poster-dark and #poster-light. Letter
+   portrait at 144 DPI: 1224×1584 = 8.5"×11". Padding budget = 80px each
+   side ≈ 0.55" margins. */
+.poster {
+  width: 1224px; height: 1584px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  padding: 80px 96px;
+}
+.poster .grid-bg {
+  position: absolute; inset: 0; opacity: 0.5;
+  pointer-events: none;
+}
+.poster .pl-header {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 28px;
+}
+.poster .pl-mark-row {
+  display: flex; align-items: center; gap: 24px;
+  margin-bottom: 18px;
+}
+.poster .pl-wordmark {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-weight: 400; font-size: 96px; letter-spacing: 3px; line-height: 1;
+}
+.poster .pl-tagline {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+  opacity: 0.7;
+}
+.poster .pl-section {
+  display: flex; flex-direction: column;
+  margin-bottom: 28px;
+}
+.poster .pl-section-title {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 14px; opacity: 0.85;
+}
+.poster .pl-divider {
+  width: 100%; height: 1px;
+  margin-bottom: 24px;
+}
+.poster .pl-swatch-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.poster .pl-swatch {
+  width: 138px; height: 80px;
+  border-radius: 6px;
+  display: flex; flex-direction: column;
+  justify-content: flex-end; padding: 8px 12px;
+}
+.poster .pl-swatch-name {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
+  opacity: 0.7;
+}
+.poster .pl-swatch-hex {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+.poster .pl-surface-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.poster .pl-surface {
+  flex: 1; height: 56px; border-radius: 5px;
+  display: flex; align-items: flex-end; padding: 6px 10px;
+}
+.poster .pl-surface-label {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 9px; letter-spacing: 1.2px;
+}
+.poster .pl-type-row {
+  display: flex; flex-direction: column; gap: 18px;
+}
+.poster .pl-type-item {
+  display: grid; grid-template-columns: 200px 1fr;
+  gap: 24px; align-items: baseline;
+}
+.poster .pl-type-meta {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+  line-height: 1.5; opacity: 0.7;
+}
+.poster .pl-type-specimen { line-height: 1; }
+.poster .pl-locked-card {
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.poster .pl-locked-row {
+  display: grid; grid-template-columns: 110px 1fr;
+  gap: 20px; align-items: baseline;
+}
+.poster .pl-locked-key {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  opacity: 0.7;
+}
+.poster .pl-locked-val {
+  font-family: '{{DISPLAY_FONT}}', sans-serif;
+  font-weight: 300; font-size: 19px; letter-spacing: 0.1px; line-height: 1.35;
+}
+.poster .pl-locked-val em {
+  font-family: '{{WORDMARK_FONT}}', Georgia, serif;
+  font-style: italic; font-weight: 400;
+}
+.poster .pl-footer {
+  margin-top: auto;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 20px;
+}
+.poster .pl-footer-block {
+  font-family: '{{MONO_FONT}}', monospace;
+  font-size: 10px; letter-spacing: 1.5px; line-height: 1.6;
+}
+.poster .pl-footer-key {
+  text-transform: uppercase; opacity: 0.55;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   #poster-dark · 1224×1584 · letter portrait · dark variant
+   ───────────────────────────────────────────────────────────── */
+#poster-dark {
+  background: {{DARK_BG}};
+}
+#poster-dark .grid-bg {
+  background-image:
+    linear-gradient(rgba({{BRAND_LIGHT_RGB}}, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba({{BRAND_LIGHT_RGB}}, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+#poster-dark .pl-wordmark { color: {{DARK_TEXT}}; }
+#poster-dark .pl-tagline { color: {{ACCENT_HEX}}; }
+#poster-dark .pl-section-title { color: {{ACCENT_HEX}}; }
+#poster-dark .pl-type-meta { color: {{ACCENT_HEX}}; }
+#poster-dark .pl-divider { background: {{DARK_BORDER}}; }
+#poster-dark .pl-locked-card {
+  background: {{DARK_SURFACE}}; border: 1px solid {{DARK_BORDER}};
+}
+#poster-dark .pl-locked-key { color: {{ACCENT_HEX}}; }
+#poster-dark .pl-locked-val { color: {{DARK_TEXT}}; }
+#poster-dark .pl-locked-val em { color: {{BRAND_LIGHT_HEX}}; }
+#poster-dark .pl-footer { border-top: 1px solid {{DARK_BORDER}}; }
+#poster-dark .pl-footer-block { color: {{DARK_TEXT_DIM}}; }
+#poster-dark .pl-footer-key { color: {{DARK_TEXT_TERTIARY}}; }
+
+/* ─────────────────────────────────────────────────────────────
+   #poster-light · 1224×1584 · letter portrait · light variant
+   ───────────────────────────────────────────────────────────── */
+#poster-light {
+  background: {{LIGHT_BG}};
+}
+#poster-light .grid-bg {
+  background-image:
+    linear-gradient(rgba({{PRIMARY_RGB}}, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba({{PRIMARY_RGB}}, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+#poster-light .pl-wordmark { color: {{LIGHT_TEXT}}; }
+#poster-light .pl-tagline { color: {{PRIMARY_HEX}}; }
+#poster-light .pl-section-title { color: {{PRIMARY_HEX}}; }
+#poster-light .pl-type-meta { color: {{LIGHT_TEXT_DIM}}; }
+#poster-light .pl-divider { background: {{LIGHT_BORDER}}; }
+#poster-light .pl-locked-card {
+  background: {{LIGHT_SURFACE}}; border: 1px solid {{LIGHT_BORDER}};
+  box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+}
+#poster-light .pl-locked-key { color: {{PRIMARY_HEX}}; }
+#poster-light .pl-locked-val { color: {{LIGHT_TEXT}}; }
+#poster-light .pl-locked-val em { color: {{PRIMARY_HEX}}; }
+#poster-light .pl-footer { border-top: 1px solid {{LIGHT_BORDER}}; }
+#poster-light .pl-footer-block { color: {{LIGHT_TEXT_DIM}}; }
+#poster-light .pl-footer-key { color: {{LIGHT_TEXT_TERTIARY}}; }
+
+</style>
+</head>
+<body>
+
+<!--
+  Brand summary poster · letter portrait (1224×1584 at 144 DPI = 8.5"×11").
+
+  Single-page brand intro for designer handoff. Different from a
+  screen-friendly internal reference — this prints clean and is sized
+  for printer driver "fit to page" on letter or A4. Dark + light variants:
+  dark for screen sharing, light for desk printing.
+
+  TODO when adapting per product:
+    1. Replace the brand-color palette swatches (7 steps below) with
+       your product's actual palette. Keep the "primary" outline ring.
+    2. Replace status colors with your product's status palette
+       (success / warning / error) or remove the status row entirely.
+    3. Replace typography sample text (lines marked TODO-COPY) with
+       phrases that exhibit each font's working size and role.
+    4. Replace locked-phrases card content with your product's
+       canonical hero / trust / close phrases (from CHEATSHEET.md).
+    5. Replace footer values (domain / repo / press / license) — these
+       are tokenized but verify they match your decisions.md.
+
+  Renders via `just brand-poster`.
+-->
+
+<!-- ─── POSTER · DARK ─── -->
+<div class="sheet-item">
+  <div class="sheet-label">#poster-dark · 1224×1584 · letter portrait</div>
+  <div id="poster-dark" class="poster">
+    <div class="grid-bg"></div>
+
+    <div class="pl-header">
+      <div class="pl-mark-row">
+        <svg viewBox="0 0 22 32" width="68" height="99" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {{MARK_SVG_DARK}}
+        </svg>
+        <span class="pl-wordmark">{{PRODUCT_NAME}}</span>
+      </div>
+      <div class="pl-tagline">{{TAGLINE}}</div>
+    </div>
+
+    <div class="pl-divider"></div>
+
+    <!-- TODO-PALETTE: Brand-blue 7-step palette below is FACET-style placeholder.
+         Replace each .pl-swatch background hex + label with your product's palette. -->
+    <div class="pl-section">
+      <div class="pl-section-title">Brand color · {{PRIMARY_HEX}} is primary</div>
+      <div class="pl-swatch-row">
+        <div class="pl-swatch" style="background:#1e5a82;">
+          <span class="pl-swatch-name" style="color:{{BRAND_LIGHT_HEX}};">deep</span>
+          <span class="pl-swatch-hex" style="color:{{BRAND_LIGHT_HEX}};">#1e5a82</span>
+        </div>
+        <div class="pl-swatch" style="background:{{PRIMARY_HEX}}; outline:2px solid {{BRAND_LIGHT_HEX}}; outline-offset:-2px;">
+          <span class="pl-swatch-name" style="color:{{BRAND_LIGHT_HEX}};">primary</span>
+          <span class="pl-swatch-hex" style="color:{{BRAND_LIGHT_HEX}};">{{PRIMARY_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:#3d88b8;">
+          <span class="pl-swatch-name" style="color:{{DARK_TEXT}};">mid+</span>
+          <span class="pl-swatch-hex" style="color:{{DARK_TEXT}};">#3d88b8</span>
+        </div>
+        <div class="pl-swatch" style="background:#4a94c8;">
+          <span class="pl-swatch-name" style="color:{{DARK_TEXT}};">mid</span>
+          <span class="pl-swatch-hex" style="color:{{DARK_TEXT}};">#4a94c8</span>
+        </div>
+        <div class="pl-swatch" style="background:{{ACCENT_HEX}};">
+          <span class="pl-swatch-name" style="color:{{DARK_BG}};">accent</span>
+          <span class="pl-swatch-hex" style="color:{{DARK_BG}};">{{ACCENT_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:{{BRAND_LIGHT_HEX}};">
+          <span class="pl-swatch-name" style="color:{{DARK_BG}};">light</span>
+          <span class="pl-swatch-hex" style="color:{{DARK_BG}};">{{BRAND_LIGHT_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:#7ac4f0;">
+          <span class="pl-swatch-name" style="color:{{DARK_BG}};">highlight</span>
+          <span class="pl-swatch-hex" style="color:{{DARK_BG}};">#7ac4f0</span>
+        </div>
+      </div>
+
+      <!-- Surface bars -->
+      <div class="pl-surface-row">
+        <div class="pl-surface" style="background:{{DARK_BG}}; border:1px solid {{DARK_BORDER}};">
+          <span class="pl-surface-label" style="color:{{DARK_TEXT_TERTIARY}};">bg-primary · {{DARK_BG}}</span>
+        </div>
+        <div class="pl-surface" style="background:{{DARK_SURFACE}}; border:1px solid {{DARK_BORDER}};">
+          <span class="pl-surface-label" style="color:{{DARK_TEXT_TERTIARY}};">bg-surface · {{DARK_SURFACE}}</span>
+        </div>
+        <div class="pl-surface" style="background:{{DARK_TEXT}};">
+          <span class="pl-surface-label" style="color:{{DARK_BG}};">text-primary · {{DARK_TEXT}}</span>
+        </div>
+      </div>
+      <!-- TODO-STATUS: replace with your status palette or remove this row. -->
+      <div class="pl-surface-row">
+        <div class="pl-surface" style="background:#3fbf8a;">
+          <span class="pl-surface-label" style="color:{{DARK_BG}};">success · #3fbf8a</span>
+        </div>
+        <div class="pl-surface" style="background:#d8a34d;">
+          <span class="pl-surface-label" style="color:{{DARK_BG}};">warning · #d8a34d</span>
+        </div>
+        <div class="pl-surface" style="background:#f07178;">
+          <span class="pl-surface-label" style="color:{{DARK_BG}};">error · #f07178</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pl-divider"></div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="pl-section">
+      <div class="pl-section-title">Typography · Google Fonts · open-source</div>
+      <div class="pl-type-row">
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{WORDMARK_FONT}} 400<br>Wordmark only</span>
+          <span class="pl-type-specimen" style="font-family:'{{WORDMARK_FONT}}'; font-size:46px; color:{{DARK_TEXT}}; letter-spacing:1.5px;">{{PRODUCT_NAME}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{DISPLAY_FONT}} 200–500<br>Display · hero · marketing</span>
+          <!-- TODO-COPY: replace with a hero-display sample sentence -->
+          <span class="pl-type-specimen" style="font-family:'{{DISPLAY_FONT}}'; font-weight:200; font-size:30px; color:{{DARK_TEXT}}; letter-spacing:-0.3px;">{{LOCKED_HERO_NOUN}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{BODY_FONT}} 300–700<br>Body · UI · labels</span>
+          <!-- TODO-COPY: replace with a body sample sentence (~10-12 words) -->
+          <span class="pl-type-specimen" style="font-family:'{{BODY_FONT}}'; font-weight:400; font-size:18px; color:{{DARK_TEXT_DIM}}; letter-spacing:0.1px; line-height:1.45;">{{BODY_SAMPLE_TEXT}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{MONO_FONT}} 400–500<br>Code · system metadata</span>
+          <!-- TODO-COPY: replace with a system-metadata-style mono sample -->
+          <span class="pl-type-specimen" style="font-family:'{{MONO_FONT}}'; font-weight:400; font-size:15px; color:{{ACCENT_HEX}}; letter-spacing:1.2px;">{{MONO_SAMPLE_TEXT}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCKED PHRASES -->
+    <div class="pl-locked-card">
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Hero</span>
+        <span class="pl-locked-val">{{LOCKED_HERO_NOUN}} <em>{{LOCKED_HERO_VERB}}</em></span>
+      </div>
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Trust</span>
+        <span class="pl-locked-val">{{TRUST_LINE}}</span>
+      </div>
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Close</span>
+        <!-- TODO-COPY: close phrase, e.g. "Build it once. <em>Recut</em> forever." -->
+        <span class="pl-locked-val">{{CLOSE_PHRASE_HTML}}</span>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="pl-footer">
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Domain</span><br>
+        {{DOMAIN}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Repo</span><br>
+        {{REPO_URL_SHORT}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Press</span><br>
+        {{CONTACT_EMAIL}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">License</span><br>
+        {{LICENSE}}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── POSTER · LIGHT ─── -->
+<div class="sheet-item">
+  <div class="sheet-label">#poster-light · 1224×1584 · letter portrait</div>
+  <div id="poster-light" class="poster">
+    <div class="grid-bg"></div>
+
+    <div class="pl-header">
+      <div class="pl-mark-row">
+        <svg viewBox="0 0 22 32" width="68" height="99" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {{MARK_SVG_LIGHT}}
+        </svg>
+        <span class="pl-wordmark">{{PRODUCT_NAME}}</span>
+      </div>
+      <div class="pl-tagline">{{TAGLINE}}</div>
+    </div>
+
+    <div class="pl-divider"></div>
+
+    <!-- TODO-PALETTE: same palette as dark variant; the light variant just changes label text contrast. -->
+    <div class="pl-section">
+      <div class="pl-section-title">Brand color · {{PRIMARY_HEX}} is primary</div>
+      <div class="pl-swatch-row">
+        <div class="pl-swatch" style="background:#1e5a82;">
+          <span class="pl-swatch-name" style="color:{{ACCENT_HEX}};">deep</span>
+          <span class="pl-swatch-hex" style="color:{{ACCENT_HEX}};">#1e5a82</span>
+        </div>
+        <div class="pl-swatch" style="background:{{PRIMARY_HEX}}; outline:2px solid #1e5a82; outline-offset:-2px;">
+          <span class="pl-swatch-name" style="color:{{ACCENT_HEX}};">primary</span>
+          <span class="pl-swatch-hex" style="color:{{ACCENT_HEX}};">{{PRIMARY_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:#3d88b8;">
+          <span class="pl-swatch-name" style="color:{{LIGHT_TEXT}};">mid+</span>
+          <span class="pl-swatch-hex" style="color:{{LIGHT_TEXT}};">#3d88b8</span>
+        </div>
+        <div class="pl-swatch" style="background:#4a94c8;">
+          <span class="pl-swatch-name" style="color:{{LIGHT_TEXT}};">mid</span>
+          <span class="pl-swatch-hex" style="color:{{LIGHT_TEXT}};">#4a94c8</span>
+        </div>
+        <div class="pl-swatch" style="background:{{ACCENT_HEX}};">
+          <span class="pl-swatch-name" style="color:{{LIGHT_TEXT}};">accent</span>
+          <span class="pl-swatch-hex" style="color:{{LIGHT_TEXT}};">{{ACCENT_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:{{BRAND_LIGHT_HEX}};">
+          <span class="pl-swatch-name" style="color:{{LIGHT_TEXT}};">light</span>
+          <span class="pl-swatch-hex" style="color:{{LIGHT_TEXT}};">{{BRAND_LIGHT_HEX}}</span>
+        </div>
+        <div class="pl-swatch" style="background:#7ac4f0;">
+          <span class="pl-swatch-name" style="color:{{LIGHT_TEXT}};">highlight</span>
+          <span class="pl-swatch-hex" style="color:{{LIGHT_TEXT}};">#7ac4f0</span>
+        </div>
+      </div>
+
+      <div class="pl-surface-row">
+        <div class="pl-surface" style="background:{{LIGHT_BG}}; border:1px solid {{LIGHT_BORDER_PLUS}};">
+          <span class="pl-surface-label" style="color:{{LIGHT_TEXT_DIM}};">bg-primary · {{LIGHT_BG}}</span>
+        </div>
+        <div class="pl-surface" style="background:{{LIGHT_SURFACE}}; border:1px solid {{LIGHT_BORDER_PLUS}};">
+          <span class="pl-surface-label" style="color:{{LIGHT_TEXT_DIM}};">bg-surface · {{LIGHT_SURFACE}}</span>
+        </div>
+        <div class="pl-surface" style="background:{{LIGHT_TEXT}};">
+          <span class="pl-surface-label" style="color:{{LIGHT_BG}};">text-primary · {{LIGHT_TEXT}}</span>
+        </div>
+      </div>
+      <div class="pl-surface-row">
+        <div class="pl-surface" style="background:#3fbf8a;">
+          <span class="pl-surface-label" style="color:{{LIGHT_TEXT}};">success · #3fbf8a</span>
+        </div>
+        <div class="pl-surface" style="background:#d8a34d;">
+          <span class="pl-surface-label" style="color:{{LIGHT_TEXT}};">warning · #d8a34d</span>
+        </div>
+        <div class="pl-surface" style="background:#f07178;">
+          <span class="pl-surface-label" style="color:{{LIGHT_TEXT}};">error · #f07178</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pl-divider"></div>
+
+    <div class="pl-section">
+      <div class="pl-section-title">Typography · Google Fonts · open-source</div>
+      <div class="pl-type-row">
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{WORDMARK_FONT}} 400<br>Wordmark only</span>
+          <span class="pl-type-specimen" style="font-family:'{{WORDMARK_FONT}}'; font-size:46px; color:{{LIGHT_TEXT}}; letter-spacing:1.5px;">{{PRODUCT_NAME}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{DISPLAY_FONT}} 200–500<br>Display · hero · marketing</span>
+          <span class="pl-type-specimen" style="font-family:'{{DISPLAY_FONT}}'; font-weight:200; font-size:30px; color:{{LIGHT_TEXT}}; letter-spacing:-0.3px;">{{LOCKED_HERO_NOUN}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{BODY_FONT}} 300–700<br>Body · UI · labels</span>
+          <span class="pl-type-specimen" style="font-family:'{{BODY_FONT}}'; font-weight:400; font-size:18px; color:{{LIGHT_TEXT_DIM}}; letter-spacing:0.1px; line-height:1.45;">{{BODY_SAMPLE_TEXT}}</span>
+        </div>
+        <div class="pl-type-item">
+          <span class="pl-type-meta">{{MONO_FONT}} 400–500<br>Code · system metadata</span>
+          <span class="pl-type-specimen" style="font-family:'{{MONO_FONT}}'; font-weight:400; font-size:15px; color:{{PRIMARY_HEX}}; letter-spacing:1.2px;">{{MONO_SAMPLE_TEXT}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pl-locked-card">
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Hero</span>
+        <span class="pl-locked-val">{{LOCKED_HERO_NOUN}} <em>{{LOCKED_HERO_VERB}}</em></span>
+      </div>
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Trust</span>
+        <span class="pl-locked-val">{{TRUST_LINE}}</span>
+      </div>
+      <div class="pl-locked-row">
+        <span class="pl-locked-key">Close</span>
+        <span class="pl-locked-val">{{CLOSE_PHRASE_HTML}}</span>
+      </div>
+    </div>
+
+    <div class="pl-footer">
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Domain</span><br>
+        {{DOMAIN}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Repo</span><br>
+        {{REPO_URL_SHORT}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">Press</span><br>
+        {{CONTACT_EMAIL}}
+      </div>
+      <div class="pl-footer-block">
+        <span class="pl-footer-key">License</span><br>
+        {{LICENSE}}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Render mode: hash like #poster-dark isolates that variant for Playwright screenshot.
+  (function() {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    document.body.classList.add('render');
+    const target = document.getElementById(hash);
+    if (!target) return;
+    const targetItem = target.closest('.sheet-item');
+    document.querySelectorAll('.sheet-item').forEach(item => {
+      if (item !== targetItem) item.classList.add('hidden');
+    });
+  })();
+</script>
+
+</body>
+</html>

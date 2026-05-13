@@ -1,0 +1,170 @@
+# {{PRODUCT_NAME}} press kit
+
+Materials for journalists, partners, conference organizers, and anyone writing about or partnering with {{PRODUCT_NAME}}. This folder is the single source for logos, hero images, founder and company bios, brand colors, and attribution requirements.
+
+**Press contact:** {{CONTACT_EMAIL}}
+
+---
+
+## Quick facts
+
+- **What:** {{ONE_LINE_DESCRIPTION}}
+- **Hero:** {{LOCKED_HERO_NOUN}} *{{LOCKED_HERO_VERB}}*
+- **Tagline:** {{TAGLINE}}
+- **Trust line:** {{TRUST_LINE}}
+- **License:** {{LICENSE}}
+- **Pricing:** {{PRICING_HEADLINE}}
+- **Status:** {{LAUNCH_STATE}}
+- **Founder:** {{FOUNDER_NAME}} — {{FOUNDER_ROLE}}
+- **Domain:** {{DOMAIN}}
+- **Repo:** {{REPO_URL_SHORT}}
+
+---
+
+## Logos
+
+In `logos/`. Both `.svg` (vector, infinitely scalable, preferred) and `.png` (high-resolution raster, ≥1200px wide for print and high-DPI display).
+
+| File | Format | Use |
+|---|---|---|
+| `{{PRODUCT_SLUG}}-mark.svg` | SVG | Primary mark |
+| `{{PRODUCT_SLUG}}-mark.png` | PNG ≥1200px | Primary mark, raster |
+| `{{PRODUCT_SLUG}}-lockup-on-dark.svg` | SVG | Wordmark + mark, dark bg |
+| `{{PRODUCT_SLUG}}-lockup-on-dark.png` | PNG ≥2000px | Wordmark + mark, dark, raster |
+| `{{PRODUCT_SLUG}}-lockup-on-light.svg` | SVG | Wordmark + mark, light bg |
+| `{{PRODUCT_SLUG}}-lockup-on-light.png` | PNG ≥2000px | Wordmark + mark, light, raster |
+
+Don't recolor the marks. Don't squish or stretch them. Don't add drop shadows, outlines, or gradients beyond what's in the source.
+
+If you need a different size, render from the `.svg` source. Common tools: `rsvg-convert -w <pixels>`, ImageMagick `convert -density`, Inkscape's command-line `--export-png`.
+
+## Hero image
+
+In `hero/`. The README hero banner.
+
+| File | Format | Aspect |
+|---|---|---|
+| `{{PRODUCT_SLUG}}-readme-dark.webp` | WebP | {{HERO_DIMENSIONS}} |
+| `{{PRODUCT_SLUG}}-readme-light.webp` | WebP | {{HERO_DIMENSIONS}} |
+
+For other image options, see the parent [`brand/exports/`](../exports/) directory.
+
+---
+
+## Founder bio
+
+Three lengths. Use the one that fits the surface.
+
+### Founder bio — 50 words
+
+> {{FOUNDER_BIO_50W}}
+
+### Founder bio — 100 words
+
+> {{FOUNDER_BIO_100W}}
+
+### Founder bio — 250 words
+
+> {{FOUNDER_BIO_250W}}
+
+The canonical version of these bios lives in [`brand/BIOS.md`](../BIOS.md). If drift between this kit and the canonical doc, the canonical wins.
+
+---
+
+## Company boilerplate
+
+Three lengths. Pairs naturally with the founder bio above.
+
+### Company boilerplate — 50 words
+
+> {{COMPANY_50W}}
+
+### Company boilerplate — 100 words
+
+> {{COMPANY_100W}}
+
+### Company boilerplate — 250 words
+
+> {{COMPANY_250W}}
+
+---
+
+## Brand colors
+
+Flat hex list for press use. Full color system in [`brand/BRAND.md`](../BRAND.md#color-system).
+
+**Primary brand color:** `{{PRIMARY_HEX}}` — when in doubt, use this one.
+
+| Hex | Role |
+|---|---|
+| `{{PRIMARY_HEX}}` | Primary / canonical |
+| `{{BRAND_LIGHT_HEX}}` | Light face / accent |
+| `{{BRAND_MID_HEX}}` | Mid-tone variant |
+| `{{ACCENT_HEX}}` | Default accent |
+
+**Backgrounds:**
+
+| Hex | Role |
+|---|---|
+| `{{DARK_BG}}` | Dark theme page background |
+| `{{LIGHT_BG}}` | Light theme page background |
+
+---
+
+## Typography
+
+- **Wordmark:** {{WORDMARK_FONT}} (regular weight, +1.5px letter-spacing)
+- **UI body:** {{BODY_FONT}}, weights {{BODY_WEIGHTS}}
+- **UI mono:** {{MONO_FONT}}, weights {{MONO_WEIGHTS}}
+- **Brand display:** {{DISPLAY_FONT}}, weights {{DISPLAY_WEIGHTS}}
+
+{{TYPOGRAPHY_NOTE}}.
+
+---
+
+## Attribution and reuse
+
+{{PRODUCT_NAME}}'s source code is licensed under [**{{LICENSE}}**](../../LICENSE). The license terms govern code use, modification, and redistribution.
+
+**Logos and wordmark** are project marks. Reuse policy:
+
+- ✅ **Editorial / journalism / commentary.** Use the marks freely when writing about, reviewing, or covering {{PRODUCT_NAME}}. No prior permission needed.
+- ✅ **Partner integrations.** If your product or service interoperates with {{PRODUCT_NAME}}, you may use the lockup or mark to indicate compatibility, with appropriate context.
+- ✅ **Conference talks, blog posts, podcasts.** Use the marks to reference {{PRODUCT_NAME}}. We'd appreciate a link back to {{DOMAIN}} when practical.
+- ❌ **Don't suggest endorsement.** Don't use marks in a way that implies endorsement, partnership, or affiliation that doesn't exist.
+- ❌ **Don't use on competitive products.**
+- ❌ **Don't recolor or distort.** Use the marks as designed.
+
+**Screenshots of the application** are fine to use in coverage and educational contexts. If a screenshot includes example user data, treat it as illustrative only.
+
+When in doubt, email **{{CONTACT_EMAIL}}** before publishing.
+
+---
+
+## What's not here yet
+
+This is a {{LAUNCH_STATE_DESCRIPTOR}} press kit. Some standard press-kit content is deliberately absent until it exists:
+
+- {{ABSENT_ITEM_1}}
+- {{ABSENT_ITEM_2}}
+- {{ABSENT_ITEM_3}}
+
+---
+
+## Distribution
+
+For now, point people at the GitHub URL of this folder:
+
+> {{REPO_URL}}/tree/main/brand/press
+
+When the public site lands, this material will mirror to `{{DOMAIN}}/press`.
+
+---
+
+## Questions
+
+**Press inquiries:** {{CONTACT_EMAIL}}
+
+**Asset requests** (different format, custom size, additional imagery): {{CONTACT_EMAIL}}
+
+**Anything else:** [`brand/COPY.md`](../COPY.md), [`brand/MANIFESTO.md`](../MANIFESTO.md), [`brand/FAQ.md`](../FAQ.md).

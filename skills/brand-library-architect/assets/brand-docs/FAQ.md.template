@@ -1,0 +1,77 @@
+# {{PRODUCT_NAME}} FAQ
+
+Canonical answers to predictable questions. Consistency is the point: the same question gets the same answer across blog posts, support replies, sales emails, social, and the landing page.
+
+For the long-form positioning argument behind these answers, see [`MANIFESTO.md`](MANIFESTO.md). For locked vocabulary, see [`COPY.md`](COPY.md). For term definitions, see [`GLOSSARY.md`](GLOSSARY.md).
+
+**Word-count budget:** each answer 50–150 words. Verify with `python3 scripts/word_count.py brand/FAQ.md`.
+
+---
+
+## What is {{PRODUCT_NAME}}?
+
+{{ANSWER_WHAT_IS_IT}}
+
+## {{COMPETITOR_CATEGORY_QUESTION}}
+
+{{ANSWER_NOT_THAT_CATEGORY}}
+
+See "{{MANIFESTO_SECTION_REF}}" in [`MANIFESTO.md`](MANIFESTO.md) for the full argument.
+
+## What's a {{BRAND_VERB}}?
+
+{{ANSWER_BRAND_VERB_DEFINITION}}
+
+`{{BRAND_VERB}}` is the brand verb. Use it instead of *tailor* / *generate* / *customize*. See [`GLOSSARY.md`](GLOSSARY.md#{{BRAND_VERB}}) for the full distinction.
+
+## How does my data work?
+
+The {{DURABLE_NOUN}} belongs to the user. Structurally:
+
+- {{PRODUCT_NAME}} is **{{LICENSE}}**. The codebase is auditable.
+- Data exports cleanly — you can walk away with your full {{DURABLE_NOUN}} intact.
+- The application is **self-hostable**. Run it on your own infrastructure.
+- {{HOSTED_DATA_PROMISE}}
+
+Open-source is the credibility; "{{TRUST_LINE_PROMISE}}" is the promise. See "Your data, your model" or equivalent in [`MANIFESTO.md`](MANIFESTO.md).
+
+## Why {{PRICING_UNIT}} instead of subscription?
+
+{{ANSWER_PRICING_MODEL_RATIONALE}}
+
+## How is this different from {{COMPETITOR_LIST}}?
+
+Most of those tools work from {{SHALLOW_PATTERN}}. That's a shallow {{DURABLE_NOUN}} — and it produces shallow output. {{PRODUCT_NAME}} treats {{X}} as a structured {{DURABLE_NOUN}} that can be queried and recomposed.
+
+The other category-specific differences:
+
+- **{{BRAND_VERB}}, not {{COMPETITOR_VERB}}.** {{DIFFERENCE_1}}
+- **Correction over creation.** {{DIFFERENCE_2}}
+- **{{PRICING_DIFF}}**
+- **{{LICENSE_DIFF}}.**
+
+## What does it cost?
+
+{{PRICING_HEADLINE}}.
+
+The short version of the why: {{PRICING_RATIONALE_ONE_LINER}}. The full argument lives in [`PRICING.md`](PRICING.md) and the "{{PRICING_MANIFESTO_SECTION}}" section of [`MANIFESTO.md`](MANIFESTO.md).
+
+## Is this an AI tool?
+
+{{AI_FRAMING_ANSWER}}
+
+But {{PRODUCT_NAME}} isn't pitched as "AI for X." {{WHY_NOT_AI_LABEL}}. {{PRODUCT_NAME}} is structurally different: {{HOW_IT_DIFFERS}}.
+
+## Can I self-host?
+
+Yes. {{PRODUCT_NAME}} is open-source under {{LICENSE}} and built so the data, code, and entire system are exportable and auditable. Clone the repo, run the dev server, and you have a local instance. See the [README](../README.md#getting-started) for setup steps.
+
+{{SELF_HOST_TRADEOFF_DESCRIPTION}}.
+
+{{LICENSE_NETWORK_USE_NOTE}}.
+
+## {{PRODUCT_SPECIFIC_FAQ_10}}
+
+{{ANSWER_10}}
+
+See "{{MANIFESTO_SECTION_REF_10}}" in [`MANIFESTO.md`](MANIFESTO.md) for the full argument.

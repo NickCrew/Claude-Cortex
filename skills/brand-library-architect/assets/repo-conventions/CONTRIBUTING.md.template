@@ -1,0 +1,110 @@
+# Contributing to {{PRODUCT_NAME}}
+
+Thanks for considering a contribution. {{PRODUCT_NAME}} is open-source under **{{LICENSE}}** {{LICENSE_RATIONALE}}.
+
+This guide covers development setup, code style, the pull request process, and the {{LICENSE}} contribution stance. The user-facing language reference lives in [`brand/COPY.md`](brand/COPY.md) — read that before writing any UI text, error message, or user-visible copy.
+
+## Before you start
+
+For non-trivial changes, **open an issue first** to discuss the direction. Things that benefit from a pre-PR issue:
+
+- New features or substantial UX changes
+- Schema or migration changes
+- Renames of product modules or brand vocabulary
+- {{ARCHITECTURE_SENSITIVE_AREAS}}
+
+Small fixes, typo corrections, and tightly-scoped improvements are fine to PR directly.
+
+## Development setup
+
+### Prerequisites
+
+- {{PREREQ_1}}
+- {{PREREQ_2}}
+- {{PREREQ_3}}
+
+### Clone and install
+
+```bash
+git clone {{REPO_URL}}
+cd {{PRODUCT_SLUG}}
+{{INSTALL_COMMANDS}}
+```
+
+### Run the app
+
+```bash
+{{DEV_COMMANDS}}
+```
+
+Open [http://localhost:{{DEV_PORT}}]({{DEV_URL}}). The dev server hot-reloads.
+
+### Run tests
+
+```bash
+{{TEST_COMMANDS}}
+```
+
+Run the full check before opening a PR — it's the same gate CI uses.
+
+## Code style
+
+- {{CODE_STYLE_RULE_1}}
+- {{CODE_STYLE_RULE_2}}
+- {{CODE_STYLE_RULE_3}}
+- {{CODE_STYLE_RULE_4}}
+
+For deeper style notes, see {{STYLE_GUIDE_PATH}} and the project documentation.
+
+## Brand voice (for user-facing copy)
+
+If your change includes any user-visible text — UI strings, error messages, release notes, README updates — it should match the brand voice:
+
+- [`brand/COPY.md`](brand/COPY.md) — locked vocabulary, voice, "what NOT to use" list
+- [`brand/MANIFESTO.md`](brand/MANIFESTO.md) — long-form positioning argument
+
+Quick rules:
+
+- **Brand verb is `{{BRAND_VERB}}`** (never *tailor* / *generate* / *customize*).
+- **The user's data is a *{{DURABLE_NOUN}}***, never a *profile* or generic data.
+- **Avoid AI-marketing-speak** — describe what the system *does*, not what tech it uses.
+- **Don't lead with hype** ("revolutionary," "next-generation," "AI-powered").
+
+When in doubt, read `brand/COPY.md` first; it has the don't-use table.
+
+## Pull request process
+
+1. **Branch from main.** Use a descriptive branch name.
+2. **Keep PRs focused.** One concern per PR.
+3. **Run the CI check locally** before pushing.
+4. **Write a clear description.** What changes, why, what you tested.
+5. **Update tests.** New behavior gets new tests.
+6. **Update docs** in the same PR if your change affects how something is used.
+7. **Don't bypass hooks.** No `--no-verify`. If a hook fails, fix the underlying issue.
+8. **Respond to review.** Treat feedback as a conversation.
+
+## {{LICENSE}} contribution stance
+
+By submitting a contribution to this repo, you agree:
+
+- Your contribution is licensed under **{{LICENSE}}** (the same license as the project).
+- You have the right to license the contribution under {{LICENSE}} — i.e., it's your work, or you have permission from the rights-holder.
+- {{LICENSE_NETWORK_USE_OR_PATENT_OR_COPYLEFT_NOTE}}
+
+{{LICENSE_PHILOSOPHY_PARAGRAPH}}
+
+## Code of Conduct
+
+By participating in this project, you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md). It's the Contributor Covenant 2.1 — please read it.
+
+Reports of unacceptable behavior go to **{{CONTACT_EMAIL}}**.
+
+## Security
+
+Don't report vulnerabilities through public GitHub issues. See [`SECURITY.md`](SECURITY.md) for the disclosure flow, scope, and expectations.
+
+## Questions
+
+For questions that aren't bugs or features, the GitHub Issues tab with the `question` label is the right place. For private inquiries, reach **{{CONTACT_EMAIL}}**.
+
+Thanks for helping build this in the open.

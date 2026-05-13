@@ -1,0 +1,117 @@
+# {{PRODUCT_NAME}} Tone by Surface
+
+[`COPY.md`](COPY.md) handles voice and register at the unit level. This doc handles register at the *surface* level: how does a support reply sound? a release note? a tweet? Each surface has its own pressures.
+
+The point of this doc is pattern-matching. Read good and avoid examples side by side; they're more useful than abstract guidance.
+
+---
+
+## Support reply
+
+**Register pressure:** the reader is in the middle of a problem. They want clarity and forward motion, not voice. Skip pleasantries that delay the answer.
+
+**Good:**
+
+> {{SUPPORT_REPLY_GOOD_1}}
+
+> {{SUPPORT_REPLY_GOOD_2}}
+
+**Avoid:**
+
+> {{SUPPORT_REPLY_AVOID_1}}
+
+> {{SUPPORT_REPLY_AVOID_2}}
+
+The avoid examples burn the reader's attention on warmth that doesn't help. Be direct. Be useful.
+
+---
+
+## Release note
+
+**Register pressure:** what shipped, why it matters. Lead with the change. No "we're excited to announce" — the reader can tell from the headline this is a release note. Use the brand verb where relevant.
+
+**Good:**
+
+> {{RELEASE_NOTE_GOOD_1}}
+
+> {{RELEASE_NOTE_GOOD_2}}
+
+**Avoid:**
+
+> {{RELEASE_NOTE_AVOID_1}}
+
+> {{RELEASE_NOTE_AVOID_2}}
+
+The avoid examples bury the actual change behind hype. Lead with the substance.
+
+---
+
+## Tweet
+
+**Register pressure:** one beat per tweet. No thread-bait ("a 🧵"). Brand verb at least once if there's room. Tweets compress; cut every word that isn't doing structural work. Emoji sparingly, only when clarifying (not as decoration).
+
+**Good:**
+
+> {{TWEET_GOOD_1}}
+
+> {{TWEET_GOOD_2}}
+
+**Avoid:**
+
+> {{TWEET_AVOID_1}}
+
+> {{TWEET_AVOID_2}}
+
+The avoid examples violate multiple don't-use rules at once and pad with empty emoji.
+
+---
+
+## Blog post intro
+
+**Register pressure:** hook with a structural claim, not a question. Declare the stance early. Don't open with "Have you ever wondered why X feels broken?" — that's an empty rhetorical scaffold.
+
+**Good:**
+
+> {{BLOG_INTRO_GOOD_1}}
+
+> {{BLOG_INTRO_GOOD_2}}
+
+**Avoid:**
+
+> {{BLOG_INTRO_AVOID_1}}
+
+> {{BLOG_INTRO_AVOID_2}}
+
+Avoid examples open with empty rhetorical questions, dated generalizations, or banned phrases per [`COPY.md`](COPY.md#what-not-to-use).
+
+---
+
+## Email subject line
+
+**Register pressure:** the subject is doing pre-open work. Lead with substantive content, not the brand wrapper. No clickbait. Mono uppercase reserved for system / transactional emails.
+
+**Good:**
+
+> {{EMAIL_SUBJECT_GOOD_1}}
+
+> {{EMAIL_SUBJECT_GOOD_2}}
+
+> {{EMAIL_SUBJECT_GOOD_3}}
+
+**Avoid:**
+
+> {{EMAIL_SUBJECT_AVOID_1}}
+
+> {{EMAIL_SUBJECT_AVOID_2}}
+
+> {{EMAIL_SUBJECT_AVOID_3}}
+
+The avoid examples are content-free, system-flavored when not system, or hype-flavored. None tell the reader why to open.
+
+---
+
+## Notes for use
+
+- **Default to the brand voice in every register.** Shorter the surface, more deliberate each word.
+- **Cross-check against [`COPY.md`](COPY.md).** Before publishing, scan the don't-use table.
+- **Show, don't enumerate.** When extending this guide for a new surface (LinkedIn post, README badge, conference talk title), follow the same shape: register pressure → 2 good examples → 2 avoid examples.

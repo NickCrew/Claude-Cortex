@@ -1,0 +1,81 @@
+# Security Policy
+
+{{PRODUCT_NAME}} {{DATA_SENSITIVITY_DESCRIPTION}}. Security matters here. If you've found a vulnerability, this document explains how to report it, what to expect, and what's in scope.
+
+## Reporting a vulnerability
+
+**Do not open a public GitHub issue for security-relevant findings.** Public issues become indexable the moment they're filed; an unpatched vulnerability disclosed publicly is a window for exploitation.
+
+Email instead:
+
+> **{{CONTACT_EMAIL}}**
+
+If the finding is sensitive enough to warrant encryption, request a PGP key in your initial message.
+
+In your report, include:
+
+- A description of the vulnerability
+- Steps to reproduce (or a proof-of-concept)
+- The version / commit SHA you tested against
+- Your assessment of impact (what an attacker could do)
+- Any relevant logs, screenshots, or supporting artifacts
+- Whether you'd like public credit when the fix ships (default: yes)
+
+## What to expect
+
+| Stage | Target time |
+|---|---|
+| Initial acknowledgement | within 72 hours |
+| Triage outcome (confirmed / declined / needs more info) | within 7 days |
+| Fix in progress (for confirmed findings) | within 30 days for high/critical, longer for low/medium |
+| Public disclosure | after the fix ships, typically within 14 days of release |
+
+These are targets, not contractual SLAs. {{TEAM_CONTEXT}}. If you haven't heard back within a week, send a polite follow-up.
+
+## Scope
+
+### In scope
+
+- The {{PRODUCT_NAME}} application source in this repository
+- {{DEPLOYED_INSTANCE_DETAIL}}
+- {{ANCILLARY_SERVICES}}
+- CI/CD configuration tracked in this repository
+- Authentication, authorization, session handling, and data-storage paths
+- Cross-site scripting, request forgery, server-side request forgery, injection, deserialization, and the rest of the OWASP Top 10
+- Information disclosure of user data
+- Privilege escalation between user accounts
+- Data-export integrity
+
+### Out of scope
+
+- Vulnerabilities in third-party dependencies that have not yet been disclosed upstream — please report those upstream first
+- Self-hosted deployments operated by other parties — those are the operator's responsibility
+- Denial-of-service against public infrastructure that does not expose user data
+- Issues that require a malicious browser extension already installed on the user's machine
+- Social-engineering attacks against project maintainers
+- "Best practice" findings without a concrete exploit path — open a regular issue or PR instead
+
+If you're not sure whether something is in scope, send the report anyway.
+
+## CVE policy
+
+{{CVE_POLICY}}
+
+## Safe-harbor
+
+Security research conducted in good faith is welcome. We will not pursue legal action against researchers who:
+
+- Make a reasonable effort to avoid privacy violations and service degradation
+- Only test against accounts they own (or test instances they've set up themselves)
+- Give us reasonable time to respond before public disclosure
+- Don't exfiltrate, modify, or destroy user data beyond what's needed to demonstrate the vulnerability
+
+This is a good-faith statement, not a contractual safe-harbor. If you're concerned about a specific test plan, email **{{CONTACT_EMAIL}}** before testing.
+
+## Hall of fame
+
+Researchers who report valid vulnerabilities will be credited (with their permission) in the changelog and release notes.
+
+## Questions
+
+Anything not covered here? **{{CONTACT_EMAIL}}**.
