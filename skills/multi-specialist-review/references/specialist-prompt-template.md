@@ -22,7 +22,7 @@ Your ONLY task is to review the changed files below through the lens of **{{PERS
 
 5. **No tools besides Read, Grep, Glob.** Do not edit files, run commands, or create anything. You are read-only.
 
-6. **Output JSON only.** Your entire output must be a single JSON object matching the schema below. No markdown, no commentary, no preamble.
+6. **Your *final* assistant message must be a single JSON object** matching the schema below — and *only* the final message. Tool calls (Read, Grep, Glob) before that final JSON are **required, not optional**. The harness logs your tool invocations; the orchestrator will discard any review with `tool_uses == 0` as fabricated, and the citation verifier in Phase 2 will mechanically strip findings whose `file` you did not actually Read. "JSON only" applies to your *final message*, not to your turn — your turn must contain tool calls.
 
 ## Severity Mapping
 
@@ -98,6 +98,12 @@ Use this diff to understand what changed, then **read the actual files** to veri
 2. For each changed file, use the Read tool to examine the full file (or at least the surrounding context of each change).
 3. Analyze through the {{PERSPECTIVE}} lens only.
 4. For each concern, verify it by reading the actual code. Quote the exact lines.
-5. Output the JSON object. Nothing else.
+5. Output the JSON object as your final assistant message. (Reminder: tool calls during your turn are required; "final message is JSON" does not mean "no tool calls.")
 
-Begin your review now. Output only the JSON object.
+Begin your review now. **Read first, then write the JSON.**
+
+- Step 1: Use the Read tool on every file from the Changed Files list above. The diff is orientation; the files are the source of truth.
+- Step 2: For each candidate finding, re-read or Grep the cited lines to verify the `quoted_code` matches the file verbatim.
+- Step 3: Output the JSON object as your final assistant message.
+
+Reviews with `tool_uses == 0` will be discarded as fabricated. Findings whose `file` was never opened with Read will be stripped during Phase 2 verification — so opening at least the files you cite is the minimum bar for a useful review.
