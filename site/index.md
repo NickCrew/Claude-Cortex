@@ -67,3 +67,4 @@ See [Installation]({% link getting-started/installation.md %}) for detailed opti
 - **Want the TUI?** See the [TUI Guide]({% link guides/tui.md %})
 - **Looking for commands?** Check the [Command Reference]({% link reference/commands.md %})
 - **Configuring your setup?** Read [Configuration]({% link getting-started/configuration.md %})
+- **What ships with Cortex?** Browse the [16 Cortex Custom Skills]({% link reference/cortex-skills.md %}) — first-party skills for implementation workflows, codebase analysis, documentation health, quality review, and authoring

@@ -62,6 +62,7 @@ Cortex is a comprehensive context management toolkit for Claude Code. Install th
 ### Quick Links
 
 <div class="quick-links">
+  <a href="reference/cortex-skills.html">★ Cortex Custom Skills</a>
   <a href="tutorials/getting-started-tui/">→ TUI Tutorial</a>
   <a href="guides/getting-started.html">Getting Started</a>
   <a href="guides/commands.html">Command Reference</a>

@@ -24,8 +24,9 @@ Quick-reference map to all cortex documentation.
 - [Watch Mode Tutorial](tutorials/ai-watch-mode.md) — Real-time monitoring walkthrough
 
 ### Skills
+- [Cortex Custom Skills](reference/cortex-skills.md) — The 16 first-party skills built into Cortex
 - [Skills Guide](guides/skills.md) — Skill management and usage
-- [Skill Showcase](reference/skill-showcase.md) — Curated skill highlights
+- [Skill Showcase](reference/skill-showcase.md) — Curated skill highlights across all installed skills
 - [Skills TUI Integration](guides/skills-tui-integration.md) — Skills in the TUI
 
 > Skill authoring tutorial has moved to the published site at `site/tutorials/skill-authoring.md`.

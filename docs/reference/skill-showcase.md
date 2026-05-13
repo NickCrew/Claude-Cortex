@@ -7,6 +7,10 @@ reshape how agents think, debug, collaborate, and verify their own work.
 > **90+ skills** live in `skills/`. This document highlights the ones worth
 > knowing about even if you don't use them daily.
 
+> For the **16 skills built into Cortex itself** (first-party, distinct from
+> the broader ecosystem), see the dedicated [Cortex Custom Skills](cortex-skills.md)
+> reference.
+
 ---
 
 ## Meta-Cognitive Skills

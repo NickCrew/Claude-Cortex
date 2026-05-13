@@ -12,7 +12,7 @@ A curated guide to the most sophisticated skills in the Cortex library. These ar
 
 > **125+ skills** live in `skills/`. This document highlights the ones worth knowing about even if you don't use them daily.
 
-For general usage and discovery, see the [Skills Guide]({% link guides/skills.md %}).
+For general usage and discovery, see the [Skills Guide]({% link guides/skills.md %}). For the **16 skills built into Cortex itself** (first-party, distinct from the broader ecosystem), see the dedicated [Cortex Custom Skills]({% link reference/cortex-skills.md %}) reference.
 {: .note }
 
 ---
