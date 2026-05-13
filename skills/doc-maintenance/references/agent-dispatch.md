@@ -5,8 +5,10 @@ how to prompt them, and coordination patterns.
 
 ## Search Agents (Phase 1)
 
-All Phase 1 scanning agents use `model: "haiku"` for cost efficiency.
-Use `subagent_type: "Explore"` for all search work.
+Model selection is task-calibrated. Pure pattern enumeration (find every X)
+runs on `haiku` + `Explore`. Multi-file correlation and judgment runs on
+`sonnet` + `general-purpose`, dispatched **per-docfile** so each call has
+focused context.
 
 ### Code-to-Doc Coverage Agent
 
@@ -38,34 +40,55 @@ Do NOT read the full contents of large files. Use Grep to find exports
 and Glob to check for matching doc files.
 ```
 
-### Doc-to-Code Freshness Agent
+### Doc-to-Code Freshness Agent (per-docfile sonnet)
 
-**Purpose:** Verify that existing docs still match the codebase.
+**Purpose:** Verify that existing docs still match the codebase. Multi-file
+trace work — handler → middleware → config — is common, so haiku's excerpt
+reads aren't sufficient.
+
+**Dispatch pattern:** One agent call per markdown file in scope. Total
+calls = N markdown files. Each call has focused context (one doc + the
+codebase) for higher precision.
 
 **Task tool parameters:**
 ```
-subagent_type: "Explore"
-model: "haiku"
-description: "Check docs against current code"
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Doc-to-code freshness for <docfile>"
 ```
 
-**Prompt template:**
+**Prompt template (one per docfile):**
 ```
-Read every markdown file under docs/ and manual/. For each file, identify
-concrete code references:
+Read the doc file at <DOCFILE_PATH>. Identify every concrete code reference:
 - Function or method names
 - CLI flags and commands
 - File paths referenced in the doc
 - Configuration keys and values
 - API endpoints or routes
+- Class names and module paths
 
-For each reference, use Grep or Glob to verify it still exists in the
-codebase. Report mismatches:
-- RENAMED: the construct exists under a different name
-- REMOVED: the construct no longer exists anywhere
-- CHANGED: the construct exists but its signature/behavior differs
+For each reference, verify it still exists in the codebase. Use codanna MCP
+when available; otherwise grep + Read. For each reference that has changed:
 
-Include the doc file path, line number, and the stale reference.
+Classify as:
+- RENAMED: construct exists under a different name (cite both old and new
+  locations as `path:line`)
+- REMOVED: construct no longer exists anywhere (cite where the doc references
+  it, plus a grep that returned 0 matches)
+- CHANGED: construct exists but signature/behavior differs (cite the current
+  definition and quote the divergence)
+
+Output as YAML, one entry per finding:
+- doc_file: <path>
+- line: <line in doc>
+- reference: <what the doc says>
+- status: RENAMED | REMOVED | CHANGED
+- evidence: <verbatim doc line>
+- current_location: <path:line> (for RENAMED/CHANGED)
+- discrepancy: <what's different> (for CHANGED)
+
+Optimize for accuracy over volume — 5 verified mismatches beat 20 with
+fabricated paths. Verify each location exists before reporting.
 ```
 
 ### Structure Compliance Agent
@@ -95,43 +118,88 @@ Use Glob with patterns like "docs/**/*.md" and "manual/**/*.md" to
 discover all files, then classify each by its parent folder.
 ```
 
-### Diagram Opportunity Agent
+### Agent 4a — ASCII Diagram Detector (haiku, mechanical)
 
-**Purpose:** Find ASCII diagrams to convert and prose sections that need diagrams.
+**Purpose:** Find ASCII/text diagrams that should be converted to Mermaid.
+Pure pattern matching — find the box-drawing characters or arrow notation,
+report their location.
 
 **Task tool parameters:**
 ```
 subagent_type: "Explore"
 model: "haiku"
-description: "Scan docs for diagram opportunities"
+description: "Scan docs for ASCII diagrams to convert"
 ```
 
 **Prompt template:**
 ```
-Scan all markdown files under docs/, manual/, and README.md for two things:
+Scan markdown files under docs/, manual/, and README.md for ASCII diagrams.
 
-1. ASCII/TEXT DIAGRAMS TO CONVERT:
-   Look for code blocks or indented sections containing box-drawing characters
-   (─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼), arrow notation (-->, <--, ==>), pipe-based tables
-   used as diagrams, or indented tree structures. Only flag diagrams that have
-   more than a few simple nodes — trivial 2-3 node diagrams can stay as ASCII.
-   Report the file path, line range, and suggest the Mermaid diagram type
-   (flowchart, sequenceDiagram, stateDiagram, erDiagram, gantt, etc.).
+Look for:
+- Box-drawing characters (─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼) in code blocks or indented sections
+- Arrow notation (-->, <--, ==>) in code blocks
+- Pipe-based tables used as diagrams
+- Indented tree structures beyond a few simple nodes
 
-2. SECTIONS THAT NEED DIAGRAMS:
-   Look for prose that describes multi-step flows, architecture relationships,
-   state transitions, request/response sequences, data models with relationships,
-   or decision trees — where no diagram exists nearby. Only flag sections where
-   a diagram would meaningfully improve comprehension (not every list of steps
-   needs a diagram). Report the file path, line range, a brief description of
-   what the diagram should show, and the suggested Mermaid diagram type.
+Only flag diagrams with more than a few nodes — trivial 2-3 node diagrams can
+stay as ASCII.
 
 Output format for each finding:
 - File: [path]
 - Lines: [start]-[end]
-- Type: CONVERT or NEW
-- Diagram type: [flowchart|sequenceDiagram|stateDiagram|erDiagram|etc.]
-- Description: [what the diagram should depict]
+- Suggested Mermaid type: [flowchart|sequenceDiagram|stateDiagram|erDiagram|etc.]
+- Approximate node count: [N]
+
+Do NOT make judgment calls about whether prose sections without ASCII diagrams
+"need" a diagram — that's a separate scan handled by Agent 4b.
+```
+
+### Agent 4b — Missing-Diagram Judgment Scan (sonnet, per-docfile)
+
+**Purpose:** Identify prose sections where adding a diagram would *meaningfully*
+improve comprehension. This is judgment, not pattern matching — haiku tends to
+either over-flag (every step list looks diagrammable) or under-flag (misses
+implicit flow descriptions). Sonnet's calibration is what makes this signal
+trustworthy.
+
+**Dispatch pattern:** One agent call per markdown file in scope.
+
+**Task tool parameters:**
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Missing-diagram judgment for <docfile>"
+```
+
+**Prompt template (one per docfile):**
+```
+Read the doc file at <DOCFILE_PATH>. Identify sections where adding a Mermaid
+diagram would *meaningfully* improve comprehension. Be selective.
+
+Flag a section ONLY when ALL of these hold:
+1. The prose describes a multi-step flow, architectural relationship, state
+   transition, request/response sequence, data model with relationships, or
+   decision tree.
+2. The relationship is non-obvious from a quick read — readers would
+   construct a mental diagram anyway, and putting it on the page saves effort.
+3. The diagram would NOT just repeat what's already clear from the prose
+   structure (numbered lists describing simple sequence don't need diagrams).
+4. No diagram or visual already exists in or near the section.
+
+Common false positives to skip:
+- Any list of 3-4 steps (these read fine as prose)
+- Any "if X then Y" pair (not enough to merit a diagram)
+- Sections that describe a single entity's properties (use a table, not a diagram)
+
+Output format for each finding:
+- File: <path>
+- Lines: <start>-<end>
+- Suggested Mermaid type: <flowchart|sequenceDiagram|stateDiagram|erDiagram>
+- What the diagram should depict: <one sentence>
+- Why prose alone is insufficient: <one sentence — must be specific to this section, not generic>
+
+Optimize for precision over recall. A clean log of 3 high-value diagrams beats
+20 marginal candidates the user will mostly ignore.
 ```
 
 ---

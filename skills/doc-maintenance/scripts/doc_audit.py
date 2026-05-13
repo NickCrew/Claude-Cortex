@@ -57,7 +57,13 @@ REQUIRED_MANUAL_FOLDERS = [
     "troubleshooting",
 ]
 
-STALE_THRESHOLD_DAYS = 90
+# Flag a doc as stale when the project's non-doc subtree has accumulated this
+# many commits since the doc was last touched. Tunable via CLI flag.
+# A pure absolute-age check (e.g., "doc unchanged for 90 days") is too noisy —
+# stable architecture docs get flagged even when their referenced code is
+# also stable. Relative-to-code-churn surfaces the docs that are *actually*
+# at risk of being out of date.
+STALE_CODE_COMMITS_THRESHOLD = 20
 STUB_LINE_THRESHOLD = 3
 
 # Regex for markdown links: [text](path) — ignores URLs and anchors
@@ -128,8 +134,8 @@ def extract_md_links(filepath):
     return links
 
 
-def git_last_modified_days(filepath, root):
-    """Get days since last git modification of a file."""
+def git_last_modified_ts(filepath, root):
+    """Get last git modification timestamp (Unix epoch) of a file."""
     try:
         result = subprocess.run(
             ["git", "log", "-1", "--format=%ct", "--", str(filepath.relative_to(root))],
@@ -141,10 +147,51 @@ def git_last_modified_days(filepath, root):
         timestamp = result.stdout.strip()
         if not timestamp:
             return None
-        days = (time.time() - int(timestamp)) / 86400
-        return int(days)
+        return int(timestamp)
     except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
         return None
+
+
+def git_last_modified_days(filepath, root):
+    """Get days since last git modification (kept for backward compat)."""
+    ts = git_last_modified_ts(filepath, root)
+    if ts is None:
+        return None
+    return int((time.time() - ts) / 86400)
+
+
+def code_commits_since(timestamp, root):
+    """Count commits to non-markdown files since the given Unix timestamp.
+
+    Approximates whether the project's code has churned since a doc was last
+    touched. Excludes doc directories and markdown files so the count
+    reflects code activity, not co-evolving doc commits.
+    """
+    if timestamp is None:
+        return 0
+    try:
+        result = subprocess.run(
+            [
+                "git", "log",
+                f"--since=@{timestamp}",
+                "--format=%H",
+                "--",
+                ".",
+                ":(exclude)docs",
+                ":(exclude)manual",
+                ":(exclude)*.md",
+                ":(exclude)**/*.md",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=root,
+            check=True,
+        )
+        if not result.stdout.strip():
+            return 0
+        return len(result.stdout.strip().splitlines())
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return 0
 
 
 def file_line_count(filepath):
@@ -268,19 +315,36 @@ def check_missing_structure(root):
 
 
 def check_stale_docs(root, md_files):
-    """Find docs not modified in a long time."""
+    """Find docs likely stale relative to project code churn.
+
+    A doc is flagged stale if the project's non-doc subtree has accumulated
+    >= STALE_CODE_COMMITS_THRESHOLD commits since the doc was last touched.
+    This is strictly better than absolute-age checks: a stable architecture
+    doc on a stable subtree won't get flagged just because it's old, while
+    a doc on a heavily-churning subtree gets flagged even if recent.
+    """
     findings = []
     for md_file in md_files:
-        days = git_last_modified_days(md_file, root)
-        if days is not None and days > STALE_THRESHOLD_DAYS:
+        doc_ts = git_last_modified_ts(md_file, root)
+        if doc_ts is None:
+            continue
+        code_commits = code_commits_since(doc_ts, root)
+        if code_commits >= STALE_CODE_COMMITS_THRESHOLD:
+            days = int((time.time() - doc_ts) / 86400)
             rel_path = str(md_file.relative_to(root))
             findings.append(
                 Finding(
                     category="stale",
                     severity="P4",
                     file_path=rel_path,
-                    description=f"File has not been modified in {days} days",
-                    details={"days_since_modified": days},
+                    description=(
+                        f"{code_commits} code commits since doc last touched "
+                        f"({days}d ago) — verify doc still matches current code"
+                    ),
+                    details={
+                        "days_since_modified": days,
+                        "code_commits_since": code_commits,
+                    },
                 )
             )
     return findings

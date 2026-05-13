@@ -47,38 +47,56 @@ The script produces a structured report covering:
 - Broken internal links (markdown `[text](path)` pointing to missing files)
 - Orphan docs (files not linked from any other doc or README)
 - Missing required structure (expected folders/files absent from `docs/` or `manual/`)
-- Stale timestamp indicators (files unchanged for >90 days with code siblings that changed)
+- Stale-relative-to-code (docs whose referenced subtree has churned significantly since the doc was last touched — measured via git log of code commits between the doc's last edit and now, *not* absolute doc age, which produces noise on stable architecture docs)
 - Empty or stub files (< 3 lines of content)
 
 Pass `--json` for machine-readable output. Pass `--root PATH` to override project root detection.
 
-### Step 1b — Dispatch haiku search agents
+### Step 1b — Dispatch search agents
 
-After the deterministic scan, launch parallel haiku subagents to perform deeper analysis.
-Use `model: "haiku"` on all Task calls in this phase to minimize cost.
-See `references/agent-dispatch.md` for full prompt templates.
+After the deterministic scan, launch subagents to perform deeper analysis.
+Model selection is task-calibrated: haiku for pattern enumeration, sonnet for
+multi-file correlation and judgment. See `references/agent-dispatch.md` for
+full prompt templates.
 
 **Agent 1 — Code-to-doc coverage scan** (`subagent_type: "Explore"`, `model: "haiku"`):
 Search the codebase for public APIs, CLI commands, config schemas, and exported modules.
-Cross-reference against existing docs. Report anything undocumented.
+Cross-reference against existing docs (presence-check via grep). Report anything undocumented.
+Haiku is sufficient because the inner loop is pattern enumeration plus a presence grep.
 
-**Agent 2 — Doc-to-code freshness scan** (`subagent_type: "Explore"`, `model: "haiku"`):
-Read each doc file and verify the code constructs it references still exist and match
-current signatures/behavior. Report mismatches.
+**Agent 2 — Doc-to-code freshness scan** (`subagent_type: "general-purpose"`,
+`model: "sonnet"`, **per-docfile dispatch**):
+For each markdown file in scope, dispatch a sonnet agent with the file content. The
+agent (a) extracts every concrete code reference (function names, CLI flags, file paths,
+config keys, API endpoints), (b) verifies each against current code via grep / codanna /
+`Read`, (c) reports mismatches as RENAMED / REMOVED / CHANGED. Sonnet + per-docfile is
+needed because freshness verification often requires multi-file traces (handler →
+middleware → config) and distinguishing renamed from removed requires reading the new
+location, not just confirming the old one is gone.
 
 **Agent 3 — Structure compliance scan** (`subagent_type: "Explore"`, `model: "haiku"`):
 Compare current `docs/` and `manual/` layout against the prescribed folder structure
 in `references/folder-structure.md`. Report missing folders, misplaced files, naming violations.
+Haiku is correct here — pure pattern matching against a spec.
 
-**Agent 4 — Diagram opportunity scan** (`subagent_type: "Explore"`, `model: "haiku"`):
-Scan all markdown files for ASCII/text diagrams (box-drawing characters, arrow notation,
-indented tree structures beyond a few simple nodes) that should be converted to Mermaid.
-Also identify sections describing flows, architectures, state machines, sequences, or
-relationships where a diagram would add clarity but none exists. Report the file path,
-line range, diagram type (flowchart, sequence, state, ER, etc.), and whether it is a
-conversion or a net-new diagram.
+**Agent 4a — ASCII diagram detector** (`subagent_type: "Explore"`, `model: "haiku"`):
+Scan markdown for box-drawing characters (─ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼), arrow notation
+(`-->`, `<--`, `==>`), or indented tree structures beyond a few nodes. Report each as
+a candidate for Mermaid conversion with the suggested diagram type. Haiku is correct
+because this is mechanical pattern detection — find the characters, report the location.
 
-Launch all four agents in parallel.
+**Agent 4b — Missing-diagram judgment scan** (`subagent_type: "general-purpose"`,
+`model: "sonnet"`, **per-docfile dispatch**):
+For each markdown file in scope, dispatch a sonnet agent. The agent reads the doc and
+flags sections where adding a diagram would *meaningfully* improve comprehension —
+multi-step flows where ordering matters, architecture relationships with named
+components, state transitions, request/response sequences. Crucially, sonnet flags
+*only* when a diagram adds value over the prose (not every step list needs a diagram).
+Haiku tends to either over-flag (every list looks diagrammable) or under-flag (misses
+implicit flow descriptions); sonnet's judgment is what makes this signal trustworthy.
+
+Launch agents 1, 2, 3, 4a, 4b in parallel — but agents 2 and 4b dispatch **internally
+per-docfile**, so the actual call count is `2 + (2 × N_docfiles)` rather than 5.
 
 ### Step 1c — Merge results
 
