@@ -131,34 +131,125 @@ Check existing docs for promises of documentation that doesn't exist:
 - Table of contents entries without corresponding pages
 - Navigation entries without targets
 
+### Source 5: Architectural / Operational / Migration Topic Discovery (sonnet)
+
+The first four sources catch *code-detectable* surface (env vars, CLI flags,
+endpoints, exported APIs, broken cross-references). They miss topics that
+exist as architectural patterns, user flows, ops procedures, or migration
+paths but don't surface as a single greppable symbol. Examples:
+
+- Architectural patterns the system implements (CQRS, event sourcing,
+  saga) — should be documented but won't show up in inventory.py
+- User flows implicit across UI surfaces — "how to share a project" may
+  span multiple components and isn't a single CLI command
+- Migration paths between versions — typically tribal knowledge until
+  someone needs them
+- Operational runbooks (incidents, rollbacks, capacity events)
+- Recovery procedures and disaster scenarios
+
+Dispatch one `general-purpose` + `sonnet` agent for topic discovery:
+
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Architectural/operational topic discovery"
+```
+
+Prompt: read README, top-level docs, and a sample of code (architecture
+files, integration boundaries, deployment configs, major feature
+directories). Identify topics that *should* be documented but aren't
+captured by the code-surface inventory. For each topic, name:
+
+- `topic` — what needs documenting (one phrase)
+- `evidence` — what in the codebase implies this topic exists (path:line citations)
+- `audience` — who would read this (operators, contributors, advanced users)
+- `type` — reference, tutorial, guide, explanation, runbook
+- `confidence` — high (clear evidence), medium (inferred), low (speculative)
+
+Append the agent's output to the inventory list before Phase 2.
+
 **Output:** A structured inventory list. Each item has:
 - `topic` — what needs documenting
-- `source` — where the requirement was discovered (code path, config key, user flow)
+- `source` — where the requirement was discovered (code path, config key, user flow, sonnet inference)
 - `audience` — who needs this (end user, developer, operator)
-- `type` — what kind of doc it needs (reference, tutorial, guide, explanation)
+- `type` — what kind of doc it needs (reference, tutorial, guide, explanation, runbook)
+- `confidence` — high (deterministic) | medium | low (sonnet-inferred speculative)
 
 ---
 
-## Phase 2: Map to Existing Documentation
+## Phase 2: Map to Existing Documentation (per-docfile sonnet dispatch)
 
-For each inventory item, search existing docs:
+For each inventory item, determine whether it's documented and how well.
+"Adequate coverage" requires reading surrounding context — a grep hit
+doesn't tell you whether the topic is truly explained vs. just mentioned in
+passing. Orchestrator-side execution would require reading every doc *N*
+times (once per inventory item), which strains the context window.
 
-1. **Exact match** — a dedicated section or page covers this topic
-2. **Partial match** — mentioned but not fully explained (e.g., a flag listed in a table but
-   never explained, a feature referenced in a tutorial but without its own reference entry)
-3. **No match** — no documentation found
+### Dispatch strategy
 
-Search strategy:
-- Grep docs for the topic name, function name, config key, or feature name
-- Check table of contents and navigation indexes
-- Check inline code references in existing pages
-- Read surrounding context — a grep hit doesn't mean adequate coverage
+Two-phase mapping:
 
-**Mark each item:**
-- **Documented** — dedicated, adequate coverage exists
-- **Shallow** — mentioned but insufficient (missing examples, missing edge cases, incomplete reference)
-- **Missing** — no documentation found
-- **Misplaced** — documentation exists but in the wrong location (e.g., API reference in a tutorial)
+1. **Bulk grep pass (orchestrator)** — for each inventory item, grep docs
+   for the topic name. Build a candidate match map: which docs mention
+   each topic.
+2. **Per-docfile sonnet pass** — for each docfile that surfaced as a
+   candidate match for any inventory item, dispatch one `general-purpose` +
+   `sonnet` agent. The agent receives the doc + the list of inventory
+   items that grep'd to this doc, and judges each as Documented / Shallow /
+   Misplaced.
+
+This keeps total agent calls ≈ N candidate docfiles (not N inventory items
+× M docs). For a typical project with 100 inventory items and 50 docs, the
+candidate map usually has 30–50 docs needing review.
+
+### Per-docfile prompt template
+
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Coverage mapping for <docfile>"
+```
+
+Prompt:
+```
+Read the doc at <DOCFILE_PATH>. The following inventory items grep-matched
+this doc — judge each:
+
+<INVENTORY_ITEMS_FOR_THIS_DOC>
+
+For each item, classify as one of:
+- Documented: dedicated section or page provides adequate coverage
+- Shallow: mentioned but insufficient (missing examples, edge cases,
+  parameter listings; flag-in-table without explanation)
+- Misplaced: covered, but in the wrong doc type for the audience (API
+  reference embedded in a tutorial; user-facing topic in dev-only docs)
+- No real match: grep matched but the doc doesn't actually cover the topic
+  (incidental mention, different concept with the same word)
+
+Output as YAML:
+
+doc_path: <path>
+items_reviewed: N
+classifications:
+  - item: <topic>
+    classification: Documented | Shallow | Misplaced | No real match
+    section: <heading or line range where the topic is covered>
+    evidence: <quote or paraphrase of the relevant content>
+    gap: <if Shallow, what's missing; if Misplaced, where it should live>
+```
+
+### Items with no candidate match
+
+Inventory items that grep'd 0 docs go directly to the "Missing" bucket
+without a sonnet review. The orchestrator handles these in Phase 3.
+
+### Why per-docfile rather than per-item
+
+Per-item dispatch (one sonnet call per inventory item, reading every
+candidate doc fresh) blows up at any meaningful scale (100 items × 5
+candidates = 500 calls). Per-docfile lets the agent see all related items
+in one pass and cross-reference within the doc — also higher precision
+than fragmented per-item judgments.
 
 ---
 
