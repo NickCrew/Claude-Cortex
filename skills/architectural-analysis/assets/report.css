@@ -1,0 +1,591 @@
+/* ============================================================================
+   architectural-analysis — report.css
+   Single-file dark theme for compiled HTML reports.
+
+   All accent colors are CSS variables — override via inline <style> or a
+   user-supplied --css argument to compile-html.sh. The defaults read as
+   "technical / blueprint" and pair well with banners that use a navy +
+   purple palette (e.g., cortex-banner.png), but are neutral enough to work
+   without a banner.
+   ============================================================================ */
+
+:root {
+  --bg-1: #050814;
+  --bg-2: #0a0f24;
+  --bg-3: #121b3a;
+  --panel: rgba(15, 18, 42, 0.86);
+  --panel-strong: rgba(20, 24, 54, 0.94);
+  --border: rgba(167, 139, 250, 0.22);
+  --border-strong: rgba(167, 139, 250, 0.42);
+  --accent: #a78bfa;
+  --accent-strong: #c4b5fd;
+  --accent-muted: rgba(167, 139, 250, 0.55);
+  --text: #e8e6f5;
+  --text-muted: #b0a8d0;
+  --text-faint: #6e6890;
+  --code-bg: rgba(8, 10, 28, 0.92);
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --ok: #34d399;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text);
+  background:
+    radial-gradient(700px at 12% 12%, rgba(167, 139, 250, 0.12), transparent 60%),
+    radial-gradient(540px at 92% 8%, rgba(124, 58, 237, 0.10), transparent 65%),
+    linear-gradient(165deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* ----------------------------------------------------------------------------
+   Banner
+   ---------------------------------------------------------------------------- */
+
+.banner {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ----------------------------------------------------------------------------
+   Layout shell
+   ---------------------------------------------------------------------------- */
+
+.shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 1080px) {
+  .shell {
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Report meta header
+   ---------------------------------------------------------------------------- */
+
+.report-meta {
+  grid-column: 1 / -1;
+  margin-top: 1.5rem;
+  padding: 1.6rem 1.8rem;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+}
+
+.report-meta h1 {
+  margin: 0 0 0.4rem;
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.report-meta .subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.report-meta .meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.report-meta .meta-pill {
+  padding: 0.32rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+/* ----------------------------------------------------------------------------
+   TOC sidebar (when wide enough)
+   ---------------------------------------------------------------------------- */
+
+nav#TOC,
+nav.toc {
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
+  padding: 1.2rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+  font-size: 0.85rem;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+}
+
+nav#TOC > ul,
+nav.toc > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav#TOC ul ul,
+nav.toc ul ul {
+  list-style: none;
+  margin: 0.3rem 0 0.6rem 0.85rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid rgba(167, 139, 250, 0.15);
+}
+
+nav#TOC li,
+nav.toc li {
+  margin: 0.3rem 0;
+}
+
+nav#TOC a,
+nav.toc a {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: block;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+nav#TOC a:hover,
+nav.toc a:hover {
+  color: var(--accent-strong);
+  background: rgba(167, 139, 250, 0.08);
+}
+
+@media (max-width: 1079px) {
+  nav#TOC,
+  nav.toc {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Main content
+   ---------------------------------------------------------------------------- */
+
+main {
+  min-width: 0;
+  padding: 2rem 2.4rem;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 22px 60px rgba(8, 6, 26, 0.55);
+}
+
+@media (max-width: 720px) {
+  main {
+    padding: 1.4rem 1.2rem;
+    border-radius: 16px;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Headings
+   ---------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+main > h1 {
+  font-size: 1.9rem;
+  margin-top: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--accent-muted);
+}
+
+main h2 {
+  font-size: 1.45rem;
+  margin-top: 2.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(167, 139, 250, 0.16);
+}
+
+main h2::before {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin-bottom: 0.7rem;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+main h3 {
+  font-size: 1.15rem;
+  margin-top: 1.9rem;
+  color: var(--accent-strong);
+}
+
+main h4 {
+  font-size: 1rem;
+  margin-top: 1.4rem;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+}
+
+/* ----------------------------------------------------------------------------
+   Body copy
+   ---------------------------------------------------------------------------- */
+
+p {
+  color: var(--text);
+  margin: 0.9rem 0;
+}
+
+main > p:first-of-type,
+main > h1 + p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+ul,
+ol {
+  color: var(--text);
+  padding-left: 1.4rem;
+}
+
+li {
+  margin: 0.3rem 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+a:hover,
+a:focus {
+  color: var(--accent-strong);
+  border-bottom-color: var(--accent-muted);
+}
+
+/* ----------------------------------------------------------------------------
+   Callout references — [I-1], [D-3], etc. in prose
+   These render as plain text from markdown. The CSS targets manually
+   wrapped <code> spans where authors want richer treatment.
+   ---------------------------------------------------------------------------- */
+
+code {
+  font-family: "JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Consolas, monospace;
+  font-size: 0.88em;
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+  background: var(--code-bg);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  color: #d4c5ff;
+}
+
+pre {
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.3rem;
+  background: var(--code-bg);
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+pre code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #d4c5ff;
+  font-size: inherit;
+}
+
+/* ----------------------------------------------------------------------------
+   Blockquote
+   ---------------------------------------------------------------------------- */
+
+blockquote {
+  margin: 1.4rem 0;
+  padding: 0.9rem 1.3rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(167, 139, 250, 0.06);
+  border-radius: 0 10px 10px 0;
+  color: var(--text-muted);
+}
+
+blockquote p {
+  margin: 0.4rem 0;
+}
+
+/* ----------------------------------------------------------------------------
+   Horizontal rules
+   ---------------------------------------------------------------------------- */
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(167, 139, 250, 0.18);
+  margin: 2.6rem 0;
+}
+
+/* ----------------------------------------------------------------------------
+   Tables (callout tables, verification tables, matrix tables)
+   ---------------------------------------------------------------------------- */
+
+table {
+  width: 100%;
+  margin: 1.6rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.92rem;
+  background: rgba(10, 12, 32, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 0.65rem 0.95rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.12);
+}
+
+th {
+  background: rgba(167, 139, 250, 0.14);
+  color: var(--text);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: rgba(167, 139, 250, 0.06);
+}
+
+td {
+  color: var(--text-muted);
+}
+
+td code {
+  font-size: 0.82em;
+}
+
+/* Citation column styling — rows whose third cell (typical citation
+   column in callouts table) reads as path:line look monospaced. */
+table td:nth-child(3) {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 0.82em;
+  color: var(--accent);
+}
+
+/* Synthesized rows: muted with dashed border */
+table tr td:last-child:where([data-confidence="synthesized"]),
+table tr.synthesized {
+  position: relative;
+}
+
+table tr.synthesized td {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ----------------------------------------------------------------------------
+   Figures (rendered SVG diagrams)
+   ---------------------------------------------------------------------------- */
+
+figure,
+.figure {
+  margin: 2rem 0;
+  padding: 1.4rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+}
+
+figure img,
+figure svg,
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+figcaption {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* SVG renders from mermaid often have white backgrounds — give them
+   space and a subtle frame. */
+main img[src$=".svg"],
+main svg {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 18px 48px rgba(8, 6, 26, 0.5);
+}
+
+/* ----------------------------------------------------------------------------
+   Special semantic blocks rendered via class names in markdown
+   (use {.note}, {.warning}, {.danger}, {.ok} pandoc div extension)
+   ---------------------------------------------------------------------------- */
+
+.note,
+.warning,
+.danger,
+.ok {
+  margin: 1.4rem 0;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  border-left: 4px solid;
+}
+
+.note {
+  background: rgba(167, 139, 250, 0.07);
+  border-left-color: var(--accent);
+}
+
+.warning {
+  background: rgba(251, 191, 36, 0.06);
+  border-left-color: var(--warning);
+  color: #fde68a;
+}
+
+.danger {
+  background: rgba(239, 68, 68, 0.06);
+  border-left-color: var(--danger);
+  color: #fca5a5;
+}
+
+.ok {
+  background: rgba(52, 211, 153, 0.05);
+  border-left-color: var(--ok);
+  color: #6ee7b7;
+}
+
+/* ----------------------------------------------------------------------------
+   Footer
+   ---------------------------------------------------------------------------- */
+
+.report-footer {
+  grid-column: 1 / -1;
+  margin: 2rem 0 0;
+  padding: 1.4rem 1.6rem;
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.report-footer a {
+  color: var(--accent-muted);
+}
+
+/* ----------------------------------------------------------------------------
+   Print
+   ---------------------------------------------------------------------------- */
+
+@media print {
+  body {
+    background: white;
+    color: #111;
+  }
+
+  main {
+    background: white;
+    color: #111;
+    box-shadow: none;
+    border: none;
+  }
+
+  nav#TOC,
+  nav.toc {
+    display: none;
+  }
+
+  .banner {
+    page-break-after: avoid;
+  }
+
+  table,
+  th,
+  td {
+    background: white !important;
+    color: #111 !important;
+    border-color: #ccc !important;
+  }
+
+  pre,
+  code {
+    background: #f4f4f4 !important;
+    color: #222 !important;
+    border-color: #ccc !important;
+  }
+
+  a {
+    color: #553c9a !important;
+  }
+}
