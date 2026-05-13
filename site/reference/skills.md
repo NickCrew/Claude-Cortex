@@ -340,6 +340,44 @@ autonomous agent workflows.
 
 ---
 
+## Architecture & Audit Skills
+
+Skills that produce structured analyses of an existing codebase --- diagrams, registries, cited findings.
+
+### `architectural-analysis`
+
+**Diagram-first codebase analysis with strict `path:line` citations across 8 modes.**
+
+Eight modes (information architecture, data flow, integration points, UI surfaces, interaction patterns, data model, control flow, failure modes), each producing a mermaid diagram plus cited markdown report under `docs/architecture/<date>/`. Every node and edge resolves to a citation; synthesized concepts capped per mode. Parallel haiku/sonnet sub-agents per mode, orchestrator runs mechanical citation verification before any node lands in a diagram.
+
+| What makes it sophisticated |
+|:---|
+| Per-mode synthesized cap calibrated to signal density --- 20% for structural modes, 35% for interaction patterns (where the bands-vs-tabs decision lives across multiple files, not in any single line) |
+| Cross-mode callout numbering (`[I-12]`, `[D-3]`, `[P-7]`) preserves identity across reports --- the synthesis README's cross-mode index is what makes 8 reports cohere into one analysis |
+| Mechanical verification protocol: sub-agents return *candidate* findings; orchestrator grep- or codanna-resolves every cited symbol and discards fabrications. Discard log goes into the report |
+| Optional self-contained HTML output (`scripts/compile-html.sh`) with embedded SVGs and base64-embedded banner --- single shareable file that survives email and path changes |
+
+**Trigger:** "diagram this codebase," "map the architecture," "show data flow," "give me an ERD," "trace control flow," "find integration points," "audit UX architecture."
+
+---
+
+### `wiring-audit`
+
+**Surface vs capability drift detection for React + any backend.**
+
+Diffs a project's consumed surface (UI fetch calls, hooks, tRPC clients, server actions, GraphQL queries) against its produced capability (route handlers, exported hooks, tRPC routers, GraphQL fields). Eight finding categories with a severity rubric (broken / drifted / mediated / stale / gap) and explicit calibration for cycle-coupled persistence patterns. Composes with `architectural-analysis` as priors when a recent snapshot exists.
+
+| What makes it sophisticated |
+|:---|
+| Stable identifier formats keyed across both registries --- `(kind, identifier)` matching for HTTP, tRPC, GraphQL --- so set difference produces clean orphan/unwired/drift findings rather than format-mismatch false positives |
+| Mediated persistence calibration: setters that *look* orphan can be cycle-coupled (regenerate-with-current-state), form-library-managed (`useForm` / `Controller`), URL-state (`useSearchParams`), or batched-mutation. New `mediated` severity tier surfaces these for manual confirmation rather than mis-classifying as broken |
+| Stale-label detection runs as a separate heuristic pass --- text-on-the-wire is not code-on-the-wire; Levenshtein near-matches between visible UI labels and current backend symbol evidence, confidence flagged as low |
+| Composes with `architectural-analysis` as priors: when a recent UI-surfaces and integrations report exists, the audit's enumerators skip rediscovery and focus on consumption/production sides only |
+
+**Trigger:** "audit our wiring," "find UI/backend drift," "find unwired capabilities," "find unused endpoints," "stale surfaces."
+
+---
+
 ## Ideation & Product Skills
 
 Skills for structured creative thinking and product design.
@@ -467,5 +505,6 @@ Blends four recommendation strategies --- semantic similarity (embeddings), rule
 | **Verification** | `doc-claim-validator`, `verification-before-completion` | Ensure claims are true |
 | **Debugging** | `root-cause-tracing`, `defense-in-depth`, `condition-based-waiting` | Fix at the source, make bugs impossible |
 | **Multi-Agent** | `dispatching-parallel-agents`, `multi-llm-consult`, `agent-loops` | Coordinate parallel and cross-model work |
+| **Architecture & Audit** | `architectural-analysis`, `wiring-audit` | Diagram codebases and detect drift with strict citations |
 | **Ideation** | `collaboration` suite, `incident-response`, `legacy-modernization` | Structured creative and strategic thinking |
 | **Efficiency** | `knowledge-synthesis`, `token-efficiency`, `cortex-skills-loop` | Optimize context and build memory |
