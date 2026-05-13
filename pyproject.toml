@@ -136,7 +136,7 @@ include = ["claude_ctx_py*"]
   "site/guides/git-workflow.md",
   "site/guides/hooks.md",
   "site/guides/llm-consult.md",
-  "site/guides/memory.md",
+  "site/guides/notes.md",
   "site/guides/planning.md",
   "site/guides/review.md",
   "site/guides/rules.md",
