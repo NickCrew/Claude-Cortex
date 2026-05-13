@@ -1,157 +1,226 @@
-# Information Architecture Heuristics — Detailed Criteria
+# Information Architecture Heuristics — Doc-Type-Aware Criteria
 
-Detailed scoring criteria and diagnostic questions for each IA heuristic.
-Load this reference at the start of an architecture review.
+Detailed scoring criteria for each IA heuristic, parameterized by doc
+type. A "good" architecture for a reference doc looks different from a
+"good" architecture for a tutorial — applying a single rubric across
+both produces systematic misjudgment.
+
+Pair this file with `references/personas.md`. Each heuristic specifies
+which personas it matters most for; the doc-type criteria say what 5/5
+looks like for that combination.
+
+## Doc types
+
+These types appear throughout the heuristics below. Each has a
+characteristic shape that informs scoring.
+
+| Type | Characteristic shape | Default primary persona |
+|---|---|---|
+| **Reference** (API, CLI, config) | Flat, scannable, optimized for lookup | API Looker-Up |
+| **Tutorial** | Linear, sequential, builds mental model | Onboarding User |
+| **Guide / How-to** | Task-focused, prereq → task → next steps | Onboarding User or Operator |
+| **Explanation / Conceptual** | Topic-grouped, dependency-ordered | Architect Debugger |
+| **ADR / Decision Record** | Self-contained, chronological set | Architect Debugger |
+| **Runbook** | Scenario-keyed, urgency-ordered | Incident Responder |
+| **README / Landing** | Entry point, route to other types | Onboarding User + Casual evaluator |
+
+A doc set typically contains multiple types. Evaluate each type against
+its own criteria; the synthesis identifies cross-type problems
+(misplaced docs, type-mixing).
 
 ---
 
 ## Heuristic 1: Findability
 
-**Core question:** Can readers locate information without already knowing where it lives?
+**Core question:** Can the target persona locate this content without
+already knowing where it lives?
 
-### Diagnostic Checks
+### Per-doc-type criteria for 5/5
 
-**Orphan analysis:**
-- List every page with zero inbound links from other doc pages
-- List every page not present in sidebar navigation
-- A page reachable *only* via direct URL is effectively hidden
+| Doc type | "Findable" looks like |
+|---|---|
+| Reference | Stable URL per symbol; deep-linkable; alphabetical/categorical lookup; appears in IDE/tooling links |
+| Tutorial | Visible from the front door; sequence position clear ("step 2 of 5") |
+| Guide | Discoverable by task name; matches search queries readers would actually type |
+| Explanation | Surfaceable when the concept is encountered elsewhere (linked from reference and tutorial) |
+| ADR | Listed in an ADR index; filterable by status (proposed / accepted / superseded) |
+| Runbook | Alert text matches runbook heading; runbook URL appears in the alert payload itself |
+| README | Visible from project root, package registry page, CI badge, every entry surface |
 
-**Search effectiveness:**
-- Do page titles use terms readers would search for?
-- Do headings match common queries? (Test: "How do I install?" — is there a heading with "install"?)
-- Are synonyms handled? (e.g., "setup" vs "installation" vs "getting started")
+### Diagnostic checks (universal)
 
-**Navigation labeling:**
-- Do navigation labels describe *what the reader gets*, not *what the system calls it*?
-- "Getting Started" > "Quickstart Guide" > "Module: Init" (progressively less user-oriented)
+- **Orphan analysis** — pages with zero inbound links. Excludes README/index entry points. (`scripts/link_graph.py` produces this.)
+- **Search effectiveness** — do headings match queries the relevant persona would type? Test specifically: an Incident Responder searching the alert text, an Onboarding User searching "how to install"
+- **Multiple discovery paths** — high-value pages should have ≥2 paths (nav + cross-link, or nav + search hit)
+- **Navigation labeling** — labels reflect persona language, not internal jargon
 
-**Multiple paths:**
-- Can the reader find key content via at least 2 of: navigation, search, cross-reference, landing page?
-- High-value pages (install, quick start, FAQ) should have 3+ paths
+### Persona-specific failure modes
 
-### Scoring Detail
+- **Onboarding User**: front door doesn't surface quick start; terms are jargon
+- **Looker-Up**: deep links don't work; reference content embedded in tutorial prose
+- **Incident Responder**: runbook URL not in alert; alert text doesn't match heading
+- **Operator**: config docs scattered; missing config items
 
-| Score | Orphan rate | Discovery paths | Nav labels |
-|-------|-------------|-----------------|------------|
-| 5 | 0% orphaned | 3+ paths to every page | User-goal-oriented |
-| 4 | <5% orphaned | 2+ paths to most pages | Mostly user-oriented |
-| 3 | 5-15% orphaned | Most via nav, some only by link | Mixed user/system |
-| 2 | 15-30% orphaned | Many only via direct URL | System-oriented |
-| 1 | >30% orphaned | Most content hard to discover | Developer jargon |
+### Scoring
+
+| Score | Mechanical (link graph) | Qualitative |
+|-------|-------------------------|-------------|
+| 5 | 0% orphans (excluding entry pages) | Persona language; multiple discovery paths to high-value pages |
+| 4 | <5% orphans | Mostly user-oriented; minor jargon |
+| 3 | 5–15% orphans | Mixed user/system language |
+| 2 | 15–30% orphans | System-oriented labels |
+| 1 | >30% orphans | Developer jargon throughout |
 
 ---
 
 ## Heuristic 2: Hierarchy Coherence
 
-**Core question:** Does the nesting make sense? Can a reader predict where something lives?
+**Core question:** Can the target persona predict where to find
+something?
 
-### Diagnostic Checks
+### Per-doc-type criteria for 5/5
 
-**Depth test:**
-- Max depth should be 3 levels for user-facing docs
-- Depth 4 acceptable for reference subcategories
-- Depth 5+ is a red flag — users lose context of where they are
+| Doc type | "Coherent hierarchy" looks like |
+|---|---|
+| Reference | Flat or shallow (≤2 levels). Categorical groupings (by symbol kind, by module). Predictable lookup. |
+| Tutorial | Linear with phases (1 level). Order matters. Phase boundaries visible. |
+| Guide | 2 levels max — task category → task. Predictable: "how to X" for any X has an obvious home. |
+| Explanation | Concept dependency graph respected. Foundational concepts before derived. |
+| ADR | Flat list, sometimes filtered by status. Numbered for citation. |
+| Runbook | 2 levels — scenario family → specific runbook. Family matches alert type. |
+| README | Mostly flat — landing → 5–10 top-level destinations. |
 
-**Sibling test:**
-- Items at the same level should be the same "kind" of thing
-- Bad: `guides/` contains `cli.md`, `tui.md`, `what-is-cortex.md` (mixed type)
-- Good: `guides/` contains `cli.md`, `tui.md`, `skills.md` (all tool guides)
+### Why depth differs by doc type
 
-**Predictability test:**
-- Given a topic, can you guess which directory it's in without looking?
-- If you'd hesitate between two locations, the hierarchy is ambiguous
+A reference doc going 3 levels deep means the Looker-Up has to know the
+category before they can find the symbol. A tutorial *needs* phase
+hierarchy because order matters. A runbook *should* be 2 levels because
+scenarios cluster naturally. Forcing reference into tutorial-style
+depth, or flattening a tutorial into reference-style, both fail.
 
-**Category overlap test:**
-- Do any two directories contain pages that cover the same topic?
-- Example: "configuration" documented in both `reference/` and `guides/` — is it clear which is which?
+### Diagnostic checks
 
-### Scoring Detail
+- **Depth test** — flag deviations from the type's expected depth
+- **Sibling coherence** — items at the same level should be the same *kind*
+- **Predictability test** — given a topic, can the persona guess the directory? Hesitation = ambiguity
+- **Category overlap** — same topic in two directories signals unclear hierarchy
 
-| Score | Max depth | Sibling coherence | Predictability |
-|-------|-----------|-------------------|----------------|
-| 5 | ≤3 | All siblings are peers | Always predictable |
-| 4 | ≤3, one area at 4 | Minor exceptions | Usually predictable |
-| 3 | 4 in several areas | Some mixed siblings | Sometimes surprising |
-| 2 | 4-5 | Frequent mixing | Often surprising |
-| 1 | 5+ | No coherence | Unpredictable |
+### Persona-specific failure modes
+
+- **Looker-Up**: reference nested deeper than necessary; category guesswork required
+- **Onboarding User**: tutorial flattened; phase boundaries invisible
+- **Incident Responder**: runbook scenarios too granular (50 specific scenarios) or too broad (3 catch-all docs)
+
+### Scoring
+
+Apply the type-appropriate depth from the table above:
+
+| Score | Depth deviation | Sibling coherence | Predictability |
+|-------|-----------------|-------------------|----------------|
+| 5 | At expected depth | All siblings are peers | Always predictable |
+| 4 | One step deviation | Minor exceptions | Usually predictable |
+| 3 | Some areas deviate | Some mixed siblings | Sometimes surprising |
+| 2 | Frequently deviates | Frequent mixing | Often surprising |
+| 1 | Wrong shape entirely | No coherence | Unpredictable |
 
 ---
 
 ## Heuristic 3: Progressive Disclosure
 
-**Core question:** Does the doc set layer information from simple to complex?
+**Core question:** Does the doc set layer information appropriately for
+its readers? **This heuristic applies very differently by doc type.**
 
-### Diagnostic Checks
+### Per-doc-type criteria
 
-**Learning path test:**
-- Is there an explicit path from "zero knowledge" to "productive user"?
-- Does the path follow: Install → First use → Core concepts → Daily workflows → Advanced topics?
-- Can a new user complete the getting-started path without hitting advanced content?
+| Doc type | Progressive disclosure expectation |
+|---|---|
+| Reference | **Anti-applies.** Forcing progressive disclosure into reference is the failure mode. Score N/A or score against "is the flat structure consistent and complete?" |
+| Tutorial | **Required.** Each step builds on prior. Concepts introduced before use. No forward references. |
+| Guide | **Light.** Prerequisites stated, task itself focused, "next steps" optional. |
+| Explanation | **Required.** Foundational concepts before derived ones. Reading order matters. |
+| ADR | **Anti-applies.** Each ADR is a self-contained unit. Score N/A. |
+| Runbook | **Inverted.** Most urgent / most common scenario first, edge cases later. The "most basic" content is the *least useful* under incident pressure. |
+| README | **Required at the doc-set level.** README is where the journey starts; it should layer toward Quick Start prominently. |
 
-**Prerequisite chains:**
-- Do docs state their prerequisites?
-- Are prerequisite docs linked?
-- Can you follow the prerequisite chain without circular references?
+### Common misjudgment to avoid
 
-**Depth layering:**
-- Quick start: 5-minute path to first success
-- Guides: 15-30 minute focused workflows
-- Reference: complete but dense — for lookup, not learning
-- Advanced: assumes fluency with basics
+A reference doc with no Quick Start section is *correctly structured*,
+not deficient. Scoring it 2/5 because "advanced topics are interleaved
+with basics" misreads what reference structure is for. Score N/A or
+focus on reference-appropriate criteria (completeness, scannability)
+instead.
 
-**Anti-patterns:**
-- Tutorial that requires reading the reference first
-- Quick start that takes >15 minutes
-- Getting started page that mentions every feature
-- Advanced topics interleaved with basics in the same page
+### Diagnostic checks (apply only when doc type uses progressive disclosure)
 
-### Scoring Detail
+- **Quick Start prominence** — for tutorial/guide/README sets, can the
+  reader find quick start in <10 seconds from the front door?
+- **Linear path completability** — can a fresh reader complete the
+  getting-started path in <15 minutes?
+- **Prerequisites stated** — each tutorial/guide names what the reader
+  must already know
+- **Forward references** — flag tutorials that reference concepts
+  before introducing them
 
-| Score | Learning path | Prerequisites | Layer separation |
-|-------|---------------|---------------|------------------|
-| 5 | Explicit, linear, <15min | Stated and linked | Clear layers, each self-sufficient |
-| 4 | Exists but not prominently linked | Mostly stated | Layers exist, minor bleeding |
-| 3 | Implicit — reader can piece it together | Sometimes stated | Some pages mix levels |
-| 2 | Fragmented — reader backtracks frequently | Rarely stated | Significant mixing |
-| 1 | No path — reader must figure out order | Never stated | All content at same depth |
+### Persona-specific failure modes
+
+- **Onboarding User**: doc set lacks visible Quick Start; advanced before basics
+- **Looker-Up**: reference forced into "intro / basics / advanced" structure that slows lookup
+- **Incident Responder**: runbook starts with "understanding the system" before the procedure
+
+### Scoring
+
+| Score | For types where applies | For types where N/A |
+|-------|-------------------------|---------------------|
+| 5 | Clear layered path; each step builds | Score N/A — evaluate completeness/scannability instead |
+| 3 | Layering exists but inconsistent | — |
+| 1 | All content at same depth; no quick start | — |
 
 ---
 
 ## Heuristic 4: Cross-Linking Quality
 
-**Core question:** Do links create useful connections or noise?
+**Core question:** Do links between pages create useful connections for
+the relevant personas?
 
-### Diagnostic Checks
+### Per-doc-type criteria for 5/5
 
-**Link density distribution:**
-- Pages with 0 outbound links → isolated, add cross-references
-- Pages with 1-5 links → normal for focused pages
-- Pages with 6-15 links → normal for landing/index pages
-- Pages with 15+ links → potentially overwhelming, consider restructuring
+| Doc type | Cross-linking pattern |
+|---|---|
+| Reference | Links to related symbols, types, methods. Low narrative density. Mutual links between related symbols. |
+| Tutorial | Forward to next step, back to prerequisites. Sparse external links (don't break the flow). |
+| Guide | Links to relevant references, related guides, optional deep-dives. |
+| Explanation | Links to other concepts (dependency-aware), examples in tutorials, the code that implements the concept. |
+| ADR | Links to superseded/superseding ADRs, related decisions, the code/system the ADR affects. |
+| Runbook | Links to related runbooks (scenario neighbors), monitoring dashboards, incident channels. *No* deep design rationale links — wrong context. |
+| README | Links to all major doc destinations + external project page. |
 
-**Contextual linking:**
-- Good: "For the full list of flags, see the [CLI Reference](reference/cli.md)."
-- Bad: "See [here](reference/cli.md)."
-- Worst: No link at all when reader would naturally want one
+### Mechanical inputs (from `link_graph.py`)
 
-**Reciprocity check:**
-- If a tutorial references a concept explained elsewhere, does that explanation link back
-  to the tutorial as a practical example?
-- Not all links need reciprocity — but high-value connections should be bidirectional
+- Reciprocity ratio (mutual link pairs / total directed edges)
+- Link density per doc (avg outbound links per page)
+- Hub identification (in-degree distribution)
 
-**Dead-end check:**
-- Does every non-index page have at least one "where to go next" link?
-- Pages that end without a next step leave the reader stranded
+### Qualitative checks (sonnet sub-agent)
 
-### Scoring Detail
+- **Contextual links** — do links explain *why* the reader would follow them, or are they "click here" / dumped lists?
+- **Anchor precision** — do links go to the right section, not just the right page?
+- **Relevance per persona** — does the linked-to content serve the linking persona's task?
 
-| Score | Isolation rate | Context quality | Dead ends |
-|-------|---------------|-----------------|-----------|
-| 5 | 0% isolated pages | All links explain why | 0 dead ends |
-| 4 | <5% isolated | Most links contextual | <5% dead ends |
-| 3 | 5-15% isolated | Mixed quality | 5-15% dead ends |
-| 2 | 15-30% isolated | Many "click here" links | 15-30% dead ends |
-| 1 | >30% isolated | No context on links | >30% dead ends |
+### Persona-specific failure modes
+
+- **Looker-Up**: reference pages with no cross-links to related symbols (forces back-and-forth between pages)
+- **Onboarding User**: tutorial links jump to advanced reference too eagerly
+- **Architect Debugger**: ADRs that don't link to the code they affect or the ADRs they supersede
+
+### Scoring
+
+| Score | Reciprocity | Contextual links | Anchor precision |
+|-------|-------------|------------------|------------------|
+| 5 | >0.6 | All links contextual | Anchored to section |
+| 4 | 0.4–0.6 | Mostly contextual | Mostly anchored |
+| 3 | 0.2–0.4 | Mix of contextual and dumped | Page-level |
+| 2 | 0.1–0.2 | Mostly "see also" lists | Page-level only |
+| 1 | <0.1 | Few cross-links at all | — |
 
 ---
 
@@ -159,97 +228,152 @@ Load this reference at the start of an architecture review.
 
 **Core question:** Do similar pages follow similar structures?
 
-### Diagnostic Checks
+### Per-doc-type criteria for 5/5
 
-**Template compliance:**
-- Pick 3 pages of the same type (e.g., 3 reference pages). Do they have the same sections?
-- Do they follow the same order?
-- Do they use the same table structure for similar data?
+For *each* doc type, all instances of that type should follow a
+consistent template. The templates differ by type but consistency
+within type is universal.
 
-**Metadata consistency:**
-- Do all pages have front matter?
-- Do similar pages use the same front matter fields?
-- Are titles formatted consistently (sentence case vs title case)?
+| Doc type | Template signals to check |
+|---|---|
+| Reference | Same heading structure (Signature, Parameters, Returns, Examples, Edge cases). Same parameter table format. |
+| Tutorial | Same step structure (Goal, Prereqs, Steps, Verify, Next). Same pacing. |
+| Guide | Same opening (When to use, Prereqs), same closing (Next steps, Related). |
+| Explanation | Same structure (Context, Concept, Examples, Related). |
+| ADR | Same template (Context, Decision, Consequences, Status). Numbered. |
+| Runbook | Same urgent structure (Symptoms, Recovery, Verification, Rollback, Postmortem reminder). |
+| README | Standard sections (What it is, Why use it, Install, Quick start, Docs links, Contributing). |
 
-**Convention documentation:**
-- Are the expected patterns documented anywhere (CONTRIBUTING.md, style guide)?
-- If yes, do the actual pages follow them?
+### Diagnostic checks
 
-### Scoring Detail
+- **Template adherence per type** — for each doc type, identify the implicit template and flag deviations
+- **Frontmatter consistency** — same fields, same conventions
+- **Heading hierarchy consistency** — `##` vs `###` use, capitalization
+- **Code block conventions** — language tags, indentation
 
-| Score | Same-type consistency | Metadata | Conventions documented |
-|-------|----------------------|----------|----------------------|
-| 5 | All same-type pages match | Uniform | Yes, and followed |
-| 4 | Minor variations | Mostly uniform | Yes, mostly followed |
-| 3 | Some match, some don't | Inconsistent | Partially |
-| 2 | Rare consistency | Very inconsistent | No |
-| 1 | Every page unique | No pattern | No |
+### When deviation is acceptable
+
+A doc that intentionally deviates from the template for a documented
+reason is not a finding. Score the deviation only if the agent can
+identify *no* reason for the difference.
+
+### Scoring
+
+| Score | Within-type consistency |
+|-------|-------------------------|
+| 5 | Clear template per type. All instances follow it. Deviations are documented. |
+| 4 | Templates visible. Most instances follow. Newer pages adhere more than older. |
+| 3 | Some patterns visible per type, but not universal. |
+| 2 | Frequent inconsistency within type. |
+| 1 | Every page is a snowflake. No discernible per-type pattern. |
 
 ---
 
 ## Heuristic 6: Separation of Concerns
 
-**Core question:** Are different doc types kept distinct?
+**Core question:** Are different doc types kept distinct, or do
+individual pages mix types?
 
-### The Diataxis Framework
+### What "separation" means per type
 
-Use as a diagnostic lens:
+| Type | Should NOT contain |
+|---|---|
+| Reference | Long narrative tutorials. Decision rationale. (Cite the ADR / link the tutorial.) |
+| Tutorial | Exhaustive parameter listings. (Link the reference.) Design rationale. |
+| Guide | Reference data dumps. ADR content. |
+| Explanation | Step-by-step procedures (link the tutorial). Exhaustive reference. |
+| ADR | How-to content. (Decisions describe what was chosen, not how to use it.) |
+| Runbook | Design rationale. Background reading. (Cite the architecture doc.) |
+| README | Deep technical content. (Link the docs.) Tutorial content beyond a Quick Start tease. |
 
-| Type | Purpose | Form | Reader's question |
-|------|---------|------|-------------------|
-| **Tutorial** | Learning | Guided steps | "Help me get started" |
-| **How-to Guide** | Problem-solving | Steps to achieve a goal | "Help me do X" |
-| **Reference** | Information | Dry description of facts | "What are the details?" |
-| **Explanation** | Understanding | Discursive analysis | "Help me understand why" |
+### Diataxis as a lens
 
-**Red flags for mixing:**
-- A reference page that starts with "Let's walk through..." (tutorial language)
-- A tutorial that includes a full parameter table (reference content)
-- A how-to guide that explains the history and design rationale (explanation content)
-- An explanation page with numbered steps (how-to guide content)
+The Diataxis framework (tutorial / how-to guide / reference /
+explanation) is useful here. Single pages that try to be three of these
+at once — the README that's also tutorial that's also reference — are
+the dominant failure mode. Persona-mismatched mixing is the second.
 
-### Scoring Detail
+### Persona-specific failure modes
 
-| Score | Separation | Hybrid pages | Reader impact |
-|-------|------------|--------------|---------------|
-| 5 | Clean — each page is one type | 0% | Reader always knows what to expect |
-| 4 | Mostly clean | <10% | Minor confusion |
-| 3 | Some mixing | 10-25% | Reader sometimes gets unexpected content |
-| 2 | Frequent mixing | 25-50% | Reader often has to skip irrelevant sections |
-| 1 | No separation | >50% | Every page tries to do everything |
+- **Looker-Up reading reference**: narrative explanations slow lookup
+- **Onboarding User reading tutorial**: parameter exhaustiveness drowns the journey
+- **Incident Responder reading runbook**: background context wastes seconds during incidents
+- **Architect Debugger reading ADR**: how-to instructions instead of decision rationale
+
+### Diagnostic checks
+
+- **Page audit** — for each page, identify its declared type and check for content of other types
+- **Hybrid detection** — pages that combine 3+ types are almost always doing too much
+- **Persona impact** — score the cost of the mixing per persona
+
+### Scoring
+
+| Score | Separation |
+|-------|------------|
+| 5 | Clear separation. Each page does one thing. Type-mixing rare and intentional. |
+| 4 | Mostly separated. Occasional pages mix two types. |
+| 3 | Notable mixing. Reference docs include narrative; tutorials include reference data. |
+| 2 | Pervasive mixing. Most pages mix 2+ types. |
+| 1 | No separation visible. Everything is everything. |
 
 ---
 
 ## Heuristic 7: Maintenance Burden
 
-**Core question:** Is the structure sustainable as docs grow?
+**Core question:** Is the structure sustainable as the doc set grows?
 
-### Diagnostic Checks
+### Per-doc-type criteria for 5/5
 
-**Growth simulation:**
-- If you added 5 new features tomorrow, is there a clear home for each doc?
-- If you doubled the doc count, would navigation still work?
-- Are there catch-all directories growing without bounds?
+| Doc type | Sustainable looks like |
+|---|---|
+| Reference | Auto-generates from code OR has clear update triggers tied to code changes |
+| Tutorial | Stable backbone with versioned variants (or clear deprecation path for old tutorials) |
+| Guide | Task-focused (ages well) rather than implementation-focused (rots fast) |
+| Explanation | Concept-stable; updated when design actually changes, not on every code change |
+| ADR | Append-only — never edit, supersede with new ADR |
+| Runbook | Tested in incident drills; obvious owner; updated after each related incident |
+| README | Minimal surface to maintain — link out rather than duplicate |
 
-**Naming convention sustainability:**
-- Do naming conventions scale? (`feature-X.md` works for 10 features, not 100)
-- Are names descriptive enough to disambiguate at scale?
+### Diagnostic checks
 
-**Contribution friction:**
-- How many files does a contributor need to edit to add one new doc page?
-  (Best: 1 — the page itself. Worst: page + nav config + index + sidebar + breadcrumbs)
-- Is there a documented process for adding docs?
+- **Adding a new doc** — does any new feature have an obvious home in the existing structure?
+- **Naming conventions** — are they documented and followed?
+- **Catch-all directories** — are any directories growing unbounded (e.g., `docs/misc/`)?
+- **Doubling test** — would a 2x doc-set break the navigation or hierarchy?
 
-**Duplication risk:**
-- Are there patterns that encourage copy-paste documentation?
-- Is information stated in one place and referenced, or duplicated across pages?
+### Persona-specific impact
 
-### Scoring Detail
+- Maintenance burden is felt mostly by **Contributor**, but its symptoms surface to all personas as stale docs
+- A doc set that's hard to maintain produces stale content that fails every persona
 
-| Score | Growth capacity | Contribution friction | Duplication |
-|-------|----------------|----------------------|-------------|
-| 5 | Clear home for new content | 1 file to add a page | Information in one place |
-| 4 | Mostly clear, rare ambiguity | 1-2 files | Minor duplication |
-| 3 | Sometimes unclear | 2-3 files | Moderate duplication |
-| 2 | Frequently unclear | 3-5 files | Significant duplication |
-| 1 | No room for growth | 5+ files | Widespread duplication |
+### Scoring
+
+| Score | Maintainability |
+|-------|----------------|
+| 5 | New docs have clear homes. Conventions documented and followed. Doubling-tested. |
+| 4 | Most new content has a natural home. Occasional reorg needed. |
+| 3 | Several gray-area placements. Some catch-all directories growing. |
+| 2 | Frequent placement debate. Catch-all directories expanding. |
+| 1 | Structure at capacity. Each new doc requires restructuring. |
+
+---
+
+## Aggregating per-persona scores
+
+When evaluating a doc set against multiple personas, score each
+heuristic per-persona, not as a single average. The synthesis surfaces
+conflicts:
+
+```
+Heuristic 2 (Hierarchy Coherence)
+  For Looker-Up: 5/5 (flat reference structure, predictable lookup)
+  For Onboarding User: 2/5 (no learning path; expected to navigate flat
+    structure without guidance)
+  Synthesis: structure biased toward Looker-Up. If Onboarding User is
+    a primary persona, recommend layering a Quick Start above the
+    flat reference.
+```
+
+Per-persona scoring is what makes the audit useful when audiences
+conflict. A single average score hides the bias and produces
+recommendations that help one persona at the cost of another.

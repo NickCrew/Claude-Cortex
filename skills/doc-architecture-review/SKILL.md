@@ -55,18 +55,62 @@ assessment with specific restructuring recommendations — not new content.
 
 | Resource | Purpose | Load when |
 |----------|---------|-----------|
-| `references/ia-heuristics.md` | Information architecture evaluation heuristics | Always (Phase 2) |
+| `references/personas.md` | Six concrete reader personas with eval signals | Always (Phase 0) |
+| `scripts/link_graph.py` | Mechanical link-graph analyzer (orphans, reciprocity, broken links, hubs) | Always (Phase 1) |
+| `references/ia-heuristics.md` | Doc-type-aware IA evaluation heuristics | Always (Phase 2) |
 
 ---
 
 ## Workflow Overview
 
 ```
-Phase 1: Map         → Build the current doc structure map
-Phase 2: Evaluate    → Assess against IA heuristics
-Phase 3: Model       → Compare structure to user mental models
-Phase 4: Report      → Produce the architecture review with recommendations
+Phase 0: Personas    → Establish the doc set's primary 1-3 personas
+Phase 1: Map         → Build the current doc structure map (incl. link graph)
+Phase 2: Evaluate    → Score against IA heuristics, parameterized by personas + doc type
+Phase 3: Model       → Compare structure to user mental models per persona
+Phase 4: Report      → Produce the architecture review with per-persona findings
 ```
+
+---
+
+## Phase 0: Establish Personas
+
+A "good" architecture is good *for someone specific*. Without personas,
+the heuristics apply a default standard that systematically misjudges
+docs serving non-default audiences (a flat reference doc scored as
+"poorly hierarchical" because it doesn't follow Quick Start → advanced).
+
+### Step 0a — Identify the doc set's audiences
+
+Read the doc set's entry pages (README, `index.md`, landing pages) and
+the highest-traffic top-level docs. Identify which 1–3 personas from
+`references/personas.md` are the primary readers. Common patterns:
+
+| Doc set shape | Likely personas |
+|---|---|
+| Library / SDK with public API | API Looker-Up + Onboarding User |
+| End-user product | Onboarding User + Operator |
+| Internal infrastructure | Operator + Incident Responder + Architect Debugger |
+| OSS project | Onboarding User + Contributor |
+| Operations-heavy system | Operator + Incident Responder |
+
+### Step 0b — Draft persona profiles
+
+For each identified persona, copy the profile from
+`references/personas.md` verbatim. Don't paraphrase — the explicit
+profile is what calibrates downstream sub-agents. If a persona almost
+fits but a dimension differs, define a custom persona using the same
+five-field structure.
+
+### Step 0c — Note conflicts
+
+If the doc set serves more than one persona with conflicting needs
+(e.g., Onboarding User wants narrative, API Looker-Up wants terseness),
+note this explicitly. The synthesis report will surface where current
+structure favors one persona at the cost of another.
+
+**Output:** A persona block (1–3 personas + any conflict notes) that
+feeds every downstream sub-agent prompt.
 
 ---
 
@@ -113,7 +157,35 @@ Identify how readers arrive:
 Map which pages are reachable from each entry point. Pages unreachable from common
 entry points are effectively invisible.
 
-**Output:** A structure map with physical hierarchy, navigation paths, and entry points.
+### Step 1d: Link Graph (mechanical)
+
+Run the bundled link graph analyzer to extract deterministic facts about
+inter-doc linking:
+
+```bash
+python3 skills/doc-architecture-review/scripts/link_graph.py --scope all --json > graph.json
+
+# Or human-readable:
+python3 skills/doc-architecture-review/scripts/link_graph.py --scope all
+```
+
+The script produces:
+
+- **Orphans** — pages with no inbound links (excluding entry points like
+  `index.md` and `README.md`). Direct input to Heuristic 1 (Findability).
+- **Dead-ends** — pages with no outbound links. Content silos.
+- **Reciprocity ratio** — fraction of edges that have a back-link. Direct
+  input to Heuristic 4 (Cross-Linking Quality).
+- **Hubs** — pages with high in-degree. Natural reference targets.
+- **Broken links** — internal links that don't resolve. Direct input to
+  Heuristic 4.
+
+These are *mechanical facts*, not judgments. The judgment-heavy parts of
+Heuristics 1 and 4 (are links contextual? do navigation labels use user
+language?) are evaluated by sonnet sub-agents in Phase 2.
+
+**Output:** A structure map with physical hierarchy, navigation paths, entry points,
+and the link graph JSON.
 
 ---
 
@@ -121,6 +193,121 @@ entry points are effectively invisible.
 
 Assess the structure against seven heuristics. Load `references/ia-heuristics.md`
 for detailed scoring criteria.
+
+### Mechanical vs judgment split
+
+For a doc set of any meaningful size, the orchestrator can't read every page
+to score every heuristic — that strains the context window and produces
+patchy evaluation. Phase 2 splits work:
+
+- **Mechanical part** — driven by the Phase 1d link graph JSON. Orphan
+  counts, reciprocity ratio, broken-link counts, hub identification: these
+  are facts, not judgments. The orchestrator reads the JSON and assigns
+  scores deterministically.
+- **Judgment part** — dispatched to `general-purpose` + `sonnet` sub-agents
+  organized by heuristic. Each agent receives a focused slice of the doc set
+  and returns specific findings with citations.
+
+### Sonnet sub-agent dispatch
+
+Three judgment-heavy heuristics warrant dedicated agents. Each agent's
+prompt **inlines the persona block from Phase 0** and the relevant
+doc-type criteria from `references/ia-heuristics.md`. The agent scores
+*per-persona*, not against a generic default.
+
+**Agent 1 — Findability narrative review** (Heuristic 1):
+
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Findability narrative review"
+```
+
+Prompt template:
+```
+Read landing pages, navigation configs (_config.yml, front-matter
+nav_order/parent), and the orphans list from the link graph JSON.
+
+Personas (from Phase 0):
+<INLINE PERSONA BLOCK — full profile per persona, not summary>
+
+Doc-type criteria for Heuristic 1:
+<INLINE Heuristic 1 section from references/ia-heuristics.md>
+
+For each persona, score Findability 1-5 and identify specific failures:
+- Are navigation labels in this persona's language?
+- Are entry points appropriate for how this persona arrives?
+- Are orphans concentrated in a doc type that fails this persona's task?
+
+Output per-persona scores plus findings. When personas conflict (e.g.,
+nav labels in one's language fail another), surface the conflict
+explicitly rather than averaging.
+```
+
+**Agent 2 — Cross-linking quality review** (Heuristic 4):
+
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Cross-link quality review"
+```
+
+Prompt template:
+```
+Read 5-10 representative pages across doc types. Read the link graph
+JSON's reciprocity statistics.
+
+Personas (from Phase 0):
+<INLINE PERSONA BLOCK>
+
+Doc-type criteria for Heuristic 4:
+<INLINE Heuristic 4 section from references/ia-heuristics.md — note
+the per-doc-type linking patterns table>
+
+For each persona, score Cross-Linking 1-5. Distinguish:
+- Are links contextual (explain why to follow)? Low priority for
+  Looker-Up reference scanning, high priority for Onboarding User
+  exploration.
+- Does linking density match the doc type's pattern?
+- Are there mutual links between related concepts (high reciprocity)
+  where appropriate?
+```
+
+**Agent 3 — Pattern consistency review** (Heuristic 5, **per-doc-type
+dispatch**):
+
+For each doc type present (reference, tutorial, guide, explanation,
+ADR, runbook, README), dispatch one sonnet agent with all docs of that
+type:
+
+```
+subagent_type: "general-purpose"
+model: "sonnet"
+description: "Consistency review for <doc-type>"
+```
+
+Prompt template:
+```
+Examine all <DOC_TYPE> docs in the set: <LIST_OF_PATHS>.
+
+Persona affected (from Phase 0):
+<INLINE PERSONA BLOCK for this doc type's primary persona>
+
+Expected template for <DOC_TYPE> per references/ia-heuristics.md
+Heuristic 5:
+<INLINE template signals row>
+
+Identify the implicit template — common section headings, structural
+conventions — and flag pages that deviate. For each deviation:
+- Is it intentional (handles a special case the template doesn't
+  cover)? Note the reason.
+- Is it accidental (older page; different author; conventions hadn't
+  settled)? Flag for harmonization.
+
+Score 1-5 for within-type consistency.
+```
+
+### Heuristic scoring
 
 ### Heuristic 1: Findability
 
@@ -277,26 +464,38 @@ reflect, and does it match the primary user need?**
 **Total pages:** N
 **Max depth:** N levels
 **Orphaned pages:** N
+**Personas evaluated:** [comma-separated list from Phase 0]
+
+---
+
+## Personas
+
+[Inline the Phase 0 persona block — full profile per persona, plus any conflict notes]
 
 ---
 
 ## Summary
 
-[2-3 sentences: overall architecture assessment]
+[2-3 sentences: overall architecture assessment, per-persona where relevant]
 
-Heuristic scores:
-| Heuristic | Score | Key Finding |
-|-----------|-------|-------------|
-| Findability | N/5 | [one line] |
-| Hierarchy Coherence | N/5 | [one line] |
-| Progressive Disclosure | N/5 | [one line] |
-| Cross-Linking Quality | N/5 | [one line] |
-| Consistency of Patterns | N/5 | [one line] |
-| Separation of Concerns | N/5 | [one line] |
-| Maintenance Burden | N/5 | [one line] |
-| **Overall** | **N/35** | |
+Heuristic scores per persona:
 
-Architecture grade: [A (30-35) / B (24-29) / C (18-23) / D (12-17) / F (<12)]
+| Heuristic | Persona A | Persona B | Persona C | Notes |
+|-----------|-----------|-----------|-----------|-------|
+| Findability | N/5 | N/5 | N/5 | [one line, surface persona conflicts] |
+| Hierarchy Coherence | N/5 | N/5 | N/5 | [one line] |
+| Progressive Disclosure | N/5 or N/A | N/5 or N/A | N/5 or N/A | [N/A is valid for reference/ADR — see rubric] |
+| Cross-Linking Quality | N/5 | N/5 | N/5 | [one line] |
+| Consistency of Patterns | N/5 | N/5 | N/5 | [one line] |
+| Separation of Concerns | N/5 | N/5 | N/5 | [one line] |
+| Maintenance Burden | N/5 | N/5 | N/5 | [one line] |
+| **Per-persona total** | **N/35** | **N/35** | **N/35** | |
+
+Architecture grade per persona: [A / B / C / D / F]
+
+When grades differ across personas, that's a finding, not a defect to
+average away. Flag the structural bias toward whichever persona scores
+highest.
 
 ---
 
