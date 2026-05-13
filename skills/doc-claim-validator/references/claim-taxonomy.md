@@ -127,40 +127,116 @@ Not enabled by default because:
 
 ---
 
-## AI-Verified (Subagents)
+### architectural — Architectural Prose Claims
 
-These claims require understanding code semantics and cannot be checked mechanically.
+Verb-anchored prose claims about technology choices, integrations, or
+architectural patterns. These are extracted by `extract_claims.py` using
+heuristic regex patterns; AI verification confirms or denies each.
+
+**Extraction patterns** (verb-anchored, post-filtered):
+
+| Frame | Pattern | Captures |
+|-------|---------|----------|
+| `uses` | `uses\|using\|leverages X` | Capitalized target |
+| `built` | `built/implemented/powered/deployed/hosted with/using/on/via X` | Capitalized target |
+| `delegated` | `delegated/delegates to X` | Capitalized brand-like target |
+| `via` | `via X` | Capitalized service/protocol name |
+| `depends` | `depends on X` | Capitalized target |
+| `follows` | `follows/implements/adopts the X pattern/architecture/model/approach` | Lowercase OK (saga, actor model) |
+| `uses_pattern` | `uses/using/adopting (a\|the) X pattern/architecture/...` | Lowercase OK |
+
+The `follows` and `uses_pattern` frames allow lowercase targets because real
+architectural patterns are often lowercase ("actor model", "saga",
+"publish-subscribe", "event sourcing"). Other frames require at least one
+uppercase letter in the target to filter pronoun noise.
+
+**Examples that match:**
+- "Uses Redis for caching" → `Redis` via `uses`
+- "Built with React and TypeScript" → `React`, `TypeScript` via `built`
+- "Deployed on AWS Lambda" → `AWS Lambda` via `built`
+- "Authentication is delegated to Auth0" → `Auth0` via `delegated`
+- "We use a CQRS pattern for the order service" → `CQRS` via `uses`
+- "follows the actor model" → `actor` via `follows`
+- "We adopt the saga pattern" → `saga` via `follows`
+- "Implements a publish-subscribe approach" → `publish-subscribe` via `follows`
+
+**Examples that don't match (correctly):**
+- "Use clear, descriptive commit messages" → no capitalized target → filtered
+- "the system uses memory efficiently" → "memory" lowercase, not in
+  pattern-suffix frame → filtered
+- "Master Architecture" heading alone → no verb anchor → filtered (the old
+  standalone `<X> pattern` rule was removed because it caught every heading)
+
+**Verification:** AI agent (sonnet, per-docfile) reads dependency manifests
+for `uses`/`built`/`depends`/`via` claims, scans for SDK imports or HTTP
+integrations for `delegated` claims, and checks directory structure / class
+names / code organization for `follows`/`uses_pattern` claims.
+
+**Failure category:** `phantom_pattern` (when the claimed pattern has no
+evidence in the codebase) or `wrong_integration` (when the named service
+isn't actually integrated).
+
+---
+
+## AI-Discovered + Verified (Subagents)
+
+These claims require understanding code semantics. The dependency and
+behavioral verifiers both *discover* and *verify* in one agent pass — the
+extraction script doesn't pre-extract them.
 
 ### dependency — Technology/Library Claims
 
-Prose claims about what technologies the project uses.
+Prose claims about what technologies the project uses, where the agent reads
+manifests directly.
 
 **Examples:**
 - "Uses Redis for caching"
 - "Built with React and TypeScript"
 - "Deployed on AWS Lambda"
 
-**Verification:** AI agent reads dependency manifests, config files, and source code
-to confirm or deny the claim.
+**Verification:** Haiku Explore agent reads dependency manifests
+(`package.json`, `requirements.txt`, `go.mod`, etc.) and cross-references doc
+claims. Stays on haiku because pattern-matching against manifests doesn't
+benefit from sonnet's reasoning.
+
+**Note:** This verifier overlaps with `architectural` (which extracts `uses X`
+patterns regex-first and verifies per-docfile). The two agents complement: the
+dependency verifier scans manifests and looks back to docs; the architectural
+verifier starts from extracted claims and looks forward to code. Run both —
+they catch different misses.
 
 ---
 
 ### behavioral — Code Behavior Claims
 
-Assertions about what the code does, how it works, or what happens in specific scenarios.
+Assertions about what the code does, how it works, or what happens in specific
+scenarios. *Not* regex-extracted — too free-form for reliable patterns. The
+sonnet behavioral verifier reads each docfile, identifies behavioral claims,
+and verifies them in one pass.
 
 **Examples:**
 - "The system retries failed requests 3 times"
 - "Passwords are hashed with bcrypt before storage"
 - "Requests are rate-limited to 100/minute"
 - "The cache expires after 5 minutes"
+- "The cache invalidates when the user logs out"
 
-**Verification:** AI agent finds the relevant code and checks whether the claimed
-behavior matches the implementation. Reports:
+**Verification:** Sonnet `general-purpose` agent (per-docfile dispatch). Reads
+the doc file, identifies behavioral claims, finds the relevant code via grep
+or codanna, and checks whether the claimed behavior matches. Reports each
+claim with status:
 - **Confirmed**: Code does what the doc says
 - **Contradicted**: Code does something different
-- **Unverifiable**: Cannot locate relevant code
-- **Conditional**: True under some conditions, not others
+- **Unverifiable**: Cannot locate relevant code (logs the behavioral claim and
+  what was searched for, so a human can decide whether the claim is real but
+  hidden, or vacuous)
+- **Conditional**: True under some conditions, not others — note the
+  conditions
+
+**Why sonnet, not haiku:** behavioral verification often requires tracing
+across multiple files (handler → middleware → config) and distinguishing
+happy-path from error-path behavior. Haiku's `Explore` excerpt reads strain
+on multi-hop traces; sonnet's `general-purpose` reads full files.
 
 ---
 
@@ -173,8 +249,11 @@ Code blocks that demonstrate usage patterns.
 - Quick-start code snippet
 - Configuration example
 
-**Verification:** AI agent checks:
+**Verification:** Sonnet `general-purpose` agent (per-docfile). Checks:
 1. Do the function/method names exist?
 2. Do the parameter names and types match current signatures?
 3. Do the import paths resolve?
 4. Would this code produce the described output?
+
+Sonnet is required because signature comparison needs full-file reads of the
+current implementation, not excerpts.

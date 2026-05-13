@@ -80,11 +80,20 @@ The script extracts these claim types from markdown:
 | `import` | Import/require statements in code blocks | `import { Router } from 'express'` |
 | `config` | Configuration keys, env vars, settings | `` `MAX_RETRIES=3` `` |
 | `url` | External links (http/https) | `[docs](https://example.com)` |
+| `architectural` | Verb-anchored prose claims about technology, integrations, or architectural patterns | "Uses Redis for caching", "follows the actor model", "delegated to Auth0" |
 | `dependency` | Package/library name claims | "Uses Redis for caching" |
 | `behavioral` | Assertions about what code does | "The system retries 3 times" |
 
-The first 6 types are extracted deterministically. The last 2 (`dependency`, `behavioral`) require
-AI analysis and are handled in Phase 2.
+The first 7 types are extracted deterministically. The script uses verb-anchored
+regex for `architectural` (rules like `uses X`, `built with X`, `follows the X
+pattern`, `delegated to X`, `via X`, `depends on X`) — this catches anchorless
+prose claims that previously slipped through.
+
+The last 2 (`dependency`, `behavioral`) require AI analysis and are handled in
+Phase 2. `behavioral` in particular is *not* regex-extracted because behavioral
+claims are free-form prose ("the cache invalidates when the user logs out")
+that doesn't pattern-match cleanly — the behavioral verifier discovers and
+verifies them in one pass.
 
 **Output:** A structured list of claims with source file, line number, claim type, and the literal
 text of the claim.
@@ -118,24 +127,78 @@ Pass `--check-urls` to enable URL verification (slow, requires network).
 
 ### Step 2b — AI-assisted verification
 
-After the automated pass, dispatch haiku agents to verify claims the script cannot:
+After the automated pass, dispatch agents to verify claims the script cannot.
+Three of four verifiers run on `general-purpose` + `sonnet` — behavioral,
+architectural, and code-example verification all require multi-file reasoning
+that haiku's excerpt-read pattern strains under. The dependency verifier stays
+on `Explore` + `haiku` because it's pure pattern matching against manifest
+files.
 
-**Agent 1 — Dependency claim verifier** (`subagent_type: "Explore"`, `model: "haiku"`):
-Read `package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`, or equivalent dependency
-manifests. Cross-reference any doc claims about libraries, frameworks, or services used.
-Report claims that reference dependencies not in the project.
+#### Dispatch strategy: per-docfile batching
 
-**Agent 2 — Behavioral claim verifier** (`subagent_type: "Explore"`, `model: "haiku"`):
-For each behavioral claim (e.g., "retries 3 times", "caches for 5 minutes", "validates
-input before processing"), find the relevant code and verify the claim is accurate.
-Report mismatches between documented behavior and actual implementation.
+For behavioral and architectural verifiers, dispatch **one sonnet call per
+markdown file containing claims of that type**, with all claims from that file
+batched into a single prompt. This keeps each call's context budget on a small
+number of related claims (cross-referencing within the doc improves
+verification) while keeping total call count tied to doc-set size rather than
+claim count. For a project with ~50 docs and ~150 architectural claims, expect
+~10–20 sonnet calls (only docs with claims trigger calls), not 150.
 
-**Agent 3 — Code example verifier** (`subagent_type: "Explore"`, `model: "haiku"`):
-For code blocks in docs that show usage examples, verify the function signatures,
-parameter names, return types, and import paths match the current codebase. Report
-examples that would fail if copy-pasted.
+For release audits where precision matters more than cost, run with
+**per-claim dispatch** — one sonnet call per claim, each with the full doc as
+context. Higher cost, higher precision.
 
-Launch all three agents in parallel.
+#### Verifiers
+
+**Verifier 1 — Dependency claim verifier** (`subagent_type: "Explore"`,
+`model: "haiku"`):
+Read `package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`, or equivalent
+dependency manifests. Cross-reference any doc claims about libraries,
+frameworks, or services used. Report claims that reference dependencies not in
+the project. Stays on haiku because pattern-matching against manifests doesn't
+benefit from sonnet's reasoning.
+
+**Verifier 2 — Behavioral claim verifier** (`subagent_type: "general-purpose"`,
+`model: "sonnet"`, **per-docfile**):
+For each markdown file in scope, dispatch a sonnet agent with the file content.
+The agent (a) discovers behavioral claims in the file ("retries 3 times",
+"caches for 5 minutes", "validates input before processing", "the cache
+invalidates when the user logs out"), (b) finds the relevant code via grep /
+codanna / `Read`, (c) verifies whether the claim matches the implementation.
+Report each claim with confirmed / contradicted / unverifiable / conditional
+status. Sonnet is needed because behavioral verification often requires
+tracing across multiple files (handler → middleware → config) and
+distinguishing happy-path from error-path behavior.
+
+**Verifier 3 — Architectural claim verifier** (`subagent_type:
+"general-purpose"`, `model: "sonnet"`, **per-docfile**):
+For each markdown file with extracted `architectural` claims, dispatch a
+sonnet agent with the file content and the list of pre-extracted claims. The
+agent verifies each claim by:
+- For `uses`/`built`/`depends`/`via` frames: check the named technology in
+  dependency manifests, config files, and source imports.
+- For `delegated` frames: check for SDK imports or HTTP integrations matching
+  the named service.
+- For `follows`/`uses_pattern` frames: check directory structure, class names,
+  and code organization for the named architectural pattern (e.g., CQRS:
+  separate command/query handlers + event store; hexagonal: adapters/ports
+  dirs; saga: orchestrator class with named transitions).
+
+Report each claim with confirmed / contradicted / unverifiable / conditional
+status. Sonnet is needed because architectural patterns aren't 1:1 with any
+single file — verification requires reading enough of the codebase to
+recognize the pattern.
+
+**Verifier 4 — Code example verifier** (`subagent_type: "general-purpose"`,
+`model: "sonnet"`, **per-docfile**):
+For code blocks in docs that show usage examples, verify the function
+signatures, parameter names, return types, and import paths match the current
+codebase. Report examples that would fail if copy-pasted. Sonnet is needed
+because signature checking requires reading the *current* implementation and
+comparing — haiku's excerpt reads aren't sufficient.
+
+Launch verifiers 1, 2, 3, 4 in parallel. Within verifiers 2/3/4, the per-docfile
+dispatches run sequentially (or in small parallel batches if cost permits).
 
 ### Step 2c — Git staleness scoring
 
@@ -180,6 +243,8 @@ Merge automated and AI findings into a single report. Classify each failed claim
 | `wrong_signature` | Function exists but signature differs from doc |
 | `stale_behavior` | Behavioral claim doesn't match implementation |
 | `dead_dependency` | Doc references a dependency not in the project |
+| `phantom_pattern` | Architectural claim ("uses CQRS", "follows actor model") not evidenced in the codebase |
+| `wrong_integration` | Doc names a service/SDK ("delegated to Auth0") that isn't actually integrated |
 | `broken_example` | Code example would fail if executed |
 | `dead_url` | External link returns 4xx/5xx |
 | `phantom_config` | Config option referenced in docs doesn't exist in code |

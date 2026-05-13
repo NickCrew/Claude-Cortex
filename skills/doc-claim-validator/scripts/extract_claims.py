@@ -9,6 +9,11 @@ Parses markdown files and extracts verifiable claims:
 - Import statements (from code blocks)
 - Configuration references (env vars, config keys)
 - URL references (external links)
+- Architectural prose claims (uses/built-with/delegated-to/<X> pattern)
+
+Behavioral claims are NOT extracted by this script — they're free-form prose
+that doesn't pattern-match cleanly. The behavioral verifier (Phase 2b) reads
+docs directly and discovers + verifies behavioral claims in one pass.
 
 Usage:
     python3 skills/doc-claim-validator/scripts/extract_claims.py [OPTIONS]
@@ -90,6 +95,102 @@ IMPORT_RE = re.compile(
 # Config/env var patterns
 CONFIG_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,}(?:=.+)?$")
 ENV_VAR_RE = re.compile(r"\$\{?([A-Z][A-Z0-9_]{2,})\}?")
+
+# Architectural prose claims — heuristic regex for patterns that don't have
+# code anchors but make verifiable assertions about technology, architecture,
+# or integration choices.
+#
+# Each tuple is (pattern, frame_label). The frame_label captures the rhetorical
+# shape of the claim so the verifier knows what to check (e.g., "uses" → look
+# for the named technology in dependencies; "pattern" → look for the named
+# architectural pattern in directory structure / class names).
+#
+# All patterns require the captured target to start with a capital letter or
+# be a hyphenated multi-word term. This filters most pronoun / generic-noun
+# false positives ("uses memory") while catching real targets ("uses Redis,"
+# "delegated to Auth0").
+ARCHITECTURAL_PATTERNS = [
+    # "uses X" / "using X" / "leverages X" — scoped IGNORECASE on the verb
+    # via (?i:...) keeps [A-Z] in the target group case-strict.
+    (
+        re.compile(
+            r"\b(?i:uses?|using|leverages?|leveraging)\s+"
+            r"(?:the\s+|a\s+|an\s+)?"
+            r"([A-Z][\w.+-]+(?:\s+(?:[A-Z][\w.+-]+|API|SDK))?)\b"
+        ),
+        "uses",
+    ),
+    # "built/implemented/powered/deployed/hosted (with|using|on|via|by|in|for) X"
+    (
+        re.compile(
+            r"\b(?i:built|implemented|powered|deployed|hosted|running)\s+"
+            r"(?i:with|using|on|via|by|in|for)\s+"
+            r"(?:the\s+|a\s+|an\s+)?"
+            r"([A-Z][\w.+-]+(?:\s+[A-Z][\w.+-]+)?)\b"
+        ),
+        "built",
+    ),
+    # "delegated to X" / "delegates to X"
+    (
+        re.compile(
+            r"\b(?i:delegated|delegates?)\s+(?:to|via)\s+"
+            r"(?:the\s+|a\s+|an\s+)?"
+            r"([A-Z][\w.+-]+\d?)\b"
+        ),
+        "delegated",
+    ),
+    # "follows the X pattern/architecture/model" — lowercase target allowed
+    # because many real patterns are lowercase ("actor model", "saga",
+    # "event sourcing"). The verb anchor "follows" makes this specific
+    # enough to avoid heading false positives.
+    (
+        re.compile(
+            r"\b(?i:follows?|implements?|adopts?)\s+(?:the\s+|a\s+|an\s+)?"
+            r"([\w-]+(?:[\s-][\w-]+)?)\s+"
+            r"(?i:pattern|architecture|model|approach)\b"
+        ),
+        "follows",
+    ),
+    # "(uses|use) (a|the) X pattern" — verb-anchored so heading
+    # noise ("Master Architecture") is excluded. Lowercase target allowed
+    # because the "X pattern" suffix is specific enough.
+    (
+        re.compile(
+            r"\b(?i:uses?|using|adopting)\s+(?:the\s+|a\s+|an\s+)"
+            r"([\w-]+(?:[\s-][\w-]+)?)\s+"
+            r"(?i:pattern|architecture|model|approach)\b"
+        ),
+        "uses_pattern",
+    ),
+    # "via X" — only when X is capitalized service/protocol name
+    (
+        re.compile(
+            r"\bvia\s+(?:the\s+)?"
+            r"([A-Z][\w.-]*(?:\s+(?i:API|service|gateway|protocol))?)\b"
+        ),
+        "via",
+    ),
+    # "depends on X"
+    (
+        re.compile(
+            r"\b(?i:depends?)\s+(?i:on|upon)\s+"
+            r"(?:the\s+|a\s+|an\s+)?"
+            r"([A-Z][\w.+-]+)\b"
+        ),
+        "depends",
+    ),
+]
+
+# Words that frequently appear in architectural patterns but aren't real
+# targets — filtered post-extraction.
+ARCHITECTURAL_STOPWORDS = {
+    "the", "a", "an", "this", "that", "these", "those",
+    "we", "you", "they", "i", "it", "us",
+    "all", "any", "some", "every", "each",
+    "same", "different", "other", "new", "old",
+    "default", "standard", "custom", "main",
+    "api", "sdk", "service",  # too generic alone
+}
 
 # No-verify marker
 NO_VERIFY_RE = re.compile(r"<!--\s*no-verify\s*-->")
@@ -324,6 +425,72 @@ def extract_url_claims(filepath, content, root):
     return claims
 
 
+def extract_architectural_claims(filepath, content, root):
+    """Extract prose claims about technology, architecture, or integrations.
+
+    Heuristic regex pass. False positives are expected and acceptable — the
+    verifier marks unverifiable claims rather than wrongly confirming them.
+    Without this pass, anchorless prose claims have no extraction path and
+    no agent target.
+    """
+    claims = []
+    rel_path = str(filepath.relative_to(root))
+
+    # Skip code blocks — patterns inside fenced blocks are usually examples,
+    # not architectural claims about the project.
+    content_outside_blocks = FENCED_BLOCK_RE.sub("", content)
+
+    for i, line in enumerate(content_outside_blocks.splitlines(), 1):
+        if is_in_no_verify_block(content, i):
+            continue
+
+        # Skip lines that are mostly inline code (likely API documentation)
+        # to reduce noise.
+        if line.count("`") >= 4:
+            continue
+
+        for pattern, frame in ARCHITECTURAL_PATTERNS:
+            for match in pattern.finditer(line):
+                target = match.group(1).strip()
+                if not target:
+                    continue
+
+                # Filter common false positives
+                lower = target.lower()
+                if lower in ARCHITECTURAL_STOPWORDS:
+                    continue
+                # Multi-word: at least one substantive word
+                words = target.split()
+                if all(w.lower() in ARCHITECTURAL_STOPWORDS for w in words):
+                    continue
+                if len(target) < 2:
+                    continue
+                # Frames where lowercase targets are intentional (real
+                # architectural patterns are often lowercase: actor model,
+                # saga, publish-subscribe, event sourcing). The "pattern"
+                # suffix in the regex makes these specific enough.
+                lowercase_ok_frames = {"follows", "uses_pattern"}
+                if frame not in lowercase_ok_frames:
+                    # For uses/built/delegated/via/depends, require at least
+                    # one uppercase letter — passes acronyms (gRPC, JWT),
+                    # brands (Redis, Auth0), multi-word names (AWS Lambda),
+                    # filters lowercase pronouns ("clear", "memory") pulled
+                    # in by sentence-start verbs.
+                    if not any(ch.isupper() for ch in target):
+                        continue
+
+                claims.append(Claim(
+                    claim_type="architectural",
+                    source_file=rel_path,
+                    line_number=i,
+                    literal=target,
+                    context=line.strip(),
+                    details={"frame": frame, "matched_text": match.group(0)},
+                ))
+
+    return claims
+
+
 def extract_env_var_claims(filepath, content, root):
     """Extract environment variable references."""
     claims = []
@@ -389,22 +556,34 @@ def generate_markdown_report(claims, root):
     lines.append("")
     lines.append("| Type | Count |")
     lines.append("|------|-------|")
-    for ct in ["file_path", "command", "code_ref", "import", "config", "url"]:
+    for ct in ["file_path", "command", "code_ref", "import", "config", "url", "architectural"]:
         if ct in by_type:
             lines.append(f"| {ct} | {len(by_type[ct])} |")
     lines.append("")
 
     # Claims by type
-    for ct in ["file_path", "command", "code_ref", "import", "config", "url"]:
+    for ct in ["file_path", "command", "code_ref", "import", "config", "url", "architectural"]:
         if ct not in by_type:
             continue
         lines.append(f"## {ct} ({len(by_type[ct])})")
         lines.append("")
-        lines.append("| File | Line | Claim |")
-        lines.append("|------|------|-------|")
-        for c in by_type[ct]:
-            escaped = c.literal.replace("|", "\\|")
-            lines.append(f"| `{c.source_file}` | {c.line_number} | `{escaped}` |")
+        if ct == "architectural":
+            lines.append("| File | Line | Frame | Claim | Context |")
+            lines.append("|------|------|-------|-------|---------|")
+            for c in by_type[ct]:
+                escaped = c.literal.replace("|", "\\|")
+                ctx = c.context[:80].replace("|", "\\|") if c.context else ""
+                frame = c.details.get("frame", "—") if c.details else "—"
+                lines.append(
+                    f"| `{c.source_file}` | {c.line_number} | {frame} | "
+                    f"`{escaped}` | {ctx} |"
+                )
+        else:
+            lines.append("| File | Line | Claim |")
+            lines.append("|------|------|-------|")
+            for c in by_type[ct]:
+                escaped = c.literal.replace("|", "\\|")
+                lines.append(f"| `{c.source_file}` | {c.line_number} | `{escaped}` |")
         lines.append("")
 
     return "\n".join(lines)
@@ -455,6 +634,7 @@ def main():
         file_claims.extend(extract_code_block_claims(md_file, content, root))
         file_claims.extend(extract_url_claims(md_file, content, root))
         file_claims.extend(extract_env_var_claims(md_file, content, root))
+        file_claims.extend(extract_architectural_claims(md_file, content, root))
 
         if args.verbose and file_claims:
             rel = str(md_file.relative_to(root))
