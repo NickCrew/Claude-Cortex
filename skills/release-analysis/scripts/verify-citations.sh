@@ -1,0 +1,1 @@
+../../architectural-analysis/scripts/verify-citations.sh
