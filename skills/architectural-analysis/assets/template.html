@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<html lang="$lang$"$if(dir)$ dir="$dir$"$endif$ data-theme="$if(theme)$$theme$$else$light$endif$" data-style="$if(style)$$style$$else$corporate$endif$">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,6 +21,86 @@ $highlighting-css$
 $for(css)$
   <link rel="stylesheet" href="$css$">
 $endfor$
+  <style>
+    /* Theme-aware diagram swapping. Each diagram is embedded twice
+       (light + dark variant); CSS shows the active one based on
+       [data-theme] on <html>. */
+    img.diagram-light, img.diagram-dark { display: none; }
+    html[data-theme="light"] img.diagram-light { display: inline-block; }
+    html[data-theme="dark"] img.diagram-dark { display: inline-block; }
+    /* Fallback when no theme attribute (e.g., before JS runs): show light. */
+    html:not([data-theme]) img.diagram-light { display: inline-block; }
+
+    /* Diagram images become click-to-zoom. */
+    main img.diagram-light, main img.diagram-dark { cursor: zoom-in; }
+
+    /* Lightbox — full-viewport overlay opened on diagram click. */
+    .lightbox {
+      position: fixed; inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 2.5rem 2rem 4.5rem;
+      background: rgba(8, 10, 24, 0.78);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor: zoom-out;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+    .lightbox.open { display: flex; opacity: 1; }
+    .lightbox-stage {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: auto;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+      cursor: default;
+    }
+    html[data-theme="dark"] .lightbox-stage { background: #131a2a; }
+    .lightbox-stage img {
+      display: block;
+      max-width: none;
+      width: auto;
+      height: auto;
+      padding: 1.4rem;
+    }
+    .lightbox-close {
+      position: fixed;
+      top: 1.25rem; right: 1.25rem;
+      z-index: 1001;
+      width: 2.4rem; height: 2.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(15, 23, 42, 0.7);
+      color: #fff;
+      font-size: 1.1rem; line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .lightbox-close:hover {
+      background: rgba(15, 23, 42, 0.92);
+      transform: scale(1.05);
+    }
+    .lightbox-caption {
+      position: fixed;
+      bottom: 1.25rem; left: 50%;
+      transform: translateX(-50%);
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+    body.lightbox-open { overflow: hidden; }
+    @media (prefers-reduced-motion: reduce) {
+      .lightbox { transition: none; }
+    }
+  </style>
 $for(header-includes)$
   $header-includes$
 $endfor$
@@ -29,6 +109,11 @@ $endfor$
 $for(include-before)$
 $include-before$
 $endfor$
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark theme">
+  <span class="theme-toggle-icon" aria-hidden="true">◐</span>
+  <span class="theme-toggle-label">Theme</span>
+</button>
 
 $if(banner)$
 <header class="banner" role="banner">
@@ -53,6 +138,9 @@ $endif$
 $if(target-repo)$
       <span class="meta-pill">$target-repo$</span>
 $endif$
+$if(style)$
+      <span class="meta-pill">style: $style$</span>
+$endif$
       <span class="meta-pill">architectural-analysis</span>
     </div>
   </header>
@@ -73,6 +161,84 @@ $body$
   </footer>
 
 </div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged diagram">
+  <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close enlarged diagram">×</button>
+  <div class="lightbox-stage" id="lightboxStage"></div>
+  <div class="lightbox-caption">Click outside or press Esc to close</div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'arch-analysis-theme';
+  var root = document.documentElement;
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    btn.querySelector('.theme-toggle-icon').textContent = theme === 'dark' ? '☾' : '☀';
+    btn.querySelector('.theme-toggle-label').textContent = theme === 'dark' ? 'Dark' : 'Light';
+  }
+
+  // Restore saved preference, falling back to the data-theme baked at compile time.
+  var saved = null;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) { /* localStorage may be disabled */ }
+  applyTheme(saved || root.getAttribute('data-theme') || 'light');
+
+  btn.addEventListener('click', function () {
+    var current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* ignore */ }
+  });
+})();
+
+// Lightbox: click any diagram in <main> to enlarge.
+(function () {
+  var lightbox = document.getElementById('lightbox');
+  var stage = document.getElementById('lightboxStage');
+  var closeBtn = document.getElementById('lightboxClose');
+  if (!lightbox || !stage || !closeBtn) return;
+
+  function open(srcImg) {
+    stage.innerHTML = '';
+    var clone = srcImg.cloneNode(true);
+    clone.removeAttribute('class');
+    clone.style.cursor = 'default';
+    stage.appendChild(clone);
+    lightbox.classList.add('open');
+    document.body.classList.add('lightbox-open');
+  }
+
+  function close() {
+    lightbox.classList.remove('open');
+    document.body.classList.remove('lightbox-open');
+    stage.innerHTML = '';
+  }
+
+  // Pick whichever diagram variant is currently visible (so the dark
+  // variant opens when the page is in dark theme).
+  document.addEventListener('click', function (e) {
+    var img = e.target.closest && e.target.closest('main img.diagram-light, main img.diagram-dark');
+    if (!img) return;
+    var style = window.getComputedStyle(img);
+    if (style.display === 'none') return;
+    e.preventDefault();
+    open(img);
+  });
+
+  // Click on backdrop closes; click on the stage itself does not.
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) close();
+  });
+  closeBtn.addEventListener('click', close);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) close();
+  });
+})();
+</script>
 
 $for(include-after)$
 $include-after$
