@@ -11,6 +11,7 @@ Phase 1b *lists* docs without reading them so Phase 5b knows what to reconcile a
 ## Inputs
 
 - `docs/release/<date>/docs-inventory.txt` — list of in-tree docs from Phase 1b.
+- `docs/release/<date>/doc-map.md` — topic→doc spine. **If ingested from arch-analysis**, this already classifies which doc is authoritative on which subsystem; use it as the prior. Phase 5b's job becomes "extend and verify" rather than "build from scratch."
 - All per-mode `report.md` files with verified findings (Phase 5 done).
 - Read access to the `doc-claim-validator` skill.
 
@@ -18,7 +19,13 @@ Phase 1b *lists* docs without reading them so Phase 5b knows what to reconcile a
 
 ### Step 1 — Read each in-tree doc once
 
-Orchestrator reads, not delegated. Sub-agents lose cross-doc reasoning when context is split. Scan each doc and note:
+Orchestrator reads, not delegated. Sub-agents lose cross-doc reasoning when context is split.
+
+**If `doc-map.md` was inherited from arch-analysis**, the topic→doc map is already built. Read each doc in the inherited map plus any release-specific additions Phase 1b appended. The map's classifications carry forward; you're confirming them against release-mode findings, not re-classifying from scratch. Watch for `*(stale)*` markers from arch-analysis — those docs are gap targets, not spine.
+
+**If no doc-map was inherited**, build the topic→doc index from the inventory by reading each doc and classifying as you go.
+
+For each doc, scan and note:
 
 - **Title and stated purpose.** What is this doc supposed to explain?
 - **Surface covered.** Which mode(s) does this overlap?

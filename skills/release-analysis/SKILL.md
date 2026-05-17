@@ -67,7 +67,7 @@ Eight phases. Phases 0, 1b, 5b, and 6 are release-analysis-specific or mirror ar
 |---|---|---|
 | 0 | Ingest prior arch-analysis | Pull in control-flow, integrations, failure-modes findings if a recent report exists |
 | 1 | Scope | Establish target, modes, output root, local/cloud detection, eve-mcp availability |
-| 1b | Docs inventory | List in-tree release docs without reading; seeds Phase 5b |
+| 1b | Docs inventory | Reuse arch-analysis's `doc-map.md` + `docs-inventory.txt` if ingested; otherwise build fresh. Seeds Phase 5b. |
 | 2 | Dispatch sub-agents | Parallel enumeration per mode |
 | 3 | Verify | Mechanical citation check (file + eve-mcp) |
 | 4 | Render | Mermaid + per-mode reports |
@@ -130,10 +130,13 @@ Default to "Yes" if the user provided no contradicting hint. Don't silently over
 Once scope is fixed:
 
 - **Prior found, ≤30 days old, scope matches:** ingest. Mine the prior report for release-relevant context:
-  - `control-flow/report.md` → seeds promotion-path (startup ordering, `depends_on`, healthcheck gates)
-  - `integrations/report.md` → seeds environment-matrix substrate (boundaries, external systems)
-  - `failure-modes/report.md` → seeds recovery & rollback (cascade-blocking, restart policies, opt-in/opt-out flags)
+  - `doc-map.md` (Phase 2 of arch-analysis) → topic→doc index of in-tree runbooks. **Reuse as the spine** for release-analysis's Phase 5b instead of re-discovering docs from scratch. Carry the `*(stale)*` markers forward.
+  - `docs-inventory.txt` → raw list of docs found by arch-analysis. Use as starting point for Phase 1b.
+  - `control-flow/report.md` → seeds promotion-path (startup ordering, `depends_on`, healthcheck gates).
+  - `integrations/report.md` → seeds environment-matrix substrate (boundaries, external systems).
+  - `failure-modes/report.md` → seeds recovery & rollback (cascade-blocking, restart policies, opt-in/opt-out flags).
   - The cross-mode callout index → carry forward verbatim; release-analysis findings reference these IDs by their original prefix.
+  - **Sub-agent classifications** in arch-analysis findings: each ingested callout carries a `classification` (`confirms`, `drift`, `gap`, `extends`) and `doc_ref`/`doc_claim` fields. Release-analysis preserves these — a `gap` from arch-analysis stays a gap when referenced from release-analysis, and a `drift` carries forward as-is.
 
 - **Prior found, >30 days old:** ask the user. Either trust the older run (note staleness in Provenance) or fall through to the next branch.
 
@@ -164,9 +167,30 @@ Establish:
   - Record what was detected and let it shape the mode prompts. A repo can hit both.
 - **eve-mcp availability**: check whether the `eve-mcp` MCP server is configured. If yes, cloud-side verification (Phase 3) uses live queries on par with codanna/grep — read tools only (`Show*`, `Get*`). Action tools (`Deploy`, `Run*`, `Restart*`, `Set*Version`, `Unpin*`, `Patch*`, `Update*`) are release levers and are never invoked from this skill — they may be cited as mechanism in recovery-rollback findings but are not called. If eve-mcp is not configured, fall back to reading manifest YAML and config-directory markdown — note the fallback in the verification log.
 
-### 1b. Docs inventory (cheap, do this in scope)
+### 1b. Docs inventory (reuse or build)
 
-Find authoritative in-tree release docs **without reading their contents** yet. Reading docs early anchors the analysis to existing claims and undermines the fresh-eyes enumeration sub-agents do best. Just *list* paths so they're known to Phase 5b.
+Find authoritative in-tree release docs. Two paths depending on what Phase 0 ingested:
+
+**If a prior arch-analysis run was ingested**, it already produced `docs-inventory.txt` and (more usefully) `doc-map.md` — the topic→doc index that names which doc is authoritative on which subsystem. Reuse both:
+
+1. Copy `<prior>/docs-inventory.txt` → `docs/release/<date>/docs-inventory.txt`.
+2. Copy `<prior>/doc-map.md` → `docs/release/<date>/doc-map.md` (or symlink). This is the spine for Phase 5b.
+3. Append release-specific finds the arch-analysis inventory may have missed:
+
+```bash
+# Release-specific roots arch-analysis may not have walked
+find <target>/kube <target>/aws <target>/*/kube <target>/*/aws -maxdepth 4 -type f \
+    \( -name '*.md' -o -name 'README*' \) 2>/dev/null
+# Compose-shaped repos: top-level walkthroughs
+find <target> -maxdepth 2 -type f \
+    \( -name 'CHEATSHEET*' -o -name 'PR.md' -o -name 'up.sh' -o -name 'down.sh' \) 2>/dev/null
+# Eve manifest documentationUrl fields (cloud, optional — only when eve-mcp available)
+# eve-mcp:GetManifest:name=<each manifest> — capture documentationUrl from metadata
+```
+
+Add new finds to `docs-inventory.txt` (mark them with `# release-specific addition` comment). Update `doc-map.md` with rows for the new docs, classifying their topic and which release-analysis modes they overlap.
+
+**If no prior arch-analysis was ingested**, build the inventory from scratch:
 
 ```bash
 # Generic doc roots
@@ -174,14 +198,14 @@ find <target>/docs <target>/*/docs -maxdepth 4 -type f \( -name '*.md' -o -name 
 # Top-level CLAUDE.md / README.md per repo
 find <target>/CLAUDE.md <target>/*/CLAUDE.md <target>/*/README.md 2>/dev/null
 # Release-specific roots
-find <target>/kube <target>/aws <target>/*/kube <target>/*/aws -maxdepth 4 -type f \( -name '*.md' -o -name 'README*' \) 2>/dev/null
+find <target>/kube <target>/aws <target>/*/kube <target>/*/aws -maxdepth 4 -type f \
+    \( -name '*.md' -o -name 'README*' \) 2>/dev/null
 # Compose-shaped repos: top-level walkthroughs
-find <target> -maxdepth 2 -type f \( -name 'CHEATSHEET*' -o -name 'PR.md' -o -name 'up.sh' -o -name 'down.sh' \) 2>/dev/null
-# Eve manifest documentationUrl fields (cloud, optional — only when eve-mcp available)
-# eve-mcp:GetManifest:name=<each manifest> — capture documentationUrl from metadata if present
+find <target> -maxdepth 2 -type f \
+    \( -name 'CHEATSHEET*' -o -name 'PR.md' -o -name 'up.sh' -o -name 'down.sh' \) 2>/dev/null
 ```
 
-Persist the list to `docs/release/<date>/docs-inventory.txt`. Do not read the files yet. The list seeds Phase 5b.
+Persist the list to `docs/release/<date>/docs-inventory.txt`. Do not read the files yet — Phase 5b reads them.
 
 If the target has no `docs/`, no `kube/*-config/`, and no top-level markdown beyond `README.md` + `CLAUDE.md`, skip Phase 5b and note the absence in the synthesis README.
 
@@ -216,7 +240,7 @@ Maintain a **discard log** for each report's verification log section.
 For each verified mode:
 
 - Author `<mode>/<diagram>.mmd` per `references/mermaid-conventions.md`
-- Render to SVG: `bash scripts/render.sh docs/release/<date>/`
+- Render to SVG: `bash scripts/render.sh docs/release/<date>/ --style corporate` (produces `<base>-corporate-light.svg` and `<base>-corporate-dark.svg`; render `--style blueprint` too if you want all four combos available)
 - Author `<mode>/report.md` per `references/report-template.md`
 
 ### 5. Synthesize
@@ -255,9 +279,30 @@ Do not auto-invoke. Recommend, let the user choose.
 
 ### Shareable artifacts
 
-- **Default**: `bash scripts/compile-html.sh docs/release/<date>/` produces a single self-contained `<date>.html` (embedded SVGs, inline dark-theme CSS). Run this at the end of every release-analysis pass — the HTML is the canonical share format. Pass `--banner <path>` to add a header banner image.
-- **Optional**: `bash scripts/compile-pdf.sh docs/release/<date>/` produces `<date>.pdf` via pandoc. Run only when the user explicitly asks for a PDF (archival, print, email-attachment use cases).
-- **Optional combined report**: when the user wants one shareable artifact that spans multiple sibling analyses (architectural + release, or architectural + release + wiring-audit, etc.), use the combined compile script (see "Combined sibling reports" below). Run only when the user asks for "one report" or names multiple analyses to bundle.
+**HTML — produced automatically.** Two-step pipeline at end of Phase 5/5b, mirrors arch-analysis:
+
+```
+bash scripts/render.sh docs/release/<date>/ --style corporate
+bash scripts/compile-html.sh docs/release/<date>/
+```
+
+Defaults:
+- **Style: `corporate`** — Stripe/Linear-style modern SaaS doc (Inter font, generous whitespace, soft shadows, deep-blue accent).
+- **Theme: `light`** — initial theme baked at compile time; users toggle at runtime via the top-right button.
+
+Available styles: `corporate` (default), `blueprint` (engineering/violet aesthetic). Both ship with light + dark themes; the runtime toggle just swaps `data-theme` on `<html>` and the paired SVG variants render appropriately.
+
+Flags (passed to `compile-html.sh`):
+- `--style {corporate|blueprint}` — must match what `render.sh` produced.
+- `--theme {light|dark}` — initial theme. Default `light`.
+- `--banner <path>` — header banner image, resolved relative to `--repo-root` (default cwd).
+- `--out <path>` — output HTML path. Default `<report-dir>/<dirname>.html`.
+
+**Important:** `render.sh --style <X>` produces `<base>-<X>-light.svg` and `<base>-<X>-dark.svg`. `compile-html.sh --style <X>` looks for those exact filenames. Render both styles upfront if you want all four combos available simultaneously.
+
+**PDF — only on request.** Run `bash scripts/compile-pdf.sh docs/release/<date>/` only when the user explicitly asks for a PDF. Defaults to landscape; pass `--portrait` to override. PDF consumes the style-agnostic `.png` files (no light/dark there).
+
+**Combined report (optional).** When the user wants one artifact spanning multiple sibling analyses (architectural + release + wiring-audit, etc.), use the combined compile flow described under "Combined sibling reports" below.
 
 ### Combined sibling reports
 
@@ -286,26 +331,20 @@ The combined compile script is not yet implemented in this skill — it's a plan
 docs/release/2026-05-16/
 ├── README.md                          # synthesis + provenance + cross-mode callout index
 │                                      # — leads with "Authoritative in-tree docs" section
-├── docs-inventory.txt                 # Phase 1b: list of in-tree release docs found
+├── docs-inventory.txt                 # Phase 1b: list of in-tree release docs (reused or built)
+├── doc-map.md                         # Phase 1b: topic→doc index (reused from arch-analysis,
+│                                      #   or built fresh; spine for Phase 5b)
 ├── docs-reconciliation.md             # Phase 5b: per-doc overlap + status table
 ├── promotion-path/
 │   ├── promotion.mmd
-│   ├── promotion.svg
+│   ├── promotion-corporate-light.svg
+│   ├── promotion-corporate-dark.svg
 │   └── report.md
-├── environment-matrix/
-│   ├── matrix.mmd
-│   ├── matrix.svg
-│   └── report.md
-├── configuration-provenance/
-│   ├── provenance.mmd
-│   ├── provenance.svg
-│   └── report.md
-├── recovery-rollback/
-│   ├── recovery.mmd
-│   ├── recovery.svg
-│   └── report.md
-├── 2026-05-16.html                    # default, scripts/compile-html.sh
-└── 2026-05-16.pdf                     # optional, scripts/compile-pdf.sh
+├── environment-matrix/{matrix.mmd, *.svg, report.md}
+├── configuration-provenance/{provenance.mmd, *.svg, report.md}
+├── recovery-rollback/{recovery.mmd, *.svg, report.md}
+├── 2026-05-16.html                    # automatic, compile-html.sh
+└── 2026-05-16.pdf                     # opt-in only, compile-pdf.sh
 ```
 
 ## Strict citation policy
@@ -338,4 +377,4 @@ Fabricated citations are the dominant failure mode for diagram-first analysis. T
 - `scripts/compile-pdf.sh` — combine reports into a single PDF via pandoc
 - `scripts/verify-citations.sh` — quick path:line existence check over a report
 - `assets/template.html` — pandoc HTML template
-- `assets/report.css` — dark theme stylesheet
+- `assets/styles/{corporate,blueprint}/` — stylesheet + mermaid theme JSONs (pass `--style` to `compile-html.sh`)
