@@ -43,21 +43,33 @@ Callout IDs are stable across modes — `R-7` referenced from a recovery report 
 
 Callouts ingested from a prior `architectural-analysis` run keep their original prefix (`I-`, `C-`, `F-`, `X-`, etc.) and are referenced by ID without reproduction. A release-analysis callout `R-7` may cite `[C-17]` from the prior arch-analysis report; the synthesis README links to the originating mode's report rather than copying the entry.
 
-## Local vs. cloud shapes
+## Three release shapes
 
-The same release primitives appear at two scales. The skill handles both, with mode references describing each set of signals separately.
+Most release-analysis targets are systems that *get* deployed — the unit of analysis is the system itself. But some targets are tooling that *drives* releases for other systems — the unit of analysis flips. The skill recognizes three shapes:
 
-| Concern | Compose-shaped (local) | Kube-shaped (cloud) |
-|---|---|---|
-| Unit | service in a `compose.*.yml` | application in a `manifest` |
-| Group | profile / compose project | namespace |
-| Boundary | docker network | cluster + namespace |
-| Promotion | image rebuild + `docker compose pull` + `up.sh` | channel-based version promotion via Eve |
-| Pinning | image tag in `.env` or `compose.*.yml` | `SetManifestVersion` / `SetNamespaceVersion` |
-| Rollback | revert image tag, `docker compose up -d` | `UnpinManifestVersion` then re-promote prior version |
-| Config layering | compose merge order, `.env`, profile YAMLs, `${VAR}` resolution | manifest metadata, env-specific overrides, secrets, ConfigMaps |
+| Concern | Compose-shaped (local) | Kube-shaped (cloud) | Driver-shaped (orchestrator) |
+|---|---|---|---|
+| What the target is | a deployable system, run locally | a deployable system, run in Kube | tooling that performs release operations on other systems |
+| Unit | service in `compose.*.yml` | application in a `manifest` | release operation (cut, forward-merge, close-release, environment-roll) |
+| Group | profile / compose project | namespace | targeted fleet (the repos / namespaces this tool operates on) |
+| Boundary | docker network | cluster + namespace | the set of repos / channels this tool manages |
+| Promotion | image rebuild + `docker compose pull` + `up.sh` | channel-based version promotion via Eve | the multi-step pipeline this tool encodes (e.g., cut → forward-merge → close-release) |
+| Pinning | image tag in `.env` or `compose.*.yml` | `SetManifestVersion` / `SetNamespaceVersion` | how the tool selects targets per run (`config.json`, `namespaces.json`, `manifests.json`, cron config) |
+| Rollback | revert image tag, `docker compose up -d` | `UnpinManifestVersion` then re-promote prior version | the recovery procedures the tool itself implements (or the runbooks for when its operations fail mid-flight) |
+| Config layering | compose merge order, `.env`, profile YAMLs | manifest metadata, env-specific overrides, secrets, ConfigMaps | how `config.json`, env vars, `.profile`, per-namespace data files resolve at runtime |
 
-A repo can be local-only, cloud-only, or both. Detection happens in Phase 0.
+A repo can be one shape, multiple, or — in driver-shaped cases — all three at once if the tool also ships itself. Detection happens in Phase 0.
+
+### Driver-shaped reframe
+
+When the target is driver-shaped (PowerShell tooling that orchestrates fleet releases, deploy-bot scripts, release-cutting CLIs, etc.), each mode reframes:
+
+- **Promotion path** — the multi-step pipeline this tool drives across the targeted fleet, not how the tool itself reaches a runtime. CI publishing of the tool itself is a footnote, not the main diagram.
+- **Environment matrix** — the namespaces / clusters / repos the tool manages, sourced from its config files (`namespaces.json`, `manifests.json`, etc.). The tool's *own* runtime is incidental.
+- **Configuration provenance** — how the tool's per-run inputs resolve (config files, env vars, profile overrides, cron parameters). Same provenance machinery, different keys.
+- **Recovery & rollback** — runbooks the tool documents for partial-pipeline failures (close-release stuck, forward-merge gap, environment-roll mid-state). These are usually the spine of the report; runbook-precedence applies aggressively.
+
+If the target has no Dockerfile, no Compose, no manifests, but does have a `data/` or `config/` directory describing other systems and a `docs/runbooks/` describing fleet operations, it's driver-shaped. Treat the runbooks as the spine and let mode prompts reflect the reframe.
 
 ## Workflow
 
@@ -66,7 +78,7 @@ Eight phases. Phases 0, 1b, 5b, and 6 are release-analysis-specific or mirror ar
 | Phase | Name | Purpose |
 |---|---|---|
 | 0 | Ingest prior arch-analysis | Pull in control-flow, integrations, failure-modes findings if a recent report exists |
-| 1 | Scope | Establish target, modes, output root, local/cloud detection, eve-mcp availability |
+| 1 | Scope | Establish target, modes, output root, shape detection (compose / kube / driver), eve-mcp availability |
 | 1b | Docs inventory | Reuse arch-analysis's `doc-map.md` + `docs-inventory.txt` if ingested; otherwise build fresh. Seeds Phase 5b. |
 | 2 | Dispatch sub-agents | Parallel enumeration per mode |
 | 3 | Verify | Mechanical citation check (file + eve-mcp) |
@@ -161,10 +173,11 @@ Establish:
 - **Target**: inherited from Phase 0 if a prior run was ingested, otherwise full repo / subtree / multi-repo union. For multi-repo systems (e.g., `~/source/{dev-stack,mainwebcode,cosential-proxy}`), the union is treated like a single scope.
 - **Modes**: which of the four (default: all)
 - **Output root**: `docs/release/<YYYY-MM-DD>/` — create now if missing. Place under the same parent as the prior arch-analysis run (so `~/source/docs/architecture/2026-05-16/` and `~/source/docs/release/2026-05-17/` are siblings).
-- **Local/cloud detection**:
-  - **Local indicators**: `compose*.yml`, `docker-compose.yml`, `up.sh`/`down.sh`, `.env` with image tags
-  - **Cloud indicators**: `kube/` or `aws/` directory with config subdirs (`*-dev-config`, `*-config`); markdown referencing `manifest`/`channel`/`namespace`; `.gitlab-ci.yml` jobs that publish images to a registry; presence of an Eve channel name in any markdown
-  - Record what was detected and let it shape the mode prompts. A repo can hit both.
+- **Shape detection** — see "Three release shapes" above for the framings:
+  - **Compose-shaped indicators**: `compose*.yml`, `docker-compose.yml`, `up.sh`/`down.sh`, `.env` with image tags
+  - **Kube-shaped indicators**: `kube/` or `aws/` directory with config subdirs (`*-dev-config`, `*-config`); markdown referencing `manifest`/`channel`/`namespace`; `.gitlab-ci.yml` jobs that publish images to a registry; presence of an Eve channel name in any markdown
+  - **Driver-shaped indicators**: no Dockerfile / Compose / manifests for the target itself, but presence of a `data/<namespace>/`, `data/manifests.json`, `data/namespaces.json`, or similar describing *other* systems; `docs/runbooks/` directory naming fleet operations (cut, forward-merge, close-release, environment-roll); CLI entrypoints (`.ps1`, scripts/) that take channel/namespace/manifest names as arguments
+  - Record what was detected and let it shape the mode prompts. A repo can hit one, two, or all three (a release-driver tool that also ships itself is hybrid).
 - **eve-mcp availability**: check whether the `eve-mcp` MCP server is configured. If yes, cloud-side verification (Phase 3) uses live queries on par with codanna/grep — read tools only (`Show*`, `Get*`). Action tools (`Deploy`, `Run*`, `Restart*`, `Set*Version`, `Unpin*`, `Patch*`, `Update*`) are release levers and are never invoked from this skill — they may be cited as mechanism in recovery-rollback findings but are not called. If eve-mcp is not configured, fall back to reading manifest YAML and config-directory markdown — note the fallback in the verification log.
 
 ### 1b. Docs inventory (reuse or build)

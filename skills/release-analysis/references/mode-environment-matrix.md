@@ -17,6 +17,16 @@ Callout prefix: `E-`. Primary mermaid: `graph TD` for cloud (channel → environ
 5. **Service-to-profile membership**: which services appear in which profiles. The matrix axis.
 6. **Image tags per profile**: usually shared via `${TAG}` from `.env`, but a profile may override.
 
+### Driver-shaped (orchestrator)
+
+When the target drives releases for other systems, the matrix describes what the tool *manages*, not where the tool itself runs:
+
+1. **Per-namespace data files**: `data/<namespace>/` directories often have one entry per managed namespace. Enumerate them as the matrix rows.
+2. **Manifest registry**: `data/manifests.json`, `data/namespaces.json` — sources of truth for which manifests exist where, from this tool's perspective.
+3. **Cluster mapping** (if the tool tracks it): explicit cluster fields in the data files; otherwise inherited from the channel/environment hierarchy the tool addresses through eve-mcp.
+4. **Eve-mcp cross-check**: when available, run `ShowChannels`, `ShowEnvironments`, `ShowNamespaces` and compare the live fleet against what the tool's data files claim. Drift here is a real finding (the tool thinks it manages X, but X doesn't exist).
+5. **The tool's own runtime**: typically incidental — single-host CLI, scheduled CI runner. Note in passing; do not make it a matrix axis.
+
 ### Kube-shaped (cloud)
 
 1. **Channels**: `eve-mcp:ShowChannels`. Each channel is a promotion lane (typically `int`, `stage`, `prod`).

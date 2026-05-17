@@ -54,7 +54,10 @@ The prompt for each sub-agent has eight sections.
 [Path or paths. For multi-repo systems, list all relevant roots.]
 
 # Scope shape
-[compose-only | kube-only | hybrid]
+[compose-only | kube-only | driver-only | compose+kube | driver+compose | driver+kube | all-three]
+[For driver-shaped targets: the unit of analysis is the release operations the tool performs on
+ other systems, not how the tool itself deploys. See SKILL.md "Driver-shaped reframe" and the
+ mode reference's "Driver-shaped (orchestrator)" subsection for signal-set adjustments.]
 
 # eve-mcp availability
 [available | unavailable]

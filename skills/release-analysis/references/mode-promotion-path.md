@@ -19,6 +19,16 @@ Sub-agents look for both shapes. The detected scope from Phase 1 determines whic
 5. **Schema-job ordering**: services that block bring-up via `depends_on` with `condition: service_completed_successfully` — these are local "promotion gates."
 6. **Registry sources**: registry hostnames in image references (JFrog, ECR, ghcr.io, Docker Hub) — note which images are local-built vs. pulled.
 
+### Driver-shaped (orchestrator)
+
+When the target *drives* releases for other systems rather than shipping itself:
+
+1. **Pipeline stages**: the named operations the tool encodes — `cut-release`, `forward-merge`, `close-release`, `environment-roll`, etc. Look in CLI entrypoints (`.ps1` files, `scripts/`, `bin/`) and `docs/runbooks/` for the canonical step list.
+2. **Targeted fleet**: which repos / manifests / namespaces this tool operates on. Sources: `data/manifests.json`, `data/namespaces.json`, `data/<namespace>/`, `config.json` "targets" or "repos" keys.
+3. **Trigger surface**: how operations get invoked — manual CLI, cron config (`cron-config.json`, `.gitlab-ci.yml` scheduled pipelines), webhooks, evebot commands.
+4. **Cross-fleet promotion**: when the tool implements multi-stage promotion (e.g., apply to `int` namespace, then `stage`, then `prod` for the same release), the *promotion path* is across that fleet, not within this repo. The diagram's primary axis is fleet stages × release operations.
+5. **The tool's own deploy** (if any): a footnote node on the diagram, not the spine. If `.gitlab-ci.yml` has a doc-publish or self-publish job, cite it but don't make it the headline.
+
 ### Kube-shaped (cloud)
 
 1. **Channels**: `eve-mcp:ShowChannels` (or `eve-mcp:GetChannel` for a specific one) reveals the promotion ladder (`int → stage → prod`). Repo-side fallback: channel names in markdown.

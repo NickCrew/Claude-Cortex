@@ -18,6 +18,19 @@ Callout prefix: `K-`. Primary mermaid: layered annotation graph (key → resolut
 6. **Profile-conditional config**: a service may have different `environment:` blocks across profile-specific compose files.
 7. **Defaults inside the application**: code-level defaults (e.g., `os.environ.get("WAF_ENABLED", "false")`) are the "lowest layer" in the resolution chain. Read the application code to find them.
 
+### Driver-shaped (orchestrator)
+
+When the target drives releases for other systems, the provenance question is "what config does the *tool* read at runtime to decide what to do":
+
+1. **Tool config files**: `config.json`, `settings.json`, `appsettings.json`, or similar at the repo root or under `config/`. Often the primary input.
+2. **Per-namespace data files**: `data/<namespace>/<file>.json` — values that change per-target, layered on top of the global config.
+3. **Cron / scheduled run inputs**: `cron-config.json` or `.gitlab-ci.yml` scheduled-pipeline parameters — values injected at trigger time.
+4. **Profile / environment overrides**: `.profile`, `~/.config/<tool>/`, env vars the tool reads (`CHANNEL=`, `NAMESPACE=`, `DRY_RUN=`). For PowerShell tooling: `$PROFILE`, module manifests, env-var precedence in `Get-Item Env:`.
+5. **CLI argument layering**: when the tool takes args, they typically override config files. Document the override order from the actual entrypoint, not by convention.
+6. **Application defaults**: hard-coded fallbacks in the source (`$DefaultChannel = 'int'`, `param([string]$Channel = 'int')`).
+
+The override-order verification rule still applies: cite the actual resolution mechanism (the entrypoint reading config), not the file order on disk.
+
 ### Kube-shaped (cloud)
 
 1. **Manifest metadata**: `eve-mcp:GetManifest <name>` reveals the metadata block — env-specific values that flow into the rendered manifest.

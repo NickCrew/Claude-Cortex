@@ -18,6 +18,19 @@ Callout prefix: `V-`. Primary mermaid: `stateDiagram-v2` for the healthy → deg
 6. **Schema migration reversibility**: schema-job containers — are migrations reversible (down scripts present) or one-way?
 7. **Volume/state cleanup**: `docker compose down -v` and similar — when is destroying state required, and what does it lose?
 
+### Driver-shaped (orchestrator)
+
+When the target drives releases for other systems, recovery is about *partial-pipeline failure*: an operation started, did some work, then failed mid-flight. Recovery procedures are usually the highest-density content in driver-shaped repos.
+
+1. **Pipeline-specific runbooks**: `docs/runbooks/close-release.md`, `docs/runbooks/forward-merge-gap.md`, `docs/runbooks/environment-roll.md`, etc. These are typically the spine — read them all.
+2. **Mid-state recovery**: when an operation has done part of its work (some repos pushed, some not; some namespaces rolled, some not), how does the tool resume? Look for `--resume`, `--retry`, `--continue` flags; idempotency claims in code; checkpoint files.
+3. **Dry-run / preview affordances**: `-WhatIf`, `--dry-run`, `--preview` — pre-flight tools that *prevent* the recovery scenario in the first place. Worth diagramming because their absence is itself a finding.
+4. **Pipeline gate failures**: when a step fails (CI gate, evebot rejection, target repo conflict), what's the documented response? Often per-step in the runbook, sometimes only in code comments.
+5. **Idempotency patterns**: re-running a partially-completed operation should be safe. Cite where the tool achieves this (skip-if-exists checks, version comparison, lock files).
+6. **Manual rollback for fleet operations**: if the tool drove a bad version into 12 namespaces, what's the documented un-do? Often an inverse runbook (`environment-roll-back.md`); sometimes a flag on the same operation.
+
+For driver-shaped targets, runbook precedence applies aggressively: the runbook's procedure beats any mechanism citation. The state diagram is required as always; the procedure list is mostly runbook-summary with citation.
+
 ### Kube-shaped (cloud)
 
 1. **Restart procedures**: `RestartManifest` is the lever — document what it does and when. Cite as mechanism; never invoke from this skill.
