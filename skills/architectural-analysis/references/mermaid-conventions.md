@@ -60,21 +60,30 @@ Render with `classDef cross-mode` styling so the borrowed node visually differs 
 
 ## classDef conventions
 
-Five styles applied with `classDef` and `class` directives. Keep these consistent across modes for visual continuity in the rendered PDF.
+Seven semantic classes applied with `classDef` and `class` directives. **Do not set `fill:` or `stroke:` colors in classDefs** — those are baked as inline `style="..."` on every node and override the theme-aware `themeVariables` (`mainBkg`, `nodeBorder`, etc.) we set per style/theme. The light variant ends up with white-on-light fills in dark mode, and dark variant ends up with dark text on dark fills.
+
+Use only `stroke-width` and `stroke-dasharray` to encode semantic marks. Color is the theme's job.
 
 ```mermaid
-classDef cited fill:#fff,stroke:#333,stroke-width:1px
-classDef synthesized fill:#fff,stroke:#888,stroke-width:1px,stroke-dasharray:5
-classDef external fill:#f0f4ff,stroke:#3b6ea5,stroke-width:1px
-classDef crossmode fill:#fdf6e3,stroke:#b58900,stroke-width:1px
-classDef removed fill:#fde7e7,stroke:#c0392b,stroke-width:1px,stroke-dasharray:3
+classDef synthesized stroke-width:1px,stroke-dasharray:5
+classDef external stroke-width:1px
+classDef crossmode stroke-width:1px,stroke-dasharray:2
+classDef removed stroke-width:1px,stroke-dasharray:3
+classDef drift stroke-width:2px
+classDef gap stroke-width:2px,stroke-dasharray:3
 ```
 
-- **cited** (default) — node has a verified `path:line` citation.
-- **synthesized** — node has no single owning file (≤20% per mode, see `citation-protocol.md`).
-- **external** — node represents a third-party system, service, or library boundary. Mostly used in integrations diagrams.
-- **crossmode** — node defined in a different mode, referenced here for context.
-- **removed** — node that *used to exist* and was deleted; only used when explicitly tracking architectural change.
+- **(unstyled, default)** — confirms-class finding; node uses the theme's primary colors. No classDef needed.
+- **synthesized** — node has no single owning file (≤20% per mode, see `citation-protocol.md`). Dashed border.
+- **external** — third-party system, service, or library boundary. Solid border, slightly lighter weight.
+- **crossmode** — node defined in a different mode, referenced here for context. Light dashed border.
+- **removed** — node that *used to exist* and was deleted. Heavier dashes.
+- **drift** — node where the code disagrees with the spine doc. Bold border (2px) — readers' eyes catch it.
+- **gap** — node where the code does something undocumented. Bold dashed border (2px + dashed).
+
+If you need to differentiate drift/gap from confirms by color, do it in the *theme* (e.g., add a custom `themeVariables.drift` token in `mermaid-config.json`) rather than per-classDef.
+
+For edges, drift relationships use the `-.->|drift| ` syntax with a label; gap edges (rare — usually it's the node that's the gap, not the relationship) use `-.->|undocumented| `.
 
 Apply with the `class` directive at the bottom of the diagram:
 
