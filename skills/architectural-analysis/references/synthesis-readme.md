@@ -1,6 +1,8 @@
-# Synthesis README
+# Synthesis README (gap-first)
 
-The top-level `docs/architecture/<date>/README.md`. Indexes all per-mode reports and resolves cross-mode references. Authored last, after every mode's `report.md` is finalized.
+The top-level `docs/architecture/<date>/README.md`. Authored last, after every mode's `report.md` is finalized.
+
+The report's job is to surface what the team doesn't know it doesn't know. Documentation is the spine; this README is the gap inventory.
 
 ## Structure
 
@@ -10,67 +12,98 @@ date: <YYYY-MM-DD>
 scope: <repo-relative path or "full">
 modes: [<list of modes included>]
 target_repo: <repo name or path>
+spine_doc_count: <integer — number of authoritative in-tree docs found>
+gap_count: <integer — total gap findings across all modes>
+drift_count: <integer — total drift findings>
 ---
 
 # Architectural Analysis — <YYYY-MM-DD>
 
 ## Scope
 
-<1–2 sentences: what was analyzed and what was excluded. Specifically name
-exclusions if any — "frontend not analyzed", "test code excluded".>
+<1–2 sentences. What was analyzed and what was excluded.>
 
-## Modes included
+## Doc spine
 
-<Tile list with one-line summary per mode. Link to each report.>
+<This section is the front door for trusting the report. Lead with the
+doc map: the team's authoritative docs were treated as the spine, the
+analysis confirmed them with citations, surfaced drift, and inventoried
+the gaps below.>
 
-- **[Information architecture](information/report.md)** — <one-line headline finding>
-- **[Data model](data-model/report.md)** — <…>
-- **[Data flow](data-flow/report.md)** — <…>
-- **[Integrations](integrations/report.md)** — <…>
-- **[UI surfaces](ui-surfaces/report.md)** — <…>
-- **[Control flow](control-flow/report.md)** — <…>
-- **[Failure modes](failure-modes/report.md)** — <…>
+The report uses these in-tree docs as authoritative — the analysis confirms their claims with citations, flags drift where found, and inventories gaps where the code does something undocumented.
 
-## Cross-mode index
+| Topic | Doc(s) | Modes | Status |
+|-------|--------|-------|--------|
+| <topic> | <path/to/doc.md> | mode-1, mode-2 | authoritative |
+| <topic> | <path/to/legacy.md> | mode-3 | *(stale — see drift)* |
 
-<Every callout that's referenced from a different mode than its origin.
-This is the table that makes the seven reports a coherent whole.>
+<If no spine docs exist: "Greenfield doc surface — every finding here is a gap.">
 
-| Callout | Origin mode | Also referenced from | Label |
-|---------|-------------|----------------------|-------|
-| [I-7] | information | data-flow, control-flow | <label> |
-| [M-3] | data-model | data-flow | <label> |
-| [X-2] | integrations | failure-modes | <label> |
+## Undocumented behaviors
 
-## Headline findings
+<The lead. The institutional risk inventory.
 
-<3–7 bullets summarizing the most architecturally significant findings across
-modes. These are not summaries of each mode — these are the conclusions a
-reader should leave with.>
+Each gap is a one-paragraph description with citations and the mode it
+came from. Sort by impact: behaviors that could be broken without anyone
+knowing first; legacy behaviors with no current owner; convention-only
+behaviors that exist nowhere in code or docs.
 
-1. <Cross-cutting finding referencing callouts from multiple modes — e.g.,
-   "Hook installation [I-12] crosses three integration boundaries [X-2,X-4,X-7]
-   without retry logic [F-3], creating a fragile bootstrap path.">
+For each gap:
+
+### <gap title>
+
+- **From**: mode-N report ([G-id])
+- **Impact**: <one sentence — who can break it / what they'll learn the hard way>
+- **Citation**: `<path:line>`
+- **Recommendation**: document it / change it / accept it as informal>
+
+Mark severe gaps (security, data integrity, fail-open) with **bold**
+labels. The full list goes in the synthesis README; per-mode reports
+carry their own slice.>
+
+## Documentation drift
+
+<Every drift finding from per-mode reports. Curated, not dumped.
+
+For each drift:
+
+### <doc> claims X but code does Y
+
+- **Doc** (`<DOC.md>:<line-or-section>`): <quoted claim>
+- **Code** (`<path:line>`): <what's actually there>
+- **First introduced**: <git blame if quick to determine; else "unknown">
+- **Recommendation**: update the doc / update the code / accept as known divergence>
+
+## Headline architectural findings
+
+<3–7 bullets. Cross-cutting findings the reader should leave with.
+
+These are the "big picture" claims about how the system fits together —
+they reference confirms, drift, and gap callouts as needed. NOT a
+mode-by-mode summary; readers can browse the mode reports for that.>
+
+1. <Finding referencing callouts from multiple modes — e.g.,
+   "Auth path silently fails when CATS is unreachable [F-12, F-13]
+   because three catch blocks return false without logging. The doc
+   spine doesn't mention this. **Gap.**">
 2. <…>
 
 ## Verification summary
 
-| Mode | Findings | Verified | Discarded | Synthesized | Synthesized share |
-|------|----------|----------|-----------|-------------|-------------------|
-| Information architecture | 32 | 30 | 2 | 4 | 12% |
-| Data model | 18 | 18 | 0 | 1 | 5% |
-| <…> | | | | | |
+| Mode | Confirms | Drift | Gaps | Synthesized share |
+|------|----------|-------|------|-------------------|
+| Information architecture | 28 | 1 | 4 | 12% |
+| Data model | 16 | 0 | 6 | 5% |
+| <…> | | | | |
 
 ## Diagrams
 
-<Inlined SVG references for the rendered PDF. In raw markdown, these are
-just links; the PDF compile step replaces them with embedded SVG.>
-
 - [Information architecture](information/ia.svg)
 - [Data model — ERD](data-model/erd.svg)
-- [Data flow — pipeline](data-flow/flow.svg) | [Sequence — bootstrap](data-flow/sequence-bootstrap.svg)
+- [Data flow — pipeline](data-flow/flow.svg)
 - [Integrations — boundaries](integrations/boundaries.svg)
-- [UI surfaces — routes](ui-surfaces/routes.svg) | [Components](ui-surfaces/components.svg)
+- [UI surfaces — routes](ui-surfaces/routes.svg)
+- [Interaction patterns](interaction-patterns/patterns.svg)
 - [Control flow — state](control-flow/state.svg)
 - [Failure modes](failure-modes/failures.svg)
 
@@ -82,25 +115,19 @@ just links; the PDF compile step replaces them with embedded SVG.>
 
 ## Methodology note
 
-This report was generated by the `architectural-analysis` skill. Every node and
-edge in every diagram is grounded in a `path:line` citation, with the exception
-of clearly-marked synthesized concepts (capped at 20% per mode). Fabricated
-citations were filtered out by the verification protocol; see each per-mode
-report's "Verification log" section for what was discarded.
+This report was generated by the `architectural-analysis` skill in doc-led mode. Every node and edge in every diagram resolves to a `path:line` citation. In-tree docs (listed under "Doc spine" above) are treated as authoritative — the analysis confirms their claims, flags drift, and surfaces gaps. The "Undocumented behaviors" section is the institutional risk register; it should drive doc-maintenance follow-up.
 ```
 
-## Authoring sequence
+## Authoring rules
 
-1. Write each per-mode `report.md` first.
-2. Then aggregate:
-   - Walk every report's callouts table.
-   - Build the cross-mode index by finding callouts whose ID prefix differs from the report's mode (those are imported references).
-   - Sum the verification stats from each report's frontmatter.
-3. Write headline findings *last* — they require having read all seven reports.
-4. Open questions are de-duplicated from the per-mode reports.
+- **Lead is the gap list, not the mode summary.** Readers care most about what they don't know. The structural picture is in the per-mode reports and the diagrams.
+- **Doc spine is referenced, not duplicated.** The Doc spine table names the docs and points readers there. Per-mode reports embed the doc reference and confirm it; the synthesis stays gap-focused.
+- **Drift is curated.** A drift item must matter. If a doc has a typo or outdated minor detail, fix it during Phase 2 reading rather than reporting it. Drift findings should be ones a developer might act on incorrectly.
+- **Headline findings are cross-cutting.** Per-mode summaries belong in mode reports; the synthesis is for findings that span ≥2 modes or that are big enough to be the single thing a reader should remember.
 
 ## What NOT to put in the synthesis README
 
-- **Detailed callout tables** — those live in per-mode reports; the synthesis only carries the cross-mode index.
-- **New findings introduced in synthesis** — every claim in headline findings traces to per-mode callouts. If a finding has no underlying callout, it's not grounded.
-- **Pure summaries of each mode** — modes already have summaries in their own reports. The synthesis carries cross-cutting insight, not regurgitation.
+- **A "we read these docs" table that just lists docs.** That's `docs-inventory.txt`. The Doc spine table only includes docs that the analysis treats as authoritative.
+- **Confirms.** They live in per-mode reports' collapsed "Doc reference" sections, not here.
+- **Detailed callout tables.** Per-mode reports own those.
+- **Reassuring caveats** ("by the way, half of this might be wrong"). The contract of the new format is that confirms are confirmed, drift is flagged, gaps are inventoried. No blanket disclaimers.

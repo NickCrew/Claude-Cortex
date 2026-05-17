@@ -25,28 +25,51 @@ Justification for the split: `Explore` is read-only and optimized for fast patte
 4. **Pass scope explicitly.** Always include the target subtree in the prompt — `claude_ctx_py/intelligence/` is different from full repo.
 5. **Return findings only, not diagrams.** Sub-agents enumerate; the orchestrator authors mermaid. Do not ask sub-agents to produce mermaid.
 
-## Output contract (every sub-agent must return this shape)
+## Output contract (doc-led classification)
+
+Sub-agents in doc-led mode classify each finding against the documentation spine. The orchestrator passes the relevant doc text in the prompt; the sub-agent reads the code and decides whether the code matches the doc, drifts from the doc, or does something the doc doesn't cover.
 
 YAML block, one entry per finding:
 
 ```yaml
-- callout_id: <PREFIX>-<N>      # e.g., I-1, D-12 — N starts at 1 per mode
+- callout_id: <PREFIX>-<N>           # e.g., I-1, D-12 — N starts at 1 per mode
   label: <short human label>
   citation: <repo-relative-path>:<line>
   evidence: <verbatim line content>
+  classification: confirms | drift | gap | extends
+  doc_ref: <path to spine doc, or null if no doc covers this>
+  doc_claim: <quoted or paraphrased claim the code is being checked against; null if classification=gap>
+  notes: <one-line explanation — required for drift, optional otherwise>
   relations:
-    - to: <callout_id>           # must reference another finding from the same dispatch
+    - to: <callout_id>
       kind: imports | calls | emits | listens | renders | persists | derives | catches | retries | etc.
       citation: <repo-relative-path>:<line>
   confidence: high | medium | synthesized
   synthesized_justification: <required if confidence=synthesized; names ≥2 contributing files>
 ```
 
-If a sub-agent returns prose without citations, treat the result as judgment-only — discard the specifics and re-dispatch with the format requirement reinforced. Do not "rescue" findings by inferring citations after the fact.
+### Classification semantics
 
-## Prompt template (skeleton)
+- **confirms** — the code matches the doc claim. The cited line is evidence the doc is current. Default classification when a spine doc covers the territory.
+- **drift** — the doc claims X, the code does Y. The `notes` field MUST quote both the doc claim and the code reality. Drift findings always make it into the report's drift section, never collapsed.
+- **gap** — the code does something no doc covers. `doc_ref` and `doc_claim` are null. **Gaps drive the synthesis README's "Undocumented behaviors" section** — be deliberate about flagging them. A gap is something a future developer might break without knowing.
+- **extends** — the code adds detail the doc doesn't claim but doesn't contradict either. Edge case; treat as a confirm unless the detail is materially important.
 
-The prompt for each sub-agent has six sections. Customize the bracketed parts; keep the structure.
+### Volume target
+
+Doc-led runs should produce **fewer findings than enumeration runs** because confirmed-on-spine territory yields one finding per claim, not one per file. Optimize for:
+
+- One confirms per substantive claim in the spine doc
+- All real drift items
+- All real gap items (deliberate inventory)
+
+If a sub-agent returns 100+ findings for a doc that has 10 claims, it's over-enumerating. 30-50 findings per mode is the right zone for a well-documented codebase.
+
+If a sub-agent returns prose without citations, treat the result as judgment-only — discard the specifics and re-dispatch.
+
+## Prompt template (doc-led)
+
+The prompt for each sub-agent has seven sections. The new section is **Doc spine** — paste the relevant excerpts from the spine docs (or the doc paths and let the sub-agent read them).
 
 ```
 [Mode-specific intro from references/mode-<mode>.md]
@@ -54,25 +77,54 @@ The prompt for each sub-agent has six sections. Customize the bracketed parts; k
 # Scope
 [Path or "the entire codebase rooted at <repo-path>"]
 
+# Doc spine
+
+The following in-tree docs are authoritative for this mode. The orchestrator has already read them; your job is to verify the code matches their claims, flag drift, and surface gaps.
+
+[For each spine doc, paste either the full content (if short) or the
+relevant section + path. Example:
+
+  ## mainwebcode/docs/HANDLEBARS_CACHING.md (authoritative on cache layers)
+  
+  > Templates are compiled server-side by CF and cached in Couchbase
+  > across **three layers**...
+  > Layer 1 — file content cache, 60,000s TTL...
+  > Layer 2 — compiled template, no expiry (persist bucket)...
+  > Layer 3 — combined template list, 60,000s TTL...
+
+If the mode has no spine doc, say:
+
+  ## No spine doc for this mode.
+  Treat every finding as classification=gap. The orchestrator will
+  surface this in the synthesis README.
+]
+
 # Task
-Enumerate findings for the <MODE NAME> view of this scope.
+Classify code against the spine. For each authoritative claim in the spine doc(s):
+- Find the canonical code citation (path:line) and emit a `confirms` finding.
+- If the code disagrees with the claim, emit a `drift` finding with both citations.
+- For territory the spine doesn't cover but that you find architecturally significant, emit a `gap` finding.
+
+Do NOT re-document spine territory. The doc is the description; you are the verifier.
 
 [Mode-specific signals to look for from references/mode-<mode>.md]
 
 # Output contract
-Return a YAML block of findings using exactly this shape:
+Return a YAML block using exactly this shape:
 
 [Paste the output contract block from this file]
 
 Notes:
 - callout_id starts at <PREFIX>-1 and increments
 - citation must be repo-relative path:line
-- evidence is the verbatim content of the cited line, no paraphrase
-- For absence claims ("no X", "missing Y") — grep first; do not assert absence without checking
-- Synthesized concepts allowed but justification required (cite ≥2 contributing files in the justification)
+- evidence is verbatim cited line content, no paraphrase
+- Absence claims ("no X handler") — grep first; discard if X exists
+- Drift findings MUST quote both the doc claim and the code reality in `notes`
+- Gap findings MUST justify themselves: why is this worth flagging?
+- Synthesized findings allowed but require ≥2 contributing files in justification
 
 # Verification expectation
-The orchestrator will mechanically verify every citation before any node lands in a diagram. Findings whose citations don't resolve will be discarded. Optimize for accuracy over volume — 20 verified findings beat 50 with half-fabricated citations.
+The orchestrator will mechanically verify every citation. Doc-led runs face the same accuracy bar as enumeration runs — drift and gap findings make it into the prominent (non-collapsed) parts of the final report, so accuracy here directly shapes what readers act on.
 
 # Format reminder
 Return only the YAML block. No prose preamble or postamble.
