@@ -8,12 +8,19 @@ The top-level `docs/release/<date>/README.md`. Indexes all per-mode reports, res
 ---
 date: <YYYY-MM-DD>
 scope: <repo-relative path or "full" or list of paths>
-scope_shape: <compose-only | kube-only | hybrid>
+scope_shape: <compose-only | kube-only | driver-only | compose+kube | driver+compose | driver+kube | all-three>
 modes: [<list of modes included>]
 target_repo: <repo name or path>
 ingested_from: <path to prior arch-analysis README, or "none">
 eve_mcp_used: <true | false | partial>
 ---
+
+<!-- scope_shape values:
+     compose-only / kube-only / driver-only — single shape
+     compose+kube / driver+compose / driver+kube — two shapes (e.g., a driver tool that ships itself via Compose)
+     all-three — driver tool that also ships itself via both Compose and Kube
+     Match the precise combination detected in Phase 1; "hybrid" is too vague. -->
+
 
 # Release Analysis — <YYYY-MM-DD>
 
@@ -82,12 +89,20 @@ If `ingested_from: none`, briefly note what context was missing and how this aff
 
 ## Verification summary
 
-| Mode | Findings | Verified | Discarded | Synthesized | Synthesized share | Eve-mcp citations | File citations |
-|------|----------|----------|-----------|-------------|-------------------|-------------------|----------------|
-| Promotion path | 18 | 17 | 1 | 2 | 11% | 6 | 11 |
-| Environment matrix | 24 | 24 | 0 | 0 | 0% | 18 | 6 |
-| Configuration provenance | 22 | 19 | 3 | 4 | 18% | 4 | 18 |
-| Recovery & rollback | 16 | 15 | 1 | 3 | 19% | 7 | 9 |
+| Mode | Findings | Verified | Drift | Discarded | Synthesized | Synthesized share | Eve-mcp citations | File citations |
+|------|----------|----------|-------|-----------|-------------|-------------------|-------------------|----------------|
+| Promotion path | 18 | 16 | 1 | 1 | 2 | 11% | 6 | 11 |
+| Environment matrix | 24 | 21 | 3 | 0 | 0 | 0% | 18 | 6 |
+| Configuration provenance | 22 | 18 | 1 | 3 | 4 | 18% | 4 | 18 |
+| Recovery & rollback | 16 | 15 | 0 | 1 | 3 | 19% | 7 | 9 |
+
+**Column semantics:**
+- **Verified** — claim resolves and matches the cited source. The standard "this is true" outcome.
+- **Drift** — claim resolves *as a discrepancy*. The finding documents that two sources disagree (doc vs. code, snapshot vs. live state, runbook vs. mechanism); the discrepancy itself is verified, even though one side is wrong. Drift findings are first-class output, not failures.
+- **Discarded** — citation didn't resolve, evidence didn't match, or absence claim was refuted. Listed in per-mode verification log.
+- **Synthesized** — no single owning source; meets the cap of ≤20% per mode.
+
+A finding is counted in exactly one of Verified / Drift / Discarded / Synthesized.
 
 ## Diagrams
 

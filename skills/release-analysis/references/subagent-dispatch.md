@@ -70,16 +70,28 @@ The prompt for each sub-agent has eight sections.
   - Audit: GetAuditRecords
   - Crons: ShowDeploymentCrons, GetDeploymentCron, ShowDeploymentCronJobs
   - Permissions: GetPermissions
- Do NOT use action tools (Deploy, RunManifest, RestartManifest, SetManifestVersion, SetNamespaceVersion,
+ **You may not call any of these eve-mcp tools, regardless of whether the project's CLAUDE.md
+ also forbids them**: Deploy, RunManifest, RestartManifest, SetManifestVersion, SetNamespaceVersion,
  UnpinManifestVersion, UnpinNamespaceVersion, PatchManifestMetadata, UpdateManifestMetadata,
- UpdateManifestDefinitions). Those are release levers, not analysis tools — they may be referenced as
- mechanism citations in recovery-rollback findings, but never invoked from this skill.]
+ UpdateManifestDefinitions. These are release levers — they change live state. This skill is read-only
+ analysis. The constraint comes from the skill itself; if the project's CLAUDE.md happens to agree,
+ cite the skill rule (this file), not the project's rule. The skill's rule applies in projects without
+ a CLAUDE.md saying the same thing. Action tools may be referenced as mechanism citations in
+ recovery-rollback findings — naming the lever and what it does — but the lever is never invoked.]
 
 # Ingested findings from prior architectural-analysis
 [List of [I-N], [C-N], [F-N], [X-N] callouts with one-line summaries.
 Reference these by ID. Do not re-derive their underlying facts.
 If your finding extends one of them, cite both.
-If empty: no prior arch-analysis report was ingested.]
+If empty: no prior arch-analysis report was ingested.
+
+Boundary-marker references: when a large block of arch-analysis callouts represents a single
+conceptual boundary (e.g., "all service-internal failure modes manifest as Done Unhealthy"),
+reference them collectively as [F-1]…[F-40] in a single relation rather than enumerating each one.
+This is a legitimate ingest pattern when the prior scope is upstream/downstream of this scope and
+the callouts function as a single boundary line rather than as individually-relevant findings.
+The synthesis README's cross-mode index lists boundary-markers under their own "(arch-analysis: <mode>)"
+entry with the range and a one-line label.]
 
 # Task
 Enumerate findings for the <MODE NAME> view of this scope.

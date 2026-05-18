@@ -69,15 +69,27 @@ Capture three buckets per doc:
 
 ### Step 4 — Decide status per doc (with the release-specific rule)
 
-Apply this rubric:
+Two distinct status taxonomies operate at different scopes. **Don't conflate them.**
 
-| Status | When to use | Action |
+**Doc-level status** — a verdict on the doc as a whole. Applied per-row in the reconciliation table. Asks "is this doc trustworthy on its surface?":
+
+| Doc-level status | When to use | Action |
 |---|---|---|
-| **In-tree doc supersedes** | Doc covers same surface as a mode but with more accuracy or procedural detail | Cite the doc from the relevant mode report's narrative. The report's findings stand but defer to the doc for "what to read first." |
-| **Report supersedes** | `doc-claim-validator` found contradicted claims; current code or eve-mcp state matches the report's verified findings | Flag for the team — the doc is stale. Note in `docs-reconciliation.md` and (if appropriate) in the relevant mode report's Open Questions. |
+| **In-tree doc supersedes** | Doc covers same surface as a mode with more accuracy or procedural detail | Cite the doc from the relevant mode report's narrative. The report's findings stand but defer to the doc for "what to read first." |
+| **Report supersedes** | Most of the doc's claims are contradicted by current code or eve-mcp state; the doc is broadly stale | Flag for the team. Note in `docs-reconciliation.md`; the relevant mode report's Open Questions can name a doc-rewrite recommendation. |
 | **Complementary** | Doc and report cover overlapping but distinct surface, both correct | Cite the doc as a "see also." |
 | **Adds capability/view** | Doc covers a surface the analysis didn't address (oncall procedures, capacity, customer-facing release notes) | Cite in the synthesis README's Authoritative docs section under "adds capability." |
-| **Drift** | Doc covers same surface, neither is fully correct, neither is clearly authoritative | Highest-value finding. Flag explicitly with both citations and the contradiction. |
+
+**Finding-level status** — applied per individual claim during sub-agent enumeration and verification. Distinct from doc-level. A doc can be "In-tree doc supersedes" overall while still containing one or two individual drifted claims. Asks "is this specific claim true?":
+
+| Finding-level status | When to use | Where it lives |
+|---|---|---|
+| **verified** | Claim resolves and matches the cited source | Mode report callouts table (status column) |
+| **drift** | Claim resolves *as a discrepancy* (doc says X, code says Y) | Mode report callouts table (status=drift) and Verification log Drift findings section |
+| **synthesized** | No single owning source, ≥2 contributing files | Mode report callouts (status=synthesized) and Synthesized concepts section |
+| **discarded** | Citation didn't resolve, evidence didn't match, absence claim was refuted | Verification log only — not in callouts table |
+
+Most reports have **In-tree doc supersedes** at the doc level for several runbooks, *and* a handful of **drift** at the finding level inside those same docs. Both are normal. The reconciliation table records doc-level; per-mode reports record finding-level; the synthesis README's verification summary aggregates finding-level counts.
 
 ### Release-specific reconciliation rule
 

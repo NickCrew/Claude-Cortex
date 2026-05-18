@@ -11,10 +11,11 @@ Six sections. Order matters — front-loaded so a reader who only skims the firs
 mode: <promotion-path | environment-matrix | configuration-provenance | recovery-rollback>
 date: <YYYY-MM-DD>
 scope: <repo-relative path or "full" or list of paths>
-scope_shape: <compose-only | kube-only | hybrid>
+scope_shape: <compose-only | kube-only | driver-only | compose+kube | driver+compose | driver+kube | all-three>
 diagram: <primary diagram filename, e.g., promotion.mmd>
 secondary_diagrams: [<list of optional secondaries>]
 synthesized_share: <0.00–1.00>
+drift_count: <integer — number of findings classified as drift in this mode>
 ingested_from: <path to prior arch-analysis README, or "none">
 ---
 
@@ -26,9 +27,16 @@ ingested_from: <path to prior arch-analysis README, or "none">
 
 ## Callouts
 
-| ID | Label | Citation | Confidence |
-|----|-------|----------|------------|
-| <ID> | <label> | <path:line or eve-mcp:tool:query or "—"> | <high \| medium \| synthesized> |
+| ID | Label | Citation | Status |
+|----|-------|----------|--------|
+| <ID> | <label> | <path:line or eve-mcp:tool:query or "—"> | <verified \| drift \| synthesized> |
+
+**Status semantics:**
+- **verified** — claim resolves and matches the cited source.
+- **drift** — claim resolves *as a discrepancy*: two sources disagree (doc vs. code, snapshot vs. live state, runbook vs. mechanism). The discrepancy itself is verified. Drift findings are first-class output. List both sides of the disagreement in the row's evidence or in the Narrative.
+- **synthesized** — no single owning source. Cell shows `—` in citation column; justification in the Synthesized concepts section.
+
+Findings that fail to resolve are not listed here; they appear in the Verification log under "Discarded findings."
 
 Cross-skill references (callouts ingested from prior architectural-analysis):
 
@@ -55,6 +63,12 @@ Cross-skill references (callouts ingested from prior architectural-analysis):
 ## Verification log
 
 <Always present. Empty logs are suspicious.>
+
+### Drift findings
+
+<Per-mode list of drift findings (status=drift in the callouts table). Each names both sides of the discrepancy.>
+
+- [<callout-id>] `<label>` — Side A: <claim, citation>; Side B: <conflicting claim, citation>. Resolution: <which side is right, or "ambiguous, surface to team">.
 
 ### Discarded findings
 
@@ -85,10 +99,11 @@ Cross-skill references (callouts ingested from prior architectural-analysis):
 - `mode` — canonical mode slug (matches directory name).
 - `date` — `YYYY-MM-DD` of the report.
 - `scope` — what was analyzed.
-- `scope_shape` — `compose-only`, `kube-only`, or `hybrid`. Determines which signals applied.
+- `scope_shape` — precise shape combination from Phase 1 detection: `compose-only`, `kube-only`, `driver-only`, `compose+kube`, `driver+compose`, `driver+kube`, or `all-three`. Determines which signal sets applied. Avoid the older `hybrid` value — name the combination.
 - `diagram` — primary mermaid filename.
 - `secondary_diagrams` — list of additional `.mmd` files.
 - `synthesized_share` — actual ratio of synthesized to total nodes.
+- `drift_count` — number of findings classified as drift in this mode. Surfaces in the synthesis README's verification summary table.
 - `ingested_from` — path to prior arch-analysis README if Phase 0 ingested, else "none".
 
 ## Authoring rules
