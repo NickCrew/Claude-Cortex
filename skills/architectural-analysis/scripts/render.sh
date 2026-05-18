@@ -119,10 +119,30 @@ render_one() {
 
   if mmdc "${mmdc_args[@]}" 2>&1; then
     rendered=$((rendered + 1))
+    # Mermaid's ER renderer derives row backgrounds from `primaryColor`
+    # by clamping HSL lightness, ignoring `attributeBackgroundColor*`
+    # tokens. For dark-theme SVGs that produces a white "odd" row that
+    # makes ER attribute text unreadable. Patch by injecting a dark
+    # row-rect override into the SVG's <style> block.
+    if [[ "$out" == *-dark.svg ]] && grep -q 'row-rect-odd' "$out" 2>/dev/null; then
+      patch_svg_dark_er_rows "$out"
+    fi
   else
     echo "  failed: $mmd → $out" >&2
     failed=$((failed + 1))
   fi
+}
+
+# Inject CSS into a dark-variant SVG so ER attribute rows use dark fills
+# instead of mermaid's auto-derived (often white) HSL clamp. Idempotent.
+patch_svg_dark_er_rows() {
+  local svg="$1"
+  if grep -q '\.row-rect-odd path' "$svg"; then
+    return 0  # already patched
+  fi
+  local css='#my-svg .row-rect-odd path,#my-svg .row-rect-odd > path:first-of-type{fill:#1c2438 !important;}#my-svg .row-rect-even path,#my-svg .row-rect-even > path:first-of-type{fill:#0f1421 !important;}'
+  # Insert just before the closing </style> of the first style block.
+  sed -i.bak "s|</style>|${css}</style>|" "$svg" 2>/dev/null && rm -f "$svg.bak"
 }
 
 # Render targets: themed SVGs (one per theme), one neutral PNG (light theme,
