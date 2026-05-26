@@ -1,0 +1,544 @@
+/* ============================================================================
+   architectural-analysis — corporate style
+
+   Modern SaaS doc aesthetic (Stripe / Linear). Inter throughout, generous
+   whitespace, soft shadows, single deep-blue accent, card-based sections,
+   conservative table styling. Reads like a product doc.
+
+   Theme switching: [data-theme="light"] (default) or [data-theme="dark"]
+   on <html>.
+   ============================================================================ */
+
+:root[data-theme="light"],
+:root:not([data-theme]) {
+  --bg-app: #f7f8fa;
+  --bg-app-tint: #ffffff;
+  --bg-card: #ffffff;
+  --bg-soft: #f3f4f7;
+  --bg-elev: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: #dbeafe;
+  --accent-muted: rgba(37, 99, 235, 0.16);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-faint: #94a3b8;
+  --code-bg: #f1f5f9;
+  --code-text: #0f172a;
+  --warning: #b45309;
+  --warning-bg: #fffbeb;
+  --danger: #b91c1c;
+  --danger-bg: #fef2f2;
+  --ok: #047857;
+  --ok-bg: #ecfdf5;
+  --plate-bg: #ffffff;
+  --plate-border: #e5e7eb;
+  --plate-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.08);
+  --plate-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 16px 36px rgba(15, 23, 42, 0.12);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="dark"] {
+  --bg-app: #0a0e17;
+  --bg-app-tint: #0f1421;
+  --bg-card: #131a2a;
+  --bg-soft: #182033;
+  --bg-elev: #1c2438;
+  --border: rgba(148, 163, 184, 0.16);
+  --border-strong: rgba(148, 163, 184, 0.32);
+  --accent: #60a5fa;
+  --accent-strong: #93c5fd;
+  --accent-soft: rgba(96, 165, 250, 0.14);
+  --accent-muted: rgba(96, 165, 250, 0.22);
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --code-bg: #0f1421;
+  --code-text: #cbd5e1;
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.08);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.08);
+  --ok: #34d399;
+  --ok-bg: rgba(52, 211, 153, 0.08);
+  --plate-bg: #131a2a;
+  --plate-border: rgba(148, 163, 184, 0.22);
+  --plate-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --plate-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg-app);
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Banner */
+.banner {
+  width: 100%;
+  margin: 0; padding: 0;
+  background: var(--bg-app-tint);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.banner img {
+  display: block;
+  width: 100%; height: auto;
+  max-height: 280px;
+  object-fit: cover; object-position: center;
+}
+
+/* Layout shell */
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 3vw, 3rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1080px) {
+  .shell { grid-template-columns: 192px minmax(0, 1fr); align-items: start; }
+}
+
+/* Theme toggle */
+.theme-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
+  padding: 0.5rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.theme-toggle:hover {
+  background: var(--bg-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Report meta header */
+.report-meta {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 2rem 2.2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.report-meta h1 {
+  margin: 0 0 0.5rem;
+  font-family: inherit;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.15;
+}
+.report-meta .subtitle { margin: 0; color: var(--text-muted); font-size: 1rem; }
+.report-meta .meta-row {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-top: 1.2rem;
+  font-size: 0.78rem;
+}
+.report-meta .meta-pill {
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* TOC sidebar — narrow rail with two visual tiers (h1 mode titles
+   are accented, h2 children are quiet). */
+nav#TOC, nav.toc {
+  position: sticky;
+  top: 1.5rem;
+  align-self: start;
+  padding: 1rem 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+nav#TOC > ul, nav.toc > ul { list-style: none; margin: 0; padding: 0; }
+/* Top-level entries (mode titles, README sections) — slightly bolder. */
+nav#TOC > ul > li > a, nav.toc > ul > li > a {
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+nav#TOC ul ul, nav.toc ul ul {
+  list-style: none;
+  margin: 0.18rem 0 0.5rem 0;
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--border);
+  font-size: 0.74rem;
+}
+nav#TOC ul ul > li > a, nav.toc ul ul > li > a {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+nav#TOC li, nav.toc li { margin: 0.12rem 0; }
+nav#TOC a, nav.toc a {
+  text-decoration: none;
+  display: block;
+  padding: 0.22rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+nav#TOC a:hover, nav.toc a:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+nav#TOC > ul > li:not(:first-child),
+nav.toc > ul > li:not(:first-child) {
+  margin-top: 0.6rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--border);
+}
+@media (max-width: 1079px) {
+  nav#TOC, nav.toc { position: static; max-height: none; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 1.2rem; }
+}
+
+/* Main */
+main {
+  min-width: 0;
+  padding: 2.4rem 2.6rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+@media (max-width: 720px) {
+  main { padding: 1.6rem 1.4rem; }
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  font-weight: 600;
+}
+main > h1 {
+  font-size: 1.85rem;
+  margin: 0 0 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+main h2 {
+  font-size: 1.4rem;
+  margin-top: 3rem;
+  padding-top: 1.6rem;
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+}
+main h3 { font-size: 1.1rem; margin-top: 2rem; color: var(--text); font-weight: 600; }
+main h4 {
+  margin-top: 1.4rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Body */
+p { color: var(--text); margin: 1rem 0; }
+main > p:first-of-type, main > h1 + p {
+  font-size: 1.08rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+ul, ol { color: var(--text); padding-left: 1.4rem; }
+li { margin: 0.4rem 0; }
+li::marker { color: var(--text-faint); }
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+a:hover, a:focus {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Code */
+code {
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, Consolas, monospace;
+  font-size: 0.875em;
+  padding: 0.13em 0.42em;
+  border-radius: 4px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border: 1px solid var(--border);
+}
+pre {
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.3rem;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+pre code { padding: 0; background: transparent; border: none; color: var(--code-text); font-size: inherit; }
+
+/* Blockquote */
+blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.3rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+}
+blockquote p { margin: 0.4rem 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.6rem 0; }
+
+/* Tables — clean Stripe/Linear style. Pandoc emits bare <table>; we wrap it
+   in a scroll container via the table-wrapper rule below for narrow viewports
+   and for tables with long path-like cells. */
+table {
+  width: 100%;
+  margin: 1.6rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.92rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  table-layout: auto;
+}
+
+/* When a table is the direct child of <main> or a <details>, give it a
+   horizontally-scrollable wrapper if the content overflows. The display:block
+   trick on the table itself converts it into a scrolling container at the
+   cost of losing some semantic table layout — acceptable for our content. */
+main > table,
+details > table,
+details > *:not(summary) > table,
+details > p > table {
+  display: block;
+  overflow-x: auto;
+  white-space: normal;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Allow long path-like values in <code> to wrap on hyphens, slashes, and
+   underscores so the doc spine table doesn't push wider than the page. */
+td code,
+td a code {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+th, td {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: var(--bg-soft);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-strong);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg-soft); }
+td { color: var(--text); }
+td code { font-size: 0.84em; }
+
+/* Citation column (3rd, when not first): monospace + accent. */
+table td:nth-child(3):not(:first-child) {
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 0.82em;
+  color: var(--accent);
+}
+/* Callout id column (1st): monospace. */
+table td:first-child {
+  font-family: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
+/* Diagram plates */
+figure, .figure {
+  margin: 2rem 0;
+  padding: 1.4rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  text-align: center;
+}
+figure img, figure svg, img { max-width: 100%; height: auto; border-radius: 6px; }
+figcaption { margin-top: 0.9rem; font-size: 0.85rem; color: var(--text-faint); }
+
+/* Diagram pair container (light + dark variants both inside <span>). */
+.diagram-pair { display: block; max-width: 100%; }
+
+main img.diagram-light, main img.diagram-dark, main svg {
+  width: 100%;
+  height: auto;
+  background: var(--plate-bg);
+  padding: 1.5rem 1.3rem;
+  border-radius: 10px;
+  border: 1px solid var(--plate-border);
+  box-shadow: var(--plate-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: zoom-in;
+}
+main img.diagram-light:hover, main img.diagram-dark:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--plate-shadow-hover);
+}
+
+/* Per-mode accent strip — kept subtle in corporate style */
+main h1.mode-information::after,
+main h1.mode-data-flow::after,
+main h1.mode-data-model::after,
+main h1.mode-integrations::after,
+main h1.mode-ui-surfaces::after,
+main h1.mode-interaction-patterns::after,
+main h1.mode-control-flow::after,
+main h1.mode-failure-modes::after {
+  content: ""; display: block;
+  width: 60px; height: 3px;
+  margin-top: 0.7rem; border-radius: 2px;
+}
+main h1.mode-information::after        { background: #6366f1; }
+main h1.mode-data-flow::after          { background: #0ea5e9; }
+main h1.mode-data-model::after         { background: #db2777; }
+main h1.mode-integrations::after       { background: #059669; }
+main h1.mode-ui-surfaces::after        { background: #d97706; }
+main h1.mode-interaction-patterns::after { background: #ea580c; }
+main h1.mode-control-flow::after       { background: #0891b2; }
+main h1.mode-failure-modes::after      { background: #dc2626; }
+
+/* Collapsible "receipts" sections — Callouts, Verification log, etc.
+   Collapsed by default; expanded on click. The summary becomes the
+   visible heading; an h2 inside is suppressed (the summary is the
+   heading now). */
+details.receipts {
+  margin: 2rem 0 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+details.receipts > summary {
+  padding: 0.85rem 1.2rem;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+details.receipts > summary::-webkit-details-marker { display: none; }
+details.receipts > summary::after {
+  content: "+";
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: transform 0.18s ease;
+}
+details.receipts[open] > summary::after { content: "−"; }
+details.receipts > summary:hover { background: var(--accent-soft); }
+details.receipts[open] > summary {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+details.receipts > *:not(summary) {
+  margin-left: 1.2rem;
+  margin-right: 1.2rem;
+}
+details.receipts > *:first-of-type:not(summary) { margin-top: 1rem; }
+details.receipts > *:last-child { margin-bottom: 1.2rem; }
+
+/* Semantic blocks */
+.note, .warning, .danger, .ok {
+  margin: 1.4rem 0;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+.note { background: var(--accent-soft); border-left-color: var(--accent); }
+.warning { background: var(--warning-bg); border-left-color: var(--warning); color: var(--warning); }
+.danger { background: var(--danger-bg); border-left-color: var(--danger); color: var(--danger); }
+.ok { background: var(--ok-bg); border-left-color: var(--ok); color: var(--ok); }
+
+/* Footer */
+.report-footer {
+  grid-column: 1 / -1;
+  margin: 2rem 0 0;
+  padding: 1.4rem 1.6rem;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.report-footer a { color: var(--accent); }
+
+/* Print */
+@media print {
+  body { background: white; color: #111; }
+  main { background: white; color: #111; box-shadow: none; }
+  nav#TOC, nav.toc, .theme-toggle { display: none; }
+  .banner { page-break-after: avoid; }
+  table { box-shadow: none; }
+  table, th, td { background: white !important; color: #111 !important; border-color: #ccc !important; }
+  pre, code { background: #f4f4f4 !important; color: #222 !important; border-color: #ccc !important; }
+  a { color: #1d4ed8 !important; }
+}
