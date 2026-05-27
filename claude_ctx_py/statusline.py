@@ -612,7 +612,7 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     )
     if os.environ.get("CLAUDE_CODE_USE_BEDROCK"):
         cost_val = data.cost_usd * 1.25
-        cost = f"{C.GRE}~${cost_val:.2f}{C.NC}"
+        cost = f"{C.GRE}~${cost_val:.2f} {C.WHI}(b5k){C.NC}"
     else:
         cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
     line2_parts.extend([changes, cost])
