@@ -622,11 +622,14 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     if rate_parts:
         lines.append(sep.join(rate_parts))
 
-    model_parts = [f"{C.B_BLU}{icons.get('model', '')} {data.model}{C.NC}"]
+    _effort_abbrev = {"low": "L", "medium": "M", "high": "H", "xhigh": "X", "max": "M"}
+    model_suffix = ""
     if data.effort_level:
-        model_parts.append(f"{C.B_MAG}{data.effort_level}{C.NC}")
+        model_suffix += f"({_effort_abbrev.get(data.effort_level, data.effort_level)})"
     if data.thinking_enabled:
-        model_parts.append(f"{C.B_CYA}thinking{C.NC}")
+        model_suffix += "🧠"
+    model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
+    model_parts = [model_segment]
     model_parts.append(f"{C.WHI}{icons.get('time', '◷')} {data.session_time}{C.NC}")
     model_parts.append(data.version)
     lines.append(sep.join(model_parts))
