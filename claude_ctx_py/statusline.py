@@ -623,9 +623,12 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         lines.append(sep.join(rate_parts))
 
     _effort_abbrev = {"low": "L", "medium": "M", "high": "H", "xhigh": "X", "max": "M"}
+    _effort_color = {"low": C.WHI, "medium": C.B_GRE, "high": C.B_YEL, "xhigh": C.B_MAG, "max": C.B_RED}
     model_suffix = ""
     if data.effort_level:
-        model_suffix += f"({_effort_abbrev.get(data.effort_level, data.effort_level)})"
+        abbrev = _effort_abbrev.get(data.effort_level, data.effort_level)
+        color = _effort_color.get(data.effort_level, C.WHI)
+        model_suffix = f"{color}({abbrev}){C.B_BLU}"
     if data.thinking_enabled:
         model_suffix += "🧠"
     model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
