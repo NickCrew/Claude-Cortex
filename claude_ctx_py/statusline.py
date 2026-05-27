@@ -642,7 +642,7 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
     model_parts = [model_segment]
     if data.output_style and data.output_style != "default":
-        model_parts.append(f"{C.WHI}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}")
+        model_parts.append(f"{C.B_MAG}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}")
     if data.agent_name:
         model_parts.append(f"{C.B_CYA}{data.agent_name}{C.NC}")
     model_parts.append(data.version)
