@@ -141,6 +141,7 @@ DEFAULT_CONFIG: ConfigDict = {
         "tag": "",
         "time": "◷",
         "cache": "↻",
+        "output_style": "󰏒",
     },
 }
 
@@ -607,7 +608,9 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
     cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
-    duration = f"{C.WHI}{icons.get('time', '◷')} {data.session_time}{C.NC}"
+    _dur_h, _dur_m = map(int, data.session_time.split(":"))
+    _dur_color = C.B_RED if _dur_h >= 4 else C.B_YEL if _dur_h >= 1 else C.B_GRE
+    duration = f"{_dur_color}{icons.get('time', '◷')} {data.session_time}{C.NC}"
     line2_parts.extend([changes, cost, duration])
     lines.append(sep.join(line2_parts))
 
@@ -639,7 +642,7 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
     model_parts = [model_segment]
     if data.output_style and data.output_style != "default":
-        model_parts.append(f"{C.WHI}{data.output_style}{C.NC}")
+        model_parts.append(f"{C.WHI}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}")
     if data.agent_name:
         model_parts.append(f"{C.B_CYA}{data.agent_name}{C.NC}")
     model_parts.append(data.version)
