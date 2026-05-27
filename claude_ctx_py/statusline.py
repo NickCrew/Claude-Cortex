@@ -610,7 +610,11 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         f"{C.B_GRE}{icons.get('added', '')} {data.lines_added} "
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
-    cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
+    if os.environ.get("CLAUDE_CODE_USE_BEDROCK"):
+        cost_val = data.cost_usd * 1.25
+        cost = f"{C.GRE}~${cost_val:.2f}{C.NC}"
+    else:
+        cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
     line2_parts.extend([changes, cost])
     lines.append(sep.join(line2_parts))
 
