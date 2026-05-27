@@ -588,7 +588,10 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     else:
         ctx_display = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}{over_200k_flag}"
 
-    line2_parts = [ctx_display]
+    _dur_h, _dur_m = map(int, data.session_time.split(":"))
+    _dur_color = C.B_RED if _dur_h >= 4 else C.B_YEL if _dur_h >= 1 else C.B_GRE
+    duration = f"{_dur_color}{icons.get('time', '◷')} {data.session_time}{C.NC}"
+    line2_parts = [ctx_display, duration]
 
     cache_total = data.cache_read_tokens + data.cache_creation_tokens
     if cache_total > 0 and data.current_input_tokens > 0:
@@ -608,10 +611,7 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
     cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
-    _dur_h, _dur_m = map(int, data.session_time.split(":"))
-    _dur_color = C.B_RED if _dur_h >= 4 else C.B_YEL if _dur_h >= 1 else C.B_GRE
-    duration = f"{_dur_color}{icons.get('time', '◷')} {data.session_time}{C.NC}"
-    line2_parts.extend([changes, cost, duration])
+    line2_parts.extend([changes, cost])
     lines.append(sep.join(line2_parts))
 
     rate_parts = []
