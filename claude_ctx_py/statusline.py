@@ -547,6 +547,9 @@ class StatusData:
     seven_day_resets_at: int | None = None
     effort_level: str = ""
     thinking_enabled: bool = False
+    exceeds_200k: bool = False
+    output_style: str = ""
+    agent_name: str = ""
 
 
 # =========================================================================
@@ -574,14 +577,15 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
             line1.append(ctx)
     lines.append(sep.join(line1))
 
+    over_200k_flag = f" {C.B_RED}⚠{C.NC}" if data.exceeds_200k else ""
     if data.context_window_size and data.current_input_tokens:
         ctx_display = (
             f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}% "
             f"{C.WHI}({_fmt_tokens(data.current_input_tokens)}"
-            f"/{_fmt_tokens(data.context_window_size)}){C.NC}"
+            f"/{_fmt_tokens(data.context_window_size)}){C.NC}{over_200k_flag}"
         )
     else:
-        ctx_display = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}"
+        ctx_display = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}{over_200k_flag}"
 
     line2_parts = [ctx_display]
 
@@ -603,7 +607,8 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
     cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
-    line2_parts.extend([changes, cost])
+    duration = f"{C.WHI}{icons.get('time', '◷')} {data.session_time}{C.NC}"
+    line2_parts.extend([changes, cost, duration])
     lines.append(sep.join(line2_parts))
 
     rate_parts = []
@@ -633,7 +638,10 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         model_suffix += "🧠"
     model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
     model_parts = [model_segment]
-    model_parts.append(f"{C.WHI}{icons.get('time', '◷')} {data.session_time}{C.NC}")
+    if data.output_style and data.output_style != "default":
+        model_parts.append(f"{C.WHI}{data.output_style}{C.NC}")
+    if data.agent_name:
+        model_parts.append(f"{C.B_CYA}{data.agent_name}{C.NC}")
     model_parts.append(data.version)
     lines.append(sep.join(model_parts))
 
@@ -837,6 +845,9 @@ def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> Statu
         version=get_claude_version(),
         effort_level=claude_data.get("effort", {}).get("level", ""),
         thinking_enabled=bool(claude_data.get("thinking", {}).get("enabled", False)),
+        exceeds_200k=bool(claude_data.get("exceeds_200k_tokens", False)),
+        output_style=claude_data.get("output_style", {}).get("name", ""),
+        agent_name=claude_data.get("agent", {}).get("name", ""),
         five_hour_remaining=five_hour_remaining,
         seven_day_remaining=seven_day_remaining,
         five_hour_resets_at=five_hour_resets_at,
