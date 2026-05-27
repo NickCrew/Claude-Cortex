@@ -545,6 +545,8 @@ class StatusData:
     seven_day_remaining: float | None = None
     five_hour_resets_at: int | None = None
     seven_day_resets_at: int | None = None
+    effort_level: str = ""
+    thinking_enabled: bool = False
 
 
 # =========================================================================
@@ -620,8 +622,14 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     if rate_parts:
         lines.append(sep.join(rate_parts))
 
-    model = f"{C.B_BLU}{icons.get('model', '')} {data.model}{C.NC}"
-    lines.append(sep.join([model, data.version]))
+    model_parts = [f"{C.B_BLU}{icons.get('model', '')} {data.model}{C.NC}"]
+    if data.effort_level:
+        model_parts.append(f"{C.B_MAG}{data.effort_level}{C.NC}")
+    if data.thinking_enabled:
+        model_parts.append(f"{C.B_CYA}thinking{C.NC}")
+    model_parts.append(f"{C.WHI}{icons.get('time', '◷')} {data.session_time}{C.NC}")
+    model_parts.append(data.version)
+    lines.append(sep.join(model_parts))
 
     return "\n".join(lines)
 
@@ -693,6 +701,8 @@ def format_json(data: StatusData, _config: ConfigDict) -> str:
             "seven_day_remaining": data.seven_day_remaining,
             "five_hour_resets_at": data.five_hour_resets_at,
             "seven_day_resets_at": data.seven_day_resets_at,
+            "effort_level": data.effort_level,
+            "thinking_enabled": data.thinking_enabled,
         },
         indent=2,
     )
@@ -816,9 +826,11 @@ def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> Statu
         lines_added=cost.get("total_lines_added", 0),
         lines_removed=cost.get("total_lines_removed", 0),
         cost_usd=cost.get("total_cost_usd", 0.0),
-        session_time=ms_to_hhmmss(claude_data.get("session_duration_ms", 0)),
+        session_time=ms_to_hhmmss(claude_data.get("cost", {}).get("total_duration_ms", 0)),
         model=claude_data.get("model", {}).get("display_name", ""),
         version=get_claude_version(),
+        effort_level=claude_data.get("effort", {}).get("level", ""),
+        thinking_enabled=bool(claude_data.get("thinking", {}).get("enabled", False)),
         five_hour_remaining=five_hour_remaining,
         seven_day_remaining=seven_day_remaining,
         five_hour_resets_at=five_hour_resets_at,
