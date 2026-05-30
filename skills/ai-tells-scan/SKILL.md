@@ -1,6 +1,24 @@
 ---
 name: ai-tells-scan
-description: Fast mechanical scan for surface-level AI tells in prose artifacts — banned tokens, punctuation patterns, and stock vocabulary that mark text as machine-generated. Auto-engages on writing tasks (READMEs, technical docs, PR descriptions, tutorials, guides, blog posts, release notes, any prose-as-artifact work). Runs as a near-checklist pass before output is presented; catches the obvious tells that generation-time instructions miss. For the slower judgment-based pass on rhythm, structure, and rhetorical reflexes, use ai-tells-review. Not a replacement for voice skills (nick-voice) — this subtracts machine fingerprints, it doesn't add a target voice.
+description: "Use when writing tasks produce prose artifacts (READMEs, docs, PR text, tutorials, guides, posts, release notes) and need a fast surface scan for AI tells. Auto-engages on prose writing tasks; checks banned punctuation, stock vocabulary, and mechanical patterns. For the structural judgment pass on rhythm and rhetorical reflexes, use ai-tells-review. Not a replacement for voice skills like nick-voice; this removes machine fingerprints, it does not add a target voice."
+tags:
+  - writing
+  - editing
+  - prose
+  - documentation
+  - ai-tells
+triggers:
+  - scan for AI tells
+  - remove AI tells
+  - check prose for AI fingerprints
+  - clean generated prose
+  - quick AI tell scan
+keywords:
+  - AI fingerprints
+  - generated prose
+  - prose scan
+  - banned vocabulary
+  - punctuation
 ---
 
 # AI Tells — Surface Scan

@@ -1,6 +1,26 @@
 ---
 name: ai-tells-review
-description: User-invoked structural review for subtle AI tells in prose artifacts — rhythm patterns, rhetorical reflexes, hedging cadence, performative emphasis, and the structural shapes that mark text as machine-generated even after surface tells are cleaned up. Produces a findings report citing each tell by line with a fix-direction, then offers a rewrite pass. Use on artifacts that matter: public READMEs, shipped documentation, blog posts, anything where prose-as-artifact is the deliverable. Layers on top of ai-tells-scan, which handles the mechanical surface pass; this skill handles the judgment-based structural pass that a regex can't catch. Trigger on "review for AI tells," "does this read AI," "strip the AI smell," "make this less AI," or any similar request whose deliverable is structural prose surgery.
+description: "Use when public prose still sounds machine-written after ai-tells-scan. Complements ai-tells-scan's mechanical pass with structural judgment: rhythm, hedging, rhetorical reflexes, and performative emphasis. Trigger on 'review for AI tells,' 'does this read AI,' 'strip the AI smell,' or 'make this less AI.'"
+tags:
+  - writing
+  - editing
+  - prose
+  - documentation
+  - ai-tells
+  - review
+triggers:
+  - review for AI tells
+  - does this read AI
+  - strip the AI smell
+  - still reads AI after scan
+  - structural prose review
+  - rewrite AI-sounding prose
+keywords:
+  - AI smell
+  - structural review
+  - prose rhythm
+  - rhetorical reflexes
+  - hedging
 ---
 
 # AI Tells — Structural Review
