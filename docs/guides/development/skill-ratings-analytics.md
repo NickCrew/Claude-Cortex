@@ -432,7 +432,6 @@ rules:
 
 ## Related Features
 
-- **[Skill Composition & Versioning](skill-composition-versioning.html)** — Building modular skills
 - **[AI Intelligence Guide](AI_INTELLIGENCE_GUIDE.html)** — Complete AI system
 - **[Skills Guide](../skills.html)** — Skill system overview
 

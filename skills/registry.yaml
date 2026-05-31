@@ -1,11 +1,11 @@
-# Unified Skills Registry
-# Consolidates activation, versioning, composition, and metadata for all skills
+# Skills Registry
+# Catalog metadata for bundled and community skills
 #
 # Schema: registry.schema.json
 # Authors: authors.yaml
 #
-# This file is the single source of truth for skill discovery, activation, and dependencies.
-# Legacy files (activation.yaml, versions.yaml, composition.yaml) remain for backward compatibility.
+# This file is the single source of truth for skill catalog metadata.
+# Runtime suggestion matching uses the generated skill-index.json.
 
 schema_version: "1.0.0"
 last_updated: "2026-03-13"

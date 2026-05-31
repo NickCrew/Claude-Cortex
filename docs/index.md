@@ -795,16 +795,6 @@ Comprehensive guides to cortex architecture, optimization strategies, and advanc
     </div>
   </a>
 
-  <a href="guides/development/quality-improvements.html" class="doc-card">
-    <h3>Quality & DevOps</h3>
-    <p>Testing infrastructure with 150+ tests, code refactoring, error handling improvements, installation automation, and CI/CD pipeline. Grade improved from B+ to A.</p>
-    <span class="doc-card__arrow">→</span>
-    <div class="doc-card__meta">
-      <span>Production ready</span>
-      <span>95/100 score</span>
-    </div>
-  </a>
-
   <a href="guides/memory.html" class="doc-card">
     <h3>Memory Vault ℹ</h3>
     <p>Persistent knowledge storage for Claude Code sessions. Capture domain knowledge, project context, session summaries, and bug fixes in Markdown format with TUI integration.</p>
@@ -1130,7 +1120,6 @@ The plugin integrates with Model Context Protocol servers for enhanced capabilit
 - [Super Saiyan Integration](guides/features/SUPER_SAIYAN_INTEGRATION.html) - Integration guide
 - [Parallel Orchestration](guides/development/PARALLEL_ORCHESTRATION_GUIDE.html) - Multi-agent coordination
 - [Parallel Workflow Enforcer](guides/development/PARALLEL_WORKFLOW_ENFORCER.html) - Strict parallel execution hook
-- [Quality Improvements](guides/development/quality-improvements.html) - Code quality enhancements
 
 ### External Resources
 

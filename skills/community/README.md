@@ -301,7 +301,7 @@ A: Evaluate if yours provides unique value. Consider contributing improvements t
 
 ### Q: Can I contribute multiple related skills?
 
-A: Yes! Consider skill composition - one skill can reference others. See `skills/composition.yaml` for examples.
+A: Yes. Declare dependencies in the main skill registry entry for each skill that requires another skill.
 
 ### Q: How do I update my skill after it's merged?
 

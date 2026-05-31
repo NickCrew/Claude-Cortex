@@ -88,10 +88,8 @@ from ..core import (
     skill_metrics,
     skill_metrics_reset,
     skill_info,
-    skill_versions,
     skill_deps,
     skill_agents,
-    skill_compose,
     skill_analyze,
     skill_suggest,
     skill_report,
@@ -420,6 +418,7 @@ class AgentTUI(App[None]):
         Binding("D", "context_delete", "Delete/Diagnose", show=False),
         Binding("L", "task_open_source", "Open Log", show=False),
         Binding("O", "task_open_external", "Open File", show=False),
+        Binding("enter", "view_item", "View", show=False),
         # Asset Browser bindings
         Binding("i", "asset_install", "Copy", show=False),
         Binding("u", "asset_uninstall", "Remove", show=False),
@@ -428,19 +427,14 @@ class AgentTUI(App[None]):
         Binding("I", "asset_bulk_install", "Bulk Copy", show=False),
         Binding("U", "asset_update_all", "Update All", show=False),
         Binding("H", "asset_toggle_hidden", "Show/Hide All", show=False),
-        Binding("enter", "view_item", "View", show=False),
         # Memory Vault bindings
-        Binding("enter", "view_item", "View", show=False),
         Binding("N", "memory_new_note", "New Note", show=False),
         Binding("O", "memory_open_note", "Open", show=False),
         # Settings View bindings
         Binding("i", "setting_install", "Install Setting", show=False),
         Binding("u", "setting_uninstall", "Uninstall Setting", show=False),
         Binding("U", "setting_update_all", "Sync All Settings", show=False),
-        Binding("enter", "view_item", "View", show=False),
         Binding("ctrl+e", "setting_edit_file", "Edit Setting", show=False),
-        # Agent bindings
-        Binding("enter", "view_item", "View", show=False),
         # Hooks Manager
         Binding("h", "hooks_manager", "Manage Hooks", show=False),
         # Backup Manager
@@ -5845,13 +5839,6 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Hooks"
         self.notify("🪝 Hooks", severity="information", timeout=1)
 
-    def action_agent_view(self) -> None:
-        """View the selected agent's definition (Enter key in agents view)."""
-        if self.current_view != "agents":
-            return
-        # Delegate to the existing details context action
-        self.run_worker(self._show_selected_agent_definition(), exclusive=True)
-
     async def action_view_item(self) -> None:
         """View the selected item for the current table."""
         if self.current_view == "assets":
@@ -5874,16 +5861,6 @@ class AgentTUI(App[None]):
             success=f"Loaded info for {slug}",
         )
 
-    async def action_skill_versions(self) -> None:
-        slug = await self._get_skill_slug("Skill Versions")
-        if not slug:
-            return
-        await self._handle_skill_result(
-            skill_versions,
-            args=[slug],
-            title=f"Skill Versions · {slug}",
-        )
-
     async def action_skill_deps(self) -> None:
         slug = await self._get_skill_slug("Skill Dependencies")
         if not slug:
@@ -5902,16 +5879,6 @@ class AgentTUI(App[None]):
             skill_agents,
             args=[slug],
             title=f"Skill Agents · {slug}",
-        )
-
-    async def action_skill_compose(self) -> None:
-        slug = await self._get_skill_slug("Skill Compose")
-        if not slug:
-            return
-        await self._handle_skill_result(
-            skill_compose,
-            args=[slug],
-            title=f"Skill Compose · {slug}",
         )
 
     async def action_skill_analyze(self) -> None:
@@ -6489,6 +6456,8 @@ class AgentTUI(App[None]):
                 )
                 return
             skill_path = Path(skill_path_value)
+            if skill_path.is_dir():
+                skill_path = skill_path / "SKILL.md"
             definition = await asyncio.to_thread(
                 skill_path.read_text, encoding="utf-8"
             )

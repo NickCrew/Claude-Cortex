@@ -126,7 +126,6 @@ from .agents import (
 from .skills import (
     list_skills,
     skill_info,
-    skill_versions,
     skill_validate,
     skill_analyze,
     skill_rebuild_index,
@@ -138,7 +137,6 @@ from .skills import (
     skill_analytics,
     skill_report,
     skill_trending,
-    skill_compose,
     skill_context,
     skill_recommend,
     skill_feedback,
@@ -372,7 +370,6 @@ __all__ = [
     # Skill functions
     "list_skills",
     "skill_info",
-    "skill_versions",
     "skill_validate",
     "skill_analyze",
     "skill_rebuild_index",
@@ -384,7 +381,6 @@ __all__ = [
     "skill_analytics",
     "skill_report",
     "skill_trending",
-    "skill_compose",
     "skill_context",
     "skill_recommend",
     "skill_feedback",

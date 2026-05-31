@@ -43,6 +43,32 @@ def test_show_selected_skill_definition_opens_skill_file(tmp_path: Path) -> None
     assert app.status_message == "Viewing skill: Example Skill"
 
 
+def test_show_selected_skill_definition_accepts_skill_directory(
+    tmp_path: Path,
+) -> None:
+    skill_dir = tmp_path / "example-skill"
+    skill_dir.mkdir()
+    skill_file = skill_dir / "SKILL.md"
+    skill_file.write_text("Directory body\n", encoding="utf-8")
+
+    app = _bare_app()
+    shown: List[tuple[str, str]] = []
+
+    async def show_text_dialog(title: str, body: str) -> None:
+        shown.append((title, body))
+
+    app._selected_skill = lambda: {  # type: ignore[method-assign]
+        "name": "Example Skill",
+        "path": str(skill_dir),
+    }
+    app._show_text_dialog = show_text_dialog  # type: ignore[method-assign]
+    app.refresh_status_bar = lambda: None  # type: ignore[method-assign]
+
+    asyncio.run(app._show_selected_skill_definition())
+
+    assert shown == [("Example Skill Definition", "Directory body\n")]
+
+
 def test_show_selected_skill_definition_warns_when_nothing_selected() -> None:
     app = _bare_app()
     notices: List[Dict[str, Any]] = []
@@ -212,7 +238,7 @@ def test_enter_bindings_route_through_view_item() -> None:
         binding.action for binding in AgentTUI.BINDINGS if binding.key == "enter"
     ]
 
-    assert enter_actions
+    assert len(enter_actions) == 1
     assert set(enter_actions) == {"view_item"}
 
 

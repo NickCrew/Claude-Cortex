@@ -30,13 +30,9 @@ from .base import _extract_front_matter, _resolve_claude_dir, _resolve_cortex_ro
 
 _SETTINGS_RELATIVE_PATHS = [
     # Skill configuration
-    Path("skills/composition.yaml"),
-    Path("skills/versions.yaml"),
     Path("skills/registry.yaml"),
     Path("skills/community/registry.yaml"),
     # Skill schemas (IDE-reference, no runtime validation — see each schema's $comment)
-    Path("skills/composition.schema.json"),
-    Path("skills/versions.schema.json"),
     Path("skills/analytics.schema.json"),
     Path("skills/metrics.schema.json"),
     Path("skills/registry.schema.json"),

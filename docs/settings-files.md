@@ -36,9 +36,8 @@ reads or writes. For detailed documentation with schemas and examples, see the
 | Path | Purpose | Notes |
 | --- | --- | --- |
 | `agents/dependencies.map` | Agent dependency graph | Used by activation |
-| `skills/activation.yaml` | Skill keyword activation map | Used by auto-activation |
-| `skills/composition.yaml` | Skill composition rules | Used by skill composer |
-| `skills/versions.yaml` | Skill version registry | Used by `skills versions` |
+| `skills/skill-index.json` | Generated skill suggestion index | Used by hooks, `skills analyze`, and recommendation tooling |
+| `skills/registry.yaml` | Skill catalog metadata | Categories, authors, dependencies, and provider-linking metadata |
 | `skills/skill-rules.json` | Skill selection rules | [Docs](reference/configuration.md#skill-rulesjson) |
 | `skills/recommendation-rules.json` | Recommendation rules | [Docs](reference/configuration.md#recommendation-rulesjson) |
 | `skills/community/registry.yaml` | Community skill registry | Community skill install |

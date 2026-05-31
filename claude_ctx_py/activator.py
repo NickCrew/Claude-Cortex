@@ -4,9 +4,8 @@ Powers ``cortex skills analyze <text>``. Reads the unified skill index (either
 the user-local copy under ``~/.claude/skills/`` or the bundled Cortex repo copy)
 and returns every skill whose keywords appear as substrings of the input.
 
-Zero-YAML by design — the legacy ``skills/activation.yaml`` is no longer read
-from here. Users who haven't regenerated their index after upgrading should run
-``cortex skills rebuild-index`` once.
+Zero-YAML by design — users who haven't regenerated their index after upgrading
+should run ``cortex skills rebuild-index`` once.
 """
 
 from __future__ import annotations

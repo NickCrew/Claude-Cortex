@@ -50,7 +50,7 @@ Use this as the default mental model when deciding what to reach for:
 1. **Explicit command** (e.g., `/dev:implement`) → loads referenced skills
 2. **Explicit skill invocation** (e.g., `/ctx:skill api-design-patterns`)
 3. **Auto-suggestion / auto-activation**
-   - `skills/activation.yaml` maps keywords → skills
+   - `skills/skill-index.json` maps skill front matter keywords and file patterns
    - `skills/skill-rules.json` maps keywords → command suggestions (hooks/recommender)
 4. **Flags** apply continuously as defaults
 

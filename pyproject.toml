@@ -190,10 +190,6 @@ ignore_missing_imports = true
 module = "claude_ctx_py.activator"
 disallow_untyped_calls = false
 
-[[tool.mypy.overrides]]
-module = "claude_ctx_py.composer"
-disallow_untyped_calls = false
-
 [tool.pytest.ini_options]
 minversion = "7.0"
 testpaths = ["tests"]

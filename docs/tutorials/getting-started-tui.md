@@ -361,9 +361,6 @@ cortex skills info owasp-top-10
 # Show which agents use a skill (CLI-only: dependency mapping)
 cortex skills agents owasp-top-10
 
-# Show skill dependency tree (CLI-only: hierarchical view)
-cortex skills compose owasp-top-10
-
 # Analytics dashboard (CLI-only: comprehensive report)
 cortex skills analytics --metric trending
 

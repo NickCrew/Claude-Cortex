@@ -301,24 +301,6 @@ class ExportError(MetricsError):
         self.format_type = format_type
 
 
-# Composition and dependency resolution exceptions
-
-
-class CompositionError(ClaudeCtxError):
-    """Base class for composition-related errors."""
-
-    pass
-
-
-class InvalidCompositionError(CompositionError, ValueError):
-    """Raised when composition.yaml is invalid."""
-
-    def __init__(self, details: str):
-        message = f"Invalid composition configuration: {details}"
-        recovery_hint = "Check composition.yaml syntax and structure"
-        CompositionError.__init__(self, message, recovery_hint)
-
-
 # Missing package exceptions
 
 

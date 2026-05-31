@@ -234,14 +234,6 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "agents", help="Show which agents use a skill (alias for deps)"
     )
     skills_agents_parser.add_argument("skill", help="Skill name")
-    skills_compose_parser = skills_sub.add_parser(
-        "compose", help="Show dependency tree for a skill"
-    )
-    skills_compose_parser.add_argument("skill", help="Skill name")
-    skills_versions_parser = skills_sub.add_parser(
-        "versions", help="Show version information for a skill"
-    )
-    skills_versions_parser.add_argument("skill", help="Skill name")
     skills_analytics_parser = skills_sub.add_parser(
         "analytics", help="Show skill effectiveness analytics"
     )
@@ -1111,14 +1103,6 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         return exit_code
     if args.skills_command == "agents":
         exit_code, message = core.skill_agents(args.skill)
-        _print(message)
-        return exit_code
-    if args.skills_command == "compose":
-        exit_code, message = core.skill_compose(args.skill)
-        _print(message)
-        return exit_code
-    if args.skills_command == "versions":
-        exit_code, message = core.skill_versions(args.skill)
         _print(message)
         return exit_code
     if args.skills_command == "analytics":

@@ -338,10 +338,8 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Quit", "Exit the application", "quit", "danger"),
     # Skill actions
     ("Skill Info", "Show metadata for selected skill", "skill_info", "skills"),
-    ("Skill Versions", "Show available versions", "skill_versions", "skills"),
     ("Skill Dependencies", "Show dependency tree", "skill_deps", "skills"),
     ("Skill Agents", "Show agents using the skill", "skill_agents", "skills"),
-    ("Skill Compose", "Show compose graph", "skill_compose", "skills"),
     ("Skill Analyze Text", "Analyze text to suggest skills", "skill_analyze", "ai"),
     ("Skill Suggest Project", "Suggest skills for current project", "skill_suggest", "ai"),
     ("Skill Analytics", "Show analytics dashboard", "skill_analytics", "metrics"),

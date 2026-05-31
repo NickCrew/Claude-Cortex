@@ -589,6 +589,5 @@ cortex skills metrics --validate
 
 ## See Also
 
-- [Skill Versioning README](./skill-versioning-README.md) - Version management
 - [Skills Guide](../skills.md) - General skills documentation
 - [Architecture](./architecture.md) - System architecture details
