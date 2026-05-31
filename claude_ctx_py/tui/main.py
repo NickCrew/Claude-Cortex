@@ -428,19 +428,19 @@ class AgentTUI(App[None]):
         Binding("I", "asset_bulk_install", "Bulk Copy", show=False),
         Binding("U", "asset_update_all", "Update All", show=False),
         Binding("H", "asset_toggle_hidden", "Show/Hide All", show=False),
-        Binding("enter", "asset_details", "Details", show=False),
+        Binding("enter", "view_item", "View", show=False),
         # Memory Vault bindings
-        Binding("enter", "memory_view_note", "View", show=False),
+        Binding("enter", "view_item", "View", show=False),
         Binding("N", "memory_new_note", "New Note", show=False),
         Binding("O", "memory_open_note", "Open", show=False),
         # Settings View bindings
         Binding("i", "setting_install", "Install Setting", show=False),
         Binding("u", "setting_uninstall", "Uninstall Setting", show=False),
         Binding("U", "setting_update_all", "Sync All Settings", show=False),
-        Binding("enter", "setting_view_file", "View Setting", show=False),
+        Binding("enter", "view_item", "View", show=False),
         Binding("ctrl+e", "setting_edit_file", "Edit Setting", show=False),
         # Agent bindings
-        Binding("enter", "agent_view", "View Agent", show=False),
+        Binding("enter", "view_item", "View", show=False),
         # Hooks Manager
         Binding("h", "hooks_manager", "Manage Hooks", show=False),
         # Backup Manager
@@ -5852,6 +5852,17 @@ class AgentTUI(App[None]):
         # Delegate to the existing details context action
         self.run_worker(self._show_selected_agent_definition(), exclusive=True)
 
+    async def action_view_item(self) -> None:
+        """View the selected item for the current table."""
+        if self.current_view == "assets":
+            await self.run_action("asset_details")
+        elif self.current_view == "memory":
+            await self.run_action("memory_view_note")
+        elif self.current_view == "settings":
+            await self.run_action("setting_view_file")
+        else:
+            await self.action_details_context()
+
     async def action_skill_info(self) -> None:
         slug = await self._get_skill_slug("Skill Info")
         if not slug:
@@ -6262,6 +6273,9 @@ class AgentTUI(App[None]):
         elif self.current_view == "commands":
             self.run_worker(self._show_selected_command_definition(), exclusive=True)
             return
+        elif self.current_view in {"skills", "codex_skills"}:
+            self.run_worker(self._show_selected_skill_definition(), exclusive=True)
+            return
         elif self.current_view == "worktrees":
             worktree = self._selected_worktree()
             if not worktree:
@@ -6452,6 +6466,44 @@ class AgentTUI(App[None]):
         self.status_message = f"Viewing slash command {command.command}"
         self.refresh_status_bar()
 
+    async def _show_selected_skill_definition(self) -> None:
+        """Open the full skill definition for the selected skill."""
+        # _selected_skill is view-aware, including the LLM skills header row.
+        skill = self._selected_skill()
+        if not skill:
+            self.notify(
+                "Select a skill to view details",
+                severity="warning",
+                timeout=2,
+            )
+            return
+
+        skill_name = str(skill.get("name") or "skill")
+        try:
+            skill_path_value = skill.get("path")
+            if not skill_path_value:
+                self.notify(
+                    "No source file available for this skill",
+                    severity="warning",
+                    timeout=2,
+                )
+                return
+            skill_path = Path(skill_path_value)
+            definition = await asyncio.to_thread(
+                skill_path.read_text, encoding="utf-8"
+            )
+        except Exception as exc:
+            self.notify(
+                f"Failed to load {skill_name}: {exc}",
+                severity="error",
+                timeout=3,
+            )
+            return
+
+        await self._show_text_dialog(f"{skill_name} Definition", definition)
+        self.status_message = f"Viewing skill: {skill_name}"
+        self.refresh_status_bar()
+
     async def action_copy_definition(self) -> None:
         """Copy the definition of the selected item to clipboard."""
         try:
@@ -6459,7 +6511,7 @@ class AgentTUI(App[None]):
                 await self._copy_agent_definition()
             elif self.current_view == "rules":
                 await self._copy_rule_definition()
-            elif self.current_view == "skills":
+            elif self.current_view in {"skills", "codex_skills"}:
                 await self._copy_skill_definition()
             elif self.current_view == "commands":
                 await self._copy_command_definition()

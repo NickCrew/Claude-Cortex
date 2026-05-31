@@ -67,10 +67,15 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("^e", "Edit", priority=22),
     ],
     "skills": [
-        ShortcutDef("s", "Details", priority=20),
+        ShortcutDef("Enter", "View", priority=20),
         ShortcutDef("v", "Validate", priority=21),
         ShortcutDef("m", "Metrics", priority=22),
         ShortcutDef("d", "Docs", priority=23),
+    ],
+    "codex_skills": [
+        ShortcutDef("Enter", "View", priority=20),
+        ShortcutDef("l", "Link", priority=21),
+        ShortcutDef("Tab", "Provider", priority=22),
     ],
     "mcp": [
         ShortcutDef("B", "Browse/Install", priority=19),
@@ -340,15 +345,17 @@ class AdaptiveFooter(Widget):
 
     def _get_view_shortcuts(self, view: str) -> List[Tuple[str, str]]:
         """Get view-specific shortcuts as (key, label) tuples."""
-        mapping = {
+        shortcuts = VIEW_SHORTCUTS.get(view)
+        if shortcuts is not None:
+            return [
+                (shortcut.key, shortcut.label)
+                for shortcut in sorted(
+                    shortcuts, key=lambda shortcut: shortcut.priority
+                )
+            ]
+
+        fallback_mapping = {
             "overview": [("^p", "Palette")],
-            "agents": [("s", "Details"), ("v", "Validate"), ("^e", "Edit")],
-            "rules": [("Spc", "Toggle"), ("^e", "Edit")],
-            "skills": [("s", "Details"), ("v", "Validate"), ("m", "Metrics")],
-            "mcp": [("B", "Browse/Install"), ("^t", "Test"), ("D", "Diagnose"), ("^a", "Add")],
-            "tasks": [("a", "Add"), ("L", "Log"), ("O", "Open"), ("K", "LLM Tasks")],
-            "commands": [("Enter", "View"), ("^e", "Edit")],
-            "export": [("f", "Format"), ("e", "Export"), ("x", "Copy")],
             "worktrees": [
                 ("^n", "New"),
                 ("^o", "Open"),
@@ -356,13 +363,9 @@ class AdaptiveFooter(Widget):
                 ("^k", "Prune"),
                 ("B", "Base Dir"),
             ],
-            "ai_assistant": [("a", "Auto-Activate"), ("J", "Gemini"), ("Y", "Reviews")],
             "watch_mode": [("Spc", "Toggle")],
-            "assets": [("i", "Install"), ("u", "Uninstall"), ("U", "Update All"), ("I", "Install All")],
-            "memory": [("Enter", "View"), ("O", "Open"), ("D", "Delete")],
-            "settings": [("i", "Install"), ("u", "Uninstall"), ("U", "Sync All"), ("Enter", "View"), ("^e", "Edit")],
         }
-        return mapping.get(view, [])
+        return fallback_mapping.get(view, [])
 
     def render(self) -> RenderableType:
         """Render the adaptive footer with multi-line support on small screens."""
