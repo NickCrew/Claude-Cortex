@@ -5,12 +5,14 @@ This project builds upon ideas, patterns, and content from several excellent ope
 ## Adapted Content & Derived Works
 
 ### Superpowers
+
 **Repository:** [obra/superpowers](https://github.com/obra/superpowers)
 **License:** MIT License
 **Attribution:** Significant portions of cortex's skills, logic patterns, and intelligent activation system were directly copied and adapted from obra/superpowers.
 
 **Skills Adapted (from 54 total skills):**
 At least 10+ skills in the `skills/` directory are derived from Superpowers, including:
+
 - `systematic-debugging` - Root cause analysis framework
 - `test-driven-development` - TDD workflow patterns
 - `verification-before-completion` - Quality gate enforcement
@@ -26,6 +28,7 @@ At least 10+ skills in the `skills/` directory are derived from Superpowers, inc
 - Additional workflow and quality-focused skills
 
 **Logic & Concepts Adapted:**
+
 - Intelligent skill activation based on context detection
 - Auto-activation triggers and pattern matching
 - Skill dependency management and orchestration
@@ -39,18 +42,21 @@ Many of our slash commands and behavioral modes are heavily influenced by Superp
 These skills and logic patterns have been adapted and modified to fit the cortex framework while maintaining the original MIT License. See `skills/LICENSE.superpowers` for full license text and proper attribution.
 
 ### SuperClaude Framework
+
 **Repository:** [SuperClaude-Org/SuperClaude_Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework)
 **License:** MIT License
 **Attribution:** Multiple agents, behavioral modes concepts, slash command patterns, and MCP integration architecture were directly copied and adapted from SuperClaude Framework.
 
 **Agents Adapted (from 9 total agents):**
 Several agents in the `agents/` directory are derived from SuperClaude, including specialized personas for:
+
 - Development workflows (code-reviewer, debugger)
 - Infrastructure management (cloud-architect, deployment-engineer, kubernetes-architect, terraform-specialist)
 - Language specialists (python-pro, typescript-pro)
 - Security (security-auditor)
 
 **Architectural Patterns Adapted:**
+
 - Behavioral modes system for context-aware workflows (`modes/` directory)
 - Slash command architecture (`commands/` directory structure)
 - MCP (Model Context Protocol) server integration patterns
@@ -60,18 +66,21 @@ Several agents in the `agents/` directory are derived from SuperClaude, includin
 SuperClaude's comprehensive framework for transforming Claude Code into a structured development platform fundamentally shaped our approach to modes, commands, agent orchestration, and MCP integration.
 
 ### VoltAgent Awesome Claude Code Subagents
+
 **Repository:** [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents)
 **License:** MIT License
 **Attribution:** Multiple specialized agents were directly copied and adapted from VoltAgent's awesome-claude-code-subagents collection.
 
 **Agents Adapted (from 9 total agents):**
 Several agents in the `agents/` directory are derived from VoltAgent's 100+ agent collection, including:
+
 - Full-stack development specialists
 - DevOps and infrastructure agents
 - Language-specific experts
 - Quality and security focused agents
 
 **Organizational Patterns Adapted:**
+
 - Hierarchical agent categorization (10 major categories)
 - Domain-specific context windows and permissions
 - Production-ready agent templates
@@ -80,11 +89,13 @@ Several agents in the `agents/` directory are derived from VoltAgent's 100+ agen
 The concept of organizing 100+ specialized agents into coherent categories directly informed our agent management system, the TUI's agent activation interface, and our agent metadata schema.
 
 ### Anthropic Official Skills
+
 **Copyright:** © 2025 Anthropic, PBC. All rights reserved.
 **License:** Anthropic Terms of Service
 **Attribution:** Several skills in the `skills/document-skills/` directory are official Anthropic skills.
 
 Skills licensed from Anthropic include:
+
 - `document-skills/pdf/` - PDF generation and manipulation
 - `document-skills/docx/` - Microsoft Word document handling
 - `document-skills/pptx/` - PowerPoint presentation creation
@@ -95,12 +106,14 @@ Skills licensed from Anthropic include:
 These skills are used under Anthropic's Terms of Service and are subject to restrictions on extraction, reproduction, and derivative works. See individual `LICENSE.txt` files in each skill directory for specific terms.
 
 ### Claude Skills Community Library
+
 **Repository:** [anthropics/claude-skills](https://github.com/anthropics/claude-skills)
 **Author:** Adam Parszewski
 **License:** MIT License
 **Attribution:** Skills adapted from the open-source claude-skills library.
 
 **Skills Adapted:**
+
 - `eval-designer` — LLM evaluation framework design (from ai-ml/)
 - `model-comparator` — Multi-model comparison and selection (from ai-ml/)
 - `dataset-curator` — Dataset lifecycle management (from ai-ml/)
@@ -127,22 +140,36 @@ These skills are used under Anthropic's Terms of Service and are subject to rest
 
 These skills are used under MIT License and were adapted to fit the cortex framework.
 
+### Peter Steinberger's Agent Scripts
+
+**Repository:** [steipete/agent-scripts](https://github.com/steipete/agent-scripts)
+**Author:** Peter Steinberger
+**License:** MIT
+**Attribution:** Scripts and agent guidance rules were copied and adapted. Inspired `cortex git` command group.
+
+- The [committer](https://github.com/steipete/agent-scripts/blob/main/scripts/committer) script was copied, adapted and extended as a shell script and later ported to Python as the `cortex git commit` command.
+- Parts of [AGENTS.md](https://github.com/steipete/agent-scripts/blob/main/AGENTS.MD) were used in `rules/`
+
 ## Inspirations & Architectural Patterns
 
 The following projects inspired architectural decisions, design patterns, and workflow concepts in cortex (no direct code copying):
 
 ### Agent Deck
+
 **Repository:** [asheshgoplani/agent-deck](https://github.com/asheshgoplani/agent-deck)
 **License:** MIT License
 **Inspiration:**
+
 - The `llms.txt` + `llms-full.txt` documentation convention (`site/llms.txt`, with a relative symlink at the repo root) — agent-deck demonstrated a clean two-file implementation of the [llmstxt.org](https://llmstxt.org) spec: a short summary served from the site root for paste-into-LLM access, paired with a long-form reference for deeper context. The pattern of two hand-maintained plain-text files (no front matter, passed through Jekyll verbatim alongside `robots.txt`) came from agent-deck's example.
 
 Agent Deck is a session orchestrator — a different product category from Cortex — so its core features (conductors, watcher framework, MCP socket pooling, cost tracking, multi-channel notifications) were intentionally not adopted. Only the documentation pattern informed Cortex.
 
 ### Code CLI
+
 **Repository:** [just-every/code](https://github.com/just-every/code)
 **License:** Apache-2.0 License
 **Inspiration:**
+
 - Multi-agent orchestration patterns
 - Unified settings architecture for centralized configuration
 - Reasoning control mechanisms (depth/effort levels)
@@ -152,9 +179,11 @@ Agent Deck is a session orchestrator — a different product category from Corte
 Code's emphasis on developer experience, local-first architecture, and reasoning controls informed our TUI design, settings management, and the thinking budget system.
 
 ### Tmux Orchestrator
+
 **Repository:** [Jedward23/Tmux-Orchestrator](https://github.com/Jedward23/Tmux-Orchestrator)
 **License:** MIT License
 **Inspiration:**
+
 - Send-and-settle timing pattern for delivering messages to TUIs (`cortex tmux say`) — the upstream project's `send-claude-message.sh` documented why text and Enter must be separate `send-keys` calls with a settle pause when the target is a debounced input box (Claude Code, Codex, etc.).
 - Multi-session "what is every agent doing right now?" digest (`cortex tmux snapshot`) — modelled on the orchestrator's `create_monitoring_snapshot()` pattern.
 - Hub-and-spoke window-naming convention documented in `docs/guides/tmux-orchestration.md` (e.g. `Claude-<role>`, `<runtime>-Dev`, `TEMP-<task>`).
@@ -165,21 +194,25 @@ The Tmux-Orchestrator's scheduling/PM-hierarchy components were intentionally no
 ## Technology Stack Credits
 
 ### Python Textual TUI Framework
+
 **Project:** [Textualize/textual](https://github.com/Textualize/textual)
 **License:** MIT License
 The beautiful terminal UI is built with Textual, an amazing framework for building sophisticated terminal applications.
 
 ### Rich Terminal Formatting
+
 **Project:** [Textualize/rich](https://github.com/Textualize/rich)
 **License:** MIT License
 Console output formatting, progress bars, and syntax highlighting powered by Rich.
 
 ### PyYAML
+
 **Project:** [yaml/pyyaml](https://github.com/yaml/pyyaml)
 **License:** MIT License
 YAML parsing for agents, modes, commands, and configuration files.
 
 ### Python Click
+
 **Project:** [pallets/click](https://github.com/pallets/click)
 **License:** BSD-3-Clause License
 Command-line interface framework providing the foundation for `cortex` CLI.
@@ -187,18 +220,16 @@ Command-line interface framework providing the foundation for `cortex` CLI.
 ## Documentation & Design
 
 ### Jekyll & Minima Theme
+
 **Project:** [jekyll/minima](https://github.com/jekyll/minima)
 **License:** MIT License
 GitHub Pages documentation site built with Jekyll and the Minima theme.
 
 ### Reveal.js Presentations
+
 **Project:** [hakimel/reveal.js](https://github.com/hakimel/reveal.js)
 **License:** MIT License
 Interactive presentations powered by Reveal.js framework.
-
-## Individual Contributors
-
-- **Peter Steinberger** — `bin/committer` safe-commit script, `AGENTS.md` rules
 
 ## Community & Ecosystem
 
@@ -210,4 +241,4 @@ If you believe your work has been used in a way that constitutes copyright infri
 
 ---
 
-**Last Updated:** May 2026
+**Last Updated:** June 2026

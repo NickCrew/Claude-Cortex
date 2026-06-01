@@ -53,45 +53,45 @@ The user can stop at the report. Don't rewrite without explicit consent.
 
 Default shapes the model reaches for regardless of fit.
 
-- **Aphoristic closer.** Sentence trying to land like a punchline at the end of a section. Examples: "Premature alerts produce numbness." / "the auditor is always ahead." / "No artefact, no promotion." *Fix-direction:* end on the substantive point, not the epigram.
-- **Definitional opener.** Every section starts "X is a Y that…" even when X was already established. *Fix-direction:* start with the action or the question instead.
-- **Echo paragraph.** Paragraph N+1 restates paragraph N with synonyms. *Fix-direction:* delete one. Usually the second.
-- **Summary-of-summary closer.** "In essence…" / "Ultimately…" wrapping up what was just said. *Fix-direction:* delete the closer; the section already ended.
-- **Over-signposting.** "There are three things to consider. First…" when headers already do this. *Fix-direction:* delete the meta-narration.
-- **Self-narration.** Prose commenting on what the doc is doing: "That's the dashboard's reason for existing." / "(this is where we start)" inside a diagram. *Fix-direction:* let the doc do the thing instead of describing itself.
-- **Decision-stamp formality.** `**Decided 2026-05-18:**` court-ruling style in personal notes. *Fix-direction:* drop the stamp; state the decision in prose.
-- **Labeled callback scheme.** Q1–Q6, Layer 1/2/3, deliberately numbered cross-refs in a doc that didn't need them. *Fix-direction:* use names, not numbers; let prose carry the references.
+- **Aphoristic closer.** Sentence trying to land like a punchline at the end of a section. Examples: "Premature alerts produce numbness." / "the auditor is always ahead." / "No artefact, no promotion." _Fix-direction:_ end on the substantive point, not the epigram.
+- **Definitional opener.** Every section starts "X is a Y that…" even when X was already established. _Fix-direction:_ start with the action or the question instead.
+- **Echo paragraph.** Paragraph N+1 restates paragraph N with synonyms. _Fix-direction:_ delete one. Usually the second.
+- **Summary-of-summary closer.** "In essence…" / "Ultimately…" wrapping up what was just said. _Fix-direction:_ delete the closer; the section already ended.
+- **Over-signposting.** "There are three things to consider. First…" when headers already do this. _Fix-direction:_ delete the meta-narration.
+- **Self-narration.** Prose commenting on what the doc is doing: "That's the dashboard's reason for existing." / "(this is where we start)" inside a diagram. _Fix-direction:_ let the doc do the thing instead of describing itself.
+- **Decision-stamp formality.** `**Decided 2026-05-18:**` court-ruling style in personal notes. _Fix-direction:_ drop the stamp; state the decision in prose.
+- **Labeled callback scheme.** Q1–Q6, Layer 1/2/3, deliberately numbered cross-refs in a doc that didn't need them. _Fix-direction:_ use names, not numbers; let prose carry the references.
 
 ### 2. Tonal Hedging
 
 The model softens and balances by default, regardless of whether the topic warrants it.
 
-- **Manufactured both-sidesing.** "However" / "That said" inserted to fake balance the topic doesn't need. *Fix-direction:* state the position; delete the hedge.
-- **"Worth noting" filler.** Hedge phrases delaying the actual claim. *Fix-direction:* delete and lead with the claim.
-- **Reassuring middle.** "This is normal / expected / fine" inserted where no one was worried. *Fix-direction:* delete unless the reader is genuinely likely to be alarmed.
-- **Equivocation-as-wisdom.** "It depends" expanded into a fake decision framework. *Fix-direction:* if there's a real answer, give it. If it depends, name the *one or two* axes that actually matter.
-- **Earnest-explainer parentheticals.** "(verified 2026-05-18)" / "(modulo any drift)" / "(per CLAUDE.md)" cross-refs everywhere. *Fix-direction:* trust the reader; integrate critical context into the sentence or delete the parenthetical.
+- **Manufactured both-sidesing.** "However" / "That said" inserted to fake balance the topic doesn't need. _Fix-direction:_ state the position; delete the hedge.
+- **"Worth noting" filler.** Hedge phrases delaying the actual claim. _Fix-direction:_ delete and lead with the claim.
+- **Reassuring middle.** "This is normal / expected / fine" inserted where no one was worried. _Fix-direction:_ delete unless the reader is genuinely likely to be alarmed.
+- **Equivocation-as-wisdom.** "It depends" expanded into a fake decision framework. _Fix-direction:_ if there's a real answer, give it. If it depends, name the _one or two_ axes that actually matter.
+- **Earnest-explainer parentheticals.** "(verified 2026-05-18)" / "(modulo any drift)" / "(per CLAUDE.md)" cross-refs everywhere. _Fix-direction:_ trust the reader; integrate critical context into the sentence or delete the parenthetical.
 
 ### 3. Performative Emphasis
 
 Signaling importance instead of being clear.
 
-- **Concept-puffing.** Capitalizing ordinary words to make them feel like Concepts. *Fix-direction:* lowercase unless it's a proper noun or term-of-art.
-- **Empty positive adverbs.** "elegantly," "seamlessly," "gracefully" attached to verbs. *Fix-direction:* delete the adverb. If the property matters, name it.
-- **Performative TL;DR.** "Short answer:" decorating a response that wasn't long. *Fix-direction:* delete the label; the answer is the answer.
-- **Aspirational close.** Ending on what *could* / *might* be done — forward-looking platitude. *Fix-direction:* end on what was done, or on the next concrete step.
-- **Contrastive bold.** "This is not X — it's Y" / mirrored "Why not pure JSON: / Why not pure scriptblocks:" sections. *Fix-direction:* state the position directly. Delete the foil unless someone actually argued for it.
-- **Italicized rhetorical emphasis.** Italics on ordinary words for tone, not for terms. *Fix-direction:* delete italics; if emphasis is essential, restructure the sentence.
+- **Concept-puffing.** Capitalizing ordinary words to make them feel like Concepts. _Fix-direction:_ lowercase unless it's a proper noun or term-of-art.
+- **Empty positive adverbs.** "elegantly," "seamlessly," "gracefully" attached to verbs. _Fix-direction:_ delete the adverb. If the property matters, name it.
+- **Performative TL;DR.** "Short answer:" decorating a response that wasn't long. _Fix-direction:_ delete the label; the answer is the answer.
+- **Aspirational close.** Ending on what _could_ / _might_ be done — forward-looking platitude. _Fix-direction:_ end on what was done, or on the next concrete step.
+- **Contrastive bold.** "This is not X — it's Y" / mirrored "Why not pure JSON: / Why not pure scriptblocks:" sections. _Fix-direction:_ state the position directly. Delete the foil unless someone actually argued for it.
+- **Italicized rhetorical emphasis.** Italics on ordinary words for tone, not for terms. _Fix-direction:_ delete italics; if emphasis is essential, restructure the sentence.
 
 ### 4. Rhythm Patterns
 
 The cadence itself is the tell.
 
-- **Uniform sentence length.** Paragraphs where every sentence lands at ~15 words. *Fix-direction:* combine two short sentences into one long one, or break a long one into two short ones. Vary deliberately.
-- **Gerund cascade.** "Building on this… Taking this further… Considering these factors…" *Fix-direction:* rewrite as concrete actions with subjects.
-- **Paragraph-level parallelism.** Every paragraph opens with the same grammatical shape. *Fix-direction:* vary the openers — start one with a question, one with the subject, one with the verb.
-- **Coined-phrase tic.** A minted phrase repeated 3+ times across the doc ("proves the framework" / "earns its place" / "5-second glance"). *Fix-direction:* keep the first use; rephrase the rest.
-- **Tricolon cadence at scale.** Not just one three-item list — every list is three items, every emphasized sentence has three clauses. *Fix-direction:* break the pattern. Use twos and fours when they fit.
+- **Uniform sentence length.** Paragraphs where every sentence lands at ~15 words. _Fix-direction:_ combine two short sentences into one long one, or break a long one into two short ones. Vary deliberately.
+- **Gerund cascade.** "Building on this… Taking this further… Considering these factors…" _Fix-direction:_ rewrite as concrete actions with subjects.
+- **Paragraph-level parallelism.** Every paragraph opens with the same grammatical shape. _Fix-direction:_ vary the openers — start one with a question, one with the subject, one with the verb.
+- **Coined-phrase tic.** A minted phrase repeated 3+ times across the doc ("proves the framework" / "earns its place" / "5-second glance"). _Fix-direction:_ keep the first use; rephrase the rest.
+- **Tricolon cadence at scale.** Not just one three-item list — every list is three items, every emphasized sentence has three clauses. _Fix-direction:_ break the pattern. Use twos and fours when they fit.
 
 ---
 
@@ -107,22 +107,26 @@ Produce the report in this structure. Cite line numbers when feasible.
 ## Findings
 
 ### Family 1: Structural Reflexes
+
 - **Line 42** — Aphoristic closer: "Premature alerts produce numbness."
-  *Fix-direction:* end the section on the substantive point about alert volume, not the epigram.
+  _Fix-direction:_ end the section on the substantive point about alert volume, not the epigram.
 - **Line 88** — Self-narration: "That's the dashboard's reason for existing."
-  *Fix-direction:* delete; the preceding paragraph already established this.
+  _Fix-direction:_ delete; the preceding paragraph already established this.
 
 ### Family 2: Tonal Hedging
+
 - **Line 17, 34, 61** — Earnest-explainer parentheticals: "(per CLAUDE.md)", "(modulo any drift)", "(verified 2026-05-18)"
-  *Fix-direction:* drop all three. If timestamps matter, put them in a footer; otherwise delete.
+  _Fix-direction:_ drop all three. If timestamps matter, put them in a footer; otherwise delete.
 
 ### Family 3: Performative Emphasis
+
 - **Line 12** — Contrastive bold: "This is not a generic 'service health' dashboard — every panel earns its place..."
-  *Fix-direction:* lead with what the dashboard is, not what it isn't.
+  _Fix-direction:_ lead with what the dashboard is, not what it isn't.
 
 ### Family 4: Rhythm Patterns
+
 - **Throughout** — Coined-phrase tic: "proves the framework" appears 3 times in rows 1, 2, and 5.
-  *Fix-direction:* keep the first; rephrase the second and third.
+  _Fix-direction:_ keep the first; rephrase the second and third.
 
 ## Summary
 
