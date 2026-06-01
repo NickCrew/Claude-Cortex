@@ -16,7 +16,7 @@ read_when:
 
 Agent-facing tools for routine development work. These are the scripts agents (and humans) reach for during day-to-day sessions — tmux interaction, browser automation, safe commits, and Claude API helpers. They live in `bin/` and can be run directly or sourced into your shell.
 
-> For project-internal maintenance scripts (manpage generation, registry validation, uninstall), see [scripts/ Utilities](scripts-utilities.md).
+> For project-internal migration and metadata repair scripts, see [scripts/ Utilities](scripts-utilities.md).
 
 ## Overview
 

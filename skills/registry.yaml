@@ -2,7 +2,6 @@
 # Catalog metadata for bundled and community skills
 #
 # Schema: registry.schema.json
-# Authors: authors.yaml
 #
 # This file is the single source of truth for skill catalog metadata.
 # Runtime suggestion matching uses the generated skill-index.json.

@@ -37,6 +37,8 @@ def test_settings_assets_exclude_retired_skill_metadata_files() -> None:
 
     assert Path("skills/registry.yaml") in settings_paths
     assert Path("skills/skill-index.json") not in settings_paths
+    assert Path("skills/authors.yaml") not in settings_paths
+    assert Path("skills/authors.schema.json") not in settings_paths
     assert Path("skills/composition.yaml") not in settings_paths
     assert Path("skills/versions.yaml") not in settings_paths
     assert Path("skills/composition.schema.json") not in settings_paths

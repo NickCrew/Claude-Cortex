@@ -37,8 +37,6 @@ _SETTINGS_RELATIVE_PATHS = [
     Path("skills/metrics.schema.json"),
     Path("skills/registry.schema.json"),
     Path("skills/rubric.schema.yaml"),
-    Path("skills/authors.yaml"),
-    Path("skills/authors.schema.json"),
 ]
 
 

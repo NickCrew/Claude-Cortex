@@ -72,7 +72,7 @@
         },
         "authors": {
           "type": "array",
-          "description": "List of author identifiers (reference authors.yaml)",
+          "description": "List of author or maintainer labels for catalog display",
           "items": {
             "type": "string"
           },
