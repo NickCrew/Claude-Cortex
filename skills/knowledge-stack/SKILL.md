@@ -1,6 +1,14 @@
 ---
 name: knowledge-stack
 description: "Use this skill whenever working inside any of Nick's repos (Atlas Crew, Inferno Lab, or any folder under ~/Developer/) or whenever a conversation touches Nick's cross-cutting personal or career work — job search, interviews, tax amendment, foreclosure/tenant situation, Hard Stuff drafts, brand or design work, strategic positioning. Describes where Nick's durable knowledge lives and which layer to consult for which kind of question. Trigger before reasoning from stored memory summaries about repo architecture, product decisions, active priorities, or ongoing personal/career state. Stored memory is lossy; the backlog docs and the Basic Memory vault are the real artifacts and should be consulted first."
+keywords:
+  - knowledge stack
+  - durable knowledge
+  - backlog docs
+  - basic memory
+  - Nick's repos
+  - repo architecture
+  - active priorities
 ---
 
 # Knowledge Stack

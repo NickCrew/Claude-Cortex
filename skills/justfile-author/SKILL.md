@@ -1,6 +1,14 @@
 ---
 name: justfile-author
 description: Use this skill when authoring or refactoring a justfile (and matching Makefile wrapper) for one of Nick's projects. Triggers when the user asks to "create a justfile", "add a justfile to this project", "set up just for…", "wire up tmux services", "scaffold the task runner", or when working in a repo that lacks a justfile but obviously needs one. Produces a justfile using zsh syntax with the standard svc-* tmux service family, the canonical build/lint/dev/test recipes, a thin Makefile passthrough wrapper that auto-installs just, and per-service tx-start.sh helpers. Do NOT use for editing existing third-party justfiles or non-Nick projects unless the user explicitly opts in.
+keywords:
+  - justfile
+  - create a justfile
+  - add a justfile
+  - task runner
+  - tmux services
+  - Makefile wrapper
+  - svc-up
 ---
 
 # Justfile Author

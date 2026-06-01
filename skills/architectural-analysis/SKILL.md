@@ -1,6 +1,15 @@
 ---
 name: architectural-analysis
 description: User-triggered deep architectural analysis of a codebase or scoped subtree across eight modes — information architecture, data flow, integration points, UI surfaces, interaction patterns, data model, control flow, and failure modes. This skill should be used when the user asks to "diagram this codebase," "map the architecture," "show the data flow," "give me an ERD," "trace control flow," "find the integration points," "verify the layout pattern," "audit the UX architecture," or any similar request whose primary deliverable is mermaid diagrams plus cited reports under docs/architecture/. Dispatches haiku/sonnet sub-agents in parallel for per-mode exploration, then verifies every citation mechanically before any node lands in a diagram. Not for one-off prose explanations of code (use code-explanation) or for high-level system design from scratch (use system-design).
+keywords:
+  - architectural analysis
+  - diagram this codebase
+  - map the architecture
+  - data flow
+  - ERD
+  - control flow
+  - integration points
+  - UX architecture
 ---
 
 # Architectural Analysis

@@ -1,6 +1,14 @@
 ---
 name: mapping-suite
 description: User-triggered orchestrator that walks the user through running multiple sibling mapping/audit/doc skills against a shared scope, then assembles their outputs into one navigable artifact. Coaches rather than auto-runs — at each step the orchestrator presents the next sibling skill, recommended scope inheritance, and approval gate; the user invokes the sibling and confirms before moving on. Resolves the prior arch-analysis lookup once at suite start so every sibling skill inherits the same scope. Records each run's output path in a suite manifest. Produces a combined navigation HTML that links to each sibling's standalone HTML for one-stop sharing. Ships two named recipes — "release-driver onboarding" (for tooling that drives releases) and "deployed-system onboarding" (for systems that get deployed) — and supports custom plans. Trigger on "run our mapping suite," "do a complete onboarding," "build the combined report," "I need to onboard to system X," "give me the full picture of this codebase," or when the user names two-or-more sibling analyses to coordinate. Not for running a single sibling skill in isolation (invoke it directly), and not for bypassing approval gates (this skill coaches, never autoruns).
+keywords:
+  - mapping suite
+  - complete onboarding
+  - combined report
+  - full picture
+  - release-driver onboarding
+  - deployed-system onboarding
+  - coordinate analyses
 ---
 
 # Mapping Suite

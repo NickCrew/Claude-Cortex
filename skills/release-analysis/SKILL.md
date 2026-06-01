@@ -1,6 +1,15 @@
 ---
 name: release-analysis
-description: User-triggered analysis of how a system gets deployed and recovered — across local (Docker Compose) and cloud (Kubernetes / Eve) release surfaces. Produces mermaid diagrams plus cited reports for promotion paths, environment topology, configuration provenance, and recovery procedures under docs/release/<date>/. Layers on top of architectural-analysis: when a recent docs/architecture/<date>/ report exists, this skill ingests its control-flow, integrations, and failure-modes findings rather than re-deriving them. When verifying cloud-side claims, prefers eve-mcp tools (ShowEnvironments, GetManifest, ShowChannels, ShowDeploymentCrons) over reading manifest YAML by hand. Trigger on "map our release," "trace the promotion path," "where does this config come from," "what's the rollback story," "diagram the environments," "show how a version reaches prod," or any release-shaped question whose deliverable is a diagram plus a cited report. Not for new architectural snapshots (use architectural-analysis), CI pipeline correctness review (use code review), or designing a release process from scratch (use system-design).
+description: >-
+  User-triggered analysis of how a system gets deployed and recovered — across local (Docker Compose) and cloud (Kubernetes / Eve) release surfaces. Produces mermaid diagrams plus cited reports for promotion paths, environment topology, configuration provenance, and recovery procedures under docs/release/<date>/. Layers on top of architectural-analysis: when a recent docs/architecture/<date>/ report exists, this skill ingests its control-flow, integrations, and failure-modes findings rather than re-deriving them. When verifying cloud-side claims, prefers eve-mcp tools (ShowEnvironments, GetManifest, ShowChannels, ShowDeploymentCrons) over reading manifest YAML by hand. Trigger on "map our release," "trace the promotion path," "where does this config come from," "what's the rollback story," "diagram the environments," "show how a version reaches prod," or any release-shaped question whose deliverable is a diagram plus a cited report. Not for new architectural snapshots (use architectural-analysis), CI pipeline correctness review (use code review), or designing a release process from scratch (use system-design).
+keywords:
+  - release analysis
+  - map our release
+  - promotion path
+  - rollback story
+  - environment topology
+  - configuration provenance
+  - deployment recovery
 ---
 
 # Release Analysis

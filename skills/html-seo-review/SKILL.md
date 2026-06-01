@@ -1,6 +1,14 @@
 ---
 name: html-seo-review
 description: Audit static HTML files for on-page SEO, content quality, easy-win performance signals, and crawlability. This skill should be used when the user asks to review, audit, or check the SEO of one or more static HTML files — e.g., "review the HTML for SEO issues", "audit this landing page", "check SEO on these pages before I publish". Static HTML only — does not cover Jekyll/Hugo/Astro/Next.js source, off-page factors, or live-rendered Core Web Vitals.
+keywords:
+  - SEO review
+  - SEO audit
+  - static HTML
+  - on-page SEO
+  - meta tags
+  - crawlability
+  - landing page audit
 ---
 
 # HTML SEO Review

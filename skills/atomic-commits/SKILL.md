@@ -1,6 +1,15 @@
 ---
 name: atomic-commits
-description: Use this skill when a working tree contains uncommitted changes that need to be split into a sequence of atomic commits — typically after a long session, an agent hand-off, a rebase resolution, or anytime `git status` shows mixed work that was not committed as it landed. The skill assumes the agent has fresh context and did not author most of the diff, so it treats the working tree as evidence to investigate before grouping. Optimizes for `git bisect`: each commit is the smallest buildable and deployable unit, and no smaller. Uses `cortex git commit` for file-level commits and `cortex git patch --diff` when unrelated changes share a file.
+description: >-
+  Use this skill when a working tree contains uncommitted changes that need to be split into a sequence of atomic commits — typically after a long session, an agent hand-off, a rebase resolution, or anytime `git status` shows mixed work that was not committed as it landed. The skill assumes the agent has fresh context and did not author most of the diff, so it treats the working tree as evidence to investigate before grouping. Optimizes for `git bisect`: each commit is the smallest buildable and deployable unit, and no smaller. Uses `cortex git commit` for file-level commits and `cortex git patch --diff` when unrelated changes share a file.
+keywords:
+  - atomic commits
+  - split commits
+  - mixed working tree
+  - git bisect
+  - uncommitted changes
+  - cortex git commit
+  - cortex git patch
 ---
 
 # Atomic Commits

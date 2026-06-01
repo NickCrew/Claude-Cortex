@@ -1,6 +1,14 @@
 ---
 name: brand-library-architect
 description: Build a complete brand library for a product — visual asset render pipeline, brand documentation set (BRAND, COPY, MANIFESTO, BIOS, FAQ, GLOSSARY, TONE, PRICING), open-source convention files (README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT), and a self-contained press kit. This skill should be used when the user asks to "build a brand library / brand kit / press kit / brand assets" for a product, "set up a brand library workflow," "create a positioning manifesto plus visual identity," or any combination of brand documentation + visual asset pipeline. Apply phase-by-phase or run end-to-end. Templates are product-agnostic and use {{TOKEN}} placeholders the skill prompts the user to fill.
+keywords:
+  - brand library
+  - brand kit
+  - press kit
+  - brand assets
+  - positioning manifesto
+  - visual identity
+  - brand documentation
 ---
 
 # Brand Library Architect

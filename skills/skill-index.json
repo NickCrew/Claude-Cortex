@@ -63,6 +63,45 @@
       "confidence": 0.74
     },
     {
+      "name": "ai-tells-review",
+      "path": "ai-tells-review",
+      "description": "Use when public prose still sounds machine-written after ai-tells-scan. Complements ai-tells-scan's mechanical pass with structural judgment: rhythm, hedging, rhetorical reflexes, and performative emphasis. Trigger on 'review for AI tells,' 'does this read AI,' 'strip the AI smell,' or 'make this less AI.'",
+      "keywords": [
+        "AI smell",
+        "does this read AI",
+        "hedging",
+        "prose rhythm",
+        "review for AI tells",
+        "rewrite AI-sounding prose",
+        "rhetorical reflexes",
+        "still reads AI after scan",
+        "strip the AI smell",
+        "structural prose review",
+        "structural review"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "ai-tells-scan",
+      "path": "ai-tells-scan",
+      "description": "Use when writing tasks produce prose artifacts (READMEs, docs, PR text, tutorials, guides, posts, release notes) and need a fast surface scan for AI tells. Auto-engages on prose writing tasks; checks banned punctuation, stock vocabulary, and mechanical patterns. For the structural judgment pass on rhythm and rhetorical reflexes, use ai-tells-review. Not a replacement for voice skills like nick-voice; this removes machine fingerprints, it does not add a target voice.",
+      "keywords": [
+        "AI fingerprints",
+        "banned vocabulary",
+        "check prose for AI fingerprints",
+        "clean generated prose",
+        "generated prose",
+        "prose scan",
+        "punctuation",
+        "quick AI tell scan",
+        "remove AI tells",
+        "scan for AI tells"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "api-design-patterns",
       "path": "api-design-patterns",
       "description": "Comprehensive REST and GraphQL API design patterns with versioning, pagination, error handling, and HATEOAS principles. Use when designing APIs, defining endpoints, or architecting service contracts requiring production-grade patterns.",
@@ -114,6 +153,23 @@
       "confidence": 0.8
     },
     {
+      "name": "architectural-analysis",
+      "path": "architectural-analysis",
+      "description": "User-triggered deep architectural analysis of a codebase or scoped subtree across eight modes — information architecture, data flow, integration points, UI surfaces, interaction patterns, data model, control flow, and failure modes. This skill should be used when the user asks to \"diagram this codebase,\" \"map the architecture,\" \"show the data flow,\" \"give me an ERD,\" \"trace control flow,\" \"find the integration points,\" \"verify the layout pattern,\" \"audit the UX architecture,\" or any similar request whose primary deliverable is mermaid diagrams plus cited reports under docs/architecture/. Dispatches haiku/sonnet sub-agents in parallel for per-mode exploration, then verifies every citation mechanically before any node lands in a diagram. Not for one-off prose explanations of code (use code-explanation) or for high-level system design from scratch (use system-design).",
+      "keywords": [
+        "ERD",
+        "UX architecture",
+        "architectural analysis",
+        "control flow",
+        "data flow",
+        "diagram this codebase",
+        "integration points",
+        "map the architecture"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "assumption-buster",
       "path": "collaboration/assumption_buster",
       "description": "Flip, remove, or exaggerate assumptions to unlock new solution angles.",
@@ -156,6 +212,22 @@
         "**/requirements.txt"
       ],
       "confidence": 0.7
+    },
+    {
+      "name": "atomic-commits",
+      "path": "atomic-commits",
+      "description": "Use this skill when a working tree contains uncommitted changes that need to be split into a sequence of atomic commits — typically after a long session, an agent hand-off, a rebase resolution, or anytime `git status` shows mixed work that was not committed as it landed. The skill assumes the agent has fresh context and did not author most of the diff, so it treats the working tree as evidence to investigate before grouping. Optimizes for `git bisect`: each commit is the smallest buildable and deployable unit, and no smaller. Uses `cortex git commit` for file-level commits and `cortex git patch --diff` when unrelated changes share a file.",
+      "keywords": [
+        "atomic commits",
+        "cortex git commit",
+        "cortex git patch",
+        "git bisect",
+        "mixed working tree",
+        "split commits",
+        "uncommitted changes"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
     },
     {
       "name": "backlog-md",
@@ -210,6 +282,22 @@
         "**/todo.md"
       ],
       "confidence": 0.84
+    },
+    {
+      "name": "brand-library-architect",
+      "path": "brand-library-architect",
+      "description": "Build a complete brand library for a product — visual asset render pipeline, brand documentation set (BRAND, COPY, MANIFESTO, BIOS, FAQ, GLOSSARY, TONE, PRICING), open-source convention files (README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT), and a self-contained press kit. This skill should be used when the user asks to \"build a brand library / brand kit / press kit / brand assets\" for a product, \"set up a brand library workflow,\" \"create a positioning manifesto plus visual identity,\" or any combination of brand documentation + visual asset pipeline. Apply phase-by-phase or run end-to-end. Templates are product-agnostic and use {{TOKEN}} placeholders the skill prompts the user to fill.",
+      "keywords": [
+        "brand assets",
+        "brand documentation",
+        "brand kit",
+        "brand library",
+        "positioning manifesto",
+        "press kit",
+        "visual identity"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
     },
     {
       "name": "build-optimization",
@@ -1136,6 +1224,22 @@
       "confidence": 0.86
     },
     {
+      "name": "html-seo-review",
+      "path": "html-seo-review",
+      "description": "Audit static HTML files for on-page SEO, content quality, easy-win performance signals, and crawlability. This skill should be used when the user asks to review, audit, or check the SEO of one or more static HTML files — e.g., \"review the HTML for SEO issues\", \"audit this landing page\", \"check SEO on these pages before I publish\". Static HTML only — does not cover Jekyll/Hugo/Astro/Next.js source, off-page factors, or live-rendered Core Web Vitals.",
+      "keywords": [
+        "SEO audit",
+        "SEO review",
+        "crawlability",
+        "landing page audit",
+        "meta tags",
+        "on-page SEO",
+        "static HTML"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "idea-lab",
       "path": "collaboration/idea_lab",
       "description": "Timeboxed divergent ideation that outputs ranked options plus day-one experiments.",
@@ -1243,6 +1347,38 @@
       "confidence": 0.74
     },
     {
+      "name": "justfile-author",
+      "path": "justfile-author",
+      "description": "Use this skill when authoring or refactoring a justfile (and matching Makefile wrapper) for one of Nick's projects. Triggers when the user asks to \"create a justfile\", \"add a justfile to this project\", \"set up just for…\", \"wire up tmux services\", \"scaffold the task runner\", or when working in a repo that lacks a justfile but obviously needs one. Produces a justfile using zsh syntax with the standard svc-* tmux service family, the canonical build/lint/dev/test recipes, a thin Makefile passthrough wrapper that auto-installs just, and per-service tx-start.sh helpers. Do NOT use for editing existing third-party justfiles or non-Nick projects unless the user explicitly opts in.",
+      "keywords": [
+        "Makefile wrapper",
+        "add a justfile",
+        "create a justfile",
+        "justfile",
+        "svc-up",
+        "task runner",
+        "tmux services"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "knowledge-stack",
+      "path": "knowledge-stack",
+      "description": "Use this skill whenever working inside any of Nick's repos (Atlas Crew, Inferno Lab, or any folder under ~/Developer/) or whenever a conversation touches Nick's cross-cutting personal or career work — job search, interviews, tax amendment, foreclosure/tenant situation, Hard Stuff drafts, brand or design work, strategic positioning. Describes where Nick's durable knowledge lives and which layer to consult for which kind of question. Trigger before reasoning from stored memory summaries about repo architecture, product decisions, active priorities, or ongoing personal/career state. Stored memory is lossy; the backlog docs and the Basic Memory vault are the real artifacts and should be consulted first.",
+      "keywords": [
+        "Nick's repos",
+        "active priorities",
+        "backlog docs",
+        "basic memory",
+        "durable knowledge",
+        "knowledge stack",
+        "repo architecture"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "knowledge-synthesis",
       "path": "knowledge-synthesis",
       "description": "Extract insights from multi-agent interactions, identify patterns, and build collective intelligence through cross-agent learning and knowledge management. Use when synthesizing findings, building knowledge bases, or improving system-wide practices.",
@@ -1321,6 +1457,22 @@
         "modernization",
         "modernize code",
         "strangler fig"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "mapping-suite",
+      "path": "mapping-suite",
+      "description": "User-triggered orchestrator that walks the user through running multiple sibling mapping/audit/doc skills against a shared scope, then assembles their outputs into one navigable artifact. Coaches rather than auto-runs — at each step the orchestrator presents the next sibling skill, recommended scope inheritance, and approval gate; the user invokes the sibling and confirms before moving on. Resolves the prior arch-analysis lookup once at suite start so every sibling skill inherits the same scope. Records each run's output path in a suite manifest. Produces a combined navigation HTML that links to each sibling's standalone HTML for one-stop sharing. Ships two named recipes — \"release-driver onboarding\" (for tooling that drives releases) and \"deployed-system onboarding\" (for systems that get deployed) — and supports custom plans. Trigger on \"run our mapping suite,\" \"do a complete onboarding,\" \"build the combined report,\" \"I need to onboard to system X,\" \"give me the full picture of this codebase,\" or when the user names two-or-more sibling analyses to coordinate. Not for running a single sibling skill in isolation (invoke it directly), and not for bypassing approval gates (this skill coaches, never autoruns).",
+      "keywords": [
+        "combined report",
+        "complete onboarding",
+        "coordinate analyses",
+        "deployed-system onboarding",
+        "full picture",
+        "mapping suite",
+        "release-driver onboarding"
       ],
       "file_patterns": [],
       "confidence": 0.8
@@ -1452,6 +1604,22 @@
         "multi-perspective",
         "multiple perspectives",
         "synthesis"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "multi-specialist-review",
+      "path": "multi-specialist-review",
+      "description": "User-triggered multi-agent code review. Spawns 3-5 parallel specialist sub-agents that read actual source files, runs mechanical citation verification, and synthesizes a single review artifact. Use for PR-level changes, multi-commit ranges, or security-sensitive work where single-turn review is insufficient.",
+      "keywords": [
+        "PR review",
+        "citation verification",
+        "multi-specialist review",
+        "parallel code review",
+        "security review",
+        "specialist review",
+        "team review"
       ],
       "file_patterns": [],
       "confidence": 0.8
@@ -1787,6 +1955,22 @@
         "regex",
         "regex master",
         "text extraction"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
+      "name": "release-analysis",
+      "path": "release-analysis",
+      "description": "User-triggered analysis of how a system gets deployed and recovered — across local (Docker Compose) and cloud (Kubernetes / Eve) release surfaces. Produces mermaid diagrams plus cited reports for promotion paths, environment topology, configuration provenance, and recovery procedures under docs/release/<date>/. Layers on top of architectural-analysis: when a recent docs/architecture/<date>/ report exists, this skill ingests its control-flow, integrations, and failure-modes findings rather than re-deriving them. When verifying cloud-side claims, prefers eve-mcp tools (ShowEnvironments, GetManifest, ShowChannels, ShowDeploymentCrons) over reading manifest YAML by hand. Trigger on \"map our release,\" \"trace the promotion path,\" \"where does this config come from,\" \"what's the rollback story,\" \"diagram the environments,\" \"show how a version reaches prod,\" or any release-shaped question whose deliverable is a diagram plus a cited report. Not for new architectural snapshots (use architectural-analysis), CI pipeline correctness review (use code review), or designing a release process from scratch (use system-design).",
+      "keywords": [
+        "configuration provenance",
+        "deployment recovery",
+        "environment topology",
+        "map our release",
+        "promotion path",
+        "release analysis",
+        "rollback story"
       ],
       "file_patterns": [],
       "confidence": 0.8
@@ -2610,6 +2794,23 @@
       "confidence": 0.83
     },
     {
+      "name": "wiring-audit",
+      "path": "wiring-audit",
+      "description": "User-triggered audit that finds wiring drift between a project's UI surfaces and backend capabilities — orphan surfaces (UI calls endpoints/hooks/procedures that no longer exist), unwired capabilities (backend routes/exports that nothing surfaces), shape drift (both exist but contracts mismatch), method drift (URL matches, HTTP verb does not), validation drift (frontend vs backend rules diverged), permission drift (UI exposes what backend forbids or vice versa), stale labels (UI text references renamed backend concepts), and unsurfaced configuration (env vars or flags that gate behavior with no UI or CLI to control them). This skill should be used when the user asks to \"audit our wiring,\" \"find UI/backend drift,\" \"find unwired capabilities,\" \"find stale surfaces,\" \"check for contract violations,\" \"find unused endpoints,\" \"find unused hooks,\" \"what mismatches between UI and backend,\" or any similar request whose deliverable is a prioritized findings report rather than a descriptive snapshot. Generic across UI frameworks but optimized for React applications (hooks, fetch, react-query, SWR, tRPC, server actions, react-router, Next.js). Not for descriptive architectural snapshots (use architectural-analysis), security audits (use security-auditor), or performance audits (use workflow-performance).",
+      "keywords": [
+        "UI backend drift",
+        "audit our wiring",
+        "contract violations",
+        "stale surfaces",
+        "unused endpoints",
+        "unused hooks",
+        "unwired capabilities",
+        "wiring audit"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "workflow-bug-fix",
       "path": "workflow-bug-fix",
       "description": "Systematic approach to identifying, fixing, and validating bug fixes. Use when fixing bugs, resolving issues, or addressing errors.",
@@ -2633,20 +2834,6 @@
         "feature",
         "feature implementation",
         "workflow feature"
-      ],
-      "file_patterns": [],
-      "confidence": 0.8
-    },
-    {
-      "name": "workflow-feature-development",
-      "path": "workflow-feature-development",
-      "description": "Complete workflow for developing new features from design to deployment. Use when starting a new feature, adding functionality, or building something new.",
-      "keywords": [
-        "develop feature",
-        "development",
-        "feature",
-        "new functionality",
-        "workflow feature development"
       ],
       "file_patterns": [],
       "confidence": 0.8
