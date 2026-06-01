@@ -42,7 +42,6 @@ reads or writes. For detailed documentation with schemas and examples, see the
 | `skills/recommendation-rules.json` | Recommendation rules | [Docs](reference/configuration.md#recommendation-rulesjson) |
 | `skills/community/registry.yaml` | Community skill registry | Community skill install |
 | `skills/analytics.schema.json` | Skill analytics schema | Validation/reference |
-| `skills/metrics.schema.json` | Skill metrics schema | Validation/reference |
 
 ## Hooks and MCP
 

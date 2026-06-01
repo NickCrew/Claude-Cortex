@@ -34,7 +34,6 @@ _SETTINGS_RELATIVE_PATHS = [
     Path("skills/community/registry.yaml"),
     # Skill schemas (IDE-reference, no runtime validation — see each schema's $comment)
     Path("skills/analytics.schema.json"),
-    Path("skills/metrics.schema.json"),
     Path("skills/registry.schema.json"),
     Path("skills/rubric.schema.yaml"),
 ]
