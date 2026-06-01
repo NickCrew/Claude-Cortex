@@ -9,6 +9,7 @@ import pytest
 from claude_ctx_py import core
 from claude_ctx_py.cli import build_parser
 from claude_ctx_py.core.asset_discovery import _SETTINGS_RELATIVE_PATHS
+from claude_ctx_py.skill_recommender import ALWAYS_ON_SKILLS
 from claude_ctx_py.tui_command_palette import DEFAULT_COMMANDS
 
 
@@ -53,3 +54,8 @@ def test_retired_skill_actions_are_not_exported_or_listed() -> None:
     assert "skill_versions" not in palette_actions
     assert not hasattr(core, "skill_compose")
     assert not hasattr(core, "skill_versions")
+
+
+@pytest.mark.unit
+def test_retired_external_skill_is_not_always_on() -> None:
+    assert "find-skills" not in ALWAYS_ON_SKILLS

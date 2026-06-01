@@ -36,7 +36,6 @@ ALWAYS_ON_SKILLS: frozenset[str] = frozenset(
         "dev-workflows",
         "evaluator-optimizer",
         "feature-implementation",
-        "find-skills",
         "git-ops",
         "implementation-workflow",
         "multi-perspective-analysis",
