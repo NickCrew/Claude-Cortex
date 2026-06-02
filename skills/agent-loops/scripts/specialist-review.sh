@@ -36,6 +36,16 @@
 # Output:
 #   Writes review to <output-dir>/review-<timestamp>.md
 #   Prints the output file path to stdout on success.
+#
+# Environment:
+#   AGENT_LOOPS_LLM_PROVIDER          Default provider: auto|claude|gemini|codex
+#   SPECIALIST_REVIEW_PROVIDER        Override provider for this script only
+#   CLAUDE_MODEL                      Claude model override (default: opus)
+#   GEMINI_MODEL                      Gemini model override
+#   CODEX_MODEL                       Codex model override
+#   AGENT_LOOPS_SECONDARY_PROVIDER    Optional second reviewer: claude|gemini|codex
+#   AGENT_LOOPS_SECONDARY_MODEL       Optional model for the second reviewer
+#   SPECIALIST_REVIEW_SECONDARY_*     Per-script secondary provider/model overrides
 
 set -euo pipefail
 
@@ -73,6 +83,8 @@ CONTEXT_LINES="${REVIEW_CONTEXT:-15}"
 PRIOR_REVIEW_FILE=""
 PATH_FILTERS=()
 REQUESTED_PROVIDER="${SPECIALIST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
+SECONDARY_PROVIDER="${SPECIALIST_REVIEW_SECONDARY_PROVIDER:-${AGENT_LOOPS_SECONDARY_PROVIDER:-}}"
+SECONDARY_MODEL="${SPECIALIST_REVIEW_SECONDARY_MODEL:-${AGENT_LOOPS_SECONDARY_MODEL:-}}"
 JUMBO="${AGENT_LOOPS_JUMBO:-0}"
 
 while [[ $# -gt 0 ]]; do
@@ -188,7 +200,7 @@ if [[ "$DIFF_SOURCE" == "--git" ]]; then
     # Generate +line hunks from file content
     line_count=$(wc -l <"$ufile" | tr -d ' ')
     printf '@@ -0,0 +1,%s @@\n' "$line_count" >>"$DIFF_FILE"
-    sed 's/^/+/' "$ufile" >>"$DIFF_FILE"
+    LC_ALL=C sed 's/^/+/' "$ufile" >>"$DIFF_FILE"
   done < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
 elif [[ "$DIFF_SOURCE" == "-" ]]; then
   cat >"$DIFF_FILE"
@@ -322,6 +334,12 @@ PROMPT_SIZE=$(wc -c <"$PROMPT_FILE" | tr -d ' ')
 echo "Starting specialist review ($DIFF_LINES lines, prompt ${PROMPT_SIZE} bytes)..." >&2
 echo "Output: $OUTPUT_FILE" >&2
 echo "Requested provider: $REQUESTED_PROVIDER" >&2
+if [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]; then
+  echo "Secondary provider: $SECONDARY_PROVIDER" >&2
+  if [[ -n "$SECONDARY_MODEL" ]]; then
+    echo "Secondary model override: $SECONDARY_MODEL" >&2
+  fi
+fi
 
 # --- Pre-flight checks ---
 
@@ -332,7 +350,15 @@ if [[ ! -s "$PROMPT_FILE" ]]; then
 fi
 
 SELF_PROVIDER="$(review_provider_detect_self)"
-mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER") || exit 1
+PROVIDER_CANDIDATES="$(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER")" || exit 1
+PROVIDERS=()
+while IFS= read -r provider || [[ -n "$provider" ]]; do
+  [[ -n "$provider" ]] && PROVIDERS+=("$provider")
+done <<<"$PROVIDER_CANDIDATES"
+if [[ ${#PROVIDERS[@]} -eq 0 ]]; then
+  echo "Error: no provider candidates resolved from '$REQUESTED_PROVIDER'." >&2
+  exit 1
+fi
 
 if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
   if [[ -n "$SELF_PROVIDER" ]]; then
@@ -341,6 +367,18 @@ if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
     echo "Self provider: unknown (set AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex to keep same-model reviews last)" >&2
   fi
   echo "Auto provider order: ${PROVIDERS[*]}" >&2
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "Error: python3 is required for review artifact validation and synthesis." >&2
+  exit 1
+fi
+
+if [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]; then
+  if ! review_provider_is_available "$SECONDARY_PROVIDER"; then
+    echo "Error: Secondary provider '$SECONDARY_PROVIDER' is not available in PATH." >&2
+    exit 1
+  fi
 fi
 
 # Emit a structured failure summary to stdout so the calling agent can report
@@ -395,6 +433,97 @@ _heartbeat_stop() {
   fi
 }
 
+_secondary_review_enabled() {
+  [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]
+}
+
+_run_secondary_review() {
+  local primary_provider="$1"
+  local primary_artifact="$2"
+  local primary_saved="$OUTPUT_DIR/review-$TIMESTAMP.primary-$primary_provider.md"
+  local secondary_artifact="$OUTPUT_DIR/review-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.md"
+  local secondary_stderr="$OUTPUT_DIR/review-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.stderr.log"
+  local secondary_timeout
+  local files_reviewed="(see primary artifact)"
+
+  if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
+    files_reviewed="${PATH_FILTERS[*]}"
+  fi
+
+  if ! review_provider_is_available "$SECONDARY_PROVIDER"; then
+    echo "Error: Secondary provider '$SECONDARY_PROVIDER' is not available in PATH." >&2
+    _emit_failure_summary "Secondary provider unavailable ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  mv "$primary_artifact" "$primary_saved"
+  secondary_timeout="$(review_provider_timeout "$SECONDARY_PROVIDER" "$DEFAULT_TIMEOUT")"
+  echo "Trying secondary provider: $(review_provider_display_name "$SECONDARY_PROVIDER") (timeout ${secondary_timeout}s)" >&2
+
+  rm -f "$secondary_artifact"
+  START_TIME=$(date +%s)
+  _heartbeat_start "Secondary $(review_provider_display_name "$SECONDARY_PROVIDER")" "$START_TIME"
+  if review_provider_run "$SECONDARY_PROVIDER" "$PROMPT_FILE" "$secondary_artifact" "$secondary_stderr" "$secondary_timeout" "$SECONDARY_MODEL"; then
+    _heartbeat_stop
+  else
+    local secondary_exit=$?
+    _heartbeat_stop
+    echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") invocation failed (exit $secondary_exit)" >&2
+    _emit_failure_summary "Secondary provider failed ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  if ! review_provider_has_meaningful_content "$secondary_artifact"; then
+    echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") completed but review file is empty or whitespace-only." >&2
+    rm -f "$secondary_artifact"
+    _emit_failure_summary "Secondary provider returned empty output ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  if ! python3 "$VALIDATOR" code-review "$secondary_artifact" >/dev/null 2>&1; then
+    local normalized_secondary="$OUTPUT_DIR/review-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.normalized.md"
+    if python3 "$VALIDATOR" normalize-code-review "$secondary_artifact" >"$normalized_secondary" 2>/dev/null &&
+      python3 "$VALIDATOR" code-review "$normalized_secondary" >/dev/null 2>&1; then
+      mv "$normalized_secondary" "$secondary_artifact"
+      echo "Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") output normalized to the code review contract." >&2
+    else
+      rm -f "$normalized_secondary"
+      echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") output did not match the code review contract." >&2
+      python3 "$VALIDATOR" code-review "$secondary_artifact" >&2 || true
+      _emit_failure_summary "Secondary contract validation failed ($SECONDARY_PROVIDER)"
+      exit 1
+    fi
+  fi
+
+  if ! python3 "$SCRIPT_DIR/synthesize-review-artifacts.py" code-review \
+    --primary="$primary_saved" \
+    --secondary="$secondary_artifact" \
+    --primary-provider="$primary_provider" \
+    --secondary-provider="$SECONDARY_PROVIDER" \
+    --files-reviewed="$files_reviewed" \
+    >"$OUTPUT_FILE"; then
+    echo "Error: Failed to synthesize dual review artifacts." >&2
+    rm -f "$OUTPUT_FILE"
+    _emit_failure_summary "Artifact synthesis failed"
+    exit 1
+  fi
+
+  if ! python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >/dev/null 2>&1; then
+    echo "Error: Synthesized review artifact did not match the code review contract." >&2
+    python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >&2 || true
+    if [[ -f "$OUTPUT_FILE" ]]; then
+      local invalid_output="${OUTPUT_FILE%.md}.invalid.md"
+      mv "$OUTPUT_FILE" "$invalid_output"
+      echo "Invalid synthesized artifact saved to: $invalid_output" >&2
+    fi
+    _emit_failure_summary "Synthesized artifact validation failed"
+    exit 1
+  fi
+
+  rm -f "$secondary_stderr"
+  return 0
+}
+
 AVAILABLE_PROVIDER_FOUND=0
 
 for PROVIDER in "${PROVIDERS[@]}"; do
@@ -443,9 +572,12 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     ELAPSED=$(($(date +%s) - START_TIME))
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
-    if [[ -s "$OUTPUT_FILE" ]]; then
+    if review_provider_has_meaningful_content "$OUTPUT_FILE"; then
       if python3 "$VALIDATOR" code-review "$OUTPUT_FILE" >/dev/null 2>&1; then
         rm -f "$STDERR_LOG" "$PROMPT_PRESERVED"
+        if _secondary_review_enabled; then
+          _run_secondary_review "$PROVIDER" "$OUTPUT_FILE"
+        fi
         python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
         echo "$OUTPUT_FILE"
         exit 0
@@ -466,6 +598,9 @@ for PROVIDER in "${PROVIDERS[@]}"; do
           rm -f "$NORMALIZED_OUTPUT"
         fi
         rm -f "$STDERR_LOG" "$PROMPT_PRESERVED"
+        if _secondary_review_enabled; then
+          _run_secondary_review "$PROVIDER" "$OUTPUT_FILE"
+        fi
         python3 -m claude_ctx_py.review_parser "$OUTPUT_FILE" 2>/dev/null || true
         echo "$OUTPUT_FILE"
         exit 0
@@ -488,7 +623,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
       exit 1
     fi
 
-    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but review file is empty." >&2
+    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but review file is empty or whitespace-only." >&2
     echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
     echo "  Diff lines: ${DIFF_LINES}" >&2
     echo "  Prompt head:" >&2
@@ -512,10 +647,12 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     sed 's/^/    /' "$STDERR_LOG" >&2
   fi
 
-  if [[ -s "$OUTPUT_FILE" ]]; then
+  if review_provider_has_meaningful_content "$OUTPUT_FILE"; then
     PARTIAL_OUTPUT="$OUTPUT_DIR/review-$TIMESTAMP.$PROVIDER.partial.md"
     mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
     echo "Partial output saved to: $PARTIAL_OUTPUT" >&2
+  elif [[ -e "$OUTPUT_FILE" ]]; then
+    rm -f "$OUTPUT_FILE"
   fi
 
   if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then

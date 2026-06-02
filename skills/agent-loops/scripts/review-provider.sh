@@ -106,6 +106,37 @@ review_provider_timeout() {
   esac
 }
 
+review_provider_has_meaningful_content() {
+  local file="$1"
+
+  [[ -s "$file" ]] && LC_ALL=C grep -q '[^[:space:]]' "$file"
+}
+
+review_provider_model() {
+  local provider="$1"
+  local override="${2:-}"
+
+  if [[ -n "$override" ]]; then
+    echo "$override"
+    return 0
+  fi
+
+  case "$provider" in
+    claude)
+      echo "${CLAUDE_MODEL:-opus}"
+      ;;
+    gemini)
+      echo "${GEMINI_MODEL:-}"
+      ;;
+    codex)
+      echo "${CODEX_MODEL:-}"
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
 review_provider_claude_auth() {
   # Check if Claude CLI can authenticate in this process context.
   # Returns 0 if auth is available, 1 if not.
@@ -150,10 +181,13 @@ review_provider_run() {
   local output_file="$3"
   local stderr_log="$4"
   local timeout_seconds="$5"
+  local model_override="${6:-}"
 
   case "$provider" in
     claude)
       local max_budget="${CLAUDE_MAX_BUDGET:-2.00}"
+      local model
+      model="$(review_provider_model claude "$model_override")"
 
       unset CLAUDECODE 2>/dev/null || true
 
@@ -176,7 +210,7 @@ review_provider_run() {
         claude_cmd+=(--bare)
       fi
 
-      claude_cmd+=(--model "${CLAUDE_MODEL:-opus}")
+      claude_cmd+=(--model "$model")
 
       echo "Claude command: ${claude_cmd[*]}" >&2
       echo "Prompt size: $(wc -c <"$prompt_file" | tr -d ' ') bytes" >&2
@@ -205,8 +239,10 @@ review_provider_run() {
         --allowed-mcp-server-names _none_
       )
 
-      if [[ -n "${GEMINI_MODEL:-}" ]]; then
-        cmd+=(--model "${GEMINI_MODEL}")
+      local model
+      model="$(review_provider_model gemini "$model_override")"
+      if [[ -n "$model" ]]; then
+        cmd+=(--model "$model")
       fi
 
       echo "Gemini command: ${cmd[*]}" >&2
@@ -216,11 +252,14 @@ review_provider_run() {
       ;;
     codex)
       local -a cmd
-      cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)" -s read-only -o "$output_file" -)
+      local model
+      cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)")
 
-      if [[ -n "${CODEX_MODEL:-}" ]]; then
-        cmd=(codex exec --ephemeral --skip-git-repo-check -C "$(pwd -P)" -m "${CODEX_MODEL}" -s read-only -o "$output_file" -)
+      model="$(review_provider_model codex "$model_override")"
+      if [[ -n "$model" ]]; then
+        cmd+=(-m "$model")
       fi
+      cmd+=(-s read-only -o "$output_file" -)
 
       # Clear parent session env vars so the nested codex exec doesn't
       # try to join or conflict with the calling Codex session.

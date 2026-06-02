@@ -253,6 +253,16 @@ Provider selection:
   family last, and uses the remaining provider in between.
 - Override per run with `--provider auto|claude|gemini|codex`.
 - Override by environment with `AGENT_LOOPS_LLM_PROVIDER` or `SPECIALIST_REVIEW_PROVIDER`.
+- Override provider models with `CLAUDE_MODEL`, `GEMINI_MODEL`, or `CODEX_MODEL`.
+- Enable a second reviewer with `AGENT_LOOPS_SECONDARY_PROVIDER=claude|gemini|codex`
+  and optionally `AGENT_LOOPS_SECONDARY_MODEL=<model>`. Use
+  `SPECIALIST_REVIEW_SECONDARY_PROVIDER` / `SPECIALIST_REVIEW_SECONDARY_MODEL`
+  for code-review only, or `TEST_REVIEW_SECONDARY_PROVIDER` /
+  `TEST_REVIEW_SECONDARY_MODEL` for test-audit only. The script preserves both
+  raw artifacts and emits one synthesized final artifact.
+- To conserve Claude usage while keeping a second signal, use:
+  `CLAUDE_MODEL=sonnet AGENT_LOOPS_SECONDARY_PROVIDER=codex` or
+  `CLAUDE_MODEL=sonnet AGENT_LOOPS_SECONDARY_PROVIDER=gemini`.
 - Set `AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex` when the current agent is not
   auto-detected. Codex, Gemini, and Claude sessions auto-detect themselves when
   their standard session markers are present.

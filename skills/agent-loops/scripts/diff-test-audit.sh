@@ -28,7 +28,12 @@
 #   GEMINI_TIMEOUT           Timeout in seconds for Gemini (default: 300)
 #   CODEX_TIMEOUT            Timeout in seconds for Codex (default: 300)
 #   CLAUDE_MAX_BUDGET        Max spend in USD per Claude invocation (default: 2.00)
+#   CLAUDE_MODEL             Claude model override (default: opus)
+#   GEMINI_MODEL             Optional Gemini model override
 #   CODEX_MODEL              Optional Codex model override
+#   AGENT_LOOPS_SECONDARY_PROVIDER Optional second auditor: claude|gemini|codex
+#   AGENT_LOOPS_SECONDARY_MODEL    Optional model for the second auditor
+#   TEST_REVIEW_SECONDARY_*        Per-script secondary provider/model overrides
 #   CLAUDE_DEBUG=1           Same as --debug flag
 #
 # All source, test, and reference content is inlined into the prompt.
@@ -78,6 +83,8 @@ BASE_REF="HEAD~1"
 PATH_FILTERS=()
 DEBUG="${CLAUDE_DEBUG:-0}"
 REQUESTED_PROVIDER="${TEST_REVIEW_PROVIDER:-${AGENT_LOOPS_LLM_PROVIDER:-auto}}"
+SECONDARY_PROVIDER="${TEST_REVIEW_SECONDARY_PROVIDER:-${AGENT_LOOPS_SECONDARY_PROVIDER:-}}"
+SECONDARY_MODEL="${TEST_REVIEW_SECONDARY_MODEL:-${AGENT_LOOPS_SECONDARY_MODEL:-}}"
 JUMBO="${AGENT_LOOPS_JUMBO:-0}"
 
 while [[ $# -gt 0 ]]; do
@@ -235,7 +242,10 @@ if [[ -n "$GIT_MODE" ]]; then
     GIT_DIFF_ARGS=("$BASE_REF" "--" "$MODULE_PATH" "${PATH_FILTERS[@]}")
   fi
 
-  mapfile -t CHANGED_FILES < <(git diff --name-only "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)
+  CHANGED_FILES=()
+  while IFS= read -r changed_file || [[ -n "$changed_file" ]]; do
+    [[ -n "$changed_file" ]] && CHANGED_FILES+=("$changed_file")
+  done < <(git diff --name-only "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)
 
   # Capture the actual diff content for the diff-focused prompt.
   DIFF_CONTENT="$(git diff "${GIT_DIFF_ARGS[@]}" 2>/dev/null || true)"
@@ -245,11 +255,12 @@ if [[ -n "$GIT_MODE" ]]; then
   if [[ ${#PATH_FILTERS[@]} -gt 0 ]]; then
     UNTRACKED_ARGS=(--others --exclude-standard -- "$MODULE_PATH" "${PATH_FILTERS[@]}")
   fi
-  mapfile -t UNTRACKED_FILES < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
-  CHANGED_FILES+=("${UNTRACKED_FILES[@]}")
+  while IFS= read -r untracked_file || [[ -n "$untracked_file" ]]; do
+    [[ -n "$untracked_file" ]] || continue
+    CHANGED_FILES+=("$untracked_file")
 
-  # Synthesize "new file" diffs for untracked files so DIFF_CONTENT sees them.
-  for ufile in "${UNTRACKED_FILES[@]}"; do
+    # Synthesize "new file" diffs for untracked files so DIFF_CONTENT sees them.
+    ufile="$untracked_file"
     if [[ ! -e "$ufile" && -e "$REPO_ROOT/$ufile" ]]; then
       ufile_abs="$REPO_ROOT/$ufile"
     else
@@ -257,12 +268,11 @@ if [[ -n "$GIT_MODE" ]]; then
     fi
     if [[ -f "$ufile_abs" ]]; then
       DIFF_CONTENT+=$'\n'"diff --git a/$ufile b/$ufile"$'\n'"new file mode 100644"$'\n'"--- /dev/null"$'\n'"+++ b/$ufile"$'\n'
-      # Prefix each line with + to mark as addition
-      while IFS= read -r line || [[ -n "$line" ]]; do
-        DIFF_CONTENT+="+$line"$'\n'
-      done <"$ufile_abs"
+      line_count=$(wc -l <"$ufile_abs" | tr -d ' ')
+      DIFF_CONTENT+="@@ -0,0 +1,$line_count @@"$'\n'
+      DIFF_CONTENT+="$(LC_ALL=C sed 's/^/+/' "$ufile_abs")"$'\n'
     fi
-  done
+  done < <(git ls-files "${UNTRACKED_ARGS[@]}" 2>/dev/null || true)
 
   if [[ ${#CHANGED_FILES[@]} -eq 0 ]]; then
     echo "No changed files found in $MODULE_PATH (base: $BASE_REF). Nothing to audit." >&2
@@ -484,6 +494,12 @@ echo "Module: $MODULE_PATH" >&2
 echo "Tests: $TEST_PATH" >&2
 echo "Output: $OUTPUT_FILE" >&2
 echo "Requested provider: $REQUESTED_PROVIDER" >&2
+if [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]; then
+  echo "Secondary provider: $SECONDARY_PROVIDER" >&2
+  if [[ -n "$SECONDARY_MODEL" ]]; then
+    echo "Secondary model override: $SECONDARY_MODEL" >&2
+  fi
+fi
 
 # --- Pre-flight checks ---
 
@@ -494,7 +510,15 @@ if [[ ! -s "$SYSTEM_PROMPT_FILE" ]]; then
 fi
 
 SELF_PROVIDER="$(review_provider_detect_self)"
-mapfile -t PROVIDERS < <(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER") || exit 1
+PROVIDER_CANDIDATES="$(review_provider_candidates "$REQUESTED_PROVIDER" "$SELF_PROVIDER")" || exit 1
+PROVIDERS=()
+while IFS= read -r provider || [[ -n "$provider" ]]; do
+  [[ -n "$provider" ]] && PROVIDERS+=("$provider")
+done <<<"$PROVIDER_CANDIDATES"
+if [[ ${#PROVIDERS[@]} -eq 0 ]]; then
+  echo "Error: no provider candidates resolved from '$REQUESTED_PROVIDER'." >&2
+  exit 1
+fi
 
 if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
   if [[ -n "$SELF_PROVIDER" ]]; then
@@ -503,6 +527,18 @@ if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
     echo "Self provider: unknown (set AGENT_LOOPS_SELF_PROVIDER=claude|gemini|codex to keep same-model reviews last)" >&2
   fi
   echo "Auto provider order: ${PROVIDERS[*]}" >&2
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "Error: python3 is required for audit artifact validation and synthesis." >&2
+  exit 1
+fi
+
+if [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]; then
+  if ! review_provider_is_available "$SECONDARY_PROVIDER"; then
+    echo "Error: Secondary provider '$SECONDARY_PROVIDER' is not available in PATH." >&2
+    exit 1
+  fi
 fi
 
 _emit_failure_summary() {
@@ -553,6 +589,94 @@ _heartbeat_stop() {
   fi
 }
 
+_secondary_review_enabled() {
+  [[ -n "$SECONDARY_PROVIDER" && "$SECONDARY_PROVIDER" != "none" && "$SECONDARY_PROVIDER" != "off" && "$SECONDARY_PROVIDER" != "0" ]]
+}
+
+_run_secondary_audit() {
+  local primary_provider="$1"
+  local primary_artifact="$2"
+  local primary_saved="$OUTPUT_DIR/test-audit-$TIMESTAMP.primary-$primary_provider.md"
+  local secondary_artifact="$OUTPUT_DIR/test-audit-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.md"
+  local secondary_stderr="$OUTPUT_DIR/test-audit-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.stderr.log"
+  local secondary_timeout
+
+  if ! review_provider_is_available "$SECONDARY_PROVIDER"; then
+    echo "Error: Secondary provider '$SECONDARY_PROVIDER' is not available in PATH." >&2
+    _emit_failure_summary "Secondary provider unavailable ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  mv "$primary_artifact" "$primary_saved"
+  secondary_timeout="$(review_provider_timeout "$SECONDARY_PROVIDER" "$DEFAULT_TIMEOUT")"
+  echo "Trying secondary provider: $(review_provider_display_name "$SECONDARY_PROVIDER") (timeout ${secondary_timeout}s)" >&2
+
+  rm -f "$secondary_artifact"
+  START_TIME=$(date +%s)
+  _heartbeat_start "Secondary $(review_provider_display_name "$SECONDARY_PROVIDER")" "$START_TIME"
+  if review_provider_run "$SECONDARY_PROVIDER" "$SYSTEM_PROMPT_FILE" "$secondary_artifact" "$secondary_stderr" "$secondary_timeout" "$SECONDARY_MODEL"; then
+    _heartbeat_stop
+  else
+    local secondary_exit=$?
+    _heartbeat_stop
+    echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") invocation failed (exit $secondary_exit)" >&2
+    _emit_failure_summary "Secondary provider failed ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  if ! review_provider_has_meaningful_content "$secondary_artifact"; then
+    echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") completed but report file is empty or whitespace-only." >&2
+    rm -f "$secondary_artifact"
+    _emit_failure_summary "Secondary provider returned empty output ($SECONDARY_PROVIDER)"
+    exit 1
+  fi
+
+  if ! python3 "$VALIDATOR" test-audit "$secondary_artifact" >/dev/null 2>&1; then
+    local normalized_secondary="$OUTPUT_DIR/test-audit-$TIMESTAMP.secondary-$SECONDARY_PROVIDER.normalized.md"
+    if python3 "$VALIDATOR" normalize-test-audit "$secondary_artifact" >"$normalized_secondary" 2>/dev/null &&
+      python3 "$VALIDATOR" test-audit "$normalized_secondary" >/dev/null 2>&1; then
+      mv "$normalized_secondary" "$secondary_artifact"
+      echo "Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") output normalized to the test audit contract." >&2
+    else
+      rm -f "$normalized_secondary"
+      echo "Error: Secondary $(review_provider_display_name "$SECONDARY_PROVIDER") output did not match the test audit contract." >&2
+      python3 "$VALIDATOR" test-audit "$secondary_artifact" >&2 || true
+      _emit_failure_summary "Secondary contract validation failed ($SECONDARY_PROVIDER)"
+      exit 1
+    fi
+  fi
+
+  if ! python3 "$SCRIPT_DIR/synthesize-review-artifacts.py" test-audit \
+    --primary="$primary_saved" \
+    --secondary="$secondary_artifact" \
+    --primary-provider="$primary_provider" \
+    --secondary-provider="$SECONDARY_PROVIDER" \
+    --module="$MODULE_PATH" \
+    --tests="$TEST_PATH" \
+    --audit-mode="$MODE" \
+    >"$OUTPUT_FILE"; then
+    echo "Error: Failed to synthesize dual audit artifacts." >&2
+    rm -f "$OUTPUT_FILE"
+    _emit_failure_summary "Artifact synthesis failed"
+    exit 1
+  fi
+
+  if ! python3 "$VALIDATOR" test-audit "$OUTPUT_FILE" >/dev/null 2>&1; then
+    echo "Error: Synthesized audit artifact did not match the test audit contract." >&2
+    python3 "$VALIDATOR" test-audit "$OUTPUT_FILE" >&2 || true
+    if [[ -f "$OUTPUT_FILE" ]]; then
+      local invalid_output="${OUTPUT_FILE%.md}.invalid.md"
+      mv "$OUTPUT_FILE" "$invalid_output"
+      echo "Invalid synthesized artifact saved to: $invalid_output" >&2
+    fi
+    _emit_failure_summary "Synthesized artifact validation failed"
+    exit 1
+  fi
+
+  rm -f "$secondary_stderr"
+  return 0
+}
+
 AVAILABLE_PROVIDER_FOUND=0
 
 for PROVIDER in "${PROVIDERS[@]}"; do
@@ -589,10 +713,13 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     ELAPSED=$(($(date +%s) - START_TIME))
     echo "$(review_provider_display_name "$PROVIDER") finished in ${ELAPSED}s" >&2
 
-    if [[ -s "$OUTPUT_FILE" ]]; then
+    if review_provider_has_meaningful_content "$OUTPUT_FILE"; then
       if python3 "$VALIDATOR" test-audit "$OUTPUT_FILE" >/dev/null 2>&1; then
         if [[ "$DEBUG" != "1" ]]; then
           rm -f "$STDERR_LOG"
+        fi
+        if _secondary_review_enabled; then
+          _run_secondary_audit "$PROVIDER" "$OUTPUT_FILE"
         fi
         echo "$OUTPUT_FILE"
         exit 0
@@ -615,6 +742,9 @@ for PROVIDER in "${PROVIDERS[@]}"; do
         if [[ "$DEBUG" != "1" ]]; then
           rm -f "$STDERR_LOG"
         fi
+        if _secondary_review_enabled; then
+          _run_secondary_audit "$PROVIDER" "$OUTPUT_FILE"
+        fi
         echo "$OUTPUT_FILE"
         exit 0
       fi
@@ -636,7 +766,7 @@ for PROVIDER in "${PROVIDERS[@]}"; do
       exit 1
     fi
 
-    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but report file is empty." >&2
+    echo "Error: $(review_provider_display_name "$PROVIDER") completed (exit 0) but report file is empty or whitespace-only." >&2
     echo "  Prompt size: ${PROMPT_SIZE} bytes" >&2
     echo "  Module: $MODULE_PATH" >&2
     echo "  Prompt head:" >&2
@@ -660,10 +790,12 @@ for PROVIDER in "${PROVIDERS[@]}"; do
     sed 's/^/    /' "$STDERR_LOG" >&2
   fi
 
-  if [[ -s "$OUTPUT_FILE" ]]; then
+  if review_provider_has_meaningful_content "$OUTPUT_FILE"; then
     PARTIAL_OUTPUT="$OUTPUT_DIR/test-audit-$TIMESTAMP.$PROVIDER.partial.md"
     mv "$OUTPUT_FILE" "$PARTIAL_OUTPUT"
     echo "Partial output saved to: $PARTIAL_OUTPUT" >&2
+  elif [[ -e "$OUTPUT_FILE" ]]; then
+    rm -f "$OUTPUT_FILE"
   fi
 
   if [[ "$REQUESTED_PROVIDER" == "auto" ]]; then
