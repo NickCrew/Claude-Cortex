@@ -26,6 +26,7 @@ PRIMARY_VIEW_BINDINGS = [
     ("T", "tasks", "Tasks"),
     ("W", "worktrees", "Worktrees"),
     ("A", "assets", "Assets"),
+    ("o", "output_styles", "Output Styles"),
     ("F", "settings", "Settings"),
 ]
 
@@ -45,5 +46,6 @@ VIEW_TITLES: Dict[str, str] = {
     "memory": "🧠 Notes Vault",
     "hooks": "🪝 Hooks",
     "codex_skills": "🔗 LLM Skills",
+    "output_styles": "🎨 Output Styles",
     "settings": "⚙️  Settings",
 }

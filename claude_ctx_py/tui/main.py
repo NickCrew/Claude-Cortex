@@ -179,6 +179,14 @@ from ..core.asset_discovery import (
     check_installation_status,
 )
 from ..core.asset_installer import install_asset, uninstall_asset, get_asset_diff
+from ..core.output_styles import (
+    OutputStyle,
+    activate_output_style,
+    deactivate_output_style,
+    install_output_style,
+    list_output_styles,
+    uninstall_output_style,
+)
 from ..core.hooks import (
     detect_settings_files,
     get_settings_path,
@@ -252,6 +260,29 @@ from .tour import TourManager, TourOverlay, QUICK_TOUR
 import threading
 
 
+# Actions that share a key across views but belong to exactly one view.
+# `check_action` returns True only when that view is active, so Textual falls
+# through to the next binding for the key (it stops at the first enabled one).
+# This is what lets Output Styles reuse i/u while Assets/Settings keep them.
+_VIEW_SCOPED_ACTION_OWNERS: Dict[str, str] = {
+    "asset_install": "assets",
+    "asset_uninstall": "assets",
+    "setting_install": "settings",
+    "setting_uninstall": "settings",
+    "watch_adjust_interval": "watch_mode",
+    "watch_change_directory": "watch_mode",
+    "output_style_install": "output_styles",
+    "output_style_uninstall": "output_styles",
+    "output_style_activate": "output_styles",
+    "output_style_deactivate": "output_styles",
+}
+
+# Multi-view actions that share a key with an Output Styles action. We only
+# disable them in the Output Styles view so the key falls through there, while
+# leaving their behavior in every other view untouched.
+_DISABLE_IN_OUTPUT_STYLES: frozenset[str] = frozenset({"toggle", "docs_context"})
+
+
 class AgentTUI(App[None]):
     """Textual TUI for cortex management."""
 
@@ -320,6 +351,7 @@ class AgentTUI(App[None]):
         self.export_agent_generic: bool = True
         self.export_row_meta: List[Tuple[str, Optional[str]]] = []
         self.skills: List[Dict[str, Any]] = []
+        self.output_styles: List[OutputStyle] = []
         self.codex_skills_status: Dict[str, bool] = {}
         self.codex_native_skills: List[Dict[str, Any]] = []
         # Provider-based LLM skills state
@@ -451,6 +483,11 @@ class AgentTUI(App[None]):
         Binding("d", "watch_change_directory", "Change Dir", show=False),
         Binding("t", "watch_adjust_threshold", "Adjust Threshold", show=False),
         Binding("i", "watch_adjust_interval", "Adjust Interval", show=False),
+        # Output Styles bindings (gated per-view via check_action)
+        Binding("space", "output_style_activate", "Activate Style", show=False),
+        Binding("d", "output_style_deactivate", "Deactivate Style", show=False),
+        Binding("i", "output_style_install", "Install Style", show=False),
+        Binding("u", "output_style_uninstall", "Uninstall Style", show=False),
     ]
 
     # Register command provider for Textual's command palette
@@ -556,6 +593,7 @@ class AgentTUI(App[None]):
         self.load_agent_tasks()
         self.load_worktrees()
         self.load_mcp_servers()
+        self.load_output_styles()
 
         # Switch to start_view if specified, otherwise use default
         if self._start_view:
@@ -679,7 +717,13 @@ class AgentTUI(App[None]):
                 "edit_item",
                 "copy_definition",
             },
-            "rules": {"toggle", "details_context", "edit_item", "copy_definition", "rule_new"},
+            "rules": {
+                "toggle",
+                "details_context",
+                "edit_item",
+                "copy_definition",
+                "rule_new",
+            },
             "skills": {
                 "details_context",
                 "validate_context",
@@ -769,6 +813,24 @@ class AgentTUI(App[None]):
             pass  # Quick nav not yet mounted
 
         self.refresh(layout=True)
+
+    def check_action(
+        self, action: str, parameters: Tuple[object, ...]
+    ) -> Optional[bool]:
+        """Enable/disable bindings per view so shared keys resolve correctly.
+
+        Textual fires the first *enabled* binding registered for a key. Several
+        keys (i, u, space, d) are bound by more than one view; returning False
+        here disables a binding so Textual falls through to the next one. Any
+        action not listed is always enabled (returns True), preserving existing
+        behavior everywhere else.
+        """
+        owner = _VIEW_SCOPED_ACTION_OWNERS.get(action)
+        if owner is not None:
+            return self.current_view == owner
+        if self.current_view == "output_styles" and action in _DISABLE_IN_OUTPUT_STYLES:
+            return False
+        return True
 
     def _validate_path(self, base_dir: Path, subpath: Path) -> Path:
         """
@@ -1140,6 +1202,36 @@ class AgentTUI(App[None]):
             return
         await self.push_screen(TextViewerDialog(title, body), wait_for_dismiss=True)
 
+    async def _show_markdown_dialog(
+        self, title: str, raw: str, *, meta: Optional[str] = None
+    ) -> None:
+        """Render a markdown asset with its body styled and front matter collapsed.
+
+        Splits leading YAML front matter from the markdown body so the body
+        renders as rich markdown while the raw front matter stays available
+        behind a collapsible section.
+        """
+        if not raw:
+            return
+        front_matter: Optional[str] = None
+        body = raw
+        stripped = raw.lstrip()
+        if stripped.startswith("---"):
+            parts = stripped.split("---", 2)
+            if len(parts) >= 3:
+                front_matter = parts[1].strip("\n")
+                body = parts[2].lstrip("\n")
+        await self.push_screen(
+            TextViewerDialog(
+                title,
+                body,
+                markdown=True,
+                front_matter=front_matter,
+                meta=meta,
+            ),
+            wait_for_dismiss=True,
+        )
+
     def _show_restart_required(self) -> None:
         """Show restart-required modal after activation changes."""
         self.push_screen(InfoDialog(RESTART_REQUIRED_TITLE, RESTART_REQUIRED_MESSAGE))
@@ -1416,9 +1508,7 @@ class AgentTUI(App[None]):
             self.provider_native_skills = results
         except Exception as e:
             self.provider_native_skills = []
-            self.log(
-                f"Error loading {self.active_provider}-native skills: {e}"
-            )
+            self.log(f"Error loading {self.active_provider}-native skills: {e}")
 
     def load_slash_commands(self) -> None:
         """Load slash command metadata from the skills directory."""
@@ -1688,9 +1778,7 @@ class AgentTUI(App[None]):
 
             # Active/installed status (symlinked into ~/.claude/skills/)
             is_installed = skill.get("installed", False)
-            active_text = (
-                "[green]✓ Yes[/green]" if is_installed else "[dim]○ No[/dim]"
-            )
+            active_text = "[green]✓ Yes[/green]" if is_installed else "[dim]○ No[/dim]"
 
             rating_text = self._format_skill_rating(skill)
 
@@ -2328,6 +2416,8 @@ class AgentTUI(App[None]):
             self.show_skills_view(table)
         elif self.current_view == "codex_skills":
             self.show_codex_skills_view(table)
+        elif self.current_view == "output_styles":
+            self.show_output_styles_view(table)
         elif self.current_view == "commands":
             self.show_commands_view(table)
         elif self.current_view == "worktrees":
@@ -4466,6 +4556,111 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Watch Mode"
         self.notify("🔍 Watch Mode", severity="information", timeout=1)
 
+    # ------------------------------------------------------------------
+    # Output Styles view
+    # ------------------------------------------------------------------
+
+    def load_output_styles(self) -> None:
+        """Load output styles (repo-shipped) with install/active state."""
+        try:
+            self.output_styles = list_output_styles()
+            self.status_message = f"Loaded {len(self.output_styles)} output styles"
+        except Exception as e:  # pragma: no cover - defensive
+            self.output_styles = []
+            self.status_message = f"Failed to load output styles: {e}"
+
+    def action_view_output_styles(self) -> None:
+        """Switch to the output styles view."""
+        self.load_output_styles()
+        self.current_view = "output_styles"
+        self.status_message = f"Loaded {len(self.output_styles)} output styles"
+        self.notify("🎨 Output Styles", severity="information", timeout=1)
+
+    def show_output_styles_view(self, table: DataTable[Any]) -> None:
+        """Render the output styles table (Name / Active / Installed / Desc)."""
+        table.add_column("Name", key="name", width=22)
+        table.add_column("Active", key="active", width=10)
+        table.add_column("Installed", key="installed", width=11)
+        table.add_column("Description", key="description")
+
+        if not self.output_styles:
+            table.add_row("[dim]No output styles found[/dim]", "", "", "")
+            return
+
+        for style in self.output_styles:
+            name = f"[bold green]{Icons.DOC} {style.name}[/bold green]"
+            active = (
+                "[green]✓ Active[/green]" if style.active else "[dim]○[/dim]"
+            )
+            installed = (
+                "[green]✓ Yes[/green]" if style.installed else "[dim]○ No[/dim]"
+            )
+            description = style.description or "[dim]—[/dim]"
+            table.add_row(name, active, installed, description)
+
+    def _selected_output_style(self) -> Optional[OutputStyle]:
+        """Return the output style under the cursor, if any."""
+        index = self._table_cursor_index()
+        styles = self.output_styles
+        if index is None or not styles or index < 0 or index >= len(styles):
+            return None
+        return styles[index]
+
+    def _refresh_output_styles(self) -> None:
+        """Reload output styles and redraw, preserving the cursor row."""
+        saved_cursor_row = self._table_cursor_index()
+        self.load_output_styles()
+        self.update_view()
+        self._restore_main_table_cursor(saved_cursor_row)
+
+    def action_output_style_install(self) -> None:
+        """Install (symlink) the selected output style."""
+        if self.current_view != "output_styles":
+            return
+        style = self._selected_output_style()
+        if not style:
+            self.notify("No output style selected", severity="warning", timeout=2)
+            return
+        exit_code, message = install_output_style(style.slug)
+        severity = "information" if exit_code == 0 else "error"
+        self.notify(message, severity=severity, timeout=2)
+        self._refresh_output_styles()
+
+    def action_output_style_uninstall(self) -> None:
+        """Uninstall (remove symlink) the selected output style."""
+        if self.current_view != "output_styles":
+            return
+        style = self._selected_output_style()
+        if not style:
+            self.notify("No output style selected", severity="warning", timeout=2)
+            return
+        exit_code, message = uninstall_output_style(style.slug)
+        severity = "information" if exit_code == 0 else "warning"
+        self.notify(message, severity=severity, timeout=2)
+        self._refresh_output_styles()
+
+    def action_output_style_activate(self) -> None:
+        """Activate the selected output style (writes settings.json)."""
+        if self.current_view != "output_styles":
+            return
+        style = self._selected_output_style()
+        if not style:
+            self.notify("No output style selected", severity="warning", timeout=2)
+            return
+        exit_code, message = activate_output_style(style.slug)
+        severity = "information" if exit_code == 0 else "error"
+        self.notify(message, severity=severity, timeout=2)
+        self._refresh_output_styles()
+
+    def action_output_style_deactivate(self) -> None:
+        """Reset the active output style to 'default'."""
+        if self.current_view != "output_styles":
+            return
+        exit_code, message = deactivate_output_style()
+        severity = "information" if exit_code == 0 else "error"
+        self.notify(message, severity=severity, timeout=2)
+        self._refresh_output_styles()
+
     def action_cursor_up(self) -> None:
         """Navigate up in lists."""
         if self.wizard_active:
@@ -6297,7 +6492,7 @@ class AgentTUI(App[None]):
             )
             return
 
-        await self._show_text_dialog(f"{agent.name} Definition", definition)
+        await self._show_markdown_dialog(f"{agent.name} Definition", definition)
         self.status_message = f"Viewing definition for {agent.name}"
         self.refresh_status_bar()
 
@@ -6323,7 +6518,7 @@ class AgentTUI(App[None]):
             )
             return
 
-        await self._show_text_dialog(f"{rule.name}", definition)
+        await self._show_markdown_dialog(f"{rule.name}", definition)
         self.status_message = f"Viewing rule: {rule.name}"
         self.refresh_status_bar()
 
@@ -6424,11 +6619,11 @@ class AgentTUI(App[None]):
             f"Personas: {', '.join(command.personas) if command.personas else '—'}",
             f"MCP     : {', '.join(command.mcp_servers) if command.mcp_servers else '—'}",
             f"Path    : {command.path}",
-            "",
         ]
-        meta_lines.append(body)
-        await self._show_text_dialog(
-            f"{command.command} Definition", "\n".join(meta_lines)
+        await self._show_markdown_dialog(
+            f"{command.command} Definition",
+            body,
+            meta="\n".join(meta_lines),
         )
         self.status_message = f"Viewing slash command {command.command}"
         self.refresh_status_bar()
@@ -6458,9 +6653,7 @@ class AgentTUI(App[None]):
             skill_path = Path(skill_path_value)
             if skill_path.is_dir():
                 skill_path = skill_path / "SKILL.md"
-            definition = await asyncio.to_thread(
-                skill_path.read_text, encoding="utf-8"
-            )
+            definition = await asyncio.to_thread(skill_path.read_text, encoding="utf-8")
         except Exception as exc:
             self.notify(
                 f"Failed to load {skill_name}: {exc}",
@@ -6469,7 +6662,7 @@ class AgentTUI(App[None]):
             )
             return
 
-        await self._show_text_dialog(f"{skill_name} Definition", definition)
+        await self._show_markdown_dialog(f"{skill_name} Definition", definition)
         self.status_message = f"Viewing skill: {skill_name}"
         self.refresh_status_bar()
 
@@ -8704,9 +8897,7 @@ class AgentTUI(App[None]):
         idx = SKILL_PROVIDERS.index(self.active_provider)
         self.active_provider = SKILL_PROVIDERS[(idx + 1) % len(SKILL_PROVIDERS)]
 
-        provider_label = PROVIDER_LABELS.get(
-            self.active_provider, self.active_provider
-        )
+        provider_label = PROVIDER_LABELS.get(self.active_provider, self.active_provider)
         self.load_provider_skills_status()
         self.load_provider_native_skills()
         self.update_view()

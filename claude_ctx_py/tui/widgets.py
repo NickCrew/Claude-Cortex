@@ -127,6 +127,12 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("Enter", "View", priority=23),
         ShortcutDef("^e", "Edit", priority=24),
     ],
+    "output_styles": [
+        ShortcutDef("Space", "Activate", priority=20),
+        ShortcutDef("d", "Deactivate", priority=21),
+        ShortcutDef("i", "Install", priority=22),
+        ShortcutDef("u", "Uninstall", priority=23),
+    ],
 }
 
 # Additional nav shortcuts (lower priority, shown if space)

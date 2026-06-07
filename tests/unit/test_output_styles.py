@@ -167,3 +167,57 @@ class TestActivate:
         os_mod.uninstall_output_style("engineering")
 
         assert os_mod.get_active_output_style() == "default"
+
+
+class TestCheckActionGating:
+    """The per-view binding gating that lets shared keys (i/u/space/d) resolve.
+
+    Tested against the unbound method with a stub so we don't launch the app.
+    """
+
+    @staticmethod
+    def _check(view: str, action: str) -> object:
+        from types import SimpleNamespace
+
+        from claude_ctx_py.tui.main import AgentTUI
+
+        stub = SimpleNamespace(current_view=view)
+        return AgentTUI.check_action(stub, action, ())  # type: ignore[arg-type]
+
+    def test_unscoped_actions_always_enabled(self) -> None:
+        for view in ("agents", "output_styles", "assets", "settings"):
+            assert self._check(view, "refresh") is True
+            assert self._check(view, "view_output_styles") is True
+
+    def test_install_keys_resolve_to_owning_view(self) -> None:
+        # `i` is bound to asset_install, setting_install, watch_adjust_interval,
+        # and output_style_install — exactly one is enabled per view.
+        assert self._check("assets", "asset_install") is True
+        assert self._check("settings", "asset_install") is False
+        assert self._check("output_styles", "asset_install") is False
+
+        # Settings `i` now resolves correctly (was a latent shadow bug).
+        assert self._check("settings", "setting_install") is True
+        assert self._check("assets", "setting_install") is False
+
+        assert self._check("output_styles", "output_style_install") is True
+        assert self._check("assets", "output_style_install") is False
+
+    def test_multiview_actions_only_disabled_in_output_styles(self) -> None:
+        # toggle (space) and docs_context (d) stay enabled everywhere except the
+        # output_styles view, where they fall through to the style actions.
+        assert self._check("agents", "toggle") is True
+        assert self._check("rules", "toggle") is True
+        assert self._check("output_styles", "toggle") is False
+
+        assert self._check("skills", "docs_context") is True
+        assert self._check("output_styles", "docs_context") is False
+
+    def test_output_style_actions_scoped(self) -> None:
+        for action in (
+            "output_style_activate",
+            "output_style_deactivate",
+            "output_style_uninstall",
+        ):
+            assert self._check("output_styles", action) is True
+            assert self._check("agents", action) is False
