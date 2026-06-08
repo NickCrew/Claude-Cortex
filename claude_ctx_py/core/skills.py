@@ -15,7 +15,7 @@ import time
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 # Import from base module
 from .base import (
@@ -280,6 +280,7 @@ def skill_rebuild_index(home: Path | None = None) -> Tuple[int, str]:
         skills_root = Path(home) / "skills"
     else:
         from .base import _resolve_cortex_root
+
         skills_root = _resolve_cortex_root() / "skills"
 
     return skill_index.rebuild_index(skills_root=skills_root)
@@ -923,8 +924,7 @@ def skill_community_validate(skill: str, home: Path | None = None) -> Tuple[int,
     if not skill:
         return (
             1,
-            _color("Usage:", RED)
-            + " cortex skills community validate <skill_name>",
+            _color("Usage:", RED) + " cortex skills community validate <skill_name>",
         )
 
     # Check community skills directory
@@ -1148,6 +1148,7 @@ def skill_community_search(
 
     return 0, "\n".join(output_lines)
 
+
 def skill_context(
     write: bool = True,
     home: Path | None = None,
@@ -1315,7 +1316,11 @@ def skill_feedback(
     from .. import skill_recommender
 
     if not skill:
-        return 1, _color("Usage:", RED) + " cortex skills feedback <skill_name> <helpful|not-helpful> [comment]"
+        return (
+            1,
+            _color("Usage:", RED)
+            + " cortex skills feedback <skill_name> <helpful|not-helpful> [comment]",
+        )
 
     # Validate rating
     rating_lower = rating.lower()
@@ -1335,7 +1340,9 @@ def skill_feedback(
 
         # Show confirmation
         feedback_emoji = "👍" if helpful else "👎"
-        feedback_text = _color("helpful", GREEN) if helpful else _color("not helpful", RED)
+        feedback_text = (
+            _color("helpful", GREEN) if helpful else _color("not helpful", RED)
+        )
 
         output_lines: List[str] = [
             _color("=== Feedback Recorded ===", BLUE),
@@ -1355,7 +1362,8 @@ def skill_feedback(
             [
                 "",
                 _color(
-                    "Thank you! Your feedback helps improve future recommendations.", GREEN
+                    "Thank you! Your feedback helps improve future recommendations.",
+                    GREEN,
                 ),
             ]
         )
@@ -1395,7 +1403,11 @@ def skill_rate(
     from ..skill_rating_prompts import SkillRatingPromptManager
 
     if not skill:
-        return 1, _color("Usage:", RED) + " cortex skills rate <skill_name> --stars <1-5> [--review 'text']"
+        return (
+            1,
+            _color("Usage:", RED)
+            + " cortex skills rate <skill_name> --stars <1-5> [--review 'text']",
+        )
 
     try:
         # Initialize rating collector
@@ -1434,18 +1446,23 @@ def skill_rate(
         ]
 
         if review:
-            output_lines.extend([
-                "",
-                _color("Your Review:", BLUE),
-                f"  {review}",
-            ])
+            output_lines.extend(
+                [
+                    "",
+                    _color("Your Review:", BLUE),
+                    f"  {review}",
+                ]
+            )
 
-        output_lines.extend([
-            "",
-            _color("Thank you for rating this skill!", GREEN),
-            "",
-            _color("View skill ratings with:", BLUE) + " cortex skills ratings <skill_name>",
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color("Thank you for rating this skill!", GREEN),
+                "",
+                _color("View skill ratings with:", BLUE)
+                + " cortex skills ratings <skill_name>",
+            ]
+        )
 
         try:
             SkillRatingPromptManager(home=home).mark_rated(skill)
@@ -1504,45 +1521,55 @@ def skill_ratings(
         ]
 
         # Rating distribution
-        output_lines.extend([
-            _color("Rating Distribution:", BLUE),
-            f"  ⭐⭐⭐⭐⭐  {metrics.stars_5:>3} ({metrics.stars_5 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
-            f"  ⭐⭐⭐⭐   {metrics.stars_4:>3} ({metrics.stars_4 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
-            f"  ⭐⭐⭐    {metrics.stars_3:>3} ({metrics.stars_3 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
-            f"  ⭐⭐     {metrics.stars_2:>3} ({metrics.stars_2 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
-            f"  ⭐      {metrics.stars_1:>3} ({metrics.stars_1 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
-            "",
-        ])
+        output_lines.extend(
+            [
+                _color("Rating Distribution:", BLUE),
+                f"  ⭐⭐⭐⭐⭐  {metrics.stars_5:>3} ({metrics.stars_5 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+                f"  ⭐⭐⭐⭐   {metrics.stars_4:>3} ({metrics.stars_4 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+                f"  ⭐⭐⭐    {metrics.stars_3:>3} ({metrics.stars_3 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+                f"  ⭐⭐     {metrics.stars_2:>3} ({metrics.stars_2 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+                f"  ⭐      {metrics.stars_1:>3} ({metrics.stars_1 / max(metrics.total_ratings, 1) * 100:>5.1f}%)",
+                "",
+            ]
+        )
 
         # Quality metrics
-        output_lines.extend([
-            _color("Quality Metrics:", BLUE),
-            f"  {_color('👍', GREEN)} {metrics.helpful_percentage:.0f}% found helpful",
-            f"  {_color('✅', GREEN)} {metrics.success_correlation:.0f}% task success rate",
-            f"  {_color('🔄', BLUE)} Used {metrics.usage_count} times",
-        ])
+        output_lines.extend(
+            [
+                _color("Quality Metrics:", BLUE),
+                f"  {_color('👍', GREEN)} {metrics.helpful_percentage:.0f}% found helpful",
+                f"  {_color('✅', GREEN)} {metrics.success_correlation:.0f}% task success rate",
+                f"  {_color('🔄', BLUE)} Used {metrics.usage_count} times",
+            ]
+        )
 
         if metrics.token_efficiency:
-            output_lines.append(f"  {_color('📊', YELLOW)} {metrics.token_efficiency:.0f}% avg token reduction")
+            output_lines.append(
+                f"  {_color('📊', YELLOW)} {metrics.token_efficiency:.0f}% avg token reduction"
+            )
 
         # Recent reviews
         reviews = collector.get_recent_reviews(skill, limit=5)
         if reviews:
-            output_lines.extend([
-                "",
-                _color("Recent Reviews:", BLUE),
-            ])
+            output_lines.extend(
+                [
+                    "",
+                    _color("Recent Reviews:", BLUE),
+                ]
+            )
 
             for review in reviews:
                 stars_display = "⭐" * review["stars"]
                 time_ago = review["time_ago"]
                 review_text = review["review"]
 
-                output_lines.extend([
-                    "",
-                    f"  {_color(stars_display, YELLOW)} - {time_ago}",
-                    f"    {review_text}",
-                ])
+                output_lines.extend(
+                    [
+                        "",
+                        f"  {_color(stars_display, YELLOW)} - {time_ago}",
+                        f"    {review_text}",
+                    ]
+                )
 
         return 0, "\n".join(output_lines)
 
@@ -1614,10 +1641,13 @@ def skill_top_rated(
                 f"{metrics.total_ratings:<10} {metrics.success_correlation:.0f}%"
             )
 
-        output_lines.extend([
-            "",
-            _color("View details with:", BLUE) + " cortex skills ratings <skill_name>",
-        ])
+        output_lines.extend(
+            [
+                "",
+                _color("View details with:", BLUE)
+                + " cortex skills ratings <skill_name>",
+            ]
+        )
 
         return 0, "\n".join(output_lines)
 
@@ -1667,22 +1697,31 @@ def skill_ratings_export(
             writer = csv.writer(output)
 
             # Write header
-            writer.writerow([
-                "skill_name", "stars", "timestamp", "project_type",
-                "review", "was_helpful", "task_succeeded"
-            ])
+            writer.writerow(
+                [
+                    "skill_name",
+                    "stars",
+                    "timestamp",
+                    "project_type",
+                    "review",
+                    "was_helpful",
+                    "task_succeeded",
+                ]
+            )
 
             # Write rows
             for rating in data["ratings"]:
-                writer.writerow([
-                    rating["skill_name"],
-                    rating["stars"],
-                    rating["timestamp"],
-                    rating["project_type"],
-                    rating["review"] or "",
-                    rating["was_helpful"],
-                    rating["task_succeeded"],
-                ])
+                writer.writerow(
+                    [
+                        rating["skill_name"],
+                        rating["stars"],
+                        rating["timestamp"],
+                        rating["project_type"],
+                        rating["review"] or "",
+                        rating["was_helpful"],
+                        rating["task_succeeded"],
+                    ]
+                )
 
             return 0, output.getvalue()
 
@@ -1767,3 +1806,80 @@ def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, st
         return 0, _color(f"Deactivated skill: {skill_name}", YELLOW)
     except (OSError, PermissionError) as e:
         return 1, _color(f"Failed to deactivate skill: {e}", RED)
+
+
+# ---------------------------------------------------------------------------
+# Registry-backed category operations
+# ---------------------------------------------------------------------------
+#
+# skills/registry.yaml is the single source of truth for skill catalog
+# metadata, including the many-to-many skill -> categories mapping. The
+# SKILL.md front matter does not carry a category, so category-aware features
+# (grouping, bulk enable/disable) read it from here. Helpers degrade to "no
+# categories" on a missing/malformed registry rather than crashing callers.
+
+
+def load_skills_registry(cortex_root: Path | None = None) -> Dict[str, Any]:
+    """Load ``skills/registry.yaml`` as a dict ({} on any failure)."""
+    try:
+        import yaml
+    except ImportError:
+        return {}
+    from .base import _resolve_cortex_root
+
+    root = cortex_root or _resolve_cortex_root()
+    registry_path = root / "skills" / "registry.yaml"
+    try:
+        data = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def skill_categories_map(registry: Dict[str, Any]) -> Dict[str, List[str]]:
+    """Build a ``{skill_slug: [category, ...]}`` map from a loaded registry.
+
+    A skill may belong to several categories (e.g. ``accessibility-audit`` is
+    in ``security``, ``design``, and ``analysis``), so the value is a list.
+    """
+    skills_data = registry.get("skills", {})
+    result: Dict[str, List[str]] = {}
+    if isinstance(skills_data, dict):
+        for slug, info in skills_data.items():
+            cats = info.get("categories", []) if isinstance(info, dict) else []
+            result[str(slug)] = [str(c) for c in cats] if cats else []
+    return result
+
+
+def activate_skills_by_category(
+    category: str, registry: Dict[str, Any], home: Path | None = None
+) -> Tuple[int, List[str]]:
+    """Activate every skill whose registry categories include ``category``.
+
+    Mirrors ``codex_skills.link_provider_skills_by_category`` but drives the
+    Claude activation symlinks (~/.claude/skills) via ``skill_activate``.
+    """
+    messages: List[str] = []
+    success_count = 0
+    for slug, cats in skill_categories_map(registry).items():
+        if category in cats:
+            exit_code, msg = skill_activate(slug, home)
+            messages.append(msg)
+            if exit_code == 0:
+                success_count += 1
+    return success_count, messages
+
+
+def deactivate_skills_by_category(
+    category: str, registry: Dict[str, Any], home: Path | None = None
+) -> Tuple[int, List[str]]:
+    """Deactivate every skill whose registry categories include ``category``."""
+    messages: List[str] = []
+    success_count = 0
+    for slug, cats in skill_categories_map(registry).items():
+        if category in cats:
+            exit_code, msg = skill_deactivate(slug, home)
+            messages.append(msg)
+            if exit_code == 0:
+                success_count += 1
+    return success_count, messages
