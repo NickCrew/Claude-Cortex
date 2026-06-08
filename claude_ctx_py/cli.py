@@ -2119,8 +2119,8 @@ def _handle_memories_cross_command(args: argparse.Namespace) -> int:
         elif sort_by == "size":
             files.sort(key=lambda pair: pair[0].stat().st_size, reverse=True)
 
-        _print(f"[0;34mProject memories across {_CLAUDE_PROJECTS_DIR}:[0m")
-        _print(f"[0;33m{len(files)} files found[0m")
+        _print(f"[0;34mProject memories across {_CLAUDE_PROJECTS_DIR}:[0m")
+        _print(f"[0;33m{len(files)} files found[0m")
         _print("")
 
         current_group = None
@@ -2128,11 +2128,11 @@ def _handle_memories_cross_command(args: argparse.Namespace) -> int:
             group = vpath.split("/", 1)[0]
             if group != current_group:
                 current_group = group
-                _print(f"[0;36m{group}/[0m")
+                _print(f"[0;36m{group}/[0m")
             stat = real.stat()
             mtime = datetime.fromtimestamp(stat.st_mtime)
             size_kb = stat.st_size / 1024
-            _print(f"  [0;32m{Path(vpath).name}[0m")
+            _print(f"  [0;32m{Path(vpath).name}[0m")
             _print(f"    Path: {vpath}")
             _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M')}")
             _print(f"    Size: {size_kb:.1f}KB")
@@ -2210,11 +2210,11 @@ def _handle_memories_cross_command(args: argparse.Namespace) -> int:
             _print(f"No results found for '{args.query}'")
             return 0
 
-        _print(f"[0;34mSearch results for '{args.query}':[0m")
-        _print(f"[0;33mFound {len(results)} matches[0m")
+        _print(f"[0;34mSearch results for '{args.query}':[0m")
+        _print(f"[0;33mFound {len(results)} matches[0m")
         _print("")
         for r in results:
-            _print(f"[0;32m{r['file']}[0m:[0;33m{r['line']}[0m")
+            _print(f"[0;32m{r['file']}[0m:[0;33m{r['line']}[0m")
             _print(f"  {r['content'][:100]}")
             _print("")
         return 0
@@ -2329,8 +2329,8 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             md_files.sort(key=lambda p: p.stat().st_size, reverse=True)
 
         # Print header
-        _print(f"[0;34mDocumentation in {docs_dir}:[0m")
-        _print(f"[0;33m{len(md_files)} files found[0m")
+        _print(f"[0;34mDocumentation in {docs_dir}:[0m")
+        _print(f"[0;33m{len(md_files)} files found[0m")
         _print("")
 
         # Group by directory for better readability
@@ -2343,13 +2343,13 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             if file_dir != current_dir:
                 current_dir = file_dir
                 if str(file_dir) != ".":
-                    _print(f"[0;36m{file_dir}/[0m")
+                    _print(f"[0;36m{file_dir}/[0m")
 
             stat = md_file.stat()
             mtime = datetime.fromtimestamp(stat.st_mtime)
             size_kb = stat.st_size / 1024
 
-            _print(f"  [0;32m{rel_path.name}[0m")
+            _print(f"  [0;32m{rel_path.name}[0m")
             _print(f"    Path: {rel_path}")
             _print(f"    Modified: {mtime.strftime('%Y-%m-%d %H:%M')}")
             _print(f"    Size: {size_kb:.1f}KB")
@@ -2453,12 +2453,12 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             _print(f"No results found for '{query}'")
             return 0
 
-        _print(f"[0;34mSearch results for '{query}':[0m")
-        _print(f"[0;33mFound {len(results)} matches[0m")
+        _print(f"[0;34mSearch results for '{query}':[0m")
+        _print(f"[0;33mFound {len(results)} matches[0m")
         _print("")
 
         for result in results:
-            _print(f"[0;32m{result['file']}[0m:[0;33m{result['line']}[0m")
+            _print(f"[0;32m{result['file']}[0m:[0;33m{result['line']}[0m")
             _print(f"  {result['content'][:100]}")
             _print("")
 
@@ -2519,7 +2519,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
             bookmarks[name] = rel_path
             _save_bookmarks(bookmarks)
 
-            _print(f"[0;32m✓ Added bookmark '[0;33m{name}[0;32m' -> {rel_path}[0m")
+            _print(f"[0;32m✓ Added bookmark '[0;33m{name}[0;32m' -> {rel_path}[0m")
             return 0
 
         if args.bookmark_command == "list":
@@ -2527,10 +2527,10 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
                 _print("No bookmarks saved")
                 return 0
 
-            _print("[0;34mSaved bookmarks:[0m")
+            _print("[0;34mSaved bookmarks:[0m")
             _print("")
             for name, path in sorted(bookmarks.items()):
-                _print(f"  [0;33m{name}[0m")
+                _print(f"  [0;33m{name}[0m")
                 _print(f"    {path}")
             return 0
 
@@ -2542,7 +2542,7 @@ def _handle_docs_command(args: argparse.Namespace) -> int:
 
             del bookmarks[name]
             _save_bookmarks(bookmarks)
-            _print(f"[0;32m✓ Removed bookmark '{name}'[0m")
+            _print(f"[0;32m✓ Removed bookmark '{name}'[0m")
             return 0
 
         if args.bookmark_command == "view":
