@@ -143,7 +143,14 @@ from ..core import (
     unlink_all_provider_skills,
 )
 from ..core.rules import rules_activate, rules_deactivate
-from ..core.skills import skill_activate, skill_deactivate
+from ..core.skills import (
+    skill_activate,
+    skill_deactivate,
+    load_skills_registry,
+    skill_categories_map,
+    activate_skills_by_category,
+    deactivate_skills_by_category,
+)
 from ..core.base import (
     _iter_md_files,
     _parse_active_entries,
@@ -275,12 +282,19 @@ _VIEW_SCOPED_ACTION_OWNERS: Dict[str, str] = {
     "output_style_uninstall": "output_styles",
     "output_style_activate": "output_styles",
     "output_style_deactivate": "output_styles",
+    "enable_skills_by_category": "skills",
+    "disable_skills_by_category": "skills",
 }
 
 # Multi-view actions that share a key with an Output Styles action. We only
 # disable them in the Output Styles view so the key falls through there, while
 # leaving their behavior in every other view untouched.
 _DISABLE_IN_OUTPUT_STYLES: frozenset[str] = frozenset({"toggle", "docs_context"})
+
+# Likewise for the Skills view: `D` is globally bound to context_delete (a
+# no-op for skills), so we disable it here to let the key fall through to
+# disable_skills_by_category.
+_DISABLE_IN_SKILLS: frozenset[str] = frozenset({"context_delete"})
 
 
 class AgentTUI(App[None]):
@@ -488,6 +502,10 @@ class AgentTUI(App[None]):
         Binding("d", "output_style_deactivate", "Deactivate Style", show=False),
         Binding("i", "output_style_install", "Install Style", show=False),
         Binding("u", "output_style_uninstall", "Uninstall Style", show=False),
+        # Skills view: bulk enable/disable by category (gated via check_action;
+        # `D` falls through context_delete via _DISABLE_IN_SKILLS).
+        Binding("C", "enable_skills_by_category", "Enable Category", show=False),
+        Binding("D", "disable_skills_by_category", "Disable Category", show=False),
     ]
 
     # Register command provider for Textual's command palette
@@ -732,6 +750,8 @@ class AgentTUI(App[None]):
                 "context_action",
                 "edit_item",
                 "copy_definition",
+                "enable_skills_by_category",
+                "disable_skills_by_category",
             },
             "commands": {"details_context", "edit_item", "copy_definition"},
             "mcp": {
@@ -829,6 +849,8 @@ class AgentTUI(App[None]):
         if owner is not None:
             return self.current_view == owner
         if self.current_view == "output_styles" and action in _DISABLE_IN_OUTPUT_STYLES:
+            return False
+        if self.current_view == "skills" and action in _DISABLE_IN_SKILLS:
             return False
         return True
 
@@ -1406,6 +1428,11 @@ class AgentTUI(App[None]):
             cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
 
+            # Categories live in skills/registry.yaml (the catalog source of
+            # truth), not in SKILL.md front matter — load the slug->categories
+            # map once so each skill can be enriched without re-reading the file.
+            category_map = skill_categories_map(load_skills_registry(cortex_root))
+
             # Load skills from skills directory (from CORTEX_ROOT)
             skills_dir = self._validate_path(cortex_root, cortex_root / "skills")
             if skills_dir.is_dir():
@@ -1426,9 +1453,10 @@ class AgentTUI(App[None]):
                             installed_path.exists() or installed_path.is_symlink()
                         )
                         skill_data["installed"] = is_installed
+                        self._attach_skill_categories(skill_data, category_map)
                         skills.append(skill_data)
 
-            # Sort by category then name
+            # Sort by primary category then name
             skills.sort(key=lambda s: (s["category"].lower(), s["name"].lower()))
 
             self._attach_skill_ratings(skills)
@@ -1598,6 +1626,24 @@ class AgentTUI(App[None]):
         except Exception:
             return None
 
+    def _attach_skill_categories(
+        self, skill_data: Dict[str, Any], category_map: Dict[str, List[str]]
+    ) -> None:
+        """Attach registry categories to a skill, in place.
+
+        Sets ``categories`` (the full many-to-many list shown comma-joined) and
+        keeps ``category`` as the primary (first) value so the existing sort
+        key and category-icon lookups keep working. Falls back to any explicit
+        front-matter category, then to ``"general"``, for skills absent from
+        the registry (e.g. project-local or community skills).
+        """
+        cats = category_map.get(skill_data["slug"], [])
+        if not cats:
+            fm_category = skill_data.get("category")
+            cats = [fm_category] if fm_category and fm_category != "general" else []
+        skill_data["categories"] = cats
+        skill_data["category"] = cats[0] if cats else "general"
+
     def _is_gitignored(self, path: Path) -> bool:
         """Check if a path is gitignored using git check-ignore."""
         try:
@@ -1737,7 +1783,7 @@ class AgentTUI(App[None]):
         table.add_column("Name", key="name", width=25)
         table.add_column("Active", key="active", width=10)
         table.add_column("Rating", key="rating", width=18)
-        table.add_column("Category", key="category", width=15)
+        table.add_column("Categories", key="category", width=24)
         table.add_column("Location", key="location", width=10)
         table.add_column("Description", key="description")
 
@@ -1758,10 +1804,12 @@ class AgentTUI(App[None]):
             # Color-coded name with icon
             name = f"[bold green]{Icons.CODE} {skill['name']}[/bold green]"
 
-            # Color-coded category
-            category = skill["category"]
-            cat_color = category_colors.get(category.lower(), "white")
-            category_text = f"[{cat_color}]{category}[/{cat_color}]"
+            # Color-coded categories: many-to-many, comma-joined; the color
+            # tracks the primary (first) category for a stable visual anchor.
+            categories = skill.get("categories") or [skill["category"]]
+            cat_color = category_colors.get(categories[0].lower(), "white")
+            joined = ", ".join(categories)
+            category_text = f"[{cat_color}]{joined}[/{cat_color}]"
 
             # Format location with status indicator
             location = skill["location"]
@@ -4589,12 +4637,8 @@ class AgentTUI(App[None]):
 
         for style in self.output_styles:
             name = f"[bold green]{Icons.DOC} {style.name}[/bold green]"
-            active = (
-                "[green]✓ Active[/green]" if style.active else "[dim]○[/dim]"
-            )
-            installed = (
-                "[green]✓ Yes[/green]" if style.installed else "[dim]○ No[/dim]"
-            )
+            active = "[green]✓ Active[/green]" if style.active else "[dim]○[/dim]"
+            installed = "[green]✓ Yes[/green]" if style.installed else "[dim]○ No[/dim]"
             description = style.description or "[dim]—[/dim]"
             table.add_row(name, active, installed, description)
 
@@ -8877,6 +8921,85 @@ class AgentTUI(App[None]):
                 timeout=2,
             )
             self.load_provider_skills_status()
+            self.update_view()
+
+    def _skill_category_counts(self, only_active: bool) -> Dict[str, int]:
+        """Count skills per registry category from the loaded Skills view.
+
+        When ``only_active`` is set, count only skills currently symlinked into
+        ~/.claude/skills — used to size the "disable" picker so it offers just
+        the categories that actually have something to turn off.
+        """
+        counts: Dict[str, int] = {}
+        for skill in getattr(self, "skills", []):
+            if only_active and not skill.get("installed", False):
+                continue
+            for cat in skill.get("categories", []):
+                counts[cat] = counts.get(cat, 0) + 1
+        return counts
+
+    def _build_category_picker(
+        self, registry: Dict[str, Any], counts: Dict[str, int]
+    ) -> List[Tuple[str, str, int]]:
+        """Build (key, icon, count) rows for BulkSkillOperationDialog."""
+        categories_data = registry.get("categories", {})
+        rows: List[Tuple[str, str, int]] = []
+        for cat_key, cat_info in categories_data.items():
+            if cat_key in counts:
+                icon = cat_info.get("icon", "📦")
+                rows.append((cat_key, icon, counts[cat_key]))
+        return rows
+
+    async def action_enable_skills_by_category(self) -> None:
+        """Activate every skill in the chosen categories (Skills view)."""
+        if self.current_view != "skills":
+            return
+
+        registry = load_skills_registry()
+        category_list = self._build_category_picker(
+            registry, self._skill_category_counts(only_active=False)
+        )
+        if not category_list:
+            self.notify("No categories found", severity="warning", timeout=2)
+            return
+
+        dialog = BulkSkillOperationDialog(category_list, operation="enable")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result and "enable" in result:
+            total = 0
+            for category in result["enable"]:
+                count, _ = activate_skills_by_category(category, registry)
+                total += count
+            self.status_message = f"Enabled {total} skills"
+            self.notify(f"✓ Enabled {total} skills", severity="information", timeout=2)
+            self.load_skills()
+            self.update_view()
+
+    async def action_disable_skills_by_category(self) -> None:
+        """Deactivate every skill in the chosen categories (Skills view)."""
+        if self.current_view != "skills":
+            return
+
+        registry = load_skills_registry()
+        category_list = self._build_category_picker(
+            registry, self._skill_category_counts(only_active=True)
+        )
+        if not category_list:
+            self.notify("No active skills to disable", severity="warning", timeout=2)
+            return
+
+        dialog = BulkSkillOperationDialog(category_list, operation="disable")
+        result = await self.push_screen(dialog, wait_for_dismiss=True)
+
+        if result and "disable" in result:
+            total = 0
+            for category in result["disable"]:
+                count, _ = deactivate_skills_by_category(category, registry)
+                total += count
+            self.status_message = f"Disabled {total} skills"
+            self.notify(f"○ Disabled {total} skills", severity="information", timeout=2)
+            self.load_skills()
             self.update_view()
 
     def action_refresh_codex_status(self) -> None:
