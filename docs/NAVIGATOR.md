@@ -53,6 +53,9 @@ Quick-reference map to all cortex documentation.
 ### Development Plans
 - [Multi-Specialist Review](development/plans/multi-specialist-review.md) — Parallel specialist code review with citation verification
 
+### Design Notes
+- [Project-scoped Skills](development/design/project-scoped-skills.md) — `.agents/skills` indirection, `.cortex/manifest.yaml`, drift detection, TUI mark mode
+
 ### Tutorials
 - [Tutorial Index](tutorials/index.md) — All tutorials
 - [CI/CD Integration](tutorials/ci-cd-integration.md) — Pipeline setup
