@@ -34,6 +34,11 @@ from .codex_skills_dialogs import (
     BulkSkillOperationDialog,
 )
 
+from .skill_picker import (
+    SkillPickerScreen,
+    build_skills_by_category,
+)
+
 __all__ = [
     "TargetSelectorDialog",
     "AssetDetailDialog",
@@ -48,4 +53,6 @@ __all__ = [
     "BackupManagerDialog",
     "LLMProviderSettingsDialog",
     "BulkSkillOperationDialog",
+    "SkillPickerScreen",
+    "build_skills_by_category",
 ]
