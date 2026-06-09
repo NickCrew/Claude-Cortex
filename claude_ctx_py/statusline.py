@@ -120,6 +120,10 @@ DEFAULT_CONFIG: ConfigDict = {
     "git_show_assume_unchanged": False,
     "git_show_submodules": False,
     "cache_ttl": 5,  # seconds; 0 to disable caching
+    # Cost segment visibility: "auto" hides it on subscription/OAuth sessions
+    # (where the figure is notional, not billed) and shows it only under
+    # metered, per-token billing. True/False force it on/off.
+    "show_cost": "auto",
     "separator": " | ",
     "icons": {
         "dir": "",
@@ -414,9 +418,7 @@ def _get_git_info_uncached(
         parts.append(f"{C.B_RED}{icons.get('state', '⚡')}{status.state}{C.NC}")
 
     if status.conflicts and config.get("git_show_conflicts", True):
-        parts.append(
-            f"{C.B_RED}{icons.get('conflict', '✖')}{status.conflicts}{C.NC}"
-        )
+        parts.append(f"{C.B_RED}{icons.get('conflict', '✖')}{status.conflicts}{C.NC}")
 
     if status.worktree:
         parts.append(f"{C.B_CYA}{icons.get('worktree', '⊕')}{C.NC}")
@@ -563,6 +565,43 @@ def _get_icons(config: ConfigDict) -> IconMap:
     return {}
 
 
+# Environment variables that signal metered, per-token billing rather than a
+# flat-rate Pro/Max subscription. Order is irrelevant — any one is sufficient.
+# Covers a direct Anthropic API key, a gateway/proxy auth token, and the two
+# cloud backends (Bedrock, Vertex) that bill through the provider's account.
+_METERED_BILLING_ENV = (
+    "ANTHROPIC_API_KEY",
+    "ANTHROPIC_AUTH_TOKEN",
+    "CLAUDE_CODE_USE_BEDROCK",
+    "CLAUDE_CODE_USE_VERTEX",
+)
+
+
+def _metered_billing() -> bool:
+    """True when an API key or cloud backend is driving per-token billing.
+
+    Claude Code's statusline payload carries no auth-method field, so an
+    environment probe is the only signal available to this subprocess. On a
+    subscription the reported ``cost`` is what the usage *would* cost on the
+    API, not money charged — none of these variables are set there.
+    """
+    return any(os.environ.get(name) for name in _METERED_BILLING_ENV)
+
+
+def _should_show_cost(config: ConfigDict) -> bool:
+    """Resolve cost-segment visibility from the ``show_cost`` config setting.
+
+    ``"auto"`` (default) defers to :func:`_metered_billing`; an explicit
+    bool forces the segment on or off regardless of billing detection — the
+    escape hatch for keys configured via ``/login`` (stored in credentials,
+    not the environment) or for users who simply want it hidden.
+    """
+    setting = config.get("show_cost", "auto")
+    if isinstance(setting, bool):
+        return setting
+    return _metered_billing()
+
+
 def format_default(data: StatusData, config: ConfigDict) -> str:
     """Default multi-line format."""
     sep = str(config.get("separator", " | "))
@@ -596,9 +635,7 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
     cache_total = data.cache_read_tokens + data.cache_creation_tokens
     if cache_total > 0 and data.current_input_tokens > 0:
         cache_pct = (data.cache_read_tokens * 100) // data.current_input_tokens
-        line2_parts.append(
-            f"{C.B_CYA}{icons.get('cache', '↻')} {cache_pct}%{C.NC}"
-        )
+        line2_parts.append(f"{C.B_CYA}{icons.get('cache', '↻')} {cache_pct}%{C.NC}")
 
     out_display = (
         f"{C.B_YEL}{icons.get('out_tokens', '󰜷')} "
@@ -610,12 +647,14 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         f"{C.B_GRE}{icons.get('added', '')} {data.lines_added} "
         f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
     )
-    if os.environ.get("CLAUDE_CODE_USE_BEDROCK"):
-        cost_val = data.cost_usd * 1.25
-        cost = f"{C.GRE}~${cost_val:.2f} {C.WHI}(b5k){C.NC}"
-    else:
-        cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
-    line2_parts.extend([changes, cost])
+    line2_parts.append(changes)
+    if _should_show_cost(config):
+        if os.environ.get("CLAUDE_CODE_USE_BEDROCK"):
+            cost_val = data.cost_usd * 1.25
+            cost = f"{C.GRE}~${cost_val:.2f} {C.WHI}(b5k){C.NC}"
+        else:
+            cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
+        line2_parts.append(cost)
     lines.append(sep.join(line2_parts))
 
     rate_parts = []
@@ -635,7 +674,13 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         lines.append(sep.join(rate_parts))
 
     _effort_abbrev = {"low": "L", "medium": "M", "high": "H", "xhigh": "X", "max": "M"}
-    _effort_color = {"low": C.WHI, "medium": C.B_GRE, "high": C.B_YEL, "xhigh": C.B_MAG, "max": C.B_RED}
+    _effort_color = {
+        "low": C.WHI,
+        "medium": C.B_GRE,
+        "high": C.B_YEL,
+        "xhigh": C.B_MAG,
+        "max": C.B_RED,
+    }
     model_suffix = ""
     if data.effort_level:
         abbrev = _effort_abbrev.get(data.effort_level, data.effort_level)
@@ -643,10 +688,14 @@ def format_default(data: StatusData, config: ConfigDict) -> str:
         model_suffix = f"{color}({abbrev}){C.B_BLU}"
     if data.thinking_enabled:
         model_suffix += "🧠"
-    model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
+    model_segment = (
+        f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
+    )
     model_parts = [model_segment]
     if data.output_style and data.output_style != "default":
-        model_parts.append(f"{C.B_MAG}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}")
+        model_parts.append(
+            f"{C.B_MAG}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}"
+        )
     if data.agent_name:
         model_parts.append(f"{C.B_CYA}{data.agent_name}{C.NC}")
     model_parts.append(data.version)
@@ -694,8 +743,9 @@ def format_oneline(data: StatusData, config: ConfigDict) -> str:
         f"{data.tokens_pct}%",
         f"↓{data.input_tokens} ↑{data.output_tokens}",
         f"+{data.lines_added}/-{data.lines_removed}",
-        f"${data.cost_usd:.2f}",
     ]
+    if _should_show_cost(config):
+        parts.append(f"${data.cost_usd:.2f}")
     return sep.join(parts)
 
 
@@ -749,9 +799,7 @@ def add_statusline_arguments(parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             f"--{name}", action="store_true", dest=f"show_{name}", default=None
         )
-        parser.add_argument(
-            f"--no-{name}", action="store_false", dest=f"show_{name}"
-        )
+        parser.add_argument(f"--no-{name}", action="store_false", dest=f"show_{name}")
 
     parser.add_argument(
         "--init-config", action="store_true", help=f"Create config at {CONFIG_PATH}"
@@ -806,9 +854,7 @@ def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> Statu
     current_output_tokens = int(usage.get("output_tokens", 0) or 0)
     current_input_tokens = current_input_raw + cache_creation_tokens + cache_read_tokens
     tokens_pct = (
-        (current_input_tokens * 100) // context_size
-        if usage and context_size
-        else 0
+        (current_input_tokens * 100) // context_size if usage and context_size else 0
     )
 
     cost = claude_data.get("cost", {})
@@ -847,7 +893,9 @@ def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> Statu
         lines_added=cost.get("total_lines_added", 0),
         lines_removed=cost.get("total_lines_removed", 0),
         cost_usd=cost.get("total_cost_usd", 0.0),
-        session_time=ms_to_hhmmss(claude_data.get("cost", {}).get("total_duration_ms", 0)),
+        session_time=ms_to_hhmmss(
+            claude_data.get("cost", {}).get("total_duration_ms", 0)
+        ),
         model=claude_data.get("model", {}).get("display_name", ""),
         version=get_claude_version(),
         effort_level=claude_data.get("effort", {}).get("level", ""),
