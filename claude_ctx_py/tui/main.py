@@ -4867,6 +4867,13 @@ class AgentTUI(App[None]):
             event.stop()
             return
 
+        # shift+s in skills view → run recommender and pre-mark suggested skills
+        if event.key == "shift+s" and self.current_view == "skills":
+            self.run_worker(self._action_skill_suggest(), exclusive=True)
+            event.prevent_default()
+            event.stop()
+            return
+
         # Handle codex_skills view specific keybindings
         if self.current_view == "codex_skills":
             if event.key == "tab":
@@ -9146,6 +9153,41 @@ class AgentTUI(App[None]):
     # esc → clear all marks (handled in action_escape / app-wide ESC)
     # e/d key in skills view → bulk enable/disable marked set (or all if none)
     # m key in skills view when marks exist → move dialog
+    # S → run recommender and pre-mark suggested skills
+
+    async def _action_skill_suggest(self) -> None:
+        """Run the skill recommender and pre-mark all suggestions above threshold."""
+        if self.current_view != "skills":
+            return
+        self.notify("Analysing project…", severity="information", timeout=2)
+        try:
+            from pathlib import Path
+            from ..core.manifest import suggest_skills_for_project
+
+            results = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: suggest_skills_for_project(
+                    Path.cwd(), min_confidence=0.5, limit=20
+                ),
+            )
+        except Exception:
+            results = []
+        if not results:
+            self.notify("No suggestions available for this project", severity="warning", timeout=3)
+            return
+        saved_cursor = self._table_cursor_index()
+        newly_marked = 0
+        for slug, _conf, _reason in results:
+            if slug not in self.marked_skills:
+                self.marked_skills.add(slug)
+                newly_marked += 1
+        self.update_view()
+        self._restore_main_table_cursor(saved_cursor)
+        self.notify(
+            f"Marked {newly_marked} suggested skill(s) — press e to enable, d to disable",
+            severity="information",
+            timeout=4,
+        )
 
     async def _action_skill_mark_toggle(self) -> None:
         """Toggle mark on the skill at the cursor position."""

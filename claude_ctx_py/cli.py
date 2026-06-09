@@ -485,6 +485,12 @@ def _build_project_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         dest="init_skills",
         help="Comma-separated list of skill slugs to enable (e.g. systematic-debugging,atomic-commits)",
     )
+    init_parser.add_argument(
+        "--pick",
+        action="store_true",
+        dest="init_pick",
+        help="Launch skill picker pre-populated with project suggestions",
+    )
 
     project_sub.add_parser(
         "sync",
@@ -493,6 +499,24 @@ def _build_project_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
 
     status_parser = project_sub.add_parser(  # noqa: F841
         "status", help="Show manifest state and drift status"
+    )
+
+    suggest_parser = project_sub.add_parser(
+        "suggest", help="Suggest skills for this project based on its content"
+    )
+    suggest_parser.add_argument(
+        "--min-confidence",
+        dest="suggest_min_confidence",
+        type=float,
+        default=0.5,
+        help="Minimum confidence score 0–1 (default: 0.5)",
+    )
+    suggest_parser.add_argument(
+        "--limit",
+        dest="suggest_limit",
+        type=int,
+        default=15,
+        help="Maximum number of results (default: 15)",
     )
 
 
@@ -1356,6 +1380,47 @@ def _handle_project_command(args: argparse.Namespace) -> int:
                     enabled.append(slug)
             skills_section["enabled"] = enabled
 
+        if getattr(args, "init_pick", False):
+            from .core.manifest import suggest_skills_for_project
+            from .core.base import _resolve_cortex_root
+
+            _print("Analysing project to build skill suggestions…")
+            suggestions = suggest_skills_for_project(project_root, min_confidence=0.3)
+            high_confidence = {slug for slug, conf, _ in suggestions if conf >= 0.7}
+            cortex_root = _resolve_cortex_root()
+            try:
+                from .tui.dialogs.skill_picker import (
+                    SkillPickerScreen,
+                    build_skills_by_category,
+                )
+                from textual.app import App
+
+                class _PickerApp(App[list[str]]):
+                    def on_mount(self) -> None:
+                        categories = build_skills_by_category(cortex_root)
+                        self.push_screen(
+                            SkillPickerScreen(
+                                categories,
+                                pre_selected=high_confidence,
+                            ),
+                            callback=self.on_picked,
+                        )
+
+                    def on_picked(self, selected: list[str] | None) -> None:
+                        self.exit(selected or [])
+
+                picked = _PickerApp().run()
+                if picked:
+                    enabled = skills_section.get("enabled", [])
+                    if not isinstance(enabled, list):
+                        enabled = []
+                    for slug in picked:
+                        if slug not in enabled:
+                            enabled.append(slug)
+                    skills_section["enabled"] = enabled
+            except Exception as exc:
+                _print(_color(f"Skill picker unavailable ({exc}); skipping.", YELLOW))
+
         write_manifest(project_root, manifest)
         _print(_color(f"Wrote .cortex/manifest.yaml", GREEN))
         return 0
@@ -1398,7 +1463,25 @@ def _handle_project_command(args: argparse.Namespace) -> int:
         _print("\n".join(lines))
         return 0
 
-    _print(_color("Unknown project command. Use init, sync, or status.", RED))
+    if project_command == "suggest":
+        from .core.manifest import suggest_skills_for_project
+
+        min_conf = getattr(args, "suggest_min_confidence", 0.5)
+        limit = getattr(args, "suggest_limit", 15)
+        results = suggest_skills_for_project(
+            project_root, min_confidence=min_conf, limit=limit
+        )
+        if not results:
+            _print("No suggestions available (recommender unavailable or no matches above threshold).")
+            return 0
+        _print(f"{'Skill':<40}  {'Confidence':>10}  Reason")
+        _print("-" * 80)
+        for slug, confidence, reason in results:
+            conf_pct = f"{confidence * 100:.0f}%"
+            _print(f"{slug:<40}  {conf_pct:>10}  {reason}")
+        return 0
+
+    _print(_color("Unknown project command. Use init, sync, status, or suggest.", RED))
     return 1
 
 

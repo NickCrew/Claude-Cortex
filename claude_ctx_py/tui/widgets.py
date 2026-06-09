@@ -71,6 +71,8 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("v", "Validate", priority=21),
         ShortcutDef("m", "Metrics", priority=22),
         ShortcutDef("d", "Docs", priority=23),
+        ShortcutDef("x", "Mark", priority=24),
+        ShortcutDef("S", "Suggest", priority=25),
     ],
     "codex_skills": [
         ShortcutDef("Enter", "View", priority=20),

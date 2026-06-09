@@ -15,9 +15,50 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 _MANIFEST_PATH = ".cortex/manifest.yaml"
+
+
+def suggest_skills_for_project(
+    project_root: Path,
+    *,
+    limit: int = 15,
+    min_confidence: float = 0.5,
+) -> List[Tuple[str, float, str]]:
+    """Run the skill recommender against *project_root* and return ranked results.
+
+    Returns a list of ``(slug, confidence, reason)`` tuples sorted by confidence
+    descending, filtered to ``min_confidence`` and capped at ``limit``.  Returns
+    ``[]`` on any error so callers can degrade gracefully.
+
+    Args:
+        project_root: Project directory to analyse.
+        limit: Maximum number of results to return.
+        min_confidence: Minimum confidence score (0.0–1.0).
+
+    Returns:
+        Sorted list of (slug, confidence, reason).
+    """
+    try:
+        from ..skill_recommender import SkillRecommender
+        from ..intelligence import get_current_context, compute_project_signature
+    except ImportError:
+        return []
+
+    try:
+        context = get_current_context()
+        signature = compute_project_signature(project_root)
+        recommender = SkillRecommender()
+        recs = recommender.recommend_for_context(context, project_signature=signature)
+        results = [
+            (r.skill_name, r.confidence, r.reason)
+            for r in recs
+            if r.confidence >= min_confidence
+        ]
+        return results[:limit]
+    except Exception:
+        return []
 
 
 class ReconcileReport:
