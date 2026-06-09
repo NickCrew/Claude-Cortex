@@ -369,6 +369,37 @@ skills:
     dependencies: []
     status: active
     license: MIT
+  atlas-crew-tasks:
+    title: Atlas Crew Tasks
+    description: 'Use when filing, updating, sequencing, or querying tasks in any atlas-crew repo (Facet + the Atlas Crew Security repos: Apparatus, Chimera, Crucible, Synapse, Bridge). These repos track work in GitHub Issues on Projects v2 boards, NOT backlog.md. Covers the two boards, the Type/Area/Status field model, cross-repo Initiative grouping, gh seq execution ordering, and the non-obvious gh/GraphQL mechanics for setting issue types and project fields. Trigger on: file an issue, create a task, set priority/type/area/status, add to board, what should I work on next, execution order, sequencing, blocked-by, milestone, where does this task go.'
+    path: atlas-crew-tasks/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-06-09'
+    updated: '2026-06-09'
+    categories:
+    - analysis
+    - workflow
+    - development
+    tags:
+    - github-projects
+    - issue-tracking
+    - gh-project
+    - gh-seq
+    - issue-type
+    - sequencing
+    - blocked-by
+    - atlas-crew-board
+    - file-a-task
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-06-09'
+        notes: Initial registry entry from SKILL.md metadata sync
+    dependencies: []
+    status: active
+    license: MIT
   atomic-commits:
     title: Atomic Commits
     description: 'Use this skill when a working tree contains uncommitted changes that need to be split into a sequence of atomic commits — typically after a long session, an agent hand-off, a rebase resolution, or anytime `git status` shows mixed work that was not committed as it landed. The skill assumes the agent has fresh context and did not author most of the diff, so it treats the working tree as evidence to investigate before grouping. Optimizes for `git bisect`: each commit is the smallest buildable and deployable unit, and no smaller. Uses `cortex git commit` for file-level commits and `cortex git patch --diff` when unrelated changes share a file.'
@@ -4778,15 +4809,15 @@ skills:
     status: active
     license: MIT
 statistics:
-  total_skills: 154
-  active_skills: 154
+  total_skills: 155
+  active_skills: 155
   deprecated_skills: 0
   experimental_skills: 0
   by_category:
-    analysis: 36
+    analysis: 37
     architecture: 13
     design: 30
-    development: 29
+    development: 30
     devops: 8
     documentation: 22
     experimental: 0
@@ -4797,5 +4828,5 @@ statistics:
     research: 21
     security: 16
     testing: 29
-    workflow: 57
+    workflow: 58
     writing: 17

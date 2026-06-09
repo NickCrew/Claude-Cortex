@@ -24,10 +24,13 @@ When an MCP server fits the task, prefer it over a Bash equivalent —
 MCP tools are purpose-built for their domain and return structured
 output that's cheaper for downstream reasoning to consume.
 
-- **backlog.md** — task tracking. Use in projects with a `backlog/`
-  directory (the folder is tracked in git). Read the
-  `backlog://workflow/overview` resource before creating tasks if you
-  haven't this session.
+- **Task tracking** — `atlas-crew` repos (Facet + the Atlas Crew Security
+  projects) use **GitHub Issues + Projects**: `gh issue` / `gh project`
+  to file and update work, `gh seq` to derive execution order from
+  `blocked-by` dependencies. A repo's completed `backlog/` directory is a
+  frozen archive. For repos still on **backlog.md** (e.g. Cortex), use the
+  backlog MCP/CLI and read `backlog://workflow/overview` before creating
+  tasks if you haven't this session.
 - **codanna** — codebase exploration via semantic search, call
   graphs, and impact analysis. Use in projects with a `.codanna/`
   directory. Prefer over `grep` and `find` for symbol-level questions

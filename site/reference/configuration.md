@@ -36,6 +36,7 @@ Cortex resolves two different roots:
 | `recommendation-rules.json` | `<claude-dir>/skills/recommendation-rules.json` | File-pattern-based skill recommendations |
 | `skill-rules.json` | `<CORTEX_ROOT>/skills/skill-rules.json` with fallback to `~/.claude/skills/skill-rules.json` | Keyword-based skill suggestions |
 | `settings.json` | `<claude-dir>/settings.json` | Claude settings used by hooks and related integration |
+| `statusline.yaml` | `<claude-dir>/statusline.yaml` | Status line segments, icons, and cost display ([Statusline Reference]({{ '/reference/statusline/' | relative_url }})) |
 
 Where `<claude-dir>` is the resolved `.claude/` directory (see Resolution Model above).
 

@@ -208,7 +208,13 @@ class DocsBrowserApp(App[None]):
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-        self.docs_dir = docs_dir
+        # Textual's DirectoryTree resolves each node before listing it
+        # (DirectoryTree._load_directory: path.expanduser().resolve()), so every
+        # FileSelected.path is canonical/symlink-followed. docs_dir arrives raw
+        # (a relative --path, a symlinked CORTEX_ROOT, or a bundled install dir),
+        # and relative_to() against a raw base raises "not in the subpath of".
+        # Match the tree's contract by resolving the base once, here.
+        self.docs_dir = docs_dir.expanduser().resolve()
         self.bookmarks_file = bookmarks_file
         self.current_file: Optional[Path] = None
         self.viewer: Optional[RichLog] = None
@@ -345,7 +351,16 @@ class DocsBrowserApp(App[None]):
         if not self.current_file or not self.bookmarks:
             return
 
-        rel_path = str(self.current_file.relative_to(self.docs_dir))
+        # current_file comes from FileSelected.path (already resolved by Textual)
+        # and docs_dir is resolved in __init__, so this normally succeeds. Guard
+        # anyway: an uncaught ValueError here would tear down the whole TUI.
+        try:
+            rel_path = str(self.current_file.resolve().relative_to(self.docs_dir))
+        except ValueError:
+            self.update_status(
+                f"Cannot bookmark: {self.current_file} is outside {self.docs_dir}"
+            )
+            return
         name = self.current_file.stem
 
         # Check if already bookmarked

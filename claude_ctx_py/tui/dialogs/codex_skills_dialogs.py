@@ -58,16 +58,26 @@ class BulkSkillOperationDialog(ModalScreen[Optional[Dict[str, List[str]]]]):
         Binding("enter", "confirm", "Confirm"),
     ]
 
+    # Verb shown in the title/buttons per operation. "link"/"unlink" drive the
+    # provider (LLM Skills) view; "enable"/"disable" drive the Claude Skills
+    # view. The dialog is otherwise identical, so it serves both.
+    _OPERATION_LABELS: Dict[str, str] = {
+        "link": "Link",
+        "unlink": "Unlink",
+        "enable": "Enable",
+        "disable": "Disable",
+    }
+
     def __init__(
         self,
         categories: List[Tuple[str, str, int]],
-        operation: Literal["link", "unlink"]
+        operation: Literal["link", "unlink", "enable", "disable"],
     ):
         """Initialize bulk operation dialog.
 
         Args:
             categories: List of (category_key, category_icon, skill_count) tuples
-            operation: "link" or "unlink" operation type
+            operation: which bulk operation this dialog drives
         """
         super().__init__()
         self.categories = categories
@@ -76,7 +86,9 @@ class BulkSkillOperationDialog(ModalScreen[Optional[Dict[str, List[str]]]]):
 
     def compose(self) -> ComposeResult:
         """Compose the dialog."""
-        operation_text = "Link" if self.operation == "link" else "Unlink"
+        operation_text = self._OPERATION_LABELS.get(
+            self.operation, self.operation.capitalize()
+        )
         operation_verb = operation_text.lower()
 
         with Container(id="dialog", classes="visible"):
@@ -106,9 +118,7 @@ class BulkSkillOperationDialog(ModalScreen[Optional[Dict[str, List[str]]]]):
 
                 with Horizontal(id="dialog-buttons"):
                     yield Button(
-                        f"{operation_text} Selected",
-                        variant="primary",
-                        id="confirm"
+                        f"{operation_text} Selected", variant="primary", id="confirm"
                     )
                     yield Button("Cancel", variant="default", id="cancel")
 

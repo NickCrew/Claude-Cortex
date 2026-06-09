@@ -5,7 +5,7 @@
 - Maintain a documentation navigator at `docs/NAVIGATOR.md`
 - `site/` is the preferred location for statically generated doc sites like Github pages
 - Maintain a clean logical separation between user-facing documentation and development (project) documentation.
-- For plans or any documentation related to Backlog tasks, make sure the doc is stored in backlog using the MCP tool (preferred) or CLI `backlog docs` so the implementing agent can locate them easily.
+- Store plans and design notes in the repo's `docs/` tree (see structure below): design notes under `docs/development/design/`, rollout/implementation plans under `docs/development/plans/`, ADRs under `docs/architecture/decisions/`. Link them from the task that motivates them (the GitHub issue, or — for repos still on Backlog.md such as Cortex — the backlog task via `backlog docs`).
 
 ## Docs Folder Structure
 
