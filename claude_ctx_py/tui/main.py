@@ -1421,12 +1421,19 @@ class AgentTUI(App[None]):
 
         Uses symlink presence in ~/.claude/skills to determine activation status.
         Skills are loaded from CORTEX_ROOT/skills, and their status includes
-        both gitignore state and symlink activation state.
+        both gitignore state and symlink activation state.  On project scope,
+        each installed skill is also checked for drift vs the bundle.
         """
         try:
+            import os
+            from ..core.skill_link import DriftStatus, skill_drift_status
+
             skills = []
             cortex_root = _resolve_cortex_root()
             claude_dir = _resolve_claude_dir()
+
+            scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
+            project_root = claude_dir.parent if scope == "project" else None
 
             # Categories live in skills/registry.yaml (the catalog source of
             # truth), not in SKILL.md front matter — load the slug->categories
@@ -1453,6 +1460,19 @@ class AgentTUI(App[None]):
                             installed_path.exists() or installed_path.is_symlink()
                         )
                         skill_data["installed"] = is_installed
+
+                        # Drift detection on project scope
+                        if project_root is not None and is_installed:
+                            try:
+                                drift = skill_drift_status(
+                                    project_root, skill_path.name, cortex_root
+                                )
+                            except Exception:
+                                drift = DriftStatus.SAME
+                            skill_data["drift"] = drift
+                        else:
+                            skill_data["drift"] = None
+
                         self._attach_skill_categories(skill_data, category_map)
                         skills.append(skill_data)
 
@@ -1461,10 +1481,16 @@ class AgentTUI(App[None]):
 
             self._attach_skill_ratings(skills)
             self.skills = skills
+            stale_count = sum(
+                1 for s in skills
+                if s.get("drift") is not None
+                and s["drift"] == DriftStatus.STALE
+            )
+            suffix = f" ({stale_count} stale)" if stale_count else ""
             if self.skill_rating_error:
-                self.status_message = f"Loaded {len(skills)} skills (ratings offline)"
+                self.status_message = f"Loaded {len(skills)} skills (ratings offline){suffix}"
             else:
-                self.status_message = f"Loaded {len(skills)} skills"
+                self.status_message = f"Loaded {len(skills)} skills{suffix}"
 
         except Exception as e:
             self.status_message = f"Error loading skills: {e}"
@@ -1826,7 +1852,14 @@ class AgentTUI(App[None]):
 
             # Active/installed status (symlinked into ~/.claude/skills/)
             is_installed = skill.get("installed", False)
-            active_text = "[green]✓ Yes[/green]" if is_installed else "[dim]○ No[/dim]"
+            from ..core.skill_link import DriftStatus
+            drift = skill.get("drift")
+            if is_installed and drift == DriftStatus.STALE:
+                active_text = "[yellow]⟳ stale[/yellow]"
+            elif is_installed:
+                active_text = "[green]✓ Yes[/green]"
+            else:
+                active_text = "[dim]○ No[/dim]"
 
             rating_text = self._format_skill_rating(skill)
 
