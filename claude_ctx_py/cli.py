@@ -457,6 +457,44 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "--output", "-o", type=Path, help="Output report to file"
     )
 
+    # move - relocate a skill between project and global scope
+    skills_move_parser = skills_sub.add_parser(
+        "move", help="Move a skill between project and global scope"
+    )
+    skills_move_parser.add_argument("skill", help="Skill name to move")
+    skills_move_parser.add_argument(
+        "--to",
+        dest="move_to",
+        choices=["project", "global"],
+        required=True,
+        help="Destination scope",
+    )
+
+
+def _build_project_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
+    project_parser = subparsers.add_parser(
+        "project", help="Project-scoped skill management via .cortex/manifest.yaml"
+    )
+    project_sub = project_parser.add_subparsers(dest="project_command")
+
+    init_parser = project_sub.add_parser(
+        "init", help="Initialise .cortex/manifest.yaml for this project"
+    )
+    init_parser.add_argument(
+        "--with-skills",
+        dest="init_skills",
+        help="Comma-separated list of skill slugs to enable (e.g. systematic-debugging,atomic-commits)",
+    )
+
+    project_sub.add_parser(
+        "sync",
+        help="Reconcile .agents/skills and .claude/skills with the manifest",
+    )
+
+    status_parser = project_sub.add_parser(  # noqa: F841
+        "status", help="Show manifest state and drift status"
+    )
+
 
 def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     mcp_parser = subparsers.add_parser("mcp", help="MCP server commands")
@@ -830,6 +868,7 @@ def build_parser() -> argparse.ArgumentParser:
     _build_rules_parser(subparsers)
     _build_hooks_parser(subparsers)
     _build_skills_parser(subparsers)
+    _build_project_parser(subparsers)
     _build_completions_parser(subparsers)
     _build_mcp_parser(subparsers)
     from .cmd_git import build_git_parser
@@ -1221,6 +1260,145 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.skills_command == "move":
+        return _handle_skills_move(args)
+    return 1
+
+
+def _handle_skills_move(args: argparse.Namespace) -> int:
+    """Move a skill between project and global scope."""
+    from pathlib import Path as _Path
+    from .core.base import _resolve_cortex_root, _resolve_claude_dir, _color, GREEN, RED, YELLOW
+    from .core.skill_link import link_skill, unlink_skill
+    from .core.manifest import load_manifest, write_manifest
+
+    skill_name: str = cast(str, args.skill)
+    destination: str = cast(str, args.move_to)  # "project" or "global"
+    source_scope = "global" if destination == "project" else "project"
+
+    cortex_root = _resolve_cortex_root()
+    bundle = cortex_root / "skills" / skill_name
+    if not bundle.exists():
+        _print(_color(f"Skill bundle not found: {skill_name}", RED))
+        return 1
+
+    # Remove from source scope
+    src_claude_dir = _resolve_claude_dir(scope=source_scope)
+    unlink_skill(src_claude_dir, skill_name, source_scope)
+
+    # Install at destination
+    dst_claude_dir = _resolve_claude_dir(scope=destination)
+    code, msg = link_skill(bundle, dst_claude_dir, destination)
+    _print(msg)
+    if code != 0:
+        return code
+
+    # Update manifest when destination is project
+    if destination == "project":
+        project_root = dst_claude_dir.parent
+        manifest = load_manifest(project_root)
+        skills_section = manifest.setdefault("skills", {})
+        if not isinstance(skills_section, dict):
+            skills_section = {}
+            manifest["skills"] = skills_section
+        enabled = skills_section.get("enabled", [])
+        if not isinstance(enabled, list):
+            enabled = []
+        if skill_name not in enabled:
+            enabled.append(skill_name)
+        skills_section["enabled"] = enabled
+        write_manifest(project_root, manifest)
+        _print(_color(f"Updated manifest: added {skill_name}", GREEN))
+    elif source_scope == "project":
+        # Moving away from project — remove from manifest
+        src_project_root = src_claude_dir.parent
+        manifest = load_manifest(src_project_root)
+        skills_section = manifest.get("skills", {})
+        if isinstance(skills_section, dict):
+            enabled = skills_section.get("enabled", [])
+            if isinstance(enabled, list) and skill_name in enabled:
+                enabled.remove(skill_name)
+                skills_section["enabled"] = enabled
+                write_manifest(src_project_root, manifest)
+                _print(_color(f"Updated manifest: removed {skill_name}", YELLOW))
+
+    return 0
+
+
+def _handle_project_command(args: argparse.Namespace) -> int:
+    """Handle ``cortex project`` subcommands."""
+    from pathlib import Path as _Path
+    from .core.base import _color, GREEN, RED, YELLOW
+    from .core.manifest import load_manifest, write_manifest, reconcile
+    from .core.skill_link import DriftStatus, skill_drift_status
+    from .core.base import _resolve_cortex_root
+
+    project_root = _Path.cwd()
+    project_command = getattr(args, "project_command", None)
+
+    if project_command == "init":
+        manifest = load_manifest(project_root)
+        if "skills" not in manifest:
+            manifest["skills"] = {"enabled": []}
+        skills_section = manifest["skills"]
+        if not isinstance(skills_section, dict):
+            manifest["skills"] = {"enabled": []}
+            skills_section = manifest["skills"]
+
+        init_skills_raw: str | None = getattr(args, "init_skills", None)
+        if init_skills_raw:
+            slugs = [s.strip() for s in init_skills_raw.split(",") if s.strip()]
+            enabled = skills_section.get("enabled", [])
+            if not isinstance(enabled, list):
+                enabled = []
+            for slug in slugs:
+                if slug not in enabled:
+                    enabled.append(slug)
+            skills_section["enabled"] = enabled
+
+        write_manifest(project_root, manifest)
+        _print(_color(f"Wrote .cortex/manifest.yaml", GREEN))
+        return 0
+
+    if project_command == "sync":
+        cortex_root = _resolve_cortex_root()
+        report = reconcile(project_root, cortex_root=cortex_root)
+        if report.added:
+            _print(_color(f"Added: {', '.join(sorted(report.added))}", GREEN))
+        if report.refreshed:
+            _print(_color(f"Refreshed: {', '.join(sorted(report.refreshed))}", GREEN))
+        if report.removed:
+            _print(_color(f"Removed: {', '.join(sorted(report.removed))}", YELLOW))
+        if report.unchanged:
+            _print(f"Up to date: {', '.join(sorted(report.unchanged))}")
+        if report.errors:
+            for err in report.errors:
+                _print(_color(f"Error: {err}", RED))
+            return 1
+        return 0
+
+    if project_command == "status":
+        manifest = load_manifest(project_root)
+        skills_section = manifest.get("skills", {})
+        enabled = skills_section.get("enabled", []) if isinstance(skills_section, dict) else []
+        if not enabled:
+            _print("No skills declared in .cortex/manifest.yaml")
+            return 0
+        cortex_root = _resolve_cortex_root()
+        lines = []
+        for name in sorted(enabled):
+            status = skill_drift_status(project_root, name, cortex_root)
+            if status == DriftStatus.SAME:
+                marker = _color("✓ current", GREEN)
+            elif status == DriftStatus.STALE:
+                marker = _color("⟳ stale", YELLOW)
+            else:
+                marker = _color("✗ not installed", RED)
+            lines.append(f"  {name}: {marker}")
+        _print("\n".join(lines))
+        return 0
+
+    _print(_color("Unknown project command. Use init, sync, or status.", RED))
     return 1
 
 
@@ -2637,6 +2815,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         "rules": _handle_rules_command,
         "hooks": _handle_hooks_command,
         "skills": _handle_skills_command,
+        "project": _handle_project_command,
         "completions": _handle_completions_command,
         "mcp": _handle_mcp_command,
         "export": _handle_export_command,
