@@ -908,15 +908,24 @@ class AgentTUI(App[None]):
         return table.cursor_row if table else None
 
     def _restore_main_table_cursor(self, saved_cursor_row: Optional[int]) -> None:
-        """Restore the cursor position in the main table after a refresh."""
+        """Restore the cursor position in the main table after a refresh.
+
+        Defers the actual move_cursor call to after the next layout flush so
+        that row heights are computed before the scroll-to-visible calculation
+        runs — without this, calling move_cursor synchronously right after
+        table.clear()+add_row() leaves the viewport at the top because the
+        layout engine hasn't committed the new row heights yet.
+        """
         if saved_cursor_row is None:
             return
-        table = self._main_table()
-        if not table:
-            return
-        if table.row_count <= 0:
-            return
-        table.move_cursor(row=min(saved_cursor_row, table.row_count - 1))
+
+        def _do_restore() -> None:
+            table = self._main_table()
+            if not table or table.row_count <= 0:
+                return
+            table.move_cursor(row=min(saved_cursor_row, table.row_count - 1))
+
+        self.call_after_refresh(_do_restore)
 
     def _wizard_max_index(self) -> int:
         """Return max selectable index for the init wizard."""
