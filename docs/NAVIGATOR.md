@@ -55,6 +55,7 @@ Quick-reference map to all cortex documentation.
 
 ### Design Notes
 - [Project-scoped Skills](development/design/project-scoped-skills.md) — `.agents/skills` indirection, `.cortex/manifest.yaml`, drift detection, TUI mark mode
+- [Skill Suites](development/design/skill-suites.md) — the `-suite` meta-skill composition pattern, six reusable parts, execution-model axis, and roadmap
 
 ### Tutorials
 - [Tutorial Index](tutorials/index.md) — All tutorials
