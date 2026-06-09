@@ -9157,18 +9157,22 @@ class AgentTUI(App[None]):
         slug: str = skill.get("slug") or skill.get("name", "")
         if not slug:
             return
+        saved_cursor = self._table_cursor_index()
         if slug in self.marked_skills:
             self.marked_skills.discard(slug)
         else:
             self.marked_skills.add(slug)
         self.update_view()
+        self._restore_main_table_cursor(saved_cursor)
 
     def _clear_skill_marks(self) -> None:
         """Clear all skill marks."""
         if self.marked_skills:
+            saved_cursor = self._table_cursor_index()
             self.marked_skills.clear()
             if self.current_view == "skills":
                 self.update_view()
+                self._restore_main_table_cursor(saved_cursor)
 
     async def _action_skill_marks_enable(self) -> None:
         """Enable (activate) all marked skills, or warn if none marked."""
