@@ -2618,6 +2618,24 @@
       "confidence": 0.8
     },
     {
+      "name": "ui-ux-review-suite",
+      "path": "ui-ux-review-suite",
+      "description": "User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through four sibling skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes user-journey-mapping (flow/funnel lens), ui-design-aesthetics (visual critique lens), interaction-design (state-coverage lens), and ux-review (usability-heuristics + WCAG lens). Resolves the review target once at suite start — the app/URL, the screens or flows under review, the viewports, and the user persona/goal — so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs — at each step it presents the next lens with its reframing prompt and an approval gate; the user invokes the sibling and confirms before moving on. Because the lenses overlap (ux-review already touches interaction and a11y), the suite scopes each lens to its distinct concern so the synthesis does not double-count. Produces one authored synthesis report — deduped findings grouped by severity and lens — not a navigation shell. Trigger on \"run a full UX review,\" \"comprehensive UI/UX review,\" \"review this screen across all lenses,\" \"do a complete design review,\" or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI (the generative siblings are reframed as critique here), and not for bypassing approval gates (this skill coaches, never autoruns).",
+      "keywords": [
+        "complete design review",
+        "comprehensive ui review",
+        "comprehensive ui/ux review",
+        "design review",
+        "full ux review",
+        "multi-lens ux review",
+        "review across all lenses",
+        "ui ux audit",
+        "ux review suite"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "user-journey-mapping",
       "path": "user-journey-mapping",
       "description": "Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.",

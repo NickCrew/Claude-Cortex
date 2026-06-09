@@ -4284,6 +4284,37 @@ skills:
     dependencies: []
     status: active
     license: MIT
+  ui-ux-review-suite:
+    title: UI/UX Review Suite
+    description: User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through four sibling skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes user-journey-mapping (flow/funnel lens), ui-design-aesthetics (visual critique lens), interaction-design (state-coverage lens), and ux-review (usability-heuristics + WCAG lens). Resolves the review target once at suite start, scopes each overlapping lens to its distinct concern so the synthesis does not double-count, and produces one authored synthesis report rather than a navigation shell. Coaches rather than auto-runs. Trigger on "run a full UX review," "comprehensive UI/UX review," or when the user names two-or-more UI/UX lenses to coordinate.
+    path: ui-ux-review-suite/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-06-09'
+    updated: '2026-06-09'
+    categories:
+    - design
+    - analysis
+    - meta
+    tags:
+    - ux-review-suite
+    - full-ux-review
+    - comprehensive-ui-review
+    - design-review
+    - multi-lens-ux-review
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-06-09'
+        notes: Initial suite skill — coach-mode UI/UX review orchestrator
+    dependencies:
+    - user-journey-mapping
+    - ui-design-aesthetics
+    - interaction-design
+    - ux-review
+    status: active
+    license: MIT
   user-journey-mapping:
     title: User Journey Mapping
     description: Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.
