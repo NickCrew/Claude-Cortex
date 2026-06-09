@@ -214,6 +214,24 @@
       "confidence": 0.7
     },
     {
+      "name": "atlas-crew-tasks",
+      "path": "atlas-crew-tasks",
+      "description": "Use when filing, updating, sequencing, or querying tasks in any atlas-crew repo (Facet + the Atlas Crew Security repos: Apparatus, Chimera, Crucible, Synapse, Bridge). These repos track work in GitHub Issues on Projects v2 boards, NOT backlog.md. Covers the two boards, the Type/Area/Status field model, cross-repo Initiative grouping, gh seq execution ordering, and the non-obvious gh/GraphQL mechanics for setting issue types and project fields. Trigger on: file an issue, create a task, set priority/type/area/status, add to board, what should I work on next, execution order, sequencing, blocked-by, milestone, where does this task go.",
+      "keywords": [
+        "atlas-crew board",
+        "blocked-by",
+        "file a task",
+        "gh project",
+        "gh seq",
+        "github projects",
+        "issue tracking",
+        "issue type",
+        "sequencing"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "atomic-commits",
       "path": "atomic-commits",
       "description": "Use this skill when a working tree contains uncommitted changes that need to be split into a sequence of atomic commits — typically after a long session, an agent hand-off, a rebase resolution, or anytime `git status` shows mixed work that was not committed as it landed. The skill assumes the agent has fresh context and did not author most of the diff, so it treats the working tree as evidence to investigate before grouping. Optimizes for `git bisect`: each commit is the smallest buildable and deployable unit, and no smaller. Uses `cortex git commit` for file-level commits and `cortex git patch --diff` when unrelated changes share a file.",
