@@ -1,16 +1,884 @@
 #!/usr/bin/env python3
-"""Claude Code status line - Powerlevel10k lean theme inspired."""
+"""Claude Code status line - Powerlevel10k lean theme inspired.
+
+Standalone script (no pip install required). Reads JSON from stdin
+(piped by Claude Code's statusline hook) and renders a rich terminal
+status display.
+"""
 
 from __future__ import annotations
 
+import argparse
+import hashlib
+import json
+import os
+import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Callable, Dict, Iterable, Mapping, TextIO, cast
 
-# Add repository root to path for imports when running from source.
-sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from zoneinfo import ZoneInfo
 
-from claude_ctx_py.statusline import main
+    _ET: ZoneInfo | None = ZoneInfo("America/New_York")
+except Exception:
+    _ET = None
 
 
-if __name__ == "__main__":  # pragma: no cover - script wrapper
+
+# =========================================================================
+# File-based cache
+# =========================================================================
+CACHE_DIR = Path("/tmp/cortex-statusline-cache")
+
+
+def _cache_key(namespace: str, cwd: str) -> Path:
+    """Return a stable cache file path for *namespace* + *cwd*."""
+    h = hashlib.md5(cwd.encode()).hexdigest()[:12]
+    return CACHE_DIR / f"{namespace}-{h}"
+
+
+def _cache_read(key: Path, ttl: int) -> str | None:
+    """Return cached value if it exists and is fresher than *ttl* seconds."""
+    try:
+        if not key.exists():
+            return None
+        age = datetime.now(timezone.utc).timestamp() - key.stat().st_mtime
+        if age > ttl:
+            return None
+        return key.read_text()
+    except OSError:
+        return None
+
+
+def _cache_write(key: Path, value: str) -> None:
+    """Write *value* to the cache file."""
+    try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        key.write_text(value)
+    except OSError:
+        pass
+
+
+# =========================================================================
+# Colors
+# =========================================================================
+class C:
+    """ANSI color codes."""
+
+    NC = "\033[0m"
+    # Bright
+    B_RED = "\033[1;31m"
+    B_GRE = "\033[1;32m"
+    B_YEL = "\033[1;33m"
+    B_BLU = "\033[1;34m"
+    B_MAG = "\033[1;35m"
+    B_CYA = "\033[1;36m"
+    B_WHI = "\033[1;37m"
+    # Regular
+    RED = "\033[0;31m"
+    GRE = "\033[0;32m"
+    YEL = "\033[0;33m"
+    BLU = "\033[0;34m"
+    MAG = "\033[0;35m"
+    CYA = "\033[0;36m"
+    WHI = "\033[0;37m"
+
+    @classmethod
+    def disable(cls) -> None:
+        """Disable all colors."""
+        for attr in dir(cls):
+            if not attr.startswith("_") and attr != "disable":
+                setattr(cls, attr, "")
+
+
+# =========================================================================
+# Config (edit these constants to customize)
+# =========================================================================
+ConfigDict = Dict[str, Any]
+IconMap = Dict[str, str]
+
+CONFIG: ConfigDict = {
+    "show_git": True,
+    "show_kube": False,
+    "show_aws": False,
+    "show_docker": False,
+    "show_venv": True,
+    "show_node": False,
+    "git_show_conflicts": True,
+    "git_show_state": True,
+    "git_show_tag": False,
+    "git_show_assume_unchanged": False,
+    "git_show_submodules": False,
+    "cache_ttl": 5,
+    "separator": " | ",
+    "icons": {
+        "dir": "",
+        "git": "",
+        "tokens": "",
+        "in_tokens": "󰜮",
+        "out_tokens": "󰜷",
+        "added": "",
+        "removed": "",
+        "model": "",
+        "kube": "󰒋",
+        "aws": "",
+        "docker": "",
+        "python": "",
+        "node": "",
+        "worktree": "⊕",
+        "conflict": "✖",
+        "state": "⚡",
+        "tag": "",
+        "time": "◷",
+        "cache": "↻",
+        "output_style": "󰏒",
+    },
+}
+
+
+# =========================================================================
+# Helpers
+# =========================================================================
+def ms_to_hhmmss(ms: int) -> str:
+    """Convert milliseconds to HH:MM format."""
+    ms = abs(ms or 0)
+    total_seconds = ms // 1000
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    return f"{hours:02d}:{minutes:02d}"
+
+
+def _fmt_tokens(n: int) -> str:
+    """Compact token count: 500, 1.2k, 50k, 1.5M."""
+    n = int(n or 0)
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f}M"
+    if n >= 10_000:
+        return f"{n // 1_000}k"
+    if n >= 1_000:
+        return f"{n / 1_000:.1f}k"
+    return str(n)
+
+
+def shorten_path(path: str, max_parts: int = 4) -> str:
+    """Shorten path for display."""
+    home = str(Path.home())
+    if path.startswith(home):
+        path = "~" + path[len(home):]
+
+    parts = path.split("/")
+    if len(parts) <= max_parts:
+        return path
+
+    result = [parts[0]]
+    for i, part in enumerate(parts[1:-1], start=1):
+        if i == 1 or i == len(parts) - 2:
+            result.append(part[:3])
+        else:
+            result.append(part[:1])
+    result.append(parts[-1])
+    return "/".join(result)
+
+
+def run_cmd(cmd: list[str], cwd: str | None = None, timeout: int = 3) -> str:
+    """Run command, return stdout or empty string on failure."""
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, cwd=cwd, timeout=timeout
+        )
+        return result.stdout.strip() if result.returncode == 0 else ""
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        return ""
+
+
+# =========================================================================
+# Git
+# =========================================================================
+@dataclass
+class GitStatus:
+    branch: str = ""
+    stashed: int = 0
+    modified: int = 0
+    staged: int = 0
+    untracked: int = 0
+    ahead: int = 0
+    behind: int = 0
+    conflicts: int = 0
+    state: str = ""
+    tag: str = ""
+    worktree: bool = False
+    assume_unchanged: int = 0
+    dirty_submodules: int = 0
+    last_commit_age: str = ""
+
+
+def format_time_ago(timestamp: int) -> str:
+    """Format unix timestamp as relative time (e.g., '3d', '2h', '15m')."""
+    if not timestamp:
+        return ""
+
+    now = datetime.now(timezone.utc)
+    commit_time = datetime.fromtimestamp(timestamp, timezone.utc)
+    delta = now - commit_time
+
+    seconds = int(delta.total_seconds())
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes = seconds // 60
+    if minutes < 60:
+        return f"{minutes}m"
+    hours = minutes // 60
+    if hours < 24:
+        return f"{hours}h"
+    days = hours // 24
+    if days < 30:
+        return f"{days}d"
+    months = days // 30
+    if months < 12:
+        return f"{months}mo"
+    years = days // 365
+    return f"{years}y"
+
+
+def get_git_state(git_dir: str) -> str:
+    """Detect merge/rebase/cherry-pick/bisect state."""
+    git_path = Path(git_dir)
+
+    if (git_path / "MERGE_HEAD").exists():
+        return "MERGING"
+    if (git_path / "rebase-merge").exists():
+        return "REBASING"
+    if (git_path / "rebase-apply").exists():
+        return "REBASING"
+    if (git_path / "CHERRY_PICK_HEAD").exists():
+        return "CHERRY-PICKING"
+    if (git_path / "BISECT_LOG").exists():
+        return "BISECTING"
+    if (git_path / "REVERT_HEAD").exists():
+        return "REVERTING"
+    return ""
+
+
+def get_git_info(
+    cwd: str,
+    icons: Mapping[str, str],
+    config: ConfigDict | None = None,
+) -> str:
+    """Get git branch and status, with optional file-based caching."""
+    if config is None:
+        config = {}
+
+    ttl = int(config.get("cache_ttl", 5))
+    if ttl > 0:
+        cache_key = _cache_key("git", cwd)
+        cached = _cache_read(cache_key, ttl)
+        if cached is not None:
+            return cached
+
+    result = _get_git_info_uncached(cwd, icons, config)
+
+    if ttl > 0:
+        _cache_write(cache_key, result)
+
+    return result
+
+
+def _get_git_info_uncached(
+    cwd: str,
+    icons: Mapping[str, str],
+    config: ConfigDict,
+) -> str:
+    """Fetch git branch and status (no caching)."""
+    git_dir = run_cmd(["git", "-C", cwd, "rev-parse", "--git-dir"])
+    if not git_dir:
+        return ""
+
+    if not git_dir.startswith("/"):
+        git_dir = str(Path(cwd) / git_dir)
+
+    branch = run_cmd(["git", "-C", cwd, "branch", "--show-current"])
+    if not branch:
+        branch = run_cmd(["git", "-C", cwd, "rev-parse", "--short", "HEAD"])[:7]
+        if not branch:
+            return ""
+
+    status = GitStatus(branch=branch)
+
+    porcelain = run_cmd(
+        ["git", "-C", cwd, "status", "--porcelain", "--untracked-files=normal"]
+    )
+    for line in porcelain.splitlines():
+        if line.startswith("?? "):
+            status.untracked += 1
+        elif len(line) >= 2:
+            xy = line[:2]
+            if xy in ("UU", "AA", "DD", "AU", "UA", "DU", "UD"):
+                status.conflicts += 1
+            else:
+                if line[0] != " ":
+                    status.staged += 1
+                if line[1] != " ":
+                    status.modified += 1
+
+    stash = run_cmd(["git", "-C", cwd, "stash", "list"])
+    status.stashed = len(stash.splitlines()) if stash else 0
+
+    upstream = run_cmd(
+        [
+            "git",
+            "-C",
+            cwd,
+            "rev-parse",
+            "--abbrev-ref",
+            "--symbolic-full-name",
+            "@{u}",
+        ]
+    )
+    if upstream:
+        counts = run_cmd(
+            ["git", "-C", cwd, "rev-list", "--left-right", "--count", "HEAD...@{u}"]
+        )
+        if counts and "\t" in counts:
+            behind, ahead = counts.split("\t")
+            status.ahead = int(ahead) if ahead.isdigit() else 0
+            status.behind = int(behind) if behind.isdigit() else 0
+
+    common_dir = run_cmd(["git", "-C", cwd, "rev-parse", "--git-common-dir"])
+    if common_dir and common_dir != git_dir and common_dir != ".git":
+        status.worktree = True
+
+    timestamp = run_cmd(["git", "-C", cwd, "log", "-1", "--format=%ct"])
+    if timestamp and timestamp.isdigit():
+        status.last_commit_age = format_time_ago(int(timestamp))
+
+    if config.get("git_show_state", True):
+        status.state = get_git_state(git_dir)
+
+    if config.get("git_show_tag", False):
+        status.tag = run_cmd(
+            ["git", "-C", cwd, "describe", "--tags", "--exact-match", "HEAD"]
+        )
+
+    if config.get("git_show_assume_unchanged", False):
+        ls_files = run_cmd(["git", "-C", cwd, "ls-files", "-v"])
+        status.assume_unchanged = sum(
+            1 for line in ls_files.splitlines() if line.startswith("h ")
+        )
+
+    if config.get("git_show_submodules", False):
+        submodule_status = run_cmd(["git", "-C", cwd, "submodule", "status"])
+        status.dirty_submodules = sum(
+            1 for line in submodule_status.splitlines() if line.startswith("+")
+        )
+
+    parts = [f"{C.B_BLU}{icons.get('git', '')} {branch}"]
+
+    if status.state:
+        parts.append(f"{C.B_RED}{icons.get('state', '⚡')}{status.state}{C.NC}")
+
+    if status.conflicts and config.get("git_show_conflicts", True):
+        parts.append(
+            f"{C.B_RED}{icons.get('conflict', '✖')}{status.conflicts}{C.NC}"
+        )
+
+    if status.worktree:
+        parts.append(f"{C.B_CYA}{icons.get('worktree', '⊕')}{C.NC}")
+
+    if status.tag:
+        parts.append(f"{C.B_YEL}{icons.get('tag', '')} {status.tag}{C.NC}")
+
+    if status.stashed:
+        parts.append(f"{C.B_MAG}*{status.stashed}")
+    if status.modified:
+        parts.append(f"{C.B_YEL}!{status.modified}")
+    if status.staged:
+        parts.append(f"{C.B_CYA}+{status.staged}")
+    if status.untracked:
+        parts.append(f"{C.B_BLU}?{status.untracked}")
+    if status.ahead:
+        parts.append(f"{C.B_GRE}⇡{status.ahead}")
+    if status.behind:
+        parts.append(f"{C.B_RED}⇣{status.behind}")
+
+    if status.assume_unchanged:
+        parts.append(f"{C.WHI}≡{status.assume_unchanged}")
+    if status.dirty_submodules:
+        parts.append(f"{C.B_YEL}◌{status.dirty_submodules}")
+
+    if status.last_commit_age:
+        parts.append(f"{C.WHI}{icons.get('time', '◷')}{status.last_commit_age}{C.NC}")
+
+    return " ".join(parts) + C.NC
+
+
+# =========================================================================
+# Context Providers
+# =========================================================================
+def get_kube_context(icons: Mapping[str, str]) -> str:
+    """Get current kubectl context."""
+    ctx = run_cmd(["kubectx", "-c"]) or run_cmd(
+        ["kubectl", "config", "current-context"]
+    )
+    return f"{C.MAG}{icons.get('kube', '')} {ctx}{C.NC}" if ctx else ""
+
+
+def get_aws_info(icons: Mapping[str, str]) -> str:
+    """Get AWS profile/region from environment."""
+    profile = os.environ.get("AWS_PROFILE", "")
+    region = os.environ.get("AWS_REGION", "")
+    if not profile and not region:
+        return ""
+    info = " ".join(filter(None, [profile, region]))
+    return f"{C.YEL}{icons.get('aws', '')} {info}{C.NC}"
+
+
+def get_docker_context(icons: Mapping[str, str]) -> str:
+    """Get current Docker context."""
+    ctx = run_cmd(["docker", "context", "show"])
+    if ctx and ctx != "default":
+        return f"{C.B_BLU}{icons.get('docker', '')} {ctx}{C.NC}"
+    return ""
+
+
+def get_venv_info(icons: Mapping[str, str]) -> str:
+    """Get Python virtual environment name."""
+    venv = os.environ.get("VIRTUAL_ENV", "")
+    if venv:
+        name = Path(venv).name
+        return f"{C.B_YEL}{icons.get('python', '')} {name}{C.NC}"
+    return ""
+
+
+def get_node_version(icons: Mapping[str, str]) -> str:
+    """Get Node.js version if in a node project."""
+    if Path("package.json").exists():
+        version = run_cmd(["node", "--version"])
+        if version:
+            return f"{C.B_GRE}{icons.get('node', '')} {version}{C.NC}"
+    return ""
+
+
+def get_claude_version(ttl: int = 60) -> str:
+    """Get Claude CLI version (cached)."""
+    if ttl > 0:
+        cache_key = _cache_key("claude-version", "global")
+        cached = _cache_read(cache_key, ttl)
+        if cached is not None:
+            return cached
+
+    output = run_cmd(["claude", "--version"])
+    result = f"v{output.split()[0]}" if output else ""
+
+    if ttl > 0:
+        _cache_write(cache_key, result)
+
+    return result
+
+
+# =========================================================================
+# Status Data
+# =========================================================================
+@dataclass
+class StatusData:
+    """Collected status information."""
+
+    cwd: str = ""
+    git: str = ""
+    tokens_pct: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    current_input_tokens: int = 0
+    current_output_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_creation_tokens: int = 0
+    context_window_size: int = 0
+    lines_added: int = 0
+    lines_removed: int = 0
+    cost_usd: float = 0.0
+    session_time: str = "00:00"
+    model: str = ""
+    version: str = ""
+    kube: str = ""
+    aws: str = ""
+    docker: str = ""
+    venv: str = ""
+    node: str = ""
+    five_hour_remaining: float | None = None
+    seven_day_remaining: float | None = None
+    five_hour_resets_at: int | None = None
+    seven_day_resets_at: int | None = None
+    effort_level: str = ""
+    thinking_enabled: bool = False
+    exceeds_200k: bool = False
+    output_style: str = ""
+    agent_name: str = ""
+
+
+# =========================================================================
+# Formatters
+# =========================================================================
+def _get_icons(config: ConfigDict) -> IconMap:
+    icons = config.get("icons")
+    if isinstance(icons, dict):
+        return {str(k): str(v) for k, v in icons.items()}
+    return {}
+
+
+def format_default(data: StatusData, config: ConfigDict) -> str:
+    """Default multi-line format."""
+    sep = str(config.get("separator", " | "))
+    icons = _get_icons(config)
+
+    lines = []
+
+    line1 = [f"{C.B_CYA}{icons.get('dir', '')} {shorten_path(data.cwd)}{C.NC}"]
+    if data.git:
+        line1.append(data.git)
+    for ctx in [data.venv, data.kube, data.aws, data.docker, data.node]:
+        if ctx:
+            line1.append(ctx)
+    lines.append(sep.join(line1))
+
+    over_200k_flag = f" {C.B_RED}⚠{C.NC}" if data.exceeds_200k else ""
+    if data.context_window_size and data.current_input_tokens:
+        ctx_display = (
+            f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}% "
+            f"{C.WHI}({_fmt_tokens(data.current_input_tokens)}"
+            f"/{_fmt_tokens(data.context_window_size)}){C.NC}{over_200k_flag}"
+        )
+    else:
+        ctx_display = f"{C.B_MAG}{icons.get('tokens', '')} {data.tokens_pct}%{C.NC}{over_200k_flag}"
+
+    _dur_h, _dur_m = map(int, data.session_time.split(":"))
+    _dur_color = C.B_RED if _dur_h >= 4 else C.B_YEL if _dur_h >= 1 else C.B_GRE
+    duration = f"{_dur_color}{icons.get('time', '◷')} {data.session_time}{C.NC}"
+    line2_parts = [ctx_display, duration]
+
+    cache_total = data.cache_read_tokens + data.cache_creation_tokens
+    if cache_total > 0 and data.current_input_tokens > 0:
+        cache_pct = (data.cache_read_tokens * 100) // data.current_input_tokens
+        line2_parts.append(
+            f"{C.B_CYA}{icons.get('cache', '↻')} {cache_pct}%{C.NC}"
+        )
+
+    out_display = (
+        f"{C.B_YEL}{icons.get('out_tokens', '󰜷')} "
+        f"{_fmt_tokens(data.current_output_tokens)}{C.NC}"
+    )
+    line2_parts.append(out_display)
+
+    changes = (
+        f"{C.B_GRE}{icons.get('added', '')} {data.lines_added} "
+        f"{C.B_RED}{icons.get('removed', '')} {data.lines_removed}{C.NC}"
+    )
+    if os.environ.get("CLAUDE_CODE_USE_BEDROCK"):
+        cost_val = data.cost_usd * 1.25
+        cost = f"{C.GRE}~${cost_val:.2f} {C.WHI}(b5k){C.NC}"
+    else:
+        cost = f"{C.GRE}${data.cost_usd:.2f}{C.NC}"
+    line2_parts.extend([changes, cost])
+    lines.append(sep.join(line2_parts))
+
+    rate_parts = []
+    if data.five_hour_remaining is not None:
+        part = f"{_rate_color(data.five_hour_remaining)}5h {data.five_hour_remaining:.0f}%{C.NC}"
+        reset = _format_reset_time(data.five_hour_resets_at)
+        if reset:
+            part = f"{part} {C.CYA}→ {reset}{C.NC}"
+        rate_parts.append(part)
+    if data.seven_day_remaining is not None:
+        part = f"{_rate_color(data.seven_day_remaining)}7d {data.seven_day_remaining:.0f}%{C.NC}"
+        reset = _format_reset_time(data.seven_day_resets_at)
+        if reset:
+            part = f"{part} {C.CYA}→ {reset}{C.NC}"
+        rate_parts.append(part)
+    if rate_parts:
+        lines.append(sep.join(rate_parts))
+
+    _effort_abbrev = {"low": "L", "medium": "M", "high": "H", "xhigh": "X", "max": "M"}
+    _effort_color = {"low": C.WHI, "medium": C.B_GRE, "high": C.B_YEL, "xhigh": C.B_MAG, "max": C.B_RED}
+    model_suffix = ""
+    if data.effort_level:
+        abbrev = _effort_abbrev.get(data.effort_level, data.effort_level)
+        color = _effort_color.get(data.effort_level, C.WHI)
+        model_suffix = f"{color}({abbrev}){C.B_BLU}"
+    if data.thinking_enabled:
+        model_suffix += "🧠"
+    model_segment = f"{C.B_BLU}{icons.get('model', '')} {data.model}{model_suffix}{C.NC}"
+    model_parts = [model_segment]
+    if data.output_style and data.output_style != "default":
+        model_parts.append(f"{C.B_MAG}{icons.get('output_style', '󰏒')} {data.output_style}{C.NC}")
+    if data.agent_name:
+        model_parts.append(f"{C.B_CYA}{data.agent_name}{C.NC}")
+    model_parts.append(data.version)
+    lines.append(sep.join(model_parts))
+
+    return "\n".join(lines)
+
+
+def _rate_color(remaining: float) -> str:
+    """Color rate-limit remaining: green high, yellow mid, red low."""
+    if remaining >= 50:
+        return C.B_GRE
+    if remaining >= 20:
+        return C.B_YEL
+    return C.B_RED
+
+
+def _format_reset_time(epoch: int | None) -> str:
+    """Format a Unix-epoch reset timestamp as 12-hour ET time."""
+    if not epoch:
+        return ""
+    try:
+        if _ET is None:
+            dt = datetime.fromtimestamp(int(epoch), timezone.utc)
+        else:
+            dt = datetime.fromtimestamp(int(epoch), _ET)
+        now = datetime.now(dt.tzinfo)
+        if dt.date() == now.date():
+            return dt.strftime("%-I:%M %p")
+        return dt.strftime("%a %b %-d %-I:%M %p")
+    except (ValueError, OverflowError, OSError):
+        return ""
+
+
+def format_oneline(data: StatusData, config: ConfigDict) -> str:
+    """Single line for tmux/i3bar."""
+    sep = str(config.get("separator", " | "))
+    parts = [
+        shorten_path(data.cwd),
+        f"{data.tokens_pct}%",
+        f"↓{data.input_tokens} ↑{data.output_tokens}",
+        f"+{data.lines_added}/-{data.lines_removed}",
+        f"${data.cost_usd:.2f}",
+    ]
+    return sep.join(parts)
+
+
+def format_json(data: StatusData, _config: ConfigDict) -> str:
+    """JSON output for scripting."""
+    return json.dumps(
+        {
+            "cwd": data.cwd,
+            "tokens_pct": data.tokens_pct,
+            "input_tokens": data.input_tokens,
+            "output_tokens": data.output_tokens,
+            "current_input_tokens": data.current_input_tokens,
+            "current_output_tokens": data.current_output_tokens,
+            "cache_read_tokens": data.cache_read_tokens,
+            "cache_creation_tokens": data.cache_creation_tokens,
+            "context_window_size": data.context_window_size,
+            "lines_added": data.lines_added,
+            "lines_removed": data.lines_removed,
+            "cost_usd": data.cost_usd,
+            "session_time": data.session_time,
+            "model": data.model,
+            "version": data.version,
+            "five_hour_remaining": data.five_hour_remaining,
+            "seven_day_remaining": data.seven_day_remaining,
+            "five_hour_resets_at": data.five_hour_resets_at,
+            "seven_day_resets_at": data.seven_day_resets_at,
+            "effort_level": data.effort_level,
+            "thinking_enabled": data.thinking_enabled,
+        },
+        indent=2,
+    )
+
+
+FORMATTERS: Dict[str, Callable[[StatusData, ConfigDict], str]] = {
+    "default": format_default,
+    "oneline": format_oneline,
+    "json": format_json,
+}
+
+
+# =========================================================================
+# CLI
+# =========================================================================
+def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Claude Code status line")
+    parser.add_argument("-f", "--format", choices=FORMATTERS.keys(), default="default")
+    parser.add_argument("--color", action="store_true", help="Force colors on")
+    parser.add_argument("--no-color", action="store_true", help="Disable colors")
+
+    for name in ["git", "kube", "aws", "docker", "venv", "node"]:
+        parser.add_argument(
+            f"--{name}", action="store_true", dest=f"show_{name}", default=None
+        )
+        parser.add_argument(
+            f"--no-{name}", action="store_false", dest=f"show_{name}"
+        )
+
+    parser.add_argument(
+        "--config", metavar="PATH",
+        help="Load config from a JSON file (merges over built-in defaults)",
+    )
+    parser.add_argument(
+        "--dump-config", action="store_true",
+        help="Print current config as JSON to stdout and exit",
+    )
+    return parser.parse_args(list(argv) if argv is not None else None)
+
+
+def _apply_cli_overrides(config: ConfigDict, args: argparse.Namespace) -> None:
+    for key in [
+        "show_git",
+        "show_kube",
+        "show_aws",
+        "show_docker",
+        "show_venv",
+        "show_node",
+    ]:
+        if getattr(args, key, None) is not None:
+            config[key] = getattr(args, key)
+
+
+def _configure_colors(args: argparse.Namespace, stdout: TextIO) -> None:
+    if getattr(args, "no_color", False):
+        C.disable()
+    elif not getattr(args, "color", False) and not stdout.isatty():
+        C.disable()
+
+
+def _read_claude_data(stdin: TextIO) -> Dict[str, Any]:
+    try:
+        data = json.load(stdin)
+        if isinstance(data, dict):
+            return cast(Dict[str, Any], data)
+        return {}
+    except json.JSONDecodeError:
+        return {}
+
+
+def _build_status_data(claude_data: Dict[str, Any], config: ConfigDict) -> StatusData:
+    cwd = claude_data.get("workspace", {}).get("current_dir", os.getcwd())
+    ctx = claude_data.get("context_window", {})
+    context_size = ctx.get("context_window_size", 1)
+
+    usage = ctx.get("current_usage") or {}
+    current_input_raw = int(usage.get("input_tokens", 0) or 0)
+    cache_creation_tokens = int(usage.get("cache_creation_input_tokens", 0) or 0)
+    cache_read_tokens = int(usage.get("cache_read_input_tokens", 0) or 0)
+    current_output_tokens = int(usage.get("output_tokens", 0) or 0)
+    current_input_tokens = current_input_raw + cache_creation_tokens + cache_read_tokens
+    tokens_pct = (
+        (current_input_tokens * 100) // context_size
+        if usage and context_size
+        else 0
+    )
+
+    cost = claude_data.get("cost", {})
+
+    rate_limits = claude_data.get("rate_limits") or {}
+    five_hour = rate_limits.get("five_hour") or {}
+    seven_day = rate_limits.get("seven_day") or {}
+    five_hour_used = five_hour.get("used_percentage")
+    seven_day_used = seven_day.get("used_percentage")
+    five_hour_remaining = (
+        100 - float(five_hour_used) if five_hour_used is not None else None
+    )
+    seven_day_remaining = (
+        100 - float(seven_day_used) if seven_day_used is not None else None
+    )
+
+    def _as_epoch(value: Any) -> int | None:
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    five_hour_resets_at = _as_epoch(five_hour.get("resets_at"))
+    seven_day_resets_at = _as_epoch(seven_day.get("resets_at"))
+
+    data = StatusData(
+        cwd=cwd,
+        tokens_pct=tokens_pct,
+        input_tokens=ctx.get("total_input_tokens", 0),
+        output_tokens=ctx.get("total_output_tokens", 0),
+        current_input_tokens=current_input_tokens,
+        current_output_tokens=current_output_tokens,
+        cache_read_tokens=cache_read_tokens,
+        cache_creation_tokens=cache_creation_tokens,
+        context_window_size=int(context_size or 0),
+        lines_added=cost.get("total_lines_added", 0),
+        lines_removed=cost.get("total_lines_removed", 0),
+        cost_usd=cost.get("total_cost_usd", 0.0),
+        session_time=ms_to_hhmmss(claude_data.get("cost", {}).get("total_duration_ms", 0)),
+        model=claude_data.get("model", {}).get("display_name", ""),
+        version=get_claude_version(),
+        effort_level=claude_data.get("effort", {}).get("level", ""),
+        thinking_enabled=bool(claude_data.get("thinking", {}).get("enabled", False)),
+        exceeds_200k=bool(claude_data.get("exceeds_200k_tokens", False)),
+        output_style=claude_data.get("output_style", {}).get("name", ""),
+        agent_name=claude_data.get("agent", {}).get("name", ""),
+        five_hour_remaining=five_hour_remaining,
+        seven_day_remaining=seven_day_remaining,
+        five_hour_resets_at=five_hour_resets_at,
+        seven_day_resets_at=seven_day_resets_at,
+    )
+
+    icons = _get_icons(config)
+
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        futures = {}
+        if config.get("show_git"):
+            futures["git"] = ex.submit(get_git_info, cwd, icons, config)
+        if config.get("show_kube"):
+            futures["kube"] = ex.submit(get_kube_context, icons)
+        if config.get("show_aws"):
+            futures["aws"] = ex.submit(get_aws_info, icons)
+        if config.get("show_docker"):
+            futures["docker"] = ex.submit(get_docker_context, icons)
+        if config.get("show_venv"):
+            futures["venv"] = ex.submit(get_venv_info, icons)
+        if config.get("show_node"):
+            futures["node"] = ex.submit(get_node_version, icons)
+
+        for key, fut in futures.items():
+            try:
+                setattr(data, key, fut.result(timeout=3))
+            except Exception:
+                pass
+
+    return data
+
+
+def _load_config(path: str | None) -> ConfigDict:
+    """Load config from built-in defaults, optionally merged with a JSON file."""
+    config = CONFIG.copy()
+    if path:
+        with open(path) as f:
+            user_config = json.load(f)
+        if isinstance(user_config, dict):
+            if "icons" in user_config and "icons" in config:
+                config["icons"].update(user_config.pop("icons"))
+            config.update(user_config)
+    return config
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    args = parse_args(argv)
+
+    if getattr(args, "dump_config", False):
+        sys.stdout.write(json.dumps(CONFIG, indent=2, ensure_ascii=False) + "\n")
+        return 0
+
+    config = _load_config(getattr(args, "config", None))
+    _apply_cli_overrides(config, args)
+    _configure_colors(args, sys.stdout)
+
+    claude_data = _read_claude_data(sys.stdin)
+    data = _build_status_data(claude_data, config)
+    output = FORMATTERS[args.format](data, config)
+    if not output.endswith("\n"):
+        output += "\n"
+    sys.stdout.write(output)
+    return 0
+
+
+if __name__ == "__main__":
     raise SystemExit(main())

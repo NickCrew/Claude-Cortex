@@ -170,7 +170,7 @@ def save_config(config: ConfigDict) -> None:
         if HAS_YAML:
             yaml.dump(config, f, default_flow_style=False, sort_keys=False)
         else:
-            json.dump(config, f, indent=2)
+            json.dump(config, f, indent=2, ensure_ascii=False)
 
 
 # =========================================================================

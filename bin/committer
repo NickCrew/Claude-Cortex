@@ -4,6 +4,71 @@
 set -euo pipefail
 # Disable glob expansion to handle brackets in file paths
 set -f
+
+# --- Conventional Commits validation ---
+KNOWN_TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert"
+SUBJECT_MAX_LENGTH=72
+
+validate_commit_message() {
+  local msg="$1"
+  local subject="${msg%%$'\n'*}"
+
+  if [[ -z "${subject// /}" ]]; then
+    printf 'Warning: commit message is empty\n' >&2
+    return
+  fi
+
+  if ! [[ "$subject" =~ ^([a-z]+)(\([a-z0-9_/-]+\))?!?:\ .+ ]]; then
+    printf 'Warning: message does not match conventional format: type(scope): summary\n' >&2
+    return
+  fi
+
+  local commit_type="${BASH_REMATCH[1]}"
+  if ! [[ "$commit_type" =~ ^($KNOWN_TYPES)$ ]]; then
+    printf 'Warning: unknown commit type: %s\n' "$commit_type" >&2
+  fi
+
+  if (( ${#subject} > SUBJECT_MAX_LENGTH )); then
+    printf 'Warning: subject line is %d chars (recommended max %d)\n' "${#subject}" "$SUBJECT_MAX_LENGTH" >&2
+  fi
+}
+
+# --- Atomicity checks ---
+check_atomicity() {
+  local msg="$1"
+  shift
+  local files=("$@")
+  local subject="${msg%%$'\n'*}"
+
+  # Check for conjunctions suggesting multiple changes
+  local body_after_type="${subject#*: }"
+  if [[ "$body_after_type" =~ (\ and\ |\ also\ |\ plus\ ) ]]; then
+    printf 'Warning: message contains "%s"; consider splitting into separate commits\n' "${BASH_REMATCH[1]// /}" >&2
+  fi
+
+  # File count threshold (default 10)
+  if (( ${#files[@]} > 10 )); then
+    printf 'Warning: %d files exceeds typical threshold for an atomic commit\n' "${#files[@]}" >&2
+  fi
+
+  # Directory spread check
+  local dir_list=""
+  local dir_count=0
+  for f in "${files[@]}"; do
+    local dir="${f%%/*}"
+    if [[ "$dir" == "$f" ]]; then
+      dir="."
+    fi
+    if [[ "|$dir_list|" != *"|$dir|"* ]]; then
+      dir_list="${dir_list}|${dir}"
+      (( dir_count += 1 ))
+    fi
+  done
+  if (( dir_count >= 3 )); then
+    printf 'Warning: changes span %d top-level directories\n' "$dir_count" >&2
+  fi
+}
+
 usage() {
   printf 'Usage: %s [--force] [--patch <diff-file>|--patch -] "commit message" "file" ["file" ...]\n' "$(basename "$0")" >&2
   exit 2
@@ -86,10 +151,20 @@ done
 
 last_commit_error=''
 
+# Advisory validation (never blocks)
+validate_commit_message "$commit_message"
+check_atomicity "$commit_message" "${files[@]}"
+
 run_git_commit() {
   local stderr_log
   stderr_log=$(mktemp)
-  if git commit -m "$commit_message" -- "${files[@]}" 2> >(tee "$stderr_log" >&2); then
+  local commit_args=("commit" "-m" "$commit_message")
+  # In patch mode, omit pathspec to avoid --only semantics clobbering
+  # the hunks we staged via apply --cached.
+  if [ "$use_patch_mode" = false ]; then
+    commit_args+=("--" "${files[@]}")
+  fi
+  if git "${commit_args[@]}" 2> >(tee "$stderr_log" >&2); then
     rm -f "$stderr_log"
     last_commit_error=''
     return 0
@@ -123,7 +198,7 @@ normalize_path() {
 patch_file=''
 cleanup_files=()
 cleanup() {
-  for f in "${cleanup_files[@]}"; do
+  for f in "${cleanup_files[@]+"${cleanup_files[@]}"}"; do
     [ -n "$f" ] && [ -f "$f" ] && rm -f "$f"
   done
 }
@@ -152,7 +227,25 @@ if [ "$use_patch_mode" = true ]; then
   fi
 fi
 
-git restore --staged :/
+unstage_err=$(git restore --staged :/ 2>&1) || {
+  # Fresh repo with no HEAD is fine
+  if [[ "$unstage_err" == *"Could not resolve HEAD"* ]] || [[ "$unstage_err" == *"HEAD"* ]]; then
+    : # nothing to unstage
+  elif [ "$force_delete_lock" = true ]; then
+    lock_path=$(printf '%s\n' "$unstage_err" | awk -F"'" '/Unable to create .*\.git\/index\.lock/ { print $2; exit }')
+    if [ -n "$lock_path" ] && [ -e "$lock_path" ]; then
+      rm -f "$lock_path"
+      printf 'Removed stale git lock: %s\n' "$lock_path" >&2
+      git restore --staged :/ 2>/dev/null || true
+    else
+      printf 'Error: failed to unstage: %s\n' "$unstage_err" >&2
+      exit 1
+    fi
+  else
+    printf 'Error: failed to unstage: %s\n' "$unstage_err" >&2
+    exit 1
+  fi
+}
 
 if [ "$use_patch_mode" = true ]; then
   if ! git apply --cached -- "$patch_file"; then
