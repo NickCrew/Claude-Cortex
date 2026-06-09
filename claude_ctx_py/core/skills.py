@@ -1733,7 +1733,12 @@ def skill_ratings_export(
 
 
 def skill_activate(skill_name: str, home: Path | None = None) -> Tuple[int, str]:
-    """Activate a skill by creating a symlink in ~/.claude/skills/.
+    """Activate a skill by installing it into the resolved .claude/skills/ directory.
+
+    On project scope (CORTEX_SCOPE=project), the skill is copied into
+    ``.agents/skills/<name>`` and a relative symlink is created in
+    ``.claude/skills/<name>``.  On global scope a direct bundle symlink is
+    created, preserving the original behaviour.
 
     Args:
         skill_name: Name of the skill to activate
@@ -1742,41 +1747,20 @@ def skill_activate(skill_name: str, home: Path | None = None) -> Tuple[int, str]
     Returns:
         Tuple of (exit_code, message)
     """
+    import os
     from .base import _resolve_cortex_root
+    from .skill_link import link_skill
 
     cortex_root = _resolve_cortex_root()
+    scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
     claude_dir = _resolve_claude_dir(home)
 
-    # Find the source skill in CORTEX_ROOT/skills/
     source_skill = cortex_root / "skills" / skill_name
-    if not source_skill.exists() or not source_skill.is_dir():
-        return 1, _color(f"Skill source not found: {source_skill}", RED)
-
-    try:
-        # Create symlink in ~/.claude/skills/
-        skills_dir = claude_dir / "skills"
-        skills_dir.mkdir(parents=True, exist_ok=True)
-        symlink_path = skills_dir / skill_name
-
-        # Remove existing symlink or directory if present
-        if symlink_path.exists() or symlink_path.is_symlink():
-            try:
-                if symlink_path.is_symlink():
-                    symlink_path.unlink()
-                else:
-                    shutil.rmtree(symlink_path)
-            except (OSError, PermissionError) as e:
-                return 1, _color(f"Failed to remove existing skill: {e}", RED)
-
-        # Create symlink to source skill
-        symlink_path.symlink_to(source_skill)
-        return 0, _color(f"Activated skill (symlink): {skill_name}", GREEN)
-    except (OSError, PermissionError) as e:
-        return 1, _color(f"Failed to create skill symlink: {e}", RED)
+    return link_skill(source_skill, claude_dir, scope)
 
 
 def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, str]:
-    """Deactivate a skill by removing its symlink.
+    """Deactivate a skill by removing its link and, on project scope, the .agents copy.
 
     Args:
         skill_name: Name of the skill to deactivate
@@ -1785,27 +1769,12 @@ def skill_deactivate(skill_name: str, home: Path | None = None) -> Tuple[int, st
     Returns:
         Tuple of (exit_code, message)
     """
+    import os
+    from .skill_link import unlink_skill
+
+    scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
     claude_dir = _resolve_claude_dir(home)
-
-    # Remove symlink from ~/.claude/skills/
-    skills_dir = claude_dir / "skills"
-    symlink_path = skills_dir / skill_name
-
-    if not symlink_path.exists() and not symlink_path.is_symlink():
-        return 1, _color(f"Skill not activated: {skill_name}", YELLOW)
-
-    try:
-        # Unlink symlink or remove directory if it's still a copy
-        if symlink_path.is_symlink():
-            symlink_path.unlink()
-        elif symlink_path.is_dir():
-            shutil.rmtree(symlink_path)
-        else:
-            return 1, _color(f"Skill not found: {skill_name}", RED)
-
-        return 0, _color(f"Deactivated skill: {skill_name}", YELLOW)
-    except (OSError, PermissionError) as e:
-        return 1, _color(f"Failed to deactivate skill: {e}", RED)
+    return unlink_skill(claude_dir, skill_name, scope)
 
 
 # ---------------------------------------------------------------------------

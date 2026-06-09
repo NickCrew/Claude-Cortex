@@ -139,34 +139,22 @@ def install_asset(
 
 
 def _install_skill(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True) -> Tuple[int, str]:
-    """Symlink a skill directory."""
-    try:
-        # Validate source exists before attempting symlink
-        if not asset.source_path.exists():
-            return 1, _color(f"Skill source not found: {asset.source_path}", RED)
+    """Install a skill directory, routing through .agents on project scope."""
+    import os
+    from .skill_link import link_skill
 
-        skills_dir = target_dir / "skills"
-        skills_dir.mkdir(parents=True, exist_ok=True)
+    scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
 
-        target_skill_dir = skills_dir / asset.name
+    exit_code, message = link_skill(asset.source_path, target_dir, scope)
+    if exit_code != 0:
+        return exit_code, message
 
-        # Remove existing file or symlink if present
-        if target_skill_dir.exists() or target_skill_dir.is_symlink():
-            if target_skill_dir.is_symlink():
-                target_skill_dir.unlink()
-            else:
-                shutil.rmtree(target_skill_dir)
+    # Add commented reference to SKILL.md for easy activation
+    if add_claude_refs:
+        skill_md = target_dir / "skills" / asset.name / "SKILL.md"
+        _add_commented_reference(target_dir, skill_md)
 
-        # Create symlink to source skill directory
-        target_skill_dir.symlink_to(asset.source_path)
-
-        # Add commented reference to SKILL.md for easy activation
-        if add_claude_refs:
-            _add_commented_reference(target_dir, target_skill_dir / "SKILL.md")
-
-        return 0, _color(f"Installed skill (symlink): {asset.name}", GREEN)
-    except (OSError, PermissionError) as e:
-        return 1, _color(f"Failed to create skill symlink: {e}", RED)
+    return exit_code, message
 
 
 def _install_hook(asset: Asset, target_dir: Path, *, add_claude_refs: bool = True, register_hooks: bool = True) -> Tuple[int, str]:
@@ -494,21 +482,12 @@ def uninstall_asset(
 
 
 def _uninstall_skill(name: str, target_dir: Path) -> Tuple[int, str]:
-    """Uninstall a skill (remove symlink)."""
-    skill_dir = target_dir / "skills" / name
+    """Uninstall a skill, also removing the .agents copy on project scope."""
+    import os
+    from .skill_link import unlink_skill
 
-    if not skill_dir.exists() and not skill_dir.is_symlink():
-        return 1, _color(f"Skill not installed: {name}", YELLOW)
-
-    # Unlink symlink or remove directory if still a copy
-    if skill_dir.is_symlink():
-        skill_dir.unlink()
-    elif skill_dir.is_dir():
-        shutil.rmtree(skill_dir)
-    else:
-        return 1, _color(f"Skill not installed: {name}", YELLOW)
-
-    return 0, _color(f"Uninstalled skill: {name}", GREEN)
+    scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
+    return unlink_skill(target_dir, name, scope)
 
 
 def _uninstall_hook(name: str, target_dir: Path) -> Tuple[int, str]:
