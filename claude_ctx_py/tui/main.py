@@ -1445,6 +1445,10 @@ class AgentTUI(App[None]):
 
             scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
             project_root = claude_dir.parent if scope == "project" else None
+            # Global .claude dir used for cross-scope comparison in project mode
+            global_claude_dir = (
+                _resolve_claude_dir(scope="global") if scope == "project" else None
+            )
 
             # Categories live in skills/registry.yaml (the catalog source of
             # truth), not in SKILL.md front matter — load the slug->categories
@@ -1471,6 +1475,15 @@ class AgentTUI(App[None]):
                             installed_path.exists() or installed_path.is_symlink()
                         )
                         skill_data["installed"] = is_installed
+
+                        # Global installation check (only meaningful in project scope)
+                        if global_claude_dir is not None:
+                            global_path = global_claude_dir / "skills" / skill_path.name
+                            skill_data["global_installed"] = (
+                                global_path.exists() or global_path.is_symlink()
+                            )
+                        else:
+                            skill_data["global_installed"] = False
 
                         # Drift detection on project scope
                         if project_root is not None and is_installed:
@@ -1866,12 +1879,17 @@ class AgentTUI(App[None]):
 
             # Active/installed status (symlinked into ~/.claude/skills/)
             is_installed = skill.get("installed", False)
+            is_global = skill.get("global_installed", False)
             from ..core.skill_link import DriftStatus
             drift = skill.get("drift")
             if is_installed and drift == DriftStatus.STALE:
                 active_text = "[yellow]⟳ stale[/yellow]"
             elif is_installed:
-                active_text = "[green]✓ Yes[/green]"
+                active_text = "[green]✓ project[/green]"
+            elif is_global:
+                # Skill is not in project scope but is globally active —
+                # already available to Claude without a project install.
+                active_text = "[cyan]∙ global[/cyan]"
             else:
                 active_text = "[dim]○ No[/dim]"
 
