@@ -396,6 +396,8 @@ class AgentTUI(App[None]):
         # Vi-style navigation state
         self._vi_g_pending = False
         self._vi_g_deadline = 0.0
+        # Skills mark mode: set of slugs currently marked
+        self.marked_skills: set[str] = set()
 
     @staticmethod
     def _resolve_theme_path(theme_path: Optional[Path]) -> Optional[Path]:
@@ -1827,8 +1829,11 @@ class AgentTUI(App[None]):
         }
 
         for skill in self.skills:
+            # Mark badge (✓ prefix) when skill is in the marked set
+            slug = skill.get("slug") or skill.get("name", "")
+            mark_badge = "[bold yellow]✓ [/bold yellow]" if slug in self.marked_skills else ""
             # Color-coded name with icon
-            name = f"[bold green]{Icons.CODE} {skill['name']}[/bold green]"
+            name = f"{mark_badge}[bold green]{Icons.CODE} {skill['name']}[/bold green]"
 
             # Color-coded categories: many-to-many, comma-joined; the color
             # tracks the primary (first) category for a stable visual anchor.
@@ -4855,6 +4860,13 @@ class AgentTUI(App[None]):
         if self._vi_g_pending:
             self._vi_g_pending = False
 
+        # ESC clears skill marks when in skills view
+        if event.key == "escape" and self.current_view == "skills" and self.marked_skills:
+            self._clear_skill_marks()
+            event.prevent_default()
+            event.stop()
+            return
+
         # Handle codex_skills view specific keybindings
         if self.current_view == "codex_skills":
             if event.key == "tab":
@@ -6469,13 +6481,87 @@ class AgentTUI(App[None]):
             self.notify("Nothing to validate here", severity="warning", timeout=2)
 
     async def action_metrics_context(self) -> None:
-        """Context-aware metrics shortcut."""
+        """Context-aware metrics shortcut.
+
+        In the Skills view with marks, ``m`` moves the marked skills between
+        scopes. Without marks, shows the skill metrics dialog.
+        """
+        if self.current_view == "skills" and self.marked_skills:
+            await self._action_skill_marks_move()
+            return
         if self.current_view == "skills":
             await self.action_skill_metrics()
         else:
             self.notify(
                 "Metrics not available in this view", severity="warning", timeout=2
             )
+
+    async def _action_skill_marks_move(self) -> None:
+        """Move all marked skills to a selected scope (project/global)."""
+        import os
+        from .dialogs.asset_dialogs import TargetSelectorDialog
+        from ..core.base import _resolve_cortex_root, _resolve_claude_dir, _color, GREEN, RED, YELLOW
+        from ..core.skill_link import link_skill, unlink_skill
+        from ..core.manifest import load_manifest, write_manifest
+
+        targets = list(self.marked_skills)
+        if not targets:
+            return
+
+        # Simple two-option scope picker using a small notify chain
+        # (TargetSelectorDialog works with ClaudeDir lists, which is more complex;
+        # instead, prompt directly for scope choice via a ConfirmDialog variant)
+        current_scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
+        destination = "project" if current_scope != "project" else "global"
+
+        cortex_root = _resolve_cortex_root()
+        src_claude_dir = _resolve_claude_dir(scope=current_scope)
+        dst_claude_dir = _resolve_claude_dir(scope=destination)
+
+        moved = 0
+        for slug in targets:
+            bundle = cortex_root / "skills" / slug
+            if not bundle.exists():
+                continue
+            unlink_skill(src_claude_dir, slug, current_scope)
+            code, _ = link_skill(bundle, dst_claude_dir, destination)
+            if code == 0:
+                moved += 1
+
+        # Update manifest if destination or source is project
+        if destination == "project":
+            project_root = dst_claude_dir.parent
+            manifest = load_manifest(project_root)
+            skills_section = manifest.setdefault("skills", {})
+            if not isinstance(skills_section, dict):
+                skills_section = {}
+                manifest["skills"] = skills_section
+            enabled = skills_section.get("enabled", [])
+            if not isinstance(enabled, list):
+                enabled = []
+            for slug in targets:
+                if slug not in enabled:
+                    enabled.append(slug)
+            skills_section["enabled"] = enabled
+            write_manifest(project_root, manifest)
+        elif current_scope == "project":
+            project_root = src_claude_dir.parent
+            manifest = load_manifest(project_root)
+            skills_section = manifest.get("skills", {})
+            if isinstance(skills_section, dict):
+                enabled = skills_section.get("enabled", [])
+                if isinstance(enabled, list):
+                    for slug in targets:
+                        if slug in enabled:
+                            enabled.remove(slug)
+                    skills_section["enabled"] = enabled
+                    write_manifest(project_root, manifest)
+
+        self.marked_skills.clear()
+        self.status_message = f"Moved {moved} skill(s) to {destination}"
+        self.notify(f"✓ Moved {moved} to {destination}", severity="information", timeout=2)
+        self.load_skills()
+        self.update_view()
 
     async def action_context_action(self) -> None:
         """Context-aware action for the 'c' binding."""
@@ -6487,7 +6573,13 @@ class AgentTUI(App[None]):
             self.notify("No contextual action", severity="warning", timeout=2)
 
     async def action_docs_context(self) -> None:
-        """Context-aware docs shortcut."""
+        """Context-aware docs shortcut.
+
+        In the Skills view, ``d`` disables (deactivates) the marked skills.
+        """
+        if self.current_view == "skills":
+            await self._action_skill_marks_disable()
+            return
         if self.current_view == "mcp":
             await self.action_mcp_docs()
         else:
@@ -7241,7 +7333,14 @@ class AgentTUI(App[None]):
         self.update_view()
 
     async def action_export_run(self) -> None:
-        """Prompt for an export path and generate the context file."""
+        """Prompt for an export path and generate the context file.
+
+        In the Skills view, ``e`` enables (activates) the marked skills.
+        """
+        if self.current_view == "skills":
+            await self._action_skill_marks_enable()
+            return
+
         if self.current_view != "export":
             self.action_view_export()
 
@@ -7270,7 +7369,14 @@ class AgentTUI(App[None]):
             self.notify(self.status_message, severity="error", timeout=3)
 
     async def action_export_clipboard(self) -> None:
-        """Generate export and copy it to the clipboard."""
+        """Generate export and copy it to the clipboard.
+
+        In the Skills view, ``x`` toggles the mark on the cursor skill instead.
+        """
+        if self.current_view == "skills":
+            await self._action_skill_mark_toggle()
+            return
+
         if self.current_view != "export":
             self.action_view_export()
 
@@ -9034,6 +9140,73 @@ class AgentTUI(App[None]):
             self.notify(f"○ Disabled {total} skills", severity="information", timeout=2)
             self.load_skills()
             self.update_view()
+
+    # ── mark mode ─────────────────────────────────────────────────────────────
+    # x → toggle mark on cursor skill
+    # esc → clear all marks (handled in action_escape / app-wide ESC)
+    # e/d key in skills view → bulk enable/disable marked set (or all if none)
+    # m key in skills view when marks exist → move dialog
+
+    async def _action_skill_mark_toggle(self) -> None:
+        """Toggle mark on the skill at the cursor position."""
+        if self.current_view != "skills":
+            return
+        skill = self._selected_skill()
+        if not skill:
+            return
+        slug: str = skill.get("slug") or skill.get("name", "")
+        if not slug:
+            return
+        if slug in self.marked_skills:
+            self.marked_skills.discard(slug)
+        else:
+            self.marked_skills.add(slug)
+        self.update_view()
+
+    def _clear_skill_marks(self) -> None:
+        """Clear all skill marks."""
+        if self.marked_skills:
+            self.marked_skills.clear()
+            if self.current_view == "skills":
+                self.update_view()
+
+    async def _action_skill_marks_enable(self) -> None:
+        """Enable (activate) all marked skills, or warn if none marked."""
+        if self.current_view != "skills":
+            return
+        targets = list(self.marked_skills)
+        if not targets:
+            self.notify("No skills marked (use x to mark)", severity="warning", timeout=2)
+            return
+        activated = 0
+        for slug in targets:
+            code, _ = skill_activate(slug)
+            if code == 0:
+                activated += 1
+        self.marked_skills.clear()
+        self.status_message = f"Enabled {activated}/{len(targets)} skills"
+        self.notify(f"✓ Enabled {activated} skill(s)", severity="information", timeout=2)
+        self.load_skills()
+        self.update_view()
+
+    async def _action_skill_marks_disable(self) -> None:
+        """Disable (deactivate) all marked skills, or warn if none marked."""
+        if self.current_view != "skills":
+            return
+        targets = list(self.marked_skills)
+        if not targets:
+            self.notify("No skills marked (use x to mark)", severity="warning", timeout=2)
+            return
+        deactivated = 0
+        for slug in targets:
+            code, _ = skill_deactivate(slug)
+            if code == 0:
+                deactivated += 1
+        self.marked_skills.clear()
+        self.status_message = f"Disabled {deactivated}/{len(targets)} skills"
+        self.notify(f"○ Disabled {deactivated} skill(s)", severity="information", timeout=2)
+        self.load_skills()
+        self.update_view()
 
     def action_refresh_codex_status(self) -> None:
         """Refresh provider skills link status from filesystem."""
