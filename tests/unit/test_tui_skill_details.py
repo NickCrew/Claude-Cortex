@@ -24,14 +24,14 @@ def test_show_selected_skill_definition_opens_skill_file(tmp_path: Path) -> None
     app = _bare_app()
     shown: List[tuple[str, str]] = []
 
-    async def show_text_dialog(title: str, body: str) -> None:
-        shown.append((title, body))
+    async def show_markdown_dialog(title: str, raw: str, *, meta: Any = None) -> None:
+        shown.append((title, raw))
 
     app._selected_skill = lambda: {  # type: ignore[method-assign]
         "name": "Example Skill",
         "path": str(skill_file),
     }
-    app._show_text_dialog = show_text_dialog  # type: ignore[method-assign]
+    app._show_markdown_dialog = show_markdown_dialog  # type: ignore[method-assign]
     app.refresh_status_bar = lambda: None  # type: ignore[method-assign]
     app.status_message = ""
 
@@ -54,19 +54,56 @@ def test_show_selected_skill_definition_accepts_skill_directory(
     app = _bare_app()
     shown: List[tuple[str, str]] = []
 
-    async def show_text_dialog(title: str, body: str) -> None:
-        shown.append((title, body))
+    async def show_markdown_dialog(title: str, raw: str, *, meta: Any = None) -> None:
+        shown.append((title, raw))
 
     app._selected_skill = lambda: {  # type: ignore[method-assign]
         "name": "Example Skill",
         "path": str(skill_dir),
     }
-    app._show_text_dialog = show_text_dialog  # type: ignore[method-assign]
+    app._show_markdown_dialog = show_markdown_dialog  # type: ignore[method-assign]
     app.refresh_status_bar = lambda: None  # type: ignore[method-assign]
 
     asyncio.run(app._show_selected_skill_definition())
 
     assert shown == [("Example Skill Definition", "Directory body\n")]
+
+
+def test_show_markdown_dialog_splits_front_matter_from_body() -> None:
+    app = _bare_app()
+    captured: List[Any] = []
+
+    async def push_screen(dialog: Any, *, wait_for_dismiss: bool = False) -> None:
+        captured.append(dialog)
+
+    app.push_screen = push_screen  # type: ignore[method-assign]
+
+    raw = "---\nname: Example\ndescription: Demo\n---\n\n## Body\n\nHello\n"
+    asyncio.run(app._show_markdown_dialog("Title", raw, meta="Meta facts"))
+
+    assert len(captured) == 1
+    dialog = captured[0]
+    assert dialog._markdown is True
+    assert dialog._front_matter == "name: Example\ndescription: Demo"
+    assert dialog.body == "## Body\n\nHello\n"
+    assert dialog._meta == "Meta facts"
+
+
+def test_show_markdown_dialog_handles_missing_front_matter() -> None:
+    app = _bare_app()
+    captured: List[Any] = []
+
+    async def push_screen(dialog: Any, *, wait_for_dismiss: bool = False) -> None:
+        captured.append(dialog)
+
+    app.push_screen = push_screen  # type: ignore[method-assign]
+
+    asyncio.run(app._show_markdown_dialog("Title", "# Just a body\n"))
+
+    assert len(captured) == 1
+    dialog = captured[0]
+    assert dialog._front_matter is None
+    assert dialog.body == "# Just a body\n"
 
 
 def test_show_selected_skill_definition_warns_when_nothing_selected() -> None:

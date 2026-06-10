@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, TypedDict, cast
 
+from rich.markdown import Markdown as RichMarkdown
+from rich.syntax import Syntax
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Vertical, VerticalScroll
 from textual.screen import ModalScreen
-from textual.widgets import Button, Input, Static
+from textual.widgets import Button, Collapsible, Input, Static
 
 from .tui_icons import Icons
 from .tui_format import Format
@@ -103,7 +105,9 @@ class ConfirmDialog(ModalScreen[bool]):
                     f"{Icons.WARNING} [bold]{self.title}[/bold]", id="dialog-title"
                 )
                 yield Static(self.message, id="dialog-message")
-                yield Static("[dim][y] Yes • [n] No • [esc] Cancel[/dim]", id="dialog-hint")
+                yield Static(
+                    "[dim][y] Yes • [n] No • [esc] Cancel[/dim]", id="dialog-hint"
+                )
                 with Container(id="dialog-buttons"):
                     yield Button(
                         "Yes [y]",
@@ -439,6 +443,15 @@ class TextViewerDialog(ModalScreen[None]):
         text-align: left;
     }
 
+    TextViewerDialog #dialog-meta {
+        color: $text-muted;
+        padding: 0 1 1 1;
+    }
+
+    TextViewerDialog Collapsible {
+        margin: 0 0 1 0;
+    }
+
     TextViewerDialog #dialog-hint {
         text-align: center;
         color: $text-muted;
@@ -451,10 +464,21 @@ class TextViewerDialog(ModalScreen[None]):
         Binding("enter", "close", "Close"),
     ]
 
-    def __init__(self, title: str, body: str):
+    def __init__(
+        self,
+        title: str,
+        body: str,
+        *,
+        markdown: bool = False,
+        front_matter: Optional[str] = None,
+        meta: Optional[str] = None,
+    ):
         super().__init__()
         self.title = title
         self.body = body
+        self._markdown = markdown
+        self._front_matter = front_matter
+        self._meta = meta
 
     def compose(self) -> ComposeResult:
         with Container(id="dialog"):
@@ -463,11 +487,26 @@ class TextViewerDialog(ModalScreen[None]):
                     f"{Icons.DOC} [bold]{self.title}[/bold]", id="dialog-title"
                 )
                 with VerticalScroll(id="dialog-scroll"):
-                    yield Static(
-                        self.body,
-                        id="dialog-message",
-                        markup=False,
-                    )
+                    if self._meta:
+                        yield Static(self._meta, id="dialog-meta", markup=False)
+                    if self._front_matter:
+                        with Collapsible(title="Front matter (YAML)", collapsed=True):
+                            yield Static(
+                                Syntax(
+                                    self._front_matter,
+                                    "yaml",
+                                    theme="ansi_dark",
+                                    word_wrap=True,
+                                )
+                            )
+                    if self._markdown:
+                        yield Static(RichMarkdown(self.body), id="dialog-message")
+                    else:
+                        yield Static(
+                            self.body,
+                            id="dialog-message",
+                            markup=False,
+                        )
                 yield Static(
                     "[dim]Use ↑/↓, PageUp/PageDown, or mouse wheel to scroll[/dim]",
                     id="dialog-hint",
@@ -521,7 +560,9 @@ class MCPServerDialog(ModalScreen[Optional[MCPServerData]]):
                     value=self.defaults.get("name", ""),
                     placeholder="Server name (e.g., context7)",
                     id="mcp-name",
-                    disabled=bool(self.defaults.get("name")),  # Can't change name when editing
+                    disabled=bool(
+                        self.defaults.get("name")
+                    ),  # Can't change name when editing
                 )
                 yield Input(
                     value=self.defaults.get("command", ""),
@@ -643,7 +684,9 @@ class HelpDialog(ModalScreen[Optional[str]]):
         help_text = self._generate_help_text()
         with Container(id="dialog"):
             with Vertical():
-                yield Static(f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title")
+                yield Static(
+                    f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title"
+                )
                 with VerticalScroll(id="help-scroll"):
                     yield Static(help_text, id="dialog-message")
                 with Container(id="help-buttons"):
