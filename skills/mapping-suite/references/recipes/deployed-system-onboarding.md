@@ -130,7 +130,7 @@ When the suite is done, recommend the user read in this order:
 - **Test coverage analysis** — `test-review` is a separate concern. Recommend as a follow-up if the user cares about test health.
 - **Documentation completeness audit** — `doc-completeness-audit` is a separate concern. The arch-analysis Phase 5b reconciliation flags gap states; if the user wants a focused doc-coverage view, run that skill afterward.
 - **Security review** — `security-auditor` is separate.
-- **Performance analysis** — `workflow-performance` is separate.
+- **Performance analysis** — the performance-optimization skills are separate.
 
 ## Common variations
 

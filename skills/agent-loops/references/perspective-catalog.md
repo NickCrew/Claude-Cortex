@@ -37,7 +37,6 @@ memory allocation, caching logic, batch operations, algorithmic changes, renderi
 **Relevant skills**:
 - `python-performance-optimization` — Profiling, vectorization, memory optimization (Python files)
 - `react-performance-optimization` — Memoization, code splitting, render optimization (React files)
-- `workflow-performance` — Systematic performance analysis methodology
 - `database-design-patterns` — Query optimization, indexing (when DB queries involved)
 
 ---

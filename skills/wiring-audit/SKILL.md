@@ -1,6 +1,6 @@
 ---
 name: wiring-audit
-description: User-triggered audit that finds wiring drift between a project's UI surfaces and backend capabilities — orphan surfaces (UI calls endpoints/hooks/procedures that no longer exist), unwired capabilities (backend routes/exports that nothing surfaces), shape drift (both exist but contracts mismatch), method drift (URL matches, HTTP verb does not), validation drift (frontend vs backend rules diverged), permission drift (UI exposes what backend forbids or vice versa), stale labels (UI text references renamed backend concepts), and unsurfaced configuration (env vars or flags that gate behavior with no UI or CLI to control them). This skill should be used when the user asks to "audit our wiring," "find UI/backend drift," "find unwired capabilities," "find stale surfaces," "check for contract violations," "find unused endpoints," "find unused hooks," "what mismatches between UI and backend," or any similar request whose deliverable is a prioritized findings report rather than a descriptive snapshot. Generic across UI frameworks but optimized for React applications (hooks, fetch, react-query, SWR, tRPC, server actions, react-router, Next.js). Not for descriptive architectural snapshots (use architectural-analysis), security audits (use security-auditor), or performance audits (use workflow-performance).
+description: User-triggered audit that finds wiring drift between a project's UI surfaces and backend capabilities — orphan surfaces (UI calls endpoints/hooks/procedures that no longer exist), unwired capabilities (backend routes/exports that nothing surfaces), shape drift (both exist but contracts mismatch), method drift (URL matches, HTTP verb does not), validation drift (frontend vs backend rules diverged), permission drift (UI exposes what backend forbids or vice versa), stale labels (UI text references renamed backend concepts), and unsurfaced configuration (env vars or flags that gate behavior with no UI or CLI to control them). This skill should be used when the user asks to "audit our wiring," "find UI/backend drift," "find unwired capabilities," "find stale surfaces," "check for contract violations," "find unused endpoints," "find unused hooks," "what mismatches between UI and backend," or any similar request whose deliverable is a prioritized findings report rather than a descriptive snapshot. Generic across UI frameworks but optimized for React applications (hooks, fetch, react-query, SWR, tRPC, server actions, react-router, Next.js). Not for descriptive architectural snapshots (use architectural-analysis), security audits (use security-auditor), or performance audits (use the performance-optimization skills).
 keywords:
   - wiring audit
   - audit our wiring
@@ -35,7 +35,7 @@ Do not trigger for:
 
 - Descriptive architectural snapshots (use `architectural-analysis`)
 - Security review (use `security-auditor` or `/security-review`)
-- Performance audit (use `workflow-performance`)
+- Performance audit (use the performance-optimization skills)
 - Test coverage audit (use `test-review`)
 
 ## Workflow

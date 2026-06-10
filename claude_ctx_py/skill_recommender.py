@@ -52,7 +52,6 @@ ALWAYS_ON_SKILLS: frozenset[str] = frozenset(
         "token-efficiency",
         "using-superpowers",
         "verification-before-completion",
-        "workflow-bug-fix",
         "writing-skills",
     }
 )
@@ -86,7 +85,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("secure-coding-practices", 0.85),
         ("security-testing-patterns", 0.8),
         ("compliance-audit", 0.75),
-        ("workflow-security-audit", 0.75),
     ],
     "kubernetes-architect": [
         ("kubernetes-deployment-patterns", 0.95),
@@ -135,7 +133,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
     ],
     "database-optimizer": [
         ("database-design-patterns", 0.9),
-        ("workflow-performance", 0.75),
     ],
     "ui-ux-designer": [
         ("interaction-design", 0.9),
@@ -148,7 +145,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
     ],
     "frontend-optimizer": [
         ("react-performance-optimization", 0.9),
-        ("workflow-performance", 0.8),
     ],
     "orchestrator": [
         ("task-orchestration", 0.9),
