@@ -7,12 +7,11 @@
 
 ## Commits
 
-- Always use atomic commits.
+- Use atomic commits with `git bisect` in mind.
 - Use Conventional Commits: `<type>(scope): <summary>`.
 - Only commit files using the `cortex git commit` (files) or
   `cortex git patch` (hunks). It is the safest way to stage files
   and hunks.
-- Keep commits atomic: one logical change per commit.
 - Do not use `git add` without explicit permission. Instead, use
   `cortex git`.
 - Never use destructive git actions like `git reset --hard` or
@@ -20,13 +19,12 @@
 - You may modify dirty files as long your intended changes do not
   overlap. Use `git diff` before you modify a dirty file to ensure
   your planned changes do not overlap and then commit with
-  `cortex git patch`. If they do overlap, you must escalate to the
-  user.
-- Always group changes into logical commits. If a file has changes
+  `cortex git patch`. If you need to modified an already-modified line in a file, escalate to the user.
+- Always group changes into logical commits that bisect well. If a file has changes
   from more than one logical group, you may stage hunks using
   `cortex git patch`. If that is not possible, go with the grouping
   with the majority of changes.
-- Never commit files you did not touch unless the user explicitly
+- Never commit files or changes you did not touch unless the user explicitly
   asks.
 - Prefer creating new commits over amending. Use `--amend` only when
   the user explicitly asks.
@@ -35,6 +33,7 @@
 
 A commit is atomic when all of the following hold:
 
+- It bisects well (i.e. it builds and runs)
 - It serves a single stated purpose.
 - The commit message subject is one clean sentence — not "and"-chained.
   If you find yourself writing "also" or "additionally" in the
@@ -50,10 +49,13 @@ when the working tree has accumulated more than one logical group.
 
 ## Branches
 
-- Branch names use lowercase hyphen-case with a type prefix mirroring
-  Conventional Commits: `feat/short-slug`, `fix/short-slug`,
-  `docs/short-slug`, `chore/short-slug`. For Backlog-tracked work,
-  include the task id: `feat/task-42-short-slug`.
+### Strategy
+
+- Always work off of the `main` branch unless the user explicitly asks you to branch.
+- Prefer worktrees unless the user explicitly asks for a normal branch.
+- Create worktrees under a `.worktrees/` directory at the repository root.
+- `.worktrees/` is ignored by git globally
+- Branch names should be short and descriptive, in lowercase hyphen-case and prefixed by the issue number (when one exists/is known)
 - Before switching branches, ensure dirty state is committed, stashed,
   or genuinely intentional for the destination. Don't carry unrelated
   work-in-progress across a branch boundary.
