@@ -73,7 +73,7 @@ Task tool (general-purpose):
 
 **Dispatch code-reviewer subagent:**
 ```
-Task tool (superpowers:code-reviewer):
+Task tool (code-reviewer):
   Use template at requesting-code-review/code-reviewer.md
 
   WHAT_WAS_IMPLEMENTED: [from subagent's report]
@@ -114,7 +114,7 @@ After all tasks complete, dispatch final code-reviewer:
 
 After final review passes:
 - Announce: "I'm using the finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
+- **REQUIRED SUB-SKILL:** Use finishing-a-development-branch
 - Follow that skill to verify tests, present options, execute choice
 
 ## Example Workflow
@@ -192,7 +192,7 @@ Done!
 - **finishing-a-development-branch** - REQUIRED: Complete development after all tasks (see Step 7)
 
 **Subagents must use:**
-- **test-driven-development** - Subagents follow TDD for each task
+- **Test-first discipline** - Each subagent writes a failing test before implementing its task, then makes it pass
 
 **Alternative workflow:**
 - **executing-plans** - Use for parallel session instead of same-session execution

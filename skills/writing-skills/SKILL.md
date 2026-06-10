@@ -25,7 +25,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Personal skills live in agent-specific directories:** `~/.claude/skills` for Claude Code, `~/.codex/skills` for Codex
 
-**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill.
+**REQUIRED BACKGROUND:** This skill applies a test-first discipline to skill-writing — watch a skill fail before you trust it. The testing mechanics live in testing-skills-with-subagents (see below).
 
 ## When to Use
 
@@ -78,7 +78,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 3. Build rationalization table from all iterations
 4. Re-test until bulletproof
 
-**REQUIRED SUB-SKILL:** Use superpowers:testing-skills-with-subagents for complete testing methodology.
+**REQUIRED SUB-SKILL:** Use testing-skills-with-subagents for complete testing methodology.
 
 ## The Iron Law
 
@@ -121,5 +121,4 @@ See `checklist.md` for full deployment checklist.
 
 - **Official guidance**: For Anthropic's official skill authoring best practices, see anthropic-best-practices.md
 - **Graphviz conventions**: See @graphviz-conventions.dot for flowchart style rules
-- **Testing methodology**: Use superpowers:testing-skills-with-subagents
-- **TDD fundamentals**: Use superpowers:test-driven-development
+- **Testing methodology**: Use testing-skills-with-subagents

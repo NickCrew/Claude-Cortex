@@ -65,7 +65,6 @@ mock appropriateness, flaky test introduction, missing negative tests.
 **Relevant skills**:
 - `python-testing-patterns` — pytest patterns, mocking, property-based testing (Python)
 - `test-generation` — Coverage-driven test creation methodology
-- `test-driven-development` — TDD red-green-refactor discipline
 - `testing-anti-patterns` — Test smells, bad mocking, test-only production code
 
 ---

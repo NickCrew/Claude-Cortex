@@ -77,7 +77,7 @@ Before using a skill, announce that you are using it.
 
 **Examples:**
 - "I'm using the brainstorming skill to refine your idea into a design."
-- "I'm using the test-driven-development skill to implement this feature."
+- "I'm using the systematic-debugging skill to track down this failure."
 
 **Why:** Transparency helps your human partner understand your process and catch errors early. It also confirms you actually read the skill.
 

@@ -55,7 +55,6 @@ PERSPECTIVE_SKILL_MAP: Dict[str, List[str]] = {
     "testing": [
         "python-testing-patterns",
         "test-generation",
-        "test-driven-development",
         "testing-anti-patterns",
     ],
     "architecture": [

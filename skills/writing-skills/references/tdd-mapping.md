@@ -6,7 +6,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 
-**REQUIRED BACKGROUND:** You MUST understand superpowers:test-driven-development before using this skill. That skill defines the fundamental RED-GREEN-REFACTOR cycle. This skill adapts TDD to documentation.
+**REQUIRED BACKGROUND:** This reference adapts the test-first RED-GREEN-REFACTOR cycle to documentation: write a test the skill currently fails (RED), revise the skill until it passes (GREEN), then tighten against loopholes (REFACTOR).
 
 ## TDD Concept Mapping
 
@@ -44,7 +44,7 @@ Edit skill without testing? Same violation.
 - Don't "adapt" while running tests
 - Delete means delete
 
-**REQUIRED BACKGROUND:** The superpowers:test-driven-development skill explains why this matters. Same principles apply to documentation.
+**REQUIRED BACKGROUND:** The same test-first principle applies to documentation — watch it fail first, or you don't know the skill fixes anything.
 
 ## RED-GREEN-REFACTOR for Skills
 
@@ -69,7 +69,7 @@ Run same scenarios WITH skill. Agent should now comply.
 
 Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
 
-**REQUIRED SUB-SKILL:** Use superpowers:testing-skills-with-subagents for the complete testing methodology:
+**REQUIRED SUB-SKILL:** Use testing-skills-with-subagents for the complete testing methodology:
 - How to write pressure scenarios
 - Pressure types (time, sunk cost, authority, exhaustion)
 - Plugging holes systematically

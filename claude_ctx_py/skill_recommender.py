@@ -45,7 +45,6 @@ ALWAYS_ON_SKILLS: frozenset[str] = frozenset(
         "skill-creator",
         "systematic-debugging",
         "task-orchestration",
-        "test-driven-development",
         "test-generation",
         "testing-anti-patterns",
         "token-efficiency",
@@ -122,7 +121,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("reference-documentation", 0.85),
     ],
     "test-automator": [
-        ("test-driven-development", 0.9),
         ("testing-anti-patterns", 0.85),
         ("test-generation", 0.8),
     ],
@@ -153,7 +151,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("microservices-patterns", 0.8),
     ],
     "vitest-expert": [
-        ("test-driven-development", 0.9),
         ("testing-anti-patterns", 0.85),
     ],
     "sql-pro": [

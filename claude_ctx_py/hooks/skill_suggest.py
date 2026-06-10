@@ -301,7 +301,7 @@ PROMPT_HIT_WEIGHT = 3
 
 
 # Compound tokens (alphanumeric + internal hyphen/underscore) — `doc-001`,
-# `test-driven-development`, `auth_handler`. We treat these as atomic so
+# `systematic-debugging`, `auth_handler`. We treat these as atomic so
 # substrings like `doc` don't false-match inside `doc-001`. Surrounding
 # punctuation (commas, periods) is stripped because tokens like `doc.`
 # should still match the keyword `doc`.
