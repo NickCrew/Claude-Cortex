@@ -32,7 +32,6 @@ ALWAYS_ON_SKILLS: frozenset[str] = frozenset(
     {
         "atomic-commits",
         "backlog-md",
-        "code-quality-workflow",
         "dev-workflows",
         "evaluator-optimizer",
         "feature-implementation",
@@ -107,7 +106,6 @@ AGENT_SKILL_MAP: Dict[str, List[Tuple[str, float]]] = {
         ("microservices-patterns", 0.8),
     ],
     "code-reviewer": [
-        ("code-quality-workflow", 0.85),
         ("testing-anti-patterns", 0.8),
     ],
     "debugger": [

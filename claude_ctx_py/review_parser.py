@@ -51,9 +51,7 @@ PERSPECTIVE_SKILL_MAP: Dict[str, List[str]] = {
         "react-performance-optimization",
         "database-design-patterns",
     ],
-    "maintainability": [
-        "code-quality-workflow",
-    ],
+    "maintainability": [],
     "testing": [
         "python-testing-patterns",
         "test-generation",

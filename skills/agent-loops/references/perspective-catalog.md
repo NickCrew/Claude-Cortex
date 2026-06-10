@@ -50,7 +50,7 @@ complexity, readability, abstraction levels.
 dead code introduction, unclear intent, missing context, over-abstraction, under-abstraction.
 
 **Relevant skills**:
-- `code-quality-workflow` — Quality assessment methodology and improvement patterns
+- _(No dedicated skill — assess via general code-review judgment.)_
 
 ---
 

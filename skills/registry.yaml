@@ -740,37 +740,6 @@ skills:
     dependencies: []
     status: active
     license: MIT
-  code-quality-workflow:
-    title: Code Quality Workflow
-    description: Use when assessing or improving code quality, maintainability, performance, or security hygiene - provides workflows for analysis, code review, and systematic improvements with validation steps.
-    path: code-quality-workflow/SKILL.md
-    authors:
-    - nferguson
-    created: '2026-06-01'
-    updated: '2026-06-01'
-    categories:
-    - security
-    - operations
-    - research
-    tags:
-    - code-quality
-    - code-review
-    - maintainability
-    - needs-review
-    - quality-improvement
-    - quality-review
-    - ready-to-merge
-    - refactor
-    - review-this-code
-    version:
-      current: 1.0.0
-      history:
-      - version: 1.0.0
-        date: '2026-06-01'
-        notes: Initial registry entry from SKILL.md metadata sync
-    dependencies: []
-    status: active
-    license: MIT
   codex-code-review:
     title: Codex Code Review
     description: 'Automate code review remediation loops with the codex CLI. Requests reviews from codex, classifies findings by severity (P0-P4), fixes critical issues (P0/P1) through iterative cycles, defers quality improvements to backlog, and escalates after 3 review cycles. Use when working with code that needs structured remediation: ''codex review'' in a request triggers this workflow.'
