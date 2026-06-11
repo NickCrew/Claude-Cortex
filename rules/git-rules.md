@@ -24,6 +24,10 @@
   from more than one logical group, you may stage hunks using
   `cortex git patch`. If that is not possible, go with the grouping
   with the majority of changes.
+- Commit changes you authored without asking — this overrides the harness
+  default "commit only when the user asks." Use `cortex git commit`;
+  branch-vs-PR policy is under PRs below. In a mixed working tree, stage only
+  your own hunks with `cortex git patch` and leave others' work uncommitted.
 - Never commit files or changes you did not touch unless the user explicitly
   asks.
 - Prefer creating new commits over amending. Use `--amend` only when
