@@ -1357,15 +1357,18 @@
     {
       "name": "knowledge-stack",
       "path": "knowledge-stack",
-      "description": "Use this skill whenever working inside any of Nick's repos (Atlas Crew, Inferno Lab, or any folder under ~/Developer/) or whenever a conversation touches Nick's cross-cutting personal or career work — job search, interviews, tax amendment, foreclosure/tenant situation, Hard Stuff drafts, brand or design work, strategic positioning. Describes where Nick's durable knowledge lives and which layer to consult for which kind of question. Trigger before reasoning from stored memory summaries about repo architecture, product decisions, active priorities, or ongoing personal/career state. Stored memory is lossy; the backlog docs and the Basic Memory vault are the real artifacts and should be consulted first.",
+      "description": "Use this skill whenever working inside any of Nick's repos (under ~/Developer/) or whenever a conversation touches Nick's durable cross-cutting work — Atlas Crew product strategy/brand/planning, the Unanet job, job search, interviews, tax amendment, foreclosure/tenant situation, strategic positioning. Maps Nick's three Basic Memory projects (products, work, main) and the per-repo dev trackers, and says which layer owns which kind of question. Consult before reasoning from stored memory summaries about repo architecture, product decisions, active priorities, or ongoing personal/career state — stored memory is lossy; the trackers and the Basic Memory projects are the real artifacts and should be consulted first.",
       "keywords": [
-        "Nick's repos",
         "active priorities",
+        "atlas crew",
         "backlog docs",
         "basic memory",
         "durable knowledge",
         "knowledge stack",
-        "repo architecture"
+        "products project",
+        "repo architecture",
+        "unanet",
+        "work project"
       ],
       "file_patterns": [],
       "confidence": 0.8
