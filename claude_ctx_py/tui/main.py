@@ -1444,6 +1444,13 @@ class AgentTUI(App[None]):
             claude_dir = _resolve_claude_dir()
 
             scope = (os.environ.get("CORTEX_SCOPE") or "global").strip().lower()
+            # Label for the skills view's "Active" badge. The `installed` flag
+            # below is a symlink check against this scope's .claude/skills/, so
+            # the badge must name the same scope (global by default; project
+            # only under CORTEX_SCOPE=project/local).
+            self._skills_active_scope = (
+                "project" if scope in ("project", "local") else "global"
+            )
             project_root = claude_dir.parent if scope == "project" else None
             # Global .claude dir used for cross-scope comparison in project mode
             global_claude_dir = (
@@ -1882,13 +1889,20 @@ class AgentTUI(App[None]):
             is_global = skill.get("global_installed", False)
             from ..core.skill_link import DriftStatus
             drift = skill.get("drift")
+            # `is_installed` is a symlink check against the ACTIVE scope's
+            # .claude/skills/ — global by default, the project only under
+            # CORTEX_SCOPE=project — so the badge names that scope instead of
+            # always claiming "project". Stale drift only runs in project
+            # scope, so it needs no scope suffix.
+            active_scope = getattr(self, "_skills_active_scope", "global")
             if is_installed and drift == DriftStatus.STALE:
                 active_text = "[yellow]⟳ stale[/yellow]"
             elif is_installed:
-                active_text = "[green]✓ project[/green]"
+                active_text = f"[green]✓ {active_scope}[/green]"
             elif is_global:
-                # Skill is not in project scope but is globally active —
-                # already available to Claude without a project install.
+                # Active scope is the project and the skill isn't linked here,
+                # but it is linked in global ~/.claude — already available to
+                # Claude without a project install.
                 active_text = "[cyan]∙ global[/cyan]"
             else:
                 active_text = "[dim]○ No[/dim]"
