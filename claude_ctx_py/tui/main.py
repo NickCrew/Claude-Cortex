@@ -95,7 +95,6 @@ from ..core import (
     skill_report,
     skill_trending,
     skill_analytics,
-    skill_rate,
     skill_community_list,
     skill_community_install,
     skill_community_validate,
@@ -254,8 +253,6 @@ from ..tui_dialogs import (
 )
 from ..messages import RESTART_REQUIRED_MESSAGE, RESTART_REQUIRED_TITLE
 from ..tui_log_viewer import LogViewerScreen
-from ..skill_rating import SkillRatingCollector, SkillQualityMetrics
-from ..skill_rating_prompts import SkillRatingPromptManager
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
 from ..watch import (
     WatchMode,
@@ -373,9 +370,6 @@ class AgentTUI(App[None]):
         self.provider_skills_status: Dict[str, bool] = {}
         self.provider_native_skills: List[Dict[str, Any]] = []
         self.slash_commands: List[SlashCommandInfo] = []
-        self.skill_rating_collector: Optional[SkillRatingCollector] = None
-        self.skill_rating_error: Optional[str] = None
-        self.skill_prompt_manager: Optional[SkillRatingPromptManager] = None
         self._tasks_state_signature: Optional[str] = None
         # Asset browser state
         self.available_assets: Dict[str, List[Asset]] = {}
@@ -437,7 +431,6 @@ class AgentTUI(App[None]):
         Binding("ctrl+h", "toggle_header", "Toggle Header", show=False),
         Binding("space", "toggle", "Toggle", show=False),
         Binding("r", "refresh", "Refresh", show=False),
-        Binding("ctrl+r", "skill_rate_selected", "Rate Skill", show=False),
         Binding("a", "auto_activate", "Auto-Activate", show=False),
         Binding("J", "consult_gemini", "Consult Gemini", show=False),
         Binding("K", "assign_llm_tasks", "Assign LLM Tasks", show=False),
@@ -1510,7 +1503,6 @@ class AgentTUI(App[None]):
             # Sort by primary category then name
             skills.sort(key=lambda s: (s["category"].lower(), s["name"].lower()))
 
-            self._attach_skill_ratings(skills)
             self.skills = skills
             stale_count = sum(
                 1 for s in skills
@@ -1518,10 +1510,7 @@ class AgentTUI(App[None]):
                 and s["drift"] == DriftStatus.STALE
             )
             suffix = f" ({stale_count} stale)" if stale_count else ""
-            if self.skill_rating_error:
-                self.status_message = f"Loaded {len(skills)} skills (ratings offline){suffix}"
-            else:
-                self.status_message = f"Loaded {len(skills)} skills{suffix}"
+            self.status_message = f"Loaded {len(skills)} skills{suffix}"
 
         except Exception as e:
             self.status_message = f"Error loading skills: {e}"
@@ -1678,7 +1667,6 @@ class AgentTUI(App[None]):
                 "location": location,
                 "status": status,
                 "path": str(skill_file),
-                "rating_metrics": None,
             }
         except Exception:
             return None
@@ -1717,74 +1705,10 @@ class AgentTUI(App[None]):
             # If git is not available or any error, assume not ignored
             return False
 
-    def _get_skill_rating_collector(self) -> Optional[SkillRatingCollector]:
-        """Instantiate (or return cached) rating collector."""
-        if self.skill_rating_collector is not None:
-            return self.skill_rating_collector
-
-        try:
-            self.skill_rating_collector = SkillRatingCollector()
-            self.skill_rating_error = None
-        except Exception as exc:
-            # Surface error but don't crash the skills view
-            self.skill_rating_collector = None
-            self.skill_rating_error = str(exc)
-        return self.skill_rating_collector
-
-    def _get_skill_prompt_manager(self) -> Optional[SkillRatingPromptManager]:
-        """Lazy-load the prompt manager used for auto-rating nudges."""
-        if isinstance(self.skill_prompt_manager, SkillRatingPromptManager):
-            return self.skill_prompt_manager
-
-        try:
-            self.skill_prompt_manager = SkillRatingPromptManager()
-        except Exception as exc:
-            # Surface one-time status so the user understands why prompts are missing
-            self.status_message = f"Rating prompts unavailable: {exc}"[:120]
-            self.skill_prompt_manager = None
-        return self.skill_prompt_manager
-
-    def _attach_skill_ratings(self, skills: List[Dict[str, Any]]) -> None:
-        """Populate rating metrics for every known skill (if available)."""
-        collector = self._get_skill_rating_collector()
-        if not collector:
-            for skill in skills:
-                skill["rating_metrics"] = None
-            return
-
-        for skill in skills:
-            slug = skill.get("slug") or self._skill_slug(skill)
-            try:
-                metrics = collector.get_skill_score(slug)
-            except Exception as exc:
-                self.skill_rating_error = str(exc)
-                metrics = None
-            skill["rating_metrics"] = metrics
-
-    def _format_skill_rating(self, skill: Dict[str, Any]) -> str:
-        """Return a human-friendly rating summary for the table."""
-        metrics = skill.get("rating_metrics")
-        if isinstance(metrics, SkillQualityMetrics):
-            total_text = f"{metrics.total_ratings} rating"
-            if metrics.total_ratings != 1:
-                total_text += "s"
-            helpful_text = f"{int(metrics.helpful_percentage)}% helpful"
-            return (
-                f"[gold1]{metrics.star_display()}[/gold1]\n"
-                f"[dim]{total_text} · {helpful_text}[/dim]"
-            )
-
-        if self.skill_rating_error:
-            summary = self.skill_rating_error.splitlines()[0][:48]
-            return f"[red]Unavailable[/red]\n[dim]{summary}[/dim]"
-
-        return "[dim]No ratings yet[/dim]"
-
     async def _post_startup_checks(self) -> None:
         """Run startup prompts after the UI has mounted."""
         # Check for tour (either requested via --tour or first-time offer)
         await self._maybe_show_tour()
-        await self._maybe_prompt_for_skill_ratings()
 
     async def _maybe_show_tour(self) -> None:
         """Show tour if requested or offer for first-time users."""
@@ -1810,36 +1734,10 @@ class AgentTUI(App[None]):
                 # User declined - mark as skipped so we don't ask again
                 self.tour_manager.mark_tour_skipped("quick_tour")
 
-    async def _maybe_prompt_for_skill_ratings(self) -> None:
-        """Surface auto-prompts for recently used skills."""
-        manager = self._get_skill_prompt_manager()
-        if not manager:
-            return
-
-        try:
-            prompts = manager.detect_due_prompts(limit=3)
-        except Exception as exc:
-            self.status_message = f"Unable to check rating prompts: {exc}"[:120]
-            return
-
-        for prompt in prompts:
-            manager.mark_prompted(prompt.skill)
-            reason = prompt.reason
-            dialog = ConfirmDialog(
-                "Rate Skill",
-                f"{prompt.skill}\n{reason}\n\nWould you like to rate this skill now?",
-            )
-            confirm = await self.push_screen(dialog, wait_for_dismiss=True)
-            if not confirm:
-                continue
-
-            await self._rate_skill_interactive(prompt.skill, prompt.skill)
-
     def show_skills_view(self, table: DataTable[Any]) -> None:
         """Show skills table with enhanced colors (READ-ONLY)."""
         table.add_column("Name", key="name", width=25)
         table.add_column("Active", key="active", width=10)
-        table.add_column("Rating", key="rating", width=18)
         table.add_column("Categories", key="category", width=24)
         table.add_column("Location", key="location", width=10)
         table.add_column("Description", key="description")
@@ -1907,12 +1805,9 @@ class AgentTUI(App[None]):
             else:
                 active_text = "[dim]○ No[/dim]"
 
-            rating_text = self._format_skill_rating(skill)
-
             table.add_row(
                 name,
                 active_text,
-                rating_text,
                 category_text,
                 location_text,
                 description,
@@ -6275,113 +6170,6 @@ class AgentTUI(App[None]):
             args=[str(days)],
             title=f"Trending Skills ({days}d)",
         )
-
-    async def _rate_skill_interactive(
-        self, skill_slug: str, display_name: Optional[str] = None
-    ) -> bool:
-        """Shared rating flow used by manual and auto prompts."""
-
-        label = display_name or skill_slug
-        title = f"Rate Skill · {label}"
-
-        stars_input = await self._prompt_text(
-            title,
-            f"Stars 1-5 for {label}",
-            default="5",
-        )
-        if stars_input is None:
-            return False
-        try:
-            stars = int(stars_input)
-        except ValueError:
-            self.notify(
-                "Rating must be a number between 1-5",
-                severity="error",
-                timeout=2,
-            )
-            return False
-        if stars < 1 or stars > 5:
-            self.notify(
-                "Rating must be between 1 and 5 stars",
-                severity="error",
-                timeout=2,
-            )
-            return False
-
-        helpful_input = await self._prompt_text(
-            "Was it helpful?",
-            "y/n",
-            default="y",
-        )
-        if helpful_input is None:
-            return False
-
-        succeeded_input = await self._prompt_text(
-            "Did the task succeed?",
-            "y/n",
-            default="y",
-        )
-        if succeeded_input is None:
-            return False
-
-        review = await self._prompt_text(
-            "Optional Review",
-            "Share a short review (Enter to skip)",
-            default="",
-        )
-        if review is None:
-            return False
-
-        helpful_value = (helpful_input or "y").strip().lower() not in {"n", "no"}
-        succeeded_value = (succeeded_input or "y").strip().lower() not in {
-            "n",
-            "no",
-        }
-        review_value = review.strip() or None
-
-        try:
-            exit_code, output = skill_rate(
-                skill_slug,
-                stars=stars,
-                helpful=helpful_value,
-                task_succeeded=succeeded_value,
-                review=review_value,
-            )
-        except Exception as exc:
-            self.notify(f"Rating failed: {exc}", severity="error", timeout=3)
-            return False
-
-        cleaned = self._clean_ansi(output)
-        if cleaned:
-            await self._show_text_dialog(f"Skill Rating · {label}", cleaned)
-
-        if exit_code == 0:
-            self.notify(f"Thanks for rating {label}", severity="information", timeout=2)
-            # Refresh cached metrics so the table reflects new data
-            self.skill_rating_collector = None
-            self.skill_prompt_manager = None  # ensure future prompts see new state
-            self.load_skills()
-            self.update_view()
-            manager = self._get_skill_prompt_manager()
-            if manager:
-                manager.mark_rated(skill_slug)
-            return True
-
-        self.notify(f"Unable to rate {label}", severity="error", timeout=3)
-        return False
-
-    async def action_skill_rate_selected(self) -> None:
-        """Collect a rating for the highlighted skill."""
-        if self.current_view != "skills":
-            self.action_view_skills()
-
-        skill = self._selected_skill()
-        if not skill:
-            self.notify("Select a skill to rate", severity="warning", timeout=2)
-            return
-
-        slug = self._skill_slug(skill)
-        await self._rate_skill_interactive(slug, skill.get("name", slug))
 
     async def action_skill_metrics_reset(self) -> None:
         confirm = await self.push_screen(
