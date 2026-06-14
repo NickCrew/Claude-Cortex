@@ -307,6 +307,19 @@ class AgentTUI(App[None]):
         "general": "white",
         "ops": "bright_cyan",
         "ai": "bright_magenta",
+        # Skill categories (skills/registry.yaml vocabulary). analysis,
+        # development, documentation and testing reuse the entries above.
+        "security": "red",
+        "architecture": "bright_blue",
+        "design": "deep_pink2",
+        "research": "bright_cyan",
+        "writing": "medium_purple",
+        "product": "gold1",
+        "workflow": "cyan",
+        "meta": "grey62",
+        "devops": "dark_orange",
+        "infrastructure": "orange1",
+        "operations": "gold3",
     }
 
     CATEGORY_FALLBACK_COLORS = [
@@ -1746,15 +1759,6 @@ class AgentTUI(App[None]):
             table.add_row("[dim]No skills found[/dim]", "", "", "", "", "")
             return
 
-        category_colors = {
-            "api-design": "cyan",
-            "security": "red",
-            "performance": "yellow",
-            "testing": "green",
-            "architecture": "blue",
-            "deployment": "magenta",
-        }
-
         for skill in self.skills:
             # Mark badge (✓ prefix) when skill is in the marked set
             slug = skill.get("slug") or skill.get("name", "")
@@ -1762,12 +1766,22 @@ class AgentTUI(App[None]):
             # Color-coded name with icon
             name = f"{mark_badge}[bold green]{Icons.CODE} {skill['name']}[/bold green]"
 
-            # Color-coded categories: many-to-many, comma-joined; the color
-            # tracks the primary (first) category for a stable visual anchor.
+            # Color each category independently from the shared CATEGORY_PALETTE.
+            # Categories outside the palette get a stable name-hashed fallback
+            # color (never plain white), so every category reads as colored.
             categories = skill.get("categories") or [skill["category"]]
-            cat_color = category_colors.get(categories[0].lower(), "white")
-            joined = ", ".join(categories)
-            category_text = f"[{cat_color}]{joined}[/{cat_color}]"
+            palette = self.CATEGORY_PALETTE
+            fallback = self.CATEGORY_FALLBACK_COLORS
+            cat_parts = []
+            for cat in categories:
+                key = cat.lower()
+                color = palette.get(key) or (
+                    fallback[sum(map(ord, key)) % len(fallback)]
+                    if fallback
+                    else "white"
+                )
+                cat_parts.append(f"[{color}]{cat}[/{color}]")
+            category_text = ", ".join(cat_parts)
 
             # Format location with status indicator
             location = skill["location"]
