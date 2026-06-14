@@ -304,7 +304,9 @@ class AgentTUI(App[None]):
         "documentation": "yellow",
         "testing": "magenta",
         "quality": "red",
-        "general": "white",
+        # "general" is the catch-all default for several vocabularies; a muted
+        # neutral (not white) so it still reads as an intentional color.
+        "general": "light_slate_grey",
         "ops": "bright_cyan",
         "ai": "bright_magenta",
         # Skill categories (skills/registry.yaml vocabulary). analysis,
@@ -320,6 +322,10 @@ class AgentTUI(App[None]):
         "devops": "dark_orange",
         "infrastructure": "orange1",
         "operations": "gold3",
+        # Rule categories (filename heuristics in _parse_rule_file). workflow,
+        # quality and general reuse the entries above.
+        "execution": "spring_green2",
+        "efficiency": "bright_yellow",
     }
 
     CATEGORY_FALLBACK_COLORS = [
@@ -1747,6 +1753,23 @@ class AgentTUI(App[None]):
                 # User declined - mark as skipped so we don't ask again
                 self.tour_manager.mark_tour_skipped("quick_tour")
 
+    def _category_markup(self, category: str) -> str:
+        """Wrap a category label in its CATEGORY_PALETTE color.
+
+        Categories outside the palette get a stable, name-hashed color from
+        CATEGORY_FALLBACK_COLORS (deterministic across runs and independent of
+        encounter order) — never plain white, so every category reads as
+        intentionally colored.
+        """
+        key = category.lower()
+        color = self.CATEGORY_PALETTE.get(key)
+        if color is None:
+            fallback = self.CATEGORY_FALLBACK_COLORS
+            color = (
+                fallback[sum(map(ord, key)) % len(fallback)] if fallback else "white"
+            )
+        return f"[{color}]{category}[/{color}]"
+
     def show_skills_view(self, table: DataTable[Any]) -> None:
         """Show skills table with enhanced colors (READ-ONLY)."""
         table.add_column("Name", key="name", width=25)
@@ -1766,22 +1789,9 @@ class AgentTUI(App[None]):
             # Color-coded name with icon
             name = f"{mark_badge}[bold green]{Icons.CODE} {skill['name']}[/bold green]"
 
-            # Color each category independently from the shared CATEGORY_PALETTE.
-            # Categories outside the palette get a stable name-hashed fallback
-            # color (never plain white), so every category reads as colored.
+            # Color each category independently from the shared palette.
             categories = skill.get("categories") or [skill["category"]]
-            palette = self.CATEGORY_PALETTE
-            fallback = self.CATEGORY_FALLBACK_COLORS
-            cat_parts = []
-            for cat in categories:
-                key = cat.lower()
-                color = palette.get(key) or (
-                    fallback[sum(map(ord, key)) % len(fallback)]
-                    if fallback
-                    else "white"
-                )
-                cat_parts.append(f"[{color}]{cat}[/{color}]")
-            category_text = ", ".join(cat_parts)
+            category_text = ", ".join(self._category_markup(c) for c in categories)
 
             # Format location with status indicator
             location = skill["location"]
@@ -2593,14 +2603,6 @@ class AgentTUI(App[None]):
             table.add_row("[dim]No rules found[/dim]", "", "", "", "")
             return
 
-        category_colors = {
-            "execution": "cyan",
-            "quality": "green",
-            "workflow": "yellow",
-            "parallel": "magenta",
-            "efficiency": "blue",
-        }
-
         claude_dir = _resolve_claude_dir()
 
         def _relpath(path: Path) -> str:
@@ -2618,9 +2620,8 @@ class AgentTUI(App[None]):
                 status_text = f"[dim]○ inactive[/dim]"
                 name = f"[dim]{Icons.DOC} {rule.name}[/dim]"
 
-            # Color-coded category
-            cat_color = category_colors.get(rule.category.lower(), "white")
-            category_text = f"[{cat_color}]{rule.category}[/{cat_color}]"
+            # Color-coded category (shared palette)
+            category_text = self._category_markup(rule.category)
 
             # Truncate description but show more characters - escape Rich markup
             desc_text = Format.truncate(rule.description, 120).replace("[", "\\[")
