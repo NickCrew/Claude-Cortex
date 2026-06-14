@@ -294,84 +294,6 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "--no-write", action="store_true",
         help="Print to stdout only, skip writing .claude/skill-context.md"
     )
-    # Rating commands
-    skills_rate_parser = skills_sub.add_parser(
-        "rate", help="Rate a skill with stars and optional review"
-    )
-    skills_rate_parser.add_argument("skill", help="Skill name to rate")
-    skills_rate_parser.add_argument(
-        "--stars",
-        dest="stars",
-        type=int,
-        required=True,
-        choices=[1, 2, 3, 4, 5],
-        help="Star rating (1-5)",
-    )
-    skills_rate_parser.add_argument(
-        "--helpful",
-        dest="helpful",
-        action="store_true",
-        default=True,
-        help="Mark as helpful (default: True)",
-    )
-    skills_rate_parser.add_argument(
-        "--not-helpful",
-        dest="not_helpful",
-        action="store_true",
-        help="Mark as not helpful",
-    )
-    skills_rate_parser.add_argument(
-        "--succeeded",
-        dest="task_succeeded",
-        action="store_true",
-        default=True,
-        help="Task succeeded with this skill (default: True)",
-    )
-    skills_rate_parser.add_argument(
-        "--failed",
-        dest="task_failed",
-        action="store_true",
-        help="Task failed despite using this skill",
-    )
-    skills_rate_parser.add_argument(
-        "--review",
-        dest="review",
-        help="Optional written review",
-    )
-    skills_ratings_parser = skills_sub.add_parser(
-        "ratings", help="Show ratings and reviews for a skill"
-    )
-    skills_ratings_parser.add_argument("skill", help="Skill name")
-    skills_top_rated_parser = skills_sub.add_parser(
-        "top-rated", help="Show top-rated skills"
-    )
-    skills_top_rated_parser.add_argument(
-        "--category",
-        dest="top_rated_category",
-        help="Optional category filter",
-    )
-    skills_top_rated_parser.add_argument(
-        "--limit",
-        dest="top_rated_limit",
-        type=int,
-        default=10,
-        help="Maximum number of skills to show (default: 10)",
-    )
-    skills_export_ratings_parser = skills_sub.add_parser(
-        "export-ratings", help="Export skill ratings data"
-    )
-    skills_export_ratings_parser.add_argument(
-        "--skill",
-        dest="export_skill",
-        help="Optional skill name to filter by (exports all if not specified)",
-    )
-    skills_export_ratings_parser.add_argument(
-        "--format",
-        dest="export_format",
-        choices=["json", "csv"],
-        default="json",
-        help="Export format (default: json)",
-    )
     skills_community_parser = skills_sub.add_parser(
         "community", help="Community skill commands"
     )
@@ -1198,34 +1120,6 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         rating = cast(str, args.rating)
         comment = getattr(args, "feedback_comment", None)
         exit_code, message = core.skill_feedback(skill, rating, comment)
-        _print(message)
-        return exit_code
-    if args.skills_command == "rate":
-        skill = cast(str, args.skill)
-        stars = cast(int, args.stars)
-        helpful = not getattr(args, "not_helpful", False)
-        task_succeeded = not getattr(args, "task_failed", False)
-        review = getattr(args, "review", None)
-        exit_code, message = core.skill_rate(
-            skill, stars, helpful, task_succeeded, review
-        )
-        _print(message)
-        return exit_code
-    if args.skills_command == "ratings":
-        skill = cast(str, args.skill)
-        exit_code, message = core.skill_ratings(skill)
-        _print(message)
-        return exit_code
-    if args.skills_command == "top-rated":
-        category = getattr(args, "top_rated_category", None)
-        limit = getattr(args, "top_rated_limit", 10)
-        exit_code, message = core.skill_top_rated(category, limit)
-        _print(message)
-        return exit_code
-    if args.skills_command == "export-ratings":
-        skill = cast(str, args.export_skill)
-        format = getattr(args, "export_format", "json")
-        exit_code, message = core.skill_ratings_export(skill, format)
         _print(message)
         return exit_code
     if args.skills_command == "community":
