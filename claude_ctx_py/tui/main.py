@@ -340,6 +340,9 @@ class AgentTUI(App[None]):
         "orange3",
     ]
 
+    # Lazily populated from skills/registry.yaml on first _category_icon_map call.
+    _category_icons_cache: Optional[Dict[str, str]] = None
+
     def __init__(
         self,
         *,
@@ -1753,13 +1756,36 @@ class AgentTUI(App[None]):
                 # User declined - mark as skipped so we don't ask again
                 self.tour_manager.mark_tour_skipped("quick_tour")
 
-    def _category_markup(self, category: str) -> str:
+    def _category_icon_map(self) -> Dict[str, str]:
+        """Lazy-load and cache the category -> emoji map from registry.yaml.
+
+        The registry's ``categories`` block defines an ``icon`` per skill
+        category — the same source the LLM-provider view uses to badge skill
+        names. Returns an empty map if the registry is unreadable.
+        """
+        if self._category_icons_cache is not None:
+            return self._category_icons_cache
+        icons: Dict[str, str] = {}
+        try:
+            registry = yaml.safe_load(
+                (_resolve_cortex_root() / "skills" / "registry.yaml").read_text()
+            )
+            for name, meta in (registry.get("categories") or {}).items():
+                if isinstance(meta, dict) and meta.get("icon"):
+                    icons[str(name).lower()] = str(meta["icon"])
+        except Exception:
+            icons = {}
+        self._category_icons_cache = icons
+        return icons
+
+    def _category_markup(self, category: str, *, icon: bool = False) -> str:
         """Wrap a category label in its CATEGORY_PALETTE color.
 
         Categories outside the palette get a stable, name-hashed color from
         CATEGORY_FALLBACK_COLORS (deterministic across runs and independent of
         encounter order) — never plain white, so every category reads as
-        intentionally colored.
+        intentionally colored. When ``icon`` is set and the category has a
+        registry emoji, it is prefixed to the label.
         """
         key = category.lower()
         color = self.CATEGORY_PALETTE.get(key)
@@ -1768,13 +1794,18 @@ class AgentTUI(App[None]):
             color = (
                 fallback[sum(map(ord, key)) % len(fallback)] if fallback else "white"
             )
-        return f"[{color}]{category}[/{color}]"
+        label = category
+        if icon:
+            emoji = self._category_icon_map().get(key)
+            if emoji:
+                label = f"{emoji} {category}"
+        return f"[{color}]{label}[/{color}]"
 
     def show_skills_view(self, table: DataTable[Any]) -> None:
         """Show skills table with enhanced colors (READ-ONLY)."""
         table.add_column("Name", key="name", width=25)
         table.add_column("Active", key="active", width=10)
-        table.add_column("Categories", key="category", width=24)
+        table.add_column("Categories", key="category", width=28)
         table.add_column("Location", key="location", width=10)
         table.add_column("Description", key="description")
 
@@ -1789,9 +1820,12 @@ class AgentTUI(App[None]):
             # Color-coded name with icon
             name = f"{mark_badge}[bold green]{Icons.CODE} {skill['name']}[/bold green]"
 
-            # Color each category independently from the shared palette.
+            # Color each category independently and badge it with the
+            # registry emoji (the same encoding the LLM-provider view uses).
             categories = skill.get("categories") or [skill["category"]]
-            category_text = ", ".join(self._category_markup(c) for c in categories)
+            category_text = ", ".join(
+                self._category_markup(c, icon=True) for c in categories
+            )
 
             # Format location with status indicator
             location = skill["location"]
@@ -1911,8 +1945,8 @@ class AgentTUI(App[None]):
             # Format name with icon
             name = f"{icon} [bold]{skill['name']}[/bold]"
 
-            # Category with color
-            category_text = f"[cyan]{skill['category']}[/cyan]"
+            # Category with color (emoji already badges the name above)
+            category_text = self._category_markup(skill["category"])
 
             # Linked status — check provider_skills_status for both types
             is_linked = self.provider_skills_status.get(skill_name, False)
@@ -1951,9 +1985,6 @@ class AgentTUI(App[None]):
             table.add_row("[dim]No slash commands found[/dim]", "", "", "", "")
             return
 
-        category_colors: Dict[str, str] = {}
-        fallback_colors = self.CATEGORY_FALLBACK_COLORS
-
         complexity_palette = {
             "basic": "green",
             "standard": "cyan",
@@ -1969,14 +2000,7 @@ class AgentTUI(App[None]):
                 f"[{icon_color}]{icon}[/{icon_color}] /{cmd.namespace}:{cmd.name}"
             )
 
-            cat_key = cmd.category.lower()
-            color = category_colors.get(cat_key)
-            if not color:
-                color = self.CATEGORY_PALETTE.get(cat_key)
-                if not color:
-                    color = fallback_colors[len(category_colors) % len(fallback_colors)]
-                category_colors[cat_key] = color
-            category_text = f"[{color}]{cmd.category.title()}[/{color}]"
+            category_text = self._category_markup(cmd.category.title())
 
             comp_color = complexity_palette.get(cmd.complexity.lower(), "white")
             complexity_text = f"[{comp_color}]{cmd.complexity.title()}[/{comp_color}]"
