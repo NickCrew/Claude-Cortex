@@ -22,7 +22,7 @@ import os
 import subprocess
 from typing import List
 
-from .skill_suggest import _log_hook
+from ._context import _log_hook
 
 
 _MAX_LISTED = 10

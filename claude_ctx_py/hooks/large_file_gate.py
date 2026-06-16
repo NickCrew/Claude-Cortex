@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 from typing import List
 
-from .skill_suggest import _log_hook
+from ._context import _log_hook
 
 
 DEFAULT_SKIP_DIRS = {".git", "node_modules", ".venv", "dist", "build"}

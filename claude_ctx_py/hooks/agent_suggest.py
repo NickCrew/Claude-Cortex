@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
-from .skill_suggest import (
+from ._context import (
     DIR_PATTERNS,
     EXT_PATTERNS,
     FILE_PATTERNS,
@@ -212,7 +212,7 @@ def run() -> int:
         return main()
     except Exception as exc:
         try:
-            from .skill_suggest import _log_hook
+            from ._context import _log_hook
 
             _log_hook(f"agent-suggest unhandled error: {exc}")
         except Exception:

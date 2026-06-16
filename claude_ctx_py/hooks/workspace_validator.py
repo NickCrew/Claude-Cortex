@@ -27,7 +27,7 @@ from glob import glob
 from pathlib import Path
 from typing import List, NamedTuple, Set
 
-from .skill_suggest import _log_hook
+from ._context import _log_hook
 
 
 INVALID_PATH_THRESHOLD = 0.5

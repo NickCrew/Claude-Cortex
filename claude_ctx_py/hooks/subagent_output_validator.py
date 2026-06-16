@@ -25,7 +25,7 @@ from glob import glob
 from pathlib import Path
 from typing import List, Set, Tuple
 
-from .skill_suggest import _log_hook
+from ._context import _log_hook
 
 
 WARNING_THRESHOLD = 3
