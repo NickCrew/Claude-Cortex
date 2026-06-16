@@ -7,7 +7,7 @@ to select a subset of available skills.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -146,6 +146,39 @@ class SkillPickerScreen(ModalScreen[Optional[List[str]]]):
             self.action_confirm()
         else:
             self.action_cancel()
+
+
+def run_skill_picker(
+    cortex_root: Any,
+    pre_selected: Optional[Iterable[str]] = None,
+) -> Optional[List[str]]:
+    """Launch :class:`SkillPickerScreen` as a standalone modal app.
+
+    Returns the selected slugs on confirm (possibly an empty list), or
+    ``None`` if the user cancelled (Esc / Cancel button).
+
+    Distinguishing ``None`` from ``[]`` is load-bearing for the curate flow:
+    ``None`` means "abort, change nothing" while ``[]`` means "deselect
+    everything" — a legitimate replace that empties the manifest. The
+    callback therefore forwards the screen's dismiss value verbatim rather
+    than coercing it to a list.
+    """
+    from textual.app import App
+
+    categories = build_skills_by_category(cortex_root)
+    pre = list(pre_selected or [])
+
+    class _PickerApp(App[Optional[List[str]]]):
+        def on_mount(self) -> None:
+            self.push_screen(
+                SkillPickerScreen(categories, pre_selected=pre),
+                callback=self.on_picked,
+            )
+
+        def on_picked(self, selected: Optional[List[str]]) -> None:
+            self.exit(selected)
+
+    return _PickerApp().run()
 
 
 def build_skills_by_category(

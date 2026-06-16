@@ -138,3 +138,118 @@ def test_project_sync_materialises_skills(
 
     assert (tmp_path / ".agents" / "skills" / "test-skill" / "SKILL.md").is_file()
     assert (tmp_path / ".claude" / "skills" / "test-skill").is_symlink()
+
+
+# ── curate: parser smoke ──────────────────────────────────────────────────────
+
+
+@pytest.mark.unit
+def test_project_curate_parses() -> None:
+    ns = _parse(["project", "curate"])
+    assert ns.project_command == "curate"
+
+
+@pytest.mark.unit
+def test_skills_curate_parses() -> None:
+    ns = _parse(["skills", "curate"])
+    assert ns.skills_command == "curate"
+
+
+# ── curate: integration (picker stubbed; replace-then-reconcile semantics) ─────
+
+
+def _make_bundle(root: Path, *slugs: str) -> None:
+    """Create a minimal bundle with the given skill slugs."""
+    for slug in slugs:
+        d = root / "skills" / slug
+        d.mkdir(parents=True)
+        (d / "SKILL.md").write_text(f"# {slug}\n")
+
+
+def _stub_curate(monkeypatch: pytest.MonkeyPatch, selection: list[str] | None) -> None:
+    """Stub the TUI picker (return *selection*) and the recommender (no-op)."""
+    import claude_ctx_py.core.manifest as manifest_mod
+    import claude_ctx_py.tui.dialogs.skill_picker as picker_mod
+
+    monkeypatch.setattr(
+        picker_mod, "run_skill_picker", lambda cortex_root, pre_selected=None: selection
+    )
+    monkeypatch.setattr(manifest_mod, "suggest_skills_for_project", lambda *a, **k: [])
+
+
+def _enabled(tmp_path: Path) -> set[str]:
+    import yaml
+
+    data = yaml.safe_load((tmp_path / ".cortex" / "manifest.yaml").read_text())
+    return set(data["skills"]["enabled"])
+
+
+def _materialised(tmp_path: Path) -> set[str]:
+    d = tmp_path / ".agents" / "skills"
+    return {p.name for p in d.iterdir()} if d.is_dir() else set()
+
+
+@pytest.mark.unit
+def test_curate_materialises_picked_skills(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from claude_ctx_py.cli import main
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".claude").mkdir()
+    cortex_root = tmp_path / "bundle"
+    _make_bundle(cortex_root, "skill-a", "skill-b")
+    monkeypatch.setenv("CORTEX_ROOT", str(cortex_root))
+    _stub_curate(monkeypatch, ["skill-a", "skill-b"])
+
+    rc = main(["project", "curate"])
+    assert rc == 0
+    assert _enabled(tmp_path) == {"skill-a", "skill-b"}
+    assert _materialised(tmp_path) == {"skill-a", "skill-b"}
+    assert (tmp_path / ".claude" / "skills" / "skill-a").is_symlink()
+
+
+@pytest.mark.unit
+def test_curate_unselect_removes_skill(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from claude_ctx_py.cli import main
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".claude").mkdir()
+    cortex_root = tmp_path / "bundle"
+    _make_bundle(cortex_root, "skill-a", "skill-b")
+    monkeypatch.setenv("CORTEX_ROOT", str(cortex_root))
+
+    _stub_curate(monkeypatch, ["skill-a", "skill-b"])
+    assert main(["project", "curate"]) == 0
+    assert _materialised(tmp_path) == {"skill-a", "skill-b"}
+
+    # Re-run with skill-b deselected → it is unlinked (replace, not append).
+    _stub_curate(monkeypatch, ["skill-a"])
+    assert main(["skills", "curate"]) == 0  # exercise the alias path too
+    assert _enabled(tmp_path) == {"skill-a"}
+    assert _materialised(tmp_path) == {"skill-a"}
+
+
+@pytest.mark.unit
+def test_curate_cancel_makes_no_changes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from claude_ctx_py.cli import main
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".claude").mkdir()
+    cortex_root = tmp_path / "bundle"
+    _make_bundle(cortex_root, "skill-a")
+    monkeypatch.setenv("CORTEX_ROOT", str(cortex_root))
+
+    _stub_curate(monkeypatch, ["skill-a"])
+    assert main(["project", "curate"]) == 0
+    assert _materialised(tmp_path) == {"skill-a"}
+
+    # Cancel (picker returns None) must not touch the manifest or filesystem.
+    _stub_curate(monkeypatch, None)
+    assert main(["project", "curate"]) == 0
+    assert _enabled(tmp_path) == {"skill-a"}
+    assert _materialised(tmp_path) == {"skill-a"}

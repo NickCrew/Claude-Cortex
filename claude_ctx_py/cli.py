@@ -203,6 +203,11 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "rebuild-index",
         help="Regenerate skills/skill-index.json from SKILL.md front matter",
     )
+    skills_sub.add_parser(
+        "curate",
+        help="Interactively pick skills, then sync them into the project "
+        "(alias for 'project curate')",
+    )
     skills_suggest_parser = skills_sub.add_parser(
         "suggest", help="Suggest skills based on project context"
     )
@@ -412,6 +417,11 @@ def _build_project_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         action="store_true",
         dest="init_pick",
         help="Launch skill picker pre-populated with project suggestions",
+    )
+
+    project_sub.add_parser(
+        "curate",
+        help="Interactively pick skills, then sync them into the project",
     )
 
     project_sub.add_parser(
@@ -1178,6 +1188,8 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         )
         _print(message)
         return exit_code
+    if args.skills_command == "curate":
+        return _run_curate(Path.cwd())
     if args.skills_command == "move":
         return _handle_skills_move(args)
     return 1
@@ -1243,6 +1255,77 @@ def _handle_skills_move(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_curate(project_root: Path) -> int:
+    """Re-runnable skill curation: pick → replace manifest → reconcile.
+
+    Shared by ``cortex project curate`` and the ``cortex skills curate`` alias.
+
+    Unlike ``project init --pick`` (which only *appends* to the manifest), the
+    picker's selection *replaces* ``skills.enabled`` outright — that is what
+    lets a deselected skill be removed. ``reconcile()`` then materialises the
+    declared set: links new skills, refreshes stale copies, and unlinks any
+    skill no longer declared.
+    """
+    from .core.base import _resolve_cortex_root, _color, GREEN, RED, YELLOW
+    from .core.manifest import (
+        load_manifest,
+        reconcile,
+        suggest_skills_for_project,
+        write_manifest,
+    )
+
+    cortex_root = _resolve_cortex_root()
+
+    manifest = load_manifest(project_root)
+    skills_section = manifest.get("skills")
+    if not isinstance(skills_section, dict):
+        skills_section = {"enabled": []}
+        manifest["skills"] = skills_section
+    current_raw = skills_section.get("enabled", [])
+    current = (
+        {str(s) for s in current_raw if s} if isinstance(current_raw, list) else set()
+    )
+
+    # Recommendations seed the picker's pre-checked set alongside whatever the
+    # project already has, so the menu shows current state + suggestions, all
+    # editable. min_confidence=0.3 surfaces candidates; only ≥0.7 get pre-ticked.
+    suggestions = suggest_skills_for_project(project_root, min_confidence=0.3)
+    high = {slug for slug, conf, _ in suggestions if conf >= 0.7}
+    pre_selected = current | high
+
+    try:
+        from .tui.dialogs.skill_picker import run_skill_picker
+
+        picked = run_skill_picker(cortex_root, pre_selected=pre_selected)
+    except Exception as exc:
+        _print(_color(f"Skill picker unavailable ({exc}); no changes made.", YELLOW))
+        return 1
+
+    if picked is None:
+        _print("Cancelled; no changes made.")
+        return 0
+
+    skills_section["enabled"] = sorted(set(picked))
+    write_manifest(project_root, manifest)
+
+    report = reconcile(project_root, cortex_root=cortex_root)
+    if report.added:
+        _print(_color(f"Added: {', '.join(sorted(report.added))}", GREEN))
+    if report.removed:
+        _print(_color(f"Removed: {', '.join(sorted(report.removed))}", YELLOW))
+    if report.refreshed:
+        _print(_color(f"Refreshed: {', '.join(sorted(report.refreshed))}", GREEN))
+    if report.unchanged:
+        _print(f"Up to date: {', '.join(sorted(report.unchanged))}")
+    if report.errors:
+        for err in report.errors:
+            _print(_color(f"Error: {err}", RED))
+        return 1
+    if not (report.added or report.removed or report.refreshed):
+        _print("No changes.")
+    return 0
+
+
 def _handle_project_command(args: argparse.Namespace) -> int:
     """Handle ``cortex project`` subcommands."""
     from pathlib import Path as _Path
@@ -1283,27 +1366,9 @@ def _handle_project_command(args: argparse.Namespace) -> int:
             high_confidence = {slug for slug, conf, _ in suggestions if conf >= 0.7}
             cortex_root = _resolve_cortex_root()
             try:
-                from .tui.dialogs.skill_picker import (
-                    SkillPickerScreen,
-                    build_skills_by_category,
-                )
-                from textual.app import App
+                from .tui.dialogs.skill_picker import run_skill_picker
 
-                class _PickerApp(App[list[str]]):
-                    def on_mount(self) -> None:
-                        categories = build_skills_by_category(cortex_root)
-                        self.push_screen(
-                            SkillPickerScreen(
-                                categories,
-                                pre_selected=high_confidence,
-                            ),
-                            callback=self.on_picked,
-                        )
-
-                    def on_picked(self, selected: list[str] | None) -> None:
-                        self.exit(selected or [])
-
-                picked = _PickerApp().run()
+                picked = run_skill_picker(cortex_root, pre_selected=high_confidence)
                 if picked:
                     enabled = skills_section.get("enabled", [])
                     if not isinstance(enabled, list):
@@ -1357,6 +1422,9 @@ def _handle_project_command(args: argparse.Namespace) -> int:
         _print("\n".join(lines))
         return 0
 
+    if project_command == "curate":
+        return _run_curate(project_root)
+
     if project_command == "suggest":
         from .core.manifest import suggest_skills_for_project
 
@@ -1375,7 +1443,12 @@ def _handle_project_command(args: argparse.Namespace) -> int:
             _print(f"{slug:<40}  {conf_pct:>10}  {reason}")
         return 0
 
-    _print(_color("Unknown project command. Use init, sync, status, or suggest.", RED))
+    _print(
+        _color(
+            "Unknown project command. Use init, curate, sync, status, or suggest.",
+            RED,
+        )
+    )
     return 1
 
 
