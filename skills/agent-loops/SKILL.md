@@ -124,7 +124,7 @@ When a review or audit is required, use this exact fallback chain:
    - not have authored or edited the implementation under review
    - receive only the task spec, relevant diff/module/tests, and the bundled references
    - act only as reviewer/auditor, not as implementer
-   - write its result to a markdown artifact under `.agents/reviews/`
+   - write its result to a markdown artifact under `.cortex/reviews/`
 3. **Escalate** if no independent reviewer is available.
 
 Treat fallback artifacts exactly like script-generated `REVIEW_FILE` or
@@ -281,7 +281,7 @@ If the bundled script cannot get a usable artifact from any scripted provider:
    - the prior review artifact, if this is a remediation cycle
 3. Require the reviewer to emit markdown that follows the `Review Output Format`
    documented later in this skill.
-4. Save that output under `.agents/reviews/review-<timestamp>-fallback.md` and treat
+4. Save that output under `.cortex/reviews/review-<timestamp>-fallback.md` and treat
    the saved path as `REVIEW_FILE`.
 
 #### Size Guards and `--jumbo`
@@ -468,7 +468,7 @@ If the bundled script cannot get a usable artifact from any scripted provider:
    - the scoped module and test content
 3. Require the auditor to emit markdown that follows the same gap-report contract
    used by this skill's audit loop.
-4. Save that output under `.agents/reviews/test-audit-<timestamp>-fallback.md` and
+4. Save that output under `.cortex/reviews/test-audit-<timestamp>-fallback.md` and
    treat the saved path as `REPORT_FILE`.
 
 Act on findings:
@@ -1029,7 +1029,7 @@ When filing deferred findings in this repository:
   - severity and user impact
   - suggested fix direction
   - acceptance criteria
-- If Backlog is not available, create a markdown handoff under `.agents/fixes/`.
+- If Backlog is not available, create a markdown handoff under `.cortex/fixes/`.
   - Prefer naming by replacing `review` with `fix` from the source artifact name (`s/review/fix/`).
   - If no review artifact name exists, use a descriptive `*-fix.md` filename.
 - Implementers may also choose to fix deferred findings immediately instead of filing, when appropriate.
@@ -1080,7 +1080,7 @@ When filing deferred findings in this repository:
 - Committing at the end of every loop exit (code change, test writing, lint gate)
 - Running `"$SKILL_DIR/scripts/specialist-review.sh" --git -- <your-files>` after implementation; on remediation cycles, scope to remediated files and pass `--prior-review "$REVIEW_FILE"`
 - Running `"$SKILL_DIR/scripts/diff-test-audit.sh" <module> --git` (diff-scoped) for initial audit and each re-audit; reach for the `test-review` skill if you need a full module audit instead
-- Preserving fallback review/audit artifacts in `.agents/reviews/` when Claude is unavailable
+- Preserving fallback review/audit artifacts in `.cortex/reviews/` when Claude is unavailable
 - Falling back to another model family before the same-model last resort when Claude is unavailable
 - Fixing ONLY the findings the independent review/audit artifact identifies (no scope creep during remediation)
 - Discovering and running the project linter after both loops exit

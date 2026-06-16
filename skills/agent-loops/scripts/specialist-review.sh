@@ -9,7 +9,7 @@
 #
 # Options:
 #   --git [base-ref]       Diff against base-ref (default: HEAD~1)
-#   --output <dir>         Output directory (default: .agents/reviews)
+#   --output <dir>         Output directory (default: .cortex/reviews)
 #   --prior-review <file>  Include previous review output for continuity across cycles
 #   --provider <name>      auto (default), claude, gemini, or codex
 #   --jumbo                Bypass the diff-size guard for a single run. Use only
@@ -77,7 +77,7 @@ create_temp_markdown() {
 # --- Argument parsing ---
 
 DIFF_SOURCE="--git"
-OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
+OUTPUT_DIR="$REPO_ROOT/.cortex/reviews"
 BASE_REF="HEAD~1"
 CONTEXT_LINES="${REVIEW_CONTEXT:-15}"
 PRIOR_REVIEW_FILE=""
@@ -109,7 +109,7 @@ while [[ $# -gt 0 ]]; do
     ;;
   --output)
     shift
-    OUTPUT_DIR="${1:-$REPO_ROOT/.agents/reviews}"
+    OUTPUT_DIR="${1:-$REPO_ROOT/.cortex/reviews}"
     shift
     ;;
   --provider)

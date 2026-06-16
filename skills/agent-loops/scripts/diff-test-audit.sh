@@ -9,7 +9,7 @@
 #
 # Options:
 #   --tests <path>    Specify test directory (default: auto-discover)
-#   --output <dir>    Output directory (default: .agents/reviews)
+#   --output <dir>    Output directory (default: .cortex/reviews)
 #   --quick           Quick review mode (anti-patterns only, no full audit)
 #   --git [base-ref]  Only include source files changed since base-ref (default: HEAD~1)
 #   -- path...        Limit git diff to these paths (passed to git diff)
@@ -76,7 +76,7 @@ AUDIT_WORKFLOW="$SKILL_DIR/references/audit-workflow.md"
 
 MODULE_PATH=""
 TEST_PATH=""
-OUTPUT_DIR="$REPO_ROOT/.agents/reviews"
+OUTPUT_DIR="$REPO_ROOT/.cortex/reviews"
 MODE="full"
 GIT_MODE=""
 BASE_REF="HEAD~1"
