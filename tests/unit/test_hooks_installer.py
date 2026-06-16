@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from claude_ctx_py.hooks import install_hook_command
+from claude_ctx_py.hooks import install_hook_command, uninstall_hook_command
 
 
 @pytest.fixture
@@ -206,3 +206,72 @@ class TestInstallHookCommand:
         assert data["hooks"]["PostToolUse"][0]["hooks"][0]["command"] == (
             "python3 /tmp/post-write.py"
         )
+
+
+@pytest.mark.unit
+class TestUninstallHookCommand:
+    def test_removes_registered_hook(self, settings_file: Path) -> None:
+        install_hook_command("agent-suggest", "UserPromptSubmit")
+        ok, message = uninstall_hook_command("agent-suggest")
+
+        assert ok is True
+        assert "Unregistered: cortex hooks agent-suggest" in message
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+        commands = [
+            h["command"]
+            for e in data["hooks"].get("UserPromptSubmit", [])
+            for h in e["hooks"]
+        ]
+        assert "cortex hooks agent-suggest" not in commands
+
+    def test_idempotent_when_absent(self, settings_file: Path) -> None:
+        ok, message = uninstall_hook_command("skill-suggest")
+        assert ok is True
+        assert "Not registered" in message
+
+    def test_preserves_other_hooks_on_same_event(self, settings_file: Path) -> None:
+        install_hook_command("agent-suggest", "UserPromptSubmit")
+        install_hook_command("skill-suggest", "UserPromptSubmit")
+
+        ok, _ = uninstall_hook_command("skill-suggest")
+
+        assert ok is True
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+        commands = sorted(
+            h["command"] for e in data["hooks"]["UserPromptSubmit"] for h in e["hooks"]
+        )
+        assert commands == ["cortex hooks agent-suggest"]
+
+    def test_removes_legacy_script_entry(self, settings_file: Path) -> None:
+        """Uninstall also clears the legacy standalone-script registration."""
+        settings_file.write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "UserPromptSubmit": [
+                            {
+                                "matcher": "",
+                                "hooks": [
+                                    {
+                                        "type": "command",
+                                        "command": "python3 /home/user/.claude/hooks/skill_auto_suggester.py",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        ok, _ = uninstall_hook_command("skill-suggest")
+
+        assert ok is True
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+        commands = [
+            h["command"]
+            for e in data["hooks"].get("UserPromptSubmit", [])
+            for h in e["hooks"]
+        ]
+        assert commands == []

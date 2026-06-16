@@ -237,3 +237,68 @@ def install_hook_command(
     if migrated_from:
         note += f"\n  Migrated from legacy: {', '.join(migrated_from)}"
     return True, note
+
+
+def uninstall_hook_command(
+    subcommand: str,
+    target: HookTarget = "claude",
+    command_prefix: str = HOOK_COMMAND_PREFIX,
+) -> Tuple[bool, str]:
+    """Remove a hook subcommand registration from the harness's hooks config.
+
+    Inverse of :func:`install_hook_command`. Scans *every* event (not a
+    single known event) and drops any hook whose command is
+    ``<command_prefix> <subcommand>`` — plus any legacy standalone-script
+    entry the subcommand replaced. Scanning all events means this still
+    works after the subcommand has been removed from ``HOOK_SUBCOMMANDS``
+    (so we don't need the registry to know which event it lived under).
+
+    Returns ``(ok, message)``. An idempotent no-op (not registered) is a
+    successful True. ``ok`` is False only on config I/O failure.
+    """
+    normalized_prefix = " ".join(command_prefix.split())
+    if not normalized_prefix:
+        raise ValueError("command_prefix must be non-empty")
+
+    target_command = f"{normalized_prefix} {subcommand}"
+    settings = _load_target_config(target)
+    hooks_section = settings.get("hooks")
+    if not isinstance(hooks_section, dict):
+        return True, f"Not registered: {target_command}"
+
+    removed = 0
+    for event, event_entries in list(hooks_section.items()):
+        if not isinstance(event_entries, list):
+            continue
+        new_event_entries = []
+        for matcher_entry in event_entries:
+            if not isinstance(matcher_entry, dict):
+                new_event_entries.append(matcher_entry)
+                continue
+            kept_hooks = []
+            for hook_def in matcher_entry.get("hooks", []) or []:
+                command = str(hook_def.get("command", ""))
+                if command == target_command or _matches_legacy_script(
+                    command, subcommand
+                ):
+                    removed += 1
+                    continue
+                kept_hooks.append(hook_def)
+            if kept_hooks:
+                new_matcher = dict(matcher_entry)
+                new_matcher["hooks"] = kept_hooks
+                new_event_entries.append(new_matcher)
+        hooks_section[event] = new_event_entries
+
+    if removed == 0:
+        return True, f"Not registered: {target_command}"
+
+    ok, msg = _save_target_config(target, settings)
+    if not ok:
+        return False, msg
+    return (
+        True,
+        f"Unregistered: {target_command} "
+        f"({removed} entr{'y' if removed == 1 else 'ies'}, "
+        f"{_target_config_label(target)})",
+    )

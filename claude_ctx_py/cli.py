@@ -169,6 +169,26 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         ),
     )
 
+    hooks_uninstall = hooks_sub.add_parser(
+        "uninstall",
+        help="Remove a cortex hook subcommand from a harness's hooks config",
+    )
+    # No `choices` restriction: a retired hook (no longer in HOOK_SUBCOMMANDS)
+    # must still be uninstallable from an existing config.
+    hooks_uninstall.add_argument(
+        "name",
+        help="Hook subcommand to uninstall (e.g. skill-suggest)",
+    )
+    hooks_uninstall.add_argument(
+        "--target",
+        choices=["claude", "codex"],
+        default="claude",
+        help=(
+            "Where to remove the hook from (default: claude → ~/.claude/settings.json; "
+            "codex → ~/.codex/hooks.json)"
+        ),
+    )
+
 
 
 
@@ -1014,7 +1034,11 @@ def _handle_completions_command(args: argparse.Namespace) -> int:
 
 
 def _handle_hooks_command(args: argparse.Namespace) -> int:
-    from .hooks import HOOK_SUBCOMMANDS, install_hook_command
+    from .hooks import (
+        HOOK_SUBCOMMANDS,
+        install_hook_command,
+        uninstall_hook_command,
+    )
 
     if args.hooks_command in HOOK_SUBCOMMANDS:
         if args.hooks_command == "skill-suggest":
@@ -1043,6 +1067,14 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
             subcommand=args.name,
             event=meta["event"],
             matcher=meta["matcher"],
+            target=getattr(args, "target", "claude"),
+        )
+        _print(message)
+        return 0 if ok else 1
+
+    if args.hooks_command == "uninstall":
+        ok, message = uninstall_hook_command(
+            subcommand=args.name,
             target=getattr(args, "target", "claude"),
         )
         _print(message)
