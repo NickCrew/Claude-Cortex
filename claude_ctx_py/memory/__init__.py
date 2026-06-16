@@ -6,7 +6,9 @@ This module provides functionality for capturing and storing:
 - Session summaries and decisions
 - Bug fixes and solutions
 
-Notes are stored in Markdown format in ~/basic-memory/ by default.
+Notes are stored in Markdown format under the scope-aware ``.cortex/vault/``
+by default (``~/.cortex/vault`` globally, ``<project>/.cortex/vault`` under
+project scope). Override with ``CORTEX_MEMORY_VAULT`` or the config file.
 """
 
 from .config import (

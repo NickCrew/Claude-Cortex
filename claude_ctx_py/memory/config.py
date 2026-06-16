@@ -13,10 +13,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from ..core.base import _resolve_claude_dir
+from ..core.base import _CORTEX_SCOPE_ENV, _resolve_claude_dir
 
 
-DEFAULT_VAULT_PATH = "~/basic-memory"
 CONFIG_FILE_NAME = "memory-config.json"
 
 
@@ -44,7 +43,11 @@ class MemoryDefaults:
 class MemoryConfig:
     """Memory capture configuration."""
 
-    vault_path: str = DEFAULT_VAULT_PATH
+    # None means "not explicitly configured" — get_vault_path() then falls
+    # back to the scope-aware default. A persisted non-null value (including
+    # the legacy "~/basic-memory") is always honoured, so existing configs
+    # keep their vault.
+    vault_path: Optional[str] = None
     auto_capture: AutoCaptureConfig = field(default_factory=AutoCaptureConfig)
     defaults: MemoryDefaults = field(default_factory=MemoryDefaults)
 
@@ -63,7 +66,7 @@ class MemoryConfig:
         defaults_data = data.get("defaults", {})
 
         return cls(
-            vault_path=data.get("vault_path", DEFAULT_VAULT_PATH),
+            vault_path=data.get("vault_path"),
             auto_capture=AutoCaptureConfig(
                 enabled=auto_capture_data.get("enabled", False),
                 min_session_length=auto_capture_data.get("min_session_length", 5),
@@ -123,13 +126,37 @@ def save_config(config: MemoryConfig) -> None:
         json.dump(config.to_dict(), f, indent=2)
 
 
+def _default_vault_path(scope: Optional[str] = None) -> Path:
+    """Resolve the default vault location from the active cortex scope.
+
+    - ``project`` / ``local``: ``<project-root>/.cortex/vault``
+    - ``global`` / ``home`` / ``auto`` (default): ``~/.cortex/vault``
+
+    The project root is located the same way the rest of cortex resolves
+    project scope — by walking up to the nearest ``.claude`` — so the vault
+    lands beside the project's other cortex state (``.cortex/manifest.yaml``)
+    rather than at an unrelated cwd.
+
+    Args:
+        scope: Explicit scope override; falls back to ``CORTEX_SCOPE``.
+
+    Returns:
+        Resolved Path to the default vault directory.
+    """
+    scope_value = (scope or os.environ.get(_CORTEX_SCOPE_ENV) or "auto").strip().lower()
+    if scope_value in ("project", "local"):
+        project_root = _resolve_claude_dir(scope="project").parent
+        return project_root / ".cortex" / "vault"
+    return Path.home() / ".cortex" / "vault"
+
+
 def get_vault_path(config: Optional[MemoryConfig] = None) -> Path:
     """Get the resolved vault path.
 
-    Checks:
-    1. CORTEX_MEMORY_VAULT environment variable
-    2. Config file setting
-    3. Default ~/basic-memory
+    Checks, in order:
+    1. ``CORTEX_MEMORY_VAULT`` environment variable
+    2. Explicit ``vault_path`` set in the config file
+    3. Scope-aware default (``.cortex/vault`` — see :func:`_default_vault_path`)
 
     Args:
         config: Optional config to use (loads if not provided)
@@ -141,11 +168,14 @@ def get_vault_path(config: Optional[MemoryConfig] = None) -> Path:
     if "CORTEX_MEMORY_VAULT" in os.environ:
         return Path(os.environ["CORTEX_MEMORY_VAULT"]).expanduser()
 
-    # Config file
+    # Explicit config setting
     if config is None:
         config = get_config()
+    if config.vault_path:
+        return Path(config.vault_path).expanduser()
 
-    return Path(config.vault_path).expanduser()
+    # Scope-aware default
+    return _default_vault_path()
 
 
 def ensure_vault_structure(vault_path: Optional[Path] = None) -> Path:
