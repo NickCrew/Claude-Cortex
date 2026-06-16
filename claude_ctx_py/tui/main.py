@@ -58,7 +58,6 @@ from .types import (
     AgentTask,
     AssetInfo,
     MemoryNote,
-    WatchModeState,
 )
 from .constants import (
     EXPORT_CATEGORIES,
@@ -85,21 +84,9 @@ from ..core import (
     collect_context_components,
     export_context,
     skill_validate,
-    skill_metrics,
-    skill_metrics_reset,
     skill_info,
     skill_deps,
     skill_agents,
-    skill_analyze,
-    skill_suggest,
-    skill_report,
-    skill_trending,
-    skill_analytics,
-    skill_community_list,
-    skill_community_install,
-    skill_community_validate,
-    skill_community_rate,
-    skill_community_search,
     skill_recommend,
     WorktreeInfo,
     worktree_discover,
@@ -254,12 +241,6 @@ from ..tui_dialogs import (
 from ..messages import RESTART_REQUIRED_MESSAGE, RESTART_REQUIRED_TITLE
 from ..tui_log_viewer import LogViewerScreen
 from ..slash_commands import SlashCommandInfo, scan_slash_commands
-from ..watch import (
-    WatchMode,
-    load_watch_defaults,
-    watch_daemon_status,
-    start_watch_daemon,
-)
 from .tour import TourManager, TourOverlay, QUICK_TOUR
 import threading
 
@@ -273,8 +254,6 @@ _VIEW_SCOPED_ACTION_OWNERS: Dict[str, str] = {
     "asset_uninstall": "assets",
     "setting_install": "settings",
     "setting_uninstall": "settings",
-    "watch_adjust_interval": "watch_mode",
-    "watch_change_directory": "watch_mode",
     "output_style_install": "output_styles",
     "output_style_uninstall": "output_styles",
     "output_style_activate": "output_styles",
@@ -401,10 +380,6 @@ class AgentTUI(App[None]):
         self.asset_show_all: bool = False
         # Memory vault state
         self.memory_notes: List[MemoryNote] = []
-        # Watch mode state
-        self.watch_mode_instance: Optional[WatchMode] = None
-        self.watch_mode_thread: Optional[threading.Thread] = None
-        self._auto_start_watch = True
         self.selected_index = 0
         self.state = self
         self.wizard_active = False
@@ -510,10 +485,6 @@ class AgentTUI(App[None]):
         Binding("ctrl+f", "page_down", "Page Down", show=False),
         Binding("ctrl+u", "half_page_up", "Half Page Up", show=False),
         Binding("ctrl+d", "half_page_down", "Half Page Down", show=False),
-        # Watch Mode bindings
-        Binding("d", "watch_change_directory", "Change Dir", show=False),
-        Binding("t", "watch_adjust_threshold", "Adjust Threshold", show=False),
-        Binding("i", "watch_adjust_interval", "Adjust Interval", show=False),
         # Output Styles bindings (gated per-view via check_action)
         Binding("space", "output_style_activate", "Activate Style", show=False),
         Binding("d", "output_style_deactivate", "Deactivate Style", show=False),
@@ -596,14 +567,6 @@ class AgentTUI(App[None]):
         else:
             self.status_message = "No editable item selected."
 
-    def on_unmount(self) -> None:
-        """Clean up resources when app exits."""
-        # Stop watch mode gracefully
-        if self.watch_mode_instance and self.watch_mode_instance.running:
-            self.watch_mode_instance.stop()
-            if self.watch_mode_thread:
-                self.watch_mode_thread.join(timeout=5.0)
-
     def on_mount(self) -> None:
         """Load initial data when app starts."""
         # Initialize performance monitor and command registry
@@ -646,10 +609,6 @@ class AgentTUI(App[None]):
         # Show AI recommendations if high confidence
         self._check_auto_activations()
 
-        # Auto-start watch daemon if not already running
-        if self._auto_start_watch:
-            self._try_auto_start_watch_daemon()
-
         # Schedule background check for pending prompts (needs worker for wait_for_dismiss)
         self.call_after_refresh(lambda: self.run_worker(self._post_startup_checks()))
 
@@ -666,29 +625,6 @@ class AgentTUI(App[None]):
         if not is_valid:
             message = "Hooks config issues: " + "; ".join(errors)
             self.notify(message, severity="warning", timeout=4)
-
-    def _try_auto_start_watch_daemon(self) -> None:
-        """Start the watch daemon in the background if it isn't already running."""
-        try:
-            status_code, _msg = watch_daemon_status()
-            if status_code == 0:
-                return  # Already running
-
-            defaults = load_watch_defaults()
-            result_code, result_msg = start_watch_daemon(
-                auto_activate=defaults.auto_activate or False,
-                threshold=defaults.threshold or 0.7,
-                interval=defaults.interval or 2.0,
-                directories=defaults.directories,
-            )
-            if result_code == 0:
-                self.notify("Watch daemon started", severity="information", timeout=3)
-            else:
-                self.notify(
-                    f"Watch daemon: {result_msg}", severity="warning", timeout=3
-                )
-        except Exception:
-            pass  # Non-critical — don't block TUI startup
 
     def watch_status_message(self, _message: str) -> None:
         """Update status bar when message changes."""
@@ -799,13 +735,6 @@ class AgentTUI(App[None]):
                 "consult_gemini",
                 "request_reviews",
                 "assign_llm_tasks",
-            },
-            "watch_mode": {
-                "toggle",
-                "watch_change_directory",
-                "watch_toggle_auto",
-                "watch_adjust_threshold",
-                "watch_adjust_interval",
             },
             "tasks": {
                 "details_context",
@@ -2508,8 +2437,6 @@ class AgentTUI(App[None]):
             self.show_hooks_view(table)
         elif self.current_view == "settings":
             self.show_settings_view(table)
-        elif self.current_view == "watch_mode":
-            self._render_watch_mode_view()
         else:
             table.add_column("Message")
             table.add_row(f"{self.current_view.title()} view coming soon")
@@ -4611,12 +4538,6 @@ class AgentTUI(App[None]):
         self.status_message = "Switched to Notes Vault"
         self.notify("🧠 Notes Vault", severity="information", timeout=1)
 
-    def action_view_watch_mode(self) -> None:
-        """Switch to watch mode view."""
-        self.current_view = "watch_mode"
-        self.status_message = "Switched to Watch Mode"
-        self.notify("🔍 Watch Mode", severity="information", timeout=1)
-
     # ------------------------------------------------------------------
     # Output Styles view
     # ------------------------------------------------------------------
@@ -4885,260 +4806,6 @@ class AgentTUI(App[None]):
     # ─────────────────────────────────────────────────────────────────────
     # Watch Mode Actions
     # ─────────────────────────────────────────────────────────────────────
-
-    def _get_watch_directory(self) -> Path:
-        """Get the current watch directory."""
-        if self.watch_mode_instance:
-            directories = self.watch_mode_instance.directories
-            return directories[0] if directories else Path.cwd()
-        return Path.cwd()
-
-    def _get_watch_directories(self) -> List[Path]:
-        """Get the current watch directories."""
-        if self.watch_mode_instance:
-            return list(self.watch_mode_instance.directories)
-        return [Path.cwd()]
-
-    def _get_watch_mode_state(self) -> WatchModeState:
-        """Get current watch mode state for display."""
-        if self.watch_mode_instance:
-            state = self.watch_mode_instance.get_state()
-            last_notif = state.get("last_notification")
-            last_notif_str = None
-            if last_notif:
-                last_notif_str = f"{last_notif.get('icon', '')} {last_notif.get('title', '')} - {last_notif.get('message', '')}"
-            directories = state.get("directories") or [
-                state.get("directory", Path.cwd())
-            ]
-            return WatchModeState(
-                running=state.get("running", False),
-                directories=directories,
-                auto_activate=state.get("auto_activate", True),
-                threshold=state.get("threshold", 0.7),
-                interval=state.get("interval", 2.0),
-                checks_performed=state.get("checks_performed", 0),
-                recommendations_made=state.get("recommendations_made", 0),
-                auto_activations=state.get("auto_activations", 0),
-                started_at=state.get("started_at"),
-                last_notification=last_notif_str,
-            )
-        defaults = load_watch_defaults()
-        return WatchModeState(
-            running=False,
-            directories=defaults.directories or [Path.cwd()],
-            auto_activate=(
-                defaults.auto_activate if defaults.auto_activate is not None else True
-            ),
-            threshold=defaults.threshold if defaults.threshold is not None else 0.7,
-            interval=defaults.interval if defaults.interval is not None else 2.0,
-            checks_performed=0,
-            recommendations_made=0,
-            auto_activations=0,
-            started_at=None,
-            last_notification=None,
-        )
-
-    def _handle_watch_notification(self, notification: Dict[str, str]) -> None:
-        """Handle watch mode notifications in TUI."""
-        icon = notification.get("icon", "🔔")
-        title = notification.get("title", "Watch Mode")
-        message = notification.get("message", "")
-        # Show as TUI notification
-        self.notify(f"{icon} {title}: {message}", timeout=5)
-        # Update status message
-        self.status_message = f"Watch: {title}"
-        # Refresh view if on watch_mode
-        if self.current_view == "watch_mode":
-            self.update_view()
-
-    def action_watch_start(self) -> None:
-        """Start watch mode in background thread."""
-        if self.watch_mode_instance and self.watch_mode_instance.running:
-            self.notify("Watch mode already running", severity="warning", timeout=2)
-            return
-        # Initialize WatchMode with current or selected directory
-        defaults = load_watch_defaults()
-        for warning in defaults.warnings:
-            self.notify(f"Watch config: {warning}", severity="warning", timeout=3)
-        directories = defaults.directories or self._get_watch_directories()
-        auto_activate = (
-            defaults.auto_activate if defaults.auto_activate is not None else True
-        )
-        threshold = defaults.threshold if defaults.threshold is not None else 0.7
-        interval = defaults.interval if defaults.interval is not None else 2.0
-        self.watch_mode_instance = WatchMode(
-            auto_activate=auto_activate,
-            notification_threshold=threshold,
-            check_interval=interval,
-            notification_callback=self._handle_watch_notification,
-        )
-        self.watch_mode_instance.set_directories(directories)
-        # Run in background thread
-        self.watch_mode_thread = threading.Thread(
-            target=self.watch_mode_instance.run, daemon=True
-        )
-        self.watch_mode_thread.start()
-        self.notify("✅ Watch mode started", severity="information", timeout=2)
-        # Immediate update
-        self.update_view()
-        # Schedule another update after brief delay to ensure thread has set running=True
-        self.set_timer(0.1, self.update_view)
-
-    def action_watch_stop(self) -> None:
-        """Stop watch mode gracefully."""
-        if not self.watch_mode_instance or not self.watch_mode_instance.running:
-            self.notify("Watch mode not running", severity="warning", timeout=2)
-            return
-        self.watch_mode_instance.stop()
-        if self.watch_mode_thread:
-            self.watch_mode_thread.join(timeout=5.0)
-        self.notify("⏹ Watch mode stopped", severity="information", timeout=2)
-        self.update_view()
-
-    async def action_watch_change_directory(self) -> None:
-        """Prompt for new directory to watch."""
-        current_dirs = ", ".join(str(p) for p in self._get_watch_directories())
-        dialog = PromptDialog(
-            "Change Watch Directory",
-            "Enter directory path(s) to watch (comma-separated)",
-            default=current_dirs,
-        )
-        result = await self.push_screen(dialog, wait_for_dismiss=True)
-        if not result:
-            return
-        raw_entries = [entry.strip() for entry in result.split(",") if entry.strip()]
-        new_dirs = [Path(os.path.expanduser(entry)) for entry in raw_entries]
-        invalid = [d for d in new_dirs if not d.exists() or not d.is_dir()]
-        if invalid:
-            self.notify("Invalid directory in list", severity="error", timeout=2)
-            return
-        if self.watch_mode_instance:
-            try:
-                if len(new_dirs) == 1:
-                    self.watch_mode_instance.change_directory(new_dirs[0])
-                    label = new_dirs[0].name
-                else:
-                    self.watch_mode_instance.set_directories(new_dirs)
-                    label = f"{len(new_dirs)} directories"
-                self.notify(f"📁 Watching {label}", severity="information", timeout=2)
-            except Exception as e:
-                self.notify(
-                    f"Failed to change directory: {e}", severity="error", timeout=3
-                )
-        self.update_view()
-
-    def action_watch_toggle_auto(self) -> None:
-        """Toggle auto-activation on/off."""
-        if not self.watch_mode_instance:
-            self.notify("Watch mode not initialized", severity="warning", timeout=2)
-            return
-        self.watch_mode_instance.auto_activate = (
-            not self.watch_mode_instance.auto_activate
-        )
-        status = "enabled" if self.watch_mode_instance.auto_activate else "disabled"
-        self.notify(f"Auto-activation {status}", severity="information", timeout=2)
-        self.update_view()
-
-    async def action_watch_adjust_threshold(self) -> None:
-        """Adjust confidence threshold."""
-        current = "0.7"
-        if self.watch_mode_instance:
-            current = str(self.watch_mode_instance.notification_threshold)
-        dialog = PromptDialog(
-            "Adjust Threshold", "Enter confidence threshold (0.0-1.0)", default=current
-        )
-        result = await self.push_screen(dialog, wait_for_dismiss=True)
-        if not result:
-            return
-        try:
-            threshold = float(result)
-            if not 0.0 <= threshold <= 1.0:
-                raise ValueError()
-            if self.watch_mode_instance:
-                self.watch_mode_instance.notification_threshold = threshold
-            self.notify(
-                f"🎯 Threshold set to {threshold:.0%}",
-                severity="information",
-                timeout=2,
-            )
-            self.update_view()
-        except ValueError:
-            self.notify(
-                "Invalid threshold (must be 0.0-1.0)", severity="error", timeout=2
-            )
-
-    async def action_watch_adjust_interval(self) -> None:
-        """Adjust check interval."""
-        current = "2.0"
-        if self.watch_mode_instance:
-            current = str(self.watch_mode_instance.check_interval)
-        dialog = PromptDialog(
-            "Adjust Interval", "Enter check interval in seconds", default=current
-        )
-        result = await self.push_screen(dialog, wait_for_dismiss=True)
-        if not result:
-            return
-        try:
-            interval = float(result)
-            if interval < 0.5:
-                raise ValueError("Interval must be at least 0.5s")
-            if self.watch_mode_instance:
-                self.watch_mode_instance.check_interval = interval
-            self.notify(
-                f"⏱ Interval set to {interval}s", severity="information", timeout=2
-            )
-            self.update_view()
-        except ValueError as e:
-            self.notify(f"Invalid interval: {e}", severity="error", timeout=2)
-
-    def _render_watch_mode_view(self) -> None:
-        """Render watch mode control panel."""
-        table = self.query_one(DataTable)
-        table.clear(columns=True)
-        table.add_column("Setting", width=22)
-        table.add_column("Value", width=48)
-        table.add_column("Action", width=20)
-        # Get current state
-        state = self._get_watch_mode_state()
-        # Status row
-        status_icon = "🟢 Running" if state.running else "🔴 Stopped"
-        status_action = "[space] Stop" if state.running else "[space] Start"
-        table.add_row("▶ Status", status_icon, status_action)
-        # Directory row
-        if state.directories:
-            primary = state.directories[0]
-            if len(state.directories) == 1:
-                dir_display = str(primary)
-                dir_label = "📁 Directory"
-            else:
-                dir_display = f"{primary} (+{len(state.directories) - 1} more)"
-                dir_label = "📁 Directories"
-        else:
-            dir_display = str(Path.cwd())
-            dir_label = "📁 Directory"
-        table.add_row(dir_label, dir_display, "[d] Change")
-        # Settings rows
-        auto_icon = "✅ ON" if state.auto_activate else "❌ OFF"
-        table.add_row("🤖 Auto-activate", auto_icon, "[a] Toggle")
-        table.add_row("🎯 Threshold", f"{state.threshold:.0%}", "[t] Adjust")
-        table.add_row("⏱ Interval", f"{state.interval}s", "[i] Adjust")
-        # Statistics rows
-        table.add_row("", "", "")
-        table.add_row("[bold]📊 Statistics[/bold]", "", "")
-        table.add_row("🔍 Checks", str(state.checks_performed), "")
-        table.add_row("💡 Recommendations", str(state.recommendations_made), "")
-        table.add_row("⚡ Auto-activations", str(state.auto_activations), "")
-        # Runtime info
-        if state.started_at:
-            duration = datetime.now() - state.started_at
-            hours = int(duration.total_seconds() // 3600)
-            minutes = int((duration.total_seconds() % 3600) // 60)
-            table.add_row("⏰ Duration", f"{hours}h {minutes}m", "")
-        # Last notification
-        if state.last_notification:
-            notif_text = Format.truncate(state.last_notification, 60)
-            table.add_row("🔔 Last Event", f"[dim]{notif_text}[/dim]", "")
-        self.status_message = f"Watch Mode - {status_icon}"
 
     # ─────────────────────────────────────────────────────────────────────
     # Asset Manager Actions
@@ -6147,136 +5814,6 @@ class AgentTUI(App[None]):
             title=f"Skill Agents · {slug}",
         )
 
-    async def action_skill_analyze(self) -> None:
-        text = await self._prompt_text("Analyze Text", "Describe the work to analyze:")
-        if not text:
-            return
-        await self._handle_skill_result(
-            skill_analyze,
-            args=[text],
-            title="Skill Analyze",
-        )
-
-    async def action_skill_suggest(self) -> None:
-        path = await self._prompt_text(
-            "Suggest Skills", "Project directory", default="."
-        )
-        if path is None:
-            return
-        await self._handle_skill_result(
-            skill_suggest,
-            args=[path],
-            title=f"Skill Suggest · {path}",
-        )
-
-    async def action_skill_analytics(self) -> None:
-        metric = await self._prompt_text(
-            "Skill Analytics",
-            "Metric (tokens/activations/success_rate/trending/roi/effectiveness, leave blank for dashboard)",
-        )
-        args = [metric] if metric else []
-        await self._handle_skill_result(
-            skill_analytics,
-            args=args,
-            title="Skill Analytics",
-        )
-
-    async def action_skill_report(self) -> None:
-        fmt = await self._prompt_text(
-            "Skill Report", "Format (text/json/csv)", default="text"
-        )
-        if fmt is None:
-            return
-        await self._handle_skill_result(
-            skill_report,
-            args=[fmt],
-            title=f"Skill Report ({fmt})",
-        )
-
-    async def action_skill_trending(self) -> None:
-        days_input = await self._prompt_text(
-            "Skill Trending", "Days to include", default="30"
-        )
-        if days_input is None:
-            return
-        try:
-            days = int(days_input)
-        except ValueError:
-            self.notify("Days must be a number", severity="error", timeout=2)
-            return
-        await self._handle_skill_result(
-            skill_trending,
-            args=[str(days)],
-            title=f"Trending Skills ({days}d)",
-        )
-
-    async def action_skill_metrics_reset(self) -> None:
-        confirm = await self.push_screen(
-            ConfirmDialog("Reset Skill Metrics", "Clear all recorded skill metrics?"),
-            wait_for_dismiss=True,
-        )
-        if not confirm:
-            return
-        await self._handle_skill_result(
-            skill_metrics_reset,
-            title="Reset Skill Metrics",
-            success="Skill metrics reset",
-            error="Failed to reset metrics",
-        )
-
-    async def action_skill_community_install(self) -> None:
-        name = await self._prompt_text("Community Install", "Skill name")
-        if not name:
-            return
-        await self._handle_skill_result(
-            skill_community_install,
-            args=[name],
-            title=f"Community Install · {name}",
-            success=f"Installed {name}",
-            error=f"Failed to install {name}",
-        )
-
-    async def action_skill_community_validate(self) -> None:
-        name = await self._prompt_text("Community Validate", "Skill name")
-        if not name:
-            return
-        await self._handle_skill_result(
-            skill_community_validate,
-            args=[name],
-            title=f"Community Validate · {name}",
-        )
-
-    async def action_skill_community_rate(self) -> None:
-        name = await self._prompt_text("Community Rate", "Skill name")
-        if not name:
-            return
-        rating_input = await self._prompt_text(
-            "Community Rate", "Rating 1-5", default="5"
-        )
-        if rating_input is None:
-            return
-        try:
-            rating = int(rating_input)
-        except ValueError:
-            self.notify("Rating must be 1-5", severity="error", timeout=2)
-            return
-        await self._handle_skill_result(
-            skill_community_rate,
-            args=[name, str(rating)],
-            title=f"Community Rate · {name}",
-            success=f"Rated {name} ({rating})",
-        )
-
-    async def action_skill_community_search(self) -> None:
-        query = await self._prompt_text("Community Search", "Search query")
-        if not query:
-            return
-        await self._handle_skill_result(
-            skill_community_search,
-            args=[query],
-            title=f"Community Search · {query}",
-        )
-
     async def action_skill_validate(self) -> None:
         """Validate the selected skill."""
         if self.current_view != "skills":
@@ -6303,49 +5840,6 @@ class AgentTUI(App[None]):
         else:
             self.notify(f"Validation issues for {slug}", severity="error", timeout=3)
 
-    async def action_skill_metrics(self) -> None:
-        """Show metrics for the selected skill."""
-        if self.current_view != "skills":
-            self.action_view_skills()
-
-        skill = self._selected_skill()
-        if not skill:
-            self.notify("Select a skill to view metrics", severity="warning", timeout=2)
-            return
-
-        slug = self._skill_slug(skill)
-        try:
-            exit_code, message = skill_metrics(slug)
-        except Exception as exc:
-            self.notify(f"Metrics error: {exc}", severity="error", timeout=3)
-            return
-
-        clean = self._clean_ansi(message)
-        if clean:
-            await self._show_text_dialog(f"Skill Metrics · {slug}", clean)
-
-        if exit_code == 0:
-            self.notify(f"Metrics loaded for {slug}", severity="information", timeout=2)
-        else:
-            self.notify(
-                f"Metrics unavailable for {slug}", severity="warning", timeout=2
-            )
-
-    async def action_skill_community(self) -> None:
-        """Show community skill listings."""
-        try:
-            exit_code, message = skill_community_list()
-        except Exception as exc:
-            self.notify(f"Community error: {exc}", severity="error", timeout=3)
-            return
-
-        clean = self._clean_ansi(message)
-        if clean:
-            await self._show_text_dialog("Community Skills", clean)
-
-        if exit_code != 0:
-            self.notify("No community skills found", severity="warning", timeout=2)
-
     async def action_validate_context(self) -> None:
         """Context-aware validate shortcut."""
         if self.current_view == "skills":
@@ -6356,20 +5850,14 @@ class AgentTUI(App[None]):
             self.notify("Nothing to validate here", severity="warning", timeout=2)
 
     async def action_metrics_context(self) -> None:
-        """Context-aware metrics shortcut.
+        """Context-aware ``m`` shortcut.
 
-        In the Skills view with marks, ``m`` moves the marked skills between
-        scopes. Without marks, shows the skill metrics dialog.
+        In the Skills view with marks, moves the marked skills between scopes.
         """
         if self.current_view == "skills" and self.marked_skills:
             await self._action_skill_marks_move()
             return
-        if self.current_view == "skills":
-            await self.action_skill_metrics()
-        else:
-            self.notify(
-                "Metrics not available in this view", severity="warning", timeout=2
-            )
+        self.notify("Nothing to do here", severity="warning", timeout=2)
 
     async def _action_skill_marks_move(self) -> None:
         """Move all marked skills to a selected scope (project/global)."""
@@ -6440,9 +5928,7 @@ class AgentTUI(App[None]):
 
     async def action_context_action(self) -> None:
         """Context-aware action for the 'c' binding."""
-        if self.current_view == "skills":
-            await self.action_skill_community()
-        elif self.current_view == "mcp":
+        if self.current_view == "mcp":
             await self.action_mcp_snippet()
         else:
             self.notify("No contextual action", severity="warning", timeout=2)
@@ -8259,14 +7745,6 @@ class AgentTUI(App[None]):
             self.action_wizard_toggle()
             return
 
-        if self.current_view == "watch_mode":
-            # Toggle watch mode start/stop
-            if self.watch_mode_instance and self.watch_mode_instance.running:
-                self.action_watch_stop()
-            else:
-                self.action_watch_start()
-            return
-
         if self.current_view == "export":
             meta = self._selected_export_meta()
             if not meta:
@@ -9022,7 +8500,6 @@ class AgentTUI(App[None]):
     # e/d key in skills view → bulk enable/disable marked set (or all if none)
     # m key in skills view when marks exist → move dialog
     # S → run recommender and pre-mark suggested skills
-
     async def _action_skill_suggest(self) -> None:
         """Run the skill recommender and pre-mark all suggestions above threshold."""
         if self.current_view != "skills":
@@ -9041,7 +8518,11 @@ class AgentTUI(App[None]):
         except Exception:
             results = []
         if not results:
-            self.notify("No suggestions available for this project", severity="warning", timeout=3)
+            self.notify(
+                "No suggestions available for this project",
+                severity="warning",
+                timeout=3,
+            )
             return
         saved_cursor = self._table_cursor_index()
         newly_marked = 0

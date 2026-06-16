@@ -220,13 +220,6 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         action="store_true",
         help="Validate all skills",
     )
-    skills_analyze_parser = skills_sub.add_parser(
-        "analyze", help="Analyze text and suggest matching skills"
-    )
-    skills_analyze_parser.add_argument(
-        "text",
-        help="Text to analyze for skill keywords",
-    )
     skills_sub.add_parser(
         "rebuild-index",
         help="Regenerate skills/skill-index.json from SKILL.md front matter",
@@ -236,29 +229,6 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         help="Interactively pick skills, then sync them into the project "
         "(alias for 'project curate')",
     )
-    skills_suggest_parser = skills_sub.add_parser(
-        "suggest", help="Suggest skills based on project context"
-    )
-    skills_suggest_parser.add_argument(
-        "--project-dir",
-        dest="suggest_project_dir",
-        default=".",
-        help="Project directory to analyze (default: current directory)",
-    )
-    skills_metrics_parser = skills_sub.add_parser(
-        "metrics", help="Show skill usage metrics"
-    )
-    skills_metrics_parser.add_argument(
-        "skill",
-        nargs="?",
-        help="Skill name (optional - shows all if omitted)",
-    )
-    skills_metrics_parser.add_argument(
-        "--reset",
-        dest="metrics_reset",
-        action="store_true",
-        help="Reset all metrics",
-    )
     skills_deps_parser = skills_sub.add_parser(
         "deps", help="Show which agents use a skill"
     )
@@ -267,58 +237,8 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "agents", help="Show which agents use a skill (alias for deps)"
     )
     skills_agents_parser.add_argument("skill", help="Skill name")
-    skills_analytics_parser = skills_sub.add_parser(
-        "analytics", help="Show skill effectiveness analytics"
-    )
-    skills_analytics_parser.add_argument(
-        "--metric",
-        dest="analytics_metric",
-        choices=[
-            "trending",
-            "roi",
-            "effectiveness",
-            "tokens",
-            "activations",
-            "success_rate",
-        ],
-        help="Specific metric to display",
-    )
-    skills_report_parser = skills_sub.add_parser(
-        "report", help="Generate comprehensive analytics report"
-    )
-    skills_report_parser.add_argument(
-        "--format",
-        dest="report_format",
-        choices=["text", "json", "csv"],
-        default="text",
-        help="Report output format (default: text)",
-    )
-    skills_trending_parser = skills_sub.add_parser(
-        "trending", help="Show trending skills over time"
-    )
-    skills_trending_parser.add_argument(
-        "--days",
-        dest="trending_days",
-        type=int,
-        default=30,
-        help="Number of days to look back (default: 30)",
-    )
     skills_recommend_parser = skills_sub.add_parser(
         "recommend", help="Get AI-powered skill recommendations"
-    )
-    skills_feedback_parser = skills_sub.add_parser(
-        "feedback", help="Provide feedback on skill recommendations"
-    )
-    skills_feedback_parser.add_argument("skill", help="Skill name")
-    skills_feedback_parser.add_argument(
-        "rating",
-        choices=["helpful", "not-helpful"],
-        help="Was the recommendation helpful?",
-    )
-    skills_feedback_parser.add_argument(
-        "--comment",
-        dest="feedback_comment",
-        help="Optional comment explaining your feedback",
     )
     skills_context_parser = skills_sub.add_parser(
         "context", help="Generate skill context for current session"
@@ -327,76 +247,6 @@ def _build_skills_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
         "--no-write", action="store_true",
         help="Print to stdout only, skip writing .claude/skill-context.md"
     )
-    skills_community_parser = skills_sub.add_parser(
-        "community", help="Community skill commands"
-    )
-    community_sub = skills_community_parser.add_subparsers(dest="community_command")
-    community_list_parser = community_sub.add_parser(
-        "list", help="List community skills"
-    )
-    community_list_parser.add_argument(
-        "--tag",
-        dest="community_list_tag",
-        help="Filter by tag",
-    )
-    community_list_parser.add_argument(
-        "--search",
-        dest="community_list_search",
-        help="Search query",
-    )
-    community_list_parser.add_argument(
-        "--verified",
-        dest="community_list_verified",
-        action="store_true",
-        help="Show only verified skills",
-    )
-    community_list_parser.add_argument(
-        "--sort",
-        dest="community_list_sort",
-        help="Sort field (e.g., name, rating, downloads)",
-    )
-    community_install_parser = community_sub.add_parser(
-        "install", help="Install a community skill"
-    )
-    community_install_parser.add_argument(
-        "skill",
-        help="Skill name to install",
-    )
-    community_validate_parser = community_sub.add_parser(
-        "validate", help="Validate a community skill"
-    )
-    community_validate_parser.add_argument(
-        "skill",
-        help="Skill name to validate",
-    )
-    community_rate_parser = community_sub.add_parser(
-        "rate", help="Rate a community skill"
-    )
-    community_rate_parser.add_argument(
-        "skill",
-        help="Skill name to rate",
-    )
-    community_rate_parser.add_argument(
-        "--rating",
-        dest="community_rating",
-        type=int,
-        required=True,
-        help="Rating value (1-5)",
-    )
-    community_search_parser = community_sub.add_parser(
-        "search", help="Search community skills"
-    )
-    community_search_parser.add_argument(
-        "query",
-        help="Search query",
-    )
-    community_search_parser.add_argument(
-        "--tags",
-        dest="community_search_tags",
-        nargs="*",
-        help="Filter by tags",
-    )
-
     # audit - Quality audit for skills
     skills_audit_parser = skills_sub.add_parser(
         "audit", help="Audit skill quality and completeness"
@@ -502,140 +352,6 @@ def _build_mcp_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
 
 
 
-
-def _build_suggest_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
-    suggest_parser = subparsers.add_parser(
-        "suggest",
-        help="Unified skill and agent suggestions for the current context",
-    )
-
-    # Filter mode
-    suggest_parser.add_argument(
-        "--skills",
-        action="store_true",
-        help="Show skill recommendations only",
-    )
-    suggest_parser.add_argument(
-        "--agents",
-        action="store_true",
-        help="Show agent recommendations only",
-    )
-    suggest_parser.add_argument(
-        "--activate",
-        action="store_true",
-        help="Auto-activate high-confidence matches",
-    )
-    suggest_parser.add_argument(
-        "--text",
-        dest="suggest_text",
-        metavar="TEXT",
-        help="Analyze text for skill matches",
-    )
-    suggest_parser.add_argument(
-        "--project-dir",
-        dest="suggest_project_dir",
-        default=".",
-        help="Project directory to analyze (default: current directory)",
-    )
-
-    # Watch mode
-    suggest_parser.add_argument(
-        "--watch",
-        action="store_true",
-        help="Real-time monitoring mode",
-    )
-    suggest_parser.add_argument(
-        "--no-auto-activate",
-        dest="no_auto_activate",
-        action="store_true",
-        default=None,
-        help="Disable auto-activation in watch mode",
-    )
-    suggest_parser.add_argument(
-        "--daemon",
-        action="store_true",
-        help="Run watch mode in background as daemon",
-    )
-    suggest_parser.add_argument(
-        "--status",
-        action="store_true",
-        help="Show watch daemon status",
-    )
-    suggest_parser.add_argument(
-        "--stop",
-        action="store_true",
-        help="Stop the watch daemon",
-    )
-    suggest_parser.add_argument(
-        "--log",
-        dest="watch_log",
-        help="Log file for daemon mode",
-    )
-    suggest_parser.add_argument(
-        "--threshold",
-        type=float,
-        default=None,
-        help="Confidence threshold (0.0-1.0)",
-    )
-    suggest_parser.add_argument(
-        "--interval",
-        type=float,
-        default=None,
-        help="Check interval in seconds for watch mode",
-    )
-    suggest_parser.add_argument(
-        "--dir",
-        dest="watch_dirs",
-        action="append",
-        default=[],
-        help="Directory to watch (repeatable or comma-separated)",
-    )
-
-    # Export
-    suggest_parser.add_argument(
-        "--export",
-        dest="export_file",
-        metavar="FILE",
-        nargs="?",
-        const="suggestions.json",
-        help="Export suggestions to JSON file (default: suggestions.json)",
-    )
-
-    # Review gate
-    suggest_parser.add_argument(
-        "--review",
-        action="store_true",
-        help="Pre-completion review gate (suggest skills based on git context)",
-    )
-    suggest_parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Show what would happen without activating",
-    )
-    suggest_parser.add_argument(
-        "--context", "-c",
-        action="append",
-        dest="review_contexts",
-        help="Additional context signals for review mode",
-    )
-
-    # Learning signals: feed the intelligence layer
-    suggest_parser.add_argument(
-        "--record-success",
-        action="store_true",
-        help="Record the current session's active agents as a successful outcome",
-    )
-    suggest_parser.add_argument(
-        "--outcome",
-        default="success",
-        help="Outcome description for --record-success (default: success)",
-    )
-    suggest_parser.add_argument(
-        "--ingest-review",
-        dest="ingest_review_file",
-        metavar="FILE",
-        help="Ingest a specialist review markdown file into skill learning",
-    )
 
 
 def _build_export_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
@@ -878,7 +594,6 @@ def build_parser() -> argparse.ArgumentParser:
         type=str,
         help="Start on a specific view (e.g., 'flags', 'agents', 'rules')",
     )
-    _build_suggest_parser(subparsers)
     _build_export_parser(subparsers)
     _build_install_parser(subparsers)
     _build_notes_parser(subparsers)
@@ -1111,29 +826,8 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         exit_code, message = core.skill_validate(*targets)
         _print(message)
         return exit_code
-    if args.skills_command == "analyze":
-        print("Note: 'cortex skills analyze' is deprecated. Use 'cortex suggest --text' instead.", file=sys.stderr)
-        text = getattr(args, "text", "")
-        exit_code, message = core.skill_analyze(text)
-        _print(message)
-        return exit_code
     if args.skills_command == "rebuild-index":
         exit_code, message = core.skill_rebuild_index()
-        _print(message)
-        return exit_code
-    if args.skills_command == "suggest":
-        print("Note: 'cortex skills suggest' is deprecated. Use 'cortex suggest' instead.", file=sys.stderr)
-        project_dir = getattr(args, "suggest_project_dir", ".")
-        exit_code, message = core.skill_suggest(project_dir)
-        _print(message)
-        return exit_code
-    if args.skills_command == "metrics":
-        if getattr(args, "metrics_reset", False):
-            exit_code, message = core.skill_metrics_reset()
-            _print(message)
-            return exit_code
-        skill_name = getattr(args, "skill", None)
-        exit_code, message = core.skill_metrics(skill_name)
         _print(message)
         return exit_code
     if args.skills_command == "deps":
@@ -1142,21 +836,6 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         return exit_code
     if args.skills_command == "agents":
         exit_code, message = core.skill_agents(args.skill)
-        _print(message)
-        return exit_code
-    if args.skills_command == "analytics":
-        metric = getattr(args, "analytics_metric", None)
-        exit_code, message = core.skill_analytics(metric)
-        _print(message)
-        return exit_code
-    if args.skills_command == "report":
-        format = getattr(args, "report_format", "text")
-        exit_code, message = core.skill_report(format)
-        _print(message)
-        return exit_code
-    if args.skills_command == "trending":
-        days = getattr(args, "trending_days", 30)
-        exit_code, message = core.skill_trending(days)
         _print(message)
         return exit_code
     if args.skills_command == "context":
@@ -1169,53 +848,6 @@ def _handle_skills_command(args: argparse.Namespace) -> int:
         exit_code, message = core.skill_recommend()
         _print(message)
         return exit_code
-    if args.skills_command == "feedback":
-        skill = cast(str, args.skill)
-        rating = cast(str, args.rating)
-        comment = getattr(args, "feedback_comment", None)
-        exit_code, message = core.skill_feedback(skill, rating, comment)
-        _print(message)
-        return exit_code
-    if args.skills_command == "community":
-        community_command = getattr(args, "community_command", None)
-        if community_command == "list":
-            tags = (
-                [getattr(args, "community_list_tag")]
-                if getattr(args, "community_list_tag", None)
-                else None
-            )
-            search = getattr(args, "community_list_search", None)
-            verified = getattr(args, "community_list_verified", False)
-            sort_by = getattr(args, "community_list_sort", "name")
-            exit_code, message = core.skill_community_list(
-                tags=tags, search=search, verified=verified, sort_by=sort_by
-            )
-            _print(message)
-            return exit_code
-        if community_command == "install":
-            skill = cast(str, args.skill)
-            exit_code, message = core.skill_community_install(skill)
-            _print(message)
-            return exit_code
-        if community_command == "validate":
-            skill = cast(str, args.skill)
-            exit_code, message = core.skill_community_validate(skill)
-            _print(message)
-            return exit_code
-        if community_command == "rate":
-            skill = cast(str, args.skill)
-            community_rating = cast(int, args.community_rating)
-            exit_code, message = core.skill_community_rate(
-                skill, community_rating
-            )
-            _print(message)
-            return exit_code
-        if community_command == "search":
-            query = cast(str, args.query)
-            tags = getattr(args, "community_search_tags", None)
-            exit_code, message = core.skill_community_search(query, tags=tags)
-            _print(message)
-            return exit_code
     if args.skills_command == "audit":
         from claude_ctx_py.commands.skill_audit import audit_skill
         skill_id = cast(str, args.skill)
@@ -1559,59 +1191,6 @@ def _handle_mcp_command(args: argparse.Namespace) -> int:
         return exit_code
     return 1
 
-
-def _handle_suggest_command(args: argparse.Namespace) -> int:
-    from . import cmd_suggest
-
-    # Learning signals (route to cmd_ai which owns the intelligence layer)
-    if getattr(args, "record_success", False):
-        from . import cmd_ai
-
-        return cmd_ai.ai_record_success(getattr(args, "outcome", "success"))
-    ingest_review_file = getattr(args, "ingest_review_file", None)
-    if ingest_review_file:
-        from . import cmd_ai
-
-        return cmd_ai.ai_ingest_review(ingest_review_file)
-
-    # --text mode: text analysis
-    if getattr(args, "suggest_text", None):
-        return cmd_suggest.suggest_text(args.suggest_text)
-
-    # --watch mode (or --status/--stop): real-time monitoring
-    if getattr(args, "watch", False) or getattr(args, "status", False) or getattr(args, "stop", False):
-        return cmd_suggest.suggest_watch(
-            no_auto_activate=getattr(args, "no_auto_activate", False) or False,
-            daemon=getattr(args, "daemon", False),
-            status=getattr(args, "status", False),
-            stop=getattr(args, "stop", False),
-            watch_log=getattr(args, "watch_log", None),
-            threshold=getattr(args, "threshold", None),
-            interval=getattr(args, "interval", None),
-            watch_dirs=getattr(args, "watch_dirs", None),
-        )
-
-    # --export mode: JSON export
-    if getattr(args, "export_file", None):
-        return cmd_suggest.suggest_export(args.export_file)
-
-    # --review mode: pre-completion gate
-    if getattr(args, "review", False):
-        return cmd_suggest.suggest_review(
-            dry_run=getattr(args, "dry_run", False),
-            extra_context=getattr(args, "review_contexts", None),
-        )
-
-    # --activate mode: auto-activate high-confidence
-    if getattr(args, "activate", False):
-        return cmd_suggest.suggest_activate()
-
-    # Default mode: context-aware combined suggestions
-    return cmd_suggest.suggest_default(
-        skills_only=getattr(args, "skills", False),
-        agents_only=getattr(args, "agents", False),
-        project_dir=getattr(args, "suggest_project_dir", "."),
-    )
 
 
 def _handle_export_command(args: argparse.Namespace) -> int:
@@ -2919,7 +2498,6 @@ def main(argv: Iterable[str] | None = None) -> int:
         "docs": _handle_docs_command,
         "dev": _handle_dev_command,
         "uninstall": _handle_uninstall_command,
-        "suggest": _handle_suggest_command,
         "git": _handle_git_command,
         "tmux": _handle_tmux_command,
     }

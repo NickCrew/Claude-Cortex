@@ -169,7 +169,6 @@ class ViewNavigationProvider(Provider):
             ("ai_assistant", "🤖 AI Assistant", "AI assistant view", "0"),
 
             # Secondary views (mnemonic keys)
-            ("watch_mode", "👁️ Watch Mode", "File watching", "w"),
             ("flags", "🚩 Flags", "Flag explorer", "F"),
             ("assets", "📁 Assets", "Asset manager", "A"),
             ("memory", "🧠 Notes", "Notes vault", "M"),

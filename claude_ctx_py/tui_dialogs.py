@@ -791,10 +791,6 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]Space[/cyan]  → Toggle task status
   [cyan]Ctrl+E[/cyan] → Edit task
 """,
-            "watch_mode": """
-[bold]Watch Mode:[/bold]
-  Real-time monitoring and recommendations
-""",
             "assets": """
 [bold]Asset Manager:[/bold]
   [cyan]i[/cyan]     → Install selected asset

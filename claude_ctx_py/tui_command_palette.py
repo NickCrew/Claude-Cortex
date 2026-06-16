@@ -302,7 +302,6 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Show MCP", "Manage MCP servers", "view_mcp", "infra"),
     ("Show Export", "Configure context export", "view_export", "utilities"),
     ("Show AI Assistant", "AI-powered recommendations", "view_ai_assistant", "ai"),
-    ("Show Watch Mode", "Real-time context monitoring", "view_watch_mode", "ai"),
     ("Show Assets", "Asset manager", "view_assets", "utilities"),
     ("Show Memory", "Memory vault", "view_memory", "context"),
     ("Show Hooks", "Configure hooks and handlers", "view_hooks", "config"),
@@ -340,15 +339,4 @@ DEFAULT_COMMANDS: List[CommandTuple] = [
     ("Skill Info", "Show metadata for selected skill", "skill_info", "skills"),
     ("Skill Dependencies", "Show dependency tree", "skill_deps", "skills"),
     ("Skill Agents", "Show agents using the skill", "skill_agents", "skills"),
-    ("Skill Analyze Text", "Analyze text to suggest skills", "skill_analyze", "ai"),
-    ("Skill Suggest Project", "Suggest skills for current project", "skill_suggest", "ai"),
-    ("Skill Analytics", "Show analytics dashboard", "skill_analytics", "metrics"),
-    ("Skill Report", "Generate analytics report", "skill_report", "metrics"),
-    ("Skill Trending", "Show trending skills", "skill_trending", "metrics"),
-    ("Skill Metrics Reset", "Reset skill metrics", "skill_metrics_reset", "danger"),
-    # Community skills
-    ("Community Install Skill", "Install a community skill", "skill_community_install", "catalog"),
-    ("Community Validate Skill", "Validate a community skill", "skill_community_validate", "catalog"),
-    ("Community Rate Skill", "Rate a community skill", "skill_community_rate", "catalog"),
-    ("Community Search", "Search community skills", "skill_community_search", "catalog"),
 ]

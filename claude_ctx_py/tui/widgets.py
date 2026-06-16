@@ -371,7 +371,6 @@ class AdaptiveFooter(Widget):
                 ("^k", "Prune"),
                 ("B", "Base Dir"),
             ],
-            "watch_mode": [("Spc", "Toggle")],
         }
         return fallback_mapping.get(view, [])
 

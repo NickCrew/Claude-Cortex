@@ -205,12 +205,6 @@ class AgentCommandProvider(Provider):
                 "assign_llm_tasks",
                 CATEGORY_VIEW,
             ),
-            (
-                f"[cyan]👁️[/] [bold]Watch Mode[/bold] [dim cyan]🔍[/dim cyan]",
-                f"[dim]Monitor repo changes [dim white]│[/dim white] Hotkey: [yellow]w[/yellow][/dim]",
-                "show_watch_mode",
-                CATEGORY_VIEW,
-            ),
             # ═══════════════════════════════════════════════════════
             # CONFIGURATION & ASSETS
             # ═══════════════════════════════════════════════════════
@@ -403,9 +397,6 @@ class AgentCommandProvider(Provider):
         elif action == "assign_llm_tasks":
             if hasattr(app, "action_assign_llm_tasks"):
                 getattr(app, "action_assign_llm_tasks")()
-        elif action == "show_watch_mode":
-            app.current_view = "watch_mode"
-            app.update_view()
         elif action == "show_flags":
             app.current_view = "flags"
             app.update_view()

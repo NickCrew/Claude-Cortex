@@ -121,22 +121,6 @@ class MemoryNote:
 
 
 @dataclass
-class WatchModeState:
-    """Represents watch mode runtime state."""
-
-    running: bool
-    directories: List[Path]
-    auto_activate: bool
-    threshold: float
-    interval: float
-    checks_performed: int
-    recommendations_made: int
-    auto_activations: int
-    started_at: Optional[datetime]
-    last_notification: Optional[str]
-
-
-@dataclass
 class PromptInfo:
     """Represents a prompt in the prompt library."""
 
