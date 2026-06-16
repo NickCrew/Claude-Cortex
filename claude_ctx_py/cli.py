@@ -1731,7 +1731,7 @@ def _build_notes_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     """Build the notes command parser for persistent knowledge capture."""
     notes_parser = subparsers.add_parser(
         "notes",
-        help="Capture and manage notes in the basic-memory vault (~/basic-memory/)",
+        help="Capture and manage notes in the basic-memory vault (.cortex/vault/)",
     )
     notes_sub = notes_parser.add_subparsers(dest="notes_command")
 
