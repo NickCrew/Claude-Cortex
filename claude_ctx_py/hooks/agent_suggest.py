@@ -113,7 +113,9 @@ def detected_delegation_signals(search_text: str) -> Set[str]:
     return found
 
 
-#: See ``claude_ctx_py.hooks.skill_suggest.PROMPT_HIT_WEIGHT`` — same rationale.
+#: Weight for keyword hits in the user's prompt vs. incidental file/git
+#: context. Prompt matches carry more signal because the user is actively
+#: asking about the topic, so they outrank matches from working-tree activity.
 PROMPT_HIT_WEIGHT = 3
 
 

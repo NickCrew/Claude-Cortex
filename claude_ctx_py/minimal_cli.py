@@ -63,6 +63,12 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     for hook_name, hook_meta in HOOK_SUBCOMMANDS.items():
         hooks_sub.add_parser(hook_name, help=hook_meta["help"])
 
+    # Retired hook kept as a no-op so a stale registration exits cleanly.
+    hooks_sub.add_parser(
+        "skill-suggest",
+        help="(retired no-op — run 'cortex hooks uninstall skill-suggest')",
+    )
+
     hooks_install = hooks_sub.add_parser(
         "install",
         help="Register a cortex-minimal hook subcommand with a harness's hooks config",
@@ -152,6 +158,10 @@ def _run_hook_subcommand(subcommand: str) -> int:
 
 def _handle_hooks_command(args: argparse.Namespace) -> int:
     from .hooks import HOOK_SUBCOMMANDS, install_hook_command
+
+    # Retired hook: silent no-op (see cli._handle_hooks_command).
+    if args.hooks_command == "skill-suggest":
+        return 0
 
     if args.hooks_command in HOOK_SUBCOMMANDS:
         return _run_hook_subcommand(args.hooks_command)

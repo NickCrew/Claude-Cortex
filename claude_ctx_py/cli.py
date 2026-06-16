@@ -150,6 +150,14 @@ def _build_hooks_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     for _hook_name, _hook_meta in HOOK_SUBCOMMANDS.items():
         hooks_sub.add_parser(_hook_name, help=_hook_meta["help"])
 
+    # Retired hook kept as a no-op so a not-yet-uninstalled registration
+    # exits cleanly instead of erroring every prompt. Remove via
+    # 'cortex hooks uninstall skill-suggest'.
+    hooks_sub.add_parser(
+        "skill-suggest",
+        help="(retired no-op — run 'cortex hooks uninstall skill-suggest')",
+    )
+
     hooks_install = hooks_sub.add_parser(
         "install",
         help="Register a cortex hook subcommand with a harness's hooks config",
@@ -1040,10 +1048,14 @@ def _handle_hooks_command(args: argparse.Namespace) -> int:
         uninstall_hook_command,
     )
 
+    # Retired hook: silent no-op. Emit nothing to stdout (a UserPromptSubmit
+    # hook's stdout becomes model context). Run 'cortex hooks uninstall
+    # skill-suggest' to drop the stale registration.
+    if args.hooks_command == "skill-suggest":
+        return 0
+
     if args.hooks_command in HOOK_SUBCOMMANDS:
-        if args.hooks_command == "skill-suggest":
-            from .hooks.skill_suggest import run
-        elif args.hooks_command == "agent-suggest":
+        if args.hooks_command == "agent-suggest":
             from .hooks.agent_suggest import run
         elif args.hooks_command == "large-file-gate":
             from .hooks.large_file_gate import run

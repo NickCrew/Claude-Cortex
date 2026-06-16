@@ -41,15 +41,12 @@ class HookMeta(TypedDict):
 # into settings.json. Keeping this in one place means adding a new hook is a
 # single-file edit, and the install allowlist and argparse choices stay in sync
 # automatically.
+# NOTE: ``skill-suggest`` was retired — skill curation moved to the manual
+# ``cortex project curate`` command (pull, not push). The CLI keeps a no-op
+# deprecation shim so a not-yet-uninstalled registration exits cleanly; run
+# ``cortex hooks uninstall skill-suggest`` to remove it. The legacy-script
+# mapping below is retained so ``uninstall`` can also clear old registrations.
 HOOK_SUBCOMMANDS: Dict[str, HookMeta] = {
-    "skill-suggest": {
-        "event": "UserPromptSubmit",
-        "matcher": "",
-        "help": (
-            "UserPromptSubmit hook: suggest relevant skills "
-            "(invoked by Claude Code, not usually run directly)"
-        ),
-    },
     "agent-suggest": {
         "event": "UserPromptSubmit",
         "matcher": "",

@@ -120,13 +120,13 @@ class TestMinimalHooks:
             lambda: settings_file,
         )
 
-        code = minimal_cli.main(["hooks", "install", "skill-suggest"])
+        code = minimal_cli.main(["hooks", "install", "agent-suggest"])
 
         assert code == 0
-        assert "cortex-minimal hooks skill-suggest" in capsys.readouterr().out
+        assert "cortex-minimal hooks agent-suggest" in capsys.readouterr().out
         data = json.loads(settings_file.read_text(encoding="utf-8"))
         command = data["hooks"]["UserPromptSubmit"][0]["hooks"][0]["command"]
-        assert command == "cortex-minimal hooks skill-suggest"
+        assert command == "cortex-minimal hooks agent-suggest"
 
     def test_missing_hook_implementation_returns_clear_error(
         self, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
@@ -143,3 +143,26 @@ class TestMinimalHooks:
             "Hook implementation failed to import: missing-hook"
             in capsys.readouterr().out
         )
+
+
+@pytest.mark.unit
+class TestRetiredSkillSuggestShim:
+    """The retired skill-suggest hook is a silent no-op in both CLIs so a
+    not-yet-uninstalled registration exits cleanly without emitting context."""
+
+    def test_not_in_hook_subcommands(self) -> None:
+        assert "skill-suggest" not in hooks.HOOK_SUBCOMMANDS
+
+    def test_minimal_cli_noop(
+        self, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        code = minimal_cli.main(["hooks", "skill-suggest"])
+        assert code == 0
+        assert capsys.readouterr().out == ""
+
+    def test_full_cli_noop(self, capsys: pytest.CaptureFixture[str]) -> None:
+        from claude_ctx_py import cli
+
+        code = cli.main(["hooks", "skill-suggest"])
+        assert code == 0
+        assert capsys.readouterr().out == ""
