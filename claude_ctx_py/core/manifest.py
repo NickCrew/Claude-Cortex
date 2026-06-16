@@ -19,6 +19,27 @@ from typing import Any, Dict, List, Tuple
 
 _MANIFEST_PATH = ".cortex/manifest.yaml"
 
+# Transient artifact directories that consumers (e.g. the agent-loops skill)
+# write under .cortex/. Seeded into a directory-local .gitignore at init so
+# they never reach a commit, independent of the host repo's root .gitignore.
+_GITIGNORE_DIRS = ("fixes/", "reviews/")
+
+
+def ensure_cortex_gitignore(manifest_dir: Path) -> None:
+    """Seed ``.cortex/.gitignore`` so transient artifacts stay untracked.
+
+    Created only when absent — a user's own edits to the file are never
+    clobbered. Keeping the ignore rules directory-local (rather than relying
+    on the host repo's root ``.gitignore``) makes ``.cortex/`` self-contained
+    and portable across projects, including ones cortex didn't bootstrap.
+    """
+    gitignore_path = manifest_dir / ".gitignore"
+    if gitignore_path.exists():
+        return
+    lines = ["# cortex-managed transient artifacts — safe to delete"]
+    lines.extend(_GITIGNORE_DIRS)
+    gitignore_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 
 def suggest_skills_for_project(
     project_root: Path,
@@ -99,7 +120,9 @@ def load_manifest(project_root: Path) -> Dict[str, Any]:
 def write_manifest(project_root: Path, data: Dict[str, Any]) -> None:
     """Write *data* to ``.cortex/manifest.yaml`` under *project_root*.
 
-    Creates the ``.cortex/`` directory if absent.
+    Creates the ``.cortex/`` directory if absent and seeds a directory-local
+    ``.gitignore`` (see :func:`ensure_cortex_gitignore`) so transient artifact
+    subdirectories are ignored by default.
     """
     try:
         import yaml
@@ -108,6 +131,7 @@ def write_manifest(project_root: Path, data: Dict[str, Any]) -> None:
 
     manifest_dir = project_root / ".cortex"
     manifest_dir.mkdir(parents=True, exist_ok=True)
+    ensure_cortex_gitignore(manifest_dir)
     manifest_path = manifest_dir / "manifest.yaml"
     manifest_path.write_text(yaml.safe_dump(data, sort_keys=True), encoding="utf-8")
 

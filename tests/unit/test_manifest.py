@@ -8,6 +8,7 @@ import pytest
 
 from claude_ctx_py.core.manifest import (
     ReconcileReport,
+    ensure_cortex_gitignore,
     load_manifest,
     reconcile,
     write_manifest,
@@ -41,6 +42,30 @@ def test_write_and_load_manifest_roundtrip(tmp_path: Path) -> None:
     write_manifest(project, data)
     loaded = load_manifest(project)
     assert loaded == data
+
+
+@pytest.mark.unit
+def test_write_manifest_seeds_cortex_gitignore(tmp_path: Path) -> None:
+    project = _make_project(tmp_path)
+    write_manifest(project, {"skills": {"enabled": []}})
+
+    gitignore = project / ".cortex" / ".gitignore"
+    assert gitignore.is_file()
+    body = gitignore.read_text()
+    assert "fixes/" in body
+    assert "reviews/" in body
+
+
+@pytest.mark.unit
+def test_ensure_cortex_gitignore_does_not_clobber_existing(tmp_path: Path) -> None:
+    manifest_dir = tmp_path / ".cortex"
+    manifest_dir.mkdir()
+    custom = "# custom\nmy-artifacts/\n"
+    (manifest_dir / ".gitignore").write_text(custom)
+
+    ensure_cortex_gitignore(manifest_dir)
+
+    assert (manifest_dir / ".gitignore").read_text() == custom
 
 
 @pytest.mark.unit
