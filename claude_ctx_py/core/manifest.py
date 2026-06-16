@@ -19,14 +19,19 @@ from typing import Any, Dict, List, Tuple
 
 _MANIFEST_PATH = ".cortex/manifest.yaml"
 
-# Transient artifact directories that consumers (e.g. the agent-loops skill)
-# write under .cortex/. Seeded into a directory-local .gitignore at init so
-# they never reach a commit, independent of the host repo's root .gitignore.
-_GITIGNORE_DIRS = ("fixes/", "reviews/")
+# Subdirectories that cortex writes under .cortex/ and that should never reach
+# a commit: the agent-loops skill's review/fix artifacts and the cortex notes
+# (basic-memory) vault. Grouped by purpose so the generated .gitignore explains
+# each entry. Seeded directory-local so it works independent of the host repo's
+# root .gitignore.
+_GITIGNORE_SECTIONS = (
+    ("cortex-managed transient artifacts — safe to delete", ("fixes/", "reviews/")),
+    ("cortex notes (basic-memory) vault", ("vault/",)),
+)
 
 
 def ensure_cortex_gitignore(manifest_dir: Path) -> None:
-    """Seed ``.cortex/.gitignore`` so transient artifacts stay untracked.
+    """Seed ``.cortex/.gitignore`` so cortex-managed subdirs stay untracked.
 
     Created only when absent — a user's own edits to the file are never
     clobbered. Keeping the ignore rules directory-local (rather than relying
@@ -36,9 +41,11 @@ def ensure_cortex_gitignore(manifest_dir: Path) -> None:
     gitignore_path = manifest_dir / ".gitignore"
     if gitignore_path.exists():
         return
-    lines = ["# cortex-managed transient artifacts — safe to delete"]
-    lines.extend(_GITIGNORE_DIRS)
-    gitignore_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    blocks = [
+        "# " + comment + "\n" + "".join(f"{entry}\n" for entry in entries)
+        for comment, entries in _GITIGNORE_SECTIONS
+    ]
+    gitignore_path.write_text("\n".join(blocks), encoding="utf-8")
 
 
 def suggest_skills_for_project(

@@ -54,6 +54,9 @@ def test_write_manifest_seeds_cortex_gitignore(tmp_path: Path) -> None:
     body = gitignore.read_text()
     assert "fixes/" in body
     assert "reviews/" in body
+    assert "vault/" in body
+    # vault/ carries its own cortex-notes comment, not the transient-artifact one
+    assert "cortex notes" in body
 
 
 @pytest.mark.unit

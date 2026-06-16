@@ -1,3 +1,6 @@
 # cortex-managed transient artifacts — safe to delete
 fixes/
 reviews/
+
+# cortex notes (basic-memory) vault
+vault/
