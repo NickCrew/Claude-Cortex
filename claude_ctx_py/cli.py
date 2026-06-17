@@ -1458,6 +1458,54 @@ def _build_notes_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     # stats - Show vault statistics
     notes_sub.add_parser("stats", help="Show vault statistics")
 
+    # init - register the vault as a Basic Memory project
+    init_parser = notes_sub.add_parser(
+        "init",
+        help="Register the vault as a Basic Memory project (basic-memory project add)",
+    )
+    init_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Project name (default: <project-dir>-notes)",
+    )
+
+    # remove - unregister the Basic Memory project
+    remove_parser = notes_sub.add_parser(
+        "remove",
+        help="Unregister the Basic Memory project for this vault",
+    )
+    remove_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Project name (default: <project-dir>-notes)",
+    )
+    remove_parser.add_argument(
+        "--delete-notes",
+        dest="remove_delete_notes",
+        action="store_true",
+        help="Also delete the vault files from disk (default: keep them)",
+    )
+
+    # mcp - run (or configure) the Basic Memory MCP server
+    mcp_parser = notes_sub.add_parser(
+        "mcp",
+        help="Run the Basic Memory MCP server (basic-memory mcp --project)",
+    )
+    mcp_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        help="Project name (default: <project-dir>-notes)",
+    )
+    mcp_parser.add_argument(
+        "--configure",
+        dest="mcp_configure",
+        action="store_true",
+        help="Register the server in ~/.claude.json instead of running it",
+    )
+
 
 def _build_docs_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     """Build the docs command parser for browsing project documentation."""
@@ -1680,6 +1728,35 @@ def _handle_notes_command(args: argparse.Namespace) -> int:
         lines.append(f"  total: {stats['total']}")
         _print("\n".join(lines))
         return 0
+
+    if args.notes_command == "init":
+        from .memory import basic_memory
+
+        exit_code, message = basic_memory.init(getattr(args, "name", None))
+        _print(message)
+        return exit_code
+
+    if args.notes_command == "remove":
+        from .memory import basic_memory
+
+        exit_code, message = basic_memory.remove(
+            getattr(args, "name", None),
+            delete_notes=getattr(args, "remove_delete_notes", False),
+        )
+        _print(message)
+        return exit_code
+
+    if args.notes_command == "mcp":
+        from .memory import basic_memory
+
+        name = getattr(args, "name", None)
+        if getattr(args, "mcp_configure", False):
+            exit_code, message = basic_memory.configure_mcp(name)
+        else:
+            exit_code, message = basic_memory.serve_mcp(name)
+        if message:
+            _print(message)
+        return exit_code
 
     _print("Notes command required. Use 'cortex notes --help' for options.")
     return 1
