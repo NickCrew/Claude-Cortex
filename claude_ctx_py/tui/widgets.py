@@ -92,10 +92,6 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("e", "Export", priority=21),
         ShortcutDef("x", "Copy", priority=22),
     ],
-    "tasks": [
-        ShortcutDef("L", "Log", priority=20),
-        ShortcutDef("O", "Open", priority=21),
-    ],
     "assets": [
         ShortcutDef("i", "Install", priority=20),
         ShortcutDef("u", "Uninstall", priority=21),
@@ -111,12 +107,6 @@ VIEW_SHORTCUTS: Dict[str, List[ShortcutDef]] = {
         ShortcutDef("Enter", "View", priority=20),
         ShortcutDef("O", "Open", priority=21),
         ShortcutDef("D", "Delete", priority=22),
-    ],
-    "ai_assistant": [
-        ShortcutDef("a", "Auto-Activate", priority=20),
-        ShortcutDef("J", "Gemini", priority=21),
-        ShortcutDef("K", "Assign LLMs", priority=22),
-        ShortcutDef("Y", "Request Reviews", priority=23),
     ],
     "commands": [
         ShortcutDef("Enter", "View", priority=20),

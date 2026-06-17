@@ -29,23 +29,6 @@ class PrincipleSnippet:
 
 
 @dataclass
-class AgentTask:
-    """Represents an active agent task in the orchestration system."""
-
-    agent_id: str
-    agent_name: str
-    workstream: str
-    status: str
-    progress: int
-    category: str = "general"
-    started: Optional[float] = None
-    completed: Optional[float] = None
-    description: str = ""
-    raw_notes: str = ""
-    source_path: Optional[str] = None
-
-
-@dataclass
 class WorkflowInfo:
     """Information about a workflow."""
 

@@ -48,15 +48,6 @@ def _generate_view_shortcuts_help() -> str:
     return "\n".join(lines) + "\n"
 
 
-class TaskEditorData(TypedDict, total=False):
-    name: str
-    workstream: str
-    category: str
-    status: str
-    progress: str
-    description: str
-    raw_notes: str
-
 
 class MCPServerData(TypedDict, total=False):
     name: str
@@ -260,106 +251,6 @@ class LoadingOverlay(ModalScreen[None]):
 
     # No bindings - loading overlay can't be dismissed by user
 
-
-class TaskEditorDialog(ModalScreen[Optional[TaskEditorData]]):
-    """Dialog for creating or editing orchestration tasks."""
-
-    CSS = """
-    TaskEditorDialog {
-        align: center middle;
-    }
-    
-    TaskEditorDialog #dialog {
-        opacity: 1;
-    }
-    """
-
-    BINDINGS = [
-        Binding("escape", "close", "Cancel"),
-        Binding("enter", "submit", "Save"),
-        Binding("ctrl+s", "submit", "Save"),
-    ]
-
-    def __init__(self, title: str, defaults: Optional[TaskEditorData] = None):
-        super().__init__()
-        self.title = title
-        self.defaults: TaskEditorData = cast(TaskEditorData, dict(defaults or {}))
-
-    def compose(self) -> ComposeResult:
-        with Container(id="dialog"):
-            with Vertical():
-                yield Static(
-                    f"{Icons.CODE} [bold]{self.title}[/bold]", id="dialog-title"
-                )
-                yield Input(
-                    value=self.defaults.get("name", ""),
-                    placeholder="Task name",
-                    id="task-name",
-                )
-                yield Input(
-                    value=self.defaults.get("workstream", "primary"),
-                    placeholder="Workstream",
-                    id="task-workstream",
-                )
-                yield Input(
-                    value=self.defaults.get("category", "general"),
-                    placeholder="Category (e.g. development)",
-                    id="task-category",
-                )
-                yield Input(
-                    value=self.defaults.get("status", "pending"),
-                    placeholder="Status (pending/running/complete)",
-                    id="task-status",
-                )
-                yield Input(
-                    value=str(self.defaults.get("progress", 0)),
-                    placeholder="Progress 0-100",
-                    id="task-progress",
-                )
-                yield Input(
-                    value=self.defaults.get("description", ""),
-                    placeholder="Details / notes (optional)",
-                    id="task-description",
-                )
-                with Container(id="dialog-buttons"):
-                    yield Button("Save", variant="success", id="save")
-                    yield Button("Cancel", variant="error", id="cancel")
-
-    def action_close(self) -> None:
-        self.dismiss(None)
-
-    def action_submit(self) -> None:
-        self._submit()
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "save":
-            self._submit()
-        else:
-            self.dismiss(None)
-
-    def _submit(self) -> None:
-        name = self.query_one("#task-name", Input).value.strip()
-        workstream = self.query_one("#task-workstream", Input).value.strip()
-        category = self.query_one("#task-category", Input).value.strip()
-        status = self.query_one("#task-status", Input).value.strip()
-        progress = self.query_one("#task-progress", Input).value.strip()
-        description = self.query_one("#task-description", Input).value.strip()
-
-        if not name:
-            self.dismiss(None)
-            return
-
-        self.dismiss(
-            {
-                "name": name,
-                "workstream": workstream or "primary",
-                "category": category or "general",
-                "status": status or "pending",
-                "progress": progress or "0",
-                "description": description,
-                "raw_notes": description,
-            }
-        )
 
 
 class PromptDialog(ModalScreen[Optional[str]]):
@@ -777,19 +668,6 @@ class HelpDialog(ModalScreen[Optional[str]]):
   [cyan]f[/cyan]     → Cycle export format
   [cyan]e[/cyan]     → Execute export
   [cyan]x[/cyan]     → Copy to clipboard
-""",
-            "ai_assistant": """
-[bold]AI Assistant:[/bold]
-  [cyan]a[/cyan] → Auto-activate recommended agents
-  [cyan]J[/cyan] → Consult Gemini
-  [cyan]K[/cyan] → Assign LLM tasks
-  [cyan]Y[/cyan] → Request review tasks
-""",
-            "tasks": """
-[bold]Task Management:[/bold]
-  [cyan]a[/cyan]      → Add new task
-  [cyan]Space[/cyan]  → Toggle task status
-  [cyan]Ctrl+E[/cyan] → Edit task
 """,
             "assets": """
 [bold]Asset Manager:[/bold]

@@ -166,7 +166,6 @@ class ViewNavigationProvider(Provider):
             ("mcp", "🔌 MCP", "Manage MCP servers", "7"),
             ("profiles", "👤 Profiles", "Manage profiles", "8"),
             ("export", "📦 Export", "Configure export", "9"),
-            ("ai_assistant", "🤖 AI Assistant", "AI assistant view", "0"),
 
             # Secondary views (mnemonic keys)
             ("flags", "🚩 Flags", "Flag explorer", "F"),
@@ -176,7 +175,6 @@ class ViewNavigationProvider(Provider):
             ("orchestrate", "🎯 Orchestrate", "Task orchestration", "o"),
             ("galaxy", "✨ Galaxy", "Agent constellation", "g"),
             ("flag_manager", "⚙️ Flag Manager", "Manage flags", "Ctrl+G"),
-            ("tasks", "📋 Tasks", "Task queue", "t"),
             ("commands", "⌨️ Commands", "Slash commands", "/"),
         ]
 

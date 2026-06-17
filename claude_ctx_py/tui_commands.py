@@ -167,42 +167,9 @@ class AgentCommandProvider(Provider):
                 CATEGORY_VIEW,
             ),
             (
-                f"[yellow]📝[/] [bold]Show Tasks[/bold] [dim yellow]✅[/dim yellow]",
-                f"[dim]View active agent tasks [dim white]│[/dim white] Hotkey: [yellow]t[/yellow][/dim]",
-                "show_tasks",
-                CATEGORY_VIEW,
-            ),
-            (
                 f"[bright_blue]📚[/] [bold]Show Documentation[/bold] [dim bright_blue]📖[/dim bright_blue]",
                 f"[dim]Browse Cortex documentation [dim white]│[/dim white] Hotkey: [yellow]9[/yellow][/dim]",
                 "show_docs",
-                CATEGORY_VIEW,
-            ),
-            # ═══════════════════════════════════════════════════════
-            # AI & INTELLIGENCE
-            # ═══════════════════════════════════════════════════════
-            (
-                f"[bright_magenta]🤖[/] [bold]AI Assistant[/bold] [dim bright_magenta]✨[/dim bright_magenta]",
-                f"[dim]Get AI recommendations [dim white]│[/dim white] Hotkey: [yellow]0[/yellow][/dim]",
-                "show_ai_assistant",
-                CATEGORY_VIEW,
-            ),
-            (
-                f"[bright_magenta]📝[/] [bold]Request Reviews[/bold] [dim bright_magenta]⚑[/dim bright_magenta]",
-                f"[dim]Spawn review tasks from recommendations [dim white]│[/dim white] Hotkey: [yellow]Y[/yellow][/dim]",
-                "request_reviews",
-                CATEGORY_VIEW,
-            ),
-            (
-                f"[bright_magenta]✨[/] [bold]Consult Gemini[/bold] [dim bright_magenta]◆[/dim bright_magenta]",
-                f"[dim]Ask Gemini for a second opinion [dim white]│[/dim white] Hotkey: [yellow]G[/yellow][/dim]",
-                "consult_gemini",
-                CATEGORY_VIEW,
-            ),
-            (
-                f"[bright_magenta]🧠[/] [bold]Assign LLM Tasks[/bold] [dim bright_magenta]◆[/dim bright_magenta]",
-                f"[dim]Dispatch tasks to Gemini/OpenAI/Qwen [dim white]│[/dim white] Hotkey: [yellow]K[/yellow][/dim]",
-                "assign_llm_tasks",
                 CATEGORY_VIEW,
             ),
             # ═══════════════════════════════════════════════════════
@@ -375,9 +342,6 @@ class AgentCommandProvider(Provider):
             if hasattr(app, "load_slash_commands"):
                 app.load_slash_commands()
             app.update_view()
-        elif action == "show_tasks":
-            app.current_view = "tasks"
-            app.update_view()
         elif action == "show_docs":
             if hasattr(app, "push_screen"):
                 try:
@@ -385,18 +349,6 @@ class AgentCommandProvider(Provider):
                     getattr(app, "push_screen")(DocsScreen())
                 except Exception as e:
                     app.status_message = f"Error opening docs: {e}"
-        elif action == "show_ai_assistant":
-            app.current_view = "ai_assistant"
-            app.update_view()
-        elif action == "request_reviews":
-            if hasattr(app, "action_request_reviews"):
-                getattr(app, "action_request_reviews")()
-        elif action == "consult_gemini":
-            if hasattr(app, "action_consult_gemini"):
-                getattr(app, "action_consult_gemini")()
-        elif action == "assign_llm_tasks":
-            if hasattr(app, "action_assign_llm_tasks"):
-                getattr(app, "action_assign_llm_tasks")()
         elif action == "show_flags":
             app.current_view = "flags"
             app.update_view()

@@ -54,21 +54,6 @@ def _build_agent_parser(subparsers: argparse._SubParsersAction[Any]) -> None:
     agent_sub = agent_parser.add_subparsers(dest="agent_command")
     agent_sub.add_parser("list", help="List available agents")
     agent_sub.add_parser("status", help="Show active agents")
-    agent_activate = agent_sub.add_parser(
-        "activate", help="Activate one or more agents"
-    )
-    agent_activate.add_argument("agents", nargs="+", help="Agent name(s) (without .md)")
-    agent_deactivate = agent_sub.add_parser(
-        "deactivate", help="Deactivate one or more agents"
-    )
-    agent_deactivate.add_argument(
-        "agents", nargs="+", help="Agent name(s) (without .md)"
-    )
-    agent_deactivate.add_argument(
-        "--force",
-        action="store_true",
-        help="Override dependency checks",
-    )
     agent_deps_parser = agent_sub.add_parser(
         "deps", help="Show dependency information for an agent"
     )
@@ -626,36 +611,6 @@ def _handle_agent_command(args: argparse.Namespace) -> int:
     if args.agent_command == "status":
         _print(core.agent_status())
         return 0
-    if args.agent_command == "activate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for agent in args.agents:
-            exit_code, message = core.agent_activate(agent)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
-    if args.agent_command == "deactivate":
-        messages = []
-        final_exit_code = 0
-        changed = False
-        for agent in args.agents:
-            exit_code, message = core.agent_deactivate(agent, force=args.force)
-            messages.append(message)
-            if exit_code == 0:
-                changed = True
-            else:
-                final_exit_code = exit_code
-        _print("\n".join(messages))
-        if changed:
-            _print(_restart_notice())
-        return final_exit_code
     if args.agent_command == "deps":
         exit_code, message = core.agent_deps(args.agent)
         _print(message)

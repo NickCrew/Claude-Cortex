@@ -11,7 +11,6 @@ EXPORT_CATEGORIES: List[Tuple[str, str, str]] = [
 DEFAULT_EXPORT_OPTIONS = {key: True for key, _label, _desc in EXPORT_CATEGORIES}
 
 PRIMARY_VIEW_BINDINGS = [
-    ("0", "ai_assistant", "AI Assistant"),
     ("1", "overview", "Overview"),
     ("2", "agents", "Agents"),
     ("3", "rules", "Rules"),
@@ -22,7 +21,6 @@ PRIMARY_VIEW_BINDINGS = [
     ("8", "memory", "Notes"),
     ("M", "mcp", "MCP"),
     ("E", "export", "Export"),
-    ("T", "tasks", "Tasks"),
     ("W", "worktrees", "Worktrees"),
     ("A", "assets", "Assets"),
     ("o", "output_styles", "Output Styles"),
@@ -38,8 +36,6 @@ VIEW_TITLES: Dict[str, str] = {
     "worktrees": f"{Icons.FOLDER} Worktrees",
     "mcp": "🔌 MCP Servers",
     "export": f"{Icons.FILE} Export",
-    "ai_assistant": "🤖 AI Assistant",
-    "tasks": f"{Icons.TEST} Tasks",
     "assets": "📦 Asset Browser",
     "memory": "🧠 Notes Vault",
     "hooks": "🪝 Hooks",
