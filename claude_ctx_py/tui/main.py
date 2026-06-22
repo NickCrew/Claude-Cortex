@@ -1425,8 +1425,10 @@ class AgentTUI(App[None]):
                         self._attach_skill_categories(skill_data, category_map)
                         skills.append(skill_data)
 
-            # Sort by primary category then name
-            skills.sort(key=lambda s: (s["category"].lower(), s["name"].lower()))
+            # Sort alphabetically by name. The view renders a flat table with
+            # category in its own column (not as group headers), so name order
+            # is the most scannable; category is still available per-row.
+            skills.sort(key=lambda s: s["name"].lower())
 
             self.skills = skills
             stale_count = sum(
