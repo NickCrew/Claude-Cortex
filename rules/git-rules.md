@@ -32,6 +32,7 @@
   asks.
 - Prefer creating new commits over amending. Use `--amend` only when
   the user explicitly asks.
+- Avoid merge commits. Prefer linear history.
 
 ## What "atomic" means in practice
 
@@ -50,6 +51,10 @@ A commit is atomic when all of the following hold:
 The `atomic-commits` skill has the full workflow for splitting a
 mixed working tree into a sequence of clean commits — reach for it
 when the working tree has accumulated more than one logical group.
+
+## PRs
+
+- Commit directly to main unless the user explicitly requests a PR.
 
 ## Branches
 
