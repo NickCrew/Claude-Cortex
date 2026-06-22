@@ -18,6 +18,13 @@ triggers:
   - state coverage
   - how does this work
   - is this well designed
+file_patterns:
+  - '**/*.tsx'
+  - '**/*.jsx'
+  - '**/*.vue'
+  - '**/*.svelte'
+  - '**/*.ts'
+confidence: 0.8
 ---
 
 # UX & Interaction Review

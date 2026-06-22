@@ -18,6 +18,14 @@ triggers:
   - how does this serve the user
   - is this optimized for daily use
   - review the design
+file_patterns:
+  - '**/*.tsx'
+  - '**/*.jsx'
+  - '**/*.vue'
+  - '**/*.svelte'
+  - '**/*.css'
+  - '**/*.scss'
+confidence: 0.8
 ---
 
 # Design & Journey Review

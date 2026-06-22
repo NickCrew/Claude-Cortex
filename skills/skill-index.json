@@ -723,6 +723,37 @@
       "confidence": 0.8
     },
     {
+      "name": "design-journey-review",
+      "path": "design-journey-review",
+      "description": "Combined visual design and user journey review: color systems, typography, spacing, information density, visual hierarchy, workflow stages, emotional curve, friction points, and daily-use optimization. Use when evaluating how an interface looks, how it serves its user over time, and whether the design earns its space.",
+      "keywords": [
+        "aesthetics",
+        "aesthetics review",
+        "color system",
+        "daily driver",
+        "design review",
+        "how does this serve the user",
+        "information density",
+        "is this optimized for daily use",
+        "journey review",
+        "review the design",
+        "typography",
+        "user journey",
+        "visual design",
+        "visual review",
+        "workflow optimization"
+      ],
+      "file_patterns": [
+        "**/*.css",
+        "**/*.jsx",
+        "**/*.scss",
+        "**/*.svelte",
+        "**/*.tsx",
+        "**/*.vue"
+      ],
+      "confidence": 0.8
+    },
+    {
       "name": "design-system-architecture",
       "path": "design-system-architecture",
       "description": "Build scalable design systems with design tokens, component APIs, and documentation. Use when creating or evolving component libraries.",
@@ -2643,6 +2674,33 @@
         "**/workflows/**"
       ],
       "confidence": 0.76
+    },
+    {
+      "name": "ux-interaction-review",
+      "path": "ux-interaction-review",
+      "description": "Combined UX and interaction design review: usability heuristics, state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use.",
+      "keywords": [
+        "error states",
+        "feedback patterns",
+        "heuristic evaluation",
+        "how does this work",
+        "interaction design",
+        "interaction review",
+        "is this well designed",
+        "micro-interactions",
+        "review interactions",
+        "state coverage",
+        "usability review",
+        "ux review"
+      ],
+      "file_patterns": [
+        "**/*.jsx",
+        "**/*.svelte",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.vue"
+      ],
+      "confidence": 0.8
     },
     {
       "name": "ux-researcher",
