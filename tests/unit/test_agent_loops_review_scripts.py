@@ -2725,3 +2725,333 @@ PY
     invalid_artifacts = list((project / ".agents/reviews").glob("*.gemini.invalid.md"))
     assert len(invalid_artifacts) == 1
     assert invalid_artifacts[0].read_bytes() == b"\xff\xfe"
+
+
+@pytest.mark.unit
+def test_specialist_review_reports_claude_provider_diagnostics(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    _run(["git", "init"], repo, os.environ.copy())
+    _run(["git", "config", "user.email", "test@example.com"], repo, os.environ.copy())
+    _run(["git", "config", "user.name", "Test User"], repo, os.environ.copy())
+
+    src_dir = repo / "src"
+    src_dir.mkdir()
+    source_file = src_dir / "app.py"
+    source_file.write_text("print('before')\n", encoding="utf-8")
+    _run(["git", "add", "src/app.py"], repo, os.environ.copy())
+    _run(["git", "commit", "-m", "init"], repo, os.environ.copy())
+    source_file.write_text("print('after')\n", encoding="utf-8")
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    claude_log = tmp_path / "claude-diagnostics.log"
+
+    _write_executable(
+        fake_bin / "claude",
+        f"""#!/usr/bin/env bash
+if [[ "${{1:-}}" == "auth" && "${{2:-}}" == "status" ]]; then
+  echo '{{"loggedIn": true}}'
+  exit 0
+fi
+echo "$@" > "{claude_log}"
+cat >/dev/null
+cat <<'EOF'
+## Code Review: claude review
+
+**Files reviewed:** src/app.py
+**Iteration:** 1 of 3
+
+### Findings
+_No findings._
+
+### Summary
+- P0: 0 findings (MUST fix)
+- P1: 0 findings (MUST fix)
+- P2: 0 findings (file issues)
+- P3: 0 findings (file issues)
+- **Verdict:** CLEAN
+EOF
+""",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+    env["CLAUDE_MODEL"] = "sonnet"
+    env["GEMINI_MODEL"] = "gemini-diag"
+    env["CODEX_MODEL"] = "codex-diag"
+    env["PYTHONPATH"] = str(REPO_ROOT)
+
+    result = _run(
+        [
+            str(SPECIALIST_REVIEW),
+            "--provider",
+            "claude",
+            "--git",
+            "--output",
+            str(repo / ".agents/reviews"),
+            "--",
+            "src/app.py",
+        ],
+        repo,
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Trying provider: Claude" in result.stderr
+    assert "Claude budget: $2.00" in result.stderr
+    assert "Claude model override: sonnet" in result.stderr
+    assert "Gemini model override:" not in result.stderr
+    assert "Codex model override:" not in result.stderr
+    assert "--model sonnet" in claude_log.read_text(encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_specialist_review_reports_gemini_provider_diagnostics(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    _run(["git", "init"], repo, os.environ.copy())
+    _run(["git", "config", "user.email", "test@example.com"], repo, os.environ.copy())
+    _run(["git", "config", "user.name", "Test User"], repo, os.environ.copy())
+
+    src_dir = repo / "src"
+    src_dir.mkdir()
+    source_file = src_dir / "app.py"
+    source_file.write_text("print('before')\n", encoding="utf-8")
+    _run(["git", "add", "src/app.py"], repo, os.environ.copy())
+    _run(["git", "commit", "-m", "init"], repo, os.environ.copy())
+    source_file.write_text("print('after')\n", encoding="utf-8")
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    gemini_log = tmp_path / "gemini-diagnostics.log"
+
+    _write_executable(
+        fake_bin / "gemini",
+        f"""#!/usr/bin/env bash
+echo "$@" > "{gemini_log}"
+cat >/dev/null
+cat <<'EOF'
+## Code Review: gemini review
+
+**Files reviewed:** src/app.py
+**Iteration:** 1 of 3
+
+### Findings
+_No findings._
+
+### Summary
+- P0: 0 findings (MUST fix)
+- P1: 0 findings (MUST fix)
+- P2: 0 findings (file issues)
+- P3: 0 findings (file issues)
+- **Verdict:** CLEAN
+EOF
+""",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+    env["GEMINI_MODEL"] = "gemini-diag"
+    env["CLAUDE_MODEL"] = "sonnet"
+    env["CODEX_MODEL"] = "codex-diag"
+    env["PYTHONPATH"] = str(REPO_ROOT)
+
+    result = _run(
+        [
+            str(SPECIALIST_REVIEW),
+            "--provider",
+            "gemini",
+            "--git",
+            "--output",
+            str(repo / ".agents/reviews"),
+            "--",
+            "src/app.py",
+        ],
+        repo,
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Trying provider: Gemini" in result.stderr
+    assert "Gemini model override: gemini-diag" in result.stderr
+    assert "Claude budget:" not in result.stderr
+    assert "Claude model override:" not in result.stderr
+    assert "Codex model override:" not in result.stderr
+
+
+@pytest.mark.unit
+def test_test_review_reports_claude_provider_diagnostics(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+
+    module_dir = project / "module"
+    tests_dir = project / "tests"
+    module_dir.mkdir()
+    tests_dir.mkdir()
+    (module_dir / "feature.py").write_text(
+        "def greet(name: str) -> str:\n    return f'Hello, {name}'\n",
+        encoding="utf-8",
+    )
+    (tests_dir / "test_feature.py").write_text(
+        "from module.feature import greet\n\n\ndef test_greet():\n    assert greet('A') == 'Hello, A'\n",
+        encoding="utf-8",
+    )
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    claude_log = tmp_path / "audit-claude-diagnostics.log"
+
+    _write_executable(
+        fake_bin / "claude",
+        f"""#!/usr/bin/env bash
+if [[ "${{1:-}}" == "auth" && "${{2:-}}" == "status" ]]; then
+  echo '{{"loggedIn": true}}'
+  exit 0
+fi
+echo "$@" > "{claude_log}"
+cat >/dev/null
+cat <<'EOF'
+## Test Gap Report: feature
+
+**Module:** `module/feature.py`
+**Tests:** `tests/test_feature.py`
+**Mode:** full
+
+### Behavior Inventory
+
+| Behavior | Coverage | Evidence |
+|----------|----------|----------|
+| greet(name) returns greeting | Covered | Verified by test_greet |
+
+### Prioritized Gaps
+_No prioritized gaps._
+
+### Summary
+- Covered: 1
+- Shallow: 0
+- Missing: 0
+- P0: 0
+- P1: 0
+- P2: 0
+EOF
+""",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+    env["CLAUDE_MODEL"] = "sonnet"
+    env["GEMINI_MODEL"] = "gemini-diag"
+    env["CODEX_MODEL"] = "codex-diag"
+
+    result = _run(
+        [
+            str(TEST_REVIEW),
+            "--provider",
+            "claude",
+            str(module_dir),
+            "--tests",
+            str(tests_dir),
+            "--output",
+            str(project / ".agents/reviews"),
+        ],
+        project,
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Trying provider: Claude" in result.stderr
+    assert "Claude budget: $2.00" in result.stderr
+    assert "Claude model override: sonnet" in result.stderr
+    assert "Gemini model override:" not in result.stderr
+    assert "Codex model override:" not in result.stderr
+    assert "--model sonnet" in claude_log.read_text(encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_test_review_reports_gemini_provider_diagnostics(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+
+    module_dir = project / "module"
+    tests_dir = project / "tests"
+    module_dir.mkdir()
+    tests_dir.mkdir()
+    (module_dir / "feature.py").write_text(
+        "def greet(name: str) -> str:\n    return f'Hello, {name}'\n",
+        encoding="utf-8",
+    )
+    (tests_dir / "test_feature.py").write_text(
+        "from module.feature import greet\n\n\ndef test_greet():\n    assert greet('A') == 'Hello, A'\n",
+        encoding="utf-8",
+    )
+
+    fake_bin = tmp_path / "bin"
+    fake_bin.mkdir()
+    gemini_log = tmp_path / "audit-gemini-diagnostics.log"
+
+    _write_executable(
+        fake_bin / "gemini",
+        f"""#!/usr/bin/env bash
+echo "$@" > "{gemini_log}"
+cat >/dev/null
+cat <<'EOF'
+## Test Gap Report: feature
+
+**Module:** `module/feature.py`
+**Tests:** `tests/test_feature.py`
+**Mode:** full
+
+### Behavior Inventory
+
+| Behavior | Coverage | Evidence |
+|----------|----------|----------|
+| greet(name) returns greeting | Covered | Verified by test_greet |
+
+### Prioritized Gaps
+_No prioritized gaps._
+
+### Summary
+- Covered: 1
+- Shallow: 0
+- Missing: 0
+- P0: 0
+- P1: 0
+- P2: 0
+EOF
+""",
+    )
+
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}:{env['PATH']}"
+    env["GEMINI_MODEL"] = "gemini-diag"
+    env["CLAUDE_MODEL"] = "sonnet"
+    env["CODEX_MODEL"] = "codex-diag"
+
+    result = _run(
+        [
+            str(TEST_REVIEW),
+            "--provider",
+            "gemini",
+            str(module_dir),
+            "--tests",
+            str(tests_dir),
+            "--output",
+            str(project / ".agents/reviews"),
+        ],
+        project,
+        env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Trying provider: Gemini" in result.stderr
+    assert "Gemini model override: gemini-diag" in result.stderr
+    assert "Claude budget:" not in result.stderr
+    assert "Claude model override:" not in result.stderr
+    assert "Codex model override:" not in result.stderr
