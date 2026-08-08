@@ -698,6 +698,9 @@ for PROVIDER in "${PROVIDERS[@]}"; do
   echo "Trying provider: $(review_provider_display_name "$PROVIDER") (timeout ${TIMEOUT_SECONDS}s)" >&2
   if [[ "$PROVIDER" == "claude" ]]; then
     echo "Claude budget: \$${CLAUDE_MAX_BUDGET:-2.00}" >&2
+    if [[ -n "${CLAUDE_MODEL:-}" ]]; then
+      echo "Claude model override: ${CLAUDE_MODEL}" >&2
+    fi
   elif [[ -n "${GEMINI_MODEL:-}" ]]; then
     echo "Gemini model override: ${GEMINI_MODEL}" >&2
   elif [[ "$PROVIDER" == "codex" && -n "${CODEX_MODEL:-}" ]]; then
