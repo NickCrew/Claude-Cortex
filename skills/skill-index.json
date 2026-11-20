@@ -2678,20 +2678,17 @@
     {
       "name": "ux-interaction-review",
       "path": "ux-interaction-review",
-      "description": "Combined UX and interaction design review: usability heuristics, state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use.",
+      "description": "Interaction design review: state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use. For Nielsen heuristics and WCAG checks, use ux-review.",
       "keywords": [
         "error states",
         "feedback patterns",
-        "heuristic evaluation",
         "how does this work",
         "interaction design",
         "interaction review",
         "is this well designed",
         "micro-interactions",
         "review interactions",
-        "state coverage",
-        "usability review",
-        "ux review"
+        "state coverage"
       ],
       "file_patterns": [
         "**/*.jsx",

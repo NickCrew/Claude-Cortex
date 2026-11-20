@@ -1,19 +1,14 @@
 ---
 name: ux-interaction-review
-description: "Combined UX and interaction design review: usability heuristics, state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use."
+description: "Interaction design review: state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use. For Nielsen heuristics and WCAG checks, use ux-review."
 keywords:
-  - ux review
   - interaction design
-  - usability review
   - state coverage
   - micro-interactions
   - feedback patterns
   - error states
-  - heuristic evaluation
 triggers:
-  - ux review
   - interaction review
-  - usability review
   - review interactions
   - state coverage
   - how does this work
@@ -29,9 +24,9 @@ confidence: 0.8
 
 # UX & Interaction Review
 
-Combined review of usability and interaction design. Evaluates whether an interface works mechanically (state coverage, feedback, timing, error recovery) and whether users can accomplish their goals efficiently (heuristics, flow, progressive disclosure).
+Interaction design review. Evaluates whether an interface works mechanically (state coverage, feedback, timing, error recovery) and whether users can accomplish their goals efficiently (flow, progressive disclosure).
 
-This skill merges the "how does it work?" axis: heuristics, state coverage, feedback patterns, keyboard behavior, timing, animation, and error handling.
+This skill covers the "how does it work?" axis: state coverage, feedback patterns, keyboard behavior, timing, animation, and error handling.
 
 ## When to Use
 
@@ -43,7 +38,7 @@ This skill merges the "how does it work?" axis: heuristics, state coverage, feed
 - PR reviews that touch interactive code
 - Design system component reviews
 
-Do NOT use for purely visual/aesthetic concerns (typography, color palettes, spacing rhythm) or for mapping the user's emotional journey across sessions. Use `design-journey-review` for those.
+Do NOT use for purely visual/aesthetic concerns (typography, color palettes, spacing rhythm) or for mapping the user's emotional journey across sessions. Use `design-journey-review` for those. For a Nielsen heuristic scan or WCAG accessibility checks, use `ux-review`.
 
 ## Quick Reference
 
@@ -60,24 +55,7 @@ Do NOT use for purely visual/aesthetic concerns (typography, color palettes, spa
 3. Who are the users (expert vs. novice)? Single-user tool vs. public-facing?
 4. What are the success criteria?
 
-### Step 2: Heuristic Scan (Nielsen's 10)
-
-Evaluate against each heuristic. Score Good / Fair / Poor:
-
-| Heuristic | Check |
-|-----------|-------|
-| Visibility of system status | Does the user always know what's happening? |
-| Match with real world | Does it use familiar language and concepts? |
-| User control and freedom | Can users undo, go back, escape? |
-| Consistency and standards | Does it follow platform conventions? |
-| Error prevention | Are mistakes prevented before they happen? |
-| Recognition over recall | Is information visible rather than memorized? |
-| Flexibility and efficiency | Are there shortcuts for expert users? |
-| Aesthetic and minimalist design | Is every element necessary? |
-| Error recovery | Are error messages helpful and actionable? |
-| Help and documentation | Is guidance available when needed? |
-
-### Step 3: Interaction Map
+### Step 2: Interaction Map
 
 For every interactive element, document:
 
@@ -85,7 +63,7 @@ For every interactive element, document:
 |---------|---------|----------|--------|----------------|
 | [name] | click/hover/focus | what changes | all possible states | how to exit |
 
-### Step 4: State Coverage Audit
+### Step 3: State Coverage Audit
 
 Check each state is handled:
 
@@ -104,7 +82,7 @@ Check each state is handled:
 | Offline | | |
 | Disabled | | |
 
-### Step 5: Feedback & Timing Assessment
+### Step 4: Feedback & Timing Assessment
 
 For each interaction, evaluate:
 
@@ -118,7 +96,7 @@ For each interaction, evaluate:
 |---------|----------|--------|------------|
 | [name] | Nms | ease-X | too fast / good / too slow |
 
-### Step 6: Error Recovery & Edge Cases
+### Step 5: Error Recovery & Edge Cases
 
 - What happens on clipboard failure (especially file:// protocol)?
 - What happens on rapid double-click?
@@ -126,7 +104,7 @@ For each interaction, evaluate:
 - What happens if the user navigates away mid-action?
 - Are destructive actions reversible?
 
-### Step 7: Prioritize Findings
+### Step 6: Prioritize Findings
 
 | Priority | Criteria | Action |
 |----------|----------|--------|
@@ -135,16 +113,13 @@ For each interaction, evaluate:
 | **Medium** | Noticeable friction, workaround exists | Next iteration |
 | **Enhancement** | Improves delight, polish | Backlog |
 
-### Step 8: Produce Report
+### Step 7: Produce Report
 
 ```markdown
 ## UX & Interaction Review: [Component/Flow]
 
 ### Summary
 [2-3 sentences: overall assessment, biggest concern, best strength]
-
-### Heuristic Scores
-[Table with Good/Fair/Poor per heuristic]
 
 ### Interaction Map
 [Table: element, trigger, feedback, states, dismiss]
