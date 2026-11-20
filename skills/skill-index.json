@@ -2626,6 +2626,24 @@
       "confidence": 0.8
     },
     {
+      "name": "ui-ux-skill-picker",
+      "path": "ui-ux-skill-picker",
+      "description": "Ask the user what they are trying to achieve with a UI or design request, then recommend the UI/UX skill or skills to run, with the reason and the input each one needs. Use when the user asks which UX, design, or UI review skill to use, or when a UI/UX request is vague enough that more than one skill fits. Recommends only; it does not run the review or design work. Not for requests that already name a skill or map cleanly to one.",
+      "keywords": [
+        "choose a ux skill",
+        "help me pick a ux skill",
+        "skill picker",
+        "ux skill recommendation",
+        "what skill should i use for this ui",
+        "where do i start with this design",
+        "which design skill",
+        "which design skill should i use",
+        "which ux skill"
+      ],
+      "file_patterns": [],
+      "confidence": 0.8
+    },
+    {
       "name": "user-journey-mapping",
       "path": "user-journey-mapping",
       "description": "Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.",

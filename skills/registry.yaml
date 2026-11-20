@@ -4290,6 +4290,47 @@ skills:
     - ux-review
     status: active
     license: MIT
+  ui-ux-skill-picker:
+    title: UI/UX Skill Picker
+    description: Ask the user what they are trying to achieve with a UI or design request, then recommend the UI/UX skill or skills to run, with the reason and the input each one needs. Use when the user asks which UX, design, or UI review skill to use, or when a UI/UX request is vague enough that more than one skill fits. Recommends only; it does not run the review or design work. Not for requests that already name a skill or map cleanly to one.
+    path: ui-ux-skill-picker/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-11-20'
+    updated: '2026-11-20'
+    categories:
+    - design
+    - meta
+    tags:
+    - skill-picker
+    - which-ux-skill
+    - ux-skill-choice
+    - design-review
+    - ui-design
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-11-20'
+        notes: 'Initial skill: ask the goal, recommend the UI/UX skill to run'
+    dependencies:
+    - ux-review
+    - ux-interaction-review
+    - design-journey-review
+    - ui-ux-review-suite
+    - accessibility-audit
+    - design-critiquer
+    - interaction-design
+    - ui-design-aesthetics
+    - frontend-design
+    - design-system-architecture
+    - dashboard-designer
+    - user-journey-mapping
+    - ux-researcher
+    - ux-writer
+    - webapp-testing
+    status: active
+    license: MIT
   user-journey-mapping:
     title: User Journey Mapping
     description: Create comprehensive user journey maps that identify pain points, opportunities, and emotional states across touchpoints. Use when mapping user experiences or analyzing conversion flows.
@@ -4737,20 +4778,20 @@ skills:
     status: active
     license: MIT
 statistics:
-  total_skills: 152
-  active_skills: 152
+  total_skills: 153
+  active_skills: 153
   deprecated_skills: 0
   experimental_skills: 0
   by_category:
     analysis: 38
     architecture: 13
-    design: 32
+    design: 33
     development: 29
     devops: 8
     documentation: 22
     experimental: 0
     infrastructure: 6
-    meta: 37
+    meta: 38
     operations: 6
     product: 21
     research: 20
