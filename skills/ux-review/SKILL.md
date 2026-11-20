@@ -1,6 +1,6 @@
 ---
 name: ux-review
-description: Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.
+description: Multi-perspective UX review combining usability heuristics and WCAG accessibility checks. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance. For state coverage and interaction mechanics, use ux-interaction-review.
 tags:
   - ux
   - usability
@@ -22,7 +22,7 @@ keywords:
 
 # UX Review
 
-Comprehensive user experience review that coordinates usability, accessibility, and interaction design perspectives for thorough analysis of components, flows, or features.
+User experience review that coordinates usability and accessibility perspectives for components, flows, or features.
 
 ## When to Use This Skill
 
@@ -31,7 +31,7 @@ Comprehensive user experience review that coordinates usability, accessibility, 
 - PR reviews that touch UI/UX code
 - Design system component reviews
 - Onboarding flow or checkout flow optimization
-- Avoid using for purely visual/aesthetic reviews — use `ui-design-aesthetics` instead
+- Avoid using for purely visual/aesthetic reviews (use `design-journey-review`) or for interaction mechanics such as state coverage, feedback timing, and keyboard behavior (use `ux-interaction-review`)
 
 ## Workflow
 
@@ -85,13 +85,6 @@ Evaluate the interface against each heuristic:
 <span id="close-hint" class="sr-only">Press Escape to close</span>
 ```
 
-#### Interaction Design Perspective
-
-- **State coverage**: Are all states handled (loading, empty, error, success)?
-- **Feedback**: Does the user know their action worked?
-- **Transitions**: Are animations purposeful and under 300ms?
-- **Progressive disclosure**: Is complexity revealed appropriately?
-
 ### Step 4: Prioritize Findings
 
 Categorize every finding:
@@ -127,11 +120,6 @@ Categorize every finding:
 |---------|----------------|----------------|
 | [Issue] | [2.x.x Level] | [Fix] |
 
-#### Interaction Design
-| Finding | Impact | Recommendation |
-|---------|--------|----------------|
-| [Issue] | High/Med/Low | [Fix] |
-
 ### Next Steps
 1. Create issues for critical findings
 2. Add accessibility requirements to acceptance criteria
@@ -144,12 +132,10 @@ Use `--focus` to narrow the review scope:
 
 - **`--focus=ux`**: User flow mapping, task efficiency, error recovery, learnability
 - **`--focus=a11y`**: WCAG 2.1 AA audit, keyboard nav, screen reader, contrast, focus management
-- **`--focus=interaction`**: State coverage, feedback timing, micro-interactions, animation review
 
 ## Best Practices
 
 - **Test with real content** — Lorem ipsum hides information architecture problems
-- **Check all states** — Empty, loading, error, success, and edge-case states
 - **Verify keyboard flow** — Tab through the entire component without a mouse
 - **Use browser dev tools** — Lighthouse accessibility audit catches low-hanging fruit
 - **Prioritize ruthlessly** — A focused list of critical fixes beats a wall of suggestions

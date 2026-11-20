@@ -1,6 +1,6 @@
 ---
 name: ui-ux-review-suite
-description: User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through four sibling skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes user-journey-mapping (flow/funnel lens), ui-design-aesthetics (visual critique lens), interaction-design (state-coverage lens), and ux-review (usability-heuristics + WCAG lens). Resolves the review target once at suite start — the app/URL, the screens or flows under review, the viewports, and the user persona/goal — so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs — at each step it presents the next lens with its reframing prompt and an approval gate; the user invokes the sibling and confirms before moving on. Because the lenses overlap (ux-review already touches interaction and a11y), the suite scopes each lens to its distinct concern so the synthesis does not double-count. Produces one authored synthesis report — deduped findings grouped by severity and lens — not a navigation shell. Trigger on "run a full UX review," "comprehensive UI/UX review," "review this screen across all lenses," "do a complete design review," or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI (the generative siblings are reframed as critique here), and not for bypassing approval gates (this skill coaches, never autoruns).
+description: User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through three sibling review skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes design-journey-review (visual and journey lens), ux-interaction-review (interaction-mechanics lens), and ux-review (usability-heuristics and WCAG lens). Resolves the review target once at suite start (the app or URL, the screens or flows under review, the viewports, and the user persona and goal) so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs. At each step it presents the next lens with its scoping prompt and an approval gate, and the user invokes the sibling and confirms before moving on. Produces one authored synthesis report of deduped findings grouped by severity and lens, not a navigation shell. Trigger on "run a full UX review," "comprehensive UI/UX review," "review this screen across all lenses," "do a complete design review," or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI, and not for bypassing approval gates (this skill coaches, never autoruns).
 keywords:
   - ux review suite
   - full ux review
@@ -20,38 +20,30 @@ triggers:
 
 ## Overview
 
-You have four skills that evaluate a UI from different angles —
-`user-journey-mapping`, `ui-design-aesthetics`, `interaction-design`, and
-`ux-review`. Run individually they each produce a narrow slice; run by hand together
-they re-resolve the same target four times, double-count the lenses that overlap, and
-leave you with four separate outputs to reconcile.
+You have three skills that review a UI from different angles:
+`design-journey-review`, `ux-interaction-review`, and `ux-review`. Run individually
+they each produce a narrow slice; run by hand together they re-resolve the same target
+three times, double-count the findings at their edges, and leave you with three
+separate outputs to reconcile.
 
 This skill owns the coordination. It resolves the review target once, assigns each
 sibling a **distinct lens** so the overlaps don't double-count, coaches you through
-invoking the four, and writes **one prioritized synthesis report** at the end.
+invoking the three, and writes **one prioritized synthesis report** at the end.
 
 The skill is a **coach, not an autorunner** (same contract as `mapping-suite`). At
-each step it presents the next lens, its reframing prompt, and an approval gate. You
+each step it presents the next lens, its scoping prompt, and an approval gate. You
 invoke the sibling; the orchestrator captures what landed and proposes the next step.
 
-## The four lenses
+## The three lenses
 
-The siblings overlap — `ux-review` itself claims to cover "usability heuristics, WCAG
-accessibility checks, and interaction design analysis." If run unscoped, three of the
-four would all report the same contrast and state-handling findings. The suite scopes
-each to one concern:
+Each sibling owns one concern, and the scoping prompts in
+`references/lens-framing.md` keep it there so the synthesis does not double-count:
 
 | Sibling | Lens it owns | Scoped *out* of |
 |---------|--------------|-----------------|
-| `user-journey-mapping` | Flow / funnel — touchpoints, drop-off, emotional state across the journey | — |
-| `ui-design-aesthetics` | Visual critique — hierarchy, distinctiveness, polish, spacing | generating new designs |
-| `interaction-design` | State coverage — loading / error / empty / success states, feedback, micro-interactions | general usability |
-| `ux-review` | Usability heuristics (Nielsen) + WCAG conformance | interaction states (owned by interaction-design) |
-
-Two of these (`ui-design-aesthetics`, `interaction-design`) are **generative** skills.
-The suite reframes them as **critique**: evaluate the existing UI against their
-principles, do not produce a new design. The reframing prompts in
-`references/lens-framing.md` enforce this.
+| `design-journey-review` | Visual system and journey: color, type, density, hierarchy, golden path, friction, daily-use fit | interaction states, heuristics, WCAG |
+| `ux-interaction-review` | Interaction mechanics: state coverage, feedback and timing, keyboard behavior, error recovery | heuristics, WCAG, aesthetics |
+| `ux-review` | Usability heuristics (Nielsen) and WCAG conformance | interaction states, aesthetics |
 
 ## When to use
 
@@ -59,7 +51,7 @@ Trigger this skill when:
 
 - You want a complete UI/UX review of a screen, flow, or component before release.
 - You name two or more lenses to run together — "do a journey map and a heuristic review of checkout."
-- You want one prioritized report spanning all the angles, not four separate ones.
+- You want one prioritized report spanning all the angles, not three separate ones.
 
 Do not trigger when:
 
@@ -75,8 +67,8 @@ Six phases. Phases 0 and 5 are unique to this skill; 1–4 are the coaching loop
 | Phase | Name | Purpose |
 |-------|------|---------|
 | 0 | Resolve target + capture | Resolve app/screens/viewports/persona once; capture screenshots every lens shares. |
-| 1 | Choose recipe | `full-review` (all four) or `quick-review` (two), or a custom lens set. |
-| 2 | Generate run plan | Ordered lens invocations with the reframing prompt for each. |
+| 1 | Choose recipe | `full-review` (all three) or `quick-review` (two), or a custom lens set. |
+| 2 | Generate run plan | Ordered lens invocations with the scoping prompt for each. |
 | 3 | Coach through the plan | For each lens: present, wait for user to invoke, capture findings, update manifest, propose next. |
 | 4 | Synthesize | Merge the lenses' findings into one deduped, prioritized report. |
 | 5 | Hand-off | Recommend fixes and follow-up skills based on what surfaced. |
@@ -86,10 +78,10 @@ Six phases. Phases 0 and 5 are unique to this skill; 1–4 are the coaching loop
 The review target is richer than a repo path — the visual and interaction lenses need
 to *see* the UI. Resolve and persist:
 
-- **Target** — running app URL, or a set of screens/components.
-- **Flows** — the journeys under review (e.g. "sign-up → first project").
-- **Viewports** — desktop / mobile / both. State coverage and visual critique differ per breakpoint.
-- **Persona / goal** — who the user is and what they're trying to do. The journey lens is meaningless without this.
+- **Target**: running app URL, or a set of screens/components.
+- **Flows**: the journeys under review (e.g. "sign-up → first project").
+- **Viewports**: desktop / mobile / both. State coverage and visual critique differ per breakpoint.
+- **Persona / goal**: who the user is and what they're trying to do. The journey half of `design-journey-review` cannot run without this.
 
 Capture screenshots of each screen/state via `webapp-testing` or `ctx:playwright`
 (per flow, per viewport) into a shared dir. Every lens that needs to see the UI reads
@@ -116,8 +108,8 @@ Confirm the scope with the user before proceeding.
 ```
 Two recipes are available. Which fits this review?
 
-1. full-review  — all four lenses (journey, visual, state, heuristics+WCAG)
-2. quick-review — ux-review + interaction-design only (fastest pre-merge pass)
+1. full-review  - all three lenses (visual and journey, interaction mechanics, heuristics and WCAG)
+2. quick-review - ux-review and ux-interaction-review only (fastest pre-merge pass)
 
 Or name a custom lens set.
 ```
@@ -126,17 +118,18 @@ If the user named a recipe or lenses in the trigger, skip the prompt and confirm
 
 ### 2. Generate run plan
 
-Order the lenses journey → visual → state → heuristics. The journey lens first
-establishes the flow context the later lenses reference. Write the plan to
+Order the lenses `design-journey-review`, then `ux-interaction-review`, then
+`ux-review`. The journey pass establishes the flow context the later lenses
+reference. Write the plan to
 `docs/<date>-ux-review/suite.yaml` (schema mirrors `mapping-suite`'s manifest), each
-step `status: pending`, each carrying its reframing prompt from
+step `status: pending`, each carrying its scoping prompt from
 `references/lens-framing.md`.
 
 ### 3. Coach through the plan
 
 For each lens in order:
 
-1. **Present.** Show the lens name, the one-sentence reason, the reframing prompt
+1. **Present.** Show the lens name, the one-sentence reason, the scoping prompt
    verbatim (as a copyable code block, with the screenshot dir and persona spliced
    in), and what findings to expect.
 2. **Wait for user invocation.** The user runs the sibling skill. The orchestrator
@@ -159,8 +152,8 @@ orchestrator *authors* the synthesis rather than linking outputs. Produce
 1. **Collect** every finding from the manifest into one table:
    `id | lens | severity | location | finding | recommendation`.
 2. **Dedup.** When two lenses report the same issue at the same location, merge into
-   one row and note both lenses. (Expected between `ux-review` and `interaction-design`
-   despite the scoping — flag and merge, don't drop.)
+   one row and note both lenses. (Expected between `ux-review` and `ux-interaction-review`
+   despite the scoping. Flag and merge, don't drop.)
 3. **Prioritize.** Group by severity (blocker → major → minor → polish). Within a
    severity, order by how many lenses flagged it.
 4. **Summarize.** A short opening: the persona/flow reviewed, the count by severity,
@@ -179,7 +172,10 @@ Survey findings and recommend follow-up — never auto-invoke:
 - **WCAG violations** → recommend a deep `accessibility-audit` pass on the worst.
 - **Journey drop-off with no instrumentation** → recommend the team add analytics
   before re-reviewing.
-- **Missing interaction states** → list them as concrete implementation tasks.
+- **Missing interaction states** → list them as concrete implementation tasks, and
+  recommend `interaction-design` to design the states before building them.
+- **Journey problems that span more than this UI** → recommend `user-journey-mapping`
+  for a cross-touchpoint journey map.
 
 ## Output layout
 
@@ -193,13 +189,13 @@ docs/2026-06-09-ux-review/
 
 ## Resources
 
-- `references/lens-framing.md` — the four reframing prompts that scope each sibling to
-  its distinct lens and turn the generative siblings into critique.
+- `references/lens-framing.md`: the three scoping prompts that keep each sibling to
+  its distinct lens.
 
 ## What this skill does NOT do
 
 - **Auto-invoke siblings.** Always pauses at approval gates.
 - **Run a single lens.** Use the sibling directly.
-- **Generate new UI.** The generative siblings are reframed as critique here.
+- **Generate new UI.** Phase 5 recommends the generative skills for implementing fixes.
 - **Form its own opinions.** The synthesis only merges and ranks the lenses' findings.
 - **Re-resolve scope per lens.** Phase 0 resolves once; every lens inherits it.

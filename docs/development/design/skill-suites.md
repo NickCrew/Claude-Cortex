@@ -13,11 +13,10 @@ category and the suggestion hook surfaces individual skills. It is: **related sk
 that form a natural pipeline are scattered across categories, and there is no first-
 class way to run them together against one target and synthesize the result.**
 
-Example: a comprehensive UI/UX review wants `user-journey-mapping` (design),
-`ux-review` (design/analysis), `ui-design-aesthetics` (design), and
-`interaction-design` (design) run against the same screens, with one prioritized
-report at the end. Coordinating that by hand means resolving the same target four
-times and stitching four separate outputs.
+Example: a comprehensive UI/UX review wants `design-journey-review`,
+`ux-interaction-review`, and `ux-review` run against the same screens, with one
+prioritized report at the end. Coordinating that by hand means resolving the same
+target three times and stitching three separate outputs.
 
 ## Solution: the `-suite` meta-skill
 
@@ -60,9 +59,9 @@ blanks job against this list.
 
 2. **Lens assignment + dedup.** Each sibling owns one **distinct lens**. Overlapping
    siblings must be scoped down so the synthesis is not three agents reporting the
-   same finding. (In the UI/UX suite, `ux-review` already claims to cover interaction
-   and a11y, so it is scoped to *heuristics + WCAG only* and `interaction-design` is
-   given the *state-coverage* lens.)
+   same finding. (In the UI/UX suite, `ux-review` is scoped to *heuristics + WCAG
+   only*, `ux-interaction-review` owns *interaction mechanics*, and
+   `design-journey-review` owns *visual system and journey*.)
 
 3. **Manifest.** Per-step status (`pending` / `completed` / `skipped` / `failed`) so a
    suite run is resumable and auditable. `mapping-suite` uses `suite.yaml`.
@@ -95,7 +94,7 @@ in 8 places including hardcoded slugs in `skill_recommender.py`).
 
 | Suite | Composes | Model | Status |
 |-------|----------|-------|--------|
-| `ui-ux-review-suite` | `user-journey-mapping`, `ui-design-aesthetics`, `interaction-design`, `ux-review` | coach | **building** |
+| `ui-ux-review-suite` | `design-journey-review`, `ux-interaction-review`, `ux-review` | coach | exists |
 | `mapping-suite` | arch/release/wiring/doc siblings | coach | exists |
 | `doc-health-audit` | doc-* siblings | autorun, phased | exists |
 | `multi-specialist-review` | parallel review specialists | autorun, parallel | exists |

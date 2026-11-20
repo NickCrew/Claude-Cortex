@@ -1242,6 +1242,34 @@ skills:
     dependencies: []
     status: active
     license: MIT
+  design-journey-review:
+    title: Design & Journey Review
+    description: 'Combined visual design and user journey review: color systems, typography, spacing, information density, visual hierarchy, workflow stages, emotional curve, friction points, and daily-use optimization. Use when evaluating how an interface looks, how it serves its user over time, and whether the design earns its space.'
+    path: design-journey-review/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-06-09'
+    updated: '2026-11-20'
+    categories:
+    - design
+    - analysis
+    tags:
+    - visual-design
+    - aesthetics
+    - user-journey
+    - color-system
+    - typography
+    - information-density
+    - design-review
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-06-09'
+        notes: Registry entry added after the fact
+    dependencies: []
+    status: active
+    license: MIT
   design-system-architecture:
     title: Design System Architecture
     description: Build scalable design systems with design tokens, component APIs, and documentation. Use when creating or evolving component libraries.
@@ -2145,12 +2173,12 @@ skills:
     license: MIT
   interaction-design:
     title: Interaction Design
-    description: User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states.
+    description: User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states. To review the interactions of an existing interface, use ux-interaction-review.
     path: interaction-design/SKILL.md
     authors:
     - nferguson
     created: '2026-02-11'
-    updated: '2026-06-01'
+    updated: '2026-11-20'
     categories:
     - architecture
     - development
@@ -4231,12 +4259,12 @@ skills:
     license: MIT
   ui-ux-review-suite:
     title: UI/UX Review Suite
-    description: User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through four sibling skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes user-journey-mapping (flow/funnel lens), ui-design-aesthetics (visual critique lens), interaction-design (state-coverage lens), and ux-review (usability-heuristics + WCAG lens). Resolves the review target once at suite start, scopes each overlapping lens to its distinct concern so the synthesis does not double-count, and produces one authored synthesis report rather than a navigation shell. Coaches rather than auto-runs. Trigger on "run a full UX review," "comprehensive UI/UX review," or when the user names two-or-more UI/UX lenses to coordinate.
+    description: User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through three sibling review skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes design-journey-review (visual and journey lens), ux-interaction-review (interaction-mechanics lens), and ux-review (usability-heuristics and WCAG lens). Resolves the review target once at suite start (the app or URL, the screens or flows under review, the viewports, and the user persona and goal) so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs. At each step it presents the next lens with its scoping prompt and an approval gate, and the user invokes the sibling and confirms before moving on. Produces one authored synthesis report of deduped findings grouped by severity and lens, not a navigation shell. Trigger on "run a full UX review," "comprehensive UI/UX review," "review this screen across all lenses," "do a complete design review," or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI, and not for bypassing approval gates (this skill coaches, never autoruns).
     path: ui-ux-review-suite/SKILL.md
     authors:
     - nferguson
     created: '2026-06-09'
-    updated: '2026-06-09'
+    updated: '2026-11-20'
     categories:
     - design
     - analysis
@@ -4248,16 +4276,59 @@ skills:
     - design-review
     - multi-lens-ux-review
     version:
-      current: 1.0.0
+      current: 1.1.0
       history:
       - version: 1.0.0
         date: '2026-06-09'
         notes: Initial suite skill — coach-mode UI/UX review orchestrator
+      - version: 1.1.0
+        date: '2026-11-20'
+        notes: Compose the three review skills instead of reframing generative skills as critique
     dependencies:
-    - user-journey-mapping
-    - ui-design-aesthetics
-    - interaction-design
+    - design-journey-review
+    - ux-interaction-review
     - ux-review
+    status: active
+    license: MIT
+  ui-ux-skill-picker:
+    title: UI/UX Skill Picker
+    description: Ask the user what they are trying to achieve with a UI or design request, then recommend the UI/UX skill or skills to run, with the reason and the input each one needs. Use when the user asks which UX, design, or UI review skill to use, or when a UI/UX request is vague enough that more than one skill fits. Recommends only; it does not run the review or design work. Not for requests that already name a skill or map cleanly to one.
+    path: ui-ux-skill-picker/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-11-20'
+    updated: '2026-11-20'
+    categories:
+    - design
+    - meta
+    tags:
+    - skill-picker
+    - which-ux-skill
+    - ux-skill-choice
+    - design-review
+    - ui-design
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-11-20'
+        notes: 'Initial skill: ask the goal, recommend the UI/UX skill to run'
+    dependencies:
+    - ux-review
+    - ux-interaction-review
+    - design-journey-review
+    - ui-ux-review-suite
+    - accessibility-audit
+    - design-critiquer
+    - interaction-design
+    - ui-design-aesthetics
+    - frontend-design
+    - design-system-architecture
+    - dashboard-designer
+    - user-journey-mapping
+    - ux-researcher
+    - ux-writer
+    - webapp-testing
     status: active
     license: MIT
   user-journey-mapping:
@@ -4334,6 +4405,34 @@ skills:
     dependencies: []
     status: active
     license: MIT
+  ux-interaction-review:
+    title: UX & Interaction Review
+    description: 'Interaction design review: state coverage, feedback patterns, timing, keyboard behavior, error recovery, and progressive disclosure. Use when reviewing how an interface works mechanically and whether interactions are well-designed for use. For Nielsen heuristics and WCAG checks, use ux-review.'
+    path: ux-interaction-review/SKILL.md
+    authors:
+    - nferguson
+    created: '2026-06-09'
+    updated: '2026-11-20'
+    categories:
+    - design
+    - analysis
+    - testing
+    tags:
+    - interaction-design
+    - state-coverage
+    - micro-interactions
+    - feedback-patterns
+    - error-states
+    - interaction-review
+    version:
+      current: 1.0.0
+      history:
+      - version: 1.0.0
+        date: '2026-06-09'
+        notes: Registry entry added after the fact
+    dependencies: []
+    status: active
+    license: MIT
   ux-researcher:
     title: UX Researcher
     description: 'Use this skill when planning or conducting user research, writing interview guides, designing surveys for UX insights, synthesizing qualitative findings, creating personas, or writing research reports. Trigger phrases: ''write a user interview guide'', ''how do I conduct usability testing'', ''synthesize research findings'', ''create a user persona'', ''design a UX survey''. Not for quantitative market sizing (use market-researcher), writing business requirements (use business-analyst), or product analytics.'
@@ -4367,12 +4466,12 @@ skills:
     license: MIT
   ux-review:
     title: UX Review
-    description: Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.
+    description: Multi-perspective UX review combining usability heuristics and WCAG accessibility checks. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance. For state coverage and interaction mechanics, use ux-interaction-review.
     path: ux-review/SKILL.md
     authors:
     - nferguson
     created: '2026-06-01'
-    updated: '2026-06-01'
+    updated: '2026-11-20'
     categories:
     - security
     - testing
@@ -4679,24 +4778,24 @@ skills:
     status: active
     license: MIT
 statistics:
-  total_skills: 155
-  active_skills: 155
+  total_skills: 153
+  active_skills: 153
   deprecated_skills: 0
   experimental_skills: 0
   by_category:
-    analysis: 37
+    analysis: 38
     architecture: 13
-    design: 30
-    development: 30
+    design: 33
+    development: 29
     devops: 8
     documentation: 22
     experimental: 0
     infrastructure: 6
-    meta: 36
-    operations: 8
+    meta: 38
+    operations: 6
     product: 21
-    research: 21
-    security: 16
+    research: 20
+    security: 14
     testing: 29
-    workflow: 58
+    workflow: 53
     writing: 17
