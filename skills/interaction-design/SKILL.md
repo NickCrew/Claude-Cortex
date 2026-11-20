@@ -1,6 +1,6 @@
 ---
 name: interaction-design
-description: User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states.
+description: User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states. To review the interactions of an existing interface, use ux-interaction-review.
 keywords:
   - interaction design
   - micro-interactions
@@ -27,7 +27,6 @@ Design natural interactions with clear feedback that gracefully handle all state
 - Creating loading, empty, error, and success states
 - Improving micro-interactions on forms, buttons, or navigation
 - Designing undo/redo and recovery patterns for destructive actions
-- Reviewing interaction clarity in multi-step flows
 - Planning animation and transition behavior
 - Designing accessible interaction patterns
 
@@ -92,4 +91,3 @@ Ask these when designing any interaction:
 - "Create loading and error states for this API call"
 - "Improve the micro-interactions on this form"
 - "Design an undo pattern for destructive actions"
-- "Review this wizard flow for interaction clarity"

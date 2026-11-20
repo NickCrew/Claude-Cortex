@@ -1323,7 +1323,7 @@
     {
       "name": "interaction-design",
       "path": "interaction-design",
-      "description": "User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states.",
+      "description": "User flow design, micro-interactions, and interface behavior patterns with state management for all interaction conditions. Use when designing natural interactions, feedback systems, or handling error states. To review the interactions of an existing interface, use ux-interaction-review.",
       "keywords": [
         "animation",
         "empty state",
@@ -2610,7 +2610,7 @@
     {
       "name": "ui-ux-review-suite",
       "path": "ui-ux-review-suite",
-      "description": "User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through four sibling skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes user-journey-mapping (flow/funnel lens), ui-design-aesthetics (visual critique lens), interaction-design (state-coverage lens), and ux-review (usability-heuristics + WCAG lens). Resolves the review target once at suite start — the app/URL, the screens or flows under review, the viewports, and the user persona/goal — so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs — at each step it presents the next lens with its reframing prompt and an approval gate; the user invokes the sibling and confirms before moving on. Because the lenses overlap (ux-review already touches interaction and a11y), the suite scopes each lens to its distinct concern so the synthesis does not double-count. Produces one authored synthesis report — deduped findings grouped by severity and lens — not a navigation shell. Trigger on \"run a full UX review,\" \"comprehensive UI/UX review,\" \"review this screen across all lenses,\" \"do a complete design review,\" or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI (the generative siblings are reframed as critique here), and not for bypassing approval gates (this skill coaches, never autoruns).",
+      "description": "User-triggered orchestrator that runs a comprehensive UI/UX review by coaching the user through three sibling review skills as distinct lenses against one shared target, then synthesizing their findings into a single prioritized report. Composes design-journey-review (visual and journey lens), ux-interaction-review (interaction-mechanics lens), and ux-review (usability-heuristics and WCAG lens). Resolves the review target once at suite start (the app or URL, the screens or flows under review, the viewports, and the user persona and goal) so every lens inherits the same scope and captured screenshots. Coaches rather than auto-runs. At each step it presents the next lens with its scoping prompt and an approval gate, and the user invokes the sibling and confirms before moving on. Produces one authored synthesis report of deduped findings grouped by severity and lens, not a navigation shell. Trigger on \"run a full UX review,\" \"comprehensive UI/UX review,\" \"review this screen across all lenses,\" \"do a complete design review,\" or when the user names two-or-more UI/UX lenses to coordinate. Not for running a single lens in isolation (invoke it directly), not for generating new UI, and not for bypassing approval gates (this skill coaches, never autoruns).",
       "keywords": [
         "complete design review",
         "comprehensive ui review",
@@ -2716,7 +2716,7 @@
     {
       "name": "ux-review",
       "path": "ux-review",
-      "description": "Multi-perspective UX review combining usability heuristics, WCAG accessibility checks, and interaction design analysis. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance.",
+      "description": "Multi-perspective UX review combining usability heuristics and WCAG accessibility checks. Use when reviewing UI components before release, evaluating user flows for usability issues, conducting design critiques, or auditing accessibility compliance. For state coverage and interaction mechanics, use ux-interaction-review.",
       "keywords": [
         "UX review",
         "accessibility audit",
